@@ -1,0 +1,16 @@
+{
+    "studentname" : "ubuntu",
+    "_comment" : "studenthomedir is relative to rootfs",
+    "studenthomedir" : "home/ubuntu/.local",
+
+    "labname" : "buffer overflow lab",
+    "studentid" : "1",
+    "labid" : "bufoverflow",
+
+    "savedirectory" : [
+        "result",
+        "source"
+    ]
+
+}
+
