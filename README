@@ -1,0 +1,5 @@
+This directory contains:
+README - this README file
+docs - directory for documentation/procedures
+scripts - scripts to install various Parameterization labs
+setup_scripts - scripts to setup environments
