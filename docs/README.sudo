@@ -1,0 +1,16 @@
+
+File: README.sudo
+Description: Give direction related to 'sudo'
+
+If sudo has not been installed:
+    login as 'root' user
+    apt-get install sudo
+
+Once sudo is installed, it is useful to set/allow user that
+sudo privileges to no longer be prompted with password everytime.
+To do this:
+    a. as a 'root' user, do 'visudo'
+    b. or as a user with sudo privilege, do 'sudo visudo'
+    c. then add the following line:
+
+%sudo ALL=(ALL) NOPASSWD:ALL

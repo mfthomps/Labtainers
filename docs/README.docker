@@ -1,0 +1,11 @@
+
+File: README.docker
+Description: Give direction related to Docker.
+
+Instruction to install Docker can be found here:
+https://docs.docker.com/engine/installation/linux/ubuntulinux/
+
+But I have created a bash script 'installDocker.sh'.
+Run the script, './installDocker.sh'
+
+Note: the script will call for reboot at the end.

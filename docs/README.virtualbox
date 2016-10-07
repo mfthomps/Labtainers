@@ -1,0 +1,34 @@
+
+File: README.virtualbox
+Description: Give direction related to VirtualBox
+             (including shared folder with the host)
+
+To install virtualbox:
+    sudo apt-get install virtualbox
+
+To setup shared folder:
+    create a folder on the host
+    on virtualbox guest settings
+        on Shared Folders
+        add the shared folder (point to the folder on the host)
+
+To access shared folder from the Guest:
+    download a virtualbox guest additions iso
+    go to http://download.virtualbox.org/virtualbox
+    go to the version of virtual box you are using (5.0.24 for example)
+    download the corresponding iso (VBoxGuestAdditions_5.0.24.iso)
+
+    on the virtualbox guest settings
+    on 'Storage' change the CD rom to point/mount the iso downloaded
+
+    either mount the CD inside the guest then run the guestadditions
+    (may automatically come up and ask if you want to run)
+
+Once VBox Guest Additions is completed, reboot the guest
+
+The shared folder is now shown.
+
+Add the user (in the guest) to vboxsf:
+    login as the user
+    sudo adduser $USER vboxsf
+
