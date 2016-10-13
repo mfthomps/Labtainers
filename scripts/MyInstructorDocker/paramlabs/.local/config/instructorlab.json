@@ -3,7 +3,7 @@
     "instructorhomedir" : "/home/ubuntu/",
     "instructorbasedir" : "/home/ubuntu/.local/base/",
 
-    "numstudent" : "2",
+    "numstudent" : "1",
     "graderscript" : "Grader.py"
 
 }

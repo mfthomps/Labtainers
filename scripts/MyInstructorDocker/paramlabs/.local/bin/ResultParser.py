@@ -5,7 +5,6 @@
 #              * Parse stdin and stdout files based on parser.config
 #              * Create a json file
 
-import ConfigParser
 import json
 import glob
 import os
@@ -23,11 +22,11 @@ def ValidateConfigfile(each_key, each_value):
         sys.stderr.write("ERROR: parser.config contains key (%s) not alphanumeric\n" % each_key)
         sys.exit(1)
     values = []
-    # expecting - [ stdin | stdout ] : <lineno> : <token> : <type>
+    # expecting - [ stdin | stdout ] : <lineno> : <token>
     values = each_value.split(':')
     #print values
     numvalues = len(values)
-    if numvalues != 4:
+    if numvalues != 3:
         sys.stderr.write("ERROR: parser.config contains unexpected value (%s) format\n" % each_value)
         sys.exit(1)
 
@@ -61,24 +60,25 @@ def ValidateConfigfile(each_key, each_value):
         sys.stderr.write("ERROR: parser.config has invalid tokenno\n")
         sys.exit(1)
 
-    # Make sure type is 'decimal' or 'hexadecimal' or 'string'
-    typevalue = values[3].strip()
-    #print typevalue
-    if (typevalue != "decimal") and (typevalue != "hexadecimal") and (typevalue != 'string'):
-        sys.stderr.write("ERROR: parser.config line (%s)\n" % each_value)
-        sys.stderr.write("ERROR: parser.config uses not decimal, hexadecimal or string\n")
-        sys.exit(1)
-
     return 0
 
 def ParseStdinStdout(studentdir, instructordir, jsonoutfile):
-    configfile = ConfigParser.ConfigParser()
     configfilename = '%s/.local/config/%s' % (UBUNTUHOME, "parser.config")
-    configfile.read(configfilename)
+    configfile = open(configfilename)
+    configfilelines = configfile.readlines()
+    configfile.close()
+  
+    for line in configfilelines:
+        linestrip = line.rstrip()
+        if linestrip:
+            if not linestrip.startswith('#'):
+                #print "Current linestrip is (%s)" % linestrip
+                (each_key, each_value) = linestrip.split('=', 1)
+                each_key = each_key.strip()
+                ValidateConfigfile(each_key, each_value)
+        #else:
+        #    print "Skipping empty linestrip is (%s)" % linestrip
 
-    for eachsection in configfile.sections():
-        for (each_key, each_value) in configfile.items(eachsection):
-             ValidateConfigfile(each_key, each_value)
     #print "exec_proglist is: "
     #print exec_proglist
 
@@ -136,63 +136,67 @@ def ParseStdinStdout(studentdir, instructordir, jsonoutfile):
         outputjsonfname = '%s/%s.%s' % (RESULTHOME, jsonoutfile, timestamppart)
         #print "Outputjsonfname is (%s)" % outputjsonfname
         
-        for eachsection in configfile.sections():
-            for (each_key, each_value) in configfile.items(eachsection):
-                #print each_key
-                # Note: config file has been validated
-                values = []
-                values = each_value.split(':')
-                targetfile = values[0].strip()
-                lineno = int(values[1].strip())
-                tokenno = int(values[2].strip())
-                typevalue = values[3].strip()
+        for line in configfilelines:
+            linestrip = line.rstrip()
+            if linestrip:
+                if not linestrip.startswith('#'):
+                    #print "Current linestrip is (%s)" % linestrip
+                    (each_key, each_value) = linestrip.split('=', 1)
+                    each_key = each_key.strip()
 
-                targetfname = '%s%s.%s' % (RESULTHOME, targetfile, timestamppart)
-                #print "targetfname is (%s)" % targetfname
-                if not os.path.exists(targetfname):
-                    sys.stderr.write("ERROR: No %s file does not exist\n" % targetfname)
-                    sys.exit(1)
+                    #print each_key
+                    # Note: config file has been validated
+                    values = []
+                    values = each_value.split(':')
+                    targetfile = values[0].strip()
+                    lineno = int(values[1].strip())
+                    tokenno = int(values[2].strip())
 
-                # Read in corresponding file
-                targetf = open(targetfname, "r")
-                targetlines = targetf.readlines()
-                targetf.close()
-                targetfilelen = len(targetlines)
+                    targetfname = '%s%s.%s' % (RESULTHOME, targetfile, timestamppart)
+                    #print "targetfname is (%s)" % targetfname
+                    if not os.path.exists(targetfname):
+                        sys.stderr.write("ERROR: No %s file does not exist\n" % targetfname)
+                        sys.exit(1)
 
-                #print "Stdin has (%d) lines" % targetfilelen
-                #print targetlines
+                    # Read in corresponding file
+                    targetf = open(targetfname, "r")
+                    targetlines = targetf.readlines()
+                    targetf.close()
+                    targetfilelen = len(targetlines)
 
-                #print "targetfile is %s" % targetfile
-                # make sure lineno <= targetfilelen
-                if lineno > targetfilelen:
-                    linerequested = "NONE"
-                    #print "setting result to none lineno > stdin length"
-                else:
-                    linerequested = targetlines[lineno-1]
+                    #print "Stdin has (%d) lines" % targetfilelen
+                    #print targetlines
 
-                #print "Line requested is (%s)" % linerequested
-                if linerequested == "NONE":
-                    token = "NONE"
-                else:
-                    linetokens = linerequested.split()
-                    numlinetokens = len(linetokens)
-                    #print linetokens
-                    # make sure tokenno <= numlinetokens
-                    if tokenno > numlinetokens:
-                        token = "NONE"
-                        #print "setting result to none tokenno > numlinetokens"
+                    #print "targetfile is %s" % targetfile
+                    # make sure lineno <= targetfilelen
+                    if lineno > targetfilelen:
+                        linerequested = "NONE"
+                        #print "setting result to none lineno > stdin length"
                     else:
-                        token = linetokens[tokenno-1]
+                        linerequested = targetlines[lineno-1]
 
-                #print token
-                if token == "NONE":
-                    tagstring = "NONE"
-                else:
-                    # Need to convert token according to typevalue
-                    tagstring = token
+                    #print "Line requested is (%s)" % linerequested
+                    if linerequested == "NONE":
+                        token = "NONE"
+                    else:
+                        linetokens = linerequested.split()
+                        numlinetokens = len(linetokens)
+                        #print linetokens
+                        # make sure tokenno <= numlinetokens
+                        if tokenno > numlinetokens:
+                            token = "NONE"
+                            #print "setting result to none tokenno > numlinetokens"
+                        else:
+                            token = linetokens[tokenno-1]
+
+                    #print token
+                    if token == "NONE":
+                        tagstring = "NONE"
+                    else:
+                        tagstring = token
     
-                # set nametags - value pair
-                nametags[each_key] = tagstring
+                    # set nametags - value pair
+                    nametags[each_key] = tagstring
 
         #print nametags
         jsonoutput = open(outputjsonfname, "w")

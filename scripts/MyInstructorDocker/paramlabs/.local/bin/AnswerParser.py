@@ -20,13 +20,15 @@ nametags = {}
 def ParseAnswer():
     configfilename = '%s/.local/config/%s' % (UBUNTUHOME, "answer.config")
     configfile = open(configfilename)
+    configfilelines = configfile.readlines()
+    configfile.close()
   
-    for line in configfile.readlines():
+    for line in configfilelines:
         linestrip = line.rstrip()
         if linestrip:
             if not linestrip.startswith('#'):
                 #print "Current linestrip is (%s)" % linestrip
-                (each_key, each_value) = linestrip.split('=')
+                (each_key, each_value) = linestrip.split('=', 1)
                 each_key = each_key.strip()
                 if not each_key.isalnum():
                     sys.stderr.write("ERROR: answer.config contains key (%s) not alphanumeric\n" % each_key)
