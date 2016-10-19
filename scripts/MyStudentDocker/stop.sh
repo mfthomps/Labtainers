@@ -48,13 +48,13 @@ docker exec -it $CONTAINER_NAME script -q -c "/bin/bash -c 'cd ; . .profile ; St
 ##### ***** end pre-stop commands ****
 
 # Copy zip files from '/home/$USER/' to 'Shared' folder
-zip_filelist=`docker exec -it $CONTAINER_NAME cat /home/$CONTAINER_USER/zip.flist`
+zip_filelist=`docker exec -it $CONTAINER_NAME cat /home/$CONTAINER_USER/.local/zip.flist`
 for fname in $zip_filelist;
 do
-    docker cp $CONTAINER_NAME:$fname /media/sf_Shared/
+    docker cp $CONTAINER_NAME:$fname $HOST_HOME_SEED/
 done
 # Change ownership to defined user $USER
-sudo chown $USER:$USER /media/sf_Shared/*.zip
+sudo chown $USER:$USER $HOST_HOME_SEED/*.zip
 
 #echo "Stopping container $CONTAINER_NAME"
 docker stop $CONTAINER_NAME

@@ -43,9 +43,9 @@ fi
 ##### ***** end pre-stop commands ****
 
 # Copy grades.txt from '/home/ubuntu' to 'Shared' folder
-docker cp $CONTAINER_NAME:/home/$CONTAINER_USER/grades.txt /media/sf_Shared/
+docker cp $CONTAINER_NAME:/home/$CONTAINER_USER/grades.txt $HOST_HOME_SEED/
 # Change ownership to defined user $USER
-sudo chown $USER:$USER /media/sf_Shared/grades.txt
+sudo chown $USER:$USER $HOST_HOME_SEED/grades.txt
 
 #echo "Stopping container $CONTAINER_NAME"
 docker stop $CONTAINER_NAME

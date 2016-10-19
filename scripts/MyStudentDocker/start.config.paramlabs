@@ -1,0 +1,12 @@
+# Filename : start.config
+# Description:
+#     This is a simple configuration file read by start.sh
+
+# Name of container
+CONTAINER_NAME="paramlabsstudent"
+
+# Name of container image
+CONTAINER_IMAGE="paramlabs:student"
+
+# Name of user
+CONTAINER_USER="ubuntu"

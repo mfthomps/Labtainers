@@ -1,0 +1,54 @@
+
+Title: Buffer Overflow Vulnerability Lab Exercise
+
+1. Background
+
+This lab exercise is intended to teach student about buffer overflow
+vulnerability caused by program where input to buffer is not checked
+and thus cause buffer overflow.
+
+This lab exercise consists of the following tasks:
+    a. Overflow buffer and gain root shell
+
+This instruction file is viewed or showed by startup.sh as part of
+the initial start.sh command.
+
+To navigate this instruction, the arrow keys along with 
+with the Space/Home/End/Page-Up/Page-Down keys are usable.
+To exit navigation of this instruction, type 'q'.
+
+
+2. Grading Student Lab Work
+
+2.1. Open a terminal window and execute start.sh on Linux guest VM
+
+Open a terminal (typically Ctrl-Alt-t combination should open a terminal window)
+on a Linux system and run 'start.sh' on the Linux guest VM
+
+The 'start.sh' script will startup the Linux container, pause 3 seconds, and
+then open two more gnome-terminal window (one displaying this instruction and
+another window attaching to the Linux container as user 'ubuntu'. Note the
+different prompt on the window attached to the Linux container (compared to
+the one on the Linux guest VM)
+
+To close the terminal window (that is attached to the Linux container),
+simply type 'exit'.
+
+2.2. Generates grades.txt - run 'Instructor.py'
+
+On the terminal (attached to the Linux container), normal Linux commands 
+should be available.
+
+Modify .local/config/instructorlab.json if necessary (for example: set
+the number of students for the lab) and then generates grades.txt by
+running 'Instructor.py'
+
+2.3. Stop Linux container LXCi
+
+Open a terminal (typically Ctrl-Alt-t combination should open a terminal window)
+on a Linux system and run 'stop.sh' on the Linux guest VM
+
+As part of stopping the Linux container LXCi, the grades.txt containing
+the students' grades for the lab exercise will be copied to the shared folder
+with the host.
+

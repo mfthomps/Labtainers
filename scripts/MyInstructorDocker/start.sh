@@ -50,7 +50,7 @@ fi
 ##### ***** start pre-start commands ****
 # This is where "pre-start" commands should be run for each lab
 # Copy zip files from 'Shared' folder to 'home/$CONTAINER_USER'
-ZIP_FILES=`ls /media/sf_Shared/*.zip`
+ZIP_FILES=`ls $HOST_HOME_SEED/*.zip`
 #echo "filenames is ($ZIP_FILES)"
 for fname in $ZIP_FILES; do
     #echo "name is $fname"

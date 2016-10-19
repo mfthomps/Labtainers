@@ -11,6 +11,7 @@ import sys
 import zipfile
 
 UBUNTUHOME="/home/ubuntu/"
+HOMELOCAL="/home/ubuntu/.local/"
 
 # Usage: Student.py
 # Arguments:
@@ -23,7 +24,7 @@ def main():
 
     os.chdir(UBUNTUHOME)
 
-    configjsonfname = '%s/.local/config/%s' % (UBUNTUHOME, "studentlab.json")
+    configjsonfname = '%sconfig/%s' % (HOMELOCAL, "studentlab.json")
     configjson = open(configjsonfname, "r")
     studentconfig = json.load(configjson)
     configjson.close()
@@ -41,7 +42,7 @@ def main():
     #print 'The lab name is (%s)' % LabName
     #print 'Output ZipFileName is (%s)' % ZipFileName
 
-    OutputName=os.path.join(UBUNTUHOME, ZipFileName)
+    OutputName=os.path.join(HOMELOCAL, ZipFileName)
     zipoutput = zipfile.ZipFile(OutputName, "w")
 
     flist = os.listdir(StudentHomeDir)
@@ -65,8 +66,8 @@ def main():
     zipoutput.close()
 
     # Get a list of filenames that ends with '.zip'
-    zip_fname = '%szip.flist' % UBUNTUHOME
-    zip_filenames = glob.glob('%s*.zip' % UBUNTUHOME)
+    zip_fname = '%szip.flist' % HOMELOCAL
+    zip_filenames = glob.glob('%s*.zip' % HOMELOCAL)
     zip_flist = open(zip_fname, "w")
     for zip_file in zip_filenames:
         zip_flist.write('%s ' % zip_file)
