@@ -20,7 +20,7 @@ then
 fi
 
 ROOTSEED=$1
-USERSEED=$1
+USERSEED=$2
 
 # use sudo to ensure removal
 sudo rm -f /tmp/seedfile.tmp
