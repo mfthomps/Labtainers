@@ -17,4 +17,4 @@ tar -zcvf $BUFOVERFLOW_TAR .local *
 cd $ORIG_PWD
 
 docker build -f ${ORIG_PWD}/Dockerfile.paramlabs.student -t paramlabs:student .
-#docker build -f ${ORIG_PWD}/Dockerfile.bufoverflow.student -t bufoverflow:student .
+docker build -f ${ORIG_PWD}/Dockerfile.bufoverflow.student -t bufoverflow:student .
