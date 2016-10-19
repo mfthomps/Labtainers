@@ -28,6 +28,13 @@ fi
 #echo "Name of container is $CONTAINER_NAME"
 #echo "Name of container image is $CONTAINER_IMAGE"
 
+# Check existence of HOST_HOME_SEED directory - create if necessary
+if [ ! -d $HOST_HOME_SEED ]
+then
+    echo "Directory $HOST_HOME_SEED does not exist, creating it"
+    mkdir -p $HOST_HOME_SEED
+fi
+
 ##### ***** start pre-stop commands ****
 # This is where "pre-stop" commands should be run for each lab
 

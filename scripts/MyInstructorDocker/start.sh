@@ -35,6 +35,13 @@ fi
 #echo "Name of container is $CONTAINER_NAME"
 #echo "Name of container image is $CONTAINER_IMAGE"
 
+# Check existence of HOST_HOME_SEED directory - create if necessary
+if [ ! -d $HOST_HOME_SEED ]
+then
+    echo "Directory $HOST_HOME_SEED does not exist, creating it"
+    mkdir -p $HOST_HOME_SEED
+fi
+
 # Check to see if $CONTAINER_NAME container has been created or not
 docker inspect -f {{.Created}} $CONTAINER_NAME &> /dev/null
 result=$?
