@@ -35,11 +35,11 @@ fi
 #echo "Name of container is $CONTAINER_NAME"
 #echo "Name of container image is $CONTAINER_IMAGE"
 
-# Check existence of HOST_HOME_SEED directory - create if necessary
-if [ ! -d $HOST_HOME_SEED ]
+# Check existence of /home/$USER/$HOST_HOME_SEED directory - create if necessary
+if [ ! -d /home/$USER/$HOST_HOME_SEED ]
 then
-    echo "Directory $HOST_HOME_SEED does not exist, creating it"
-    mkdir -p $HOST_HOME_SEED
+    echo "Directory /home/$USER/$HOST_HOME_SEED does not exist, creating it"
+    mkdir -p /home/$USER/$HOST_HOME_SEED
 fi
 
 # Check to see if $CONTAINER_NAME container has been created or not
@@ -58,13 +58,19 @@ fi
 ##### ***** start pre-start commands ****
 # This is where "pre-start" commands should be run for each lab
 # Copy zip files from 'Shared' folder to 'home/$CONTAINER_USER'
-ZIP_FILES=`ls $HOST_HOME_SEED/*.zip`
+ZIP_FILES=`ls /home/$USER/$HOST_HOME_SEED/*.zip`
 #echo "filenames is ($ZIP_FILES)"
 for fname in $ZIP_FILES; do
     #echo "name is $fname"
     base_fname=`basename $fname`
     docker cp $fname $CONTAINER_NAME:/home/$CONTAINER_USER/
     docker exec -it $CONTAINER_NAME sudo chown ubuntu:ubuntu /home/$CONTAINER_USER/$base_fname 
+    # Somehow this will fail if not checked?
+    success=$?
+    if [ $success -ne 0 ]
+    then
+        echo "ERROR: Fail to change ownership"
+    fi
 done
 
 # Here are samples including performing 'sudo sysctl' type of command

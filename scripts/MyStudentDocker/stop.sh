@@ -28,11 +28,11 @@ fi
 #echo "Name of container is $CONTAINER_NAME"
 #echo "Name of container image is $CONTAINER_IMAGE"
 
-# Check existence of HOST_HOME_SEED directory - create if necessary
-if [ ! -d $HOST_HOME_SEED ]
+# Check existence of /home/$USER/$HOST_HOME_SEED directory - create if necessary
+if [ ! -d /home/$USER/$HOST_HOME_SEED ]
 then
-    echo "Directory $HOST_HOME_SEED does not exist, creating it"
-    mkdir -p $HOST_HOME_SEED
+    echo "Directory /home/$USER/$HOST_HOME_SEED does not exist, creating it"
+    mkdir -p /home/$USER/$HOST_HOME_SEED
 fi
 
 ##### ***** start pre-stop commands ****
@@ -58,10 +58,10 @@ docker exec -it $CONTAINER_NAME script -q -c "/bin/bash -c 'cd ; . .profile ; St
 zip_filelist=`docker exec -it $CONTAINER_NAME cat /home/$CONTAINER_USER/.local/zip.flist`
 for fname in $zip_filelist;
 do
-    docker cp $CONTAINER_NAME:$fname $HOST_HOME_SEED/
+    docker cp $CONTAINER_NAME:$fname /home/$USER/$HOST_HOME_SEED/
 done
 # Change ownership to defined user $USER
-sudo chown $USER:$USER $HOST_HOME_SEED/*.zip
+sudo chown $USER:$USER /home/$USER/$HOST_HOME_SEED/*.zip
 
 #echo "Stopping container $CONTAINER_NAME"
 docker stop $CONTAINER_NAME

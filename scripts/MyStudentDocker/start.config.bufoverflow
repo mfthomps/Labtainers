@@ -12,4 +12,4 @@ CONTAINER_IMAGE="bufoverflow:student"
 CONTAINER_USER="ubuntu"
 
 # HOST_HOME_SEED - directory to transfer artifact to/from containers
-HOST_HOME_SEED="~/seed_dir/"
+HOST_HOME_SEED="seed_dir/bufoverflow/"

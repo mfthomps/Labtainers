@@ -28,9 +28,19 @@ sudo rm -f /tmp/seedfile.tmp
 echo $ROOTSEED > /tmp/seedfile.tmp
 # need sudo here
 sudo cp /tmp/seedfile.tmp /root/.seed
+success=$?
+if [ $success -ne 0 ]
+then
+    echo "ERROR: Fail to create root seed."
+fi
 
 echo $USERSEED > /tmp/seedfile.tmp
 cp /tmp/seedfile.tmp /home/ubuntu/.seed
+success=$?
+if [ $success -ne 0 ]
+then
+    echo "ERROR: Fail to create user seed."
+fi
 
 # use sudo to ensure removal
 sudo rm -f /tmp/seedfile.tmp

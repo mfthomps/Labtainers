@@ -37,11 +37,11 @@ fi
 #echo "Name of container is $CONTAINER_NAME"
 #echo "Name of container image is $CONTAINER_IMAGE"
 
-# Check existence of HOST_HOME_SEED directory - create if necessary
-if [ ! -d $HOST_HOME_SEED ]
+# Check existence of /home/$USER/$HOST_HOME_SEED directory - create if necessary
+if [ ! -d /home/$USER/$HOST_HOME_SEED ]
 then
-    echo "Directory $HOST_HOME_SEED does not exist, creating it"
-    mkdir -p $HOST_HOME_SEED
+    echo "Directory /home/$USER/$HOST_HOME_SEED does not exist, creating it"
+    mkdir -p /home/$USER/$HOST_HOME_SEED
 fi
 
 ##### ***** start pre-start commands ****

@@ -8,9 +8,9 @@ BUFOVERFLOW_DIR=${ORIG_PWD}/bufoverflow/
 BUFOVERFLOW_TAR=${ORIG_PWD}/bufoverflow.instructor.tar.gz
 
 cp -r bin $PARAMLABS_DIR/.local/
+cp -r bin $BUFOVERFLOW_DIR/.local/
 cd $PARAMLABS_DIR
 tar -zcvf $PARAMLABS_TAR .local *
-cp -r bin $BUFOVERFLOW_DIR/.local/
 cd $BUFOVERFLOW_DIR
 tar -zcvf $BUFOVERFLOW_TAR .local *
 

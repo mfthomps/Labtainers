@@ -27,11 +27,11 @@ fi
 #echo "Name of container is $CONTAINER_NAME"
 #echo "Name of container image is $CONTAINER_IMAGE"
 
-# Check existence of HOST_HOME_SEED directory - create if necessary
-if [ ! -d $HOST_HOME_SEED ]
+# Check existence of /home/$USER/$HOST_HOME_SEED directory - create if necessary
+if [ ! -d /home/$USER/$HOST_HOME_SEED ]
 then
-    echo "Directory $HOST_HOME_SEED does not exist, creating it"
-    mkdir -p $HOST_HOME_SEED
+    echo "Directory /home/$USER/$HOST_HOME_SEED does not exist, creating it"
+    mkdir -p /home/$USER/$HOST_HOME_SEED
 fi
 
 ##### ***** start pre-stop commands ****
@@ -50,9 +50,9 @@ fi
 ##### ***** end pre-stop commands ****
 
 # Copy grades.txt from '/home/ubuntu' to 'Shared' folder
-docker cp $CONTAINER_NAME:/home/$CONTAINER_USER/grades.txt $HOST_HOME_SEED/
+docker cp $CONTAINER_NAME:/home/$CONTAINER_USER/grades.txt /home/$USER/$HOST_HOME_SEED/
 # Change ownership to defined user $USER
-sudo chown $USER:$USER $HOST_HOME_SEED/grades.txt
+sudo chown $USER:$USER /home/$USER/$HOST_HOME_SEED/grades.txt
 
 #echo "Stopping container $CONTAINER_NAME"
 docker stop $CONTAINER_NAME
