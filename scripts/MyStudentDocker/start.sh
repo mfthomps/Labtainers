@@ -12,7 +12,7 @@
 #        a.2. If it has been created, start it using docker start
 #        a.3. If first run (i.e., container is created the first time)
 #             prompt user for e-mail address and generate seed files
-#             by calling createseed.sh
+#             by calling createseedlocalfix.sh
 #     b. Spawn a terminal with startup instruction and
 #        another terminal for the student
 
@@ -99,7 +99,7 @@ else
         echo "ubuntu:$user_email" > /tmp/hashfile.tmp
         UBUNTU_SEED=`md5sum /tmp/hashfile.tmp | awk '{ print $1 }'`
         rm -f /tmp/hashfile.tmp
-        gnome-terminal -x docker exec -it $CONTAINER_NAME script -q -c "/bin/bash -c 'cd ; . .profile ; createseed.sh $ROOT_SEED $UBUNTU_SEED'" /dev/null &
+        gnome-terminal -x docker exec -it $CONTAINER_NAME script -q -c "/bin/bash -c 'cd ; . .profile ; createseedlocalfix.sh $ROOT_SEED $UBUNTU_SEED'" /dev/null &
     fi
 fi
 
