@@ -25,11 +25,11 @@ USERSEED=$1
 # use sudo to ensure removal
 sudo rm -f /tmp/seedfile.tmp
 
-echo ROOTSEED > /tmp/seedfile.tmp
+echo $ROOTSEED > /tmp/seedfile.tmp
 # need sudo here
 sudo cp /tmp/seedfile.tmp /root/.seed
 
-echo USERSEED > /tmp/seedfile.tmp
+echo $USERSEED > /tmp/seedfile.tmp
 cp /tmp/seedfile.tmp /home/ubuntu/.seed
 
 # use sudo to ensure removal

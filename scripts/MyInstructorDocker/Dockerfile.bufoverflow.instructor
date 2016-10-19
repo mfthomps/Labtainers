@@ -19,7 +19,7 @@ RUN useradd -ms /bin/bash ubuntu
 RUN echo "ubuntu:ubuntu" | chpasswd
 RUN chown -R ubuntu:ubuntu /home/ubuntu
 RUN adduser ubuntu sudo
-ADD xfer.instructor.20160909204320.tar.gz /home/ubuntu
+ADD bufoverflow.instructor.tar.gz /home/ubuntu
 
 USER ubuntu
 ENV HOME /home/ubuntu

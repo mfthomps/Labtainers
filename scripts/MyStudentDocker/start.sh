@@ -88,9 +88,9 @@ else
         # Create hash for root/.seed and $USER/.seed
         rm -f /tmp/hashfile.tmp
         echo "root:$user_email" > /tmp/hashfile.tmp
-        ROOT_SEED=`md5sum /tmp/hashfile.tmp`
+        ROOT_SEED=`md5sum /tmp/hashfile.tmp | awk '{ print $1 }'`
         echo "ubuntu:$user_email" > /tmp/hashfile.tmp
-        UBUNTU_SEED=`md5sum /tmp/hashfile.tmp`
+        UBUNTU_SEED=`md5sum /tmp/hashfile.tmp | awk '{ print $1 }'`
         rm -f /tmp/hashfile.tmp
         gnome-terminal -x docker exec -it $CONTAINER_NAME script -q -c "/bin/bash -c 'cd ; . .profile ; createseed.sh $ROOT_SEED $UBUNTU_SEED'" /dev/null &
     fi
