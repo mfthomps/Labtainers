@@ -10,6 +10,9 @@
 #        Note: student container name is defined in start.config
 #        a.1. If it has not been created, create using docker run
 #        a.2. If it has been created, start it using docker start
+#        a.3. If first run (i.e., container is created the first time)
+#             prompt user for e-mail address and generate seed files
+#             by calling createseed.sh
 #     b. Spawn a terminal with startup instruction and
 #        another terminal for the student
 
@@ -55,12 +58,15 @@ docker inspect -f {{.Created}} $CONTAINER_NAME &> /dev/null
 result=$?
 #echo "initial inspect result is $result"
 
+# Set need_seeds=0 first
+need_seeds=0
 if [ $result -eq $FAILURE ]
 then
     #echo "Container $CONTAINER_NAME does not exist yet, call docker run"
     docker run -dt --name=$CONTAINER_NAME $CONTAINER_IMAGE bash
     # Give the container some time -- just in case
     sleep 3
+    need_seeds=1
 fi
 
 docker inspect -f {{.Created}} $CONTAINER_NAME &> /dev/null
@@ -74,6 +80,20 @@ else
     #echo "Container $CONTAINER_NAME already exist, call docker start"
     docker start $CONTAINER_NAME
     #echo "Container $CONTAINER_NAME is now running!"
+    if [ $need_seeds -eq 1 ]
+    then
+        # Prompt user for e-mail address
+        echo "Please enter your e-mail address: "
+        read user_email
+        # Create hash for root/.seed and $USER/.seed
+        rm -f /tmp/hashfile.tmp
+        echo "root:$user_email" > /tmp/hashfile.tmp
+        ROOT_SEED=`md5sum /tmp/hashfile.tmp`
+        echo "ubuntu:$user_email" > /tmp/hashfile.tmp
+        UBUNTU_SEED=`md5sum /tmp/hashfile.tmp`
+        rm -f /tmp/hashfile.tmp
+        gnome-terminal -x docker exec -it $CONTAINER_NAME script -q -c "/bin/bash -c 'cd ; . .profile ; createseed.sh $ROOT_SEED $UBUNTU_SEED'" /dev/null &
+    fi
 fi
 
 # Start a terminal and a shell in the container

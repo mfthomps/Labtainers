@@ -10,6 +10,7 @@
 #        Note: instructor container name is defined in start.config
 #        a.1. If it has not been created, create using docker run
 #        a.2. If it has been created, start it using docker start
+#        a.3. Note: instructor does not need to generate seed files
 #     b. Spawn a terminal with startup instruction and
 #        another terminal for the instructor
 

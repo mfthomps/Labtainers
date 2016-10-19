@@ -7,8 +7,10 @@ PARAMLABS_TAR=${ORIG_PWD}/paramlabs.student.tar.gz
 BUFOVERFLOW_DIR=${ORIG_PWD}/bufoverflow/
 BUFOVERFLOW_TAR=${ORIG_PWD}/bufoverflow.student.tar.gz
 
+cp -r bin $PARAMLABS_DIR/.local/
 cd $PARAMLABS_DIR
 tar -zcvf $PARAMLABS_TAR .local *
+cp -r bin $BUFOVERFLOW_DIR/.local/
 cd $BUFOVERFLOW_DIR
 tar -zcvf $BUFOVERFLOW_TAR .local *
 

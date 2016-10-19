@@ -9,4 +9,4 @@
 
 echo "Starting startup.sh"
 
-cat /home/ubuntu/.local/config/instruction.txt | less
+cat /home/ubuntu/instruction.txt | less
