@@ -16,5 +16,5 @@ tar -zcvf $BUFOVERFLOW_TAR .local *
 
 cd $ORIG_PWD
 
-#docker build -f ${ORIG_PWD}/Dockerfile.paramlabs.instructor -t paramlabs:instructor .
+docker build -f ${ORIG_PWD}/Dockerfile.paramlabs.instructor -t paramlabs:instructor .
 docker build -f ${ORIG_PWD}/Dockerfile.bufoverflow.instructor -t bufoverflow:instructor .
