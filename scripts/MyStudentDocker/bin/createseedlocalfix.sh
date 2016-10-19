@@ -1,19 +1,21 @@
 #!/usr/bin/env bash
 
-# createseed.sh
+# createseedlocalfix.sh
 #
-# Usage: createseed.sh <ROOT_SEED> <USER_SEED>
+# Usage: createseedlocalfix.sh <ROOT_SEED> <USER_SEED>
 # Arguments:
 #     <ROOT_SEED> -- seed for /root/.seed
 #     <USER_SEED> -- seed for /home/ubuntu/.seed
 # 
-# Description: Create /root/.seed and /home/ubuntu/.seed
+# Description:
+# 1. Create /root/.seed and /home/ubuntu/.seed
+# 2. If file .local/bin/fixlocal.sh exist, run it
 
 #echo "Creating seed"
 
 if [ $# -ne 2 ]
 then
-    echo "Usage: createseed.sh <ROOT_SEED> <USER_SEED>"
+    echo "Usage: createseedlocalfix.sh <ROOT_SEED> <USER_SEED>"
     echo "       <ROOT_SEED> -- seed for /root/.seed"
     echo "       <USER_SEED> -- seed for /home/ubuntu/.seed"
     exit 1
@@ -44,3 +46,10 @@ fi
 
 # use sudo to ensure removal
 sudo rm -f /tmp/seedfile.tmp
+
+# If file .local/bin/fixlocal.sh exist, run it
+if [ -f .local/bin/fixlocal.sh ]
+then
+    .local/bin/fixlocal.sh
+fi
+
