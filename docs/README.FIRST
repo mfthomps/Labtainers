@@ -15,9 +15,10 @@ All testing has been done on a Linux system (below is result of 'lsb_release -a'
 2. The assumption is VirtualBox will be used.
    If VirtualBox is not installed, see README.virtualbox
    Note that use of VirtualBox is not a necessity, just recommended.
-   If VirtualBox is not used, please create directory '/media/sf_Shared'
-   as this directory will be referenced as a way to transfer in/out of
-   containers.
+   As a way to transfer in/out of containers, a directory on the host relative
+   to /home/$USER/ as specified in the 'start.config' file will be created
+   by the start up script, if it does not exist.
+   Note: previous requirement of using '/media/sf_Shared' is no longer true.
 3. Docker will be used for Linux Containers, see README.docker
 4. To create containers, see README.containers
    Note: to create containers, the following directories are necessary:
