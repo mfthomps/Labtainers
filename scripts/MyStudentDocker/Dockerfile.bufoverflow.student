@@ -7,6 +7,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc-multilib \
     iputils-ping \
     less \
+    man \
+    manpages-dev \
     net-tools \
     openssh-client \
     python \
