@@ -50,7 +50,8 @@ result=$?
 if [ $result -eq $FAILURE ]
 then
     #echo "Container $CONTAINER_NAME does not exist yet, call docker run"
-    docker run -dt --name=$CONTAINER_NAME $CONTAINER_IMAGE bash
+    #docker run -dt --name=$CONTAINER_NAME $CONTAINER_IMAGE bash
+    docker run -dt --privileged --name=$CONTAINER_NAME $CONTAINER_IMAGE bash
     # Give the container some time -- just in case
     sleep 3
 fi
