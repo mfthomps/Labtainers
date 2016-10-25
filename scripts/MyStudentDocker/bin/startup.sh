@@ -7,6 +7,9 @@
 # 
 # Description: Concatenate instruction.txt file and pipe to less
 
-echo "Starting startup.sh"
-
-cat /home/ubuntu/instruction.txt | less
+LOCKDIR=/tmp/.mylockdir
+if mkdir "$LOCKDIR" >/dev/null 2>&1; then
+    echo "Starting startup.sh"
+    cat /home/ubuntu/instruction.txt | less
+    rmdir $LOCKDIR
+fi
