@@ -40,4 +40,4 @@ then
 fi
 
 # Start a terminal and a shell in the container
-gnome-terminal -x docker exec -it $CONTAINER_NAME script -q -c "/bin/bash -c 'cd ; . .profile ; exec ${SHELL:-sh}'" /dev/null &
+gnome-terminal -x docker exec -it $CONTAINER_NAME bash -l &
