@@ -101,7 +101,13 @@ else
         LAB_SEED=`md5sum /tmp/hashfile.tmp | awk '{ print $1 }'`
         #echo "About to call parameterize.sh with LAB_SEED = ($LAB_SEED)"
         rm -f /tmp/hashfile.tmp
-        gnome-terminal -x docker exec -it $CONTAINER_NAME bash -l -c 'parameterize.sh $LAB_SEED' &
+        docker exec -it $CONTAINER_NAME script -q -c "/home/ubuntu/.local/bin/parameterize.sh $LAB_SEED" /dev/null
+        result=$?
+        if [ $result -eq $FAILURE ]
+        then
+            echo "ERROR: Failed to parameterize lab"
+            exit 1
+        fi
     fi
 fi
 

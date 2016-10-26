@@ -23,6 +23,9 @@ RUN echo "ubuntu:ubuntu" | chpasswd
 RUN chown -R ubuntu:ubuntu /home/ubuntu
 RUN adduser ubuntu sudo
 ADD bufoverflow.student.tar.gz /home/ubuntu
+RUN echo "# This secret file is generated when container is created" >> /root/.secret
+RUN echo "# The string below will be replaced with a keyed hash" >> /root/.secret
+RUN echo "ROOT_SECRET" >> /root/.secret
 
 USER ubuntu
 ENV HOME /home/ubuntu
@@ -31,6 +34,9 @@ RUN echo "source $HOME/.local/bin/bash-pre-capinout.sh" >> /home/ubuntu/.profile
 RUN echo "cd" >> /home/ubuntu/.profile
 RUN echo "source /home/ubuntu/.local/bin/startup.sh" >> /home/ubuntu/.profile
 RUN echo "" > /home/ubuntu/.bash_logout
+RUN echo "# This secret file is generated when container is created" >> /home/ubuntu/.secret
+RUN echo "# The string below will be replaced with a keyed hash" >> /home/ubuntu/.secret
+RUN echo "UBUNTU_SECRET" >> /home/ubuntu/.secret
 
 #    g++ \
 #    cpp \

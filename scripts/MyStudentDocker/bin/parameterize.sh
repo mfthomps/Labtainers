@@ -12,6 +12,13 @@
 
 #echo "Creating seed"
 
+# Do not display instruction during parameterization
+LOCKDIR=/tmp/.mylockdir
+mkdir "$LOCKDIR" >/dev/null 2>&1
+
+#echo "number of argument is $#"
+#echo "argument is $@"
+
 if [ $# -ne 1 ]
 then
     echo "Usage: parameterize.sh <LAB_SEED>"
@@ -22,11 +29,13 @@ fi
 LAB_SEED=$1
 
 # call ParameterParser.py (passing $LAB_SEED)
-sudo .local/bin/ParameterParser.py $LAB_SEED
+sudo /home/ubuntu/.local/bin/ParameterParser.py $LAB_SEED
 
-# If file .local/bin/fixlocal.sh exist, run it
-if [ -f .local/bin/fixlocal.sh ]
+# If file /home/ubuntu/.local/bin/fixlocal.sh exist, run it
+if [ -f /home/ubuntu/.local/bin/fixlocal.sh ]
 then
-    .local/bin/fixlocal.sh
+    /home/ubuntu/.local/bin/fixlocal.sh
 fi
+
+rmdir $LOCKDIR
 
