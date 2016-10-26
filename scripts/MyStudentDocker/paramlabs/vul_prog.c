@@ -3,8 +3,8 @@
 #include<stdio.h>
 #include<stdlib.h>
 
-#define SECRET1 0x44
-#define SECRET2 0x55
+#define SECRET1 SECRET1_VALUE
+#define SECRET2 SECRET2_VALUE
 
 int main(int argc, char *argv[])
 {
