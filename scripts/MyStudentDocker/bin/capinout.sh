@@ -44,7 +44,7 @@ fi
 
 exec 3<>$pipe
 rm $pipe
-(echo $BASHPID >&3; tee $stdinfile) | (stdbuf -oL -eL $EXECPROG $PROGRAM_ARGUMENTS; r=$?; kill $(head -n1 <&3); exit $r) | tee $stdoutfile
+(echo $BASHPID >&3; tee $stdinfile) | (unbuffer -p $EXECPROG $PROGRAM_ARGUMENTS; r=$?; kill $(head -n1 <&3); exit $r) | tee $stdoutfile
 
 #exit ${PIPESTATUS[1]}
 
