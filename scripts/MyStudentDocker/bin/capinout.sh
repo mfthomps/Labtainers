@@ -22,8 +22,8 @@ fi
 #echo "Program to execute is $EXECPROG"
 #echo "basename of $EXECPROG is $PROGNAME"
 timestamp=$(date +"%Y%m%d%H%M%S")
-stdinfile=".local/result/$PROGNAME.stdin.$timestamp"
-stdoutfile=".local/result/$PROGNAME.stdout.$timestamp"
+stdinfile="$HOME/.local/result/$PROGNAME.stdin.$timestamp"
+stdoutfile="$HOME/.local/result/$PROGNAME.stdout.$timestamp"
 
 echo "stdinfile is $stdinfile"
 echo "stdoutfile is $stdoutfile"
