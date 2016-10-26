@@ -13,3 +13,7 @@ CONTAINER_USER="ubuntu"
 
 # HOST_HOME_SEED - directory to transfer artifact to/from containers
 HOST_HOME_SEED="seed_dir/paramlabs/"
+
+# LAB_SECRET - this is the 'secret' specific to this laboratory
+LAB_SECRET="myparamlabssecretisnotveryhardtoguess"
+

@@ -93,14 +93,15 @@ else
         # Prompt user for e-mail address
         echo "Please enter your e-mail address: "
         read user_email
-        # Create hash for root/.seed and $USER/.seed
+        # Create hash using LAB_SECRET concatenated with user's e-mail
+        # LAB_SECRET is per laboratory - specified in start.config
         rm -f /tmp/hashfile.tmp
-        echo "root:$user_email" > /tmp/hashfile.tmp
-        ROOT_SEED=`md5sum /tmp/hashfile.tmp | awk '{ print $1 }'`
-        echo "ubuntu:$user_email" > /tmp/hashfile.tmp
-        UBUNTU_SEED=`md5sum /tmp/hashfile.tmp | awk '{ print $1 }'`
+        #echo "$LAB_SECRET:$user_email"
+        echo "$LAB_SECRET:$user_email" > /tmp/hashfile.tmp
+        LAB_SEED=`md5sum /tmp/hashfile.tmp | awk '{ print $1 }'`
+        #echo "About to call parameterize.sh with LAB_SEED = ($LAB_SEED)"
         rm -f /tmp/hashfile.tmp
-        gnome-terminal -x docker exec -it $CONTAINER_NAME script -q -c "/bin/bash -c 'cd ; . .profile ; createseedlocalfix.sh $ROOT_SEED $UBUNTU_SEED'" /dev/null &
+        gnome-terminal -x docker exec -it $CONTAINER_NAME bash -l -c 'parameterize.sh $LAB_SEED' &
     fi
 fi
 

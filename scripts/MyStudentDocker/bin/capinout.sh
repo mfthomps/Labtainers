@@ -7,15 +7,18 @@
 # Arguments:
 #     <execprog> - program to execute
 
-if [ $# -ne 1 ]
-then
-    echo "Usage: capinout.sh <execprog>"
-    echo "       <execprog> - program to execute"
-    exit 1
-fi
-
 EXECPROG=$1
 PROGNAME=`basename $EXECPROG`
+if [ $# -gt 1 ]
+then
+    shift
+    PROGRAM_ARGUMENTS=$*
+else
+    PROGRAM_ARGUMENTS=""
+fi
+#echo "EXECPROG is ($EXECPROG)"
+#echo "PROGNAME is ($PROGNAME)"
+#echo "PROGRAM_ARGUMENTS is ($PROGRAM_ARGUMENTS)"
 #echo "Program to execute is $EXECPROG"
 #echo "basename of $EXECPROG is $PROGNAME"
 timestamp=$(date +"%Y%m%d%H%M%S")
@@ -41,10 +44,10 @@ fi
 
 exec 3<>$pipe
 rm $pipe
-(echo $BASHPID >&3; tee $stdinfile) | (stdbuf -oL -eL $EXECPROG; r=$?; kill $(head -n1 <&3); exit $r) | tee $stdoutfile
+(echo $BASHPID >&3; tee $stdinfile) | (stdbuf -oL -eL $EXECPROG $PROGRAM_ARGUMENTS; r=$?; kill $(head -n1 <&3); exit $r) | tee $stdoutfile
 
 #exit ${PIPESTATUS[1]}
 
 ###### Call
-#####tee $stdinfile | stdbuf -oL -eL $EXECPROG | tee $stdoutfile
+#####tee $stdinfile | stdbuf -oL -eL $EXECPROG $PROGRAM_ARGUMENTS | tee $stdoutfile
 
