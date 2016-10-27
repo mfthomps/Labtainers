@@ -46,6 +46,9 @@ exec 3<>$pipe
 rm $pipe
 (echo $BASHPID >&3; tee $stdinfile) | (unbuffer -p $EXECPROG $PROGRAM_ARGUMENTS; r=$?; kill $(head -n1 <&3); exit $r) | tee $stdoutfile
 
+TEE_PID=$(ps | grep [t]ee | awk '{print $1}')
+kill $TEE_PID
+
 #exit ${PIPESTATUS[1]}
 
 ###### Call
