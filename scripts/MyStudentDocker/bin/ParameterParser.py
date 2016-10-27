@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 # ParameterParser.py
-# Description: * Read parser.config
-#              * Parse stdin and stdout files based on parser.config
+# Description: * Read parameter.config
+#              * Parse stdin and stdout files based on parameter.config
 #              * Create a json file
 
 import json
@@ -144,12 +144,12 @@ def ValidateParameterConfig(each_key, each_value):
     return 0
 
 # Perform RAND_REPLACE
-def Perform_RAND_REPLACE(lab_seed):
+def Perform_RAND_REPLACE(lab_instance_seed):
     # At this point randreplacelist should have been populated
     # and files have been confirmed to exist
 
     # Seed random with lab seed
-    random.seed(lab_seed)
+    random.seed(lab_instance_seed)
 
     #print "Perform_RAND_REPLACE"
     for (filename, replacelist) in randreplacelist.items():
@@ -173,7 +173,7 @@ def Perform_RAND_REPLACE(lab_seed):
         outfile.close()
 
 # Perform HASH_CREATE
-def Perform_HASH_CREATE(lab_seed):
+def Perform_HASH_CREATE(lab_instance_seed):
     # At this point hashcreatelist should have been populated
     # and files have been confirmed to exist or created
 
@@ -186,7 +186,7 @@ def Perform_HASH_CREATE(lab_seed):
         with open(filename, 'w') as outfile:
             for secretstring in createlist:
                 # Create hash per secretstring
-                string_to_be_hashed = '%s:%s' % (lab_seed, secretstring)
+                string_to_be_hashed = '%s:%s' % (lab_instance_seed, secretstring)
                 mymd5 = md5.new()
                 mymd5.update(string_to_be_hashed)
                 mymd5_hex_string = mymd5.hexdigest()
@@ -195,7 +195,7 @@ def Perform_HASH_CREATE(lab_seed):
         outfile.close()
 
 # Perform HASH_REPLACE
-def Perform_HASH_REPLACE(lab_seed):
+def Perform_HASH_REPLACE(lab_instance_seed):
     # At this point hashreplacelist should have been populated
     # and files have been confirmed to exist
 
@@ -215,7 +215,7 @@ def Perform_HASH_REPLACE(lab_seed):
                     # Create hash per secretstring
                     #print oldtoken
                     #print secretstring
-                    string_to_be_hashed = '%s:%s' % (lab_seed, secretstring)
+                    string_to_be_hashed = '%s:%s' % (lab_instance_seed, secretstring)
                     mymd5 = md5.new()
                     mymd5.update(string_to_be_hashed)
                     newtoken = mymd5.hexdigest()
@@ -230,8 +230,7 @@ def Perform_HASH_REPLACE(lab_seed):
         outfile.close()
 
 
-def ParseParameterConfig(lab_seed):
-    configfilename = '%s/.local/config/%s' % (UBUNTUHOME, "parameter.config")
+def ParseParameterConfig(lab_instance_seed, configfilename):
     configfile = open(configfilename)
     configfilelines = configfile.readlines()
     configfile.close()
@@ -248,25 +247,32 @@ def ParseParameterConfig(lab_seed):
         #    print "Skipping empty linestrip is (%s)" % linestrip
 
     # Perform RAND_REPLACE
-    Perform_RAND_REPLACE(lab_seed)
+    Perform_RAND_REPLACE(lab_instance_seed)
     # Perform HASH_CREATE
-    Perform_HASH_CREATE(lab_seed)
+    Perform_HASH_CREATE(lab_instance_seed)
     # Perform HASH_REPLACE
-    Perform_HASH_REPLACE(lab_seed)
+    Perform_HASH_REPLACE(lab_instance_seed)
 
 
-# Usage: ParameterParser.py <lab_seed>
+# Usage: ParameterParser.py <lab_instance_seed> [<config_file>]
 # Arguments:
-#     <lab_seed> - directory containing the student lab work
-#                    extracted from zip file (done in Instructor.py)
+#     <lab_instance_seed> - laboratory instance seed
+#     [<config_file>] - optional configuration file
+#                       if <config_file> not specified, it defaults to
+#                       /home/ubuntu/.local/config/parameter.config
 def main():
     #print "Running ParameterParser.py"
-    if len(sys.argv) != 2:
-        sys.stderr.write("Usage: ParameterParser.py <lab_seed>\n")
+    numargs = len(sys.argv)
+    if not (numargs == 2 or numargs == 3):
+        sys.stderr.write("Usage: ParameterParser.py <lab_instance_seed> [<config_file>]\n")
         sys.exit(1)
 
-    lab_seed = sys.argv[1]
-    ParseParameterConfig(lab_seed)
+    lab_instance_seed = sys.argv[1]
+    if numargs == 3:
+        configfilename = sys.argv[2]
+    else:
+        configfilename = '%s/.local/config/%s' % (UBUNTUHOME, "parameter.config")
+    ParseParameterConfig(lab_instance_seed, configfilename)
     return 0
 
 if __name__ == '__main__':
