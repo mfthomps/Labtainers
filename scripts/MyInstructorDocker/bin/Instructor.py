@@ -58,9 +58,6 @@ def main():
     # Call AnswerParser script to parse 'answer'
     AnswerParser.ParseAnswer()
 
-    # Call GoalsParser script to parse 'goals'
-    GoalsParser.ParseGoals()
-
     index=0
     while index < NumStudent:
         #print "Current index is %d" % index
@@ -84,6 +81,10 @@ def main():
         zipoutput = zipfile.ZipFile(OutputName, "r")
         zipoutput.extractall(DestDirName)
         zipoutput.close()
+
+        # GoalsParser is now tied per student - do this after unzipping file
+        # Call GoalsParser script to parse 'goals'
+        GoalsParser.ParseGoals(DestDirName)
 
         # Call ResultParser script to parse students' result
         #command = 'ResultParser.py %s %s %s' % (DestDirName, InstDirName, LabIDName)

@@ -22,13 +22,22 @@ def ValidateConfigfile(each_key, each_value):
         sys.stderr.write("ERROR: parser.config contains key (%s) not alphanumeric\n" % each_key)
         sys.exit(1)
     values = []
-    # expecting - [ stdin | stdout ] : <lineno> : <token>
+    # expecting - [ stdin | stdout ] : <command> : <param>
+    # If <command> is 'LINE' then <param> is <lineno> : <token>
+    # If <command> is 'STARTSWITH' then <param> is <token> : <string>
+
+    # Test split - expecting at least four parts, either:
+    # [ stdin | stdout ] : LINE : <lineno> : <token>
+    # [ stdin | stdout ] : STARTSWITH : <token> : <string>
     values = each_value.split(':')
     #print values
     numvalues = len(values)
-    if numvalues != 3:
+    if numvalues < 4:
         sys.stderr.write("ERROR: parser.config contains unexpected value (%s) format\n" % each_value)
         sys.exit(1)
+    values = []
+    # Split into four parts - last part will be taken as string if <command> is 'STARTSWITH'
+    values = each_value.split(':', 3)
 
     # Make sure it is 'stdin' or 'stdout'
     progname_type = values[0].strip()
@@ -40,24 +49,41 @@ def ValidateConfigfile(each_key, each_value):
         sys.stderr.write("ERROR: parser.config uses not stdin or sdout\n")
         sys.exit(1)
 
-    # Make sure lineno is integer
-    lineno = values[1].strip()
-    #print lineno
-    try:
-        int(lineno)
-    except ValueError:
-        sys.stderr.write("ERROR: parser.config line (%s)\n" % each_value)
-        sys.stderr.write("ERROR: parser.config has invalid lineno\n")
-        sys.exit(1)
+    # Make sure command is either 'LINE' or 'STARTSWITH'
+    command = values[1].strip()
+    if command == 'LINE':
+        print "command is LINE"
+        # Make sure lineno is integer - line is next after command 'LINE'
+        lineno = values[2].strip()
+        #print lineno
+        try:
+            int(lineno)
+        except ValueError:
+            sys.stderr.write("ERROR: parser.config line (%s)\n" % each_value)
+            sys.stderr.write("ERROR: parser.config has invalid lineno\n")
+            sys.exit(1)
 
-    # Make sure tokenno is integer
-    tokenno = values[2].strip()
-    #print tokenno
-    try:
-        int(tokenno)
-    except ValueError:
-        sys.stderr.write("ERROR: parser.config line (%s)\n" % each_value)
-        sys.stderr.write("ERROR: parser.config has invalid tokenno\n")
+        # Make sure tokenno is integer
+        tokenno = values[3].strip()
+        #print tokenno
+        try:
+            int(tokenno)
+        except ValueError:
+            sys.stderr.write("ERROR: parser.config line (%s)\n" % each_value)
+            sys.stderr.write("ERROR: parser.config has invalid tokenno\n")
+            sys.exit(1)
+    elif command == 'STARTSWITH':
+        print "command is STARTSWITH"
+        # Make sure tokenno is integer - token is next after command 'STARTSWITH'
+        tokenno = values[2].strip()
+        #print tokenno
+        try:
+            int(tokenno)
+        except ValueError:
+            sys.stderr.write("ERROR: parser.config line (%s)\n" % each_value)
+            sys.stderr.write("ERROR: parser.config has invalid tokenno\n")
+    else:
+        sys.stderr.write("ERROR: parser.config contains unexpected command (%s) format\n" % each_value)
         sys.exit(1)
 
     return 0
@@ -147,10 +173,19 @@ def ParseStdinStdout(studentdir, instructordir, jsonoutfile):
                     #print each_key
                     # Note: config file has been validated
                     values = []
-                    values = each_value.split(':')
+                    # Split into four parts - 
+                    # last part will be taken as string if <command> is 'STARTSWITH'
+                    values = each_value.split(':', 3)
                     targetfile = values[0].strip()
-                    lineno = int(values[1].strip())
-                    tokenno = int(values[2].strip())
+                    command = values[1].strip()
+                    # command has been validated to be either 'LINE' or 'STARTSWITH'
+                    if command == 'LINE':
+                        lineno = int(values[2].strip())
+                        tokenno = int(values[3].strip())
+                    else:
+                        # command = 'STARTSWITH':
+                        tokenno = int(values[2].strip())
+                        startstring = values[3].strip()
 
                     targetfname = '%s%s.%s' % (RESULTHOME, targetfile, timestamppart)
                     #print "targetfname is (%s)" % targetfname
@@ -168,12 +203,26 @@ def ParseStdinStdout(studentdir, instructordir, jsonoutfile):
                     #print targetlines
 
                     #print "targetfile is %s" % targetfile
-                    # make sure lineno <= targetfilelen
-                    if lineno > targetfilelen:
-                        linerequested = "NONE"
-                        #print "setting result to none lineno > stdin length"
+                    # command has been validated to be either 'LINE' or 'STARTSWITH'
+                    if command == 'LINE':
+                        # make sure lineno <= targetfilelen
+                        if lineno > targetfilelen:
+                            linerequested = "NONE"
+                            #print "setting result to none lineno > stdin length"
+                        else:
+                            linerequested = targetlines[lineno-1]
                     else:
-                        linerequested = targetlines[lineno-1]
+                        # command = 'STARTSWITH':
+                        found_startstring = False
+                        for currentline in targetlines:
+                            if found_startstring == False:
+                                if currentline.startswith(startstring):
+                                    found_startstring = True
+                                    linerequested = currentline
+                                    break
+                        # If not found - set to NONE
+                        if found_startstring == False:
+                            linerequested = "NONE"
 
                     #print "Line requested is (%s)" % linerequested
                     if linerequested == "NONE":

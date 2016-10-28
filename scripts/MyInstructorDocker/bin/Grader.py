@@ -31,6 +31,12 @@ def compare_result_answer(current_result, current_answer, operator):
     elif operator == "string_diff":
         if current_result != current_answer:
             found = True
+    elif operator == "string_start":
+        if current_result.startswith(current_answer):
+            found = True
+    elif operator == "string_end":
+        if current_result.endswith(current_answer):
+            found = True
     elif operator == "integer_equal":
         if result_int == answer_int:
             found = True
@@ -50,24 +56,24 @@ def processMatchAnyAny(outjsonfnames, grades, answer, eachgoal):
     found = False
     goalid = eachgoal['goalid']
     #print goalid
-    jsontag1 = eachgoal['tag1']
-    #print jsontag1
-    jsontag2 = eachgoal['tag2']
-    (tag2target, tag2) = jsontag2.split('.')
-    #print jsontag2
+    jsonanswertag = eachgoal['answertag']
+    #print jsonanswertag
+    jsonresulttag = eachgoal['resulttag']
+    (resulttagtarget, resulttag) = jsonresulttag.split('.')
+    #print jsonresulttag
     # Handle special case 'answer=<string>'
     one_answer = False
-    if '=' in jsontag1:
-        (answertag, onlyanswer) = jsontag1.split('=')
+    if '=' in jsonanswertag:
+        (answertag, onlyanswer) = jsonanswertag.split('=')
         current_onlyanswer = onlyanswer.strip()
         # Change to one_answer = True
         one_answer = True
         #print "Current onlyanswer is (%s)" % current_onlyanswer
     else:
-        # Determine whether to use 'Answer' or 'Result' for tag1
-        (use_target, tag1string) = jsontag1.split('.')
+        # Determine whether to use 'Answer' or 'Result' for answertag
+        (use_target, answertagstring) = jsonanswertag.split('.')
         #print use_target
-        #print tag1string
+        #print answertagstring
 
     # Match Any to Any - Process each file until match or not found
     for outputjsonfile in outjsonfnames:
@@ -76,33 +82,33 @@ def processMatchAnyAny(outjsonfnames, grades, answer, eachgoal):
         jsonoutput = json.load(jsonfile)
         jsonfile.close()
 
-        tag2result = jsonoutput[tag2]
-        #print tag2result
+        resulttagresult = jsonoutput[resulttag]
+        #print resulttagresult
         if one_answer:
-            found = compare_result_answer(tag2result, current_onlyanswer, eachgoal['goaloperator'])
+            found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
             if found:
-                #print "tag2result is (%s) matches answer (%s)" % (tag2result, current_onlyanswer)
+                #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_onlyanswer)
                 grades.append("%s=%s" % (goalid, "P"))
                 return
         else:
             # Compare 'Answer' vs. 'Result'
             if use_target == "answer":
-                for eachanswer in answer[tag1string]:
+                for eachanswer in answer[answertagstring]:
                     current_answer = eachanswer.strip()
                     #print "Correct answer is (%s)" % current_answer
-                    found = compare_result_answer(tag2result, current_answer, eachgoal['goaloperator'])
+                    found = compare_result_answer(resulttagresult, current_answer, eachgoal['goaloperator'])
                     if found:
-                        #print "tag2result is (%s) matches answer (%s)" % (tag2result, current_answer)
+                        #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_answer)
                         grades.append("%s=%s" % (goalid, "P"))
                         return
             # Compare 'Result' vs. 'Result'
             else:
-                tag1result = jsonoutput[tag1string]
-                current_answer = tag1result.strip()
+                answertagresult = jsonoutput[answertagstring]
+                current_answer = answertagresult.strip()
                 #print "Correct answer is (%s)" % current_answer
-                found = compare_result_answer(tag2result, current_answer, eachgoal['goaloperator'])
+                found = compare_result_answer(resulttagresult, current_answer, eachgoal['goaloperator'])
                 if found:
-                    #print "tag2result is (%s) matches answer (%s)" % (tag2result, current_answer)
+                    #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_answer)
                     grades.append("%s=%s" % (goalid, "P"))
                     return
  
@@ -116,24 +122,24 @@ def processMatchOneAny(outjsonfnames, grades, answer, eachgoal):
     found = False
     goalid = eachgoal['goalid']
     #print goalid
-    jsontag1 = eachgoal['tag1']
-    #print jsontag1
-    jsontag2 = eachgoal['tag2']
-    (tag2target, tag2) = jsontag2.split('.')
-    #print jsontag2
+    jsonanswertag = eachgoal['answertag']
+    #print jsonanswertag
+    jsonresulttag = eachgoal['resulttag']
+    (resulttagtarget, resulttag) = jsonresulttag.split('.')
+    #print jsonresulttag
     # Handle special case 'answer=<string>'
     one_answer = False
-    if '=' in jsontag1:
-        (answertag, onlyanswer) = jsontag1.split('=')
+    if '=' in jsonanswertag:
+        (answertag, onlyanswer) = jsonanswertag.split('=')
         current_onlyanswer = onlyanswer.strip()
         # Change to one_answer = True
         one_answer = True
         #print "Current onlyanswer is (%s)" % current_onlyanswer
     else:
-        # Determine whether to use 'Answer' or 'Result' for tag1
-        (use_target, tag1string) = jsontag1.split('.')
+        # Determine whether to use 'Answer' or 'Result' for answertag
+        (use_target, answertagstring) = jsonanswertag.split('.')
         #print use_target
-        #print tag1string
+        #print answertagstring
 
     # Match One to Any - Process each file until match or not found
     for outputjsonfile in outjsonfnames:
@@ -142,36 +148,36 @@ def processMatchOneAny(outjsonfnames, grades, answer, eachgoal):
         jsonoutput = json.load(jsonfile)
         jsonfile.close()
 
-        tag2result = jsonoutput[tag2]
-        #print tag2result
+        resulttagresult = jsonoutput[resulttag]
+        #print resulttagresult
         if one_answer:
-            found = compare_result_answer(tag2result, current_onlyanswer, eachgoal['goaloperator'])
+            found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
             if found:
-                #print "tag2result is (%s) matches answer (%s)" % (tag2result, current_onlyanswer)
+                #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_onlyanswer)
                 grades.append("%s=%s" % (goalid, "P"))
                 return
         else:
             # Compare 'Answer' vs. 'Result'
             if use_target == "answer":
-                answerlen = len(answer[tag1string])
+                answerlen = len(answer[answertagstring])
                 #print "length of answer is (%d)" % answerlen
                 if answerlen != 1:
                     sys.stdout.write("processMatchOneAny has more than one answer for\n")
-                    sys.stdout.write("tag1string (%s) = (%s)\n" % (tag1string, answer[tag1string]))
+                    sys.stdout.write("answertagstring (%s) = (%s)\n" % (answertagstring, answer[answertagstring]))
                     sys.exit(1)
                 #print answer
-                #print answer[tag1string]
-                eachanswer = answer[tag1string]
+                #print answer[answertagstring]
+                eachanswer = answer[answertagstring]
                 current_onlyanswer = eachanswer[0].strip()
             else:
             # Compare 'Result' vs. 'Result'
-                current_onlyanswer = jsonoutput[tag1string]
+                current_onlyanswer = jsonoutput[answertagstring]
 
             #print "Correct onlyanswer is (%s)" % current_onlyanswer
 
-            found = compare_result_answer(tag2result, current_onlyanswer, eachgoal['goaloperator'])
+            found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
             if found:
-                #print "tag2result is (%s) matches answer (%s)" % (tag2result, current_onlyanswer)
+                #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_onlyanswer)
                 grades.append("%s=%s" % (goalid, "P"))
                 return
  
@@ -185,24 +191,24 @@ def processMatchOneLast(outjsonfnames, grades, answer, eachgoal):
     found = False
     goalid = eachgoal['goalid']
     #print goalid
-    jsontag1 = eachgoal['tag1']
-    #print jsontag1
-    jsontag2 = eachgoal['tag2']
-    (tag2target, tag2) = jsontag2.split('.')
-    #print jsontag2
+    jsonanswertag = eachgoal['answertag']
+    #print jsonanswertag
+    jsonresulttag = eachgoal['resulttag']
+    (resulttagtarget, resulttag) = jsonresulttag.split('.')
+    #print jsonresulttag
     # Handle special case 'answer=<string>'
     one_answer = False
-    if '=' in jsontag1:
-        (answertag, onlyanswer) = jsontag1.split('=')
+    if '=' in jsonanswertag:
+        (answertag, onlyanswer) = jsonanswertag.split('=')
         current_onlyanswer = onlyanswer.strip()
         # Change to one_answer = True
         one_answer = True
         #print "Current onlyanswer is (%s)" % current_onlyanswer
     else:
-        # Determine whether to use 'Answer' or 'Result' for tag1
-        (use_target, tag1string) = jsontag1.split('.')
+        # Determine whether to use 'Answer' or 'Result' for answertag
+        (use_target, answertagstring) = jsonanswertag.split('.')
         #print use_target
-        #print tag1string
+        #print answertagstring
 
     # Match One to Last - Process only the last timestamp file
     # until match or not found
@@ -214,36 +220,36 @@ def processMatchOneLast(outjsonfnames, grades, answer, eachgoal):
     jsonoutput = json.load(jsonfile)
     jsonfile.close()
 
-    tag2result = jsonoutput[tag2]
-    #print tag2result
+    resulttagresult = jsonoutput[resulttag]
+    #print resulttagresult
     if one_answer:
-        found = compare_result_answer(tag2result, current_onlyanswer, eachgoal['goaloperator'])
+        found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
         if found:
-            #print "tag2result is (%s) matches answer (%s)" % (tag2result, current_onlyanswer)
+            #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_onlyanswer)
             grades.append("%s=%s" % (goalid, "P"))
             return
     else:
         # Compare 'Answer' vs. 'Result'
         if use_target == "answer":
-            answerlen = len(answer[tag1string])
+            answerlen = len(answer[answertagstring])
             #print "length of answer is (%d)" % answerlen
             if answerlen != 1:
                 sys.stdout.write("processMatchOneAny has more than one answer for\n")
-                sys.stdout.write("tag1string (%s) = (%s)\n" % (tag1string, answer[tag1string]))
+                sys.stdout.write("answertagstring (%s) = (%s)\n" % (answertagstring, answer[answertagstring]))
                 sys.exit(1)
             #print answer
-            #print answer[tag1string]
-            eachanswer = answer[tag1string]
+            #print answer[answertagstring]
+            eachanswer = answer[answertagstring]
             current_onlyanswer = eachanswer[0].strip()
         else:
         # Compare 'Result' vs. 'Result'
-            current_onlyanswer = jsonoutput[tag1string]
+            current_onlyanswer = jsonoutput[answertagstring]
 
         #print "Correct onlyanswer is (%s)" % current_onlyanswer
 
-        found = compare_result_answer(tag2result, current_onlyanswer, eachgoal['goaloperator'])
+        found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
         if found:
-            #print "tag2result is (%s) matches answer (%s)" % (tag2result, current_onlyanswer)
+            #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_onlyanswer)
             grades.append("%s=%s" % (goalid, "P"))
             return
  
@@ -264,8 +270,8 @@ def processLabExercise(studentdir, labidname, grades, goals, answer):
     #    print eachgoal
     #    print "    goalid is (%s)" % eachgoal['goalid']
     #    print "    goaltype is (%s)" % eachgoal['goaltype']
-    #    print "    tag1 is (%s)" % eachgoal['tag1']
-    #    print "    tag2 is (%s)" % eachgoal['tag2']
+    #    print "    answertag is (%s)" % eachgoal['answertag']
+    #    print "    resulttag is (%s)" % eachgoal['resulttag']
     #    print ""
     #for (each_key, each_value) in answer.iteritems():
     #    print "Current key is ", each_key
