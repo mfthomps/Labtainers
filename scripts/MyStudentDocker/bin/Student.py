@@ -36,41 +36,38 @@ def main():
     LabName = studentconfig['labname']
     StudentIndex = studentconfig['studentid']
     LabIDName = studentconfig['labid']
-    SaveDirName = studentconfig['savedirectory']
     ZipFileName = 'student%s.%s.zip' % (StudentIndex, LabIDName)
 
     #print 'The lab name is (%s)' % LabName
     #print 'Output ZipFileName is (%s)' % ZipFileName
 
     OutputName=os.path.join(HOMELOCAL, ZipFileName)
-    zipoutput = zipfile.ZipFile(OutputName, "w")
+    TempOutputName=os.path.join("/tmp/", ZipFileName)
+    # Remove temp zip file and any zip file in HOMELOCAL
+    if os.path.exists(TempOutputName):
+        os.remove(TempOutputName)
+    zip_filenames = glob.glob('%s*.zip' % HOMELOCAL)
+    for zip_file in zip_filenames:
+        #print "Removing %s" % zip_file
+        os.remove(zip_file)
 
-    flist = os.listdir(StudentHomeDir)
-
-    # Go back to StudentHomeDir
-    os.chdir(StudentHomeDir)
-
-    for fname in flist:
-        #print "fname is (%s)" % fname
-        if fname in SaveDirName:
-            savedirlist = os.listdir(fname)
-            for sname in savedirlist:
-                savefname = fname + '/' + sname
-                #print "Savefname is %s" % savefname
-                if os.path.isfile(savefname):
-                    zipoutput.write(savefname, compress_type=zipfile.ZIP_DEFLATED)
-        else:
-            #print "skipping (%s)" % fname
-            pass
-        
+    # Note: Use /tmp to temporary store the zip file first
+    # Create temp zip file and zip everything under StudentHomeDir
+    zipoutput = zipfile.ZipFile(TempOutputName, "w")
+    for rootdir, subdirs, files in os.walk(StudentHomeDir):
+        newdir = rootdir.replace("/home/ubuntu", ".")
+        for file in files:
+            savefname = os.path.join(newdir, file)
+            #print "savefname is %s" % savefname
+            zipoutput.write(savefname, compress_type=zipfile.ZIP_DEFLATED)
     zipoutput.close()
 
-    # Get a list of filenames that ends with '.zip'
+    # Rename from temp zip file to its proper location
+    os.rename(TempOutputName, OutputName)
+    # Store 'OutputName' into 'zip.flist' 
     zip_fname = '%szip.flist' % HOMELOCAL
-    zip_filenames = glob.glob('%s*.zip' % HOMELOCAL)
     zip_flist = open(zip_fname, "w")
-    for zip_file in zip_filenames:
-        zip_flist.write('%s ' % zip_file)
+    zip_flist.write('%s ' % OutputName)
     zip_flist.close()
     return 0
 

@@ -4,12 +4,7 @@
 
     "labname" : "format string lab",
     "studentid" : "1",
-    "labid" : "formatlab",
-
-    "savedirectory" : [
-        "result",
-        "source"
-    ]
+    "labid" : "formatlab"
 
 }
 

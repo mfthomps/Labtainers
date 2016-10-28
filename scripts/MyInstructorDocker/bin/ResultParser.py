@@ -82,7 +82,7 @@ def ParseStdinStdout(studentdir, instructordir, jsonoutfile):
     #print "exec_proglist is: "
     #print exec_proglist
 
-    RESULTHOME = '%s/%s' % (studentdir, "result/")
+    RESULTHOME = '%s/%s' % (studentdir, ".local/result/")
     #print RESULTHOME
     for exec_prog in exec_proglist:
         stdinfiles = '%s%s.%s.' % (RESULTHOME, exec_prog, "stdin")

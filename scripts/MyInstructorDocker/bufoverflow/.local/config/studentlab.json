@@ -4,12 +4,7 @@
 
     "labname" : "buffer overflow lab",
     "studentid" : "1",
-    "labid" : "bufoverflow",
-
-    "savedirectory" : [
-        "result",
-        "source"
-    ]
+    "labid" : "bufoverflow"
 
 }
 

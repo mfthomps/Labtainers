@@ -1,15 +1,10 @@
 {
     "studentname" : "ubuntu",
-    "studenthomedir" : "/home/ubuntu/.local",
+    "studenthomedir" : "/home/ubuntu",
 
     "labname" : "buffer overflow lab",
     "studentid" : "1",
-    "labid" : "bufoverflow",
-
-    "savedirectory" : [
-        "result",
-        "source"
-    ]
+    "labid" : "bufoverflow"
 
 }
 

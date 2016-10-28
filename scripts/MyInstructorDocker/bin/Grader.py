@@ -271,7 +271,7 @@ def processLabExercise(studentdir, labidname, grades, goals, answer):
     #    print "Current key is ", each_key
     #    print "Current value is ", each_value
 
-    RESULTHOME = '%s/%s' % (studentdir, "result/")
+    RESULTHOME = '%s/%s' % (studentdir, ".local/result/")
     outjsonfnames = glob.glob('%s/%s.*' % (RESULTHOME, labidname))
     #print outjsonfnames
 
@@ -328,18 +328,13 @@ def ProcessStudentLab(studentdir, instructordir, labidname):
     StudentID = studentconfig['studentid']
     LabName = studentconfig['labname']
     LabIDName = studentconfig['labid']
-    SaveDirName = studentconfig['savedirectory']
     InstructorName = instructorconfig['instructorname']
     InstructorHomeDir = instructorconfig['instructorhomedir']
     InstructorBaseDir = instructorconfig['instructorbasedir']
     NumStudent = int(instructorconfig['numstudent'])
     GraderScript = instructorconfig['graderscript']
 
-    for dirname in SaveDirName:
-        if dirname == 'result':
-            #sys.stdout.write('%s = ' % dirname)
-            processLabExercise(studentdir, labidname, grades, goals, answer)
-            #sys.stdout.write('\n')
+    processLabExercise(studentdir, labidname, grades, goals, answer)
     return grades
 
 # Usage: Grader.py <studentdir> <instructordir> <labidname>

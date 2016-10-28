@@ -16,13 +16,8 @@ import ResultParser
 
 UBUNTUHOME="/home/ubuntu/"
 
-def printresult(gradesfile, LabIDStudentName, SaveDirName, grades):
+def printresult(gradesfile, LabIDStudentName, grades):
     gradesfile.write("%s" % LabIDStudentName)
-    #for dirname in SaveDirName:
-    #    for grade in grades:
-    #        if dirname in grade:
-    #            gradesfile.write(grade)
-    #gradesfile.write("")
     for gradestring in grades:
         gradesfile.write('%s ' % gradestring)
     gradesfile.write('\n')
@@ -54,7 +49,6 @@ def main():
     StudentHomeDir = studentconfig['studenthomedir']
     LabName = studentconfig['labname']
     LabIDName = studentconfig['labid']
-    SaveDirName = studentconfig['savedirectory']
     InstructorName = instructorconfig['instructorname']
     InstructorHomeDir = instructorconfig['instructorhomedir']
     InstructorBaseDir = instructorconfig['instructorbasedir']
@@ -106,7 +100,7 @@ def main():
         #print grades
 
         LabIDStudentName = '%s : student%d : ' % (LabIDName, index)
-        printresult(gradesfile, LabIDStudentName, SaveDirName, grades)
+        printresult(gradesfile, LabIDStudentName, grades)
 
     gradesfile.write("\n")
     gradesfile.close()
