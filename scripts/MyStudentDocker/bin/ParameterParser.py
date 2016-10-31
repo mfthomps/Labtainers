@@ -18,6 +18,9 @@ hashcreatelist = {}
 hashreplacelist = {}
 
 def CheckRandReplaceEntry(each_key, each_value):
+    # Seed random with lab seed
+    random.seed(lab_instance_seed)
+
     # RAND_REPLACE : <filename> : <token> : <LowerBound> : <UpperBound>
     #print "Checking RAND_REPLACE entry"
     entryline = each_value.split(':')
@@ -128,10 +131,10 @@ def CheckHashReplaceEntry(each_key, each_value):
         hashreplacelist[myfilename].append('%s:%s' % (token, secretstring))
 
 
-def ValidateParameterConfig(each_key, each_value):
+def ValidateParameterConfig(lab_instance_seed, each_key, each_value):
     if each_key == "RAND_REPLACE":
         #print "RAND_REPLACE"
-        CheckRandReplaceEntry(each_key, each_value)
+        CheckRandReplaceEntry(lab_instance_seed, each_key, each_value)
     elif each_key == "HASH_CREATE":
         #print "HASH_CREATE"
         CheckHashCreateEntry(each_key, each_value)
@@ -147,9 +150,6 @@ def ValidateParameterConfig(each_key, each_value):
 def Perform_RAND_REPLACE(lab_instance_seed):
     # At this point randreplacelist should have been populated
     # and files have been confirmed to exist
-
-    # Seed random with lab seed
-    random.seed(lab_instance_seed)
 
     #print "Perform_RAND_REPLACE"
     for (filename, replacelist) in randreplacelist.items():
@@ -242,7 +242,7 @@ def ParseParameterConfig(lab_instance_seed, configfilename):
                 #print "Current linestrip is (%s)" % linestrip
                 (each_key, each_value) = linestrip.split(':', 1)
                 each_key = each_key.strip()
-                ValidateParameterConfig(each_key, each_value)
+                ValidateParameterConfig(lab_instance_seed, each_key, each_value)
         #else:
         #    print "Skipping empty linestrip is (%s)" % linestrip
 
