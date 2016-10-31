@@ -17,7 +17,7 @@ randreplacelist = {}
 hashcreatelist = {}
 hashreplacelist = {}
 
-def CheckRandReplaceEntry(each_key, each_value):
+def CheckRandReplaceEntry(lab_instance_seed, each_key, each_value):
     # Seed random with lab seed
     random.seed(lab_instance_seed)
 
