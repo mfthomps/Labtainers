@@ -4,6 +4,8 @@ LABEL description="This is base Docker image for Parameterized labs"
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    expect \
+    file \
     gcc-multilib \
     iputils-ping \
     less \
@@ -13,6 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     openssh-client \
     python \
     sudo \
+    tcl8.6 \
     vim \
     zip \
     zsh
