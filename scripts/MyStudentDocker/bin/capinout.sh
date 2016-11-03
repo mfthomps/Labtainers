@@ -28,6 +28,13 @@ stdoutfile="$HOME/.local/result/$PROGNAME.stdout.$timestamp"
 echo "stdinfile is $stdinfile"
 echo "stdoutfile is $stdoutfile"
 
+# If file $HOME/.local/bin/checklocal.sh exist, run it
+if [ -f $HOME/.local/bin/checklocal.sh ]
+then
+    checklocaloutfile="$HOME/.local/result/checklocal.stdout.$timestamp"
+    $HOME/.local/bin/checklocal.sh $checklocaloutfile
+fi
+
 # kill the tee when the pipe consumer dies
 #
 #set -o pipefail

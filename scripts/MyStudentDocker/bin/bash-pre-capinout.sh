@@ -9,7 +9,8 @@ preexec() {
    fi
    stringarray=($1)
    cmd_path=`which ${stringarray[0]}`
-   if [[ ! -z $cmd_path ]] && [[ "$cmd_path" != /usr/* ]] && [[ "$cmd_path" != /bin/* ]]; then
+   if [[ ! -z $cmd_path ]] && [[ "$cmd_path" != /usr/* ]] && \
+      [[ "$cmd_path" != /bin/* ]] && [[ "$cmd_path" != /sbin/* ]]; then
        #echo "would do this command"
        capinout.sh $1
        return 1
