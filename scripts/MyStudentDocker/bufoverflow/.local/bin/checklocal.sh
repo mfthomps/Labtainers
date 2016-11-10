@@ -20,5 +20,5 @@ OUTPUTFILE=$1
 echo "" > $OUTPUTFILE
 
 # Get status of kernel.randomize_va_space
-sudo systcl -a | grep kernel.randomize_va_space >> $OUTPUTFILE
+sudo sysctl -a | grep kernel.randomize_va_space >> $OUTPUTFILE
 
