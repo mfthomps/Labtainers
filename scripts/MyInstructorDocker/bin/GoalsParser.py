@@ -19,22 +19,24 @@ timestamplist = []
 nametags = {}
 
 class MyGoal(object):
-    """ Goal - goalid, goaltype, goaloperator, answertag, resulttag """
+    """ Goal - goalid, goaltype, goaloperator, answertag, resulttag, boolean_string """
     goalid = ""
     goaltype = ""
     goaloperator = ""
     answertag = ""
     resulttag = ""
+    boolean_string = ""
 
     def goal_dict(object):
         return object.__dict__
 
-    def __init__(self, goalid, goaltype, goaloperator, answertag, resulttag):
+    def __init__(self, goalid, goaltype, goaloperator, answertag, resulttag, boolean_string):
         self.goalid = goalid
         self.goaltype = goaltype
         self.goaloperator = goaloperator
         self.answertag = answertag
         self.resulttag = resulttag
+        self.boolean_string = boolean_string
 
 def getRandom(bounds, type):
     # Converts lowerbound and upperbound as integer - and pass to
@@ -88,7 +90,7 @@ def generateSpecialTagValue(studentdir, target, finaltag):
     student_lab_instance_seedfile = open(STUDENT_LAB_INSTANCE_SEED, 'r')
     student_lab_instance_seed = student_lab_instance_seedfile.read().strip()
     student_lab_instance_seedfile.close()
-    print "Student Lab instance seed is (%s)" % student_lab_instance_seed
+    #print "Student Lab instance seed is (%s)" % student_lab_instance_seed
     
     # Seed random with student lab instance seed
     random.seed(student_lab_instance_seed)
@@ -188,39 +190,55 @@ def ParseGoals(studentdir):
                     sys.stderr.write("ERROR: goals.config contains key (%s) not alphanumeric\n" % each_key)
                     sys.exit(1)
                 values = []
-                # expecting - <type> : <operator> : <resulttag> : <answertag>
+                # expecting - either:
+                # <type> : <operator> : <resulttag> : <answertag>
+                # <type> : <string>
                 values = each_value.split(":")
                 numvalues = len(values)
-                if numvalues != 4:
+                if not (numvalues == 4 or numvalues == 2):
                     sys.stderr.write("ERROR: goals.config contains unexpected value (%s) format\n" % each_value)
                     sys.exit(1)
-                goal_type = values[0].strip()
-                goal_operator = values[1].strip()
-                resulttag = values[2].strip()
-                answertag = values[3].strip()
-                # Allowed 'answer=<string>' for answertag only
-                valid_answertag = ValidateTag(studentdir, answertag, True)
-                valid_resulttag = ValidateTag(studentdir, resulttag, False)
-                if not (goal_type == "matchanyany" or
-                    goal_type == "matchoneany" or
-                    goal_type == "matchonelast"):
-                    sys.stderr.write("ERROR: goals.config contains unrecognized type (%s)\n" % goal_type)
-                    sys.exit(1)
-                if not (goal_operator == "string_equal" or
-                    goal_operator == "string_diff" or
-                    goal_operator == "string_start" or
-                    goal_operator == "string_end" or
-                    goal_operator == "integer_equal" or
-                    goal_operator == "integer_greater" or
-                    goal_operator == "integer_lessthan"):
-                    sys.stderr.write("ERROR: goals.config contains unrecognized operator (%s)\n" % goal_operator)
-                    sys.exit(1)
-                nametags[each_key] = MyGoal(each_key, goal_type, goal_operator, valid_answertag, valid_resulttag)
+                if numvalues == 4:
+                    goal_type = values[0].strip()
+                    goal_operator = values[1].strip()
+                    resulttag = values[2].strip()
+                    answertag = values[3].strip()
+                    # Allowed 'answer=<string>' for answertag only
+                    valid_answertag = ValidateTag(studentdir, answertag, True)
+                    valid_resulttag = ValidateTag(studentdir, resulttag, False)
+                    if not (goal_type == "matchanyany" or
+                        goal_type == "matchoneany" or
+                        goal_type == "matchonelast"):
+                        sys.stderr.write("ERROR: goals.config contains unrecognized type (%s)\n" % goal_type)
+                        sys.exit(1)
+                    if not (goal_operator == "string_equal" or
+                        goal_operator == "string_diff" or
+                        goal_operator == "string_start" or
+                        goal_operator == "string_end" or
+                        goal_operator == "integer_equal" or
+                        goal_operator == "integer_greater" or
+                        goal_operator == "integer_lessthan"):
+                        sys.stderr.write("ERROR: goals.config contains unrecognized operator (%s)\n" % goal_operator)
+                        sys.exit(1)
+                    boolean_string = ""
+                    nametags[each_key] = MyGoal(each_key, goal_type, goal_operator, valid_answertag, valid_resulttag, boolean_string)
+                    #print "goal_type non-boolean"
+                    #print nametags[each_key].goal_dict()
+                else:
+                    goal_type = values[0].strip()
+                    boolean_string = values[1].strip()
+                    goal_operator = ""
+                    valid_resulttag = ""
+                    valid_answertag = ""
+                    nametags[each_key] = MyGoal(each_key, goal_type, goal_operator, valid_answertag, valid_resulttag, boolean_string)
+                    #print "goal_type boolean"
+                    #print nametags[each_key].goal_dict()
                 #nametags[each_key].toJSON()
                 #nametags[each_key].goal_type = goal_type
                 #nametags[each_key].goal_operator = goal_operator
                 #nametags[each_key].answertag = valid_answertag
                 #nametags[each_key].resulttag = valid_resulttag
+                #nametags[each_key].boolean_string = boolean_string
 
         #else:
         #    print "Skipping empty linestrip is (%s)" % linestrip

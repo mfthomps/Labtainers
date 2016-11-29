@@ -18,7 +18,13 @@ UBUNTUHOME="/home/ubuntu/"
 
 def printresult(gradesfile, LabIDStudentName, grades):
     gradesfile.write("%s" % LabIDStudentName)
-    for gradestring in grades:
+    for (each_key, each_value) in grades.iteritems():
+        #print "Current key is ", each_key
+        #print "Current value is ", each_value
+        if each_value:
+            gradestring = '%s=%s' % (each_key, "P")
+        else:
+            gradestring = '%s=%s' % (each_key, "F")
         gradesfile.write('%s ' % gradestring)
     gradesfile.write('\n')
 

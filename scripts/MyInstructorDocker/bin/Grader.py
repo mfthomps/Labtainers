@@ -8,6 +8,7 @@ import json
 import glob
 import os
 import sys
+import evalBoolean
 
 UBUNTUHOME="/home/ubuntu/"
 dirlist = []
@@ -88,7 +89,7 @@ def processMatchAnyAny(outjsonfnames, grades, answer, eachgoal):
             found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
             if found:
                 #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_onlyanswer)
-                grades.append("%s=%s" % (goalid, "P"))
+                grades[goalid] = True
                 return
         else:
             # Compare 'Answer' vs. 'Result'
@@ -99,7 +100,7 @@ def processMatchAnyAny(outjsonfnames, grades, answer, eachgoal):
                     found = compare_result_answer(resulttagresult, current_answer, eachgoal['goaloperator'])
                     if found:
                         #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_answer)
-                        grades.append("%s=%s" % (goalid, "P"))
+                        grades[goalid] = True
                         return
             # Compare 'Result' vs. 'Result'
             else:
@@ -109,13 +110,13 @@ def processMatchAnyAny(outjsonfnames, grades, answer, eachgoal):
                 found = compare_result_answer(resulttagresult, current_answer, eachgoal['goaloperator'])
                 if found:
                     #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_answer)
-                    grades.append("%s=%s" % (goalid, "P"))
+                    grades[goalid] = True
                     return
  
     # All file processed - still not found
     if not found:
         #print "processMatchAnyAny failed"
-        grades.append("%s=%s" % (goalid, "F"))
+        grades[goalid] = False
 
 def processMatchOneAny(outjsonfnames, grades, answer, eachgoal):
     #print "Inside processMatchOneAny"
@@ -154,7 +155,7 @@ def processMatchOneAny(outjsonfnames, grades, answer, eachgoal):
             found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
             if found:
                 #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_onlyanswer)
-                grades.append("%s=%s" % (goalid, "P"))
+                grades[goalid] = True
                 return
         else:
             # Compare 'Answer' vs. 'Result'
@@ -178,13 +179,13 @@ def processMatchOneAny(outjsonfnames, grades, answer, eachgoal):
             found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
             if found:
                 #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_onlyanswer)
-                grades.append("%s=%s" % (goalid, "P"))
+                grades[goalid] = True
                 return
  
     # All file processed - still not found
     if not found:
         #print "processMatchOneAny failed"
-        grades.append("%s=%s" % (goalid, "F"))
+        grades[goalid] = False
 
 def processMatchOneLast(outjsonfnames, grades, answer, eachgoal):
     #print "Inside processMatchOneLast"
@@ -226,7 +227,7 @@ def processMatchOneLast(outjsonfnames, grades, answer, eachgoal):
         found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
         if found:
             #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_onlyanswer)
-            grades.append("%s=%s" % (goalid, "P"))
+            grades[goalid] = True
             return
     else:
         # Compare 'Answer' vs. 'Result'
@@ -250,13 +251,13 @@ def processMatchOneLast(outjsonfnames, grades, answer, eachgoal):
         found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
         if found:
             #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_onlyanswer)
-            grades.append("%s=%s" % (goalid, "P"))
+            grades[goalid] = True
             return
  
     # All file processed - still not found
     if not found:
         #print "processMatchOneLast failed"
-        grades.append("%s=%s" % (goalid, "F"))
+        grades[goalid] = False
 
 
 # Process Lab Exercise
@@ -282,6 +283,7 @@ def processLabExercise(studentdir, labidname, grades, goals, answer):
     #print outjsonfnames
 
     # Go through each goal for each student
+    # Do the goaltype of non 'boolean' first
     for eachgoal in goals:
         if eachgoal['goaltype'] == "matchanyany":
             processMatchAnyAny(outjsonfnames, grades, answer, eachgoal)
@@ -289,10 +291,26 @@ def processLabExercise(studentdir, labidname, grades, goals, answer):
             processMatchOneAny(outjsonfnames, grades, answer, eachgoal)
         elif eachgoal['goaltype'] == "matchonelast":
             processMatchOneLast(outjsonfnames, grades, answer, eachgoal)
+        elif eachgoal['goaltype'] == "boolean":
+            #print "Skipping %s" % eachgoal
+            continue
         else:
             sys.stdout.write("Error: Invalid goal type!\n")
             sys.exit(1)
 
+    # Now do the goaltype of 'boolean'
+    for eachgoal in goals:
+        if (eachgoal['goaltype'] == "matchanyany" or
+            eachgoal['goaltype'] == "matchoneany" or
+            eachgoal['goaltype'] == "matchonelast"):
+            continue
+        elif eachgoal['goaltype'] == "boolean":
+            t_string = eachgoal['boolean_string']
+            boolean_result = evalBoolean.evaluate_boolean_expression(t_string, grades)
+            goalid = eachgoal['goalid']
+            grades[goalid] = boolean_result
+        else:
+            sys.stdout.write("Error: Invalid goal type!\n")
     return 0
 
 # Usage: ProcessStudentLab <studentdir> <instructordir> <labidname>
@@ -303,7 +321,7 @@ def processLabExercise(studentdir, labidname, grades, goals, answer):
 #                       for corresponding student
 #     <labidname> - labidname should represent filename of output json file
 def ProcessStudentLab(studentdir, instructordir, labidname):
-    grades = []
+    grades = {}
     studentjsonfname = '%s/.local/config/%s' % (UBUNTUHOME, "studentlab.json")
     studentconfigjson = open(studentjsonfname, "r")
     studentconfig = json.load(studentconfigjson)

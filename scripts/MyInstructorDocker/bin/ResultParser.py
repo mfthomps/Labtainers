@@ -52,7 +52,7 @@ def ValidateConfigfile(each_key, each_value):
     # Make sure command is either 'LINE' or 'STARTSWITH'
     command = values[1].strip()
     if command == 'LINE':
-        print "command is LINE"
+        #print "command is LINE"
         # Make sure lineno is integer - line is next after command 'LINE'
         lineno = values[2].strip()
         #print lineno
@@ -73,7 +73,7 @@ def ValidateConfigfile(each_key, each_value):
             sys.stderr.write("ERROR: parser.config has invalid tokenno\n")
             sys.exit(1)
     elif command == 'STARTSWITH':
-        print "command is STARTSWITH"
+        #print "command is STARTSWITH"
         # Make sure tokenno is integer - token is next after command 'STARTSWITH'
         tokenno = values[2].strip()
         #print tokenno
