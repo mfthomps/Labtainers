@@ -138,7 +138,12 @@ __bp_in_prompt_command() {
 # environment to attempt to detect if the current command is being invoked
 # interactively, and invoke 'preexec' if so.
 __bp_preexec_invoke_exec() {
-
+    #echo "here in bp_preexec_invoke_exe did pipe is $did_pipe"
+    if [ "$did_pipe" == "YES" ]; then
+        #echo "return, we did a command already"
+        export did_pipe="NO"
+        return 1
+    fi
     # Checks if the file descriptor is not standard out (i.e. '1')
     # __bp_delay_install checks if we're in test. Needed for bats to run.
     # Prevents preexec from being invoked for functions in PS1
@@ -180,7 +185,6 @@ __bp_preexec_invoke_exec() {
     if [[ -z "$this_command" ]]; then
         return
     fi
-
     # If none of the previous checks have returned out of this function, then
     # the command is in fact interactive and we should invoke the user's
     # preexec functions.
@@ -194,11 +198,13 @@ __bp_preexec_invoke_exec() {
         if type -t "$preexec_function" 1>/dev/null; then
             __bp_set_ret_value $__bp_last_ret_value
             $preexec_function "$this_command"
+            result=$?
             #
             #  if preexec function returns 1, exit without running
             #  the command -- assume preexec function handled it.
             #
-            if [[ $? -eq 1 ]]; then
+            if [[ $result -eq 1 ]]; then
+               export did_pipe="YES"
                shopt -s extdebug
                return 1
             fi 

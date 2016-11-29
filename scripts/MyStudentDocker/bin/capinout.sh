@@ -6,16 +6,39 @@
 # Usage: capinout.sh <execprog>
 # Arguments:
 #     <execprog> - program to execute
-
-EXECPROG=$1
-PROGNAME=`basename $EXECPROG`
-if [ $# -gt 1 ]
-then
-    shift
-    PROGRAM_ARGUMENTS=$*
+pipe_sym="|"
+full=$*
+echo $full
+if [[ "$full" == *"$pipe_sym"* ]]; then
+    echo is pipe has $pipe_sym
+    IFS='|' read -ra COMMAND_ARRAY <<< "$full"
+    precommand=${COMMAND_ARRAY[0]}
+    targetcommand=${COMMAND_ARRAY[1]}
+    IFS=' '
+    echo "precommand is $precommand"
+    echo "target command is $targetcommand"
+    TARGET_ARGS=($targetcommand)
+    EXECPROG=${TARGET_ARGS[0]}
+    PROGNAME=`basename ${EXECPROG}`
+    len=${#TARGET_ARGS[@]}
+    if [ $len -gt 1 ]; then
+       PROGRAM_ARGUMENTS=${TARGET_ARGS[@]:1:$len}
+    else
+       PROGRAM_ARGUMENTS=""
+    fi
 else
-    PROGRAM_ARGUMENTS=""
+    echo not pipe
+    EXECPROG=$1
+    PROGNAME=`basename $EXECPROG`
+    if [ $# -gt 1 ]
+    then
+        shift
+        PROGRAM_ARGUMENTS=$*
+    else
+        PROGRAM_ARGUMENTS=""
+    fi
 fi
+echo there
 #echo "EXECPROG is ($EXECPROG)"
 #echo "PROGNAME is ($PROGNAME)"
 #echo "PROGRAM_ARGUMENTS is ($PROGRAM_ARGUMENTS)"
@@ -34,7 +57,7 @@ then
     checklocaloutfile="$HOME/.local/result/checklocal.stdout.$timestamp"
     $HOME/.local/bin/checklocal.sh $checklocaloutfile
 fi
-
+echo here
 # kill the tee when the pipe consumer dies
 #
 #set -o pipefail
@@ -51,13 +74,21 @@ fi
 
 exec 3<>$pipe
 rm $pipe
-(echo $BASHPID >&3; tee $stdinfile) | (unbuffer -p $EXECPROG $PROGRAM_ARGUMENTS; r=$?; kill $(head -n1 <&3); exit $r) | tee $stdoutfile
+
+if [ -z "$precommand" ]; then
+    echo "NOT is a piped command"
+    (echo $BASHPID >&3; tee $stdinfile) | (unbuffer -p "$EXECPROG" "$PROGRAM_ARGUMENTS"; r=$?; kill $(head -n1 <&3); exit $r) | tee $stdoutfile
+else
+    #echo "precommand before is $precommand"
+    (echo $BASHPID >&3; eval $precommand | tee $stdinfile) | ($EXECPROG $PROGRAM_ARGUMENTS; r=$?; exit $r) | tee $stdoutfile
+fi
 
 TEE_PID=$(ps | grep [t]ee | awk '{print $1}')
-kill $TEE_PID
+if [ ! -z "$TEE_PID" ]; then
+    kill $TEE_PID
+fi
 
 #exit ${PIPESTATUS[1]}
 
 ###### Call
 #####tee $stdinfile | stdbuf -oL -eL $EXECPROG $PROGRAM_ARGUMENTS | tee $stdoutfile
-
