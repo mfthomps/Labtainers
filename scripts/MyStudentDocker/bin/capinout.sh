@@ -27,7 +27,6 @@ if [[ "$full" == *"$pipe_sym"* ]]; then
        PROGRAM_ARGUMENTS=""
     fi
 else
-    echo not pipe
     EXECPROG=$1
     PROGNAME=`basename $EXECPROG`
     if [ $# -gt 1 ]
@@ -38,7 +37,6 @@ else
         PROGRAM_ARGUMENTS=""
     fi
 fi
-echo there
 #echo "EXECPROG is ($EXECPROG)"
 #echo "PROGNAME is ($PROGNAME)"
 #echo "PROGRAM_ARGUMENTS is ($PROGRAM_ARGUMENTS)"
@@ -57,7 +55,6 @@ then
     checklocaloutfile="$HOME/.local/result/checklocal.stdout.$timestamp"
     $HOME/.local/bin/checklocal.sh $checklocaloutfile
 fi
-echo here
 # kill the tee when the pipe consumer dies
 #
 #set -o pipefail
@@ -76,7 +73,6 @@ exec 3<>$pipe
 rm $pipe
 
 if [ -z "$precommand" ]; then
-    echo "NOT is a piped command"
     (echo $BASHPID >&3; tee $stdinfile) | (unbuffer -p "$EXECPROG" "$PROGRAM_ARGUMENTS"; r=$?; kill $(head -n1 <&3); exit $r) | tee $stdoutfile
 else
     #echo "precommand before is $precommand"
