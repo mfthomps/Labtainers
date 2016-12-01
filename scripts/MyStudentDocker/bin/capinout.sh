@@ -74,7 +74,7 @@ fi
 exec 3<>$pipe
 rm $pipe
 if [ -z "$precommand" ]; then
-   (echo $BASHPID >&3; tee $stdinfile) | (unbuffer -p $EXECPROG $PROGRAM_ARGUMENTS; r=$?; kill $(head -n1 <&3); exit $r) | tee $stdoutfile
+   (echo $BASHPID >&3; tee $stdinfile) | (funbuffer -p $EXECPROG $PROGRAM_ARGUMENTS; r=$?; kill $(head -n1 <&3); exit $r) | tee $stdoutfile
 else
     #echo "precommand before is $precommand"
     (echo $BASHPID >&3; eval $precommand | tee $stdinfile) | ($EXECPROG $PROGRAM_ARGUMENTS; r=$?; exit $r) | tee $stdoutfile

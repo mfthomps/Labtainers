@@ -29,6 +29,8 @@ ADD bufoverflow.student.tar.gz /home/ubuntu
 RUN echo "# This secret file is generated when container is created" >> /root/.secret
 RUN echo "# The root secret string below will be replaced with a keyed hash" >> /root/.secret
 RUN echo "My ROOT secret string is: ROOT_SECRET" >> /root/.secret
+ADD bin/funbuffer /usr/bin/
+
 
 USER ubuntu
 ENV HOME /home/ubuntu
