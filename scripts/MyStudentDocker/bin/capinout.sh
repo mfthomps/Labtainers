@@ -37,6 +37,7 @@ else
         PROGRAM_ARGUMENTS=""
     fi
 fi
+
 #echo "EXECPROG is ($EXECPROG)"
 #echo "PROGNAME is ($PROGNAME)"
 #echo "PROGRAM_ARGUMENTS is ($PROGRAM_ARGUMENTS)"
@@ -55,6 +56,7 @@ then
     checklocaloutfile="$HOME/.local/result/checklocal.stdout.$timestamp"
     $HOME/.local/bin/checklocal.sh $checklocaloutfile
 fi
+
 # kill the tee when the pipe consumer dies
 #
 #set -o pipefail
@@ -71,20 +73,18 @@ fi
 
 exec 3<>$pipe
 rm $pipe
-
 if [ -z "$precommand" ]; then
-    (echo $BASHPID >&3; tee $stdinfile) | (unbuffer -p "$EXECPROG" "$PROGRAM_ARGUMENTS"; r=$?; kill $(head -n1 <&3); exit $r) | tee $stdoutfile
+   (echo $BASHPID >&3; tee $stdinfile) | (unbuffer -p $EXECPROG $PROGRAM_ARGUMENTS; r=$?; kill $(head -n1 <&3); exit $r) | tee $stdoutfile
 else
     #echo "precommand before is $precommand"
     (echo $BASHPID >&3; eval $precommand | tee $stdinfile) | ($EXECPROG $PROGRAM_ARGUMENTS; r=$?; exit $r) | tee $stdoutfile
 fi
 
 TEE_PID=$(ps | grep [t]ee | awk '{print $1}')
-if [ ! -z "$TEE_PID" ]; then
-    kill $TEE_PID
-fi
+kill $TEE_PID
 
 #exit ${PIPESTATUS[1]}
 
 ###### Call
 #####tee $stdinfile | stdbuf -oL -eL $EXECPROG $PROGRAM_ARGUMENTS | tee $stdoutfile
+
