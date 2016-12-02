@@ -14,7 +14,7 @@ import AnswerParser
 import GoalsParser
 import ResultParser
 
-UBUNTUHOME="/home/ubuntu/"
+UBUNTUHOME="/home/ubuntu"
 
 def printresult(gradesfile, LabIDStudentName, grades):
     gradesfile.write("%s" % LabIDStudentName)
@@ -115,6 +115,9 @@ def main():
 
     gradesfile.write("\n")
     gradesfile.close()
+
+    # Inform user where the 'grades.txt' are created
+    print "Grades are stored in '%s'" % gradesfilename
     return 0
 
 if __name__ == '__main__':
