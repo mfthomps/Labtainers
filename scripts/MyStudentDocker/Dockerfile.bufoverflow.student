@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     expect \
     file \
     gcc-multilib \
+    gdb \
     iputils-ping \
     less \
     man \
