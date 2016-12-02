@@ -69,9 +69,12 @@ result=$?
 need_seeds=0
 if [ $result -eq $FAILURE ]
 then
+    # get IP address of docker0
+    IPADDR=`ifconfig docker0 | awk '/inet addr:/ {print $2}' | sed 's/addr://'`
+    echo "Docker Host IP address is $IPADDR"
     #echo "Container $CONTAINER_NAME does not exist yet, call docker run"
-    #docker run -dt --name=$CONTAINER_NAME $CONTAINER_IMAGE bash
-    docker run -dt --privileged --name=$CONTAINER_NAME $CONTAINER_IMAGE bash
+    #docker run -dt --add-host my_host:$IPADDR --name=$CONTAINER_NAME $CONTAINER_IMAGE bash
+    docker run -dt --privileged --add-host my_host:$IPADDR --name=$CONTAINER_NAME $CONTAINER_IMAGE bash
     # Give the container some time -- just in case
     sleep 3
     need_seeds=1
