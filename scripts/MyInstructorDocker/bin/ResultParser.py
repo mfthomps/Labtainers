@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 # ResultParser.py
-# Description: * Read parser.config
-#              * Parse stdin and stdout files based on parser.config
+# Description: * Read results.config
+#              * Parse stdin and stdout files based on results.config
 #              * Create a json file
 
 import json
@@ -19,7 +19,7 @@ nametags = {}
 
 def ValidateConfigfile(each_key, each_value):
     if not each_key.isalnum():
-        sys.stderr.write("ERROR: parser.config contains key (%s) not alphanumeric\n" % each_key)
+        sys.stderr.write("ERROR: results.config contains key (%s) not alphanumeric\n" % each_key)
         sys.exit(1)
     values = []
     # expecting - [ stdin | stdout ] : <command> : <param>
@@ -33,7 +33,7 @@ def ValidateConfigfile(each_key, each_value):
     #print values
     numvalues = len(values)
     if numvalues < 4:
-        sys.stderr.write("ERROR: parser.config contains unexpected value (%s) format\n" % each_value)
+        sys.stderr.write("ERROR: results.config contains unexpected value (%s) format\n" % each_value)
         sys.exit(1)
     values = []
     # Split into four parts - last part will be taken as string if <command> is 'STARTSWITH'
@@ -45,8 +45,8 @@ def ValidateConfigfile(each_key, each_value):
     if exec_program not in exec_proglist:
         exec_proglist.append(exec_program)
     if (targetfile != "stdin") and (targetfile != "stdout"):
-        sys.stderr.write("ERROR: parser.config line (%s)\n" % each_value)
-        sys.stderr.write("ERROR: parser.config uses not stdin or sdout\n")
+        sys.stderr.write("ERROR: results.config line (%s)\n" % each_value)
+        sys.stderr.write("ERROR: results.config uses not stdin or sdout\n")
         sys.exit(1)
 
     # Make sure command is either 'LINE' or 'STARTSWITH'
@@ -59,8 +59,8 @@ def ValidateConfigfile(each_key, each_value):
         try:
             int(lineno)
         except ValueError:
-            sys.stderr.write("ERROR: parser.config line (%s)\n" % each_value)
-            sys.stderr.write("ERROR: parser.config has invalid lineno\n")
+            sys.stderr.write("ERROR: results.config line (%s)\n" % each_value)
+            sys.stderr.write("ERROR: results.config has invalid lineno\n")
             sys.exit(1)
 
         # Make sure tokenno is integer
@@ -69,8 +69,8 @@ def ValidateConfigfile(each_key, each_value):
         try:
             int(tokenno)
         except ValueError:
-            sys.stderr.write("ERROR: parser.config line (%s)\n" % each_value)
-            sys.stderr.write("ERROR: parser.config has invalid tokenno\n")
+            sys.stderr.write("ERROR: results.config line (%s)\n" % each_value)
+            sys.stderr.write("ERROR: results.config has invalid tokenno\n")
             sys.exit(1)
     elif command == 'STARTSWITH':
         #print "command is STARTSWITH"
@@ -80,16 +80,16 @@ def ValidateConfigfile(each_key, each_value):
         try:
             int(tokenno)
         except ValueError:
-            sys.stderr.write("ERROR: parser.config line (%s)\n" % each_value)
-            sys.stderr.write("ERROR: parser.config has invalid tokenno\n")
+            sys.stderr.write("ERROR: results.config line (%s)\n" % each_value)
+            sys.stderr.write("ERROR: results.config has invalid tokenno\n")
     else:
-        sys.stderr.write("ERROR: parser.config contains unexpected command (%s) format\n" % each_value)
+        sys.stderr.write("ERROR: results.config contains unexpected command (%s) format\n" % each_value)
         sys.exit(1)
 
     return 0
 
 def ParseStdinStdout(studentdir, instructordir, jsonoutfile):
-    configfilename = '%s/.local/config/%s' % (UBUNTUHOME, "parser.config")
+    configfilename = '%s/.local/config/%s' % (UBUNTUHOME, "results.config")
     configfile = open(configfilename)
     configfilelines = configfile.readlines()
     configfile.close()
