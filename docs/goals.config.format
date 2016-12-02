@@ -50,6 +50,8 @@
 #        For <answertag>, the following special cases are allowed also:
 #        'answer'=<string> - No lookup is done, just use the string as the answer.
 #                            Store in JSON output file as 'answer=string'
+#                            Note: the string in 'answer'=<string> does not need to be quoted
+#                                  Only characters not allowed in the string are ':' and '='
 #        'asciirandom'=<lowerbound>-<upperbound> - No lookup is done.
 #                      The value is generated using random generator (seed by the
 #                      lab instance seed) - value is chosen between lowerbound and
@@ -69,6 +71,8 @@
 #                          the lab instance seed and the <string>. The value is stored as
 #                          a string in JSON output file.
 #                          as 'answer=<generated_hash_value_string>'
+#                          Note: the string in 'hash'=<string> does not need to be quoted
+#                                Only characters not allowed in the string are ':' and '='
 #
 # for example:
 # crash : matchanyany : string_equal : crashstring : inputstring
