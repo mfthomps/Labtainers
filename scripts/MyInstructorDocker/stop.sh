@@ -54,6 +54,9 @@ docker cp $CONTAINER_NAME:/home/$CONTAINER_USER/grades.txt /home/$USER/$HOST_HOM
 # Change ownership to defined user $USER
 sudo chown $USER:$USER /home/$USER/$HOST_HOME_SEED/grades.txt
 
+# Inform user where results are stored
+echo "Results (grades.txt) are stored in /home/$USER/$HOST_HOME_SEED/ directory"
+
 #echo "Stopping container $CONTAINER_NAME"
 docker stop $CONTAINER_NAME
 #echo "Container $CONTAINER_NAME is now stopped!"
