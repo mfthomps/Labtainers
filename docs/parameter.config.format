@@ -1,0 +1,53 @@
+# parameter.config.format
+# 
+# description: * this configuration file is read by ParameterParser.py
+#              * comment line starts with '#' and will be skipped
+#              * empty line will be ignored
+#
+# NOTE:
+# 1. This file is invoked only once during creation of the container
+# 2. This will parameterize the container specific to each student
+# 3. The 'ParameterParser.py' will be called by start.sh script
+#    that is responsible for creating container.
+#
+# entry format will depend on the first <operator>
+# <operator> - must be either: 'RAND_REPLACE', 'HASH_CREATE', or 'HASH_REPLACE'
+#
+# 'RAND_REPLACE' entry format:
+# RAND_REPLACE : <filename> : <token> : <LowerBound> : <UpperBound>
+#     where: <filename> - specifies the filename (file must exist)
+#                         where <token> is to be replaced
+#            <token> - is the string to be replaced
+#            <LowerBound> and <UpperBound> specifies the lower and upper bound
+#                                          to be used by random generator
+# example:
+# RAND_REPLACE: /home/ubuntu/stack.c : BUFFER_SIZE : 200 : 2000
+# Above entry means randomly replace the token string "BUFFER_SIZE" found in
+# file stack.c with a number ranging from 200 to 2000
+#
+# 'HASH_CREATE' entry format:
+# HASH_CREATE : <filename> : <string>
+#     where: <filename> - specifies the filename (create file if not exist)
+#            <string> - this string will be used along with the user's e-mail
+#                       as the secret keyed hash for the lab instance seed
+# example:
+# HASH_CREATE : /home/ubuntu/myseed : bufferoverflowinstance
+# Above entry means a file named /home/ubuntu/myseed will be created
+# (if it does not exist)
+# The lab instance seed along with the string 'bufferoverflowinstance'
+# in this case to create a hash to be stored in /home/ubuntu/myseed file
+# 
+# 'HASH_REPLACE' entry format:
+# HASH_REPLACE : <filename> : <token> : <string>
+#     where: <filename> - specifies the filename (file must exist)
+#                         where hash <token> is to be replaced
+#            <string> - this string will be used as the secret keyed hash
+#
+# example:
+# HASH_REPLACE : /root/.secret : ROOT_SECRET : mysupersecretrootfile
+# HASH_REPLACE : /home/ubuntu/.secret : UBUNTU_SECRET : mysupersecretubuntufile
+# Above entries specify /root/.secret and /home/ubuntu/.secret will have
+# its corresponding token replaced with hash generated from combining
+# the secret string and lab instance seed
+#
+
