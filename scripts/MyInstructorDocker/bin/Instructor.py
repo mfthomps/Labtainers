@@ -21,11 +21,15 @@ def printresult(gradesfile, LabIDStudentName, grades):
     for (each_key, each_value) in grades.iteritems():
         #print "Current key is ", each_key
         #print "Current value is ", each_value
-        if each_value:
-            gradestring = '%s=%s' % (each_key, "P")
+        if each_key.startswith('_'):
+            # Skip, i.e., do not print if it starts with '_'
+            continue
         else:
-            gradestring = '%s=%s' % (each_key, "F")
-        gradesfile.write('%s ' % gradestring)
+            if each_value:
+                gradestring = '%s=%s' % (each_key, "P")
+            else:
+                gradestring = '%s=%s' % (each_key, "F")
+            gradesfile.write('%s ' % gradestring)
     gradesfile.write('\n')
 
 # Usage: Instructor.py

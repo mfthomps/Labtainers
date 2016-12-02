@@ -10,6 +10,7 @@ import md5
 import os
 import random
 import sys
+import MyUtil
 
 UBUNTUHOME = "/home/ubuntu/"
 exec_proglist = []
@@ -141,8 +142,8 @@ def ValidateTag(studentdir, inputtag, allowed_special_answer):
         if not (target == "answer" or target == "result"):
             sys.stderr.write("ERROR: goals.config contains unrecognized tag (%s)\n" % inputtag)
             sys.exit(1)
-        if not finaltag.isalnum():
-            sys.stderr.write("ERROR: goals.config contains tag (%s) not alphanumeric\n" % inputtag)
+        if not MyUtil.CheckAlphaDashUnder(finaltag):
+            sys.stderr.write("ERROR: Not allowed characters in goals.config's tag (%s)\n" % inputtag)
             sys.exit(1)
         if not allowed_special_answer:
             if target == "answer":
@@ -164,8 +165,8 @@ def ValidateTag(studentdir, inputtag, allowed_special_answer):
         returntag = generateSpecialTagValue(studentdir, target, finaltag)
     else:
         #print "tag is %s" % inputtag
-        if not inputtag.isalnum():
-            sys.stderr.write("ERROR: goals.config contains tag (%s) not alphanumeric\n" % inputtag)
+        if not MyUtil.CheckAlphaDashUnder(inputtag):
+            sys.stderr.write("ERROR: Not allowed characters in goals.config's tag (%s)\n" % inputtag)
             sys.exit(1)
         returntag = 'result.%s' % inputtag
 
@@ -186,8 +187,8 @@ def ParseGoals(studentdir):
                 each_key = each_key.strip()
                 #print each_key
                 #print each_value
-                if not each_key.isalnum():
-                    sys.stderr.write("ERROR: goals.config contains key (%s) not alphanumeric\n" % each_key)
+                if not MyUtil.CheckAlphaDashUnder(each_key):
+                    sys.stderr.write("ERROR: Not allowed characters in goals.config's key (%s)\n" % each_key)
                     sys.exit(1)
                 values = []
                 # expecting - either:

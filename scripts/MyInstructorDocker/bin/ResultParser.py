@@ -9,6 +9,7 @@ import json
 import glob
 import os
 import sys
+import MyUtil
 
 UBUNTUHOME = "/home/ubuntu/"
 exec_proglist = []
@@ -18,8 +19,8 @@ timestamplist = []
 nametags = {}
 
 def ValidateConfigfile(each_key, each_value):
-    if not each_key.isalnum():
-        sys.stderr.write("ERROR: results.config contains key (%s) not alphanumeric\n" % each_key)
+    if not MyUtil.CheckAlphaDashUnder(each_key):
+        sys.stderr.write("ERROR: Not allowed characters in results.config's key (%s)\n" % each_key)
         sys.exit(1)
     values = []
     # expecting - [ stdin | stdout ] : <command> : <param>
