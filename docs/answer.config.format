@@ -1,0 +1,19 @@
+# answer.config.format
+# 
+# description: * this configuration file is read by AnswerParser.py
+#              * comment line starts with '#' and will be skipped
+#              * empty line will be ignored
+#
+# entry format
+# <nametag> = <string>
+#             nametag - must be alphanumeric
+#
+# NOTE: multiple <nametag> is allowed -- will be stored as list
+#
+# for example:
+# crashstring = %s
+# crashstring = %s%s
+# means : the 'crashstring' is equal to '%s' and 
+#             'crashstring' is equal to '%s%s' are both valid answers
+#
+
