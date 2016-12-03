@@ -9,7 +9,7 @@
 #include <string.h>
 int bof(char *str)
 {
-    char buffer[12];
+    char buffer[BUFFER_SIZE]; /* originally 12 in SEED labs */
 
     //BO Vulnerability
     strcpy(buffer,str);
@@ -19,12 +19,12 @@ int bof(char *str)
 
 int main(int argc, char* argv[])
 {
-    char str[517];
+    char str[OVERFLOW_SIZE]; /* originally 517 in SEED labs */
 
     FILE *badfile;
     badfile = fopen("badfile","r");
 
-    fread(str, sizeof(char),517, badfile);
+    fread(str, sizeof(char),OVERFLOW_SIZE, badfile); /* originally 517 in SEED labs */
     bof(str);
 
     printf("Returned Properly\n");
