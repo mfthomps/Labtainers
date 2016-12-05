@@ -82,8 +82,11 @@ def processMatchAnyAny(outjsonfnames, grades, answer, eachgoal):
         jsonfile = open(outputjsonfile, "r")
         jsonoutput = json.load(jsonfile)
         jsonfile.close()
-
-        resulttagresult = jsonoutput[resulttag]
+        try:
+            resulttagresult = jsonoutput[resulttag]
+        except:
+            print('%s not found in file %s' % (resulttag, outputjsonfile))
+            exit(1)
         #print resulttagresult
         if one_answer:
             found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
