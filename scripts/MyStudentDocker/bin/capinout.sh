@@ -81,7 +81,10 @@ else
 fi
 
 TEE_PID=$(ps | grep [t]ee | awk '{print $1}')
-kill $TEE_PID
+if [ ! -z "$TEE_PID" ]; then
+    kill $TEE_PID
+fi
+
 
 #exit ${PIPESTATUS[1]}
 
