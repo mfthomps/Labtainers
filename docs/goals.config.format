@@ -12,7 +12,12 @@
 # <type> - must be either:
 #          'matchanyany' - if any answertag matches any resulttag
 #          'matchoneany' - if the first answertag matches any resulttag
+#                        - note: 'matchanyany' and 'matchoneany' will NOT be used 
+#                                as sub-goal for goal of type 'boolean' below
 #          'matchonelast' - if the first answertag matches the last resulttag
+#                         - note: 'matchonelast' can also be used as sub-goal for
+#                                 goal of type 'boolean' below
+#          'boolean_set' - this is sub-goal to be used with goal of type 'boolean' below
 #          'boolean' - goal based on boolean operation
 #                      string that follows will be evaluated for boolean value
 #
