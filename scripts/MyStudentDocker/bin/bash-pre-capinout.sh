@@ -14,6 +14,21 @@ preexec() {
    for command in "${commandarray[@]}";do
        stringarray=($command)
        cmd_path=`which ${stringarray[0]}`
+       # If file /home/ubuntu/.local/bin/treataslocal exist, run it
+       if [ -f /home/ubuntu/.local/bin/treataslocal ]
+       then
+           # Get the list of commands from treataslocal
+           cmdlocallist=`cat /home/ubuntu/.local/bin/treataslocal`
+           for cmdlocal in $cmdlocallist; do
+               if [[ "$cmd_path" == "$cmdlocal" ]]; then
+                   #echo "Treat as local command (specified in treataslocal)"
+                   capinout.sh "$1"
+                   return 1
+               else
+                   continue
+               fi
+           done
+       fi
        if [[ ! -z $cmd_path ]] && [[ "$cmd_path" != /usr/* ]] && \
           [[ "$cmd_path" != /bin/* ]] && [[ "$cmd_path" != /sbin/* ]]; then
            #echo "would do this command $1"
