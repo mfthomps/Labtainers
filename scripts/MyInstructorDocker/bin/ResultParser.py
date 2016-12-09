@@ -42,7 +42,8 @@ def ValidateConfigfile(each_key, each_value):
 
     # Make sure it is 'stdin' or 'stdout'
     progname_type = values[0].strip()
-    (exec_program, targetfile) = progname_type.split('.')
+    # Use rsplit() here because exec_program may have '.' as part of name
+    (exec_program, targetfile) = progname_type.rsplit('.', 1)
     if exec_program not in exec_proglist:
         exec_proglist.append(exec_program)
     if (targetfile != "stdin") and (targetfile != "stdout"):
@@ -191,53 +192,55 @@ def ParseStdinStdout(studentdir, instructordir, jsonoutfile):
                     targetfname = '%s%s.%s' % (RESULTHOME, targetfile, timestamppart)
                     #print "targetfname is (%s)" % targetfname
                     if not os.path.exists(targetfname):
-                        sys.stderr.write("ERROR: No %s file does not exist\n" % targetfname)
-                        sys.exit(1)
-
-                    # Read in corresponding file
-                    targetf = open(targetfname, "r")
-                    targetlines = targetf.readlines()
-                    targetf.close()
-                    targetfilelen = len(targetlines)
-
-                    #print "Stdin has (%d) lines" % targetfilelen
-                    #print targetlines
-
-                    #print "targetfile is %s" % targetfile
-                    # command has been validated to be either 'LINE' or 'STARTSWITH'
-                    if command == 'LINE':
-                        # make sure lineno <= targetfilelen
-                        if lineno > targetfilelen:
-                            linerequested = "NONE"
-                            #print "setting result to none lineno > stdin length"
-                        else:
-                            linerequested = targetlines[lineno-1]
-                    else:
-                        # command = 'STARTSWITH':
-                        found_startstring = False
-                        for currentline in targetlines:
-                            if found_startstring == False:
-                                if currentline.startswith(startstring):
-                                    found_startstring = True
-                                    linerequested = currentline
-                                    break
-                        # If not found - set to NONE
-                        if found_startstring == False:
-                            linerequested = "NONE"
-
-                    #print "Line requested is (%s)" % linerequested
-                    if linerequested == "NONE":
+                        # If file does not exist, treat as can't find token
                         token = "NONE"
+                        #sys.stderr.write("ERROR: No %s file does not exist\n" % targetfname)
+                        #sys.exit(1)
                     else:
-                        linetokens = linerequested.split()
-                        numlinetokens = len(linetokens)
-                        #print linetokens
-                        # make sure tokenno <= numlinetokens
-                        if tokenno > numlinetokens:
-                            token = "NONE"
-                            #print "setting result to none tokenno > numlinetokens"
+                        # Read in corresponding file
+                        targetf = open(targetfname, "r")
+                        targetlines = targetf.readlines()
+                        targetf.close()
+                        targetfilelen = len(targetlines)
+
+                        #print "Stdin has (%d) lines" % targetfilelen
+                        #print targetlines
+
+                        #print "targetfile is %s" % targetfile
+                        # command has been validated to be either 'LINE' or 'STARTSWITH'
+                        if command == 'LINE':
+                            # make sure lineno <= targetfilelen
+                            if lineno > targetfilelen:
+                                linerequested = "NONE"
+                                #print "setting result to none lineno > stdin length"
+                            else:
+                                linerequested = targetlines[lineno-1]
                         else:
-                            token = linetokens[tokenno-1]
+                            # command = 'STARTSWITH':
+                            found_startstring = False
+                            for currentline in targetlines:
+                                if found_startstring == False:
+                                    if currentline.startswith(startstring):
+                                        found_startstring = True
+                                        linerequested = currentline
+                                        break
+                            # If not found - set to NONE
+                            if found_startstring == False:
+                                linerequested = "NONE"
+
+                        #print "Line requested is (%s)" % linerequested
+                        if linerequested == "NONE":
+                            token = "NONE"
+                        else:
+                            linetokens = linerequested.split()
+                            numlinetokens = len(linetokens)
+                            #print linetokens
+                            # make sure tokenno <= numlinetokens
+                            if tokenno > numlinetokens:
+                                token = "NONE"
+                                #print "setting result to none tokenno > numlinetokens"
+                            else:
+                                token = linetokens[tokenno-1]
 
                     #print token
                     if token == "NONE":
