@@ -46,7 +46,7 @@ sudo /home/ubuntu/.local/bin/ParameterParser.py $LAB_INSTANCE_SEED $LAB_PARAMCON
 # If file /home/ubuntu/.local/bin/fixlocal.sh exist, run it
 if [ -f /home/ubuntu/.local/bin/fixlocal.sh ]
 then
-    /home/ubuntu/.local/bin/fixlocal.sh
+    /home/ubuntu/.local/bin/fixlocal.sh 2>>/tmp/fixlocal.output
 fi
 
 rmdir $LOCKDIR
