@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# Build an instructor container image for a given lab.
+# First copies all required files to a staging directory in /tmp
+#
 
 lab=$1
 if [ ! -d $lab ]; then
