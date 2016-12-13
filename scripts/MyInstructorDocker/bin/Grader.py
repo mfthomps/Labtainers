@@ -164,6 +164,9 @@ def processMatchOneAny(outjsonfnames, grades, answer, eachgoal):
         else:
             # Compare 'Answer' vs. 'Result'
             if use_target == "answer":
+                if answertagstring not in answer:
+                    sys.stdout.write("tag string %s not in %s" % (answertagstring, str(answer)))
+                    sys.exit(1)
                 answerlen = len(answer[answertagstring])
                 #print "length of answer is (%d)" % answerlen
                 if answerlen != 1:

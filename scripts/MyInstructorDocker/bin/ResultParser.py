@@ -18,6 +18,15 @@ stdoutfnameslist = []
 timestamplist = []
 nametags = {}
 
+def ValidateTokenId(each_value, token_id):
+    if token_id != 'ALL' and token_id != 'LAST':
+        try:
+            int(token_id)
+        except ValueError:
+            sys.stderr.write("ERROR: results.config line (%s)\n" % each_value)
+            sys.stderr.write("ERROR: results.config has invalid token_id\n")
+            sys.exit(1)
+
 def ValidateConfigfile(each_key, each_value):
     if not MyUtil.CheckAlphaDashUnder(each_key):
         sys.stderr.write("ERROR: Not allowed characters in results.config's key (%s)\n" % each_key)
@@ -66,24 +75,15 @@ def ValidateConfigfile(each_key, each_value):
             sys.exit(1)
 
         # Make sure tokenno is integer
-        tokenno = values[3].strip()
-        #print tokenno
-        try:
-            int(tokenno)
-        except ValueError:
-            sys.stderr.write("ERROR: results.config line (%s)\n" % each_value)
-            sys.stderr.write("ERROR: results.config has invalid tokenno\n")
-            sys.exit(1)
+        token_id = values[3].strip()
+        #print token_id
+        ValidateTokenId(each_value, token_id)
     elif command == 'STARTSWITH':
         #print "command is STARTSWITH"
         # Make sure tokenno is integer - token is next after command 'STARTSWITH'
-        tokenno = values[2].strip()
+        token_id = values[2].strip()
         #print tokenno
-        try:
-            int(tokenno)
-        except ValueError:
-            sys.stderr.write("ERROR: results.config line (%s)\n" % each_value)
-            sys.stderr.write("ERROR: results.config has invalid tokenno\n")
+        ValidateTokenId(each_value, token_id)
     else:
         sys.stderr.write("ERROR: results.config contains unexpected command (%s) format\n" % each_value)
         sys.exit(1)
@@ -183,10 +183,10 @@ def ParseStdinStdout(studentdir, instructordir, jsonoutfile):
                     # command has been validated to be either 'LINE' or 'STARTSWITH'
                     if command == 'LINE':
                         lineno = int(values[2].strip())
-                        tokenno = int(values[3].strip())
+                        token_id = values[3].strip()
                     else:
                         # command = 'STARTSWITH':
-                        tokenno = int(values[2].strip())
+                        token_id = values[2].strip()
                         startstring = values[3].strip()
 
                     targetfname = '%s%s.%s' % (RESULTHOME, targetfile, timestamppart)
@@ -234,13 +234,19 @@ def ParseStdinStdout(studentdir, instructordir, jsonoutfile):
                         else:
                             linetokens = linerequested.split()
                             numlinetokens = len(linetokens)
-                            #print linetokens
-                            # make sure tokenno <= numlinetokens
-                            if tokenno > numlinetokens:
-                                token = "NONE"
-                                #print "setting result to none tokenno > numlinetokens"
+                            if token_id == 'ALL':
+                                token = linerequested.strip()
+                            elif token_id == 'LAST':
+                                token = linetokens[numlinetokens-1]
                             else:
-                                token = linetokens[tokenno-1]
+                                #print linetokens
+                                # make sure tokenno <= numlinetokens
+                                tokenno = int(token_id)
+                                if tokenno > numlinetokens:
+                                    token = "NONE"
+                                    #print "setting result to none tokenno > numlinetokens"
+                                else:
+                                    token = linetokens[tokenno-1]
 
                     #print token
                     if token == "NONE":
