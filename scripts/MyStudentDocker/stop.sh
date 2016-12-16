@@ -17,7 +17,7 @@ fi
 lab=$1
 CWD=`pwd`
 #echo "Current directory is $CWD"
-CONFIG=${CWD}/start.config.$lab
+CONFIG=${CWD}/start.config
 if [ -f $CONFIG ]
 then
     #echo "Config file $CONFIG exists, proceeding"
@@ -31,11 +31,11 @@ fi
 #echo "Name of container is $CONTAINER_NAME"
 #echo "Name of container image is $CONTAINER_IMAGE"
 
-# Check existence of /home/$USER/$HOST_HOME_SEED directory - create if necessary
-if [ ! -d /home/$USER/$HOST_HOME_SEED ]
+# Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
+if [ ! -d /home/$USER/$HOST_HOME_XFER ]
 then
-    echo "Directory /home/$USER/$HOST_HOME_SEED does not exist, creating it"
-    mkdir -p /home/$USER/$HOST_HOME_SEED
+    echo "Directory /home/$USER/$HOST_HOME_XFER does not exist, creating it"
+    mkdir -p /home/$USER/$HOST_HOME_XFER
 fi
 
 ##### ***** start pre-stop commands ****
@@ -61,13 +61,13 @@ docker exec -it $CONTAINER_NAME script -q -c "/bin/bash -c 'cd ; . .profile ; St
 zip_filelist=`docker exec -it $CONTAINER_NAME cat /home/$CONTAINER_USER/.local/zip.flist`
 for fname in $zip_filelist;
 do
-    docker cp $CONTAINER_NAME:$fname /home/$USER/$HOST_HOME_SEED/
+    docker cp $CONTAINER_NAME:$fname /home/$USER/$HOST_HOME_SXFER/
 done
 # Change ownership to defined user $USER
-sudo chown $USER:$USER /home/$USER/$HOST_HOME_SEED/*.zip
+sudo chown $USER:$USER /home/$USER/$HOST_HOME_XFER/*.zip
 
 # Inform user where results are stored
-echo "Results stored in directory: /home/$USER/$HOST_HOME_SEED "
+echo "Results stored in directory: /home/$USER/$HOST_HOME_XFER "
 
 #echo "Stopping container $CONTAINER_NAME"
 docker stop $CONTAINER_NAME

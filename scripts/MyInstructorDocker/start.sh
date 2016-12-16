@@ -25,7 +25,7 @@ FAILURE=1
 
 CWD=`pwd`
 #echo "Current directory is $CWD"
-CONFIG=${CWD}/start.config.$lab
+CONFIG=${CWD}/start.config
 
 if [ -f $CONFIG ]
 then
@@ -40,11 +40,11 @@ fi
 #echo "Name of container is $CONTAINER_NAME"
 #echo "Name of container image is $CONTAINER_IMAGE"
 
-# Check existence of /home/$USER/$HOST_HOME_SEED directory - create if necessary
-if [ ! -d /home/$USER/$HOST_HOME_SEED ]
+# Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
+if [ ! -d /home/$USER/$HOST_HOME_XFER ]
 then
-    echo "Directory /home/$USER/$HOST_HOME_SEED does not exist, creating it"
-    mkdir -p /home/$USER/$HOST_HOME_SEED
+    echo "Directory /home/$USER/$HOST_HOME_XFER does not exist, creating it"
+    mkdir -p /home/$USER/$HOST_HOME_XFER
 fi
 
 # Check to see if $CONTAINER_NAME container has been created or not
@@ -67,7 +67,7 @@ fi
 ##### ***** start pre-start commands ****
 # This is where "pre-start" commands should be run for each lab
 # Copy zip files from 'Shared' folder to 'home/$CONTAINER_USER'
-ZIP_FILES=`ls /home/$USER/$HOST_HOME_SEED/*.zip`
+ZIP_FILES=`ls /home/$USER/$HOST_HOME_XFER/*.zip`
 #echo "filenames is ($ZIP_FILES)"
 for fname in $ZIP_FILES; do
     #echo "name is $fname"

@@ -16,7 +16,7 @@ fi
 lab=$1
 CWD=`pwd`
 #echo "Current directory is $CWD"
-CONFIG=${CWD}/start.config.$lab
+CONFIG=${CWD}/start.config
 
 if [ -f $CONFIG ]
 then
@@ -31,11 +31,11 @@ fi
 #echo "Name of container is $CONTAINER_NAME"
 #echo "Name of container image is $CONTAINER_IMAGE"
 
-# Check existence of /home/$USER/$HOST_HOME_SEED directory - create if necessary
-if [ ! -d /home/$USER/$HOST_HOME_SEED ]
+# Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
+if [ ! -d /home/$USER/$HOST_HOME_XFER ]
 then
-    echo "Directory /home/$USER/$HOST_HOME_SEED does not exist, creating it"
-    mkdir -p /home/$USER/$HOST_HOME_SEED
+    echo "Directory /home/$USER/$HOST_HOME_XFER does not exist, creating it"
+    mkdir -p /home/$USER/$HOST_HOME_XFER
 fi
 
 ##### ***** start pre-stop commands ****
@@ -54,12 +54,12 @@ fi
 ##### ***** end pre-stop commands ****
 
 # Copy grades.txt from '/home/ubuntu' to 'Shared' folder
-docker cp $CONTAINER_NAME:/home/$CONTAINER_USER/grades.txt /home/$USER/$HOST_HOME_SEED/
+docker cp $CONTAINER_NAME:/home/$CONTAINER_USER/grades.txt /home/$USER/$HOST_HOME_XFER/
 # Change ownership to defined user $USER
-sudo chown $USER:$USER /home/$USER/$HOST_HOME_SEED/grades.txt
+sudo chown $USER:$USER /home/$USER/$HOST_HOME_XFER/grades.txt
 
 # Inform user where results are stored
-echo "Results (grades.txt) are stored in /home/$USER/$HOST_HOME_SEED/ directory"
+echo "Results (grades.txt) are stored in /home/$USER/$HOST_HOME_XFER/ directory"
 
 #echo "Stopping container $CONTAINER_NAME"
 docker stop $CONTAINER_NAME

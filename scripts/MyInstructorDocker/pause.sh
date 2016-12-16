@@ -16,7 +16,7 @@ lab=$1
 
 CWD=`pwd`
 #echo "Current directory is $CWD"
-CONFIG=${CWD}/start.config.$lab
+CONFIG=${CWD}/start.config
 
 if [ -f $CONFIG ]
 then

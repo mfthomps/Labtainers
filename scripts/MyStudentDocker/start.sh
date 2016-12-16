@@ -23,7 +23,7 @@ fi
 lab=$1
 CWD=`pwd`
 #echo "Current directory is $CWD"
-CONFIG=${CWD}/start.config.$lab
+CONFIG=${CWD}/start.config
 # Error code returned by docker inspect
 SUCCESS=0
 FAILURE=1
@@ -41,11 +41,11 @@ fi
 #echo "Name of container is $CONTAINER_NAME"
 #echo "Name of container image is $CONTAINER_IMAGE"
 
-# Check existence of /home/$USER/$HOST_HOME_SEED directory - create if necessary
-if [ ! -d /home/$USER/$HOST_HOME_SEED ]
+# Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
+if [ ! -d /home/$USER/$HOST_HOME_XFER ]
 then
-    echo "Directory /home/$USER/$HOST_HOME_SEED does not exist, creating it"
-    mkdir -p /home/$USER/$HOST_HOME_SEED
+    echo "Directory /home/$USER/$HOST_HOME_XFER does not exist, creating it"
+    mkdir -p /home/$USER/$HOST_HOME_XFER
 fi
 
 ##### ***** start pre-start commands ****
