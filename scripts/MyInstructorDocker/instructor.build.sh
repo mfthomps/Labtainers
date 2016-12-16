@@ -1,3 +1,3 @@
 #!/bin/bash
-./buildInstructorImage.sh paramlabs
+./buildInstructorImage.sh formatstring
 ./buildInstructorImage.sh bufoverflow

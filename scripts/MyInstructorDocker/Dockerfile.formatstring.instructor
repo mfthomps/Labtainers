@@ -22,7 +22,7 @@ RUN useradd -ms /bin/bash ubuntu
 RUN echo "ubuntu:ubuntu" | chpasswd
 RUN chown -R ubuntu:ubuntu /home/ubuntu
 RUN adduser ubuntu sudo
-ADD paramlabs.instructor.tar.gz /home/ubuntu
+ADD formatstring.instructor.tar.gz /home/ubuntu
 
 USER ubuntu
 ENV HOME /home/ubuntu
