@@ -9,10 +9,14 @@
 #     a. Copy grades.txt file from '/home/ubuntu' to 'Shared' folder
 #     b. stop the instructor container
 #        Note: instructor container name is defined in start.config
-
+if [ "$#" -ne 1 ]; then
+    echo "./start.sh <labname>"
+    exit 0
+fi
+lab=$1
 CWD=`pwd`
 #echo "Current directory is $CWD"
-CONFIG=${CWD}/start.config
+CONFIG=${CWD}/start.config.$lab
 
 if [ -f $CONFIG ]
 then

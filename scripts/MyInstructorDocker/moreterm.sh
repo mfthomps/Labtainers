@@ -9,12 +9,18 @@
 #     a. Spawn another terminal for the student attached to the container
 
 # Error code returned by docker inspect
+if [ "$#" -ne 1 ]; then
+    echo "./start.sh <labname>"
+    exit 0
+fi
+lab=$1
+
 SUCCESS=0
 FAILURE=1
 
 CWD=`pwd`
 #echo "Current directory is $CWD"
-CONFIG=${CWD}/start.config
+CONFIG=${CWD}/start.config.$lab
 
 if [ -f $CONFIG ]
 then

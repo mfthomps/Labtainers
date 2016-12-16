@@ -7,14 +7,18 @@
 #
 #     It will perform the following tasks:
 #     a. Spawn another terminal for the student attached to the container
-
+if [ "$#" -ne 1 ]; then
+    echo "./stop.sh <labname>"
+    exit 0
+fi
+lab=$1
 # Error code returned by docker inspect
 SUCCESS=0
 FAILURE=1
 
 CWD=`pwd`
 #echo "Current directory is $CWD"
-CONFIG=${CWD}/start.config
+CONFIG=${CWD}/start.config.$lab
 
 if [ -f $CONFIG ]
 then

@@ -10,11 +10,14 @@
 #     b. Copy zip files from '/home/ubuntu' to 'Shared' folder
 #     c. stop the student container
 #        Note: student container name is defined in start.config
-
+if [ "$#" -ne 1 ]; then
+    echo "./stop.sh <labname>"
+    exit 0
+fi
+lab=$1
 CWD=`pwd`
 #echo "Current directory is $CWD"
-CONFIG=${CWD}/start.config
-
+CONFIG=${CWD}/start.config.$lab
 if [ -f $CONFIG ]
 then
     #echo "Config file $CONFIG exists, proceeding"
@@ -64,7 +67,7 @@ done
 sudo chown $USER:$USER /home/$USER/$HOST_HOME_SEED/*.zip
 
 # Inform user where results are stored
-echo "Results (zip files) are stored in /home/$USER/$HOST_HOME_SEED/ directory"
+echo "Results stored in directory: /home/$USER/$HOST_HOME_SEED "
 
 #echo "Stopping container $CONTAINER_NAME"
 docker stop $CONTAINER_NAME

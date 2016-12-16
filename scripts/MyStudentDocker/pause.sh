@@ -9,9 +9,14 @@
 #     a. Pause the running student container
 #        Note: student container name is defined in start.config
 
+if [ "$#" -ne 1 ]; then
+    echo "./stop.sh <labname>"
+    exit 0
+fi
+lab=$1
 CWD=`pwd`
 #echo "Current directory is $CWD"
-CONFIG=${CWD}/start.config
+CONFIG=${CWD}/start.config.$lab
 
 if [ -f $CONFIG ]
 then

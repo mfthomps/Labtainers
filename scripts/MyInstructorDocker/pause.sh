@@ -8,10 +8,15 @@
 #     It will perform the following tasks:
 #     a. Pause the running instructor container
 #        Note: instructor container name is defined in start.config
+if [ "$#" -ne 1 ]; then
+    echo "./start.sh <labname>"
+    exit 0
+fi
+lab=$1
 
 CWD=`pwd`
 #echo "Current directory is $CWD"
-CONFIG=${CWD}/start.config
+CONFIG=${CWD}/start.config.$lab
 
 if [ -f $CONFIG ]
 then

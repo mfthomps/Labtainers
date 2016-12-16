@@ -3,7 +3,8 @@
 # Filename: start.sh
 # Description:
 #     This is the start script to be run by the student.
-#     Note: It needs 'start.config' file.
+#     Note: It needs 'start.config.<labname>' file, where
+#     <labname> is given as a parameter to the script.
 #
 #     It will perform the following tasks:
 #     a. check to see if student container has been created or not
@@ -15,14 +16,17 @@
 #             by calling createseedlocalfix.sh
 #     b. Spawn a terminal with startup instruction and
 #        another terminal for the student
-
+if [ "$#" -ne 1 ]; then
+    echo "./start.sh <labname>"
+    exit 0
+fi
+lab=$1
+CWD=`pwd`
+#echo "Current directory is $CWD"
+CONFIG=${CWD}/start.config.$lab
 # Error code returned by docker inspect
 SUCCESS=0
 FAILURE=1
-
-CWD=`pwd`
-#echo "Current directory is $CWD"
-CONFIG=${CWD}/start.config
 
 if [ -f $CONFIG ]
 then

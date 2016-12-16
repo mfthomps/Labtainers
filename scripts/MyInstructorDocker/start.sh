@@ -13,6 +13,11 @@
 #        a.3. Note: instructor does not need to generate seed files
 #     b. Spawn a terminal with startup instruction and
 #        another terminal for the instructor
+if [ "$#" -ne 1 ]; then
+    echo "./start.sh <labname>"
+    exit 0
+fi
+lab=$1
 
 # Error code returned by docker inspect
 SUCCESS=0
@@ -20,7 +25,7 @@ FAILURE=1
 
 CWD=`pwd`
 #echo "Current directory is $CWD"
-CONFIG=${CWD}/start.config
+CONFIG=${CWD}/start.config.$lab
 
 if [ -f $CONFIG ]
 then
