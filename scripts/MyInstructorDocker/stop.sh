@@ -59,7 +59,7 @@ docker cp $CONTAINER_NAME:/home/$CONTAINER_USER/grades.txt /home/$USER/$HOST_HOM
 sudo chown $USER:$USER /home/$USER/$HOST_HOME_XFER/grades.txt
 
 # Inform user where results are stored
-echo "Results (grades.txt) are stored in /home/$USER/$HOST_HOME_XFER/ directory"
+echo "Results (grades.txt) are stored in directory: /home/$USER/$HOST_HOME_XFER"
 
 #echo "Stopping container $CONTAINER_NAME"
 docker stop $CONTAINER_NAME
