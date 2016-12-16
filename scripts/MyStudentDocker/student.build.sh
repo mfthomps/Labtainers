@@ -1,5 +1,5 @@
 #!/bin/bash
 
-./buildImage.sh paramlabs
-#./buildImage.sh bufoverflow
-#./buildImage.sh onewayhash
+./buildImage.sh formatstring
+./buildImage.sh bufoverflow
+./buildImage.sh onewayhash

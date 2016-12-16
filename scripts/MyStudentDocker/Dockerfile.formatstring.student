@@ -26,7 +26,7 @@ RUN useradd -ms /bin/bash ubuntu
 RUN echo "ubuntu:ubuntu" | chpasswd
 RUN chown -R ubuntu:ubuntu /home/ubuntu
 RUN adduser ubuntu sudo
-ADD paramlabs.student.tar.gz /home/ubuntu
+ADD formatstring.student.tar.gz /home/ubuntu
 ADD bin/funbuffer /usr/bin/
 
 USER ubuntu
