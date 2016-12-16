@@ -17,7 +17,7 @@ stdinfnameslist = []
 stdoutfnameslist = []
 timestamplist = []
 nametags = {}
-
+line_types = ['LINE', 'STARTSWITH']
 def ValidateTokenId(each_value, token_id):
     if token_id != 'ALL' and token_id != 'LAST':
         try:
@@ -27,27 +27,37 @@ def ValidateTokenId(each_value, token_id):
             sys.stderr.write("ERROR: results.config has invalid token_id\n")
             sys.exit(1)
 
+def findLineIndex(values):
+    for ltype in line_types:
+        if ltype in values:
+            return values.index(ltype)
+    return None
+    
 def ValidateConfigfile(each_key, each_value):
     if not MyUtil.CheckAlphaDashUnder(each_key):
         sys.stderr.write("ERROR: Not allowed characters in results.config's key (%s)\n" % each_key)
         sys.exit(1)
     values = []
-    # expecting - [ stdin | stdout ] : <command> : <param>
-    # If <command> is 'LINE' then <param> is <lineno> : <token>
-    # If <command> is 'STARTSWITH' then <param> is <token> : <string>
+    # expecting - [ stdin | stdout ] : [<field_type>] : <field_id> :  <line_type> : <line_id>
+    #    field_type = TOKEN | PARENS | QUOTES
+    #    field_value is a numeric identifying the nth field of the given type
+    #    line_type = LINE | STARTSWITH
+    #    line_id is a number if the type is LINE, or a string if the tye is STARTSWITH
 
-    # Test split - expecting at least four parts, either:
-    # [ stdin | stdout ] : LINE : <lineno> : <token>
-    # [ stdin | stdout ] : STARTSWITH : <token> : <string>
-    values = each_value.split(':')
+    values = [x.strip() for x in each_value.split(':')]
     #print values
     numvalues = len(values)
     if numvalues < 4:
         sys.stderr.write("ERROR: results.config contains unexpected value (%s) format\n" % each_value)
         sys.exit(1)
-    values = []
-    # Split into four parts - last part will be taken as string if <command> is 'STARTSWITH'
-    values = each_value.split(':', 3)
+    line_at = findLineIndex(values)
+    if line_at is None:
+        sys.stderr.write('No line_type in %s\n' % each_value)
+        exit(1)
+    num_splits = line_at+1
+     
+    # Split into four or five parts 
+    values = [x.strip() for x in each_value.split(':', num_splits)]
 
     # Make sure it is 'stdin' or 'stdout'
     progname_type = values[0].strip()
@@ -60,33 +70,16 @@ def ValidateConfigfile(each_key, each_value):
         sys.stderr.write("ERROR: results.config uses not stdin or sdout\n")
         sys.exit(1)
 
-    # Make sure command is either 'LINE' or 'STARTSWITH'
-    command = values[1].strip()
-    if command == 'LINE':
-        #print "command is LINE"
-        # Make sure lineno is integer - line is next after command 'LINE'
-        lineno = values[2].strip()
-        #print lineno
+    token_index = 1
+    if line_at == 3:
+        token_index = 2
+    ValidateTokenId(each_value, values[token_index])
+    if values[line_at] == 'LINE':
         try:
-            int(lineno)
-        except ValueError:
-            sys.stderr.write("ERROR: results.config line (%s)\n" % each_value)
-            sys.stderr.write("ERROR: results.config has invalid lineno\n")
-            sys.exit(1)
-
-        # Make sure tokenno is integer
-        token_id = values[3].strip()
-        #print token_id
-        ValidateTokenId(each_value, token_id)
-    elif command == 'STARTSWITH':
-        #print "command is STARTSWITH"
-        # Make sure tokenno is integer - token is next after command 'STARTSWITH'
-        token_id = values[2].strip()
-        #print tokenno
-        ValidateTokenId(each_value, token_id)
-    else:
-        sys.stderr.write("ERROR: results.config contains unexpected command (%s) format\n" % each_value)
-        sys.exit(1)
+            int(values[line_at+1])
+        except:
+            sys.stderr.write('Expected integer following LINE type, got %s in %s' % (values[line_at+1], each_value))
+            exit(1)
 
     return 0
 
@@ -174,20 +167,23 @@ def ParseStdinStdout(studentdir, instructordir, jsonoutfile):
 
                     #print each_key
                     # Note: config file has been validated
-                    values = []
-                    # Split into four parts - 
-                    # last part will be taken as string if <command> is 'STARTSWITH'
-                    values = each_value.split(':', 3)
+                    # Split into four parts or five parts
+                    values = [x.strip() for x in each_value.split(':')]
+                    line_at = findLineIndex(values)
+                    num_splits = line_at+1
+                    values = [x.strip() for x in each_value.split(':', num_splits)]
                     targetfile = values[0].strip()
-                    command = values[1].strip()
+                    command = values[line_at].strip()
                     # command has been validated to be either 'LINE' or 'STARTSWITH'
+                    token_index = 1
+                    if line_at == 3:
+                        token_index = 2
+                    token_id = values[token_index].strip()
                     if command == 'LINE':
-                        lineno = int(values[2].strip())
-                        token_id = values[3].strip()
+                        lineno = int(values[line_at+1].strip())
                     else:
                         # command = 'STARTSWITH':
-                        token_id = values[2].strip()
-                        startstring = values[3].strip()
+                        startstring = values[line_at+1].strip()
 
                     targetfname = '%s%s.%s' % (RESULTHOME, targetfile, timestamppart)
                     #print "targetfname is (%s)" % targetfname

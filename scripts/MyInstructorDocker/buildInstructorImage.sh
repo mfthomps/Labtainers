@@ -23,7 +23,7 @@ mkdir $TMP_DIR/.local/base
 cp -r bin $TMP_DIR/.local/
 cp -r $LAB_DIR/config $TMP_DIR/.local/ 2>>/dev/null
 cd $TMP_DIR
-tar -zcvf $LAB_TAR .local *
+tar --atime-preserve -zcvf $LAB_TAR .local *
 
 cd $ORIG_PWD
 

@@ -89,7 +89,13 @@ def main():
             os.system('rm -rf %s' % DestDirName)
 
         zipoutput = zipfile.ZipFile(OutputName, "r")
-        zipoutput.extractall(DestDirName)
+        ''' retain dates of student files '''
+        for zi in zipoutput.infolist():
+            zipoutput.extract(zi, DestDirName)
+            date_time = time.mktime(zi.date_time + (0, 0, -1))
+            dest = os.path.join(DestDirName, zi.filename)
+            os.utime(dest, (date_time, date_time))
+
         zipoutput.close()
 
         # GoalsParser is now tied per student - do this after unzipping file
