@@ -64,6 +64,8 @@ then
     sleep 3
 fi
 
+echo $lab >/tmp/$lab.name
+docker cp /tmp/$lab.name $CONTAINER_NAME:/home/$CONTAINER_USER/.local/.labname
 ##### ***** start pre-start commands ****
 # This is where "pre-start" commands should be run for each lab
 # Copy zip files from 'Shared' folder to 'home/$CONTAINER_USER'

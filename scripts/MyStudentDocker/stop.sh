@@ -61,7 +61,8 @@ docker exec -it $CONTAINER_NAME script -q -c "/bin/bash -c 'cd ; . .profile ; St
 zip_filelist=`docker exec -it $CONTAINER_NAME cat /home/$CONTAINER_USER/.local/zip.flist`
 for fname in $zip_filelist;
 do
-    docker cp $CONTAINER_NAME:$fname /home/$USER/$HOST_HOME_SXFER/
+    echo "cp $CONTAINER_NAME:$fname"
+    docker cp $CONTAINER_NAME:$fname /home/$USER/$HOST_HOME_XFER/
 done
 # Change ownership to defined user $USER
 sudo chown $USER:$USER /home/$USER/$HOST_HOME_XFER/*.zip

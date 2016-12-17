@@ -23,20 +23,26 @@ def main():
         return 1
 
     os.chdir(UBUNTUHOME)
-
-    configjsonfname = '%sconfig/%s' % (HOMELOCAL, "studentlab.json")
-    configjson = open(configjsonfname, "r")
-    studentconfig = json.load(configjson)
-    configjson.close()
+    student_email_file="/home/ubuntu/.local/.email"
+    lab_name_file="/home/ubuntu/.local/.labname"
+    with open(student_email_file) as fh:
+        student_email = fh.read().strip()
+    with open(lab_name_file) as fh:
+        lab_name = fh.read().strip()
+    #configjsonfname = '%sconfig/%s' % (HOMELOCAL, "studentlab.json")
+    #configjson = open(configjsonfname, "r")
+    #studentconfig = json.load(configjson)
+    #configjson.close()
 
     #print "Student JSON config is"
     #print studentconfig
-    StudentName = studentconfig['studentname']
-    StudentHomeDir = studentconfig['studenthomedir']
-    LabName = studentconfig['labname']
-    StudentIndex = studentconfig['studentid']
-    LabIDName = studentconfig['labid']
-    ZipFileName = 'student%s.%s.zip' % (StudentIndex, LabIDName)
+    #StudentName = studentconfig['studentname']
+    #StudentHomeDir = studentconfig['studenthomedir']
+    StudentHomeDir = '/home/ubuntu'
+    #LabName = studentconfig['labname']
+    #StudentIndex = studentconfig['studentid']
+    #LabIDName = studentconfig['labid']
+    ZipFileName = '%s.%s.zip' % (student_email.replace("@","at"), lab_name)
 
     #print 'The lab name is (%s)' % LabName
     #print 'Output ZipFileName is (%s)' % ZipFileName

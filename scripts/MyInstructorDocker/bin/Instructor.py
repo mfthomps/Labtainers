@@ -10,6 +10,7 @@ import os
 import sys
 import zipfile
 import time
+import glob
 import Grader
 import AnswerParser
 import GoalsParser
@@ -41,10 +42,10 @@ def main():
         sys.stderr.write("Usage: Instructor.py\n")
         return 1
 
-    studentjsonfname = '%s/.local/config/%s' % (UBUNTUHOME, "studentlab.json")
-    studentconfigjson = open(studentjsonfname, "r")
-    studentconfig = json.load(studentconfigjson)
-    studentconfigjson.close()
+    #studentjsonfname = '%s/.local/config/%s' % (UBUNTUHOME, "studentlab.json")
+    #studentconfigjson = open(studentjsonfname, "r")
+    #studentconfig = json.load(studentconfigjson)
+    #studentconfigjson.close()
     instructorjsonfname = '%s/.local/config/%s' % (UBUNTUHOME, "instructorlab.json")
     instructorconfigjson = open(instructorjsonfname, "r")
     instructorconfig = json.load(instructorconfigjson)
@@ -56,26 +57,29 @@ def main():
     gradesfile.write("\n")
     #print "Student JSON config is"
     #print studentconfig
-    StudentName = studentconfig['studentname']
-    StudentHomeDir = studentconfig['studenthomedir']
-    LabName = studentconfig['labname']
-    LabIDName = studentconfig['labid']
+    #StudentName = studentconfig['studentname']
+    #StudentHomeDir = studentconfig['studenthomedir']
+    StudentHomeDir = '/home/ubuntu'
+    lab_name_dir = '/home/ubuntu/.local/.labname'
+    with open(lab_name_dir) as fh:
+        LabIDName = fh.read().strip()
+    #LabName = studentconfig['labname']
+    #LabIDName = studentconfig['labid']
     InstructorName = instructorconfig['instructorname']
     InstructorHomeDir = instructorconfig['instructorhomedir']
     InstructorBaseDir = instructorconfig['instructorbasedir']
-    NumStudent = int(instructorconfig['numstudent'])
+    #NumStudent = int(instructorconfig['numstudent'])
     GraderScript = instructorconfig['graderscript']
 
     # Call AnswerParser script to parse 'answer'
     AnswerParser.ParseAnswer()
 
-    index=0
-    while index < NumStudent:
-        #print "Current index is %d" % index
-        index = index + 1
+    zip_files = glob.glob(InstructorHomeDir+'/*.zip')
+    for zfile in zip_files:
+        ZipFileName = os.path.basename(zfile)
+        #print('zipfile is %s' % ZipFileName)
+        DestinationDirName = os.path.splitext(ZipFileName)[0]
 
-        ZipFileName = 'student%d.%s.zip' % (index, LabIDName)
-        DestinationDirName = 'student%d.%s' % (index, LabIDName)
         OutputName = '%s%s' % (InstructorHomeDir, ZipFileName)
         DestDirName = '%s%s' % (InstructorHomeDir, DestinationDirName)
         InstDirName = '%s%s' % (InstructorBaseDir, DestinationDirName)
@@ -116,8 +120,8 @@ def main():
         grades = Grader.ProcessStudentLab(DestDirName, InstDirName, LabIDName)
         #print "After ProcessStudentLab Instructor, grades is "
         #print grades
-
-        LabIDStudentName = '%s : student%d : ' % (LabIDName, index)
+        student_id = ZipFileName.rsplit('.', 2)[0]
+        LabIDStudentName = '%s : %s : ' % (LabIDName, student_id)
         printresult(gradesfile, LabIDStudentName, grades)
 
     gradesfile.write("\n")
