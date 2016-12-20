@@ -19,7 +19,7 @@ timestamplist = []
 nametags = {}
 
 def ParseAnswer():
-    configfilename = '%s/.local/config/%s' % (UBUNTUHOME, "answer.config")
+    configfilename = '%s/.local/instr_config/%s' % (UBUNTUHOME, "answer.config")
     configfile = open(configfilename)
     configfilelines = configfile.readlines()
     configfile.close()
@@ -42,7 +42,7 @@ def ParseAnswer():
         #else:
         #    print "Skipping empty linestrip is (%s)" % linestrip
 
-    outputjsonfname = '%s/.local/config/%s' % (UBUNTUHOME, "answer.json")
+    outputjsonfname = '%s/.local/instr_config/%s' % (UBUNTUHOME, "answer.json")
     #print "Outputjsonfname is (%s)" % outputjsonfname
         
     #print nametags

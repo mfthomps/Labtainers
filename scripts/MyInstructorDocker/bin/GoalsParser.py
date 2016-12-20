@@ -173,7 +173,7 @@ def ValidateTag(studentdir, inputtag, allowed_special_answer):
     return returntag
 
 def ParseGoals(studentdir):
-    configfilename = '%s/.local/config/%s' % (UBUNTUHOME, "goals.config")
+    configfilename = '%s/.local/instr_config/%s' % (UBUNTUHOME, "goals.config")
     configfile = open(configfilename)
     configfilelines = configfile.readlines()
     configfile.close()
@@ -249,7 +249,7 @@ def ParseGoals(studentdir):
     #print nametags["crash"].toJSON()
     #for (each_key, each_goal) in nametags.items():
     #    print nametags[each_key].toJSON()
-    outputjsonfname = '%s/.local/config/%s' % (UBUNTUHOME, "goals.json")
+    outputjsonfname = '%s/.local/instr_config/%s' % (UBUNTUHOME, "goals.json")
     #print "Outputjsonfname is (%s)" % outputjsonfname
         
     #print nametags

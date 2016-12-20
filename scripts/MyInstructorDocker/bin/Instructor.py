@@ -42,11 +42,7 @@ def main():
         sys.stderr.write("Usage: Instructor.py\n")
         return 1
 
-    #studentjsonfname = '%s/.local/config/%s' % (UBUNTUHOME, "studentlab.json")
-    #studentconfigjson = open(studentjsonfname, "r")
-    #studentconfig = json.load(studentconfigjson)
-    #studentconfigjson.close()
-    instructorjsonfname = '%s/.local/config/%s' % (UBUNTUHOME, "instructorlab.json")
+    instructorjsonfname = '%s/.local/instr_config/%s' % (UBUNTUHOME, "instructorlab.json")
     instructorconfigjson = open(instructorjsonfname, "r")
     instructorconfig = json.load(instructorconfigjson)
     instructorconfigjson.close()
@@ -55,20 +51,13 @@ def main():
     gradesfilename = '%s/%s' % (UBUNTUHOME, "grades.txt")
     gradesfile = open(gradesfilename, "w")
     gradesfile.write("\n")
-    #print "Student JSON config is"
-    #print studentconfig
-    #StudentName = studentconfig['studentname']
-    #StudentHomeDir = studentconfig['studenthomedir']
     StudentHomeDir = '/home/ubuntu'
     lab_name_dir = '/home/ubuntu/.local/.labname'
     with open(lab_name_dir) as fh:
         LabIDName = fh.read().strip()
-    #LabName = studentconfig['labname']
-    #LabIDName = studentconfig['labid']
     InstructorName = instructorconfig['instructorname']
     InstructorHomeDir = instructorconfig['instructorhomedir']
     InstructorBaseDir = instructorconfig['instructorbasedir']
-    #NumStudent = int(instructorconfig['numstudent'])
     GraderScript = instructorconfig['graderscript']
 
     # Call AnswerParser script to parse 'answer'

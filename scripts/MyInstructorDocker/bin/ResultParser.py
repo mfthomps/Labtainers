@@ -84,7 +84,7 @@ def ValidateConfigfile(each_key, each_value):
     return 0
 
 def ParseStdinStdout(studentdir, instructordir, jsonoutfile):
-    configfilename = '%s/.local/config/%s' % (UBUNTUHOME, "results.config")
+    configfilename = '%s/.local/instr_config/%s' % (UBUNTUHOME, "results.config")
     configfile = open(configfilename)
     configfilelines = configfile.readlines()
     configfile.close()

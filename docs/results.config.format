@@ -1,43 +1,34 @@
 # results.config.format
 # 
-# description: * this configuration file is read by ResultParser.py
-#              * comment line starts with '#' and will be skipped
-#              * empty line will be ignored
+# description: * Assign symbolic names to specific artifacts from
+#              * a students stdin/stdout files.  Artifacts are
+#              * identified in terms of file, line and token.
+#              * This configuration file is read by ResultParser.py
+#              * Comment lines starts with '#' and will be skipped.
+#              * Empty lines will be ignored.
 #
 # entry format
-# <nametag> = [ stdin | stdout ] : <command> : <param>
-#               nametag - must be alphanumeric
-#               stdin - represent reading from stdin result file
-#               stdout - represent reading from stdout result file
-#               <command> - valid commands are 'LINE' or 'STARTSWITH'
-#               If <command> is 'LINE':
-#               then <param> is <lineno> : <token>
-#               where:
-#                  <lineno> - must be an integer starting from 1
-#                           - if file does not contain that many lines,
-#                             associated <nametag> is set to NONE
-#                  <token> - must be an integer starting from 1
-#                          - tokens in line are separated by space
-#                          - if line does not contain that many tokens,
-#                             associated <nametag> is set to NONE
-#               If <command> is 'STARTSWITH':
-#               then <param> is <token> : <string>
-#               where:
-#                  <token> - must be an integer starting from 1
-#                          - tokens in line are separated by space
-#                          - if line does not contain that many tokens,
-#                             associated <nametag> is set to NONE
-#                  <string> - the rest of the line will be used as the string
-#                             the lines in the file will be checked, i.e., to
-#                             see if it starts with that string.
-#                             The first line that matches will be used.
-#                           - if no line matches (no line starts with string)
-#                             then associated <nametag> is set to NONE
+# <nametag> = [ stdin | stdout ] : [field_type] : <field_id> : <line_type> : <line_id>
+#               nametag - The symbolic name of the artifact, which will be referenced in the
+#                         goals configuration file.  It must be alphanumeric, underscores permitted.
+#               stdin - The field is in the stdin result file
+#               stdout - The field is in the stdout result file
+#               field_type - Optional, defaults to "TOKEN", values include:
+#                   TOKEN -- Treat the line as space-delimited tokens
+#                   PARENS -- The desired value is contained in parenthesis
+#                   QUOTES -- The desired value is contained in parenthesis
+#               field_id - An integer identifying the nth occurance of the field type.
+#                          Alternately may be "LAST" for the last occurance of the field type,
+#                          or "ALL" for the entire line (which causes the field type to be ignored).
+#               line_type - Identifies how the line is to be identified, values include:
+#                   LINE -- The line_id will be an integer line number (starting at one).
+#                   STARTSWITH -- the line_id will be a string.  This names the first occurrence of a line
+#                           that starts with this string. 
+#               line_id - See line_type above.
 #
 # for example:
-# inputdecimal = stdin : LINE : 1 : 1
-# means : read from stdin result file on line 1,
-#         take the first token (tokens in line are separated by space)
-#         and store it as name 'inputdecimal' of type string
+#     inputdecimal = stdin : 1 : LINE : 3 
+# is interpreted as "Read from the stdin result file and locate the
+#         first space-delimited token in the third line."
 #
 

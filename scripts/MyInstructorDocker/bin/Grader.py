@@ -424,41 +424,18 @@ def processLabExercise(studentdir, labidname, grades, subgoalsresult, goals, ans
 def ProcessStudentLab(studentdir, instructordir, labidname):
     grades = {}
     subgoalsresult = collections.defaultdict(dict)
-    studentjsonfname = '%s/.local/config/%s' % (UBUNTUHOME, "studentlab.json")
-    studentconfigjson = open(studentjsonfname, "r")
-    studentconfig = json.load(studentconfigjson)
-    studentconfigjson.close()
-    #print "Student JSON config is"
-    #print studentconfig
-    instructorjsonfname = '%s/.local/config/%s' % (UBUNTUHOME, "instructorlab.json")
-    instructorconfigjson = open(instructorjsonfname, "r")
-    instructorconfig = json.load(instructorconfigjson)
-    instructorconfigjson.close()
-    #print "Instructor JSON config is"
-    #print instructorconfig
-    goalsjsonfname = '%s/.local/config/%s' % (UBUNTUHOME, "goals.json")
+    goalsjsonfname = '%s/.local/instr_config/%s' % (UBUNTUHOME, "goals.json")
     goalsjson = open(goalsjsonfname, "r")
     goals = json.load(goalsjson)
     goalsjson.close()
     #print "Goals JSON config is"
     #print goals
-    answerjsonfname = '%s/.local/config/%s' % (UBUNTUHOME, "answer.json")
+    answerjsonfname = '%s/.local/instr_config/%s' % (UBUNTUHOME, "answer.json")
     answerjson = open(answerjsonfname, "r")
     answer = json.load(answerjson)
     answerjson.close()
     #print "Answer JSON config is"
     #print answer
-
-    StudentName = studentconfig['studentname']
-    StudentHomeDir = studentconfig['studenthomedir']
-    StudentID = studentconfig['studentid']
-    LabName = studentconfig['labname']
-    LabIDName = studentconfig['labid']
-    InstructorName = instructorconfig['instructorname']
-    InstructorHomeDir = instructorconfig['instructorhomedir']
-    InstructorBaseDir = instructorconfig['instructorbasedir']
-    NumStudent = int(instructorconfig['numstudent'])
-    GraderScript = instructorconfig['graderscript']
 
     processLabExercise(studentdir, labidname, grades, subgoalsresult, goals, answer)
     return grades
