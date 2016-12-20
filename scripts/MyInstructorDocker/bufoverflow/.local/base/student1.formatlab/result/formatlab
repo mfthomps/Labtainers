@@ -1,7 +1,0 @@
-{
-    "secret1address": "0xf3f014", 
-    "newsecret1value": "0x48", 
-    "inputstring": "%8x.%8x.%8x.%8x.%8x.%8x.%8x.%8x.%n", 
-    "inputdecimal": "15986704", 
-    "origsecret1value": "0x44"
-}
