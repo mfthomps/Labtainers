@@ -1,7 +1,7 @@
 FROM ubuntu:xenial
 MAINTAINER jkhosali@nps.edu
 LABEL description="This is base Docker image for One-Way Hash Function labs"
-
+ARG lab
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     expect \
@@ -27,7 +27,7 @@ RUN useradd -ms /bin/bash ubuntu
 RUN echo "ubuntu:ubuntu" | chpasswd
 RUN chown -R ubuntu:ubuntu /home/ubuntu
 RUN adduser ubuntu sudo
-ADD onewayhash.student.tar.gz /home/ubuntu
+ADD $lab.student.tar.gz /home/ubuntu
 ADD bin/funbuffer /usr/bin/
 
 USER ubuntu

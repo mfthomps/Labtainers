@@ -32,16 +32,29 @@ a common Linux execution environment.   These benefits can be realized
 whether or not labs are configured for automatic assessment, 
 or are parameterized for each student.
 
+Defining New Labs
+-----------------
+Labs that have been created for the framework each have their own
+directory under the "labs" directory in the subversion repository.
+The first step in creating a new lab within the framework is to create
+a directory for the lab and then run the "new_lab_setup.sh" script.
+This will create a set of template files that will then be customized
+for the new lab.  These template files are referenced in the discussion
+below.
+
+
 Defining the lab execution environment
 --------------------------------------
 A given lab typically requires some set of software packages, and some
 system configuration, e.g., network settings.  Identifying an expected
 environment is not unique to this framework, rather, it is typically part of any
 lab design.  The framework captures most configuration details within a standard
-Docker file.  Examples of these files can be seen in the framework repository.
-They use standard Docker file syntax, which is not repeated here.  Lab designers
+Dockerfile.  Templates for two Dockerfiles are placed in the "dockerfiles" 
+directory, one for student containers and one for instructor containers.
+These use standard Docker file syntax, which is not repeated here.  Lab designers
 should reference Docker documentation for the syntax and semantics of these files.
+Simple labs should be able to use the default Dockerfiles created by the 
+new_lab_setup.sh script.
 
-Each 
 
 Files that are to reside in the student's $HOME directory are placed in a 
