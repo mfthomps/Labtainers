@@ -1,3 +1,5 @@
 #!/bin/bash
-cd $HOME
-gcc -m32 -fno-stack-protector -o vul_prog vul_prog.c
+#
+#  Script will be run after parameterization has completed, e.g., 
+#  use this to compile source code that has been parameterized.
+#
