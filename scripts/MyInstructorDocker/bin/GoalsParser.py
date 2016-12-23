@@ -11,6 +11,7 @@ import os
 import random
 import sys
 import MyUtil
+import ParameterParser
 
 UBUNTUHOME = "/home/ubuntu/"
 exec_proglist = []
@@ -18,7 +19,9 @@ stdinfnameslist = []
 stdoutfnameslist = []
 timestamplist = []
 nametags = {}
-
+global parameter_list
+parameter_list = None
+answer_tokens=['answer', 'parameter', 'parameter_ascii']
 class MyGoal(object):
     """ Goal - goalid, goaltype, goaloperator, answertag, resulttag, boolean_string """
     goalid = ""
@@ -85,6 +88,27 @@ def getRandom(bounds, type):
         # type == "intrandom":
         random_str = '%s' % int(random_int)
     return random_str
+
+def getTagValue(target, finaltag):
+    global parameter_list
+    if target == "answer":
+        returnTagValue = 'answer=%s' % finaltag
+    else:
+        if finaltag not in parameter_list:
+            print('Could not find parameter %s' % finaltag)
+            exit(1)
+        value = parameter_list[finaltag]
+        if target.lower() == "parameter_ascii":
+            if '0x' in value:
+                num = int(value, 16)
+            else: 
+                num = int(value)
+            if num not in range(41, 177):
+                print('parameter_ascii value %s not in ascii range' % value)
+                exit(1)
+            value = chr(num)
+        returnTagValue = 'answer=%s' % value
+    return returnTagValue
 
 def generateSpecialTagValue(studentdir, target, finaltag):
     STUDENT_LAB_INSTANCE_SEED = '%s/%s' % (studentdir, ".local/.seed")
@@ -156,13 +180,15 @@ def ValidateTag(studentdir, inputtag, allowed_special_answer):
             sys.exit(1)
         #print "tag %s contains '='" % inputtag
         (target, finaltag) = inputtag.split('=')
-        if not (target == "answer" or target == "asciirandom" or
-                target == "hexrandom" or target == "intrandom" or target == "hash"):
+        #if not (target == "answer" or target == "asciirandom" or
+        #        target == "hexrandom" or target == "intrandom" or target == "hash"):
+        if not target in answer_tokens:
             sys.stderr.write("ERROR: goals.config tag=<string> then\n")
-            sys.stderr.write("       tag must be (answer, asciirandom, hexrandom or intrandom) (%s)\n" % inputtag)
+            sys.stderr.write("       tag must be:(%s), got %s\n" % (','.join(answer_tokens), inputtag))
             sys.exit(1)
         # check is done inside generateSpecialTagValue
-        returntag = generateSpecialTagValue(studentdir, target, finaltag)
+        returntag = getTagValue(target, finaltag)
+        #returntag = generateSpecialTagValue(studentdir, target, finaltag)
     else:
         #print "tag is %s" % inputtag
         if not MyUtil.CheckAlphaDashUnder(inputtag):
@@ -172,12 +198,28 @@ def ValidateTag(studentdir, inputtag, allowed_special_answer):
 
     return returntag
 
+def GetLabInstanceSeed(studentdir):
+    seed_dir = os.path.join(studentdir, ".local",".seed")
+    student_lab_instance_seed = None
+    with open(seed_dir) as fh:
+        student_lab_instance_seed = fh.read().strip()
+    if student_lab_instance_seed is None:
+        print('could not get lab instance seed from %s' % seed_dir)
+        exit(1)
+    return student_lab_instance_seed
+
 def ParseGoals(studentdir):
     configfilename = '%s/.local/instr_config/%s' % (UBUNTUHOME, "goals.config")
     configfile = open(configfilename)
     configfilelines = configfile.readlines()
     configfile.close()
-  
+    lab_instance_seed = GetLabInstanceSeed(studentdir)
+    param_filename = os.path.join(UBUNTUHOME, '.local', 'config',
+          'parameter.config')
+    global parameter_list
+    parameter_list = ParameterParser.ParseParameterConfig(lab_instance_seed,
+       param_filename)
+
     for line in configfilelines:
         linestrip = line.rstrip()
         if linestrip:

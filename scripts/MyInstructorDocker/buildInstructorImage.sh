@@ -21,10 +21,13 @@ mkdir $TMP_DIR/.local
 mkdir $TMP_DIR/.local/result
 mkdir $TMP_DIR/.local/base
 mkdir $TMP_DIR/.local/instr_config
+mkdir $TMP_DIR/.local/config
 
 cp -r bin $TMP_DIR/.local/
+cp ../MyStudentDocker/bin/ParameterParser.py $TMP_DIR/.local/bin/
 cp $LAB_DIR/* $TMP_DIR/
 cp $LAB_DIR/instr_config/* $TMP_DIR/.local/instr_config/ 2>>/dev/null
+cp $LAB_DIR/config/* $TMP_DIR/.local/config/ 2>>/dev/null
 cp config/* $TMP_DIR/.local/instr_config/ 2>>/dev/null
 cd $TMP_DIR
 pwd
@@ -34,7 +37,7 @@ tar --atime-preserve -zcvf $LAB_TAR .local *
 cd $ORIG_PWD
 dfile=Dockerfile.$lab.instructor
 cp $LAB_DIR/dockerfiles/$dfile .
-docker build -f ./$dfile -t $lab:instructor .
+docker build --build-arg lab=$lab -f ./$dfile -t $lab:instructor .
 echo "removing temporary $dfile, reference original in $LAB_DIR/dockerfiles/$dfile"
 rm ./$dfile
 

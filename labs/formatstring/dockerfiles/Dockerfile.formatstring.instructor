@@ -2,6 +2,7 @@ FROM ubuntu:xenial
 MAINTAINER jkhosali@nps.edu
 LABEL description="This is base Docker image for Parameterized labs"
 
+ARG lab
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     gcc-multilib \
@@ -22,7 +23,7 @@ RUN useradd -ms /bin/bash ubuntu
 RUN echo "ubuntu:ubuntu" | chpasswd
 RUN chown -R ubuntu:ubuntu /home/ubuntu
 RUN adduser ubuntu sudo
-ADD formatstring.instructor.tar.gz /home/ubuntu
+ADD $lab.instructor.tar.gz /home/ubuntu
 
 USER ubuntu
 ENV HOME /home/ubuntu

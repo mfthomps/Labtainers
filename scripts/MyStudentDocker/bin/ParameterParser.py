@@ -16,10 +16,9 @@ UBUNTUHOME = "/home/ubuntu/"
 randreplacelist = {}
 hashcreatelist = {}
 hashreplacelist = {}
+paramlist = {}
 
-def CheckRandReplaceEntry(lab_instance_seed, each_key, each_value):
-    # Seed random with lab seed
-    random.seed(lab_instance_seed)
+def CheckRandReplaceEntry(lab_instance_seed, param_id, each_value):
 
     # RAND_REPLACE : <filename> : <token> : <LowerBound> : <UpperBound>
     #print "Checking RAND_REPLACE entry"
@@ -80,9 +79,10 @@ def CheckRandReplaceEntry(lab_instance_seed, each_key, each_value):
     else:
         randreplacelist[myfilename] = []
         randreplacelist[myfilename].append('%s:%s' % (token, random_str))
+    paramlist[param_id] = random_str
 
 
-def CheckHashCreateEntry(each_key, each_value):
+def CheckHashCreateEntry(param_id, each_value):
     # HASH_CREATE : <filename> : <string>
     #print "Checking HASH_CREATE entry"
     entryline = each_value.split(':')
@@ -92,21 +92,22 @@ def CheckHashCreateEntry(each_key, each_value):
         sys.stderr.write("ERROR: RAND_CREATE (%s) improper format\n" % each_value)
         sys.stderr.write("ERROR: HASH_CREATE : <filename> : <string>\n")
     myfilename = entryline[0].strip()
-    secretstring = entryline[1].strip()
+    the_string = entryline[1].strip()
     #print "filename is (%s)" % myfilename
-    #print "secretstring is (%s)" % secretstring
+    #print "the_string is (%s)" % the_string
     # If file does not exist, create an empty file
     if not os.path.exists(myfilename):
         outfile = open(myfilename, 'w')
         outfile.write('')
         outfile.close()
     if myfilename in hashcreatelist:
-        hashcreatelist[myfilename].append('%s' % secretstring)
+        hashcreatelist[myfilename].append('%s' % the_string)
     else:
         hashcreatelist[myfilename] = []
-        hashcreatelist[myfilename].append('%s' % secretstring)
+        hashcreatelist[myfilename].append('%s' % the_string)
+    paramlist[param_id] = the_string
 
-def CheckHashReplaceEntry(each_key, each_value):
+def CheckHashReplaceEntry(param_id, each_value):
     # HASH_REPLACE : <filename> : <token> : <string>
     #print "Checking HASH_REPLACE entry"
     entryline = each_value.split(':')
@@ -117,30 +118,31 @@ def CheckHashReplaceEntry(each_key, each_value):
         sys.stderr.write("ERROR: HASH_REPLACE : <filename> : <token> : <string>\n")
     myfilename = entryline[0].strip()
     token = entryline[1].strip()
-    secretstring = entryline[2].strip()
+    the_string = entryline[2].strip()
     #print "filename is (%s)" % myfilename
     #print "token is (%s)" % token
-    #print "secretstring is (%s)" % secretstring
+    #print "the_string is (%s)" % the_string
     if not os.path.exists(myfilename):
         sys.stderr.write("ERROR: No %s file does not exist\n" % myfilename)
         sys.exit(1)
     if myfilename in hashreplacelist:
-        hashreplacelist[myfilename].append('%s:%s' % (token, secretstring))
+        hashreplacelist[myfilename].append('%s:%s' % (token, the_string))
     else:
         hashreplacelist[myfilename] = []
-        hashreplacelist[myfilename].append('%s:%s' % (token, secretstring))
+        hashreplacelist[myfilename].append('%s:%s' % (token, the_string))
+    paramlist[param_id] = the_string
 
 
-def ValidateParameterConfig(lab_instance_seed, each_key, each_value):
+def ValidateParameterConfig(lab_instance_seed, param_id, each_key, each_value):
     if each_key == "RAND_REPLACE":
         #print "RAND_REPLACE"
-        CheckRandReplaceEntry(lab_instance_seed, each_key, each_value)
+        CheckRandReplaceEntry(lab_instance_seed, param_id, each_value)
     elif each_key == "HASH_CREATE":
         #print "HASH_CREATE"
-        CheckHashCreateEntry(each_key, each_value)
+        CheckHashCreateEntry(param_id, each_value)
     elif each_key == "HASH_REPLACE":
         #print "HASH_REPLACE"
-        CheckHashReplaceEntry(each_key, each_value)
+        CheckHashReplaceEntry(param_id, each_value)
     else:
         sys.stderr.write("ERROR: Invalid operator %s\n" % each_key)
         sys.exit(1)
@@ -184,9 +186,9 @@ def Perform_HASH_CREATE(lab_instance_seed):
         #print createlist
         # open the file - write
         with open(filename, 'w') as outfile:
-            for secretstring in createlist:
-                # Create hash per secretstring
-                string_to_be_hashed = '%s:%s' % (lab_instance_seed, secretstring)
+            for the_string in createlist:
+                # Create hash per the_string
+                string_to_be_hashed = '%s:%s' % (lab_instance_seed, the_string)
                 mymd5 = md5.new()
                 mymd5.update(string_to_be_hashed)
                 mymd5_hex_string = mymd5.hexdigest()
@@ -211,11 +213,11 @@ def Perform_HASH_REPLACE(lab_instance_seed):
                 # Replace token
                 for replaceitem in replacelist:
                     #print replaceitem
-                    (oldtoken, secretstring) = replaceitem.split(':')
-                    # Create hash per secretstring
+                    (oldtoken, the_string) = replaceitem.split(':')
+                    # Create hash per the_string
                     #print oldtoken
-                    #print secretstring
-                    string_to_be_hashed = '%s:%s' % (lab_instance_seed, secretstring)
+                    #print the_string
+                    string_to_be_hashed = '%s:%s' % (lab_instance_seed, the_string)
                     mymd5 = md5.new()
                     mymd5.update(string_to_be_hashed)
                     newtoken = mymd5.hexdigest()
@@ -229,8 +231,17 @@ def Perform_HASH_REPLACE(lab_instance_seed):
                 outfile.write(line)
         outfile.close()
 
+def DoReplace(lab_instance_seed):
+    # Perform RAND_REPLACE
+    Perform_RAND_REPLACE(lab_instance_seed)
+    # Perform HASH_CREATE
+    Perform_HASH_CREATE(lab_instance_seed)
+    # Perform HASH_REPLACE
+    Perform_HASH_REPLACE(lab_instance_seed)
 
 def ParseParameterConfig(lab_instance_seed, configfilename):
+    # Seed random with lab seed
+    random.seed(lab_instance_seed)
     configfile = open(configfilename)
     configfilelines = configfile.readlines()
     configfile.close()
@@ -240,18 +251,14 @@ def ParseParameterConfig(lab_instance_seed, configfilename):
         if linestrip:
             if not linestrip.startswith('#'):
                 #print "Current linestrip is (%s)" % linestrip
-                (each_key, each_value) = linestrip.split(':', 1)
+                (param_id, each_key, each_value) = linestrip.split(':', 2)
                 each_key = each_key.strip()
-                ValidateParameterConfig(lab_instance_seed, each_key, each_value)
+                param_id = param_id.strip()
+                ValidateParameterConfig(lab_instance_seed, param_id, each_key, each_value)
         #else:
         #    print "Skipping empty linestrip is (%s)" % linestrip
+    return paramlist
 
-    # Perform RAND_REPLACE
-    Perform_RAND_REPLACE(lab_instance_seed)
-    # Perform HASH_CREATE
-    Perform_HASH_CREATE(lab_instance_seed)
-    # Perform HASH_REPLACE
-    Perform_HASH_REPLACE(lab_instance_seed)
 
 
 # Usage: ParameterParser.py <lab_instance_seed> [<config_file>]
@@ -273,6 +280,7 @@ def main():
     else:
         configfilename = '%s/.local/config/%s' % (UBUNTUHOME, "parameter.config")
     ParseParameterConfig(lab_instance_seed, configfilename)
+    DoReplace(lab_instance_seed)
     return 0
 
 if __name__ == '__main__':

@@ -37,8 +37,8 @@ else
     exit 1
 fi
 
-#echo "Name of container is $CONTAINER_NAME"
-#echo "Name of container image is $CONTAINER_IMAGE"
+echo "Name of container is $CONTAINER_NAME"
+echo "Name of container image is $CONTAINER_IMAGE"
 
 # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
 if [ ! -d /home/$USER/$HOST_HOME_XFER ]
@@ -50,7 +50,7 @@ fi
 # Check to see if $CONTAINER_NAME container has been created or not
 docker inspect -f {{.Created}} $CONTAINER_NAME &> /dev/null
 result=$?
-#echo "initial inspect result is $result"
+echo "initial inspect result is $result"
 
 if [ $result -eq $FAILURE ]
 then
@@ -58,7 +58,7 @@ then
     IPADDR=`ifconfig docker0 | awk '/inet addr:/ {print $2}' | sed 's/addr://'`
     echo "Docker Host IP address is $IPADDR"
     #echo "Container $CONTAINER_NAME does not exist yet, call docker run"
-    #docker run -dt --add-host my_host:$IPADDR --name=$CONTAINER_NAME $CONTAINER_IMAGE bash
+    echo docker run -dt --privileged --add-host my_host:$IPADDR --name=$CONTAINER_NAME $CONTAINER_IMAGE bash
     docker run -dt --privileged --add-host my_host:$IPADDR --name=$CONTAINER_NAME $CONTAINER_IMAGE bash
     # Give the container some time -- just in case
     sleep 3
@@ -80,7 +80,7 @@ for fname in $ZIP_FILES; do
     success=$?
     if [ $success -ne 0 ]
     then
-        echo "ERROR: Fail to change ownership"
+        echo "ERROR: Fail to change ownership for /home/$CONTAINER_USER/$base_fname"
     fi
 done
 
