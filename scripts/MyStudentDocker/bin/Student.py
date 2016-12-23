@@ -42,7 +42,7 @@ def main():
     #LabName = studentconfig['labname']
     #StudentIndex = studentconfig['studentid']
     #LabIDName = studentconfig['labid']
-    ZipFileName = '%s.%s.zip' % (student_email.replace("@","at"), lab_name)
+    ZipFileName = '%s.%s.zip' % (student_email.replace("@","_at_"), lab_name)
 
     #print 'The lab name is (%s)' % LabName
     #print 'Output ZipFileName is (%s)' % ZipFileName
