@@ -82,8 +82,7 @@ Grading
 -------
 The results transferred from a student container are compared to expected results using rules
 captured in the goals.config file.  This comparison employs symbolic names defined within the results.config
-file for the lab.  The goals.config file can optionally also name symbols defined in an "answers.config", e.g., 
-if some of the student results are to be compared against a worked example.  
+file for the lab.  
 
 A notional example of student lab grading is performed by the Grader.sh
 
