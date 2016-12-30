@@ -257,6 +257,7 @@ def ParseParameterConfig(lab_instance_seed, configfilename):
                 ValidateParameterConfig(lab_instance_seed, param_id, each_key, each_value)
         #else:
         #    print "Skipping empty linestrip is (%s)" % linestrip
+    DoReplace(lab_instance_seed)
     return paramlist
 
 
@@ -280,7 +281,6 @@ def main():
     else:
         configfilename = '%s/.local/config/%s' % (UBUNTUHOME, "parameter.config")
     ParseParameterConfig(lab_instance_seed, configfilename)
-    DoReplace(lab_instance_seed)
     return 0
 
 if __name__ == '__main__':
