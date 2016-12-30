@@ -12,7 +12,6 @@ import zipfile
 import time
 import glob
 import Grader
-import AnswerParser
 import GoalsParser
 import ResultParser
 
@@ -59,9 +58,6 @@ def main():
     InstructorHomeDir = instructorconfig['instructorhomedir']
     InstructorBaseDir = instructorconfig['instructorbasedir']
     GraderScript = instructorconfig['graderscript']
-
-    # Call AnswerParser script to parse 'answer'
-    AnswerParser.ParseAnswer()
 
     zip_files = glob.glob(InstructorHomeDir+'/*.zip')
     for zfile in zip_files:
