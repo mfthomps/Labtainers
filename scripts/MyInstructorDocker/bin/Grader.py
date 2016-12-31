@@ -53,7 +53,7 @@ def compare_result_answer(current_result, current_answer, operator):
 
     return found
 
-def processMatchAnyAny(outjsonfnames, grades, answer, eachgoal):
+def processMatchAnyAny(outjsonfnames, grades, eachgoal):
     #print "Inside processMatchAnyAny"
     found = False
     goalid = eachgoal['goalid']
@@ -72,7 +72,7 @@ def processMatchAnyAny(outjsonfnames, grades, answer, eachgoal):
         one_answer = True
         #print "Current onlyanswer is (%s)" % current_onlyanswer
     else:
-        # Determine whether to use 'Answer' or 'Result' for answertag
+        # No more answer.config (parameter or parameter_ascii will become answer=<value> already)
         (use_target, answertagstring) = jsonanswertag.split('.')
         #print use_target
         #print answertagstring
@@ -96,33 +96,21 @@ def processMatchAnyAny(outjsonfnames, grades, answer, eachgoal):
                 grades[goalid] = True
                 return
         else:
-            # Compare 'Answer' vs. 'Result'
-            if use_target == "answer":
-                for eachanswer in answer[answertagstring]:
-                    current_answer = eachanswer.strip()
-                    #print "Correct answer is (%s)" % current_answer
-                    found = compare_result_answer(resulttagresult, current_answer, eachgoal['goaloperator'])
-                    if found:
-                        #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_answer)
-                        grades[goalid] = True
-                        return
-            # Compare 'Result' vs. 'Result'
-            else:
-                answertagresult = jsonoutput[answertagstring]
-                current_answer = answertagresult.strip()
-                #print "Correct answer is (%s)" % current_answer
-                found = compare_result_answer(resulttagresult, current_answer, eachgoal['goaloperator'])
-                if found:
-                    #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_answer)
-                    grades[goalid] = True
-                    return
+            answertagresult = jsonoutput[answertagstring]
+            current_answer = answertagresult.strip()
+            #print "Correct answer is (%s)" % current_answer
+            found = compare_result_answer(resulttagresult, current_answer, eachgoal['goaloperator'])
+            if found:
+                #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_answer)
+                grades[goalid] = True
+                return
  
     # All file processed - still not found
     if not found:
         #print "processMatchAnyAny failed"
         grades[goalid] = False
 
-def processMatchOneAny(outjsonfnames, grades, answer, eachgoal):
+def processMatchOneAny(outjsonfnames, grades, eachgoal):
     #print "Inside processMatchOneAny"
     found = False
     goalid = eachgoal['goalid']
@@ -141,7 +129,7 @@ def processMatchOneAny(outjsonfnames, grades, answer, eachgoal):
         one_answer = True
         #print "Current onlyanswer is (%s)" % current_onlyanswer
     else:
-        # Determine whether to use 'Answer' or 'Result' for answertag
+        # No more answer.config (parameter or parameter_ascii will become answer=<value> already)
         (use_target, answertagstring) = jsonanswertag.split('.')
         #print use_target
         #print answertagstring
@@ -162,24 +150,7 @@ def processMatchOneAny(outjsonfnames, grades, answer, eachgoal):
                 grades[goalid] = True
                 return
         else:
-            # Compare 'Answer' vs. 'Result'
-            if use_target == "answer":
-                if answertagstring not in answer:
-                    sys.stdout.write("tag string %s not in %s" % (answertagstring, str(answer)))
-                    sys.exit(1)
-                answerlen = len(answer[answertagstring])
-                #print "length of answer is (%d)" % answerlen
-                if answerlen != 1:
-                    sys.stdout.write("processMatchOneAny has more than one answer for\n")
-                    sys.stdout.write("answertagstring (%s) = (%s)\n" % (answertagstring, answer[answertagstring]))
-                    sys.exit(1)
-                #print answer
-                #print answer[answertagstring]
-                eachanswer = answer[answertagstring]
-                current_onlyanswer = eachanswer[0].strip()
-            else:
-            # Compare 'Result' vs. 'Result'
-                current_onlyanswer = jsonoutput[answertagstring]
+            current_onlyanswer = jsonoutput[answertagstring]
 
             #print "Correct onlyanswer is (%s)" % current_onlyanswer
 
@@ -194,7 +165,7 @@ def processMatchOneAny(outjsonfnames, grades, answer, eachgoal):
         #print "processMatchOneAny failed"
         grades[goalid] = False
 
-def processMatchOneLast(outjsonfnames, grades, subgoalsresult, answer, eachgoal):
+def processMatchOneLast(outjsonfnames, grades, subgoalsresult, eachgoal):
     #print "Inside processMatchOneLast"
     found = False
     goalid = eachgoal['goalid']
@@ -213,7 +184,7 @@ def processMatchOneLast(outjsonfnames, grades, subgoalsresult, answer, eachgoal)
         one_answer = True
         #print "Current onlyanswer is (%s)" % current_onlyanswer
     else:
-        # Determine whether to use 'Answer' or 'Result' for answertag
+        # No more answer.config (parameter or parameter_ascii will become answer=<value> already)
         (use_target, answertagstring) = jsonanswertag.split('.')
         #print use_target
         #print answertagstring
@@ -241,21 +212,7 @@ def processMatchOneLast(outjsonfnames, grades, subgoalsresult, answer, eachgoal)
             subgoalsresult[timestamppart][goalid] = True
             return
     else:
-        # Compare 'Answer' vs. 'Result'
-        if use_target == "answer":
-            answerlen = len(answer[answertagstring])
-            #print "length of answer is (%d)" % answerlen
-            if answerlen != 1:
-                sys.stdout.write("processMatchOneAny has more than one answer for\n")
-                sys.stdout.write("answertagstring (%s) = (%s)\n" % (answertagstring, answer[answertagstring]))
-                sys.exit(1)
-            #print answer
-            #print answer[answertagstring]
-            eachanswer = answer[answertagstring]
-            current_onlyanswer = eachanswer[0].strip()
-        else:
-        # Compare 'Result' vs. 'Result'
-            current_onlyanswer = jsonoutput[answertagstring]
+        current_onlyanswer = jsonoutput[answertagstring]
 
         #print "Correct onlyanswer is (%s)" % current_onlyanswer
 
@@ -274,7 +231,7 @@ def processMatchOneLast(outjsonfnames, grades, subgoalsresult, answer, eachgoal)
         # Update subgoalsresult[timestamppart][goalid] also
         subgoalsresult[timestamppart][goalid] = False
 
-def processBooleanSet(outjsonfnames, grades, subgoalsresult, answer, eachgoal):
+def processBooleanSet(outjsonfnames, grades, subgoalsresult, eachgoal):
     #print "Inside processBooleanSet"
     found = False
     goalid = eachgoal['goalid']
@@ -293,7 +250,7 @@ def processBooleanSet(outjsonfnames, grades, subgoalsresult, answer, eachgoal):
         one_answer = True
         #print "Current onlyanswer is (%s)" % current_onlyanswer
     else:
-        # Determine whether to use 'Answer' or 'Result' for answertag
+        # No more answer.config (parameter or parameter_ascii will become answer=<value> already)
         (use_target, answertagstring) = jsonanswertag.split('.')
         #print use_target
         #print answertagstring
@@ -321,40 +278,24 @@ def processBooleanSet(outjsonfnames, grades, subgoalsresult, answer, eachgoal):
             else:
                 subgoalsresult[timestamppart][goalid] = False
         else:
-            # Compare 'Answer' vs. 'Result'
-            if use_target == "answer":
-                for eachanswer in answer[answertagstring]:
-                    current_answer = eachanswer.strip()
-                    #print "Correct answer is (%s)" % current_answer
-                    found = compare_result_answer(resulttagresult, current_answer, eachgoal['goaloperator'])
-                    # Update subgoalsresult[timestamppart][goalid] accordingly
-                    if found:
-                        #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_answer)
-                        subgoalsresult[timestamppart][goalid] = True
-                    else:
-                        subgoalsresult[timestamppart][goalid] = False
-            # Compare 'Result' vs. 'Result'
+            answertagresult = jsonoutput[answertagstring]
+            current_answer = answertagresult.strip()
+            #print "Correct answer is (%s)" % current_answer
+            found = compare_result_answer(resulttagresult, current_answer, eachgoal['goaloperator'])
+            # Update subgoalsresult[timestamppart][goalid] accordingly
+            if found:
+                #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_answer)
+                subgoalsresult[timestamppart][goalid] = True
             else:
-                answertagresult = jsonoutput[answertagstring]
-                current_answer = answertagresult.strip()
-                #print "Correct answer is (%s)" % current_answer
-                found = compare_result_answer(resulttagresult, current_answer, eachgoal['goaloperator'])
-                # Update subgoalsresult[timestamppart][goalid] accordingly
-                if found:
-                    #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_answer)
-                    subgoalsresult[timestamppart][goalid] = True
-                else:
-                    subgoalsresult[timestamppart][goalid] = False
+                subgoalsresult[timestamppart][goalid] = False
  
     # All file processed
     print subgoalsresult
 
 # Process Lab Exercise
-def processLabExercise(studentdir, labidname, grades, subgoalsresult, goals, answer):
+def processLabExercise(studentdir, labidname, grades, subgoalsresult, goals):
     #print "Goals JSON config is"
     #print goals
-    #print "Answer JSON config is"
-    #print answer
     #for eachgoal in goals:
     #    print "Current goal is "
     #    print eachgoal
@@ -363,9 +304,6 @@ def processLabExercise(studentdir, labidname, grades, subgoalsresult, goals, ans
     #    print "    answertag is (%s)" % eachgoal['answertag']
     #    print "    resulttag is (%s)" % eachgoal['resulttag']
     #    print ""
-    #for (each_key, each_value) in answer.iteritems():
-    #    print "Current key is ", each_key
-    #    print "Current value is ", each_value
 
     RESULTHOME = '%s/%s' % (studentdir, ".local/result/")
     outjsonfnames = glob.glob('%s/%s.*' % (RESULTHOME, labidname))
@@ -375,13 +313,13 @@ def processLabExercise(studentdir, labidname, grades, subgoalsresult, goals, ans
     # Do the goaltype of non 'boolean' first
     for eachgoal in goals:
         if eachgoal['goaltype'] == "matchanyany":
-            processMatchAnyAny(outjsonfnames, grades, answer, eachgoal)
+            processMatchAnyAny(outjsonfnames, grades, eachgoal)
         elif eachgoal['goaltype'] == "matchoneany":
-            processMatchOneAny(outjsonfnames, grades, answer, eachgoal)
+            processMatchOneAny(outjsonfnames, grades, eachgoal)
         elif eachgoal['goaltype'] == "matchonelast":
-            processMatchOneLast(outjsonfnames, grades, subgoalsresult, answer, eachgoal)
+            processMatchOneLast(outjsonfnames, grades, subgoalsresult, eachgoal)
         elif eachgoal['goaltype'] == "boolean_set":
-            processBooleanSet(outjsonfnames, grades, subgoalsresult, answer, eachgoal)
+            processBooleanSet(outjsonfnames, grades, subgoalsresult, eachgoal)
         elif eachgoal['goaltype'] == "boolean":
             #print "Skipping %s" % eachgoal
             continue
@@ -430,14 +368,8 @@ def ProcessStudentLab(studentdir, instructordir, labidname):
     goalsjson.close()
     #print "Goals JSON config is"
     #print goals
-    answerjsonfname = '%s/.local/instr_config/%s' % (UBUNTUHOME, "answer.json")
-    answerjson = open(answerjsonfname, "r")
-    answer = json.load(answerjson)
-    answerjson.close()
-    #print "Answer JSON config is"
-    #print answer
 
-    processLabExercise(studentdir, labidname, grades, subgoalsresult, goals, answer)
+    processLabExercise(studentdir, labidname, grades, subgoalsresult, goals)
     return grades
 
 # Usage: Grader.py <studentdir> <instructordir> <labidname>

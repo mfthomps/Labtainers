@@ -21,7 +21,7 @@ timestamplist = []
 nametags = {}
 global parameter_list
 parameter_list = None
-answer_tokens=['answer', 'parameter', 'parameter_ascii']
+answer_tokens=['result', 'parameter', 'parameter_ascii']
 class MyGoal(object):
     """ Goal - goalid, goaltype, goaloperator, answertag, resulttag, boolean_string """
     goalid = ""
@@ -158,37 +158,27 @@ def generateSpecialTagValue(studentdir, target, finaltag):
     return returnTagValue
 
 def ValidateTag(studentdir, inputtag, allowed_special_answer):
-    # if allowed_special_answer is true, then allow 'answer=<string>' or 'answer.<tag>'
+    # if allowed_special_answer is true, then allow 'answer=<string>'
     returntag = ""
-    if '.' in inputtag:
-        #print "tag %s contains '.'" % inputtag
-        (target, finaltag) = inputtag.split('.')
-        if not (target == "answer" or target == "result"):
-            sys.stderr.write("ERROR: goals.config contains unrecognized tag (%s)\n" % inputtag)
-            sys.exit(1)
-        if not MyUtil.CheckAlphaDashUnder(finaltag):
-            sys.stderr.write("ERROR: Not allowed characters in goals.config's tag (%s)\n" % inputtag)
-            sys.exit(1)
-        if not allowed_special_answer:
-            if target == "answer":
-                sys.stderr.write("ERROR: goals.config resulttag (%s) is not allowed 'answer.<string>'\n" % inputtag)
-                sys.exit(1)
-        returntag = inputtag
-    elif '=' in inputtag:
+    if '=' in inputtag:
         if not allowed_special_answer:
             sys.stderr.write("ERROR: goals.config only answertag is allowed answer=<string>, resulttag (%s) is not\n" % inputtag)
             sys.exit(1)
-        #print "tag %s contains '='" % inputtag
         (target, finaltag) = inputtag.split('=')
-        #if not (target == "answer" or target == "asciirandom" or
-        #        target == "hexrandom" or target == "intrandom" or target == "hash"):
+        returntag = getTagValue(target, finaltag)
+
+    elif '.' in inputtag:
+        #print "tag %s contains '.'" % inputtag
+        (target, finaltag) = inputtag.split('.')
         if not target in answer_tokens:
             sys.stderr.write("ERROR: goals.config tag=<string> then\n")
             sys.stderr.write("       tag must be:(%s), got %s\n" % (','.join(answer_tokens), inputtag))
             sys.exit(1)
-        # check is done inside generateSpecialTagValue
+        if not MyUtil.CheckAlphaDashUnder(finaltag):
+            sys.stderr.write("ERROR: Not allowed characters in goals.config's tag (%s)\n" % inputtag)
+            sys.exit(1)
+
         returntag = getTagValue(target, finaltag)
-        #returntag = generateSpecialTagValue(studentdir, target, finaltag)
     else:
         #print "tag is %s" % inputtag
         if not MyUtil.CheckAlphaDashUnder(inputtag):
