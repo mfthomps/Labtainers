@@ -193,6 +193,12 @@ def Perform_HASH_CREATE(lab_instance_seed):
                 mymd5.update(string_to_be_hashed)
                 mymd5_hex_string = mymd5.hexdigest()
                 #print mymd5_hex_string
+                # Update paramlist accordingly
+                for (key, value) in paramlist.iteritems():
+                    if value == the_string:
+                        paramlist[key] = mymd5_hex_string
+                    else:
+                        continue
                 outfile.write('%s\n' % mymd5_hex_string)
         outfile.close()
 
@@ -222,6 +228,12 @@ def Perform_HASH_REPLACE(lab_instance_seed):
                     mymd5.update(string_to_be_hashed)
                     newtoken = mymd5.hexdigest()
                     line = line.replace(oldtoken, newtoken)
+                    # Update paramlist accordingly
+                    for (key, value) in paramlist.iteritems():
+                        if value == the_string:
+                            paramlist[key] = newtoken
+                        else:
+                            continue
                 filelines.append(line)
         infile.close()
         #print filelines
