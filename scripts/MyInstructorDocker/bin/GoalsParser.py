@@ -208,7 +208,7 @@ def ParseGoals(studentdir):
           'parameter.config')
     global parameter_list
     parameter_list = ParameterParser.ParseParameterConfig(lab_instance_seed,
-       "CalledByInstructor", param_filename)
+       param_filename)
 
     for line in configfilelines:
         linestrip = line.rstrip()

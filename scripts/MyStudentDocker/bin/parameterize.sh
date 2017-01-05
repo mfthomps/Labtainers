@@ -45,7 +45,7 @@ echo "$USER_EMAIL" > $USER_EMAILFILE
 echo "$LAB_NAME" > $LAB_NAMEFILE
 
 # call ParameterParser.py (passing $LAB_INSTANCE_SEED)
-sudo /home/ubuntu/.local/bin/ParameterParser.py $LAB_INSTANCE_SEED "CalledByStudent" $LAB_PARAMCONFIGFILE
+sudo /home/ubuntu/.local/bin/ParameterParser.py $LAB_INSTANCE_SEED $LAB_PARAMCONFIGFILE
 
 # If file /home/ubuntu/.local/bin/fixlocal.sh exist, run it
 if [ -f /home/ubuntu/.local/bin/fixlocal.sh ]
