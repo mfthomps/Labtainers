@@ -290,7 +290,7 @@ def processBooleanSet(outjsonfnames, grades, subgoalsresult, eachgoal):
                 subgoalsresult[timestamppart][goalid] = False
  
     # All file processed
-    print subgoalsresult
+    #print subgoalsresult
 
 # Process Lab Exercise
 def processLabExercise(studentdir, labidname, grades, subgoalsresult, goals):

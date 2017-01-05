@@ -18,7 +18,7 @@ hashcreatelist = {}
 hashreplacelist = {}
 paramlist = {}
 
-def CheckRandReplaceEntry(lab_instance_seed, param_id, each_value):
+def CheckRandReplaceEntry(lab_instance_seed, caller, param_id, each_value):
 
     # RAND_REPLACE : <filename> : <token> : <LowerBound> : <UpperBound>
     #print "Checking RAND_REPLACE entry"
@@ -68,11 +68,12 @@ def CheckRandReplaceEntry(lab_instance_seed, param_id, each_value):
         random_str = '%s' % int(random_int)
     else:
         random_str = '%s' % hex(random_int)
-    if not os.path.exists(myfilename):
-        sys.stderr.write("ERROR: No %s file does not exist\n" % myfilename)
-        sys.exit(1)
-    #else:
-    #    print "File (%s) exist\n" % myfilename
+    if caller == "CalledByStudent":
+        if not os.path.exists(myfilename):
+            sys.stderr.write("ERROR: No %s file does not exist\n" % myfilename)
+            sys.exit(1)
+        #else:
+        #    print "File (%s) exist\n" % myfilename
 
     if myfilename in randreplacelist:
         randreplacelist[myfilename].append('%s:%s' % (token, random_str))
@@ -82,7 +83,7 @@ def CheckRandReplaceEntry(lab_instance_seed, param_id, each_value):
     paramlist[param_id] = random_str
 
 
-def CheckHashCreateEntry(param_id, each_value):
+def CheckHashCreateEntry(lab_instance_seed, caller, param_id, each_value):
     # HASH_CREATE : <filename> : <string>
     #print "Checking HASH_CREATE entry"
     entryline = each_value.split(':')
@@ -93,21 +94,30 @@ def CheckHashCreateEntry(param_id, each_value):
         sys.stderr.write("ERROR: HASH_CREATE : <filename> : <string>\n")
     myfilename = entryline[0].strip()
     the_string = entryline[1].strip()
+    # Create hash per the_string
+    string_to_be_hashed = '%s:%s' % (lab_instance_seed, the_string)
+    mymd5 = md5.new()
+    mymd5.update(string_to_be_hashed)
+    mymd5_hex_string = mymd5.hexdigest()
+    #print mymd5_hex_string
     #print "filename is (%s)" % myfilename
     #print "the_string is (%s)" % the_string
-    # If file does not exist, create an empty file
-    if not os.path.exists(myfilename):
-        outfile = open(myfilename, 'w')
-        outfile.write('')
-        outfile.close()
+    #print "mymd5_hex_string is (%s)" % mymd5_hex_string
+    # Do file creation only if "CalledByStudent"
+    if caller == "CalledByStudent":
+        # If file does not exist, create an empty file
+        if not os.path.exists(myfilename):
+            outfile = open(myfilename, 'w')
+            outfile.write('')
+            outfile.close()
     if myfilename in hashcreatelist:
-        hashcreatelist[myfilename].append('%s' % the_string)
+        hashcreatelist[myfilename].append('%s' % mymd5_hex_string)
     else:
         hashcreatelist[myfilename] = []
-        hashcreatelist[myfilename].append('%s' % the_string)
-    paramlist[param_id] = the_string
+        hashcreatelist[myfilename].append('%s' % mymd5_hex_string)
+    paramlist[param_id] = mymd5_hex_string
 
-def CheckHashReplaceEntry(param_id, each_value):
+def CheckHashReplaceEntry(lab_instance_seed, caller, param_id, each_value):
     # HASH_REPLACE : <filename> : <token> : <string>
     #print "Checking HASH_REPLACE entry"
     entryline = each_value.split(':')
@@ -119,37 +129,43 @@ def CheckHashReplaceEntry(param_id, each_value):
     myfilename = entryline[0].strip()
     token = entryline[1].strip()
     the_string = entryline[2].strip()
+    # Create hash per the_string
+    string_to_be_hashed = '%s:%s' % (lab_instance_seed, the_string)
+    mymd5 = md5.new()
+    mymd5.update(string_to_be_hashed)
+    mymd5_hex_string = mymd5.hexdigest()
     #print "filename is (%s)" % myfilename
     #print "token is (%s)" % token
     #print "the_string is (%s)" % the_string
-    if not os.path.exists(myfilename):
-        sys.stderr.write("ERROR: No %s file does not exist\n" % myfilename)
-        sys.exit(1)
+    if caller == "CalledByStudent":
+        if not os.path.exists(myfilename):
+            sys.stderr.write("ERROR: No %s file does not exist\n" % myfilename)
+            sys.exit(1)
     if myfilename in hashreplacelist:
-        hashreplacelist[myfilename].append('%s:%s' % (token, the_string))
+        hashreplacelist[myfilename].append('%s:%s' % (token, mymd5_hex_string))
     else:
         hashreplacelist[myfilename] = []
-        hashreplacelist[myfilename].append('%s:%s' % (token, the_string))
-    paramlist[param_id] = the_string
+        hashreplacelist[myfilename].append('%s:%s' % (token, mymd5_hex_string))
+    paramlist[param_id] = mymd5_hex_string
 
 
-def ValidateParameterConfig(lab_instance_seed, param_id, each_key, each_value):
+def ValidateParameterConfig(lab_instance_seed, caller, param_id, each_key, each_value):
     if each_key == "RAND_REPLACE":
         #print "RAND_REPLACE"
-        CheckRandReplaceEntry(lab_instance_seed, param_id, each_value)
+        CheckRandReplaceEntry(lab_instance_seed, caller, param_id, each_value)
     elif each_key == "HASH_CREATE":
         #print "HASH_CREATE"
-        CheckHashCreateEntry(param_id, each_value)
+        CheckHashCreateEntry(lab_instance_seed, caller, param_id, each_value)
     elif each_key == "HASH_REPLACE":
         #print "HASH_REPLACE"
-        CheckHashReplaceEntry(param_id, each_value)
+        CheckHashReplaceEntry(lab_instance_seed, caller, param_id, each_value)
     else:
         sys.stderr.write("ERROR: Invalid operator %s\n" % each_key)
         sys.exit(1)
     return 0
 
 # Perform RAND_REPLACE
-def Perform_RAND_REPLACE(lab_instance_seed):
+def Perform_RAND_REPLACE(lab_instance_seed, caller):
     # At this point randreplacelist should have been populated
     # and files have been confirmed to exist
 
@@ -158,24 +174,26 @@ def Perform_RAND_REPLACE(lab_instance_seed):
         #print "Current Filename is %s" % filename
         #print "Replace list is "
         #print replacelist
-        filelines = []
-        # First open the file - read
-        with open(filename, 'r') as infile:
-            for line in infile:
-                # Replace token
-                for replaceitem in replacelist:
-                    (oldtoken, newtoken) = replaceitem.split(':')
-                    line = line.replace(oldtoken, newtoken)
-                filelines.append(line)
-        infile.close()
-        # Re-open file with write
-        with open(filename, 'w') as outfile:
-            for line in filelines:
-                outfile.write(line)
-        outfile.close()
+        # Do replacement only if "CalledByStudent"
+        if caller == "CalledByStudent":
+            filelines = []
+            # First open the file - read
+            with open(filename, 'r') as infile:
+                for line in infile:
+                    # Replace token
+                    for replaceitem in replacelist:
+                        (oldtoken, newtoken) = replaceitem.split(':')
+                        line = line.replace(oldtoken, newtoken)
+                    filelines.append(line)
+            infile.close()
+            # Re-open file with write
+            with open(filename, 'w') as outfile:
+                for line in filelines:
+                    outfile.write(line)
+            outfile.close()
 
 # Perform HASH_CREATE
-def Perform_HASH_CREATE(lab_instance_seed):
+def Perform_HASH_CREATE(lab_instance_seed, caller):
     # At this point hashcreatelist should have been populated
     # and files have been confirmed to exist or created
 
@@ -184,26 +202,16 @@ def Perform_HASH_CREATE(lab_instance_seed):
         #print "Current Filename is %s" % filename
         #print "Hash Create list is "
         #print createlist
-        # open the file - write
-        with open(filename, 'w') as outfile:
+        # Do file creation only if "CalledByStudent"
+        if caller == "CalledByStudent":
+            # open the file - write
+            outfile = open(filename, 'w')
             for the_string in createlist:
-                # Create hash per the_string
-                string_to_be_hashed = '%s:%s' % (lab_instance_seed, the_string)
-                mymd5 = md5.new()
-                mymd5.update(string_to_be_hashed)
-                mymd5_hex_string = mymd5.hexdigest()
-                #print mymd5_hex_string
-                # Update paramlist accordingly
-                for (key, value) in paramlist.iteritems():
-                    if value == the_string:
-                        paramlist[key] = mymd5_hex_string
-                    else:
-                        continue
-                outfile.write('%s\n' % mymd5_hex_string)
-        outfile.close()
+                outfile.write('%s\n' % the_string)
+            outfile.close()
 
 # Perform HASH_REPLACE
-def Perform_HASH_REPLACE(lab_instance_seed):
+def Perform_HASH_REPLACE(lab_instance_seed, caller):
     # At this point hashreplacelist should have been populated
     # and files have been confirmed to exist
 
@@ -212,46 +220,32 @@ def Perform_HASH_REPLACE(lab_instance_seed):
         #print "Current Filename is %s" % filename
         #print "Replace list is "
         #print replacelist
-        filelines = []
-        # First open the file - read
-        with open(filename, 'r') as infile:
-            for line in infile:
-                # Replace token
-                for replaceitem in replacelist:
-                    #print replaceitem
-                    (oldtoken, the_string) = replaceitem.split(':')
-                    # Create hash per the_string
-                    #print oldtoken
-                    #print the_string
-                    string_to_be_hashed = '%s:%s' % (lab_instance_seed, the_string)
-                    mymd5 = md5.new()
-                    mymd5.update(string_to_be_hashed)
-                    newtoken = mymd5.hexdigest()
-                    line = line.replace(oldtoken, newtoken)
-                    # Update paramlist accordingly
-                    for (key, value) in paramlist.iteritems():
-                        if value == the_string:
-                            paramlist[key] = newtoken
-                        else:
-                            continue
-                filelines.append(line)
-        infile.close()
-        #print filelines
-        # Re-open file with write
-        with open(filename, 'w') as outfile:
-            for line in filelines:
-                outfile.write(line)
-        outfile.close()
+        # Do replacement only if "CalledByStudent"
+        if caller == "CalledByStudent":
+            filelines = []
+            with open(filename, 'r') as infile:
+                for line in infile:
+                    # Replace token
+                    for replaceitem in replacelist:
+                        (oldtoken, newtoken) = replaceitem.split(':')
+                        line = line.replace(oldtoken, newtoken)
+                    filelines.append(line)
+            infile.close()
+            # Re-open file with write
+            with open(filename, 'w') as outfile:
+                for line in filelines:
+                    outfile.write(line)
+            outfile.close()
 
-def DoReplace(lab_instance_seed):
+def DoReplace(lab_instance_seed, caller):
     # Perform RAND_REPLACE
-    Perform_RAND_REPLACE(lab_instance_seed)
+    Perform_RAND_REPLACE(lab_instance_seed, caller)
     # Perform HASH_CREATE
-    Perform_HASH_CREATE(lab_instance_seed)
+    Perform_HASH_CREATE(lab_instance_seed, caller)
     # Perform HASH_REPLACE
-    Perform_HASH_REPLACE(lab_instance_seed)
+    Perform_HASH_REPLACE(lab_instance_seed, caller)
 
-def ParseParameterConfig(lab_instance_seed, configfilename):
+def ParseParameterConfig(lab_instance_seed, caller, configfilename):
     # Seed random with lab seed
     random.seed(lab_instance_seed)
     configfile = open(configfilename)
@@ -266,33 +260,40 @@ def ParseParameterConfig(lab_instance_seed, configfilename):
                 (param_id, each_key, each_value) = linestrip.split(':', 2)
                 each_key = each_key.strip()
                 param_id = param_id.strip()
-                ValidateParameterConfig(lab_instance_seed, param_id, each_key, each_value)
+                ValidateParameterConfig(lab_instance_seed, caller, param_id, each_key, each_value)
         #else:
         #    print "Skipping empty linestrip is (%s)" % linestrip
-    DoReplace(lab_instance_seed)
+    DoReplace(lab_instance_seed, caller)
     return paramlist
 
 
 
-# Usage: ParameterParser.py <lab_instance_seed> [<config_file>]
+# Usage: ParameterParser.py <lab_instance_seed> <caller> [<config_file>]
 # Arguments:
 #     <lab_instance_seed> - laboratory instance seed
+#     <caller> - must be either CalledByStudent or CalledByInstructor
 #     [<config_file>] - optional configuration file
 #                       if <config_file> not specified, it defaults to
 #                       /home/ubuntu/.local/config/parameter.config
 def main():
     #print "Running ParameterParser.py"
     numargs = len(sys.argv)
-    if not (numargs == 2 or numargs == 3):
-        sys.stderr.write("Usage: ParameterParser.py <lab_instance_seed> [<config_file>]\n")
+    if not (numargs == 3 or numargs == 4):
+        sys.stderr.write("Usage: ParameterParser.py <lab_instance_seed> <caller> [<config_file>]\n")
         sys.exit(1)
 
     lab_instance_seed = sys.argv[1]
-    if numargs == 3:
-        configfilename = sys.argv[2]
+    caller = sys.argv[2]
+    if not (caller == "CalledByStudent" or caller == "CalledByInstructor"):
+        sys.stderr.write("Usage: ParameterParser.py <lab_instance_seed> <caller> [<config_file>]\n")
+        sys.stderr.write("       <caller> - must be either CalledByStudent or CalledByInstructor\n")
+        sys.exit(1)
+    
+    if numargs == 4:
+        configfilename = sys.argv[3]
     else:
         configfilename = '%s/.local/config/%s' % (UBUNTUHOME, "parameter.config")
-    ParseParameterConfig(lab_instance_seed, configfilename)
+    ParseParameterConfig(lab_instance_seed, caller, configfilename)
     return 0
 
 if __name__ == '__main__':
