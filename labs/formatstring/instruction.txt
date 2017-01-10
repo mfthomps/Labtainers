@@ -41,7 +41,7 @@ On the terminal (attached to the Linux container), normal Linux commands
 should be available.
 
 If the vulnerable program has not been compiled (or accidentally removed), 
-do the following command: 'gcc -o vul_prog vul_prog.c'
+do the following command: 'gcc -m32 -fno-stack-protector -o vul_prog vul_prog.c'
 
 Run the program through wrapper script capinout.sh by do the following
 command: 'capinout.sh ./vul_prog'
