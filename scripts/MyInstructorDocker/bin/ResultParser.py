@@ -251,7 +251,7 @@ def ParseStdinStdout(studentdir, instructordir, jsonoutfile):
                                 myre = re.findall('\(.+?\)', linerequested)
                                 linetokenidx = 0
                                 for item in myre:
-                                    print "linetokenidx = %d" % linetokenidx
+                                    #print "linetokenidx = %d" % linetokenidx
                                     linetokens[linetokenidx] = item[1:-1]
                                     linetokenidx = linetokenidx + 1
                                 numlinetokens = len(linetokens)
@@ -259,7 +259,7 @@ def ParseStdinStdout(studentdir, instructordir, jsonoutfile):
                                 myre = re.findall('".+?"', linerequested)
                                 linetokenidx = 0
                                 for item in myre:
-                                    print "linetokenidx = %d" % linetokenidx
+                                    #print "linetokenidx = %d" % linetokenidx
                                     linetokens[linetokenidx] = item[1:-1]
                                     linetokenidx = linetokenidx + 1
                                 numlinetokens = len(linetokens)
@@ -275,7 +275,7 @@ def ParseStdinStdout(studentdir, instructordir, jsonoutfile):
                                 #print linetokens
                                 # make sure tokenno <= numlinetokens
                                 tokenno = int(token_id)
-                                print "tokenno = %d" % tokenno
+                                #print "tokenno = %d" % tokenno
                                 if tokenno > numlinetokens:
                                     token = "NONE"
                                     #print "setting result to none tokenno > numlinetokens"
