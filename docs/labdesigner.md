@@ -223,9 +223,9 @@ within a boolen expression representing an actual goal.
 As noted earlier, student results may derive from multiple invocations of the same program or system utility.  
 To account for cases where students continue
 to experiment with programs after they have obtained the desired results, the framework includes
-a goal "type" of "matchanyany", which evaluates as TRUE if the student obtained the expected
+a goal "type" of "matchany", which evaluates as TRUE if the student obtained the expected
 result during any invocation of the program or system utility.  In those cases where the student is required
-to obtain the expected result during the last invocation of a program, the "matchonelast" goal type 
+to obtain the expected result during the last invocation of a program, the "matchlast" goal type 
 may be specified.
 
 The following syntax defines each goal or subgoal within the goals.config file:
@@ -235,13 +235,10 @@ The following syntax defines each goal or subgoal within the goals.config file:
        Where: 
          <id> - And identifer for the goal.  It must be alphanumeric (underscores permitted).
          <type> - must be one of the following:
-              'matchanyany' - if any answertag matches any resulttag
-              'matchoneany' - if the first answertag matches any resulttag
-                            - note: 'matchanyany' and 'matchoneany' will NOT be used 
-                                    as sub-goal for goal of type 'boolean' below
-              'matchonelast' - if the first answertag matches the last resulttag
-                             - note: 'matchonelast' can also be used as sub-goal for
-                                     goal of type 'boolean' below
+              'matchany' - if the answertag matches any resulttag
+                         - note: 'matchany' will NOT be used as sub-goal for goal of type 'boolean' below
+              'matchlast' - if the answertag matches the last resulttag
+                          - note: 'matchlast' can also be used as sub-goal for goal of type 'boolean' below
               'boolean_set' - this is sub-goal to be used with goal of type 'boolean' below
               'boolean' - goal based on boolean operation
                           string that follows will be evaluated for boolean value
