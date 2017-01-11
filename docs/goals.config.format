@@ -10,13 +10,12 @@
 #
 # <id> - must be alphanumeric (id of the goal)
 # <type> - must be either:
-#          'matchanyany' - if any answertag matches any resulttag
-#          'matchoneany' - if the first answertag matches any resulttag
-#                        - note: 'matchanyany' and 'matchoneany' will NOT be used 
-#                                as sub-goal for goal of type 'boolean' below
-#          'matchonelast' - if the first answertag matches the last resulttag
-#                         - note: 'matchonelast' can also be used as sub-goal for
-#                                 goal of type 'boolean' below
+#          'matchany' - if the answertag matches any resulttag
+#                     - note: 'matchany' will NOT be used 
+#                             as sub-goal for goal of type 'boolean' below
+#          'matchlast' - if the answertag matches the last resulttag
+#                      - note: 'matchlast' can also be used as sub-goal for
+#                              goal of type 'boolean' below
 #          'boolean_set' - this is sub-goal to be used with goal of type 'boolean' below
 #          'boolean' - goal based on boolean operation
 #                      string that follows will be evaluated for boolean value
@@ -80,7 +79,7 @@
 #                                Only characters not allowed in the string are ':' and '='
 #
 # for example:
-# crash : matchanyany : string_equal : crashstring : inputstring
+# crash : matchany : string_equal : crashstring : inputstring
 # means : for goal of 'crash', if any of the crashstring matches
 #         any of the inputstring, it is considered successful
 #
