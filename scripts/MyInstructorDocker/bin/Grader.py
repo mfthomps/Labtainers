@@ -53,65 +53,8 @@ def compare_result_answer(current_result, current_answer, operator):
 
     return found
 
-def processMatchAnyAny(outjsonfnames, grades, eachgoal):
-    #print "Inside processMatchAnyAny"
-    found = False
-    goalid = eachgoal['goalid']
-    #print goalid
-    jsonanswertag = eachgoal['answertag']
-    #print jsonanswertag
-    jsonresulttag = eachgoal['resulttag']
-    (resulttagtarget, resulttag) = jsonresulttag.split('.')
-    #print jsonresulttag
-    # Handle special case 'answer=<string>'
-    one_answer = False
-    if '=' in jsonanswertag:
-        (answertag, onlyanswer) = jsonanswertag.split('=')
-        current_onlyanswer = onlyanswer.strip()
-        # Change to one_answer = True
-        one_answer = True
-        #print "Current onlyanswer is (%s)" % current_onlyanswer
-    else:
-        # No more answer.config (parameter or parameter_ascii will become answer=<value> already)
-        (use_target, answertagstring) = jsonanswertag.split('.')
-        #print use_target
-        #print answertagstring
-
-    # Match Any to Any - Process each file until match or not found
-    for outputjsonfile in outjsonfnames:
-        #print "processMatchAnyAny Output json %s" % outputjsonfile
-        jsonfile = open(outputjsonfile, "r")
-        jsonoutput = json.load(jsonfile)
-        jsonfile.close()
-        try:
-            resulttagresult = jsonoutput[resulttag]
-        except:
-            print('%s not found in file %s' % (resulttag, outputjsonfile))
-            exit(1)
-        #print resulttagresult
-        if one_answer:
-            found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
-            if found:
-                #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_onlyanswer)
-                grades[goalid] = True
-                return
-        else:
-            answertagresult = jsonoutput[answertagstring]
-            current_answer = answertagresult.strip()
-            #print "Correct answer is (%s)" % current_answer
-            found = compare_result_answer(resulttagresult, current_answer, eachgoal['goaloperator'])
-            if found:
-                #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_answer)
-                grades[goalid] = True
-                return
- 
-    # All file processed - still not found
-    if not found:
-        #print "processMatchAnyAny failed"
-        grades[goalid] = False
-
-def processMatchOneAny(outjsonfnames, grades, eachgoal):
-    #print "Inside processMatchOneAny"
+def processMatchAny(outjsonfnames, grades, eachgoal):
+    #print "Inside processMatchAny"
     found = False
     goalid = eachgoal['goalid']
     #print goalid
@@ -136,12 +79,16 @@ def processMatchOneAny(outjsonfnames, grades, eachgoal):
 
     # Match One to Any - Process each file until match or not found
     for outputjsonfile in outjsonfnames:
-        #print "processMatchOneAny Output json %s" % outputjsonfile
+        #print "processMatchAny Output json %s" % outputjsonfile
         jsonfile = open(outputjsonfile, "r")
         jsonoutput = json.load(jsonfile)
         jsonfile.close()
 
-        resulttagresult = jsonoutput[resulttag]
+        try:
+            resulttagresult = jsonoutput[resulttag]
+        except:
+            print('%s not found in file %s' % (resulttag, outputjsonfile))
+            exit(1)
         #print resulttagresult
         if one_answer:
             found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
@@ -162,11 +109,11 @@ def processMatchOneAny(outjsonfnames, grades, eachgoal):
  
     # All file processed - still not found
     if not found:
-        #print "processMatchOneAny failed"
+        #print "processMatchAny failed"
         grades[goalid] = False
 
-def processMatchOneLast(outjsonfnames, grades, subgoalsresult, eachgoal):
-    #print "Inside processMatchOneLast"
+def processMatchLast(outjsonfnames, grades, subgoalsresult, eachgoal):
+    #print "Inside processMatchLast"
     found = False
     goalid = eachgoal['goalid']
     #print goalid
@@ -196,12 +143,16 @@ def processMatchOneLast(outjsonfnames, grades, subgoalsresult, eachgoal):
     # Use rsplit to get the timestamppart
     (filenamepart, timestamppart) = outputjsonfile.rsplit('.', 1)
     #print "Last file timestamped is (%s)" % outputjsonfile
-    #print "processMatchOneLast Output json %s" % outputjsonfile
+    #print "processMatchLast Output json %s" % outputjsonfile
     jsonfile = open(outputjsonfile, "r")
     jsonoutput = json.load(jsonfile)
     jsonfile.close()
 
-    resulttagresult = jsonoutput[resulttag]
+    try:
+        resulttagresult = jsonoutput[resulttag]
+    except:
+        print('%s not found in file %s' % (resulttag, outputjsonfile))
+        exit(1)
     #print resulttagresult
     if one_answer:
         found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
@@ -226,7 +177,7 @@ def processMatchOneLast(outjsonfnames, grades, subgoalsresult, eachgoal):
  
     # All file processed - still not found
     if not found:
-        #print "processMatchOneLast failed"
+        #print "processMatchLast failed"
         grades[goalid] = False
         # Update subgoalsresult[timestamppart][goalid] also
         subgoalsresult[timestamppart][goalid] = False
@@ -312,12 +263,10 @@ def processLabExercise(studentdir, labidname, grades, subgoalsresult, goals):
     # Go through each goal for each student
     # Do the goaltype of non 'boolean' first
     for eachgoal in goals:
-        if eachgoal['goaltype'] == "matchanyany":
-            processMatchAnyAny(outjsonfnames, grades, eachgoal)
-        elif eachgoal['goaltype'] == "matchoneany":
-            processMatchOneAny(outjsonfnames, grades, eachgoal)
-        elif eachgoal['goaltype'] == "matchonelast":
-            processMatchOneLast(outjsonfnames, grades, subgoalsresult, eachgoal)
+        if eachgoal['goaltype'] == "matchany":
+            processMatchAny(outjsonfnames, grades, eachgoal)
+        elif eachgoal['goaltype'] == "matchlast":
+            processMatchLast(outjsonfnames, grades, subgoalsresult, eachgoal)
         elif eachgoal['goaltype'] == "boolean_set":
             processBooleanSet(outjsonfnames, grades, subgoalsresult, eachgoal)
         elif eachgoal['goaltype'] == "boolean":
@@ -329,9 +278,8 @@ def processLabExercise(studentdir, labidname, grades, subgoalsresult, goals):
 
     # Now do the goaltype of 'boolean'
     for eachgoal in goals:
-        if (eachgoal['goaltype'] == "matchanyany" or
-            eachgoal['goaltype'] == "matchoneany" or
-            eachgoal['goaltype'] == "matchonelast" or
+        if (eachgoal['goaltype'] == "matchany" or
+            eachgoal['goaltype'] == "matchlast" or
             eachgoal['goaltype'] == "boolean_set"):
             continue
         elif eachgoal['goaltype'] == "boolean":

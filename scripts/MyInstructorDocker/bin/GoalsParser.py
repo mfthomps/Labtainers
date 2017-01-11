@@ -239,9 +239,8 @@ def ParseGoals(studentdir):
                     # Allowed 'answer=<string>' for answertag only
                     valid_answertag = ValidateTag(studentdir, answertag, True)
                     valid_resulttag = ValidateTag(studentdir, resulttag, False)
-                    if not (goal_type == "matchanyany" or
-                        goal_type == "matchoneany" or
-                        goal_type == "matchonelast" or
+                    if not (goal_type == "matchany" or
+                        goal_type == "matchlast" or
                         goal_type == "boolean_set"):
                         sys.stderr.write("ERROR: goals.config contains unrecognized type (%s)\n" % goal_type)
                         sys.exit(1)
