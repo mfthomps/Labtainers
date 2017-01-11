@@ -8,6 +8,7 @@
 import json
 import glob
 import os
+import re
 import sys
 import MyUtil
 
@@ -80,6 +81,15 @@ def ValidateConfigfile(each_key, each_value):
         except:
             sys.stderr.write('Expected integer following LINE type, got %s in %s' % (values[line_at+1], each_value))
             exit(1)
+
+    # Validate <field_type> - if exists (i.e., line_at == 3)
+    #                       - because <field_type> is optional
+    if line_at == 3:
+        field_type = values[1].strip()
+        if (field_type != "TOKEN") and (field_type != "PARENS") and (field_type != "QUOTES"):
+            sys.stderr.write("ERROR: results.config line (%s)\n" % each_value)
+            sys.stderr.write("ERROR: results.config invalid field_type\n")
+            sys.exit(1)
 
     return 0
 
@@ -174,6 +184,14 @@ def ParseStdinStdout(studentdir, instructordir, jsonoutfile):
                     values = [x.strip() for x in each_value.split(':', num_splits)]
                     targetfile = values[0].strip()
                     command = values[line_at].strip()
+                    # field_type - if exists (because field_type is optional)
+                    #              has been validated to be either
+                    #              'TOKEN' or 'PARENS' or 'QUOTES'
+                    # if it does not exists, default field_type is TOKEN
+                    if line_at == 3:
+                        field_type = values[1].strip()
+                    else:
+                        field_type = "TOKEN"
                     # command has been validated to be either 'LINE' or 'STARTSWITH'
                     token_index = 1
                     if line_at == 3:
@@ -228,8 +246,27 @@ def ParseStdinStdout(studentdir, instructordir, jsonoutfile):
                         if linerequested == "NONE":
                             token = "NONE"
                         else:
-                            linetokens = linerequested.split()
-                            numlinetokens = len(linetokens)
+                            linetokens = {}
+                            if field_type == 'PARENS':
+                                myre = re.findall('\(.+?\)', linerequested)
+                                linetokenidx = 0
+                                for item in myre:
+                                    print "linetokenidx = %d" % linetokenidx
+                                    linetokens[linetokenidx] = item[1:-1]
+                                    linetokenidx = linetokenidx + 1
+                                numlinetokens = len(linetokens)
+                            elif field_type == 'QUOTES':
+                                myre = re.findall('".+?"', linerequested)
+                                linetokenidx = 0
+                                for item in myre:
+                                    print "linetokenidx = %d" % linetokenidx
+                                    linetokens[linetokenidx] = item[1:-1]
+                                    linetokenidx = linetokenidx + 1
+                                numlinetokens = len(linetokens)
+                            else:
+                                # field_type == "TOKEN"
+                                linetokens = linerequested.split()
+                                numlinetokens = len(linetokens)
                             if token_id == 'ALL':
                                 token = linerequested.strip()
                             elif token_id == 'LAST':
@@ -238,6 +275,7 @@ def ParseStdinStdout(studentdir, instructordir, jsonoutfile):
                                 #print linetokens
                                 # make sure tokenno <= numlinetokens
                                 tokenno = int(token_id)
+                                print "tokenno = %d" % tokenno
                                 if tokenno > numlinetokens:
                                     token = "NONE"
                                     #print "setting result to none tokenno > numlinetokens"

@@ -1,0 +1,9 @@
+{
+    "instructorname" : "ubuntu",
+    "instructorhomedir" : "/home/ubuntu/",
+    "instructorbasedir" : "/home/ubuntu/.local/base/",
+
+    "graderscript" : "Grader.py"
+
+}
+
