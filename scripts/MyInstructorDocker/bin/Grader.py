@@ -15,6 +15,7 @@ UBUNTUHOME="/home/ubuntu/"
 dirlist = []
 matchanylist = []
 matchlastlist = []
+matchacrosslist = []
 
 def compare_result_answer(current_result, current_answer, operator):
     found = False
@@ -77,7 +78,7 @@ def processMatchAny(outjsonfnames, grades, eachgoal):
         #print use_target
         #print answertagstring
 
-    # Match One to Any - Process each file until match or not found
+    # MatchAny - Process each file until match or not found
     for outputjsonfile in outjsonfnames:
         #print "processMatchAny Output json %s" % outputjsonfile
         jsonfile = open(outputjsonfile, "r")
@@ -136,7 +137,7 @@ def processMatchLast(outjsonfnames, grades, subgoalsresult, eachgoal):
         #print use_target
         #print answertagstring
 
-    # Match One to Last - Process only the last timestamp file
+    # MatchLast - Process only the last timestamp file
     # until match or not found
     sorted_fnames = sorted(outjsonfnames, reverse=True)
     outputjsonfile = sorted_fnames[0]
@@ -181,6 +182,65 @@ def processMatchLast(outjsonfnames, grades, subgoalsresult, eachgoal):
         grades[goalid] = False
         # Update subgoalsresult[timestamppart][goalid] also
         subgoalsresult[timestamppart][goalid] = False
+
+def processMatchAcross(outjsonfnames, grades, eachgoal):
+    #print "Inside processMatchAcross"
+    found = False
+    goalid = eachgoal['goalid']
+    #print goalid
+    jsonanswertag = eachgoal['answertag']
+    #print jsonanswertag
+    jsonresulttag = eachgoal['resulttag']
+    (resulttagtarget, resulttag) = jsonresulttag.split('.')
+    #print jsonresulttag
+    # answer=<string> and goal_type=matchacross have been checked (not allowed)
+    # during parsing of goals
+    (use_target, answertagstring) = jsonanswertag.split('.')
+    #print use_target
+    #print answertagstring
+
+    # MatchAcross - Process each file against other files with different timestamp
+    # until match or not found
+    for outputjsonfile in outjsonfnames:
+        #print "processMatchAcross Output json %s" % outputjsonfile
+        jsonfile = open(outputjsonfile, "r")
+        jsonoutput = json.load(jsonfile)
+        jsonfile.close()
+
+        try:
+            resulttagresult = jsonoutput[resulttag]
+        except:
+            print('%s not found in file %s' % (resulttag, outputjsonfile))
+            exit(1)
+        #print resulttagresult
+
+        for outputjsonfile2 in outjsonfnames:
+            # ensure different time stamp
+            if outputjsonfile == outputjsonfile2:
+                continue
+            #print "processMatchAcross Output 2 json %s" % outputjsonfile
+            jsonfile2 = open(outputjsonfile2, "r")
+            jsonoutput2 = json.load(jsonfile2)
+            jsonfile2.close()
+
+            try:
+                current_answer = jsonoutput2[answertagstring]
+            except:
+                print('%s not found in file %s' % (answertagstring, outputjsonfile2))
+                exit(1)
+
+            #print "Correct answer is (%s)" % current_answer
+
+            found = compare_result_answer(resulttagresult, current_answer, eachgoal['goaloperator'])
+            if found:
+                #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_answer)
+                grades[goalid] = True
+                return
+ 
+    # All file processed - still not found
+    if not found:
+        #print "processMatchAcross failed"
+        grades[goalid] = False
 
 def processBooleanSet(outjsonfnames, grades, subgoalsresult, eachgoal):
     #print "Inside processBooleanSet"
@@ -264,9 +324,15 @@ def processLabExercise(studentdir, labidname, grades, subgoalsresult, goals):
     # Do the goaltype of non 'boolean' first
     for eachgoal in goals:
         if eachgoal['goaltype'] == "matchany":
+            # DO NOT pass subgoalsresult to processMatchAny
+            # goal_type matchany can't be subgoals
             processMatchAny(outjsonfnames, grades, eachgoal)
         elif eachgoal['goaltype'] == "matchlast":
             processMatchLast(outjsonfnames, grades, subgoalsresult, eachgoal)
+        elif eachgoal['goaltype'] == "matchacross":
+            # DO NOT pass subgoalsresult to processMatchAcross
+            # goal_type matchacross can't be subgoals
+            processMatchAcross(outjsonfnames, grades, eachgoal)
         elif eachgoal['goaltype'] == "boolean_set":
             processBooleanSet(outjsonfnames, grades, subgoalsresult, eachgoal)
         elif eachgoal['goaltype'] == "boolean":
@@ -280,6 +346,7 @@ def processLabExercise(studentdir, labidname, grades, subgoalsresult, goals):
     for eachgoal in goals:
         if (eachgoal['goaltype'] == "matchany" or
             eachgoal['goaltype'] == "matchlast" or
+            eachgoal['goaltype'] == "matchacross" or
             eachgoal['goaltype'] == "boolean_set"):
             continue
         elif eachgoal['goaltype'] == "boolean":
@@ -336,8 +403,7 @@ def main():
     studentdir = sys.argv[1]
     instructordir = sys.argv[2]
     labidname = sys.argv[3]
-    #print "Inside main, grades is "
-    #print grades
+    #print "Inside main, about to call ProcessStudentLab "
 
     ProcessStudentLab(studentdir, instructordir, labidname)
 

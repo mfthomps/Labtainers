@@ -157,12 +157,16 @@ def generateSpecialTagValue(studentdir, target, finaltag):
 
     return returnTagValue
 
-def ValidateTag(studentdir, inputtag, allowed_special_answer):
+def ValidateTag(studentdir, goal_type, inputtag, allowed_special_answer):
     # if allowed_special_answer is true, then allow 'answer=<string>'
+    # UNLESS if the goal_type is matchacross
     returntag = ""
     if '=' in inputtag:
         if not allowed_special_answer:
             sys.stderr.write("ERROR: goals.config only answertag is allowed answer=<string>, resulttag (%s) is not\n" % inputtag)
+            sys.exit(1)
+        if goal_type == "matchacross":
+            sys.stderr.write("ERROR: goals.config answer=<string> and goal_type==matchacross is not allowed\n")
             sys.exit(1)
         (target, finaltag) = inputtag.split('=')
         returntag = getTagValue(target, finaltag)
@@ -237,10 +241,11 @@ def ParseGoals(studentdir):
                     resulttag = values[2].strip()
                     answertag = values[3].strip()
                     # Allowed 'answer=<string>' for answertag only
-                    valid_answertag = ValidateTag(studentdir, answertag, True)
-                    valid_resulttag = ValidateTag(studentdir, resulttag, False)
+                    valid_answertag = ValidateTag(studentdir, goal_type, answertag, True)
+                    valid_resulttag = ValidateTag(studentdir, goal_type, resulttag, False)
                     if not (goal_type == "matchany" or
                         goal_type == "matchlast" or
+                        goal_type == "matchacross" or
                         goal_type == "boolean_set"):
                         sys.stderr.write("ERROR: goals.config contains unrecognized type (%s)\n" % goal_type)
                         sys.exit(1)
