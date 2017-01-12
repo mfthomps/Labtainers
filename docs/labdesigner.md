@@ -239,6 +239,8 @@ The following syntax defines each goal or subgoal within the goals.config file:
                          - note: 'matchany' will NOT be used as sub-goal for goal of type 'boolean' below
               'matchlast' - if the answertag matches the last resulttag
                           - note: 'matchlast' can also be used as sub-goal for goal of type 'boolean' below
+              'matchacross' - if the answertag matches resulttag (across different timestamp)
+                            - note: 'matchacross' will NOT be used as sub-goal for goal of type 'boolean' below
               'boolean_set' - this is sub-goal to be used with goal of type 'boolean' below
               'boolean' - goal based on boolean operation
                           string that follows will be evaluated for boolean value
