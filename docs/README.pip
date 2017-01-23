@@ -1,0 +1,10 @@
+
+File: README.pip
+Description: Give direction related to 'pip'
+
+If pip has not been installed:
+    sudo apt-get install python-pip
+
+Using pip to install python netaddr:
+    sudo pip install netaddr
+
