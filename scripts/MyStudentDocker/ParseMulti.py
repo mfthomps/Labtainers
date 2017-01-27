@@ -12,6 +12,11 @@ class ParseMulti():
     class Subnet():
         def __init__(self, line):
             parts = line.split()
+            # Expecting 'NETWORK' format to be:
+            # NETWORK <SUBNET_NAME> <SUBNET_NETWORK_MASK> [<SUBNET_GATEWAY>]
+            if len(parts) != 3 and len(parts) != 4:
+                print('Invalid SUBNET line (%s)' % line)
+                exit(1)
             self.subnet_name = parts[1].strip()
             if not isalphadashscore(self.subnet_name):
                 print('bad subnet name %s in \t%s' % (self.subnet_name, line))
@@ -22,11 +27,18 @@ class ParseMulti():
             except:
                 print('bad ip subnet %s in \t%s' % (self.subnet_mask, line))
                 exit(1)
+            if len(parts) == 4:
+                self.subnet_gateway = parts[3].strip()
+                if not IPAddress(self.subnet_gateway) in IPNetwork(self.subnet_mask):
+                    print('Gateway IP (%s) not in subnet for SUBNET line(%s)!\n' % 
+                           (self.subnet_gateway, self.subnet_mask))
+                    exit(1)
+            else:
+                self.subnet_gateway = None
     class Container():
         class ContainerNet():
-            def __init__(self, ipaddr, gateway=None):
+            def __init__(self, ipaddr):
                 self.ipaddr = ipaddr
-                self.gateway = gateway
         def __init__(self, line):
             parts = line.split()
             self.term = 0
@@ -41,30 +53,24 @@ class ParseMulti():
                     exit(1)
         def addNet(self, line):
             parts = line.split()
+            # Expecting '+' (Container's SUBNET line) format to be:
+            # +<SUBNET_NAME> <IP_ADDR>
+            if len(parts) != 2:
+                print("Invalid Container's SUBNET line (%s)" % line)
+                exit(1)
             name = parts[0][1:]
             ipaddr = parts[1].strip()
             try:
-                IPNetwork(ipaddr)
+                IPAddress(ipaddr)
             except:
                 print('bad ip addr %s in \t%s' % (ipaddr, line))
                 exit(1)
-            gateway = None
-            if len(parts) > 2:
-                gateway = parts[2].strip()
-                try:
-                    IPNetwork(gateway)
-                except:
-                    print('bad ip addr %s in \t%s' % (gateway, line))
-                    exit(1)
-            self.container_nets[name] = self.ContainerNet(ipaddr, gateway)
+            self.container_nets[name] = self.ContainerNet(ipaddr)
         def toString(self):
             print('container: %s  image: %s  terms: %d' % (self.container_name, self.container_image,
                 self.term))
             for subnet in self.container_nets:
-                gw = ''
-                if self.container_nets[subnet].gateway is not None:
-                    gw = 'gateway:%s' % self.container_nets[subnet].gateway 
-                print('\tsubnet: %s  ip: %s %s' % (subnet, self.container_nets[subnet].ipaddr, gw))
+                print('\tsubnet: %s  ip: %s' % (subnet, self.container_nets[subnet].ipaddr))
            
     def __init__(self, fname):
         self.subnets = {}
@@ -93,6 +99,11 @@ class ParseMulti():
                        
                 elif line.strip().startswith('+'):
                     new_container.addNet(line)
+
+        # Sanity checks
+        # 1 - Each container must have at least one subnet
+        # 2 - Each container's subnet must be a defined subnet
+        # 3 - Each container's subnet IP address must be in the defined subnet IP range
 
 if __name__ == '__main__':
     multi_config = ParseMulti(sys.argv[1])
