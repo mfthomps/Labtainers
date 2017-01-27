@@ -20,6 +20,7 @@ import sys
 import time
 import zipfile
 from netaddr import *
+import ParseMulti
 
 # Error code returned by docker inspect
 SUCCESS=0
@@ -183,9 +184,11 @@ def DoSingle(mycwd, labname):
     return 0
 
 # Create SUBNETS
-def CreateSubnets():
+def CreateSubnets(subnets):
     #print "Inside CreateSubnets"
-    for (subnet_name, subnet_network_mask) in networklist.iteritems():
+    #for (subnet_name, subnet_network_mask) in networklist.iteritems():
+    for subnet_name in subnets:
+        subnet_network_mask = subnets[subnet_name].subnet_mask
         #print "subnet_name is %s" % subnet_name
         #print "subnet_network_mask is %s" % subnet_network_mask
 
@@ -206,135 +209,6 @@ def CreateSubnets():
             print "Already exists! Not creating %s subnet at %s!\n" % (subnet_name, subnet_network_mask)
         
 
-def ParseNetworkConfig(mycwd, labname):
-    #print "ParseNetworkConfig for %s" % labname
-    networkfilename = '%s/%s.network' % (mycwd, labname)
-    # At this point we know <labname>.network configuration file exists
-    networkfile = open(networkfilename)
-    for line in networkfile:
-        linestrip = line.rstrip()
-        if linestrip:
-            if not linestrip.startswith('#'):
-                # if startswith 'NETWORK' -- these are subnets
-                # the expected format : NETWORK <SUBNET_NAME> <SUBNET_NETWORK_MASK>
-                if linestrip.startswith('NETWORK'):
-                    subnettokens = linestrip.split()
-                    if len(subnettokens) != 3:
-                        sys.stderr.write("ERROR: Invalid SUBNET line format (%s)!\n" % linestrip)
-                        sys.exit(1)
-                    subnet_name = subnettokens[1].strip()
-                    subnet_network_mask = subnettokens[2].strip()
-                    # Valid subnet_name - alphanumeric,dash,underscore
-                    if not isalphadashscore(subnet_name):
-                        sys.stderr.write("ERROR: Invalid subnet name in SUBNET line (%s)!\n" % linestrip)
-                        sys.exit(1)
-                    try:
-                        IPNetwork(subnet_network_mask)
-                    except core.AddrFormatError:
-                        sys.stderr.write("ERROR: Invalid subnet_network_mask in SUBNET line (%s)!\n" % linestrip)
-                        sys.exit(1)
-                    networklist[subnet_name] = subnet_network_mask
-
-                # if startswith 'CONTAINER' -- these are containers
-                if linestrip.startswith('CONTAINER'):
-                    # the expected format for the CONTAINER first line is:
-                    # CONTAINER <CONTAINER_NAME> <CONTAINER_IMAGE_NAME> [<TERM>]
-                    # <TERM> - representing the number of terminal to spawn is optional
-                    container1line = linestrip.split()
-                    #print "Number of Container line token is %d" % len(container1line)
-                    if len(container1line) != 3 and len(container1line) != 4:
-                        sys.stderr.write("ERROR: Invalid CONTAINER line format (%s)!\n" % linestrip)
-                        sys.exit(1)
-                    mycontainer_name = container1line[1].strip()
-                    mycontainer_image_name = container1line[2].strip()
-                    if len(container1line) == 2:
-                        num_term = 0
-                    else:
-                        try:
-                            int(container1line[3].strip())
-                        except ValueError:
-                            sys.stderr.write("ERROR: Invalid terminal no in CONTAINER line (%s)!\n" % linestrip)
-                            sys.exit(1)
-                        num_term = int(container1line[3].strip())
-
-                    # Container name and Container image name is not restricted to alphanumeric,dash,underscore
-                    ###### Valid container_name - alphanumeric,dash,underscore
-                    #####if not isalphadashscore(mycontainer_name):
-                    #####    sys.stderr.write("ERROR: Invalid container name in CONTAINER line (%s)!\n" % linestrip)
-                    #####    sys.exit(1)
-                    ###### Valid container_image_name - alphanumeric,dash,underscore
-                    #####if not isalphadashscore(mycontainer_image_name):
-                    #####    sys.stderr.write("ERROR: Invalid container image name in CONTAINER line (%s)!\n" % linestrip)
-                    #####    sys.exit(1)
-
-                    # Process subsequent line until empty line
-                    try:
-                        next_line = networkfile.next().strip()
-                    except:
-                        sys.stderr.write("ERROR: No network line after CONTAINER line (%s)!\n" % linestrip)
-                        sys.exit(1)
-                    mynetwork_subnet_list = []
-                    #print "Next line after container is (%s)" % next_line
-                    while (next_line):
-                        # the expected format of line after CONTAINER is:
-                        # + <SUBNET_NAME> <IPADDR> [GATEWAY]>
-                        mynetwork_subnet_tokens = next_line.split()
-                        if len(mynetwork_subnet_tokens) != 3 and len(mynetwork_subnet_tokens) != 4:
-                            sys.stderr.write("ERROR: Invalid CONTAINER network line format (%s)!\n" % next_line)
-                            sys.exit(1)
-                        # Found a 'CONTAINER' line next before empty line
-                        if next_line.startswith('CONTAINER'):
-                            sys.stderr.write("ERROR: Please separate CONTAINER lines with empty line(%s)!\n" % next_line)
-                            sys.exit(1)
-                        # First token must be '+'
-                        if mynetwork_subnet_tokens[0] != '+':
-                            sys.stderr.write("ERROR: Missing '+' in CONTAINER network line(%s)!\n" % next_line)
-                            sys.exit(1)
-                        mysubnet_name = mynetwork_subnet_tokens[1]
-                        # Subnet name must be defined
-                        if not mysubnet_name in networklist:
-                            sys.stderr.write("ERROR: Unknown subnet name in CONTAINER network line(%s)!\n" % next_line)
-                            sys.exit(1)
-                        mysubnet_ip = mynetwork_subnet_tokens[2]
-                        if not IPAddress(mysubnet_ip) in IPNetwork(networklist[mysubnet_name]):
-                            sys.stderr.write("ERROR: IP address not in subnet for CONTAINER network line(%s)!\n" % next_line)
-                            sys.exit(1)
-                        if len(mynetwork_subnet_tokens) == 3:
-                            mygateway_ip = ""
-                        else:
-                            mygateway_ip = mynetwork_subnet_tokens[3]
-                            try:
-                                IPAddress(mygateway_ip)
-                            except:
-                                sys.stderr.write("ERROR: Invalid Gateway IP address for CONTAINER network line(%s)!\n" % next_line)
-                                sys.exit(1)
-
-                        # If get to here, the current line is OK, store it
-                        mynetwork_subnet_list.append('%s %s %s' % (mysubnet_name, mysubnet_ip, mygateway_ip))
-
-                        # Get the next line
-                        try:
-                            next_line = networkfile.next().strip()
-                        except:
-                            # EOF? - break while loop
-                            next_line = ""
-                        #print "Next line is (%s)" % next_line
-
-                    if mynetwork_subnet_list == []:
-                        sys.stderr.write("ERROR: Must have at least one subnet for CONTAINER line(%s)!\n" % linestrip)
-                        sys.exit(1)
-
-                    #print "Container name is %s" % mycontainer_name
-                    #print "Container image name is %s" % mycontainer_image_name
-                    #print "Current CONTAINER line network subnet list is "
-                    #print mynetwork_subnet_list
-
-                    # Store a good Container line
-                    containerslist[mycontainer_name] = MyContainerLine(mycontainer_name, mycontainer_image_name,
-                                                                     num_term, mynetwork_subnet_list)
-
-    networkfile.close()
-
 def DoMultiple(mycwd, labname):
     global container_name
     global container_image
@@ -344,19 +218,27 @@ def DoMultiple(mycwd, labname):
     #print "Multiple Containers and/or multi-home networking"
     docker0_IPAddr = getDocker0IPAddr()
     #print "getDockerIPAddr result (%s)" % docker0_IPAddr
-    ParseNetworkConfig(mycwd, labname)
+
+    networkfilename = '%s/%s.network' % (mycwd, labname)
+    multi_config = ParseMulti.ParseMulti(networfilename)
+    #ParseNetworkConfig(mycwd, labname)
     #print "After ParseNetworkConfig"
     #print networklist
     #for (container_name, containerline) in containerslist.iteritems():
     #    print containerline.container_dict()
 
     # Create SUBNETS
-    CreateSubnets()
+    #CreateSubnets()
+    CreateSubnets(multi_config.subnets)
 
-    for (container_name, containerline) in containerslist.iteritems():
+    #for (container_name, containerline) in containerslist.iteritems():
+    for mycontainer_name in multi_config.containers:
         #print containerline.container_dict()
-        mycontainer_name = containerline.container_name
-        mycontainer_image_name = containerline.container_image_name
+        #mycontainer_name = containerline.container_name
+        #  ???? why different names?
+        container_name = mycontainer_name
+        #mycontainer_image_name = containerline.container_image_name
+        mycontainer_image_name = multi_config.containers[mycontainer_name].container_image
 
         haveContainer = IsContainerCreated(container_name)
         #print "IsContainerCreated result (%s)" % haveContainer
@@ -367,17 +249,18 @@ def DoMultiple(mycwd, labname):
         # IsContainerCreated returned FAILURE if container does not exists
         if haveContainer == FAILURE:
             first_subnet_for_container = True
-            for eachsubnet in containerline.network_subnets:
+            #for eachsubnet in containerline.network_subnets:
+            for eachsubnet in multi_config.containers[mycontaine_name].container_nets:
                 #print "Network subnet is (%s)" % eachsubnet
-                mynetwork_subnet_tokens = eachsubnet.split()
-                mysubnet_name = mynetwork_subnet_tokens[0]
+                #mynetwork_subnet_tokens = eachsubnet.split()
+                #mysubnet_name = mynetwork_subnet_tokens[0]
                 #print "My subnet name is %s" % mysubnet_name
-                mysubnet_ip = mynetwork_subnet_tokens[1]
+                #mysubnet_ip = mynetwork_subnet_tokens[1]
                 #print "My subnet ip is %s" % mysubnet_ip
-                if len(mynetwork_subnet_tokens) == 2:
-                    mygateway_ip = ""
-                else:
-                    mygateway_ip = mynetwork_subnet_tokens[2]
+                #if len(mynetwork_subnet_tokens) == 2:
+                #    mygateway_ip = ""
+                #else:
+                #    mygateway_ip = mynetwork_subnet_tokens[2]
 
                 # First subnet must be part of docker create
                 if first_subnet_for_container:
@@ -435,9 +318,13 @@ def DoMultiple(mycwd, labname):
                 sys.exit(1)
     
     # Reach here - Everything is OK - spawn terminal for each container based on num_terminal
-    for (container_name, containerline) in containerslist.iteritems():
+
+
+    #for (container_name, containerline) in containerslist.iteritems():
+    for mycontainer_name in multi_config.containers:
         #print containerline.container_dict()
-        num_terminal = containerline.num_terminal
+        #jnum_terminal = containerline.num_terminal
+        num_terminal = multi_config.containers[mycontainer_name].term
         #print "Number of terminal is %d" % num_terminal
         # If the number of terminal is zero -- do not spawn
         if num_terminal != 0:
