@@ -51,7 +51,7 @@ def getDocker0IPAddr():
 # Parameterize my_container_name container
 def ParameterizeMyContainer(mycontainer_name, lab_instance_seed, user_email, labname):
     #print "About to call parameterize.sh with LAB_INSTANCE_SEED = (%s)" % lab_instance_seed
-    command = 'docker exec -it %s script -q -c "/home/ubuntu/.local/bin/parameterize.sh %s %s %s" /dev/null' % (mycontainer_name, lab_instance_seed, user_email, labname)
+    command = 'docker exec -it %s script -q -c "/home/ubuntu/.local/bin/parameterize.sh %s %s %s %s" /dev/null' % (mycontainer_name, lab_instance_seed, user_email, labname, mycontainer_name)
     #print "Command to execute is (%s)" % command
     result = subprocess.call(command, shell=True)
     #print "Result of subprocess.call ParameterizeMyContainer is %s" % result

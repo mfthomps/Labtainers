@@ -108,7 +108,7 @@ else
         LAB_INSTANCE_SEED=`md5sum /tmp/hashfile.tmp | awk '{ print $1 }'`
         #echo "About to call parameterize.sh with LAB_INSTANCE_SEED = ($LAB_INSTANCE_SEED)"
         rm -f /tmp/hashfile.tmp
-        docker exec -it $CONTAINER_NAME script -q -c "/home/ubuntu/.local/bin/parameterize.sh $LAB_INSTANCE_SEED $user_email $lab" /dev/null
+        docker exec -it $CONTAINER_NAME script -q -c "/home/ubuntu/.local/bin/parameterize.sh $LAB_INSTANCE_SEED $user_email $lab $CONTAINER_NAME" /dev/null
         result=$?
         if [ $result -eq $FAILURE ]
         then
