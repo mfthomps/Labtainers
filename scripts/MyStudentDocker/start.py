@@ -21,16 +21,11 @@ import time
 import zipfile
 from netaddr import *
 import ParseMulti
+import ParseStartConfig
 
 # Error code returned by docker inspect
 SUCCESS=0
 FAILURE=1
-
-container_name="" # Name of container
-container_image="" # Name of container image
-container_user="" # Name of user
-host_home_xfer="" # HOST_HOME_XFER - directory to transfer artifact to/from containers
-lab_master_seed="" # LAB_MASTER_SEED - this is the master seed string for to this laboratory
 
 def isalphadashscore(name):
     # check name - alphanumeric,dash,underscore
@@ -101,8 +96,13 @@ def CreateSingleContainerDefault(mycontainer_name, mycontainer_image_name):
     #print "Result of subprocess.call CreateSingleContainerDefault is %s" % result
     return result
 
-def DoSingle(mycwd, labname):
+def DoSingle(start_config, mycwd, labname):
     #print "Do Single Container with default networking"
+    container_name = start_config.container_name
+    container_image = start_config.container_image
+    container_user = start_config.container_user
+    host_home_xfer = start_config.host_home_xfer
+    lab_master_seed = start_config.lab_master_seed
     haveContainer = IsContainerCreated(container_name)
     #print "IsContainerCreated result (%s)" % haveContainer
 
@@ -187,10 +187,10 @@ def CreateSubnets(subnets):
             print "Already exists! Not creating %s subnet at %s!\n" % (subnet_name, subnet_network_mask)
         
 
-def DoMultiple(mycwd, labname):
-    global container_user
-    global host_home_xfer
-    global lab_master_seed
+def DoMultiple(start_config, mycwd, labname):
+    container_user = start_config.container_user
+    host_home_xfer = start_config.host_home_xfer
+    lab_master_seed = start_config.lab_master_seed
     #print "Multiple Containers and/or multi-home networking"
     docker0_IPAddr = getDocker0IPAddr()
     #print "getDockerIPAddr result (%s)" % docker0_IPAddr
@@ -297,70 +297,6 @@ def CreateHostHomeXfer(host_xfer_dir):
         # does not exists, create directory
         os.makedirs(host_xfer_dir)
 
-def ParseStartConfig(mycwd, labname):
-    global container_name
-    global container_image
-    global container_user
-    global host_home_xfer
-    global lab_master_seed
-    #print "ParseStartConfig for %s" % labname
-    configfilename = '%s/start.config' % mycwd
-    # Make sure start.config configuration file exists
-    if not os.path.exists(configfilename):
-        sys.stderr.write("Config file start.config does not exists!\n")
-        sys.exit(1)
-    configfile = open(configfilename)
-    configfilelines = configfile.readlines()
-    configfile.close()
-
-    container_name_found = False
-    container_image_name_found = False
-    container_user_found = False
-    host_home_found = False
-    lab_master_seed_found = False
-    for line in configfilelines:
-        linestrip = line.rstrip()
-        if linestrip:
-            if not linestrip.startswith('#'):
-                (key, value) = linestrip.split('=')
-                key = key.strip()
-                value = value.strip()
-                # replace $lab with labname
-                newvalue = value.replace('$lab', labname)
-                # replace '"' with ''
-                newvalue = newvalue.replace('"', '')
-                #print "Key is (%s) with value (%s)" % (key, newvalue)
-                if key == "CONTAINER_NAME":
-                    container_name = newvalue
-                    container_name_found = True
-                elif key == "CONTAINER_IMAGE":
-                    container_image = newvalue
-                    container_image_found = True
-                elif key == "CONTAINER_USER":
-                    container_user = newvalue
-                    container_user_found = True
-                elif key == "HOST_HOME_XFER":
-                    host_home_xfer = newvalue
-                    host_home_xfer_found = True
-                elif key == "LAB_MASTER_SEED":
-                    lab_master_seed = newvalue
-                    lab_master_seed_found = True
-                else:
-                    sys.stderr.write("ERROR: Unexpected config item in start.config!\n")
-                    sys.exit(1)
-        #else:
-        #    print "Skipping empty linestrip is (%s)" % linestrip
-
-    if not (container_name_found and
-            container_image_found and
-            container_user_found and
-            host_home_xfer_found and
-            lab_master_seed_found):
-        sys.stderr.write("ERROR: Missing config item in start.config!\n")
-        sys.exit(1)
-
-    return 0
-
 # Usage: start.py <labname>
 # Arguments:
 #    <labname> - the lab to start
@@ -376,24 +312,20 @@ def main():
     #print "current working directory for %s" % mycwd
     #print "current user's home directory for %s" % myhomedir
     #print "ParseStartConfig for %s" % labname
-    ParseStartConfig(mycwd, labname)
-    #print "container_name is (%s)" % container_name
-    #print "container_image is (%s)" % container_image
-    #print "container_user is (%s)" % container_user
-    #print "host_home_xfer is (%s)" % host_home_xfer
-    #print "lab_master_seed is (%s)" % lab_master_seed
+    startconfigfilename = '%s/start.config' % mycwd
+    start_config = ParseStartConfig.ParseStartConfig(startconfigfilename, labname)
 
     # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
-    host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
+    host_xfer_dir = '%s/%s' % (myhomedir, start_config.host_home_xfer)
     CreateHostHomeXfer(host_xfer_dir)
 
     networkfilename = '%s/%s.network' % (mycwd, labname)
     # If <labname>.network exists, do multi-containers/multi-home networking
     # else do single container with default networking
     if not os.path.exists(networkfilename):
-        DoSingle(mycwd, labname)
+        DoSingle(start_config, mycwd, labname)
     else:
-        DoMultiple(mycwd, labname)
+        DoMultiple(start_config, mycwd, labname)
 
     return 0
 
