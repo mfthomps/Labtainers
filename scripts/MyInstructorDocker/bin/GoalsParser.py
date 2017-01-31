@@ -94,20 +94,23 @@ def getTagValue(target, finaltag):
     if target == "answer":
         returnTagValue = 'answer=%s' % finaltag
     else:
-        if finaltag not in parameter_list:
-            print('Could not find parameter %s' % finaltag)
-            exit(1)
-        value = parameter_list[finaltag]
-        if target.lower() == "parameter_ascii":
-            if '0x' in value:
-                num = int(value, 16)
-            else: 
-                num = int(value)
-            if num not in range(41, 177):
-                print('parameter_ascii value %s not in ascii range' % value)
+        if target.startswith('parameter'):
+            if finaltag not in parameter_list:
+                print('Could not find parameter %s' % finaltag)
                 exit(1)
-            value = chr(num)
-        returnTagValue = 'answer=%s' % value
+            value = parameter_list[finaltag]
+            if target.lower() == "parameter_ascii":
+                if '0x' in value:
+                    num = int(value, 16)
+                else: 
+                    num = int(value)
+                if num not in range(41, 177):
+                    print('parameter_ascii value %s not in ascii range' % value)
+                    exit(1)
+                value = chr(num)
+            returnTagValue = 'answer=%s' % value
+        else:
+            returnTagValue = '%s.%s' % (target, finaltag)
     return returnTagValue
 
 def generateSpecialTagValue(studentdir, target, finaltag):
