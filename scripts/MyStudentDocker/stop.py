@@ -24,9 +24,7 @@ SUCCESS=0
 FAILURE=1
 
 # CreateCopyChownZip
-def CreateCopyChownZip(mycwd, start_config):
-    container_name = start_config.container_name
-    container_image = start_config.container_image
+def CreateCopyChownZip(mycwd, start_config, container_name, container_image):
     container_user = start_config.container_user
     host_home_xfer = start_config.host_home_xfer
     lab_master_seed = start_config.lab_master_seed
@@ -71,8 +69,7 @@ def CreateCopyChownZip(mycwd, start_config):
 
 
 # Stop my_container_name container
-def StopMyContainer(mycwd, start_config):
-    container_name = start_config.container_name
+def StopMyContainer(mycwd, start_config, container_name):
     command = "docker stop %s 2> /dev/null" % container_name
     #print "Command to execute is (%s)" % command
     result = subprocess.call(command, shell=True)
@@ -90,6 +87,7 @@ def IsContainerCreated(mycontainer_name):
 def DoStopSingle(start_config, mycwd, labname):
     #print "Do: STOP Single Container with default networking"
     container_name = start_config.container_name
+    container_image = start_config.container_image
     haveContainer = IsContainerCreated(container_name)
     #print "IsContainerCreated result (%s)" % haveContainer
 
@@ -101,9 +99,9 @@ def DoStopSingle(start_config, mycwd, labname):
     else:
         # Before stopping a container, run 'Student.py'
         # This will create zip file of the result
-        CreateCopyChownZip(mycwd, start_config)
+        CreateCopyChownZip(mycwd, start_config, container_name, container_image)
         # Stop the container
-        StopMyContainer(mycwd, start_config)
+        StopMyContainer(mycwd, start_config, container_name)
 
     return 0
 
@@ -117,6 +115,7 @@ def DoStopMultiple(start_config, mycwd, labname):
     multi_config = ParseMulti.ParseMulti(networkfilename)
 
     for mycontainer_name in multi_config.containers:
+        mycontainer_image = multi_config.containers[mycontainer_name].container_image
         haveContainer = IsContainerCreated(mycontainer_name)
         #print "IsContainerCreated result (%s)" % haveContainer
 
@@ -128,9 +127,9 @@ def DoStopMultiple(start_config, mycwd, labname):
         else:
             # Before stopping a container, run 'Student.py'
             # This will create zip file of the result
-            CreateCopyChownZip(mycwd, start_config)
+            CreateCopyChownZip(mycwd, start_config, mycontainer_name, mycontainer_image)
             # Stop the container
-            StopMyContainer(mycwd, start_config)
+            StopMyContainer(mycwd, start_config, mycontainer_name)
 
     return 0
 
