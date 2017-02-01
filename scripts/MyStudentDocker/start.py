@@ -96,8 +96,8 @@ def CreateSingleContainerDefault(mycontainer_name, mycontainer_image_name):
     #print "Result of subprocess.call CreateSingleContainerDefault is %s" % result
     return result
 
-def DoSingle(start_config, mycwd, labname):
-    #print "Do Single Container with default networking"
+def DoStartSingle(start_config, mycwd, labname):
+    #print "Do: START Single Container with default networking"
     container_name = start_config.container_name
     container_image = start_config.container_image
     container_user = start_config.container_user
@@ -125,7 +125,7 @@ def DoSingle(start_config, mycwd, labname):
 
     # IsContainerCreated returned FAILURE if container does not exists
     if haveContainer == FAILURE:
-        sys.stderr.write("ERROR: DoSingle Container %s still not created!\n" % container_name)
+        sys.stderr.write("ERROR: DoStartSingle Container %s still not created!\n" % container_name)
         sys.exit(1)
     else:
         # Start the container
@@ -187,11 +187,11 @@ def CreateSubnets(subnets):
             print "Already exists! Not creating %s subnet at %s!\n" % (subnet_name, subnet_network_mask)
         
 
-def DoMultiple(start_config, mycwd, labname):
+def DoStartMultiple(start_config, mycwd, labname):
     container_user = start_config.container_user
     host_home_xfer = start_config.host_home_xfer
     lab_master_seed = start_config.lab_master_seed
-    #print "Multiple Containers and/or multi-home networking"
+    #print "Do: START Multiple Containers and/or multi-home networking"
     docker0_IPAddr = getDocker0IPAddr()
     #print "getDockerIPAddr result (%s)" % docker0_IPAddr
 
@@ -242,7 +242,7 @@ def DoMultiple(start_config, mycwd, labname):
 
         # IsContainerCreated returned FAILURE if container does not exists
         if haveContainer == FAILURE:
-            sys.stderr.write("ERROR: DoMultiple Container %s still not created!\n" % mycontainer_name)
+            sys.stderr.write("ERROR: DoStartMultiple Container %s still not created!\n" % mycontainer_name)
             sys.exit(1)
         else:
             # Start the container
@@ -323,9 +323,9 @@ def main():
     # If <labname>.network exists, do multi-containers/multi-home networking
     # else do single container with default networking
     if not os.path.exists(networkfilename):
-        DoSingle(start_config, mycwd, labname)
+        DoStartSingle(start_config, mycwd, labname)
     else:
-        DoMultiple(start_config, mycwd, labname)
+        DoStartMultiple(start_config, mycwd, labname)
 
     return 0
 
