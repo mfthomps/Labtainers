@@ -17,6 +17,7 @@ randreplacelist = {}
 hashcreatelist = {}
 hashreplacelist = {}
 paramlist = {}
+global container_name
 
 def CheckRandReplaceEntry(lab_instance_seed, param_id, each_value):
 
@@ -77,6 +78,7 @@ def CheckRandReplaceEntry(lab_instance_seed, param_id, each_value):
 
 
 def CheckHashCreateEntry(lab_instance_seed, param_id, each_value):
+    global container_name
     # HASH_CREATE : <filename> : <string>
     #print "Checking HASH_CREATE entry"
     entryline = each_value.split(':')
@@ -96,11 +98,22 @@ def CheckHashCreateEntry(lab_instance_seed, param_id, each_value):
     #print "filename is (%s)" % myfilename
     #print "the_string is (%s)" % the_string
     #print "mymd5_hex_string is (%s)" % mymd5_hex_string
-    # If file does not exist, create an empty file
-    if not os.path.exists(myfilename):
-        outfile = open(myfilename, 'w')
-        outfile.write('')
-        outfile.close()
+    # Check to see if '=' in myfilename
+    if '=' in myfilename:
+        # myfilename has the containername also
+        if container_name != "" and myfilename.startswith(container_name):
+            container_name, myactualfilename = myfilename.split('=')
+            if not os.path.exists(myactualfilename):
+                outfile = open(myactualfilename, 'w')
+                outfile.write('')
+                outfile.close()
+    else:
+        # myfilename does not have the containername - assume it is for this container
+        # If file does not exist, create an empty file
+        if not os.path.exists(myfilename):
+            outfile = open(myfilename, 'w')
+            outfile.write('')
+            outfile.close()
     if myfilename in hashcreatelist:
         hashcreatelist[myfilename].append('%s' % mymd5_hex_string)
     else:
@@ -153,11 +166,22 @@ def ValidateParameterConfig(lab_instance_seed, param_id, each_key, each_value):
 
 # Perform RAND_REPLACE
 def Perform_RAND_REPLACE(lab_instance_seed):
+    global container_name
     # At this point randreplacelist should have been populated
     # and files have been confirmed to exist
 
     #print "Perform_RAND_REPLACE"
-    for (filename, replacelist) in randreplacelist.items():
+    for (listfilename, replacelist) in randreplacelist.items():
+        # Check to see if '=' in myfilename
+        if '=' in listfilename:
+            # listfilename has the containername also
+            if container_name != "" and listfilename.startswith(container_name):
+                container_name, filename = listfilename.split('=')
+            else:
+                # Not for this container
+                continue
+        else:
+            filename = listfilename
         #print "Current Filename is %s" % filename
         if not os.path.exists(filename):
             sys.stderr.write("ERROR: Perform_RAND_REPLACE: File %s does not exist\n" % filename)
@@ -184,11 +208,22 @@ def Perform_RAND_REPLACE(lab_instance_seed):
 
 # Perform HASH_CREATE
 def Perform_HASH_CREATE(lab_instance_seed):
+    global container_name
     # At this point hashcreatelist should have been populated
     # and files have been confirmed to exist or created
 
     #print "Perform_HASH_CREATE"
-    for (filename, createlist) in hashcreatelist.items():
+    for (listfilename, createlist) in hashcreatelist.items():
+        # Check to see if '=' in myfilename
+        if '=' in listfilename:
+            # listfilename has the containername also
+            if container_name != "" and listfilename.startswith(container_name):
+                container_name, filename = listfilename.split('=')
+            else:
+                # Not for this container
+                continue
+        else:
+            filename = listfilename
         #print "Current Filename is %s" % filename
         #print "Hash Create list is "
         #print createlist
@@ -200,11 +235,28 @@ def Perform_HASH_CREATE(lab_instance_seed):
 
 # Perform HASH_REPLACE
 def Perform_HASH_REPLACE(lab_instance_seed):
+    global container_name
     # At this point hashreplacelist should have been populated
     # and files have been confirmed to exist
 
     #print "Perform_HASH_REPLACE"
-    for (filename, replacelist) in hashreplacelist.items():
+    #print hashreplacelist
+    for (listfilename, replacelist) in hashreplacelist.items():
+        # Check to see if '=' in myfilename
+        if '=' in listfilename:
+            # listfilename has the containername also
+            #print "listfilename is (%s)" % listfilename
+            #print "container_name is (%s)" % container_name
+            if container_name != "" and listfilename.startswith(container_name):
+                #print "Yes it startswith"
+                container_name, filename = listfilename.split('=')
+            else:
+                #print "No it does not startswith"
+                # Not for this container
+                continue
+        else:
+            #print "Does not have ="
+            filename = listfilename
         #print "Current Filename is %s" % filename
         if not os.path.exists(filename):
             sys.stderr.write("ERROR: Perform_HASH_REPLACE: File %s does not exist\n" % filename)
@@ -229,6 +281,14 @@ def Perform_HASH_REPLACE(lab_instance_seed):
         outfile.close()
 
 def DoReplace(lab_instance_seed):
+    global container_name
+    container_name_file="/home/ubuntu/.local/.containername"
+    if os.path.exists(container_name_file):
+        with open(container_name_file) as fh:
+            container_name = fh.read().strip()
+    else:
+        container_name = ""
+
     # Perform RAND_REPLACE
     Perform_RAND_REPLACE(lab_instance_seed)
     # Perform HASH_CREATE
@@ -237,6 +297,14 @@ def DoReplace(lab_instance_seed):
     Perform_HASH_REPLACE(lab_instance_seed)
 
 def ParseParameterConfig(lab_instance_seed, configfilename):
+    global container_name
+    container_name_file="/home/ubuntu/.local/.containername"
+    if os.path.exists(container_name_file):
+        with open(container_name_file) as fh:
+            container_name = fh.read().strip()
+    else:
+        container_name = ""
+
     # Seed random with lab seed
     random.seed(lab_instance_seed)
     configfile = open(configfilename)
@@ -276,6 +344,7 @@ def main():
         configfilename = sys.argv[2]
     else:
         configfilename = '%s/.local/config/%s' % (UBUNTUHOME, "parameter.config")
+
     ParseParameterConfig(lab_instance_seed, configfilename)
     DoReplace(lab_instance_seed)
     return 0
