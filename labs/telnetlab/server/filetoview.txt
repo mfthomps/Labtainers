@@ -1,0 +1,7 @@
+# Filename: filetoview.txt
+#
+# Description: This is a pre-created file for each student (telnet-server) container
+
+# This file is modified when container is created
+# The secret string below will be replaced with a keyed hash
+My secret string is: TELNET_SECRET
