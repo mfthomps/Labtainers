@@ -1,9 +1,9 @@
 Docker Lab Designer User Guide
 ==============================
 
-This manual is intended for use by lab designers intending
-to create or adapt labs to use the Docker Lab framework.
-The framework is intended for use with labs designed for Linux
+This manual is intended for use by lab designers looking
+to create or adapt labs to use the Docker Lab Framework.
+The framework is targeted for use with labs designed for Linux
 environments, and it is built around standard Linux Docker containers.
 
 Deploying cyber security labs using this framework
@@ -13,8 +13,8 @@ provides three primary benefits:
 across all student's computers regardless of the Linux distribution,
 version, and configuration.  This allows each lab designer to control
 which software packages are present, the versions of libraries and
-configuration settings, e.g., /etc values, and these may vary between
-labs.
+configuration settings, e.g., /etc values. These configurations
+may vary between labs.
 
 2) Assessment of student lab activity can be automated through a
 set of configuration files that identify expected results, thus
@@ -44,12 +44,32 @@ below.
 
 After creating the new lab directory, cd to that directory and then run
 
-    $SEED_DIR/scripts/designer/bin/new_lab_setup.sh
+    $SEED_DIR/scripts/designer/bin/new_lab_setup.py
 
 where SEED\_DIR is set to the top of the svn repo, e.g.,
 
     export SEED_DIR=/home/mike/svn/seed/trunk
 
+Once a new lab is created, its container image must be created.  The default container configuration
+is simply a bash shell in linux.  Later sections of this manual describe modifications that will
+change the container image, but for now you can create a default image as follows:
+
+    cd scripts/MyStudentDocker
+
+Then run:
+
+    ./buildImage.sh [labname]
+
+where labname is the name of your new lab.
+
+To start a student container, use the 
+
+    ./redo.sh [labname] 
+
+command, where labname is the name of the lab you just created.  Students would typically
+use the "start.sh" command.  The redo.sh command will remove and recreate the container
+each time the script is run.  This is often necessary when building new labs, to ensure the
+new envrioment does not contain artifacts from previous runs.
 
 Defining the lab execution environment
 --------------------------------------
@@ -62,7 +82,7 @@ directory, one for student containers and one for instructor containers.
 These use standard Docker file syntax, which is not repeated here.  Lab designers
 should reference Docker documentation for the syntax and semantics of these files.
 Simple labs should be able to use the default Dockerfiles created by the 
-new\_lab\_setup.sh script.
+new\_lab\_setup.py script.
 
 ### Lab-specific files in the student's home directory ###
 Files that are to reside in the student's $HOME directory are placed in the 
@@ -75,7 +95,7 @@ The initial environment encountered by the student is further refined using
 the optional bin/fixlocal.sh script.  The framework executes
 this script the first time a student starts the lab container.  For example,
 this could be used to compile lab-specific programs afer they have been parameterized,
-(as described below).  Or this script could be perform final configuration adjustments
+(as described below).  Or this script could perform final configuration adjustments
 that cannot be easily performed by the Dockerfile.
 
 Parameterizing a lab
@@ -151,10 +171,10 @@ The parameter\_id fields may be referenced during the automated grading function
 Automated assessment of student labs
 ------------------------------------
 This section describes how to configure a lab for automated assessment of student work.
-Note the framework does not require that labs include automated assessment, e.g., a
-lab "results" may consist entirely of a written report submitted by the student.
+Note the framework does not require that labs include automated assessment, e.g., the
+"results" of a lab may consist entirely of a written report submitted by the student.
 
-The goals of automated assessment is to provide instructors with some confidence that 
+The goal of automated assessment is to provide instructors with some confidence that 
 students performed the lab, and to give instructors insight into which parts
 of a lab students may be having difficulty with.  The automated assessment functions are
 not intended to standardize each student's approach to a lab, rather the goal is to permit
@@ -171,7 +191,7 @@ These packages of artifacts are then transfered to the instructor, (e.g., via em
 ingested into the instructor's system where lab assessment occurs.
 
 ### Identify Lab-specifc Artifacts ###
-The automated assessement fuctions permit labs to be organized into a set of distinct "goals".
+The automated assessement fuctions encourage labs to be organized into a set of distinct "goals".
 For each goal, the lab designer should identify specific fields within stdin and/or stdout that
 could be compared to "expected" values.  These lab-specific artifacts are identified within the
 "instr\_config/results.config file".  Artifacts are identified in terms of:
