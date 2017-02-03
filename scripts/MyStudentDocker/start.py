@@ -71,7 +71,7 @@ def IsContainerCreated(mycontainer_name):
 def ConnectNetworkToContainer(mycontainer_name, mysubnet_name, mysubnet_ip):
     #print "Connecting more network subnet to container %s" % mycontainer_name
     command = "docker network connect --ip=%s %s %s 2> /dev/null" % (mysubnet_ip, mysubnet_name, mycontainer_name)
-    print "Command to execute is (%s)" % command
+    #print "Command to execute is (%s)" % command
     result = subprocess.call(command, shell=True)
     #print "Result of subprocess.call ConnectNetworkToContainer is %s" % result
     return result
@@ -81,7 +81,7 @@ def CreateSingleContainerNonDefault(mycontainer_name, mycontainer_image_name, my
     docker0_IPAddr = getDocker0IPAddr()
     #print "getDockerIPAddr result (%s)" % docker0_IPAddr
     createsinglecommand = "docker create -t --network=%s --ip=%s --privileged --add-host my_host:%s --name=%s %s bash" % (mysubnet_name, mysubnet_ip, docker0_IPAddr, mycontainer_name, mycontainer_image_name)
-    print "Command to execute is (%s)" % createsinglecommand
+    #print "Command to execute is (%s)" % createsinglecommand
     result = subprocess.call(createsinglecommand, shell=True)
     #print "Result of subprocess.call CreateSingleContainerNonDefault is %s" % result
     return result
@@ -91,7 +91,7 @@ def CreateSingleContainerDefault(mycontainer_name, mycontainer_image_name):
     docker0_IPAddr = getDocker0IPAddr()
     #print "getDockerIPAddr result (%s)" % docker0_IPAddr
     createsinglecommand = "docker create -t --privileged --add-host my_host:%s --name=%s %s bash" % (docker0_IPAddr, mycontainer_name, mycontainer_image_name)
-    print "Command to execute is (%s)" % createsinglecommand
+    #print "Command to execute is (%s)" % createsinglecommand
     result = subprocess.call(createsinglecommand, shell=True)
     #print "Result of subprocess.call CreateSingleContainerDefault is %s" % result
     return result
@@ -129,7 +129,10 @@ def DoStartSingle(start_config, mycwd, labname):
         sys.exit(1)
     else:
         # Start the container
-        StartMyContainer(container_name)
+        start_result = StartMyContainer(container_name)
+        if start_result == FAILURE:
+            sys.stderr.write("ERROR: DoStartSingle Container %s failed to start!\n" % container_name)
+            sys.exit(1)
 
     # If the container is just created, prompt user's e-mail
     # then parameterize the container
@@ -177,7 +180,7 @@ def CreateSubnets(subnets):
                 command = "docker network create -d bridge --gateway=%s --subnet %s %s 2> /dev/null" % (subnet_gateway, subnet_network_mask, subnet_name)
             else:
                 command = "docker network create -d bridge --subnet %s %s 2> /dev/null" % (subnet_network_mask, subnet_name)
-            print "Command to execute is (%s)" % command
+            #print "Command to execute is (%s)" % command
             create_result = subprocess.call(command, shell=True)
             #print "Result of subprocess.call CreateSubnets docker network create is %s" % create_result
             if create_result == FAILURE:
@@ -246,7 +249,10 @@ def DoStartMultiple(start_config, mycwd, labname):
             sys.exit(1)
         else:
             # Start the container
-            StartMyContainer(mycontainer_name)
+            start_result = StartMyContainer(mycontainer_name)
+            if start_result == FAILURE:
+                sys.stderr.write("ERROR: DoStartMultiple Container %s failed to start!\n" % container_name)
+                sys.exit(1)
 
         # If the container is just created, prompt user's e-mail
         # then parameterize the container

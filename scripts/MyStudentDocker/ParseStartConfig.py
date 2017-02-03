@@ -29,7 +29,7 @@ class ParseStartConfig():
             linestrip = line.rstrip()
             if linestrip:
                 if not linestrip.startswith('#'):
-                    (key, value) = linestrip.split('=')
+                    (key, value) = linestrip.split('=', 1)
                     key = key.strip()
                     value = value.strip()
                     # replace $lab with labname
@@ -39,6 +39,10 @@ class ParseStartConfig():
                     #print "Key is (%s) with value (%s)" % (key, newvalue)
                     if key == "CONTAINER_NAME":
                         self.container_name = newvalue
+                        # DO NOT allow '=' in container name
+                        if '=' in self.container_name:
+                            sys.stderr.write('Character "=" is not allowed in container name (%s)\n' % newvalue)
+                            sys.exit(1)
                         container_name_found = True
                     elif key == "CONTAINER_IMAGE":
                         self.container_image = newvalue

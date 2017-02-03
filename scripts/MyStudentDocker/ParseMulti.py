@@ -43,6 +43,10 @@ class ParseMulti():
             parts = line.split()
             self.term = 0
             self.container_name = parts[1].strip()
+            # DO NOT allow '=' in container name
+            if '=' in self.container_name:
+                print('Character "=" is not allowed in container name (%s)' % parts[1].strip())
+                exit(1)
             self.container_image = parts[2].strip()
             self.container_nets = {}
             if len(parts) > 3:
