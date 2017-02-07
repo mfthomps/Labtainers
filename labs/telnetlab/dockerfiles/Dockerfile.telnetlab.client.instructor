@@ -29,6 +29,9 @@ ADD $lab.instructor.tar.gz /home/ubuntu
 
 USER ubuntu
 ENV HOME /home/ubuntu
+RUN echo "cd" >> /home/ubuntu/.profile
+RUN echo "source /home/ubuntu/.local/bin/startup.sh" >> /home/ubuntu/.profile
+RUN echo "" > /home/ubuntu/.bash_logout
 
 #    g++ \
 #    cpp \

@@ -28,9 +28,15 @@ RUN echo "ubuntu:ubuntu" | chpasswd
 RUN chown -R ubuntu:ubuntu /home/ubuntu
 RUN adduser ubuntu sudo
 ADD $lab.instructor.tar.gz /home/ubuntu
+ADD config/telnet /etc/xinetd.d/
 
 USER ubuntu
 ENV HOME /home/ubuntu
+RUN echo "cd" >> /home/ubuntu/.profile
+RUN echo "source /home/ubuntu/.local/bin/startup.sh" >> /home/ubuntu/.profile
+RUN echo "" > /home/ubuntu/.bash_logout
+
+ENTRYPOINT sudo service xinetd restart && bash
 
 #    g++ \
 #    cpp \
