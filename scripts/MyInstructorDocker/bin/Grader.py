@@ -78,6 +78,7 @@ def processMatchAny(outjsonfnames, grades, eachgoal):
         #print use_target
         #print answertagstring
 
+    #print outjsonfnames
     # MatchAny - Process each file until match or not found
     for outputjsonfile in outjsonfnames:
         #print "processMatchAny Output json %s" % outputjsonfile
@@ -85,6 +86,7 @@ def processMatchAny(outjsonfnames, grades, eachgoal):
         jsonoutput = json.load(jsonfile)
         jsonfile.close()
 
+        #print jsonoutput
         try:
             resulttagresult = jsonoutput[resulttag]
         except:
@@ -304,7 +306,7 @@ def processBooleanSet(outjsonfnames, grades, subgoalsresult, eachgoal):
     #print subgoalsresult
 
 # Process Lab Exercise
-def processLabExercise(studentdir, labidname, grades, subgoalsresult, goals):
+def processLabExercise(studentlabdir, labidname, grades, subgoalsresult, goals):
     #print "Goals JSON config is"
     #print goals
     #for eachgoal in goals:
@@ -316,8 +318,14 @@ def processLabExercise(studentdir, labidname, grades, subgoalsresult, goals):
     #    print "    resulttag is (%s)" % eachgoal['resulttag']
     #    print ""
 
-    RESULTHOME = '%s/%s' % (studentdir, ".local/result/")
-    outjsonfnames = glob.glob('%s/%s.*' % (RESULTHOME, labidname))
+    RESULTHOME = '%s/%s' % (studentlabdir, ".local/result/")
+    #print RESULTHOME
+    if not os.path.exists(RESULTHOME):
+        os.makedirs(RESULTHOME)
+    outjsonfnamesstring = '%s/*/%s/%s.*' % (studentlabdir, ".local/result/", labidname)
+    #print outjsonfnamesstring
+    #outjsonfnames = glob.glob('%s/*/%s.*' % (RESULTHOME, labidname))
+    outjsonfnames = glob.glob(outjsonfnamesstring)
     #print outjsonfnames
 
     # Go through each goal for each student
@@ -367,14 +375,14 @@ def processLabExercise(studentdir, labidname, grades, subgoalsresult, goals):
             sys.stdout.write("Error: Invalid goal type!\n")
     return 0
 
-# Usage: ProcessStudentLab <studentdir> <instructordir> <labidname>
+# Usage: ProcessStudentLab <studentlabdir> <instructordir> <labidname>
 # Arguments:
-#     <studentdir> - directory containing the student lab work
+#     <studentlabdir> - directory containing the student lab work
 #                    extracted from zip file (done in Instructor.py)
 #     <instructordir> - directory containing instructor's solution
 #                       for corresponding student
 #     <labidname> - labidname should represent filename of output json file
-def ProcessStudentLab(studentdir, instructordir, labidname):
+def ProcessStudentLab(studentlabdir, instructordir, labidname):
     grades = {}
     subgoalsresult = collections.defaultdict(dict)
     goalsjsonfname = '%s/.local/instr_config/%s' % (UBUNTUHOME, "goals.json")
@@ -384,12 +392,12 @@ def ProcessStudentLab(studentdir, instructordir, labidname):
     #print "Goals JSON config is"
     #print goals
 
-    processLabExercise(studentdir, labidname, grades, subgoalsresult, goals)
+    processLabExercise(studentlabdir, labidname, grades, subgoalsresult, goals)
     return grades
 
-# Usage: Grader.py <studentdir> <instructordir> <labidname>
+# Usage: Grader.py <studentlabdir> <instructordir> <labidname>
 # Arguments:
-#     <studentdir> - directory containing the student lab work
+#     <studentlabdir> - directory containing the student lab work
 #                    extracted from zip file (done in Instructor.py)
 #     <instructordir> - directory containing instructor's solution
 #                       for corresponding student
@@ -397,15 +405,15 @@ def ProcessStudentLab(studentdir, instructordir, labidname):
 def main():
     #print "Running Grader.py"
     if len(sys.argv) != 4:
-        sys.stderr.write("Usage: Grader.py <studentdir> <instructordir> <labidname>\n")
+        sys.stderr.write("Usage: Grader.py <studentlabdir> <instructordir> <labidname>\n")
         return 1
 
-    studentdir = sys.argv[1]
+    studentlabdir = sys.argv[1]
     instructordir = sys.argv[2]
     labidname = sys.argv[3]
     #print "Inside main, about to call ProcessStudentLab "
 
-    ProcessStudentLab(studentdir, instructordir, labidname)
+    ProcessStudentLab(studentlabdir, instructordir, labidname)
 
 if __name__ == '__main__':
     sys.exit(main())

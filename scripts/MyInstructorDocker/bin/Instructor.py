@@ -16,6 +16,7 @@ import GoalsParser
 import ResultParser
 
 UBUNTUHOME="/home/ubuntu"
+studentslablist = {}
 
 def printresult(gradesfile, LabIDStudentName, grades):
     gradesfile.write("%s" % LabIDStudentName)
@@ -64,10 +65,34 @@ def main():
         ZipFileName = os.path.basename(zfile)
         #print('zipfile is %s' % ZipFileName)
         DestinationDirName = os.path.splitext(ZipFileName)[0]
+        if '=' in DestinationDirName:
+            # NOTE: New format has DestinationDirName as:
+            #       e-mail+labname '=' containername
+            # get email_labname and containername
+            email_labname, containername = DestinationDirName.rsplit('=', 1)
+            # Replace the '=' to '/'
+            DestinationDirName = '%s/%s' % (email_labname, containername)
+            #print email_labname
+        else:
+            # Old format - no containername
+            sys.stderr.write("ERROR: Instructor.py old format (no containername) no longer supported!\n")
+            return 1
+        student_id = email_labname.rsplit('.', 1)[0]
+        #print "student_id is %s" % student_id
 
         OutputName = '%s%s' % (InstructorHomeDir, ZipFileName)
+        LabDirName = '%s%s' % (InstructorHomeDir, email_labname)
         DestDirName = '%s%s' % (InstructorHomeDir, DestinationDirName)
         InstDirName = '%s%s' % (InstructorBaseDir, DestinationDirName)
+
+        #print studentslablist
+        if email_labname not in studentslablist:
+            labdirnamelist = '%s %s %s %s' % (student_id, LabDirName, InstDirName, LabIDName)
+            studentslablist[email_labname] = []
+            studentslablist[email_labname].append(labdirnamelist)
+        else:
+            if labdirnamelist not in studentslablist[email_labname]:
+                studentslablist[email_labname].append(labdirnamelist)
 
         #print "Current ZipFilename is %s" % ZipFileName
         #print "Current DestinationDirName is %s" % DestinationDirName
@@ -93,21 +118,25 @@ def main():
         GoalsParser.ParseGoals(DestDirName)
 
         # Call ResultParser script to parse students' result
-        #command = 'ResultParser.py %s %s %s' % (DestDirName, InstDirName, LabIDName)
+        #command = 'ResultParser.py %s %s %s %s' % (LabDirName, containername, InstDirName, LabIDName)
         #print "About to do (%s)" % command
         #os.popen(command)
-        ResultParser.ParseStdinStdout(DestDirName, InstDirName, LabIDName)
+        ResultParser.ParseStdinStdout(LabDirName, containername, InstDirName, LabIDName)
 
-        # Call grader script 
-        #command = '%s %s %s %s' % (GraderScript, DestDirName, InstDirName, LabIDName)
-        #print "About to do (%s)" % command
-        #grades = os.popen(command).read().splitlines()
-        grades = Grader.ProcessStudentLab(DestDirName, InstDirName, LabIDName)
-        #print "After ProcessStudentLab Instructor, grades is "
-        #print grades
-        student_id = ZipFileName.rsplit('.', 2)[0]
-        LabIDStudentName = '%s : %s : ' % (LabIDName, student_id)
-        printresult(gradesfile, LabIDStudentName, grades)
+    #print studentslablist
+    for studentslabname in studentslablist:
+        #print studentslablist[studentslabname]
+        for eachlistitem in studentslablist[studentslabname]:
+            student_id, LabDirName, InstDirName, LabIdName = eachlistitem.split()
+            # Call grader script 
+            #command = '%s %s %s %s' % (GraderScript, LabDirName, InstDirName, LabIDName)
+            #print "About to do (%s)" % command
+            #grades = os.popen(command).read().splitlines()
+            grades = Grader.ProcessStudentLab(LabDirName, InstDirName, LabIDName)
+            #print "After ProcessStudentLab Instructor, grades is "
+            #print grades
+            LabIDStudentName = '%s : %s : ' % (LabIDName, student_id)
+            printresult(gradesfile, LabIDStudentName, grades)
 
     gradesfile.write("\n")
     gradesfile.close()

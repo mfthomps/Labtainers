@@ -14,9 +14,10 @@ import MyUtil
 
 UBUNTUHOME = "/home/ubuntu/"
 exec_proglist = []
+containernamelist = []
 stdinfnameslist = []
 stdoutfnameslist = []
-timestamplist = []
+timestamplist = {}
 nametags = {}
 line_types = ['LINE', 'STARTSWITH']
 def ValidateTokenId(each_value, token_id):
@@ -61,7 +62,16 @@ def ValidateConfigfile(each_key, each_value):
     values = [x.strip() for x in each_value.split(':', num_splits)]
 
     # Make sure it is 'stdin' or 'stdout'
-    progname_type = values[0].strip()
+    newprogname_type = values[0].strip()
+    # <containername>=<exec_program>.<type>
+    if '=' in newprogname_type:
+        containername, progname_type = newprogname_type.split('=', 1)
+    else:
+        containername = ""
+        progname_type = newprogname_type
+    if containername != "":
+        if containername not in containernamelist:
+            containernamelist.append(containername)
     # Use rsplit() here because exec_program may have '.' as part of name
     (exec_program, targetfile) = progname_type.rsplit('.', 1)
     if exec_program not in exec_proglist:
@@ -93,12 +103,14 @@ def ValidateConfigfile(each_key, each_value):
 
     return 0
 
-def ParseStdinStdout(studentdir, instructordir, jsonoutfile):
+def ParseStdinStdout(studentlabdir, mycontainername, instructordir, jsonoutputfilename):
     configfilename = '%s/.local/instr_config/%s' % (UBUNTUHOME, "results.config")
     configfile = open(configfilename)
     configfilelines = configfile.readlines()
     configfile.close()
   
+    timestamplist[mycontainername] = []
+    nametags[mycontainername] = {}
     for line in configfilelines:
         linestrip = line.rstrip()
         if linestrip:
@@ -113,7 +125,7 @@ def ParseStdinStdout(studentdir, instructordir, jsonoutfile):
     #print "exec_proglist is: "
     #print exec_proglist
 
-    RESULTHOME = '%s/%s' % (studentdir, ".local/result/")
+    RESULTHOME = '%s/%s/%s' % (studentlabdir, mycontainername, ".local/result/")
     #print RESULTHOME
     for exec_prog in exec_proglist:
         stdinfiles = '%s%s.%s.' % (RESULTHOME, exec_prog, "stdin")
@@ -153,20 +165,20 @@ def ParseStdinStdout(studentdir, instructordir, jsonoutfile):
             stdinfiles = '%s%s.%s.' % (RESULTHOME, exec_prog, "stdin")
             stdoutfiles = '%s%s.%s.' % (RESULTHOME, exec_prog, "stdout")
             #print "file name is %s" % stdinfname
-            #####print "stdinfiles is %s" % stdinfiles
+            #print "stdinfiles is %s" % stdinfiles
             if stdinfiles in stdinfname:
                 #print "match"
                 (filenamepart, timestamppart) = stdinfname.split(stdinfiles)
-                if timestamppart not in timestamplist:
-                    timestamplist.append(timestamppart)
+                if timestamppart not in timestamplist[mycontainername]:
+                    timestamplist[mycontainername].append(timestamppart)
             else:
                 #print "no match"
                 continue
 
-    for timestamppart in timestamplist:
-        outputjsonfname = '%s/%s.%s' % (RESULTHOME, jsonoutfile, timestamppart)
+    for timestamppart in timestamplist[mycontainername]:
+        outputjsonfname = '%s/%s.%s' % (RESULTHOME, jsonoutputfilename, timestamppart)
         #print "Outputjsonfname is (%s)" % outputjsonfname
-        
+
         for line in configfilelines:
             linestrip = line.rstrip()
             if linestrip:
@@ -182,7 +194,17 @@ def ParseStdinStdout(studentdir, instructordir, jsonoutfile):
                     line_at = findLineIndex(values)
                     num_splits = line_at+1
                     values = [x.strip() for x in each_value.split(':', num_splits)]
-                    targetfile = values[0].strip()
+                    newtargetfile = values[0].strip()
+                    # <containername>=<exec_program>.<type>
+                    if '=' in newtargetfile:
+                        containername, targetfile = newtargetfile.split('=', 1)
+                    else:
+                        containername = ""
+                        targetfile = newtargetfile
+                    if containername != "" and mycontainername != containername:
+                        #print "Config line (%s) not for my container (%s), skipping..." % (linestrip, mycontainername)
+                        continue
+
                     command = values[line_at].strip()
                     # field_type - if exists (because field_type is optional)
                     #              has been validated to be either
@@ -289,32 +311,34 @@ def ParseStdinStdout(studentdir, instructordir, jsonoutfile):
                         tagstring = token
     
                     # set nametags - value pair
-                    nametags[each_key] = tagstring
+                    nametags[mycontainername][each_key] = tagstring
 
         #print nametags
         jsonoutput = open(outputjsonfname, "w")
-        jsondumpsoutput = json.dumps(nametags, indent=4)
+        jsondumpsoutput = json.dumps(nametags[mycontainername], indent=4)
         jsonoutput.write(jsondumpsoutput)
         jsonoutput.write('\n')
         jsonoutput.close()
 
-# Usage: ResultParser.py <studentdir> <instructordir> <outputjsonfilename>
+# Usage: ResultParser.py <studentlabdir> <mycontainername> <instructordir> <jsonoutputfilename>
 # Arguments:
-#     <studentdir> - directory containing the student lab work
+#     <studentlabdir> - directory containing the student lab work
 #                    extracted from zip file (done in Instructor.py)
+#     <mycontainername> - name of the container
 #     <instructordir> - directory containing instructor's solution
 #                       for corresponding student
-#     <outputjsonfilename> - filename for the resulting json file
+#     <jsonoutputfilename> - filename for the resulting json file
 def main():
     #print "Running ResultParser.py"
-    if len(sys.argv) != 4:
-        sys.stderr.write("Usage: ResultParser.py <studentdir> <instructordir> <outputjsonfilename>\n")
+    if len(sys.argv) != 5:
+        sys.stderr.write("Usage: ResultParser.py <studentlabdir> <mycontainername> <instructordir> <jsonoutputfilename>\n")
         sys.exit(1)
 
-    studentdir = sys.argv[1]
-    instructordir = sys.argv[2]
-    jsonoutputfilename = sys.argv[3]
-    ParseStdinStdout(studentdir, instructordir, jsonoutputfilename)
+    studentlabdir = sys.argv[1]
+    mycontainername = sys.argv[2]
+    instructordir = sys.argv[3]
+    jsonoutputfilename = sys.argv[4]
+    ParseStdinStdout(studentlabdir, mycontainername, instructordir, jsonoutputfilename)
     return 0
 
 if __name__ == '__main__':
