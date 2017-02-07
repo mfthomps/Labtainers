@@ -35,16 +35,16 @@ def CopyChownGradesFile(mycwd, start_config, container_name, container_image):
     result = subprocess.call(command, shell=True)
     #print "CopyChownGradesFile: Result of subprocess.Popen exec cp grades.txt file is %s" % result
     if result == FAILURE:
-        sys.stderr.write("ERROR: CopyChownGradesFile Container %s fail on executing cp zip file!\n" % container_name)
+        sys.stderr.write("ERROR: CopyChownGradesFile Container %s fail on executing cp grades.txt file!\n" % container_name)
         sys.exit(1)
 
     # Change ownership to defined user $USER
     command = "sudo chown %s:%s /home/%s/%s/grades.txt" % (username, username, username, host_home_xfer)
     #print "Command to execute is (%s)" % command
     result = subprocess.call(command, shell=True)
-    #print "CopyChownGradesFile: Result of subprocess.Popen exec chown zip file is %s" % result
+    #print "CopyChownGradesFile: Result of subprocess.Popen exec chown grades.txt file is %s" % result
     if result == FAILURE:
-        sys.stderr.write("ERROR: CopyChownGradesFile Container %s fail on executing chown zip file!\n" % container_name)
+        sys.stderr.write("ERROR: CopyChownGradesFile Container %s fail on executing chown grades.txt file!\n" % container_name)
         sys.exit(1)
 
 
