@@ -78,7 +78,6 @@ def CheckRandReplaceEntry(lab_instance_seed, param_id, each_value):
 
 
 def CheckHashCreateEntry(lab_instance_seed, param_id, each_value):
-    global container_name
     # HASH_CREATE : <filename> : <string>
     #print "Checking HASH_CREATE entry"
     entryline = each_value.split(':')
@@ -100,15 +99,15 @@ def CheckHashCreateEntry(lab_instance_seed, param_id, each_value):
     #print "mymd5_hex_string is (%s)" % mymd5_hex_string
     # Check to see if '=' in myfilename
     if '=' in myfilename:
-        # myfilename has the containername also
-        if container_name != "" and myfilename.startswith(container_name):
-            container_name, myactualfilename = myfilename.split('=')
-            if not os.path.exists(myactualfilename):
-                outfile = open(myactualfilename, 'w')
-                outfile.write('')
-                outfile.close()
+        # myfilename has the container_name also
+        tempcontainer_name, myactualfilename = myfilename.split('=')
+        # If file does not exist, create an empty file
+        if not os.path.exists(myactualfilename):
+            outfile = open(myactualfilename, 'w')
+            outfile.write('')
+            outfile.close()
     else:
-        # myfilename does not have the containername - assume it is for this container
+        # myfilename does not have the containername
         # If file does not exist, create an empty file
         if not os.path.exists(myfilename):
             outfile = open(myfilename, 'w')
@@ -281,14 +280,6 @@ def Perform_HASH_REPLACE(lab_instance_seed):
         outfile.close()
 
 def DoReplace(lab_instance_seed):
-    global container_name
-    container_name_file="/home/ubuntu/.local/.containername"
-    if os.path.exists(container_name_file):
-        with open(container_name_file) as fh:
-            container_name = fh.read().strip()
-    else:
-        container_name = ""
-
     # Perform RAND_REPLACE
     Perform_RAND_REPLACE(lab_instance_seed)
     # Perform HASH_CREATE
@@ -297,14 +288,6 @@ def DoReplace(lab_instance_seed):
     Perform_HASH_REPLACE(lab_instance_seed)
 
 def ParseParameterConfig(lab_instance_seed, configfilename):
-    global container_name
-    container_name_file="/home/ubuntu/.local/.containername"
-    if os.path.exists(container_name_file):
-        with open(container_name_file) as fh:
-            container_name = fh.read().strip()
-    else:
-        container_name = ""
-
     # Seed random with lab seed
     random.seed(lab_instance_seed)
     configfile = open(configfilename)
@@ -326,22 +309,25 @@ def ParseParameterConfig(lab_instance_seed, configfilename):
 
 
 
-# Usage: ParameterParser.py <lab_instance_seed> [<config_file>]
+# Usage: ParameterParser.py <lab_instance_seed> <container_name> [<config_file>]
 # Arguments:
 #     <lab_instance_seed> - laboratory instance seed
+#     <container_name> - name of the container"
 #     [<config_file>] - optional configuration file
 #                       if <config_file> not specified, it defaults to
 #                       /home/ubuntu/.local/config/parameter.config
 def main():
+    global container_name
     #print "Running ParameterParser.py"
     numargs = len(sys.argv)
-    if not (numargs == 2 or numargs == 3):
-        sys.stderr.write("Usage: ParameterParser.py <lab_instance_seed> [<config_file>]\n")
+    if not (numargs == 3 or numargs == 4):
+        sys.stderr.write("Usage: ParameterParser.py <lab_instance_seed> <container_name> [<config_file>]\n")
         sys.exit(1)
 
     lab_instance_seed = sys.argv[1]
-    if numargs == 3:
-        configfilename = sys.argv[2]
+    container_name = sys.argv[2]
+    if numargs == 4:
+        configfilename = sys.argv[3]
     else:
         configfilename = '%s/.local/config/%s' % (UBUNTUHOME, "parameter.config")
 

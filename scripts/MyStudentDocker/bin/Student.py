@@ -25,13 +25,10 @@ def main():
     os.chdir(UBUNTUHOME)
     student_email_file="/home/ubuntu/.local/.email"
     lab_name_file="/home/ubuntu/.local/.labname"
-    container_name_file="/home/ubuntu/.local/.containername"
     with open(student_email_file) as fh:
         student_email = fh.read().strip()
     with open(lab_name_file) as fh:
         lab_name = fh.read().strip()
-    with open(container_name_file) as fh:
-        container_name = fh.read().strip()
     #configjsonfname = '%sconfig/%s' % (HOMELOCAL, "studentlab.json")
     #configjson = open(configjsonfname, "r")
     #studentconfig = json.load(configjson)
@@ -45,8 +42,9 @@ def main():
     #LabName = studentconfig['labname']
     #StudentIndex = studentconfig['studentid']
     #LabIDName = studentconfig['labid']
-    # NOTE: Use the '=' to separate e-mail+lab_name from the container_name
-    ZipFileName = '%s.%s=%s.zip' % (student_email.replace("@","_at_"), lab_name, container_name)
+    # NOTE: Always store as e-mail+lab_name.zip
+    #       e-mail+lab_name.zip will be renamed by stop.py (add containername)
+    ZipFileName = '%s.%s.zip' % (student_email.replace("@","_at_"), lab_name)
 
     #print 'The lab name is (%s)' % LabName
     #print 'Output ZipFileName is (%s)' % ZipFileName

@@ -44,13 +44,18 @@ def CreateCopyChownZip(mycwd, start_config, container_name, container_image):
     command='docker exec -it %s cat /home/%s/.local/zip.flist' % (container_name, container_user)
     #print "Command to execute is (%s)" % command
     child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
-    zip_filelist = child.stdout.read().strip()
-    #print "CreateCopyChownZip: Result of subprocess.Popen exec cat zip.flist is %s" % zip_filelist
-    if zip_filelist == None:
+    orig_zipfilenameext = child.stdout.read().strip()
+    #print "CreateCopyChownZip: Result of subprocess.Popen exec cat zip.flist is %s" % orig_zipfilenameext
+    if orig_zipfilenameext == None:
         sys.stderr.write("ERROR: CreateCopyChownZip Container %s fail on executing cat zip.flist!\n" % container_name)
         sys.exit(1)
 
-    command = "docker cp %s:%s /home/%s/%s" % (container_name, zip_filelist, username, host_home_xfer)
+    # The zip filename created by Student.py has the format of e-mail.labname.zip
+    orig_zipfilename, orig_zipext = os.path.splitext(orig_zipfilenameext)
+    baseZipFilename = os.path.basename(orig_zipfilename)
+    # NOTE: Use the '=' to separate e-mail+lab_name from the container_name
+    DestZipFilename = '%s=%s.zip' % (baseZipFilename, container_name)
+    command = "docker cp %s:%s /home/%s/%s/%s" % (container_name, orig_zipfilenameext, username, host_home_xfer, DestZipFilename)
     #print "Command to execute is (%s)" % command
     result = subprocess.call(command, shell=True)
     #print "CreateCopyChownZip: Result of subprocess.Popen exec cp zip file is %s" % result

@@ -16,7 +16,6 @@
 LAB_SEEDFILE="/home/ubuntu/.local/.seed"
 USER_EMAILFILE="/home/ubuntu/.local/.email"
 LAB_NAMEFILE="/home/ubuntu/.local/.labname"
-CONTAINER_NAMEFILE="/home/ubuntu/.local/.containername"
 LAB_PARAMCONFIGFILE="/home/ubuntu/.local/config/parameter.config"
 
 # Do not display instruction during parameterization
@@ -46,10 +45,9 @@ echo "$LAB_INSTANCE_SEED" > $LAB_SEEDFILE
 # User's e-mail is always stored in $USER_EMAILFILE
 echo "$USER_EMAIL" > $USER_EMAILFILE
 echo "$LAB_NAME" > $LAB_NAMEFILE
-echo "$CONTAINER_NAME" > $CONTAINER_NAMEFILE
 
 # call ParameterParser.py (passing $LAB_INSTANCE_SEED)
-sudo /home/ubuntu/.local/bin/ParameterParser.py $LAB_INSTANCE_SEED $LAB_PARAMCONFIGFILE
+sudo /home/ubuntu/.local/bin/ParameterParser.py $LAB_INSTANCE_SEED $CONTAINER_NAME $LAB_PARAMCONFIGFILE
 
 # If file /home/ubuntu/.local/bin/fixlocal.sh exist, run it
 if [ -f /home/ubuntu/.local/bin/fixlocal.sh ]
