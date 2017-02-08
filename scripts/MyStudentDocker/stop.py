@@ -171,7 +171,7 @@ def main():
     #print "current user's home directory for %s" % myhomedir
     #print "ParseStartConfig for %s" % labname
     startconfigfilename = '%s/start.config' % mycwd
-    start_config = ParseStartConfig.ParseStartConfig(startconfigfilename, labname)
+    start_config = ParseStartConfig.ParseStartConfig(startconfigfilename, labname, "student")
 
     # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
     host_xfer_dir = '%s/%s' % (myhomedir, start_config.host_home_xfer)

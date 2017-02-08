@@ -4,12 +4,17 @@ import os
 import sys
 
 class ParseStartConfig():
-    def __init__(self, fname, labname):
+    def __init__(self, fname, labname, caller):
         self.container_name="" # Name of container
         self.container_image="" # Name of container image
         self.container_user="" # Name of user
         self.host_home_xfer="" # HOST_HOME_XFER - directory to transfer artifact to/from containers
         self.lab_master_seed="" # LAB_MASTER_SEED - this is the master seed string for to this laboratory
+
+        # caller must be "student" or "instructor"
+        if caller != "student" and caller != "instructor":
+            sys.stderr.write("Unexpected caller of ParseStartConfig module!\n")
+            sys.exit(1)
 
         #print "ParseStartConfig for %s" % labname
         # Make sure start.config configuration file exists
@@ -24,7 +29,11 @@ class ParseStartConfig():
         container_image_name_found = False
         container_user_found = False
         host_home_found = False
-        lab_master_seed_found = False
+        if caller == "student":
+            lab_master_seed_found = False
+        else:
+            # Don't need lab master seed for instructor
+            lab_master_seed_found = True
         for line in configfilelines:
             linestrip = line.rstrip()
             if linestrip:

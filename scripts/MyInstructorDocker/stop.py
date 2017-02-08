@@ -16,8 +16,15 @@ import re
 import subprocess
 import sys
 import zipfile
-import ParseInstMulti
-import ParseInstConfig
+
+instructor_cwd = os.getcwd()
+student_cwd = instructor_cwd.replace('MyInstructorDocker', 'MyStudentDocker')
+print "Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd)
+# Append Student CWD to sys.path
+sys.path.append(student_cwd)
+
+import ParseMulti
+import ParseStartConfig
 
 # Error code returned by docker inspect
 SUCCESS=0
@@ -92,7 +99,7 @@ def DoStopMultiple(start_config, mycwd, labname):
     #print "Do: STOP Multiple Containers and/or multi-home networking"
 
     networkfilename = '%s/%s.network' % (mycwd, labname)
-    multi_config = ParseInstMulti.ParseInstMulti(networkfilename)
+    multi_config = ParseMulti.ParseMulti(networkfilename)
 
     for mycontainer_name in multi_config.containers:
         mycontainer_image = multi_config.containers[mycontainer_name].container_image
@@ -146,9 +153,9 @@ def main():
     myhomedir = os.environ['HOME']
     #print "current working directory for %s" % mycwd
     #print "current user's home directory for %s" % myhomedir
-    #print "ParseInstConfig for %s" % labname
+    #print "ParseStartConfig for %s" % labname
     startconfigfilename = '%s/start.config' % mycwd
-    start_config = ParseInstConfig.ParseInstructorStartConfig(startconfigfilename, labname)
+    start_config = ParseStartConfig.ParseStartConfig(startconfigfilename, labname, "instructor")
 
     # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
     host_xfer_dir = '%s/%s' % (myhomedir, start_config.host_home_xfer)

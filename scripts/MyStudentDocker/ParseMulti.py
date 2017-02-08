@@ -79,6 +79,7 @@ class ParseMulti():
     def __init__(self, fname):
         self.subnets = {}
         self.containers = {}
+        self.grade_containername = ""
         print('fname is %s' % fname)
         with open(fname) as fh:
             for line in fh:
@@ -96,6 +97,8 @@ class ParseMulti():
                 elif line.strip().startswith('CONTAINER'):
                     new_container = self.Container(line)
                     if new_container.container_name not in self.containers:
+                        if self.grade_containername == "":
+                            self.grade_containername = new_container.container_name
                         self.containers[new_container.container_name] = new_container
                     else:
                         print('duplicate container name %s in \t%s' % (new_container.container_name, line))
