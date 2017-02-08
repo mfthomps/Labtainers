@@ -133,23 +133,19 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, jsonoutputfi
         #print stdinfiles
         #print stdoutfiles
         globstdinfnames = glob.glob('%s*' % stdinfiles)
-        if globstdinfnames == []:
-            sys.stderr.write("ERROR: No %s* file found\n" % stdinfiles)
-            sys.exit(1)
+        if globstdinfnames != []:
+            #print "globstdinfname list is "
+            #print globstdinfnames
+            for stdinfnames in globstdinfnames:
+                #print stdinfnames
+                stdinfnameslist.append(stdinfnames)
         globstdoutfnames = glob.glob('%s*' % stdoutfiles)
-        if globstdoutfnames == []:
-            sys.stderr.write("ERROR: No %s* file found\n" % stdoutfiles)
-            sys.exit(1)
-        #print "globstdinfname list is "
-        #print globstdinfnames
-        for stdinfnames in globstdinfnames:
-            #print stdinfnames
-            stdinfnameslist.append(stdinfnames)
-        #print "stdoutfnameglob list is "
-        #print globstdoutfnames
-        for stdoutfnames in globstdoutfnames:
-            #print stdoutfnames
-            stdoutfnameslist.append(stdoutfnames)
+        if globstdoutfnames != []:
+            #print "stdoutfnameglob list is "
+            #print globstdoutfnames
+            for stdoutfnames in globstdoutfnames:
+                #print stdoutfnames
+                stdoutfnameslist.append(stdoutfnames)
 
     #print "stdinfname list is "
     #print stdinfnameslist
