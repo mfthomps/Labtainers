@@ -1,0 +1,2 @@
+This is your analysis machine. It is running Fedora 24, with many
+forensics tools installed from the CERT repository.

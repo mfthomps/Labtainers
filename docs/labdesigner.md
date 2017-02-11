@@ -84,6 +84,14 @@ should reference Docker documentation for the syntax and semantics of these file
 Simple labs should be able to use the default Dockerfiles created by the 
 new\_lab\_setup.py script.
 
+First, need a link to the documentation. Second, once the file is created,
+how do people test it? Testing should probably be part of the designer
+tools.
+
+Other tips:
+It has to get named the right thing to match the buildImage.sh
+Then you have to call buildImage.sh [nameoflab]
+
 ### Lab-specific files in the student's home directory ###
 Files that are to reside in the student's $HOME directory are placed in the 
 new lab directory.  For example, if a lab includes a source code file, that
