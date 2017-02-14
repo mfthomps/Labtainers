@@ -1,0 +1,17 @@
+# File: httplab.network
+
+# SUBNETS
+NETWORK INTERNET_LAB_NW 172.20.0.0/24 172.20.0.100
+NETWORK DMZ_LAB_NW 172.25.0.0/24 172.25.0.101
+NETWORK INTERNAL_LAB_NW 172.35.0.0/24 172.35.0.102
+
+# CONTAINERS
+CONTAINER httplab.client.student httplab.client:student 1
+    +INTERNET_LAB_NW 172.20.0.2
+    +DMZ_LAB_NW 172.25.0.2
+    +INTERNAL_LAB_NW 172.35.0.2
+
+CONTAINER httplab.server.student httplab.server:student 1
+    +INTERNET_LAB_NW 172.20.0.3
+    +DMZ_LAB_NW 172.25.0.3
+

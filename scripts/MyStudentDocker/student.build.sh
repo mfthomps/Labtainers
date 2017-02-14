@@ -6,3 +6,5 @@
 ./buildImage.sh onewayhash
 ./buildImage.sh telnetlab client
 ./buildImage.sh telnetlab server
+./buildImage.sh httplab client
+./buildImage.sh httplab server
