@@ -220,6 +220,7 @@ token in that line.
 
 Entries within the results.config file have the following format:
 
+Format type 1:
      <nametag> = <file_id> : <field_type> : <field_id> : <line_type> : <line_id>
          where:
                    nametag - The symbolic name of the artifact, which will be referenced in the
@@ -238,6 +239,17 @@ Entries within the results.config file have the following format:
                        LINE -- The line_id will be an integer line number (starting at one).
                        STARTSWITH -- the line_id will be a string.  This names the first occurrence of a line
                                that starts with this string. 
+                   line_id - See line_type above.
+
+Format type 2:
+     <nametag> = [ logfile ] : <line_type> : <line_id>
+         where:
+                   nametag - The symbolic name of the artifact, which will be referenced in the
+                             goals configuration file.  It must be alphanumeric, underscores permitted.
+                   logfile - The field is in the logfile result file
+                   line_type - Identifies how the line is to be identified, values include:
+                       CONTAINS -- the line_id will be a string. nametag will be set to true if logfile
+                                   contains the string identified by line_id
                    line_id - See line_type above.
 
 ### Assessing the student results ###

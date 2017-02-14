@@ -7,7 +7,7 @@
 #              * Comment lines starts with '#' and will be skipped.
 #              * Empty lines will be ignored.
 #
-# entry format
+# entry format type 1
 # <nametag> = [ stdin | stdout ] : [field_type] : <field_id> : <line_type> : <line_id>
 #               nametag - The symbolic name of the artifact, which will be referenced in the
 #                         goals configuration file.  It must be alphanumeric, underscores permitted.
@@ -24,6 +24,15 @@
 #                   LINE -- The line_id will be an integer line number (starting at one).
 #                   STARTSWITH -- the line_id will be a string.  This names the first occurrence of a line
 #                           that starts with this string. 
+#               line_id - See line_type above.
+# entry format type 2
+# <nametag> = [ logfile ] : <line_type> : <line_id>
+#               nametag - The symbolic name of the artifact, which will be referenced in the
+#                         goals configuration file.  It must be alphanumeric, underscores permitted.
+#               logfile - The field is in the logfile result file
+#               line_type - Identifies how the line is to be identified, values include:
+#                   CONTAINS -- the line_id will be a string. nametag will be set to true if logfile
+#                               contains the string identified by line_id
 #               line_id - See line_type above.
 #
 # for example:
