@@ -6,12 +6,12 @@ NETWORK DMZ_LAB_NW 172.25.0.0/24 172.25.0.101
 NETWORK INTERNAL_LAB_NW 172.35.0.0/24 172.35.0.102
 
 # CONTAINERS
+CONTAINER httplab.server.instructor httplab.server:instructor 1
+    +INTERNET_LAB_NW 172.20.0.3
+    +DMZ_LAB_NW 172.25.0.3
+
 CONTAINER httplab.client.instructor httplab.client:instructor 1
     +INTERNET_LAB_NW 172.20.0.2
     +DMZ_LAB_NW 172.25.0.2
     +INTERNAL_LAB_NW 172.35.0.2
-
-CONTAINER httplab.server.instructor httplab.server:instructor 1
-    +INTERNET_LAB_NW 172.20.0.3
-    +DMZ_LAB_NW 172.25.0.3
 
