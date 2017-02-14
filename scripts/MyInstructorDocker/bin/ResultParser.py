@@ -13,13 +13,14 @@ import sys
 import MyUtil
 
 UBUNTUHOME = "/home/ubuntu/"
+logfilelist = []
 exec_proglist = []
 containernamelist = []
 stdinfnameslist = []
 stdoutfnameslist = []
 timestamplist = {}
 nametags = {}
-line_types = ['LINE', 'STARTSWITH']
+line_types = ['CONTAINS', 'LINE', 'STARTSWITH']
 def ValidateTokenId(each_value, token_id):
     if token_id != 'ALL' and token_id != 'LAST':
         try:
@@ -40,16 +41,21 @@ def ValidateConfigfile(each_key, each_value):
         sys.stderr.write("ERROR: Not allowed characters in results.config's key (%s)\n" % each_key)
         sys.exit(1)
     values = []
-    # expecting - [ stdin | stdout ] : [<field_type>] : <field_id> :  <line_type> : <line_id>
+    # expecting either:
+    # 1. - [ stdin | stdout ] : [<field_type>] : <field_id> :  <line_type1> : <line_id>
     #    field_type = TOKEN | PARENS | QUOTES
     #    field_value is a numeric identifying the nth field of the given type
-    #    line_type = LINE | STARTSWITH
-    #    line_id is a number if the type is LINE, or a string if the tye is STARTSWITH
+    #    line_type1 = LINE | STARTSWITH
+    #    line_id is a number if the type is LINE, or a string if the type is STARTSWITH
+    # 2. - [ stdin | stdout ] : <line_type2> : <line_id>
+    #    line_type2 = CONTAINS
+    #    line_id is a string if the type is CONTAINS
 
     values = [x.strip() for x in each_value.split(':')]
     #print values
     numvalues = len(values)
-    if numvalues < 4:
+    #print "numvalues is (%d)" % numvalues
+    if numvalues < 3:
         sys.stderr.write("ERROR: results.config contains unexpected value (%s) format\n" % each_value)
         sys.exit(1)
     line_at = findLineIndex(values)
@@ -57,8 +63,9 @@ def ValidateConfigfile(each_key, each_value):
         sys.stderr.write('No line_type in %s\n' % each_value)
         exit(1)
     num_splits = line_at+1
+    #print "line_at is (%d) and num_splits is (%d)" % (line_at, num_splits)
      
-    # Split into four or five parts 
+    # Split into either four or five parts (for line_type1) or three parts (for line_type2)
     values = [x.strip() for x in each_value.split(':', num_splits)]
 
     # Make sure it is 'stdin' or 'stdout'
@@ -74,17 +81,25 @@ def ValidateConfigfile(each_key, each_value):
             containernamelist.append(containername)
     # Use rsplit() here because exec_program may have '.' as part of name
     (exec_program, targetfile) = progname_type.rsplit('.', 1)
-    if exec_program not in exec_proglist:
-        exec_proglist.append(exec_program)
+    # No longer restricted to stdin/stdout filenames anymore
     if (targetfile != "stdin") and (targetfile != "stdout"):
-        sys.stderr.write("ERROR: results.config line (%s)\n" % each_value)
-        sys.stderr.write("ERROR: results.config uses not stdin or sdout\n")
-        sys.exit(1)
+        # Not stdin/stdout - add the full name
+        if progname_type not in logfilelist:
+            logfilelist.append(progname_type)
+    else:
+        if exec_program not in exec_proglist:
+            exec_proglist.append(exec_program)
+    #    sys.stderr.write("ERROR: results.config line (%s)\n" % each_value)
+    #    sys.stderr.write("ERROR: results.config uses not stdin or sdout\n")
+    #    sys.exit(1)
 
-    token_index = 1
-    if line_at == 3:
-        token_index = 2
-    ValidateTokenId(each_value, values[token_index])
+    # If line_type1 (line_at != 1) - verify token id
+    if line_at != 1:
+        token_index = 1
+        if line_at == 3:
+            token_index = 2
+        ValidateTokenId(each_value, values[token_index])
+
     if values[line_at] == 'LINE':
         try:
             int(values[line_at+1])
@@ -124,9 +139,15 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, jsonoutputfi
 
     #print "exec_proglist is: "
     #print exec_proglist
+    #print "logfilelist is: "
+    #print logfilelist
 
     RESULTHOME = '%s/%s/%s' % (studentlabdir, mycontainername, ".local/result/")
     #print RESULTHOME
+    # if directory does not exist, just return
+    if not os.path.exists(RESULTHOME):
+        return 0
+        
     for exec_prog in exec_proglist:
         stdinfiles = '%s%s.%s.' % (RESULTHOME, exec_prog, "stdin")
         stdoutfiles = '%s%s.%s.' % (RESULTHOME, exec_prog, "stdout")
@@ -171,6 +192,7 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, jsonoutputfi
                 #print "no match"
                 continue
 
+    # Process line_type1 - i.e., LINE and STARTSWITH - artifacts with timestamps
     for timestamppart in timestamplist[mycontainername]:
         outputjsonfname = '%s/%s.%s' % (RESULTHOME, jsonoutputfilename, timestamppart)
         #print "Outputjsonfname is (%s)" % outputjsonfname
@@ -315,6 +337,89 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, jsonoutputfi
         jsonoutput.write(jsondumpsoutput)
         jsonoutput.write('\n')
         jsonoutput.close()
+
+    # Process line_type2 - i.e., CONTAINS - artifacts without timestamps
+    # Output JSON file will not have timestamp either
+    outputjsonfname = '%s/%s' % (RESULTHOME, jsonoutputfilename)
+    #print "Outputjsonfname is (%s)" % outputjsonfname
+
+    for line in configfilelines:
+        linestrip = line.rstrip()
+        if linestrip:
+            if not linestrip.startswith('#'):
+                #print "Current linestrip is (%s)" % linestrip
+                (each_key, each_value) = linestrip.split('=', 1)
+                each_key = each_key.strip()
+
+                #print each_key
+                # Note: config file has been validated
+                # Split into four parts or five parts
+                values = [x.strip() for x in each_value.split(':')]
+                line_at = findLineIndex(values)
+
+                # Do only line_at == 1
+                if line_at != 1:
+                    continue
+
+                num_splits = line_at+1
+                values = [x.strip() for x in each_value.split(':', num_splits)]
+                newtargetfile = values[0].strip()
+                # <containername>=<exec_program>.<type>
+                if '=' in newtargetfile:
+                    containername, targetfile = newtargetfile.split('=', 1)
+                else:
+                    containername = ""
+                    targetfile = newtargetfile
+                if containername != "" and mycontainername != containername:
+                    #print "Config line (%s) not for my container (%s), skipping..." % (linestrip, mycontainername)
+                    continue
+
+                command = values[line_at].strip()
+                # no field_type and no token_id
+                containsstring = values[line_at+1].strip()
+
+                targetfname = '%s%s' % (RESULTHOME, targetfile)
+                #print "targetfname is (%s)" % targetfname
+                if not os.path.exists(targetfname):
+                    # If file does not exist, treat as can't find token
+                    token = "NONE"
+                    #sys.stderr.write("ERROR: No %s file does not exist\n" % targetfname)
+                    #sys.exit(1)
+                else:
+                    # Read in corresponding file
+                    targetf = open(targetfname, "r")
+                    targetlines = targetf.readlines()
+                    targetf.close()
+                    targetfilelen = len(targetlines)
+
+                    #print "Stdin has (%d) lines" % targetfilelen
+                    #print targetlines
+
+                    #print "targetfile is %s" % targetfile
+                    # command has been validated to be 'CONTAINS'
+                    found_containsstring = False
+                    for currentline in targetlines:
+                        if found_containsstring == False:
+                            # if current line has the string
+                            if containsstring in currentline:
+                                found_containsstring = True
+                                break
+
+                # If not found - set to False
+                if found_containsstring == False:
+                    tagstring = "False"
+                else:
+                    tagstring = "True"
+
+                # set nametags - value pair
+                nametags[mycontainername][each_key] = tagstring
+
+    #print nametags
+    jsonoutput = open(outputjsonfname, "w")
+    jsondumpsoutput = json.dumps(nametags[mycontainername], indent=4)
+    jsonoutput.write(jsondumpsoutput)
+    jsonoutput.write('\n')
+    jsonoutput.close()
 
 # Usage: ResultParser.py <studentlabdir> <mycontainername> <instructordir> <jsonoutputfilename>
 # Arguments:

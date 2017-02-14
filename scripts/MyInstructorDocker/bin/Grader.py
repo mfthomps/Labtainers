@@ -322,9 +322,10 @@ def processLabExercise(studentlabdir, labidname, grades, subgoalsresult, goals):
     #print RESULTHOME
     if not os.path.exists(RESULTHOME):
         os.makedirs(RESULTHOME)
-    outjsonfnamesstring = '%s/*/%s/%s.*' % (studentlabdir, ".local/result/", labidname)
+    # Note: outputjson now may include no timestamp
+    outjsonfnamesstring = '%s/*/%s/%s*' % (studentlabdir, ".local/result/", labidname)
     #print outjsonfnamesstring
-    #outjsonfnames = glob.glob('%s/*/%s.*' % (RESULTHOME, labidname))
+    #outjsonfnames = glob.glob('%s/*/%s*' % (RESULTHOME, labidname))
     outjsonfnames = glob.glob(outjsonfnamesstring)
     #print outjsonfnames
 
