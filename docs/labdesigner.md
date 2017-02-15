@@ -50,6 +50,7 @@ where SEED\_DIR is set to the top of the svn repo, e.g.,
 
     export SEED_DIR=/home/mike/svn/seed/trunk
 
+## Testing the new lab ##
 Once a new lab is created, its container image must be created.  The default container configuration
 is simply a bash shell in linux.  Later sections of this manual describe modifications that will
 change the container image, but for now you can create a default image as follows:
@@ -71,6 +72,9 @@ use the "start.sh" command.  The redo.sh command will remove and recreate the co
 each time the script is run.  This is often necessary when building new labs, to ensure the
 new envrioment does not contain artifacts from previous runs.
 
+The above script should result in creation of three windows, two of which have
+running bash shells, and the third displays instructions.
+
 Defining the lab execution environment
 --------------------------------------
 A given lab typically requires some set of software packages, and some
@@ -79,18 +83,18 @@ environment is not unique to this framework, rather, it is typically part of any
 lab design.  The framework captures most configuration details within a standard
 Dockerfile.  Templates for two Dockerfiles are placed in the "dockerfiles" 
 directory, one for student containers and one for instructor containers.
-These use standard Docker file syntax, which is not repeated here.  Lab designers
-should reference Docker documentation for the syntax and semantics of these files.
-Simple labs should be able to use the default Dockerfiles created by the 
-new\_lab\_setup.py script.
+These use standard Docker file syntax, which is described at:
 
-First, need a link to the documentation. Second, once the file is created,
-how do people test it? Testing should probably be part of the designer
-tools.
+    https://docs.docker.com/engine/reference/builder/
 
-Other tips:
-It has to get named the right thing to match the buildImage.sh
-Then you have to call buildImage.sh [nameoflab]
+Lab designers should reference that Docker documentation for the 
+syntax and semantics of these files.
+Simple labs should be able to use the default Dockerfile created by the 
+new\_lab\_setup.py script.  That Dockerfile includes the minimal set
+of Linux packages necessary to host a lab within the framework.  The default
+execution environment builds off of a recent Ubuntu image.
+[MFT: Note alternate mimimal images as developed, e.g., Fedora.]
+
 
 ### Lab-specific files in the student's home directory ###
 Files that are to reside in the student's $HOME directory are placed in the 
