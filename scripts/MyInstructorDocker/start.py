@@ -253,13 +253,17 @@ def DoStartMultiple(start_config, mycwd, labname):
             # Start the container
             start_result = StartMyContainer(mycontainer_name)
             if start_result == FAILURE:
-                sys.stderr.write("ERROR: DoStartMultiple Container %s failed to start!\n" % container_name)
+                sys.stderr.write("ERROR: DoStartMultiple Container %s failed to start!\n" % mycontainer_name)
                 sys.exit(1)
 
-        copy_result = CopyStudentArtifacts(start_config, mycontainer_name, labname)
-        if copy_result == FAILURE:
-            sys.stderr.write("ERROR: DoStartMultiple Failed to copy students' artifacts to container %s!\n" % mycontainer_name)
-            sys.exit(1)
+        # Copy students' artifacts only to the container where 'Instructor.py' supposed
+        # to be run - where grades.txt will later reside also (i.e., don't copy to all containers)
+        # Copy to container named multi_config.grade_containername
+        if mycontainer_name == multi_config.grade_containername:
+            copy_result = CopyStudentArtifacts(start_config, mycontainer_name, labname)
+            if copy_result == FAILURE:
+                sys.stderr.write("ERROR: DoStartMultiple Failed to copy students' artifacts to container %s!\n" % mycontainer_name)
+                sys.exit(1)
     
     # Reach here - Everything is OK - spawn terminal for each container based on num_terminal
     for mycontainer_name in multi_config.containers:
