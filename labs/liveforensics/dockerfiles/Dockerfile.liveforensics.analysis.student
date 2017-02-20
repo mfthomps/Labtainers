@@ -7,11 +7,13 @@ LABEL description="This is base Docker image for forensics analysis machines"
 ARG lab
 
 RUN dnf update -y 
-RUN dnf install -y vim sudo net-tools less man procps-ng tcl expect wget
+RUN dnf install -y vim sudo net-tools less man python procps-ng tcl expect wget openssh-server
 RUN dnf install -y findutils
 RUN wget https://forensics.cert.org/cert-forensics-tools-release-24.rpm && rpm -ivh cert-forensics-tools-release-24.rpm
-
 #RUN dnf install -y CERT-Forensics-Tools # adding this line installs all the tools but you end up with a 4.59 Gig container instead of a 946MB container.
+
+EXPOSE 22
+
 ADD fed_sudoers /etc/sudoers
 RUN useradd -ms /bin/bash abby
 RUN echo "abby:abby" | chpasswd
@@ -30,4 +32,6 @@ RUN echo "" > $HOME/.bash_logout
 RUN mkdir $HOME/volatile
 RUN mkdir $HOME/nonvolatile
 RUN mkdir $HOME/interesting
+
+#ENTRYPOINT sudo systemctl start sshd.service && bash
 
