@@ -43,7 +43,8 @@ fi
 
 # Run 'Student.py'
 # This will create zip file of the result
-docker exec -it $CONTAINER_NAME script -q -c "/bin/bash -c 'cd ; . .profile ; Student.py'" /dev/null
+docker exec -it $CONTAINER_NAME script -q -c "/bin/bash -c 'cd ; . .bash_profile ; Student.py'" /dev/null
+#docker exec -it $CONTAINER_NAME script -q -c "/bin/bash -c 'cd ; . .profile ; Student.py'" /dev/null
 
 # Here are samples including performing 'sudo sysctl' type of command
 #echo "arguments: $*" > /tmp/test.stop

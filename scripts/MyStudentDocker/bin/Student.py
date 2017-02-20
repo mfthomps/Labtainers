@@ -13,6 +13,8 @@ import zipfile
 UBUNTUHOME="/home/ubuntu/"
 HOMELOCAL="/home/ubuntu/.local/"
 
+print os.path.expanduser("~")
+
 # Usage: Student.py
 # Arguments:
 #     None

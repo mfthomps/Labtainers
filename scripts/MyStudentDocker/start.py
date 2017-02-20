@@ -23,6 +23,8 @@ from netaddr import *
 import ParseMulti
 import ParseStartConfig
 
+LABS_ROOT = os.path.abspath("../../labs/")
+
 # Error code returned by docker inspect
 SUCCESS=0
 FAILURE=1
@@ -44,9 +46,9 @@ def getDocker0IPAddr():
     return result
 
 # Parameterize my_container_name container
-def ParameterizeMyContainer(mycontainer_name, lab_instance_seed, user_email, labname):
+def ParameterizeMyContainer(mycontainer_name, container_user, lab_instance_seed, user_email, labname):
     #print "About to call parameterize.sh with LAB_INSTANCE_SEED = (%s)" % lab_instance_seed
-    command = 'docker exec -it %s script -q -c "/home/ubuntu/.local/bin/parameterize.sh %s %s %s %s" /dev/null' % (mycontainer_name, lab_instance_seed, user_email, labname, mycontainer_name)
+    command = 'docker exec -it %s script -q -c "/home/%s/.local/bin/parameterize.sh %s %s %s %s" /dev/null' % (mycontainer_name, container_user, lab_instance_seed, user_email, labname, mycontainer_name)
     #print "Command to execute is (%s)" % command
     result = subprocess.call(command, shell=True)
     #print "Result of subprocess.call ParameterizeMyContainer is %s" % result
@@ -96,14 +98,14 @@ def CreateSingleContainerDefault(mycontainer_name, mycontainer_image_name):
     #print "Result of subprocess.call CreateSingleContainerDefault is %s" % result
     return result
 
-def DoStartSingle(start_config, mycwd, labname):
+def DoStartSingle(start_config, labname):
     #print "Do: START Single Container with default networking"
-    container_name = start_config.container_name
-    container_image = start_config.container_image
-    container_user = start_config.container_user
-    host_home_xfer = start_config.host_home_xfer
-    lab_master_seed = start_config.lab_master_seed
-    haveContainer = IsContainerCreated(container_name)
+    container_name  = start_config.containers["default"]["full_name"]
+    container_image = start_config.containers["default"]["image_name"]
+    container_user  = start_config.containers["default"]["user"]
+    host_home_xfer  = start_config.conf["host_home_xfer"]
+    lab_master_seed = start_config.conf["lab_master_seed"]
+    haveContainer   = IsContainerCreated(container_name)
     #print "IsContainerCreated result (%s)" % haveContainer
 
     # Set need_seeds=False first
@@ -147,7 +149,7 @@ def DoStartSingle(start_config, mycwd, labname):
         mymd5_hex_string = mymd5.hexdigest()
         #print mymd5_hex_string
 
-        parameterize_result = ParameterizeMyContainer(container_name, mymd5_hex_string,
+        parameterize_result = ParameterizeMyContainer(container_name, container_user, mymd5_hex_string,
                                                       user_email, labname)
         if parameterize_result == FAILURE:
             sys.stderr.write("ERROR: Failed to parameterize lab container %s!\n" % container_name)
@@ -190,22 +192,22 @@ def CreateSubnets(subnets):
             print "Already exists! Not creating %s subnet at %s!\n" % (subnet_name, subnet_network_mask)
         
 
-def DoStartMultiple(start_config, mycwd, labname):
-    container_user = start_config.container_user
-    host_home_xfer = start_config.host_home_xfer
-    lab_master_seed = start_config.lab_master_seed
+def DoStartMultiple(start_config, labname, net_config_path):
+    host_home_xfer = start_config.conf["host_home_xfer"]
+    lab_master_seed = start_config.conf["lab_master_seed"]
     #print "Do: START Multiple Containers and/or multi-home networking"
     docker0_IPAddr = getDocker0IPAddr()
     #print "getDockerIPAddr result (%s)" % docker0_IPAddr
 
-    networkfilename = '%s/%s.network' % (mycwd, labname)
-    multi_config = ParseMulti.ParseMulti(networkfilename)
+    multi_config = ParseMulti.ParseMulti(net_config_path)
 
     # Create SUBNETS
     CreateSubnets(multi_config.subnets)
 
     for mycontainer_name in multi_config.containers:
         mycontainer_image_name = multi_config.containers[mycontainer_name].container_image
+        nickname = mycontainer_name.split(".")[1]
+        container_user = start_config.containers[nickname]["user"]
 
         haveContainer = IsContainerCreated(mycontainer_name)
         #print "IsContainerCreated result (%s)" % haveContainer
@@ -267,7 +269,7 @@ def DoStartMultiple(start_config, mycwd, labname):
             mymd5_hex_string = mymd5.hexdigest()
             #print mymd5_hex_string
     
-            parameterize_result = ParameterizeMyContainer(mycontainer_name, mymd5_hex_string,
+            parameterize_result = ParameterizeMyContainer(mycontainer_name, container_user, mymd5_hex_string,
                                                           user_email, labname)
             if parameterize_result == FAILURE:
                 sys.stderr.write("ERROR: Failed to parameterize lab container %s!\n" % mycontainer_name)
@@ -318,20 +320,23 @@ def main():
     #print "current working directory for %s" % mycwd
     #print "current user's home directory for %s" % myhomedir
     #print "ParseStartConfig for %s" % labname
-    startconfigfilename = '%s/start.config' % mycwd
-    start_config = ParseStartConfig.ParseStartConfig(startconfigfilename, labname, "student")
+    lab_path          = os.path.join(LABS_ROOT,labname)
+    config_path       = os.path.join(lab_path,"config") 
+    start_config_path = os.path.join(config_path,"start.config")
+    net_config_path   = os.path.join(config_path,labname + ".network")
+   
+    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, "student")
 
     # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
     host_xfer_dir = '%s/%s' % (myhomedir, start_config.host_home_xfer)
     CreateHostHomeXfer(host_xfer_dir)
 
-    networkfilename = '%s/%s.network' % (mycwd, labname)
     # If <labname>.network exists, do multi-containers/multi-home networking
     # else do single container with default networking
-    if not os.path.exists(networkfilename):
-        DoStartSingle(start_config, mycwd, labname)
+    if not os.path.exists(net_config_path):
+        DoStartSingle(start_config, labname)
     else:
-        DoStartMultiple(start_config, mycwd, labname)
+        DoStartMultiple(start_config, labname, net_config_path)
 
     return 0
 
