@@ -1,0 +1,18 @@
+# File: vpnlab.network
+
+# SUBNETS
+NETWORK INTERNET_LAB_NW 172.20.0.0/24 172.20.0.100
+NETWORK DMZ_LAB_NW 172.25.0.0/24 172.25.0.101
+NETWORK INTERNAL_LAB_NW 172.35.0.0/24 172.35.0.102
+
+# CONTAINERS
+CONTAINER vpnlab.server.student vpnlab.server:student 1
+    +INTERNET_LAB_NW 172.20.0.3
+
+CONTAINER vpnlab.router.student vpnlab.router:student 1
+    +INTERNET_LAB_NW 172.20.0.1
+    +DMZ_LAB_NW 172.25.0.1
+
+CONTAINER vpnlab.client.student vpnlab.client:student 1
+    +DMZ_LAB_NW 172.25.0.2
+

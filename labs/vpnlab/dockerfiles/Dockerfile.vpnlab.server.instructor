@@ -1,0 +1,52 @@
+FROM ubuntu:xenial
+MAINTAINER jkhosali@nps.edu
+LABEL description="This is base Docker image for VPN Labs (client)"
+
+ARG lab
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    expect \
+    file \
+    gcc-multilib \
+    gdb \
+    iputils-ping \
+    less \
+    man \
+    manpages-dev \
+    net-tools \
+    openssl \
+    openssh-client \
+    openssh-server \
+    openvpn \
+    python \
+    sudo \
+    tcl8.6 \
+    vim \
+    zip \
+    zsh
+
+ADD sudoers /etc/sudoers
+RUN useradd -ms /bin/bash ubuntu
+RUN echo "ubuntu:ubuntu" | chpasswd
+RUN chown -R ubuntu:ubuntu /home/ubuntu
+RUN adduser ubuntu sudo
+ADD $lab.instructor.tar.gz /home/ubuntu
+
+USER ubuntu
+ENV HOME /home/ubuntu
+RUN echo "cd" >> /home/ubuntu/.profile
+RUN echo "source /home/ubuntu/.local/bin/startup.sh" >> /home/ubuntu/.profile
+RUN echo "" > /home/ubuntu/.bash_logout
+
+ENTRYPOINT /home/ubuntu/.local/bin/MyHTTPServer.sh && bash
+
+#    g++ \
+#    cpp \
+#    libc6-dev \
+#    man-db \
+#    autoconf \
+#pkg-config
+#
+#    make \
+#    automake \
+#    gcc \
