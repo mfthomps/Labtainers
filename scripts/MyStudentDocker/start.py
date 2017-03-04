@@ -20,7 +20,7 @@ import sys
 import time
 import zipfile
 from netaddr import *
-import ParseMulti
+#import ParseMulti
 import ParseStartConfig
 
 LABS_ROOT = os.path.abspath("../../labs/")
@@ -31,10 +31,7 @@ FAILURE=1
 
 def isalphadashscore(name):
     # check name - alphanumeric,dash,underscore
-    if re.match(r'^[a-zA-Z0-9_-]*$', name):
-        return True
-    else:
-        return False
+    return re.match(r'^[a-zA-Z0-9_-]*$', name)
 
 # get docker0 IP address
 def getDocker0IPAddr():
@@ -78,96 +75,25 @@ def ConnectNetworkToContainer(mycontainer_name, mysubnet_name, mysubnet_ip):
     #print "Result of subprocess.call ConnectNetworkToContainer is %s" % result
     return result
 
-def CreateSingleContainerNonDefault(mycontainer_name, mycontainer_image_name, mysubnet_name, mysubnet_ip):
-    #print "Create Single Container with non-default networking"
-    docker0_IPAddr = getDocker0IPAddr()
-    #print "getDockerIPAddr result (%s)" % docker0_IPAddr
-    createsinglecommand = "docker create -t --network=%s --ip=%s --privileged --add-host my_host:%s --name=%s %s bash" % (mysubnet_name, mysubnet_ip, docker0_IPAddr, mycontainer_name, mycontainer_image_name)
-    #print "Command to execute is (%s)" % createsinglecommand
-    result = subprocess.call(createsinglecommand, shell=True)
-    #print "Result of subprocess.call CreateSingleContainerNonDefault is %s" % result
-    return result
-
-def CreateSingleContainerDefault(mycontainer_name, mycontainer_image_name):
+def CreateSingleContainer(mycontainer_name, mycontainer_image_name, mysubnet_name=None, mysubnet_ip=None):
     #print "Create Single Container with default networking"
     docker0_IPAddr = getDocker0IPAddr()
     #print "getDockerIPAddr result (%s)" % docker0_IPAddr
-    createsinglecommand = "docker create -t --privileged --add-host my_host:%s --name=%s %s bash" % (docker0_IPAddr, mycontainer_name, mycontainer_image_name)
+    if mysubnet_name:
+        createsinglecommand = "docker create -t --network=%s --ip=%s --privileged --add-host my_host:%s --name=%s %s bash" % (mysubnet_name, mysubnet_ip, docker0_IPAddr, mycontainer_name, mycontainer_image_name)
+    else:
+        createsinglecommand = "docker create -t --privileged --add-host my_host:%s --name=%s %s bash" % (docker0_IPAddr, mycontainer_name, mycontainer_image_name)
     #print "Command to execute is (%s)" % createsinglecommand
     result = subprocess.call(createsinglecommand, shell=True)
     #print "Result of subprocess.call CreateSingleContainerDefault is %s" % result
     return result
 
-def DoStartSingle(start_config, labname):
-    #print "Do: START Single Container with default networking"
-    container_name  = start_config.containers["default"]["full_name"]
-    container_image = start_config.containers["default"]["image_name"]
-    container_user  = start_config.containers["default"]["user"]
-    host_home_xfer  = start_config.conf["host_home_xfer"]
-    lab_master_seed = start_config.conf["lab_master_seed"]
-    haveContainer   = IsContainerCreated(container_name)
-    #print "IsContainerCreated result (%s)" % haveContainer
-
-    # Set need_seeds=False first
-    need_seeds=False
-
-    # IsContainerCreated returned FAILURE if container does not exists
-    if haveContainer == FAILURE:
-        # Container does not exist, create the container
-        containerCreated = CreateSingleContainerDefault(container_name, container_image)
-        #print "CreateSingleContainerDefault result (%s)" % containerCreated
-        # If we just create it, then set need_seeds=True
-        need_seeds=True
-        # Give the container some time -- just in case
-        time.sleep(3)
-
-    # Check again - 
-    haveContainer = IsContainerCreated(container_name)
-    #print "IsContainerCreated result (%s)" % haveContainer
-
-    # IsContainerCreated returned FAILURE if container does not exists
-    if haveContainer == FAILURE:
-        sys.stderr.write("ERROR: DoStartSingle Container %s still not created!\n" % container_name)
-        sys.exit(1)
-    else:
-        # Start the container
-        start_result = StartMyContainer(container_name)
-        if start_result == FAILURE:
-            sys.stderr.write("ERROR: DoStartSingle Container %s failed to start!\n" % container_name)
-            sys.exit(1)
-
-    # If the container is just created, prompt user's e-mail
-    # then parameterize the container
-    if need_seeds:
-        # Prompt user for e-mail address
-        user_email = raw_input("Please enter your e-mail address: ")
-        # Create hash using LAB_MASTER_SEED concatenated with user's e-mail
-        # LAB_MASTER_SEED is per laboratory - specified in start.config
-        string_to_be_hashed = '%s:%s' % (lab_master_seed, user_email)
-        mymd5 = md5.new()
-        mymd5.update(string_to_be_hashed)
-        mymd5_hex_string = mymd5.hexdigest()
-        #print mymd5_hex_string
-
-        parameterize_result = ParameterizeMyContainer(container_name, container_user, mymd5_hex_string,
-                                                      user_email, labname)
-        if parameterize_result == FAILURE:
-            sys.stderr.write("ERROR: Failed to parameterize lab container %s!\n" % container_name)
-            sys.exit(1)
-
-    # Reach here - Everything is OK - spawn two terminals by default
-    spawn_command = "gnome-terminal -x docker exec -it %s bash -l &" % container_name
-    os.system(spawn_command)
-    os.system(spawn_command)
-
-    return 0
 
 # Create SUBNETS
 def CreateSubnets(subnets):
-    #print "Inside CreateSubnets"
     #for (subnet_name, subnet_network_mask) in networklist.iteritems():
     for subnet_name in subnets:
-        subnet_network_mask = subnets[subnet_name].subnet_mask
+        subnet_network_mask = subnets[subnet_name].mask
         #print "subnet_name is %s" % subnet_name
         #print "subnet_network_mask is %s" % subnet_network_mask
 
@@ -177,8 +103,9 @@ def CreateSubnets(subnets):
         #print "Result of subprocess.call CreateSubnets docker network inspect is %s" % inspect_result
         if inspect_result == FAILURE:
             # Fail means does not exist - then we can create
-            if subnets[subnet_name].subnet_gateway != None:
-                subnet_gateway = subnets[subnet_name].subnet_gateway
+            if subnets[subnet_name].gateway != None:
+                #print subnets[subnet_name].gateway
+                subnet_gateway = subnets[subnet_name].gateway
                 command = "docker network create -d bridge --gateway=%s --subnet %s %s 2> /dev/null" % (subnet_gateway, subnet_network_mask, subnet_name)
             else:
                 command = "docker network create -d bridge --subnet %s %s 2> /dev/null" % (subnet_network_mask, subnet_name)
@@ -192,22 +119,20 @@ def CreateSubnets(subnets):
             print "Already exists! Not creating %s subnet at %s!\n" % (subnet_name, subnet_network_mask)
         
 
-def DoStartMultiple(start_config, labname, net_config_path):
-    host_home_xfer = start_config.conf["host_home_xfer"]
-    lab_master_seed = start_config.conf["lab_master_seed"]
+def DoStart(start_config, labname):
+    host_home_xfer = start_config.host_home_xfer
+    lab_master_seed = start_config.lab_master_seed
     #print "Do: START Multiple Containers and/or multi-home networking"
     docker0_IPAddr = getDocker0IPAddr()
     #print "getDockerIPAddr result (%s)" % docker0_IPAddr
 
-    multi_config = ParseMulti.ParseMulti(net_config_path)
-
     # Create SUBNETS
-    CreateSubnets(multi_config.subnets)
+    CreateSubnets(start_config.subnets)
 
-    for mycontainer_name in multi_config.containers:
-        mycontainer_image_name = multi_config.containers[mycontainer_name].container_image
-        nickname = mycontainer_name.split(".")[1]
-        container_user = start_config.containers[nickname]["user"]
+    for name, container in start_config.containers.items():
+        mycontainer_name       = container.full_name
+        mycontainer_image_name = container.image_name
+        container_user         = container.user
 
         haveContainer = IsContainerCreated(mycontainer_name)
         #print "IsContainerCreated result (%s)" % haveContainer
@@ -217,29 +142,23 @@ def DoStartMultiple(start_config, labname, net_config_path):
 
         # IsContainerCreated returned FAILURE if container does not exists
         if haveContainer == FAILURE:
-            first_subnet_for_container = True
-            for mysubnet_name in multi_config.containers[mycontainer_name].container_nets:
-                mysubnet_ip = multi_config.containers[mycontainer_name].container_nets[mysubnet_name].ipaddr
-                # First subnet must be part of docker create
-                if first_subnet_for_container:
-                    first_subnet_for_container = False
-                    # Container does not exist, create the container
-                    # Use CreateSingleContainerNonDefault()
-                    #print "My subnet name is %s" % mysubnet_name
-                    #print "My subnet ip is %s" % mysubnet_ip
-                    containerCreated = CreateSingleContainerNonDefault(mycontainer_name, mycontainer_image_name,
-                                             mysubnet_name, mysubnet_ip)
-                    #print "CreateSingleContainerNonDefault result (%s)" % containerCreated
-                    # Give the container some time -- just in case
-                    time.sleep(3)
-                    # If we just create it, then set need_seeds=True
-                    need_seeds=True
-                    first_subnet_for_container = False
-                else:
-                # Subsequent subnet must use docker network connect
-                    #print "My subnet name is %s" % mysubnet_name
-                    #print "My subnet ip is %s" % mysubnet_ip
-                    connectNetworkResult = ConnectNetworkToContainer(mycontainer_name, mysubnet_name, mysubnet_ip)
+            # Container does not exist, create the container
+            # Use CreateSingleContainer()
+            if len(container.container_nets) == 0:
+                containerCreated = CreateSingleContainer(mycontainer_name, mycontainer_image_name)
+            else:
+                mysubnet_name, mysubnet_ip = container.container_nets.popitem()
+                containerCreated = CreateSingleContainer(mycontainer_name, mycontainer_image_name,
+                                                         mysubnet_name, mysubnet_ip)
+                
+            #print "CreateSingleContainer result (%s)" % containerCreated
+            # Give the container some time -- just in case
+            time.sleep(3)
+            # If we just create it, then set need_seeds=True
+            need_seeds=True
+
+            for mysubnet_name, mysubnet_ip in container.container_nets.items():
+                connectNetworkResult = ConnectNetworkToContainer(mycontainer_name, mysubnet_name, mysubnet_ip)
 
         # Check again - 
         haveContainer = IsContainerCreated(mycontainer_name)
@@ -276,12 +195,13 @@ def DoStartMultiple(start_config, labname, net_config_path):
                 sys.exit(1)
     
     # Reach here - Everything is OK - spawn terminal for each container based on num_terminal
-    for mycontainer_name in multi_config.containers:
-        num_terminal = multi_config.containers[mycontainer_name].term
+    for container in start_config.containers.values():
+        num_terminal = container.terminals
+        mycontainer_name = container.full_name
         #print "Number of terminal is %d" % num_terminal
         # If the number of terminal is zero -- do not spawn
         if num_terminal != 0:
-            for x in range(0, num_terminal):
+            for x in range(num_terminal):
                 spawn_command = "gnome-terminal -x docker exec -it %s bash -l &" % mycontainer_name
                 os.system(spawn_command)
 
@@ -323,7 +243,6 @@ def main():
     lab_path          = os.path.join(LABS_ROOT,labname)
     config_path       = os.path.join(lab_path,"config") 
     start_config_path = os.path.join(config_path,"start.config")
-    net_config_path   = os.path.join(config_path,labname + ".network")
    
     start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, "student")
 
@@ -333,10 +252,7 @@ def main():
 
     # If <labname>.network exists, do multi-containers/multi-home networking
     # else do single container with default networking
-    if not os.path.exists(net_config_path):
-        DoStartSingle(start_config, labname)
-    else:
-        DoStartMultiple(start_config, labname, net_config_path)
+    DoStart(start_config, labname)
 
     return 0
 
