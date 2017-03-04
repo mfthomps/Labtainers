@@ -1,20 +1,27 @@
-Docker Lab Designer User Guide
-==============================
+Labtainer Lab Designer User Guide
+=================================
 
-This manual is intended for use by lab designers looking
-to create or adapt labs to use the Docker Lab Framework.
-The framework is targeted for use with labs designed for Linux
+This manual is intended for use by lab designers wanting
+to create or adapt cyber security labs to use the Docker lab framework known
+as "Labtainers".
+
+Benefits of Labtainers
+----------------------
+The Labtainer framework is designed for use with computer and network security
+laboratory exercises targeting Linux
 environments, and it is built around standard Linux Docker containers.
 
 Deploying cyber security labs using this framework
 provides three primary benefits:
 
 1) The lab execution environment is controlled and consistent
-across all student's computers regardless of the Linux distribution,
-version, and configuration.  This allows each lab designer to control
+across all student computers regardless of the Linux distribution
+and configuration present on individual student computers.  
+This allows each lab designer to control
 which software packages are present, the versions of libraries and
-configuration settings, e.g., /etc values. These configurations
-may vary between labs.
+specific configuration settings, e.g., /etc file values. These configurations
+may vary between labs, and they may vary between multiple containers in
+a single lab.
 
 2) Assessment of student lab activity can be automated through a
 set of configuration files that identify expected results, thus
@@ -25,16 +32,91 @@ results.
 students cannot easily copy results from another student or from internet
 repositories.  
 
-The use of containers provides the benefits of a consistent
+Labtainers have the advantages of a consistent
 execution environment without requiring
-an individual VM per lab, and without requiring all labs to be adapted for
+an individual Virtual Machine (VM) per lab, and without requiring all labs to be adapted for
 a common Linux execution environment.   These benefits can be realized 
 whether or not labs are configured for automatic assessment, 
 or are parameterized for each student.
 
+Exercises that include multiple networked computers illustrate another advantage 
+of using containers over VMs, namely, containers require significantly less resources
+than do VMs.  A student laptop that struggles to run two or more VMs can readily 
+run multiple containers simultaneously.
+
+Overview of the Student Environment and Workflow
+------------------------------------------------
+Labtainers support laboratory exercises designed for Linux environments,
+ranging from interaction with individual programs to labs that include
+what appear to be multiple components and networks.  Students see and interact with Linux
+environments, primarily via bash shell commands. In general, the Labtainer 
+framework implementation is not visible to the student, and the Linux 
+environment as seen by the student is not augmented to support the framework.
+The Linux execution environments presented by Docker containers do not readily
+include GUIs.  As a result, Labtainer should not be used for exercises requiring
+GUIs.
+
+Labtainers are intended for use on individual student computers.  
+The computer utilized by a student must include the Linux operating system, e.g.,
+as a single VM.  This Linux operating system, referred to herein
+as the "host", can be any distribution and version
+which supports Dockers, and it must have Dockers installed.  
+In addition to installing Dockers on their Linux host, the student must
+obtain and expand a tarball, which contains the Labtainer workspace utilities.
+(This tarball may someday be replaced by standard Linux distribution packages,
+e.g., Debian and/or RPM packages.)  Students initiate any and all labs from a
+single workspace directory on the Linux host.
+
+To perform a specific Labtainer exercise, the student runs a *start* command from
+the Labtainer workspace, naming the lab exercise.  This results in one or more
+containers starting up along with corresponding virtual terminals via which the 
+student will interact with the containers.  These virtual terminals typically
+present a bash shell.  Each container appears to the student as a separate
+computer, and these computers may appear to be connected via one or more networks.  
+
+When a student starts a given exercise for the first time, the framework fetches
+Docker images from a centralized repository named in the host system's /etc/hosts
+file.  If no such repository exists, the framework will build the Docker images
+on the student's host as needed.
+
+After the student performs the lab exercise, artifacts from the container
+environments are automatically collected into a zip file that appears on
+the student's Linux host.  The student forwards this zip file to the instructor,
+e.g., via email or a Learning Management System (LMS).  The instructor collects student zip files into a common
+directory on his or her own Linux host, and then issues a command that starts
+the instructor container(s) for that lab.  This results in automated assessment of student lab
+activity, (if the lab is designed for that), and creation of an environment
+in which the instructor can review the work of each student.
+
+Many cyber security lab exercises are assessed through use of reports in which students
+describe their activities and answer specific questions posed by the instructor.  Labtainers
+are intended to augment, rather than supplant this type of reporting.  The framework does not
+prescribe mechanisms for managing such reporting.  If a given lab exercise was not designed
+to support automated assessment, then zip files from the students need not be collected.  On
+the other hand, instructors may still wish to collect the zip files to manually review selected
+student activity, e.g., student-developed programs, output files, or even bash history records.  
+
+Obtaining the Labtainer Development Kit
+---------------------------------------
+The Labtainer Development Kit (LDK) is available as an subversion repository at
+[https://tor.ern.nps.edu/svn/proj/seed](https://tor.ern.nps.edu/svn/proj/seed).
+
+(Our intent is release versions to a Github repository for access beyond NPS.)
+
 Defining New Labs
 -----------------
-Labs that have been created for the framework each have their own
+The most challenging and critical part of designing a new cyber security lab
+is the design of the lab itself, i.e., identifying learning objectives and
+organizing exercises to achieve those objectives.  The Labtainer framework
+does not specifically address any of that.  Rather, the framework is intended
+to allow you to focus more time on the design of the lab and less time on mitigating and
+explaining system administration burdens you are placing on students and instructors.  
+The framework does not require lab designers to program or create scripts.  The
+lab designer primarily interacts with the framework by editing configuration files,
+which the affect the student's execution environment and the optional automated
+assessment of student activity.
+
+Labtainer exercises each have their own
 directory under the "labs" directory in the project repository.
 The first step in creating a new lab within the framework is to create
 a directory for the lab and then run the "new\_lab\_setup.sh" script.
