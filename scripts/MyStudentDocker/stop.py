@@ -28,8 +28,8 @@ FAILURE=1
 # CreateCopyChownZip
 def CreateCopyChownZip(mycwd, start_config, container_name, container_image, container_user):
     #TODO: FIX
-    host_home_xfer  = start_config.conf["host_home_xfer"]
-    lab_master_seed = start_config.conf["lab_master_seed"]
+    host_home_xfer  = start_config.host_home_xfer
+    lab_master_seed = start_config.lab_master_seed
 
     # Run 'Student.py' - This will create zip file of the result
 #   print "About to call Student.py"
@@ -92,42 +92,16 @@ def IsContainerCreated(mycontainer_name):
     #print "Result of subprocess.call IsContainerCreated is %s" % result
     return result
 
-def DoStopSingle(start_config, mycwd, labname):
-    #print "Do: STOP Single Container with default networking"
-    container_name  = start_config.containers["default"]["full_name"]
-    container_image = start_config.containers["default"]["image_name"]
-    container_user  = start_config.containers["default"]["user"]
-    haveContainer = IsContainerCreated(container_name)
-    #print "IsContainerCreated result (%s)" % haveContainer
-
-    # IsContainerCreated returned FAILURE if container does not exists
-    # error: can't stop non-existent container
-    if haveContainer == FAILURE:
-        sys.stderr.write("ERROR: DoStopSingle Container %s does not exist!\n" % container_name)
-        sys.exit(1)
-    else:
-        # Before stopping a container, run 'Student.py'
-        # This will create zip file of the result
-        #TODO: Should the zip file go in the CWD?
-        CreateCopyChownZip(mycwd, start_config, container_name, container_image, container_user)
-        # Stop the container
-        StopMyContainer(mycwd, start_config, container_name)
-
-    return 0
-
-def DoStopMultiple(start_config, mycwd, labname, net_config_path):
-    host_home_xfer = start_config.conf["host_home_xfer"]
-    lab_master_seed = start_config.conf["lab_master_seed"]
+def DoStop(start_config, mycwd, labname):
+    host_home_xfer = start_config.host_home_xfer
+    lab_master_seed = start_config.lab_master_seed
     #print "Do: STOP Multiple Containers and/or multi-home networking"
 
-    multi_config = ParseMulti.ParseMulti(net_config_path)
-
-    for mycontainer_name in multi_config.containers:
-        print mycontainer_name
-        nickname = mycontainer_name.split(".")[1]
-        container_user = start_config.containers[nickname]["user"]
-        mycontainer_image = multi_config.containers[mycontainer_name].container_image
-        haveContainer = IsContainerCreated(mycontainer_name)
+    for name, container in start_config.containers.items():
+        mycontainer_name  = container.full_name
+        container_user    = container.user
+        mycontainer_image = container.image_name
+        haveContainer     = IsContainerCreated(mycontainer_name)
         #print "IsContainerCreated result (%s)" % haveContainer
 
         # IsContainerCreated returned FAILURE if container does not exists
@@ -179,20 +153,16 @@ def main():
     lab_path          = os.path.join(LABS_ROOT,labname)
     config_path       = os.path.join(lab_path,"config") 
     start_config_path = os.path.join(config_path,"start.config")
-    net_config_path   = os.path.join(config_path,labname + ".network")
    
     start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, "student")
 
     # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
-    host_xfer_dir = '%s/%s' % (myhomedir, start_config.conf["host_home_xfer"])
+    host_xfer_dir = '%s/%s' % (myhomedir, start_config.host_home_xfer)
     CreateHostHomeXfer(host_xfer_dir)
 
     # If <labname>.network exists, do multi-containers/multi-home networking
     # else do single container with default networking
-    if not os.path.exists(net_config_path):
-        DoStopSingle(start_config, mycwd, labname)
-    else:
-        DoStopMultiple(start_config, mycwd, labname, net_config_path)
+    DoStop(start_config, mycwd, labname)
 
     # Inform user where results are stored
     print "Results stored in directory: %s" % host_xfer_dir
