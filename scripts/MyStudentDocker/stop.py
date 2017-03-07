@@ -16,7 +16,7 @@ import re
 import subprocess
 import sys
 import zipfile
-import ParseMulti
+#import ParseMulti
 import ParseStartConfig
 
 LABS_ROOT = os.path.abspath("../../labs/")
@@ -160,8 +160,6 @@ def main():
     host_xfer_dir = '%s/%s' % (myhomedir, start_config.host_home_xfer)
     CreateHostHomeXfer(host_xfer_dir)
 
-    # If <labname>.network exists, do multi-containers/multi-home networking
-    # else do single container with default networking
     DoStop(start_config, mycwd, labname)
 
     # Inform user where results are stored

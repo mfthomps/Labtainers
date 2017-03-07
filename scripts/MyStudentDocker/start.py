@@ -76,7 +76,7 @@ def ConnectNetworkToContainer(mycontainer_name, mysubnet_name, mysubnet_ip):
     return result
 
 def CreateSingleContainer(mycontainer_name, mycontainer_image_name, mysubnet_name=None, mysubnet_ip=None):
-    #print "Create Single Container with default networking"
+    #print "Create Single Container"
     docker0_IPAddr = getDocker0IPAddr()
     #print "getDockerIPAddr result (%s)" % docker0_IPAddr
     if mysubnet_name:
@@ -85,7 +85,7 @@ def CreateSingleContainer(mycontainer_name, mycontainer_image_name, mysubnet_nam
         createsinglecommand = "docker create -t --privileged --add-host my_host:%s --name=%s %s bash" % (docker0_IPAddr, mycontainer_name, mycontainer_image_name)
     #print "Command to execute is (%s)" % createsinglecommand
     result = subprocess.call(createsinglecommand, shell=True)
-    #print "Result of subprocess.call CreateSingleContainerDefault is %s" % result
+    #print "Result of subprocess.call CreateSingleContainer is %s" % result
     return result
 
 
@@ -250,8 +250,6 @@ def main():
     host_xfer_dir = '%s/%s' % (myhomedir, start_config.host_home_xfer)
     CreateHostHomeXfer(host_xfer_dir)
 
-    # If <labname>.network exists, do multi-containers/multi-home networking
-    # else do single container with default networking
     DoStart(start_config, labname)
 
     return 0
