@@ -17,6 +17,7 @@ class ParseStartConfig():
         self.caller = caller
         self.host_home_xfer= "" # HOST_HOME_XFER - directory to transfer artifact to/from containers
         self.lab_master_seed= None # LAB_MASTER_SEED - this is the master seed string for to this laboratory
+        self.grade_container = None # GRADE_CONTAINER - this is where the instructor performs the grading
 
         if not os.path.exists(fname):
             sys.stderr.write("Config file %s does not exists!\n" % fname)
@@ -134,6 +135,10 @@ class ParseStartConfig():
                sys.stderr.write("ERROR: Missing lab_master_seed in start.config!\n")
                exit(1)
 
+        if not self.grade_container:
+            sys.stderr.write("ERROR: Missing grade_container in start.config!\n")
+            exit(1)
+
         for subnet in self.subnets.values():
             subnet.validate()
 
@@ -147,6 +152,7 @@ class ParseStartConfig():
         # fixing up global parameters
         self.host_home_xfer = os.path.join(self.host_home_xfer,self.labname)
         self.lab_master_seed = self.labname + self.lab_master_seed
+        self.grade_container = self.labname + "." + self.grade_container + "." + self.caller 
 
         # fixing up container parameters
         for name in self.containers:

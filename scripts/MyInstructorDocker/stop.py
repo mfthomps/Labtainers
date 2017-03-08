@@ -73,7 +73,7 @@ def IsContainerCreated(mycontainer_name):
     #print "Result of subprocess.call IsContainerCreated is %s" % result
     return result
 
-def DoStopMultiple(start_config, mycwd, labname):
+def DoStop(start_config, mycwd, labname):
     host_home_xfer = start_config.host_home_xfer
     lab_master_seed = start_config.lab_master_seed
     #print "Do: STOP Multiple Containers and/or multi-home networking"
@@ -88,13 +88,13 @@ def DoStopMultiple(start_config, mycwd, labname):
         # IsContainerCreated returned FAILURE if container does not exists
         # error: can't stop non-existent container
         if haveContainer == FAILURE:
-            sys.stderr.write("ERROR: DoStopMultiple Container %s does not exist!\n" % container_name)
+            sys.stderr.write("ERROR: DoStop Container %s does not exist!\n" % container_name)
             sys.exit(1)
         else:
-            # The grades.txt can be found in container named multi_config.grade_containername
+            # The grades.txt can be found in container named start_config.grade_container
             # The 'Instructor.py' should have been run inside that container already
             # and that will create grades.txt file of the result
-            if mycontainer_name == multi_config.grade_containername:
+            if mycontainer_name == start_config.grade_container:
                 CopyChownGradesFile(mycwd, start_config, mycontainer_name, mycontainer_image, container_user)
             # Stop the container
             StopMyContainer(mycwd, start_config, mycontainer_name)

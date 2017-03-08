@@ -202,8 +202,8 @@ def DoStart(start_config, labname):
 
         # Copy students' artifacts only to the container where 'Instructor.py' supposed
         # to be run - where grades.txt will later reside also (i.e., don't copy to all containers)
-        # Copy to container named multi_config.grade_containername
-        if mycontainer_name == multi_config.grade_containername:
+        # Copy to container named start_config.grade_container
+        if mycontainer_name == start_config.grade_container:
             copy_result = CopyStudentArtifacts(start_config, mycontainer_name, labname, container_user)
             if copy_result == FAILURE:
                 sys.stderr.write("ERROR: DoStartMultiple Failed to copy students' artifacts to container %s!\n" % mycontainer_name)
