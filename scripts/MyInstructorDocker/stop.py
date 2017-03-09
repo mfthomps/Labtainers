@@ -6,8 +6,6 @@
 # Note:
 # 1. It needs 'start.config' file, where
 #    <labname> is given as a parameter to the script.
-# 2. If the lab has multiple containers and/or multi-home
-#    networking, then <labname>.network file is necessary
 #
 
 import getpass
@@ -23,7 +21,6 @@ print "Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd
 # Append Student CWD to sys.path
 sys.path.append(student_cwd)
 
-#import ParseMulti
 import ParseStartConfig
 
 LABS_ROOT = os.path.abspath("../../labs/")

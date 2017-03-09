@@ -6,8 +6,6 @@
 # Note:
 # 1. It needs 'start.config' file, where
 #    <labname> is given as a parameter to the script.
-# 2. If the lab has multiple containers and/or multi-home
-#    networking, then <labname>.network file is necessary
 #
 
 import glob
@@ -20,7 +18,6 @@ import sys
 import time
 import zipfile
 from netaddr import *
-#import ParseMulti
 import ParseStartConfig
 
 LABS_ROOT = os.path.abspath("../../labs/")

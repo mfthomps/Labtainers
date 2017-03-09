@@ -6,8 +6,6 @@
 # Note:
 # 1. It needs 'start.config' file, where
 #    <labname> is given as a parameter to the script.
-# 2. If the lab has multiple containers and/or multi-home
-#    networking, then <labname>.network file is necessary
 #
 
 import getpass
@@ -16,7 +14,6 @@ import re
 import subprocess
 import sys
 import zipfile
-#import ParseMulti
 import ParseStartConfig
 
 LABS_ROOT = os.path.abspath("../../labs/")
