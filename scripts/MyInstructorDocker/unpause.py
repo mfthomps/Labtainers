@@ -35,7 +35,7 @@ FAILURE=1
 
 def isalphadashscore(name):
     # check name - alphanumeric,dash,underscore
-    return re.match(r'^[a-zA-Z0-9_-]*$', name):
+    return re.match(r'^[a-zA-Z0-9_-]*$', name)
 
 # Check to see if my_container_name container has been created or not
 def IsContainerCreated(mycontainer_name):
