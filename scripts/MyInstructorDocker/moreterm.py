@@ -6,14 +6,12 @@
 # Note:
 # 1. It needs 'start.config' file, where
 #    <labname> is given as a parameter to the script.
-# 2. If the lab has multiple containers and/or multi-home
-#    networking, then <labname>.network file is necessary
 #
 # It will perform the following tasks:
 # a. If the lab has only one container, only one terminal for that
 #    container will be spawned
 # b. If the lab has multiple containers, the number of terminals
-#    specified in the <labname>.network will be used, unless
+#    specified in the start.config will be used, unless
 #    the user passed the optional argument specifying the number of
 #    terminal
 
@@ -34,8 +32,9 @@ print "Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd
 # Append Student CWD to sys.path
 sys.path.append(student_cwd)
 
-import ParseMulti
 import ParseStartConfig
+
+LABS_ROOT = os.path.abspath("../../labs/")
 
 # Error code returned by docker inspect
 SUCCESS=0
@@ -43,10 +42,7 @@ FAILURE=1
 
 def isalphadashscore(name):
     # check name - alphanumeric,dash,underscore
-    if re.match(r'^[a-zA-Z0-9_-]*$', name):
-        return True
-    else:
-        return False
+    return re.match(r'^[a-zA-Z0-9_-]*$', name):
 
 # Check to see if my_container_name container has been created or not
 def IsContainerCreated(mycontainer_name):
@@ -56,48 +52,27 @@ def IsContainerCreated(mycontainer_name):
     #print "Result of subprocess.call IsContainerCreated is %s" % result
     return result
 
-def DoMoretermSingle(start_config, mycwd, labname, requested_term):
-    #print "Do: Moreterm Single Container with default networking"
-    container_name = start_config.container_name
-    container_image = start_config.container_image
-    container_user = start_config.container_user
-    host_home_xfer = start_config.host_home_xfer
-    lab_master_seed = start_config.lab_master_seed
-    haveContainer = IsContainerCreated(container_name)
-    #print "IsContainerCreated result (%s)" % haveContainer
-
-    # IsContainerCreated returned FAILURE if container does not exists
-    if haveContainer == FAILURE:
-        sys.stderr.write("ERROR: DoMoretermSingle Container %s still not created!\n" % container_name)
-        sys.exit(1)
-
-    # Reach here - Everything is OK - spawn one terminals by default
-    spawn_command = "gnome-terminal -x docker exec -it %s bash -l &" % container_name
-    #print "spawn_command is (%s)" % spawn_command
-    os.system(spawn_command)
-
-    return 0
-
-def DoMoretermMultiple(start_config, mycwd, labname, requested_term):
-    container_user = start_config.container_user
+def DoMoreterm(start_config, mycwd, labname, requested_term):
     host_home_xfer = start_config.host_home_xfer
     lab_master_seed = start_config.lab_master_seed
     #print "Do: Moreterm Multiple Containers and/or multi-home networking"
 
-    networkfilename = '%s/%s.network' % (mycwd, labname)
-    multi_config = ParseMulti.ParseMulti(networkfilename)
-
     # Reach here - Everything is OK - spawn terminal for each container based on num_terminal
-    for mycontainer_name in multi_config.containers:
+    for name, container in start_config.containers.items():
+        mycontainer_name       = container.full_name
+        mycontainer_image_name = container.image_name
+        container_user         = container.user
+
         # if requested_term != 0 then use it
         if requested_term != 0:
             num_terminal = requested_term
         else:
-            num_terminal = multi_config.containers[mycontainer_name].term
+            num_terminal = container.terminals
+
         #print "Number of terminal is %d" % num_terminal
         # If the number of terminal is zero -- do not spawn
         if num_terminal != 0:
-            for x in range(0, num_terminal):
+            for x in range(num_terminal):
                 spawn_command = "gnome-terminal -x docker exec -it %s bash -l &" % mycontainer_name
                 #print "spawn_command is (%s)" % spawn_command
                 os.system(spawn_command)
@@ -129,16 +104,13 @@ def main():
     #print "current working directory for %s" % mycwd
     #print "current user's home directory for %s" % myhomedir
     #print "ParseStartConfig for %s" % labname
-    startconfigfilename = '%s/start.config' % mycwd
-    start_config = ParseStartConfig.ParseStartConfig(startconfigfilename, labname, "instructor")
+    lab_path          = os.path.join(LABS_ROOT,labname)
+    config_path       = os.path.join(lab_path,"config")
+    start_config_path = os.path.join(config_path,"start.config")
 
-    networkfilename = '%s/%s.network' % (mycwd, labname)
-    # If <labname>.network exists, do multi-containers/multi-home networking
-    # else do single container with default networking
-    if not os.path.exists(networkfilename):
-        DoMoretermSingle(start_config, mycwd, labname, requested_term)
-    else:
-        DoMoretermMultiple(start_config, mycwd, labname, requested_term)
+    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, "instructor")
+
+    DoMoreterm(start_config, mycwd, labname, requested_term)
 
     return 0
 
