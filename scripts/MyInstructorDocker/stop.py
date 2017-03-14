@@ -45,7 +45,7 @@ def CopyChownGradesFile(mycwd, start_config, container_name, container_image, co
         sys.exit(1)
 
     # Change ownership to defined user $USER
-    command = "sudo chown %s:%s /home/%s/%sgrades.txt" % (username, username, username, host_home_xfer)
+    command = "sudo chown %s:%s /home/%s/%s/grades.txt" % (username, username, username, host_home_xfer)
     #print "Command to execute is (%s)" % command
     result = subprocess.call(command, shell=True)
     #print "CopyChownGradesFile: Result of subprocess.Popen exec chown grades.txt file is %s" % result
