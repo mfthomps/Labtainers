@@ -41,6 +41,7 @@ def CopyChownGradesFile(mycwd, start_config, container_name, container_image, co
     result = subprocess.call(command, shell=True)
     #print "CopyChownGradesFile: Result of subprocess.Popen exec cp grades.txt file is %s" % result
     if result == FAILURE:
+        StopMyContainer(mycwd, start_config, container_name)
         sys.stderr.write("ERROR: CopyChownGradesFile Container %s fail on executing cp grades.txt file!\n" % container_name)
         sys.exit(1)
 
@@ -50,6 +51,7 @@ def CopyChownGradesFile(mycwd, start_config, container_name, container_image, co
     result = subprocess.call(command, shell=True)
     #print "CopyChownGradesFile: Result of subprocess.Popen exec chown grades.txt file is %s" % result
     if result == FAILURE:
+        StopMyContainer(mycwd, start_config, container_name)
         sys.stderr.write("ERROR: CopyChownGradesFile Container %s fail on executing chown grades.txt file!\n" % container_name)
         sys.exit(1)
 
@@ -85,8 +87,7 @@ def DoStop(start_config, mycwd, labname):
         # IsContainerCreated returned FAILURE if container does not exists
         # error: can't stop non-existent container
         if haveContainer == FAILURE:
-            sys.stderr.write("ERROR: DoStop Container %s does not exist!\n" % container_name)
-            sys.exit(1)
+            sys.stderr.write("ERROR: DoStop Container %s does not exist!\n" % mycontainer_name)
         else:
             # The grades.txt can be found in container named start_config.grade_container
             # The 'Instructor.py' should have been run inside that container already
@@ -115,16 +116,7 @@ def CreateHostHomeXfer(host_xfer_dir):
         # does not exists, create directory
         os.makedirs(host_xfer_dir)
 
-# Usage: stop.py <labname>
-# Arguments:
-#    <labname> - the lab to stop
-def main():
-    #print "stop.py -- main"
-    if len(sys.argv) != 2:
-        sys.stderr.write("Usage: stop.py <labname>\n")
-        sys.exit(1)
-    
-    labname = sys.argv[1]
+def StopLab(labname):
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
     #print "current working directory for %s" % mycwd
@@ -144,6 +136,18 @@ def main():
 
     # Inform user where results are stored
     print "Results (grades.txt) stored in directory: %s" % host_xfer_dir
+
+# Usage: stop.py <labname>
+# Arguments:
+#    <labname> - the lab to stop
+def main():
+    #print "stop.py -- main"
+    if len(sys.argv) != 2:
+        sys.stderr.write("Usage: stop.py <labname>\n")
+        sys.exit(1)
+    
+    labname = sys.argv[1]
+    StopLab(labname)
 
     return 0
 

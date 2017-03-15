@@ -110,7 +110,7 @@ def DoStop(start_config, mycwd, labname):
         else:
             # Before stopping a container, run 'Student.py'
             # This will create zip file of the result
-            CreateCopyChownZip(mycwd, start_config, mycontainer_name, mycontainer_image, mycontainer_user)
+            CreateCopyChownZip(mycwd, start_config, mycontainer_name, mycontainer_image, container_user)
             # Stop the container
             StopMyContainer(mycwd, start_config, mycontainer_name)
 
