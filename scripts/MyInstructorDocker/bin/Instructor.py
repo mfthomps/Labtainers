@@ -123,7 +123,7 @@ def main():
         #command = 'ResultParser.py %s %s %s %s' % (LabDirName, containername, InstDirName, LabIDName)
         #print "About to do (%s)" % command
         #os.popen(command)
-        ResultParser.ParseStdinStdout(LabDirName, containername, InstDirName, containername)
+        ResultParser.ParseStdinStdout(LabDirName, containername, InstDirName, LabIDName)
 
     #print "Student Lab list : "
     #print studentslablist

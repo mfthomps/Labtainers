@@ -36,7 +36,7 @@ def findLineIndex(values):
             return values.index(ltype)
     return None
     
-def ValidateConfigfile(each_key, each_value):
+def ValidateConfigfile(labidname, each_key, each_value):
     if not MyUtil.CheckAlphaDashUnder(each_key):
         sys.stderr.write("ERROR: Not allowed characters in results.config's key (%s)\n" % each_key)
         sys.exit(1)
@@ -51,7 +51,8 @@ def ValidateConfigfile(each_key, each_value):
     #    line_type2 = CONTAINS
     #    line_id is a string if the type is CONTAINS
 
-    values = [x.strip() for x in each_value.split(':')]
+    # NOTE: Split using ' : ' - i.e., "space colon space"
+    values = [x.strip() for x in each_value.split(' : ')]
     #print values
     numvalues = len(values)
     #print "numvalues is (%d)" % numvalues
@@ -66,16 +67,23 @@ def ValidateConfigfile(each_key, each_value):
     #print "line_at is (%d) and num_splits is (%d)" % (line_at, num_splits)
      
     # Split into either four or five parts (for line_type1) or three parts (for line_type2)
-    values = [x.strip() for x in each_value.split(':', num_splits)]
+    # NOTE: Split using ' : ' - i.e., "space colon space"
+    values = [x.strip() for x in each_value.split(' : ', num_splits)]
 
     # Make sure it is 'stdin' or 'stdout'
     newprogname_type = values[0].strip()
-    # <containername>=<exec_program>.<type>
-    if '=' in newprogname_type:
-        containername, progname_type = newprogname_type.split('=', 1)
+    # <cfgcontainername>:<exec_program>.<type>
+    if ':' in newprogname_type:
+        cfgcontainername, progname_type = newprogname_type.split(':', 1)
     else:
-        containername = ""
+        cfgcontainername = ""
         progname_type = newprogname_type
+    # Construct proper containername from cfgcontainername
+    if cfgcontainername == "":
+        containername = ""
+    else:
+        containername = labidname + "." + cfgcontainername + ".student"
+
     if containername != "":
         if containername not in containernamelist:
             containernamelist.append(containername)
@@ -118,11 +126,12 @@ def ValidateConfigfile(each_key, each_value):
 
     return 0
 
-def ParseStdinStdout(studentlabdir, mycontainername, instructordir, jsonoutputfilename):
+def ParseStdinStdout(studentlabdir, mycontainername, instructordir, labidname):
     configfilename = '%s/.local/instr_config/%s' % (UBUNTUHOME, "results.config")
     configfile = open(configfilename)
     configfilelines = configfile.readlines()
     configfile.close()
+    jsonoutputfilename = labidname
     #print "ParseStdinStdout: jsonoutputfilename is (%s)" % jsonoutputfilename
   
     timestamplist[mycontainername] = []
@@ -134,7 +143,7 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, jsonoutputfi
                 #print "Current linestrip is (%s)" % linestrip
                 (each_key, each_value) = linestrip.split('=', 1)
                 each_key = each_key.strip()
-                ValidateConfigfile(each_key, each_value)
+                ValidateConfigfile(labidname, each_key, each_value)
         #else:
         #    print "Skipping empty linestrip is (%s)" % linestrip
 
@@ -214,17 +223,25 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, jsonoutputfi
                     #print each_key
                     # Note: config file has been validated
                     # Split into four parts or five parts
-                    values = [x.strip() for x in each_value.split(':')]
+                    # NOTE: Split using ' : ' - i.e., "space colon space"
+                    values = [x.strip() for x in each_value.split(' : ')]
                     line_at = findLineIndex(values)
                     num_splits = line_at+1
-                    values = [x.strip() for x in each_value.split(':', num_splits)]
+                    # NOTE: Split using ' : ' - i.e., "space colon space"
+                    values = [x.strip() for x in each_value.split(' : ', num_splits)]
                     newtargetfile = values[0].strip()
-                    # <containername>=<exec_program>.<type>
-                    if '=' in newtargetfile:
-                        containername, targetfile = newtargetfile.split('=', 1)
+                    # <cfgcontainername>:<exec_program>.<type>
+                    if ':' in newtargetfile:
+                        cfgcontainername, targetfile = newtargetfile.split(':', 1)
                     else:
-                        containername = ""
+                        cfgcontainername = ""
                         targetfile = newtargetfile
+                    # Construct proper containername from cfgcontainername
+                    if cfgcontainername == "":
+                        containername = ""
+                    else:
+                        containername = labidname + "." + cfgcontainername + ".student"
+
                     if containername != "" and mycontainername != containername:
                         #print "Config line (%s) not for my container (%s), skipping..." % (linestrip, mycontainername)
                         continue
@@ -360,7 +377,8 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, jsonoutputfi
                 #print each_key
                 # Note: config file has been validated
                 # Split into four parts or five parts
-                values = [x.strip() for x in each_value.split(':')]
+                # NOTE: Split using ' : ' - i.e., "space colon space"
+                values = [x.strip() for x in each_value.split(' : ')]
                 line_at = findLineIndex(values)
 
                 # Do only line_at == 1
@@ -368,14 +386,21 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, jsonoutputfi
                     continue
 
                 num_splits = line_at+1
-                values = [x.strip() for x in each_value.split(':', num_splits)]
+                # NOTE: Split using ' : ' - i.e., "space colon space"
+                values = [x.strip() for x in each_value.split(' : ', num_splits)]
                 newtargetfile = values[0].strip()
-                # <containername>=<exec_program>.<type>
-                if '=' in newtargetfile:
-                    containername, targetfile = newtargetfile.split('=', 1)
+                # <cfgcontainername>:<exec_program>.<type>
+                if ':' in newtargetfile:
+                    cfgcontainername, targetfile = newtargetfile.split(':', 1)
                 else:
-                    containername = ""
+                    cfgcontainername = ""
                     targetfile = newtargetfile
+                # Construct proper containername from cfgcontainername
+                if cfgcontainername == "":
+                    containername = ""
+                else:
+                    containername = labidname + "." + cfgcontainername + ".student"
+
                 if containername != "" and mycontainername != containername:
                     #print "Config line (%s) not for my container (%s), skipping..." % (linestrip, mycontainername)
                     continue
@@ -427,25 +452,25 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, jsonoutputfi
     jsonoutput.write('\n')
     jsonoutput.close()
 
-# Usage: ResultParser.py <studentlabdir> <mycontainername> <instructordir> <jsonoutputfilename>
+# Usage: ResultParser.py <studentlabdir> <mycontainername> <instructordir> <labidname>
 # Arguments:
 #     <studentlabdir> - directory containing the student lab work
 #                    extracted from zip file (done in Instructor.py)
 #     <mycontainername> - name of the container
 #     <instructordir> - directory containing instructor's solution
 #                       for corresponding student
-#     <jsonoutputfilename> - filename for the resulting json file
+#     <labidname> - name of the lab
 def main():
     #print "Running ResultParser.py"
     if len(sys.argv) != 5:
-        sys.stderr.write("Usage: ResultParser.py <studentlabdir> <mycontainername> <instructordir> <jsonoutputfilename>\n")
+        sys.stderr.write("Usage: ResultParser.py <studentlabdir> <mycontainername> <instructordir> <labidname>\n")
         sys.exit(1)
 
     studentlabdir = sys.argv[1]
     mycontainername = sys.argv[2]
     instructordir = sys.argv[3]
-    jsonoutputfilename = sys.argv[4]
-    ParseStdinStdout(studentlabdir, mycontainername, instructordir, jsonoutputfilename)
+    labidname = sys.argv[4]
+    ParseStdinStdout(studentlabdir, mycontainername, instructordir, labidname)
     return 0
 
 if __name__ == '__main__':
