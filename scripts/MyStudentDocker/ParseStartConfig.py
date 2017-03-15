@@ -152,7 +152,10 @@ class ParseStartConfig():
         # fixing up global parameters
         self.host_home_xfer = os.path.join(self.host_home_xfer,self.labname)
         self.lab_master_seed = self.labname + self.lab_master_seed
-        self.grade_container = self.labname + "." + self.grade_container + "." + self.caller 
+        if self.grade_container == "default":
+            self.grade_container = self.labname + "." + self.caller 
+        else:
+            self.grade_container = self.labname + "." + self.grade_container + "." + self.caller 
 
         # fixing up container parameters
         for name in self.containers:
