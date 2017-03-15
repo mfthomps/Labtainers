@@ -60,6 +60,7 @@ def CreateCopyChownZip(mycwd, start_config, container_name, container_image, con
     result = subprocess.call(command, shell=True)
     #print "CreateCopyChownZip: Result of subprocess.Popen exec cp zip file is %s" % result
     if result == FAILURE:
+        StopMyContainer(mycwd, start_config, container_name)
         sys.stderr.write("ERROR: CreateCopyChownZip Container %s fail on executing cp zip file!\n" % container_name)
         sys.exit(1)
 
@@ -69,6 +70,7 @@ def CreateCopyChownZip(mycwd, start_config, container_name, container_image, con
     result = subprocess.call(command, shell=True)
     #print "CreateCopyChownZip: Result of subprocess.Popen exec chown zip file is %s" % result
     if result == FAILURE:
+        StopMyContainer(mycwd, start_config, container_name)
         sys.stderr.write("ERROR: CreateCopyChownZip Container %s fail on executing chown zip file!\n" % container_name)
         sys.exit(1)
 
@@ -104,12 +106,11 @@ def DoStop(start_config, mycwd, labname):
         # IsContainerCreated returned FAILURE if container does not exists
         # error: can't stop non-existent container
         if haveContainer == FAILURE:
-            sys.stderr.write("ERROR: DoStopMultiple Container %s does not exist!\n" % container_name)
-            sys.exit(1)
+            sys.stderr.write("ERROR: DoStopMultiple Container %s does not exist!\n" % mycontainer_name)
         else:
             # Before stopping a container, run 'Student.py'
             # This will create zip file of the result
-            CreateCopyChownZip(mycwd, start_config, mycontainer_name, mycontainer_image, container_user)
+            CreateCopyChownZip(mycwd, start_config, mycontainer_name, mycontainer_image, mycontainer_user)
             # Stop the container
             StopMyContainer(mycwd, start_config, mycontainer_name)
 
@@ -132,16 +133,7 @@ def CreateHostHomeXfer(host_xfer_dir):
         # does not exists, create directory
         os.makedirs(host_xfer_dir)
 
-# Usage: stop.py <labname>
-# Arguments:
-#    <labname> - the lab to stop
-def main():
-    #print "stop.py -- main"
-    if len(sys.argv) != 2:
-        sys.stderr.write("Usage: stop.py <labname>\n")
-        sys.exit(1)
-    
-    labname = sys.argv[1]
+def StopLab(labname):
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
     #print "current working directory for %s" % mycwd
@@ -161,6 +153,18 @@ def main():
 
     # Inform user where results are stored
     print "Results stored in directory: %s" % host_xfer_dir
+
+# Usage: stop.py <labname>
+# Arguments:
+#    <labname> - the lab to stop
+def main():
+    #print "stop.py -- main"
+    if len(sys.argv) != 2:
+        sys.stderr.write("Usage: stop.py <labname>\n")
+        sys.exit(1)
+    
+    labname = sys.argv[1]
+    StopLab(labname)
 
     return 0
 

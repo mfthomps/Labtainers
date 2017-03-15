@@ -222,16 +222,7 @@ def CreateHostHomeXfer(host_xfer_dir):
         # does not exists, create directory
         os.makedirs(host_xfer_dir)
 
-# Usage: start.py <labname>
-# Arguments:
-#    <labname> - the lab to start
-def main():
-    #print "start.py -- main"
-    if len(sys.argv) != 2:
-        sys.stderr.write("Usage: start.py <labname>\n")
-        sys.exit(1)
-    
-    labname = sys.argv[1]
+def StartLab(labname):
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
     #print "current working directory for %s" % mycwd
@@ -248,6 +239,18 @@ def main():
     CreateHostHomeXfer(host_xfer_dir)
 
     DoStart(start_config, labname)
+   
+# Usage: start.py <labname>
+# Arguments:
+#    <labname> - the lab to start
+def main():
+    #print "start.py -- main"
+    if len(sys.argv) != 2:
+        sys.stderr.write("Usage: start.py <labname>\n")
+        sys.exit(1)
+    
+    labname = sys.argv[1]
+    StartLab(labname)
 
     return 0
 
