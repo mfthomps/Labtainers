@@ -85,9 +85,11 @@ def main():
         DestDirName = '%s%s' % (InstructorHomeDir, DestinationDirName)
         InstDirName = '%s%s' % (InstructorBaseDir, DestinationDirName)
 
+        #print "Student Lab list : "
         #print studentslablist
         if email_labname not in studentslablist:
-            labdirnamelist = '%s %s %s %s' % (student_id, LabDirName, InstDirName, LabIDName)
+            labdirnamelist = '%s %s %s' % (student_id, LabDirName, LabIDName)
+            #print "labdirname is (%s)" % labdirnamelist
             studentslablist[email_labname] = []
             studentslablist[email_labname].append(labdirnamelist)
         else:
@@ -121,18 +123,19 @@ def main():
         #command = 'ResultParser.py %s %s %s %s' % (LabDirName, containername, InstDirName, LabIDName)
         #print "About to do (%s)" % command
         #os.popen(command)
-        ResultParser.ParseStdinStdout(LabDirName, containername, InstDirName, LabIDName)
+        ResultParser.ParseStdinStdout(LabDirName, containername, InstDirName, containername)
 
+    #print "Student Lab list : "
     #print studentslablist
     for studentslabname in studentslablist:
         #print studentslablist[studentslabname]
         for eachlistitem in studentslablist[studentslabname]:
-            student_id, LabDirName, InstDirName, LabIdName = eachlistitem.split()
+            student_id, LabDirName, LabIDName = eachlistitem.split()
             # Call grader script 
-            #command = '%s %s %s %s' % (GraderScript, LabDirName, InstDirName, LabIDName)
+            #command = '%s %s %s' % (GraderScript, LabDirName, LabIDName)
             #print "About to do (%s)" % command
             #grades = os.popen(command).read().splitlines()
-            grades = Grader.ProcessStudentLab(LabDirName, InstDirName, LabIDName)
+            grades = Grader.ProcessStudentLab(LabDirName, LabIDName)
             #print "After ProcessStudentLab Instructor, grades is "
             #print grades
             LabIDStudentName = '%s : %s : ' % (LabIDName, student_id)

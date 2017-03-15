@@ -248,8 +248,7 @@ def ParseGoals(studentdir):
                     valid_resulttag = ValidateTag(studentdir, goal_type, resulttag, False)
                     if not (goal_type == "matchany" or
                         goal_type == "matchlast" or
-                        goal_type == "matchacross" or
-                        goal_type == "boolean_set"):
+                        goal_type == "matchacross"):
                         sys.stderr.write("ERROR: goals.config contains unrecognized type (%s)\n" % goal_type)
                         sys.exit(1)
                     if not (goal_operator == "string_equal" or
@@ -289,7 +288,7 @@ def ParseGoals(studentdir):
     #for (each_key, each_goal) in nametags.items():
     #    print nametags[each_key].toJSON()
     outputjsonfname = '%s/.local/instr_config/%s' % (UBUNTUHOME, "goals.json")
-    #print "Outputjsonfname is (%s)" % outputjsonfname
+    #print "GoalsParser: Outputjsonfname is (%s)" % outputjsonfname
         
     #print nametags
     jsonoutput = open(outputjsonfname, "w")

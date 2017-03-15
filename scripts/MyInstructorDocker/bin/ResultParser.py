@@ -123,6 +123,7 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, jsonoutputfi
     configfile = open(configfilename)
     configfilelines = configfile.readlines()
     configfile.close()
+    #print "ParseStdinStdout: jsonoutputfilename is (%s)" % jsonoutputfilename
   
     timestamplist[mycontainername] = []
     nametags[mycontainername] = {}
@@ -147,6 +148,11 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, jsonoutputfi
     # if directory does not exist, just return
     if not os.path.exists(RESULTHOME):
         return 0
+    OUTPUTRESULTHOME = '%s/%s' % (studentlabdir, ".local/result/")
+    #print OUTPUTRESULTHOME
+    # if directory does not exist, just return
+    if not os.path.exists(OUTPUTRESULTHOME):
+        os.makedirs(OUTPUTRESULTHOME)
         
     for exec_prog in exec_proglist:
         stdinfiles = '%s%s.%s.' % (RESULTHOME, exec_prog, "stdin")
@@ -194,8 +200,8 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, jsonoutputfi
 
     # Process line_type1 - i.e., LINE and STARTSWITH - artifacts with timestamps
     for timestamppart in timestamplist[mycontainername]:
-        outputjsonfname = '%s/%s.%s' % (RESULTHOME, jsonoutputfilename, timestamppart)
-        #print "Outputjsonfname is (%s)" % outputjsonfname
+        outputjsonfname = '%s%s.%s' % (OUTPUTRESULTHOME, jsonoutputfilename, timestamppart)
+        #print "ParseStdinStdout (1): Outputjsonfname is (%s)" % outputjsonfname
 
         for line in configfilelines:
             linestrip = line.rstrip()
@@ -340,8 +346,8 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, jsonoutputfi
 
     # Process line_type2 - i.e., CONTAINS - artifacts without timestamps
     # Output JSON file will not have timestamp either
-    outputjsonfname = '%s/%s' % (RESULTHOME, jsonoutputfilename)
-    #print "Outputjsonfname is (%s)" % outputjsonfname
+    outputjsonfname = '%s%s' % (OUTPUTRESULTHOME, jsonoutputfilename)
+    #print "ParseStdinStdout (2): Outputjsonfname is (%s)" % outputjsonfname
 
     for line in configfilelines:
         linestrip = line.rstrip()
