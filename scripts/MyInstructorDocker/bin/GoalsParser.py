@@ -23,24 +23,28 @@ global parameter_list
 parameter_list = None
 answer_tokens=['result', 'parameter', 'parameter_ascii']
 class MyGoal(object):
-    """ Goal - goalid, goaltype, goaloperator, answertag, resulttag, boolean_string """
+    """ Goal - goalid, goaltype, goaloperator, answertag, resulttag, boolean_string, goal1tag, goal2tag """
     goalid = ""
     goaltype = ""
     goaloperator = ""
     answertag = ""
     resulttag = ""
     boolean_string = ""
+    goal1tag = ""
+    goal2tag = ""
 
     def goal_dict(object):
         return object.__dict__
 
-    def __init__(self, goalid, goaltype, goaloperator, answertag, resulttag, boolean_string):
+    def __init__(self, goalid, goaltype, goaloperator, answertag, resulttag, boolean_string, goal1tag, goal2tag):
         self.goalid = goalid
         self.goaltype = goaltype
         self.goaloperator = goaloperator
         self.answertag = answertag
         self.resulttag = resulttag
         self.boolean_string = boolean_string
+        self.goal1tag = goal1tag
+        self.goal2tag = goal2tag
 
 def getRandom(bounds, type):
     # Converts lowerbound and upperbound as integer - and pass to
@@ -232,10 +236,11 @@ def ParseGoals(studentdir):
                 values = []
                 # expecting - either:
                 # <type> : <operator> : <resulttag> : <answertag>
+                # <type> : <goal1tag> : <goal2tag>
                 # <type> : <string>
                 values = each_value.split(":")
                 numvalues = len(values)
-                if not (numvalues == 4 or numvalues == 2):
+                if not (numvalues == 4 or numvalues == 3 or numvalues == 2):
                     sys.stderr.write("ERROR: goals.config contains unexpected value (%s) format\n" % each_value)
                     sys.exit(1)
                 if numvalues == 4:
@@ -249,7 +254,7 @@ def ParseGoals(studentdir):
                     if not (goal_type == "matchany" or
                         goal_type == "matchlast" or
                         goal_type == "matchacross"):
-                        sys.stderr.write("ERROR: goals.config contains unrecognized type (%s)\n" % goal_type)
+                        sys.stderr.write("ERROR: goals.config contains unrecognized type (1) (%s)\n" % goal_type)
                         sys.exit(1)
                     if not (goal_operator == "string_equal" or
                         goal_operator == "string_diff" or
@@ -261,7 +266,23 @@ def ParseGoals(studentdir):
                         sys.stderr.write("ERROR: goals.config contains unrecognized operator (%s)\n" % goal_operator)
                         sys.exit(1)
                     boolean_string = ""
-                    nametags[each_key] = MyGoal(each_key, goal_type, goal_operator, valid_answertag, valid_resulttag, boolean_string)
+                    goal1tag = ""
+                    goal2tag = ""
+                    nametags[each_key] = MyGoal(each_key, goal_type, goal_operator, valid_answertag, valid_resulttag, boolean_string, goal1tag, goal2tag)
+                    #print "goal_type non-boolean"
+                    #print nametags[each_key].goal_dict()
+                elif numvalues == 3:
+                    goal_type = values[0].strip()
+                    goal1tag = values[1].strip()
+                    goal2tag = values[2].strip()
+                    if not (goal_type == "time_before"):
+                        sys.stderr.write("ERROR: goals.config contains unrecognized type (2) (%s)\n" % goal_type)
+                        sys.exit(1)
+                    goal_operator = ""
+                    valid_answertag = ""
+                    valid_resulttag = ""
+                    boolean_string = ""
+                    nametags[each_key] = MyGoal(each_key, goal_type, goal_operator, valid_answertag, valid_resulttag, boolean_string, goal1tag, goal2tag)
                     #print "goal_type non-boolean"
                     #print nametags[each_key].goal_dict()
                 else:
@@ -270,7 +291,9 @@ def ParseGoals(studentdir):
                     goal_operator = ""
                     valid_resulttag = ""
                     valid_answertag = ""
-                    nametags[each_key] = MyGoal(each_key, goal_type, goal_operator, valid_answertag, valid_resulttag, boolean_string)
+                    goal1tag = ""
+                    goal2tag = ""
+                    nametags[each_key] = MyGoal(each_key, goal_type, goal_operator, valid_answertag, valid_resulttag, boolean_string, goal1tag, goal2tag)
                     #print "goal_type boolean"
                     #print nametags[each_key].goal_dict()
                 #nametags[each_key].toJSON()

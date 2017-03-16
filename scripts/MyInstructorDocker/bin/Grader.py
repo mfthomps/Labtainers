@@ -21,6 +21,34 @@ matchacrosslist = []
 goals_id_ts = {}
 goals_ts_id = {}
 
+def compare_time_before(goal1timestamp, goal2timestamp):
+    if goal1timestamp < goal2timestamp:
+        #print "goal1timestamp (%s) is < goal2timestamp (%s)" % (goal1timestamp, goal2timestamp)
+        return True
+    else:
+        return False
+
+def evalTimeBefore(goals_tag1, goals_tag2):
+    evalTimeBeforeResult = False
+    for goal1timestamp, goal1value in goals_tag1.iteritems():
+        #print "Goal1 timestamp is (%s) and value is (%s)" % (goal1timestamp, goal1value)
+        # For each Goal1 value that is True
+        if goal1value:
+            for goal2timestamp, goal2value in goals_tag2.iteritems():
+                #print "Goal2 timestamp is (%s) and value is (%s)" % (goal2timestamp, goal2value)
+                # If there is Goal2 value that is True
+                if goal2value:
+                    evalTimeBeforeResult = compare_time_before(goal1timestamp, goal2timestamp)
+                    if evalTimeBeforeResult:
+                        # if evalTimeBeforeResult is True - that means:
+                        # (1) goals_tag1 is True and goals_tag2 is True
+                        # (2) timestamp for goals_tag1 is before timestamp for goals_tag2
+                        break
+        if evalTimeBeforeResult:
+            break
+
+    return evalTimeBeforeResult
+
 def add_goals_id_ts(goalid, goalts, goalvalue):
     # Do goals_id_ts first
     if goalid not in goals_id_ts:
@@ -338,6 +366,9 @@ def processLabExercise(studentlabdir, labidname, grades, goals):
         elif eachgoal['goaltype'] == "boolean":
             #print "Skipping %s" % eachgoal
             continue
+        elif eachgoal['goaltype'] == "time_before":
+            #print "Skipping %s" % eachgoal
+            continue
         else:
             sys.stdout.write("Error: Invalid goal type!\n")
             sys.exit(1)
@@ -352,7 +383,8 @@ def processLabExercise(studentlabdir, labidname, grades, goals):
     for eachgoal in goals:
         if (eachgoal['goaltype'] == "matchany" or
             eachgoal['goaltype'] == "matchlast" or
-            eachgoal['goaltype'] == "matchacross"):
+            eachgoal['goaltype'] == "matchacross" or
+            eachgoal['goaltype'] == "time_before"):
             continue
         elif eachgoal['goaltype'] == "boolean":
             t_string = eachgoal['boolean_string']
@@ -370,6 +402,44 @@ def processLabExercise(studentlabdir, labidname, grades, goals):
                 add_goals_id_ts(goalid, "default", False)
         else:
             sys.stdout.write("Error: Invalid goal type!\n")
+            sys.exit(1)
+
+    # Now do the goaltype of 'time_before'
+    for eachgoal in goals:
+        if (eachgoal['goaltype'] == "matchany" or
+            eachgoal['goaltype'] == "matchlast" or
+            eachgoal['goaltype'] == "matchacross" or
+            eachgoal['goaltype'] == "boolean"):
+            continue
+        elif eachgoal['goaltype'] == "time_before":
+            t_string = eachgoal['boolean_string']
+            goal1tag = eachgoal['goal1tag']
+            goal2tag = eachgoal['goal2tag']
+            goalid = eachgoal['goalid']
+            #print "goal1tag is (%s) and goal2tag is (%s)" % (goal1tag, goal2tag)
+            # Make sure goal1tag and goal2tag is in goals_id_ts
+            if goal1tag not in goals_id_ts:
+                sys.stdout.write("Error: goal1tag (%s) does not exist!\n" % goal1tag)
+                sys.exit(1)
+            if goal2tag not in goals_id_ts:
+                sys.stdout.write("Error: goal2tag (%s) does not exist!\n" % goal2tag)
+                sys.exit(1)
+            goals_tag1 = {}
+            goals_tag2 = {}
+            goals_tag1 = goals_id_ts[goal1tag]
+            goals_tag2 = goals_id_ts[goal2tag]
+            #print "Goals tag1 is "
+            #print goals_tag1
+            #print "Goals tag2 is "
+            #print goals_tag2
+            evalTimeBeforeResult = evalTimeBefore(goals_tag1, goals_tag2)
+            # if evalTimeBeforeResult is False - means can't find the following condition
+            # (1) goals_tag1 is True and goals_tag2 is True
+            # (2) timestamp for goals_tag1 is before timestamp for goals_tag2
+            add_goals_id_ts(goalid, "default", evalTimeBeforeResult)
+        else:
+            sys.stdout.write("Error: Invalid goal type!\n")
+            sys.exit(1)
 
     #print "Goals - id timestamp : "
     #print goals_id_ts
