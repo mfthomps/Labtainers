@@ -244,6 +244,8 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, labidname):
 
                     if containername != "" and mycontainername != containername:
                         #print "Config line (%s) not for my container (%s), skipping..." % (linestrip, mycontainername)
+                        # set nametags - value pair to NONE
+                        nametags[mycontainername][each_key] = "NONE"
                         continue
 
                     command = values[line_at].strip()
