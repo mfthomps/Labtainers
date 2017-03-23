@@ -169,7 +169,7 @@ def DoStart(start_config, labname):
             # Start the container
             start_result = StartMyContainer(mycontainer_name)
             if start_result == FAILURE:
-                sys.stderr.write("ERROR: DoStartMultiple Container %s failed to start!\n" % container_name)
+                sys.stderr.write("ERROR: DoStartMultiple Container %s failed to start!\n" % mycontainer_name)
                 sys.exit(1)
 
         # If the container is just created, prompt user's e-mail
