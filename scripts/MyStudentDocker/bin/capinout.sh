@@ -69,8 +69,8 @@ fi
 #set -o pipefail
 
 # Setup trap to handle SIGINT and SIGTERM
-trap "echo exiting due to signal; echo caught SIGINT >> $stdinfile; echo PROGRAM FINISH: `date` >> $stdoutfile " SIGINT
-trap "echo exiting due to signal; echo caught SIGTERM >> $stdinfile; echo PROGRAM FINISH: `date` >> $stdoutfile" SIGTERM
+trap "echo exiting due to signal; echo caught SIGINT >> $stdinfile; echo PROGRAM FINISH: `date +"%Y%m%d%H%M%S"` >> $stdoutfile " SIGINT
+trap "echo exiting due to signal; echo caught SIGTERM >> $stdinfile; echo PROGRAM FINISH: `date +"%Y%m%d%H%M%S"` >> $stdoutfile" SIGTERM
 
 pipe=$(mktemp -u)
 if ! mkfifo $pipe; then
@@ -89,8 +89,8 @@ fi
 
 TEE_PID=$(ps | grep [t]ee | awk '{print $1}')
 if [ ! -z "$TEE_PID" ]; then
-    now=`date`
-    echo "PROGRAM FINISH: $now" >> $stdoutfile
+    endtime=`date +"%Y%m%d%H%M%S"`
+    echo "PROGRAM FINISH: $endtime" >> $stdoutfile
     kill $TEE_PID
 fi
 
