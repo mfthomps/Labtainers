@@ -238,7 +238,7 @@ def ParseGoals(studentdir):
                 # <type> : <operator> : <resulttag> : <answertag>
                 # <type> : <goal1tag> : <goal2tag>
                 # <type> : <string>
-                values = each_value.split(":")
+                values = each_value.split(" : ")
                 numvalues = len(values)
                 if not (numvalues == 4 or numvalues == 3 or numvalues == 2):
                     sys.stderr.write("ERROR: goals.config contains unexpected value (%s) format\n" % each_value)
