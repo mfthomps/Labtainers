@@ -341,11 +341,11 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, labidname):
                                     linetokenidx = linetokenidx + 1
                                 numlinetokens = len(linetokens)
                             elif field_type == 'SLASH':
-                                myre = re.findall('\\.+?\\', linerequested)
+                                myre = linerequested.split('/')
                                 linetokenidx = 0
                                 for item in myre:
                                     #print "linetokenidx = %d" % linetokenidx
-                                    linetokens[linetokenidx] = item[1:-1]
+                                    linetokens[linetokenidx] = item
                                     linetokenidx = linetokenidx + 1
                                 numlinetokens = len(linetokens)
                             else:
