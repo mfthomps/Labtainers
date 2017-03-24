@@ -20,7 +20,7 @@ stdinfnameslist = []
 stdoutfnameslist = []
 timestamplist = {}
 nametags = {}
-line_types = ['CONTAINS', 'LINE', 'STARTSWITH']
+line_types = ['CONTAINS', 'LINE', 'STARTSWITH', 'HAVESTRING']
 def ValidateTokenId(each_value, token_id):
     if token_id != 'ALL' and token_id != 'LAST':
         try:
@@ -43,10 +43,10 @@ def ValidateConfigfile(labidname, each_key, each_value):
     values = []
     # expecting either:
     # 1. - [ stdin | stdout ] : [<field_type>] : <field_id> :  <line_type1> : <line_id>
-    #    field_type = TOKEN | PARENS | QUOTES
+    #    field_type = TOKEN | PARENS | QUOTES | SLASH
     #    field_value is a numeric identifying the nth field of the given type
-    #    line_type1 = LINE | STARTSWITH
-    #    line_id is a number if the type is LINE, or a string if the type is STARTSWITH
+    #    line_type1 = LINE | STARTSWITH | HAVESTRING
+    #    line_id is a number if the type is LINE, or a string if the type is STARTSWITH/HAVESTRING
     # 2. - [ stdin | stdout ] : <line_type2> : <line_id>
     #    line_type2 = CONTAINS
     #    line_id is a string if the type is CONTAINS
@@ -119,7 +119,7 @@ def ValidateConfigfile(labidname, each_key, each_value):
     #                       - because <field_type> is optional
     if line_at == 3:
         field_type = values[1].strip()
-        if (field_type != "TOKEN") and (field_type != "PARENS") and (field_type != "QUOTES"):
+        if (field_type != "TOKEN") and (field_type != "PARENS") and (field_type != "QUOTES") and (field_type != "SLASH"):
             sys.stderr.write("ERROR: results.config line (%s)\n" % each_value)
             sys.stderr.write("ERROR: results.config invalid field_type\n")
             sys.exit(1)
@@ -207,7 +207,7 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, labidname):
                 #print "no match"
                 continue
 
-    # Process line_type1 - i.e., LINE and STARTSWITH - artifacts with timestamps
+    # Process line_type1 - i.e., LINE/STARTSWITH/HAVESTRING - artifacts with timestamps
     for timestamppart in timestamplist[mycontainername]:
         outputjsonfname = '%s%s.%s' % (OUTPUTRESULTHOME, jsonoutputfilename, timestamppart)
         #print "ParseStdinStdout (1): Outputjsonfname is (%s)" % outputjsonfname
@@ -251,13 +251,13 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, labidname):
                     command = values[line_at].strip()
                     # field_type - if exists (because field_type is optional)
                     #              has been validated to be either
-                    #              'TOKEN' or 'PARENS' or 'QUOTES'
+                    #              'TOKEN' or 'PARENS' or 'QUOTES' or 'SLASH'
                     # if it does not exists, default field_type is TOKEN
                     if line_at == 3:
                         field_type = values[1].strip()
                     else:
                         field_type = "TOKEN"
-                    # command has been validated to be either 'LINE' or 'STARTSWITH'
+                    # command has been validated to be either 'LINE' or 'STARTSWITH' or 'HAVESTRING'
                     token_index = 1
                     if line_at == 3:
                         token_index = 2
@@ -265,8 +265,8 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, labidname):
                     if command == 'LINE':
                         lineno = int(values[line_at+1].strip())
                     else:
-                        # command = 'STARTSWITH':
-                        startstring = values[line_at+1].strip()
+                        # command = 'STARTSWITH': or 'HAVESTRING'
+                        lookupstring = values[line_at+1].strip()
 
                     targetfname = '%s%s.%s' % (RESULTHOME, targetfile, timestamppart)
                     #print "targetfname is (%s)" % targetfname
@@ -286,7 +286,7 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, labidname):
                         #print targetlines
 
                         #print "targetfile is %s" % targetfile
-                        # command has been validated to be either 'LINE' or 'STARTSWITH'
+                        # command has been validated to be either 'LINE' or 'STARTSWITH' or 'HAVESTRING'
                         if command == 'LINE':
                             # make sure lineno <= targetfilelen
                             if lineno > targetfilelen:
@@ -294,17 +294,29 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, labidname):
                                 #print "setting result to none lineno > stdin length"
                             else:
                                 linerequested = targetlines[lineno-1]
-                        else:
-                            # command = 'STARTSWITH':
-                            found_startstring = False
+                        elif command == 'HAVESTRING':
+                            # command = 'HAVESTRING':
+                            found_lookupstring = False
                             for currentline in targetlines:
-                                if found_startstring == False:
-                                    if currentline.startswith(startstring):
-                                        found_startstring = True
+                                if found_lookupstring == False:
+                                    if lookupstring in currentline:
+                                        found_lookupstring = True
                                         linerequested = currentline
                                         break
                             # If not found - set to NONE
-                            if found_startstring == False:
+                            if found_lookupstring == False:
+                                linerequested = "NONE"
+                        else:
+                            # command = 'STARTSWITH':
+                            found_lookupstring = False
+                            for currentline in targetlines:
+                                if found_lookupstring == False:
+                                    if currentline.startswith(lookupstring):
+                                        found_lookupstring = True
+                                        linerequested = currentline
+                                        break
+                            # If not found - set to NONE
+                            if found_lookupstring == False:
                                 linerequested = "NONE"
 
                         #print "Line requested is (%s)" % linerequested
@@ -322,6 +334,14 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, labidname):
                                 numlinetokens = len(linetokens)
                             elif field_type == 'QUOTES':
                                 myre = re.findall('".+?"', linerequested)
+                                linetokenidx = 0
+                                for item in myre:
+                                    #print "linetokenidx = %d" % linetokenidx
+                                    linetokens[linetokenidx] = item[1:-1]
+                                    linetokenidx = linetokenidx + 1
+                                numlinetokens = len(linetokens)
+                            elif field_type == 'SLASH':
+                                myre = re.findall('\\.+?\\', linerequested)
                                 linetokenidx = 0
                                 for item in myre:
                                     #print "linetokenidx = %d" % linetokenidx
