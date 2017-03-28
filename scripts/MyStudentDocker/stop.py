@@ -83,6 +83,16 @@ def StopMyContainer(mycwd, start_config, container_name):
     #print "Result of subprocess.call StopMyContainer stop is %s" % result
     return result
 
+def IsContainerRunning(mycontainer_name):
+    try:
+        s = subprocess.check_output('docker ps', shell=True)
+    except:
+        return False
+    if mycontainer_name in s:
+        return True
+    else:
+        return False 
+
 # Check to see if my_container_name container has been created or not
 def IsContainerCreated(mycontainer_name):
     command = "docker inspect -f {{.Created}} %s 2> /dev/null" % mycontainer_name
@@ -92,6 +102,7 @@ def IsContainerCreated(mycontainer_name):
     return result
 
 def DoStop(start_config, mycwd, labname):
+    retval = True
     host_home_xfer = start_config.host_home_xfer
     lab_master_seed = start_config.lab_master_seed
     #print "Do: STOP Multiple Containers and/or multi-home networking"
@@ -107,6 +118,10 @@ def DoStop(start_config, mycwd, labname):
         # error: can't stop non-existent container
         if haveContainer == FAILURE:
             sys.stderr.write("ERROR: DoStopMultiple Container %s does not exist!\n" % mycontainer_name)
+            retval = False
+        elif not IsContainerRunning(mycontainer_name):
+            sys.stderr.write("container %s not running\n" % (mycontainer_name))
+            retval = False
         else:
             # Before stopping a container, run 'Student.py'
             # This will create zip file of the result
@@ -114,7 +129,7 @@ def DoStop(start_config, mycwd, labname):
             # Stop the container
             StopMyContainer(mycwd, start_config, mycontainer_name)
 
-    return 0
+    return retval
 
 # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
 def CreateHostHomeXfer(host_xfer_dir):
@@ -149,10 +164,9 @@ def StopLab(labname):
     host_xfer_dir = '%s/%s' % (myhomedir, start_config.host_home_xfer)
     CreateHostHomeXfer(host_xfer_dir)
 
-    DoStop(start_config, mycwd, labname)
-
-    # Inform user where results are stored
-    print "Results stored in directory: %s" % host_xfer_dir
+    if DoStop(start_config, mycwd, labname):
+        # Inform user where results are stored
+        print "Results stored in directory: %s" % host_xfer_dir
 
 # Usage: stop.py <labname>
 # Arguments:

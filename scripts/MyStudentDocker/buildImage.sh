@@ -10,7 +10,8 @@ if [ "$#" -eq 2 ]; then
     has_image=1
 else
     labimage=$lab
-    has_image=0
+    labimage=$lab.$lab
+    has_image=1
 fi
 
 if [ $has_image == 1 ]; then
