@@ -122,7 +122,73 @@ def putLastEmail(email):
     with open(EMAIL_TMP, 'w') as fh:
             fh.write(email)
 
-def DoStart(start_config, labname):
+def ParamForStudent(lab_master_seed):
+    done = False
+    while not done:
+        done = True
+        # Prompt user for e-mail address
+        eprompt = 'Please enter your e-mail address '
+        prev_email = getLastEmail()
+        if prev_email is not None:
+            eprompt = eprompt+" [%s]" % prev_email
+        user_email = raw_input(eprompt)
+        if len(user_email.strip()) == 0:
+            if prev_email is None:
+                done = False
+            else:
+                user_email = prev_email
+        else:
+            putLastEmail(user_email)
+    # Create hash using LAB_MASTER_SEED concatenated with user's e-mail
+    # LAB_MASTER_SEED is per laboratory - specified in start.config
+    string_to_be_hashed = '%s:%s' % (lab_master_seed, user_email)
+    mymd5 = md5.new()
+    mymd5.update(string_to_be_hashed)
+    mymd5_hex_string = mymd5.hexdigest()
+    #print mymd5_hex_string
+
+    parameterize_result = ParameterizeMyContainer(mycontainer_name, container_user, mymd5_hex_string,
+                                                          user_email, labname)
+    if parameterize_result == FAILURE:
+        sys.stderr.write("ERROR: Failed to parameterize lab container %s!\n" % mycontainer_name)
+        sys.exit(1)
+
+# Copy Students' Artifacts from host to instructor's lab container
+def CopyStudentArtifacts(start_config, mycontainer_name, labname, container_user):
+    host_home_xfer = start_config.host_home_xfer
+    # Set the lab name 
+    command = 'docker exec -it %s script -q -c "echo %s > /home/%s/.local/.labname" /dev/null' % (mycontainer_name, labname, container_user)
+    #print "Command to execute is (%s)" % command
+    result = subprocess.call(command, shell=True)
+    #print "Result of subprocess.call CopyStudentArtifacts set labname is %s" % result
+    if result == FAILURE:
+        sys.stderr.write("ERROR: Failed to set labname in container %s!\n" % mycontainer_name)
+        sys.exit(1)
+
+    username = getpass.getuser()
+    # Copy zip files from 'Shared' folder to 'home/$CONTAINER_USER'
+    zip_filelist = glob.glob('/home/%s/%s/*.zip' % (username, host_home_xfer))
+    #print "filenames is (%s)" % zip_filelist
+    for fname in zip_filelist:
+        #print "name is %s" % fname
+        base_fname = os.path.basename(fname)
+        # Copy zip file and chown it
+        command = 'docker cp %s %s:/home/%s/' % (fname, mycontainer_name, container_user)
+        #print "Command to execute is (%s)" % command
+        result = subprocess.call(command, shell=True)
+        #print "Result of subprocess.call CopyStudentArtifacts copy zipfile (%s) is %s" % (fname, result)
+        if result == FAILURE:
+            sys.stderr.write("ERROR: Failed to set labname in container %s!\n" % mycontainer_name)
+            sys.exit(1)
+        command = 'docker exec -it %s sudo chown %s:%s /home/%s/%s' % (mycontainer_name, container_user, container_user, container_user, base_fname)
+        #print "Command to execute is (%s)" % command
+        result = subprocess.call(command, shell=True)
+        #print "Result of subprocess.call CopyStudentArtifacts copy zipfile (%s) is %s" % (fname, result)
+        if result == FAILURE:
+            sys.stderr.write("ERROR: Failed to set labname in container %s!\n" % mycontainer_name)
+            sys.exit(1)
+
+def DoStart(start_config, labname, role):
     host_home_xfer = start_config.host_home_xfer
     lab_master_seed = start_config.lab_master_seed
     #print "Do: START Multiple Containers and/or multi-home networking"
@@ -178,38 +244,21 @@ def DoStart(start_config, labname):
                 sys.stderr.write("ERROR: DoStartMultiple Container %s failed to start!\n" % mycontainer_name)
                 sys.exit(1)
 
+        if role == 'instructor':
+            '''
+            Copy students' artifacts only to the container where 'Instructor.py' supposed
+            to be run - where grades.txt will later reside also (i.e., don't copy to all containers)
+            Copy to container named start_config.grade_container
+            '''
+            if mycontainer_name == start_config.grade_container:
+                copy_result = CopyStudentArtifacts(start_config, mycontainer_name, labname, container_user)
+                if copy_result == FAILURE:
+                    sys.stderr.write("ERROR: DoStartMultiple Failed to copy students' artifacts to container %s!\n" % mycontainer_name)
+                    sys.exit(1)
         # If the container is just created, prompt user's e-mail
         # then parameterize the container
-        if need_seeds:
-            done = False
-            while not done:
-                done = True
-                # Prompt user for e-mail address
-                eprompt = 'Please enter your e-mail address '
-                prev_email = getLastEmail()
-                if prev_email is not None:
-                    eprompt = eprompt+" [%s]" % prev_email
-                user_email = raw_input(eprompt)
-                if len(user_email.strip()) == 0:
-                    if prev_email is None:
-                        done = False
-                    else:
-                        user_email = prev_email
-                else:
-                    putLastEmail(user_email)
-            # Create hash using LAB_MASTER_SEED concatenated with user's e-mail
-            # LAB_MASTER_SEED is per laboratory - specified in start.config
-            string_to_be_hashed = '%s:%s' % (lab_master_seed, user_email)
-            mymd5 = md5.new()
-            mymd5.update(string_to_be_hashed)
-            mymd5_hex_string = mymd5.hexdigest()
-            #print mymd5_hex_string
-    
-            parameterize_result = ParameterizeMyContainer(mycontainer_name, container_user, mymd5_hex_string,
-                                                          user_email, labname)
-            if parameterize_result == FAILURE:
-                sys.stderr.write("ERROR: Failed to parameterize lab container %s!\n" % mycontainer_name)
-                sys.exit(1)
+        elif need_seeds and role == 'student':
+            ParamForStudent(lab_master_seed)
     
     # Reach here - Everything is OK - spawn terminal for each container based on num_terminal
     for container in start_config.containers.values():
@@ -242,6 +291,32 @@ def CreateHostHomeXfer(host_xfer_dir):
         # does not exists, create directory
         os.makedirs(host_xfer_dir)
 
+# CopyChownGradesFile
+def CopyChownGradesFile(mycwd, start_config, container_name, container_image, container_user):
+    host_home_xfer = start_config.host_home_xfer
+    lab_master_seed = start_config.lab_master_seed
+
+    username = getpass.getuser()
+    grade_filename = '/home/%s/grades.txt' % container_user
+    command = "docker cp %s:%s /home/%s/%s" % (container_name, grade_filename, username, host_home_xfer)
+    #print "Command to execute is (%s)" % command
+    result = subprocess.call(command, shell=True)
+    #print "CopyChownGradesFile: Result of subprocess.Popen exec cp grades.txt file is %s" % result
+    if result == FAILURE:
+        StopMyContainer(mycwd, start_config, container_name)
+        sys.stderr.write("ERROR: CopyChownGradesFile Container %s fail on executing cp grades.txt file!\n" % container_name)
+        sys.exit(1)
+
+    # Change ownership to defined user $USER
+    command = "sudo chown %s:%s /home/%s/%s/grades.txt" % (username, username, username, host_home_xfer)
+    #print "Command to execute is (%s)" % command
+    result = subprocess.call(command, shell=True)
+    #print "CopyChownGradesFile: Result of subprocess.Popen exec chown grades.txt file is %s" % result
+    if result == FAILURE:
+        StopMyContainer(mycwd, start_config, container_name)
+        sys.stderr.write("ERROR: CopyChownGradesFile Container %s fail on executing chown grades.txt file!\n" % container_name)
+        sys.exit(1)
+
 def StartLab(labname, role):
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
@@ -258,7 +333,7 @@ def StartLab(labname, role):
     host_xfer_dir = '%s/%s' % (myhomedir, start_config.host_home_xfer)
     CreateHostHomeXfer(host_xfer_dir)
 
-    DoStart(start_config, labname)
+    DoStart(start_config, labname, role)
 
 def FileModLater(ts, fname):
     ''' is the given file later than the timestamp (which is in UTC)? '''
@@ -325,13 +400,22 @@ def RedoLab(labname, role):
     start_config_path = os.path.join(config_path,"start.config")
     start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role)
     StopLab(labname, role)
+    build_student = './buildImage.sh'
+    build_instructor = './buildInstructorImage.sh'
     for name, container in start_config.containers.items():
         mycontainer_name       = container.full_name
         mycontainer_image_name = container.image_name
         cmd = 'docker rm %s' % mycontainer_name
         os.system(cmd)
         if CheckBuild(labname, mycontainer_image_name, mycontainer_name, name):
-            cmd = './buildImage.sh %s' % labname 
+            if os.path.isfile(build_student):
+                cmd = '%s %s' % (build_student, labname)
+            elif os.path.isfile(build_instructor):
+                cmd = '%s %s' % (build_instructor, labname)
+            else:
+                sys.stderr.write("ERROR: RedoLab, no image rebuild script")
+                exit(1)
+                 
             os.system(cmd)
     StartLab(labname, role)
 
@@ -408,7 +492,7 @@ def IsContainerRunning(mycontainer_name):
         return False 
 
 
-def DoStop(start_config, mycwd, labname):
+def DoStop(start_config, mycwd, labname, role):
     retval = True
     host_home_xfer = start_config.host_home_xfer
     lab_master_seed = start_config.lab_master_seed
@@ -430,9 +514,13 @@ def DoStop(start_config, mycwd, labname):
             sys.stderr.write("container %s not running\n" % (mycontainer_name))
             retval = False
         else:
-            # Before stopping a container, run 'Student.py'
-            # This will create zip file of the result
-            CreateCopyChownZip(mycwd, start_config, mycontainer_name, mycontainer_image, container_user)
+            if role == 'instructor':
+                if mycontainer_name == start_config.grade_container:
+                    CopyChownGradesFile(mycwd, start_config, mycontainer_name, mycontainer_image, container_user)
+            else:
+                # Before stopping a container, run 'Student.py'
+                # This will create zip file of the result
+                CreateCopyChownZip(mycwd, start_config, mycontainer_name, mycontainer_image, container_user)
             # Stop the container
             StopMyContainer(mycwd, start_config, mycontainer_name)
 
@@ -454,6 +542,6 @@ def StopLab(labname, role):
     host_xfer_dir = '%s/%s' % (myhomedir, start_config.host_home_xfer)
     CreateHostHomeXfer(host_xfer_dir)
 
-    if DoStop(start_config, mycwd, labname):
+    if DoStop(start_config, mycwd, labname, role):
         # Inform user where results are stored
         print "Results stored in directory: %s" % host_xfer_dir
