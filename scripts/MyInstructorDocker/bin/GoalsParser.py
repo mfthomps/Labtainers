@@ -275,7 +275,7 @@ def ParseGoals(studentdir):
                     goal_type = values[0].strip()
                     goal1tag = values[1].strip()
                     goal2tag = values[2].strip()
-                    if not (goal_type == "time_before"):
+                    if not (goal_type == "time_before" or goal_type == "time_during"):
                         sys.stderr.write("ERROR: goals.config contains unrecognized type (2) (%s)\n" % goal_type)
                         sys.exit(1)
                     goal_operator = ""

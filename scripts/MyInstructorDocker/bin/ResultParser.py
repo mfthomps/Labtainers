@@ -376,6 +376,27 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, labidname):
                     # set nametags - value pair
                     nametags[mycontainername][each_key] = tagstring
 
+        # Got to here - for line_type1, parse for 'PROGRAM FINISH:'
+        # If the last line contains 'PROGRAM FINISH'
+        #print "targetfilelen = %d" % targetfilelen
+        lastline = targetlines[targetfilelen-1].strip()
+        #print "lastline = (%s)" % lastline
+        if 'PROGRAM FINISH' in targetlines[targetfilelen-1]:
+            lastline = targetlines[targetfilelen-1]
+            lastlinestrip = lastline.strip()
+            lastlinetokens = lastlinestrip.split()
+            numlastlinetokens = len(lastlinetokens)
+            if numlastlinetokens != 3:
+                sys.stderr.write("FATAL: Corrupted PROGRAM FINISH line!\n")
+                sys.exit(1)
+            else:
+                program_end_time = lastlinetokens[2]
+        else:
+            sys.stderr.write("FATAL: NO PROGRAM FINISH line!\n")
+            sys.exit(1)
+        nametags[mycontainername]['PROGRAM_ENDTIME'] = program_end_time
+
+
         #print nametags
         jsonoutput = open(outputjsonfname, "w")
         jsondumpsoutput = json.dumps(nametags[mycontainername], indent=4)
@@ -466,6 +487,9 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, labidname):
 
                 # set nametags - value pair
                 nametags[mycontainername][each_key] = tagstring
+
+        # Got to here - for line_type2, set PROGRAM_ENDTIME as 'NONE'
+        nametags[mycontainername]['PROGRAM_ENDTIME'] = "NONE"
 
     #print nametags
     jsonoutput = open(outputjsonfname, "w")

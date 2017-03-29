@@ -21,9 +21,32 @@ matchacrosslist = []
 goals_id_ts = {}
 goals_ts_id = {}
 
+def compare_time_during(goal1timestamp, goal2timestamp):
+    goal1start, goal1end = goal1timestamp.split('-')
+    goal2start, goal2end = goal2timestamp.split('-')
+    #print "goal1start (%s) goal1end (%s)" % (goal1start, goal1end)
+    #print "goal2start (%s) goal2end (%s)" % (goal2start, goal2end)
+    if goal1start == 'default' or goal2start == 'default':
+        print "Can't compare 'default' timestamp!"
+        exit(1)
+    if goal1end == 'NONE' or goal2end == 'NONE':
+        print "Can't compare 'NONE' timestamp!"
+        exit(1)
+    if goal2start <= goal1start and goal1start <= goal2end:
+        #print "goal2start (%s) <= goal1start (%s) <= goal2end (%s)" % (goal1start, goal2start, goal1end)
+        return True
+    else:
+        #print "NOT - goal2start (%s) <= goal1start (%s) <= goal2end (%s)" % (goal1start, goal2start, goal1end)
+        return False
+
 def compare_time_before(goal1timestamp, goal2timestamp):
-    if goal1timestamp < goal2timestamp:
-        #print "goal1timestamp (%s) is < goal2timestamp (%s)" % (goal1timestamp, goal2timestamp)
+    goal1start, goal1end = goal1timestamp.split('-')
+    goal2start, goal2end = goal2timestamp.split('-')
+    if goal1start == 'default' or goal2start == 'default':
+        print "Can't compare 'default' timestamp!"
+        exit(1)
+    if goal1start <= goal2start:
+        #print "goal1start (%s) <= goal2start (%s)" % (goal1start, goal2start)
         return True
     else:
         return False
@@ -38,16 +61,39 @@ def evalTimeBefore(goals_tag1, goals_tag2):
                 #print "Goal2 timestamp is (%s) and value is (%s)" % (goal2timestamp, goal2value)
                 # If there is Goal2 value that is True
                 if goal2value:
+                    #print "goal1ts (%s) goal2ts (%s)" % (goal1timestamp, goal2timestamp)
                     evalTimeBeforeResult = compare_time_before(goal1timestamp, goal2timestamp)
                     if evalTimeBeforeResult:
                         # if evalTimeBeforeResult is True - that means:
                         # (1) goals_tag1 is True and goals_tag2 is True
-                        # (2) timestamp for goals_tag1 is before timestamp for goals_tag2
+                        # (2) goal1start <= goal2start
                         break
         if evalTimeBeforeResult:
             break
 
     return evalTimeBeforeResult
+
+def evalTimeDuring(goals_tag1, goals_tag2):
+    evalTimeDuringResult = False
+    for goal1timestamp, goal1value in goals_tag1.iteritems():
+        #print "Goal1 timestamp is (%s) and value is (%s)" % (goal1timestamp, goal1value)
+        # For each Goal1 value that is True
+        if goal1value:
+            for goal2timestamp, goal2value in goals_tag2.iteritems():
+                #print "Goal2 timestamp is (%s) and value is (%s)" % (goal2timestamp, goal2value)
+                # If there is Goal2 value that is True
+                if goal2value:
+                    #print "goal1ts (%s) goal2ts (%s)" % (goal1timestamp, goal2timestamp)
+                    evalTimeDuringResult = compare_time_during(goal1timestamp, goal2timestamp)
+                    if evalTimeDuringResult:
+                        # if evalTimeDuringResult is True - that means:
+                        # (1) goals_tag1 is True and goals_tag2 is True
+                        # (2) goal2start (%s) <= goal1start (%s) <= goal2end (%s)
+                        break
+        if evalTimeDuringResult:
+            break
+
+    return evalTimeDuringResult
 
 def add_goals_id_ts(goalid, goalts, goalvalue):
     # Do goals_id_ts first
@@ -161,14 +207,20 @@ def processMatchLast(outjsonfnames, eachgoal):
     try:
         resulttagresult = jsonoutput[resulttag]
     except:
-        print('%s not found in file %s' % (resulttag, outputjsonfile))
-        exit(1)
+        #print('processMatchLast: %s not found in file %s' % (resulttag, outputjsonfile))
+        return
     #print resulttagresult
+    try:
+        timestampend = jsonoutput['PROGRAM_ENDTIME']
+    except:
+        print('processMatchLast: PROGRAM_ENDTIME not found in file %s' % outputjsonfile)
+        exit(1)
+    fulltimestamp = '%s-%s' % (timestamppart, timestampend)
     if one_answer:
         found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
         if found:
             #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_onlyanswer)
-            add_goals_id_ts(goalid, timestamppart, True)
+            add_goals_id_ts(goalid, fulltimestamp, True)
             return
     else:
         current_onlyanswer = jsonoutput[answertagstring]
@@ -176,13 +228,13 @@ def processMatchLast(outjsonfnames, eachgoal):
         found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
         if found:
             #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_onlyanswer)
-            add_goals_id_ts(goalid, timestamppart, True)
+            add_goals_id_ts(goalid, fulltimestamp, True)
             return
  
     # All file processed - still not found
     if not found:
         #print "processMatchLast failed"
-        add_goals_id_ts(goalid, timestamppart, False)
+        add_goals_id_ts(goalid, fulltimestamp, False)
 
 def processMatchAcross(outjsonfnames, eachgoal):
     #print "Inside processMatchAcross"
@@ -224,9 +276,15 @@ def processMatchAcross(outjsonfnames, eachgoal):
         try:
             resulttagresult = jsonoutput[resulttag]
         except:
-            print('%s not found in file %s' % (resulttag, outputjsonfile))
-            exit(1)
+            #print('processMatchAcross: %s not found in file %s' % (resulttag, outputjsonfile))
+            continue
         #print resulttagresult
+        try:
+            timestampend = jsonoutput['PROGRAM_ENDTIME']
+        except:
+            print('processMatchAcross: PROGRAM_ENDTIME not found in file %s' % outputjsonfile)
+            exit(1)
+        fulltimestamp = '%s-%s' % (timestamppart, timestampend)
 
         for outputjsonfile2 in outjsonfnames:
             # ensure different time stamp
@@ -240,21 +298,21 @@ def processMatchAcross(outjsonfnames, eachgoal):
             try:
                 current_answer = jsonoutput2[answertagstring]
             except:
-                print('%s not found in file %s' % (answertagstring, outputjsonfile2))
-                exit(1)
+                #print('processMatchAcross: (2) %s not found in file %s' % (answertagstring, outputjsonfile2))
+                continue
 
             #print "Correct answer is (%s)" % current_answer
 
             found = compare_result_answer(resulttagresult, current_answer, eachgoal['goaloperator'])
             if found:
                 #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_answer)
-                add_goals_id_ts(goalid, timestamppart, True)
+                add_goals_id_ts(goalid, fulltimestamp, True)
                 return
  
     # All file processed - still not found
     if not found:
         #print "processMatchAcross failed"
-        add_goals_id_ts(goalid, timestamppart, False)
+        add_goals_id_ts(goalid, fulltimestamp, False)
 
 def processMatchAny(outjsonfnames, eachgoal):
     #print "Inside processMatchAny"
@@ -303,16 +361,22 @@ def processMatchAny(outjsonfnames, eachgoal):
         try:
             resulttagresult = jsonoutput[resulttag]
         except:
-            print('%s not found in file %s' % (resulttag, outputjsonfile))
-            exit(1)
+            #print('processMatchAny: %s not found in file %s' % (resulttag, outputjsonfile))
+            continue
         #print resulttagresult
+        try:
+            timestampend = jsonoutput['PROGRAM_ENDTIME']
+        except:
+            print('processMatchAny: PROGRAM_ENDTIME not found in file %s' % outputjsonfile)
+            exit(1)
+        fulltimestamp = '%s-%s' % (timestamppart, timestampend)
         if one_answer:
             found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
             if found:
                 #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_onlyanswer)
-                add_goals_id_ts(goalid, timestamppart, True)
+                add_goals_id_ts(goalid, fulltimestamp, True)
             else:
-                add_goals_id_ts(goalid, timestamppart, False)
+                add_goals_id_ts(goalid, fulltimestamp, False)
         else:
             answertagresult = jsonoutput[answertagstring]
             current_answer = answertagresult.strip()
@@ -320,9 +384,9 @@ def processMatchAny(outjsonfnames, eachgoal):
             found = compare_result_answer(resulttagresult, current_answer, eachgoal['goaloperator'])
             if found:
                 #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_answer)
-                add_goals_id_ts(goalid, timestamppart, True)
+                add_goals_id_ts(goalid, fulltimestamp, True)
             else:
-                add_goals_id_ts(goalid, timestamppart, False)
+                add_goals_id_ts(goalid, fulltimestamp, False)
  
     # All file processed
     #print goals_id_ts
@@ -369,6 +433,9 @@ def processLabExercise(studentlabdir, labidname, grades, goals):
         elif eachgoal['goaltype'] == "time_before":
             #print "Skipping %s" % eachgoal
             continue
+        elif eachgoal['goaltype'] == "time_during":
+            #print "Skipping %s" % eachgoal
+            continue
         else:
             sys.stdout.write("Error: Invalid goal type!\n")
             sys.exit(1)
@@ -384,7 +451,8 @@ def processLabExercise(studentlabdir, labidname, grades, goals):
         if (eachgoal['goaltype'] == "matchany" or
             eachgoal['goaltype'] == "matchlast" or
             eachgoal['goaltype'] == "matchacross" or
-            eachgoal['goaltype'] == "time_before"):
+            eachgoal['goaltype'] == "time_before" or
+            eachgoal['goaltype'] == "time_during"):
             continue
         elif eachgoal['goaltype'] == "boolean":
             t_string = eachgoal['boolean_string']
@@ -392,26 +460,30 @@ def processLabExercise(studentlabdir, labidname, grades, goals):
             # Process all goals_ts_id dictionary
             for timestamppart, current_goals in goals_ts_id.iteritems():
                 evalBooleanResult = evalBoolean.evaluate_boolean_expression(t_string, current_goals)
+                timestampend = "NONE"
+                fulltimestamp = '%s-%s' % (timestamppart, timestampend)
                 if evalBooleanResult:
                     # found - break from loop
                     goalid = eachgoal['goalid']
-                    add_goals_id_ts(goalid, timestamppart, evalBooleanResult)
+                    add_goals_id_ts(goalid, fulltimestamp, evalBooleanResult)
                     break
             # if evalBooleanResult is False - means not found
             if evalBooleanResult == False:
-                add_goals_id_ts(goalid, "default", False)
+                fulltimestamp = 'default-NONE'
+                add_goals_id_ts(goalid, fulltimestamp, False)
         else:
             sys.stdout.write("Error: Invalid goal type!\n")
             sys.exit(1)
 
-    # Now do the goaltype of 'time_before'
+    # Now do the goaltype of 'time_before' or 'time_during'
     for eachgoal in goals:
         if (eachgoal['goaltype'] == "matchany" or
             eachgoal['goaltype'] == "matchlast" or
             eachgoal['goaltype'] == "matchacross" or
             eachgoal['goaltype'] == "boolean"):
             continue
-        elif eachgoal['goaltype'] == "time_before":
+        elif (eachgoal['goaltype'] == "time_before" or
+              eachgoal['goaltype'] == "time_during"):
             t_string = eachgoal['boolean_string']
             goal1tag = eachgoal['goal1tag']
             goal2tag = eachgoal['goal2tag']
@@ -432,17 +504,29 @@ def processLabExercise(studentlabdir, labidname, grades, goals):
             #print goals_tag1
             #print "Goals tag2 is "
             #print goals_tag2
-            evalTimeBeforeResult = evalTimeBefore(goals_tag1, goals_tag2)
-            # if evalTimeBeforeResult is False - means can't find the following condition
-            # (1) goals_tag1 is True and goals_tag2 is True
-            # (2) timestamp for goals_tag1 is before timestamp for goals_tag2
-            add_goals_id_ts(goalid, "default", evalTimeBeforeResult)
+            if eachgoal['goaltype'] == "time_before":
+                evalTimeResult = evalTimeBefore(goals_tag1, goals_tag2)
+                # if evalTimeResult is False - that means, can't find the following condition:
+                # (1) goals_tag1 is True and goals_tag2 is True
+                # (2) goal1start <= goal2start
+            if eachgoal['goaltype'] == "time_during":
+                evalTimeResult = evalTimeDuring(goals_tag1, goals_tag2)
+                # if evalTimeResult is False - that means, can't find the following condition:
+                # (1) goals_tag1 is True and goals_tag2 is True
+                # (2) goal2start (%s) <= goal1start (%s) <= goal2end (%s)
+
+            fulltimestamp = 'default-NONE'
+            add_goals_id_ts(goalid, fulltimestamp, evalTimeResult)
         else:
             sys.stdout.write("Error: Invalid goal type!\n")
             sys.exit(1)
 
     #print "Goals - id timestamp : "
     #print goals_id_ts
+    #for current_goals, timestamp in goals_id_ts.iteritems():
+    #     print "-----"
+    #     print current_goals
+    #     print timestamp
     #print "Goals - timestamp id : "
     #print goals_ts_id
 
