@@ -5,6 +5,7 @@ MAINTAINER \
 ENV DISTTAG=f24docker FGC=f24
 LABEL description="This is base Docker image for forensics analysis machines"
 ARG lab
+ARG labdir
 
 RUN dnf update -y 
 RUN dnf install -y vim sudo net-tools less man python procps-ng tcl expect wget openssh-server

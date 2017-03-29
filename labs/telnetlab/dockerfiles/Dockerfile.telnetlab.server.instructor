@@ -3,6 +3,7 @@ MAINTAINER jkhosali@nps.edu
 LABEL description="This is base Docker image for Telnet Labs (client)"
 
 ARG lab
+ARG labdir
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     gcc-multilib \
@@ -28,7 +29,7 @@ RUN echo "ubuntu:ubuntu" | chpasswd
 RUN chown -R ubuntu:ubuntu /home/ubuntu
 RUN adduser ubuntu sudo
 ADD $lab.instructor.tar.gz /home/ubuntu
-ADD config/telnet /etc/xinetd.d/
+ADD $labdir/config/telnet /etc/xinetd.d/
 
 USER ubuntu
 ENV HOME /home/ubuntu

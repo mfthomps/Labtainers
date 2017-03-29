@@ -2,6 +2,7 @@ FROM ubuntu:xenial
 MAINTAINER jkhosali@nps.edu
 LABEL description="This is base Docker image for One-Way Hash Function labs"
 ARG lab
+ARG labdir
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     expect \

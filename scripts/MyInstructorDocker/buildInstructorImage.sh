@@ -65,7 +65,7 @@ tar --atime-preserve -zcvf $LAB_TAR .local *
 cd $ORIG_PWD
 dfile=Dockerfile.$labimage.instructor
 cp $LAB_DIR/dockerfiles/$dfile .
-docker build --build-arg lab=$labimage -f ./$dfile -t $labimage:instructor .
+docker build --build-arg lab=$labimage labdir=$LAB_DIR -f ./$dfile -t $labimage:instructor .
 echo "removing temporary $dfile, reference original in $LAB_DIR/dockerfiles/$dfile"
 rm ./$dfile
 
