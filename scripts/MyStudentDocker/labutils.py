@@ -122,7 +122,7 @@ def putLastEmail(email):
     with open(EMAIL_TMP, 'w') as fh:
             fh.write(email)
 
-def ParamForStudent(lab_master_seed):
+def ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname):
     done = False
     while not done:
         done = True
@@ -258,7 +258,7 @@ def DoStart(start_config, labname, role):
         # If the container is just created, prompt user's e-mail
         # then parameterize the container
         elif need_seeds and role == 'student':
-            ParamForStudent(lab_master_seed)
+            ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname)
     
     # Reach here - Everything is OK - spawn terminal for each container based on num_terminal
     for container in start_config.containers.values():
