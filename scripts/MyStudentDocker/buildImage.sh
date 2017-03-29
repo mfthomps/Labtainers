@@ -42,6 +42,10 @@ tar --atime-preserve -zcvf $LAB_TAR .local *
 cd $ORIG_PWD
 dfile=Dockerfile.$labimage.student
 cp $LAB_DIR/dockerfiles/$dfile .
+fixresolve='../../setup_scripts/fixresolv.sh'
+if [ -f $fixresolve ]; then
+    $fixresolve
+fi
 
 docker build --build-arg lab=$labimage -f ./$dfile -t $labimage:student .
 echo "removing temporary $dfile, reference original in $LAB_DIR/dockerfiles/$dfile"
