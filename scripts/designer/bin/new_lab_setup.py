@@ -19,6 +19,14 @@ template_dirs = os.listdir(tdir)
 here = os.getcwd()
 labname = os.path.basename(here)
 for source in template_dirs:
+    if source == 'bin':
+        os.mkdir(labname)
+        try:
+            shutil.copytree(os.path.join(tdir, source), os.path.join(here, labname, source)) 
+        except:
+            print('error copying %s to %s, expected %s to be empty' % (source, here, here))
+            exit(1)
+        
     print('copying %s' %  source)
     try:
         shutil.copytree(os.path.join(tdir, source), os.path.join(here, source)) 
@@ -48,4 +56,4 @@ with open(start_config_template) as fh:
             out_fh.write(new_line)
         else:
             out_fh.write(line)
- 
+os.remove(start_config_template) 
