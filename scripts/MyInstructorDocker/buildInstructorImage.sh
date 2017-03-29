@@ -7,37 +7,26 @@
 # Usage: buildInstructorImage.sh <labname> [<imagename>]
 #        <imagename> is optional for lab that only has one image
 lab=$1
-has_image=0
 if [ "$#" -eq 2 ]; then
     imagename=$2
     labimage=$lab.$imagename
-    has_image=1
 else
-    labimage=$lab
-    has_image=0
+    imagename=$lab
+    labimage=$lab.$lab
 fi
 
-if [ $has_image == 1 ]; then
-    echo "Labname is $lab with image name $imagename"
-else
-    echo "Labname is $lab using default image"
-fi
+echo "Labname is $lab with image name $imagename"
 
 LAB_DIR=`realpath ../../labs/$lab/`
 if [ ! -d $LAB_DIR ]; then
     echo "$LAB_DIR not found as a lab directory"
     exit
 fi
-if [ $has_image == 1 ]; then
-    LABIMAGE_DIR=`realpath ../../labs/$lab/$imagename/`
-    if [ ! -d $LABIMAGE_DIR ]; then
-        echo "$LABIMAGE_DIR not found"
-        exit
-    fi
-else
-    LABIMAGE_DIR=`realpath ../../labs/$lab/`
+LABIMAGE_DIR=`realpath ../../labs/$lab/$imagename/`
+if [ ! -d $LABIMAGE_DIR ]; then
+    echo "$LABIMAGE_DIR not found"
+    exit
 fi
-
 ORIG_PWD=`pwd`
 echo $ORIG_PWD
 LAB_TAR=${ORIG_PWD}/$labimage.instructor.tar.gz
@@ -65,6 +54,10 @@ tar --atime-preserve -zcvf $LAB_TAR .local *
 cd $ORIG_PWD
 dfile=Dockerfile.$labimage.instructor
 cp $LAB_DIR/dockerfiles/$dfile .
+fixresolve='../../setup_scripts/fixresolv.sh'
+if [ -f $fixresolve ]; then
+    $fixresolve
+fi
 docker build --build-arg lab=$labimage labdir=$LAB_DIR -f ./$dfile -t $labimage:instructor .
 echo "removing temporary $dfile, reference original in $LAB_DIR/dockerfiles/$dfile"
 rm ./$dfile

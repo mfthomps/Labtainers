@@ -1,39 +1,30 @@
 #!/usr/bin/env python
 
-# Filename: start.py
+# Filename: redo.py
 # Description:
-# This is the start script to be run by the instructor.
-# Note:
-# 1. It needs 'start.config' file, where
-#    <labname> is given as a parameter to the script.
+# For lab development testing workflow.  This will stop containers of a lab, create or update lab images
+# and start the containers.
 #
 
-import getpass
-import glob
-import json
-import md5
-import os
 import sys
-
+import os
 instructor_cwd = os.getcwd()
 student_cwd = instructor_cwd.replace('MyInstructorDocker', 'MyStudentDocker')
 print "Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd)
 # Append Student CWD to sys.path
 sys.path.append(student_cwd)
-
-import ParseStartConfig
 import labutils
-# Usage: start.py <labname>
+
+# Usage: redo.py <labname>
 # Arguments:
-#    <labname> - the lab to start
+#    <labname> - the lab to stop, delete and start
 def main():
-    #print "start.py -- main"
     if len(sys.argv) != 2:
-        sys.stderr.write("Usage: start.py <labname>\n")
+        sys.stderr.write("Usage: redo.py <labname>\n")
         sys.exit(1)
     
     labname = sys.argv[1]
-    labutils.StartLab(labname, "instructor")
+    labutils.RedoLab(labname, "instructor")
 
     return 0
 
