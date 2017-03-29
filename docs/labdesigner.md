@@ -42,7 +42,7 @@ or are parameterized for each student.
 Exercises that include multiple networked computers illustrate another advantage 
 of using containers over VMs, namely, containers require significantly less resources
 than do VMs.  A student laptop that struggles to run two or more VMs can readily 
-run multiple containers simultaneously.
+run multiple containers simultaneously.  
 
 Overview of the Student Environment and Workflow
 ------------------------------------------------
@@ -113,18 +113,16 @@ to allow you to focus more time on the design of the lab and less time on mitiga
 explaining system administration burdens you are placing on students and instructors.  
 The framework does not require lab designers to program or create scripts.  The
 lab designer primarily interacts with the framework by editing configuration files,
-which the affect the student's execution environment and the optional automated
+which affect the student's execution environment and the optional automated
 assessment of student activity.
 
 Labtainer exercises each have their own
 directory under the "labs" directory in the project repository.
 The first step in creating a new lab within the framework is to create
-a directory for the lab and then run the "new\_lab\_setup.sh" script.
+a directory for the lab, cd to it, and then run the "new\_lab\_setup.sh" script.
 This will create a set of template files that you can then customize
 for the new lab.  These template files are referenced in the discussion
-below.
-
-After creating the new lab directory, cd to that directory and then run
+below.  After creating the new lab directory, cd to that directory and then run
 
     $SEED_DIR/scripts/designer/bin/new_lab_setup.py
 
@@ -132,30 +130,59 @@ where SEED\_DIR is set to the top of the svn repo, e.g.,
 
     export SEED_DIR=/home/mike/svn/seed/trunk
 
+The result is a new labtainer lab that can be run.  While this new
+lab will initially only present the student with a bash shell to an
+empty directory, it is worth testing the lab to understand the workflow.
+
 ## Testing the new lab ##
-Once a new lab is created, its container image must be created.  The default container configuration
-is simply a bash shell in linux.  Later sections of this manual describe modifications that will
-change the container image, but for now you can create a default image as follows:
+Once a new lab directory is created, and the new\_lab\_setup.py has been run, then 
+you can test the new, (currently empty) lab.  All student labs are launched from the
+MyStudentDocker directory.  Lab development workflow is easiest if at least two
+terminals or tabs are used, one in the new lab directory, and one in the MyStudentDocker
+directory.  So, open a new tab or window and:
 
     cd scripts/MyStudentDocker
 
-Then run:
+Then start the container using the:
 
-    ./buildImage.sh [labname]
+    ./redo.py [labname] 
 
-where labname is the name of your new lab.
+command, where labname is the name of the lab you just created.  
+The first time you run this for a given lab, it will 
+take a relatively long time because it must fetch and build the entire Ubuntu container image.  Subsequent builds
+should be faster because your local Docker system will cache portions of the build.  [After a campus-local
+Docker registry is established, this step should be a lot faster because it will not require separate
+installation of Linux development environment tools within the container images.]
 
-To start a student container, use the 
+The redo.py command will remove and recreate the container
+each time the script is run.  And it will rebuild the container image if any of its configuration 
+information has changed.  This is often necessary when building and testing new labs, to ensure the
+new envriroment does not contain artifacts from previous runs.
 
-    ./redo.sh [labname] 
+Note the "redo.py" command is not intended for use by students, they would use the "start.py" command.  
 
-command, where labname is the name of the lab you just created.  Students would typically
-use the "start.sh" command.  The redo.sh command will remove and recreate the container
-each time the script is run.  This is often necessary when building new labs, to ensure the
-new envrioment does not contain artifacts from previous runs.
+Stop the containers with 
 
-The above script should result in creation of three windows, two of which have
-running bash shells, and the third displays instructions.
+    ./stop.py [labname]
+
+Note that when you stop the container, a path to saved results is displayed.
+This is the zip file that the student will forward to the instructor.
+
+To test adding a "hello world" program to the new labtainer, perform the following steps:
+
+    From the new lab directory window, cd $SEED_DIR/labs/[labname]/[labname]
+
+    Create a "hello world" program, e.g., in python or compiled C.
+
+    From the MyStudentDocker window, run redo.py [labname]
+    
+You should see the new program in the container's
+home directory.  If you run the program from the container, and then stop the container
+with stop.py, you will see the stdin and stdout results of the program within the
+saved zip file.
+
+The following sections describe how to futher alter the lab execution environment seen by 
+the student.
 
 Defining the lab execution environment
 --------------------------------------
@@ -163,7 +190,7 @@ A given lab typically requires some set of software packages, and some
 system configuration, e.g., network settings.  Identifying an expected
 environment is not unique to this framework, rather, it is typically part of any
 lab design.  The framework captures most configuration details within a standard
-Dockerfile.  Templates for two Dockerfiles are placed in the "dockerfiles" 
+Dockerfile.  Templates for two Dockerfiles are placed in the new lab's "dockerfiles" 
 directory, one for student containers and one for instructor containers.
 These use standard Docker file syntax, which is described at:
 
@@ -177,12 +204,73 @@ of Linux packages necessary to host a lab within the framework.  The default
 execution environment builds off of a recent Ubuntu image.
 [MFT: Note alternate mimimal images as developed, e.g., Fedora.]
 
+A given lab can include multiple containers, each appearing as distinct
+computers connected via networks.  The execution environment seen by a
+student when interacting with one of these "computers" is therefore defined
+by the configuration of the associated container.  
+If a lab is to contain only one container, you can
+skip ahead to the subsection titled *Lab-specific files in the student's home directory*.
+
+You must assign a name to each container within the new lab.  Each new lab
+starts with a single container, whose name matches the lab name.  You are free
+to change that name. The names of containers should reflect their role in the lab,
+e.g., "client" and "server".  Once you have picked container names, you must create
+Dockerfiles and update the *$SEED_DIR/labs/[labname]/config/start.config* file.
+
+Each container must have its own Dockerfile within the *$SEED_DIR/labs/[labname]/dockerfiles*
+directory.  The naming convention for dockerfiles is
+
+    Dockerfile.[labname].[container_name].[role]
+
+where role is either "student" or "instructor".  The system automatically creates one Dockerfile
+per role.  You are responsible for creating (copying to) additional Dockerfiles for other containers,
+and changing the name of the initial Dockerfile if its container name changes.
+
+You must also describe your containers within the *start.config* file as described below.
+
+### Container definitions in start.config ###
+Most single container labs can use the automatically generated start.config file file
+without modification.  Labs consisting of multiple containers, or requiring custom users
+must modify the start.config file.  The following describes the major sections of that configuration
+file.
+
+  * GLOBAL\_SETTINGS Beneath this keyword, the following values must be defined:
+
+    * GRADE\_CONTAINER [container name] All lab containers are available the instructor while assessing student labs.
+This setting identifies which of the lab containers will host automated grading functions.
+    * HOST\_HOME\_XFER [dir name]   Identifies the host directory via which to transfer student artifacts, relative to 
+the home directory.  For students, this is where the zip files of their results end up.  For instructors, this is
+where zip files should be gathered for assessment.
+    * LAB\_MASTER\_SEED [seed]  The master seed string for this lab.  It is combined with the student email
+address to create an instance seed that controls parameterization of individual student labs.
+
+  * NETWORK [network name]  One of these sections is require for each network within the lab.  In addition to
+providing a name for the network, the following values are defined:
+
+    * MASK [network address mask] The network mask, e.g., 172.25.0.0./24
+    * GATEWAY [gateway address] The IP address of the network gateway
+
+  * CONTAINER [container name]  One of these sections is reqired for each container in the lab.
+In addition to naming the container, the following values are defined: 
+
+    * TERMINALS [quantity] The number of virtual terminals to open and attach to this container when a lab starts.
+If missing, it defaults to 2.
+    * USER [user name] The user name whose account will be accessed via the virtual terminals.
+    * [network name] [ip address] Network address assignments for each network (defined via a NETWORK section), 
+that is to be connected to this container.  A separate line should be entered for each network.
+   
+
 
 ### Lab-specific files in the student's home directory ###
 Files that are to reside in the student's $HOME directory are placed in the 
-new lab directory.  For example, if a lab includes a source code file, that
-should be created in the lab directory, and it will appear in the student's
-home directory within the container when the container starts.  
+new lab container directory.  For example, if a lab includes a source code file, that
+should be created in the lab container directory, and it will appear in the student's
+home directory within the container when the container starts.  The lab container
+directory is at:  
+
+    $SEED_DIR/labs/[labname]/[container name]
+
+Note the name of the container in labs with a single container matches the labname by default.
 
 ### Final lab environment fixup ###
 The initial environment encountered by the student is further refined using
@@ -190,7 +278,10 @@ the optional bin/fixlocal.sh script.  The framework executes
 this script the first time a student starts the lab container.  For example,
 this could be used to compile lab-specific programs afer they have been parameterized,
 (as described below).  Or this script could perform final configuration adjustments
-that cannot be easily performed by the Dockerfile.
+that cannot be easily performed by the Dockerfile.  These scripts are per-container
+and reside at:
+
+    $SEED_DIR/labs/[labname]/[container name]/bin
 
 Parameterizing a lab
 --------------------
@@ -200,7 +291,7 @@ code or/and data.  The framework will replace these symbols with randomized valu
 specific to each student.  The config/parameter.config file identifies the files, and
 the symbols within those files that are to be modified.  A simple example can be found in 
 
-    labs/formatstring/config/parameter.config
+    $SEED_DIR/labs/formatstring/formatstring/config/parameter.config
 
 That configuration file causes the string "SECRET2\_VALUE" within the file:
 
@@ -215,7 +306,7 @@ lab, the executable program resulting from the fixlocal.sh script will be specif
 to each student (though not necessarily unique).
 
 Symbolic parameter replacement operations are defined within the config/parameter.config file.
-Each line of that file must start with a "<parameter\_id> : ", which is any unique string, and
+Each line of that file must start with a "`<parameter_id>` : ", which is any unique string, and
 is followed by one of the following operations:
 
 
@@ -230,7 +321,7 @@ is followed by one of the following operations:
                                            to be used by random generator
        example:
 
-         <parameter_id> : RAND_REPLACE: /home/ubuntu/stack.c : BUFFER_SIZE : 200 : 2000
+         some_parameter_id : RAND_REPLACE: /home/ubuntu/stack.c : BUFFER_SIZE : 200 : 2000
          will randomly replace the token string "BUFFER_SIZE" found in
          file stack.c with a number ranging from 200 to 2000
  
@@ -242,7 +333,7 @@ is followed by one of the following operations:
                            
                        
        example:
-         <parameter_id> : HASH_CREATE : /home/ubuntu/myseed : bufferoverflowinstance
+         some_parameter_id : HASH_CREATE : /home/ubuntu/myseed : bufferoverflowinstance
          A file named /home/ubuntu/myseed will be created (if it does not exist), 
          containing an MD5 hash of the lab instance seed concatentated with the 
          string 'bufferoverflowinstance'.
@@ -255,7 +346,7 @@ is followed by one of the following operations:
                 <string> - a string contatenated with the lab instance seed and hashed
 
          example:
-           <parameter_id> HASH_REPLACE : /root/.secret : ROOT_SECRET : mysupersecretrootfile
+           some_parameter_id HASH_REPLACE : /root/.secret : ROOT_SECRET : mysupersecretrootfile
            The string "ROOT_SECRET" in file /root/.secret will be replaced with an MD5 hash
            of the concatenation of the lab instance seed and "mysupersecretrootfile".
 
@@ -295,21 +386,21 @@ could be compared to "expected" values.  These lab-specific artifacts are identi
   3) the line containing the artifact
   4) a token within that line.
 
-Each identified artifact is given a symbolic name, which is then referenced in the goals.config
-file to assess whether it is an expected value.
+Each identified artifact is given a symbolic name. A named artifact is referred to herein as a *result*, which 
+is then referenced in the goals.config file to assess whether it is an expected value.
 
 Consider the labs/formatstring/instr\_config/results.config file.  The first non-comment line
-defines an artifact that will have the symbolic name "crashStringCanary".  This artifact is
+defines a result having the symbolic name "crashStringCanary".  This result is
 found by looking at stdout from the "vul\_prog" program, finding the first line that starts with:
-"\*\*\* stack smashing detected".  The symbol is assigned the value of the third space-delimited 
+"\*\*\* stack smashing detected".  The result is assigned the value of the third space-delimited 
 token in that line.
 
-Entries within the results.config file have the following format:
+Entries within the results.config file each have one of the two following formats:
 
 Format type 1:
      <nametag> = <file_id> : <field_type> : <field_id> : <line_type> : <line_id>
          where:
-                   nametag - The symbolic name of the artifact, which will be referenced in the
+                   nametag - The symbolic name of the result, which will be referenced in the
                              goals configuration file.  It must be alphanumeric, underscores permitted.
                    file_id -- identifies the set of files to be parsed.  The format of this id is:
                        <prog>.[stdin | stdout]
@@ -330,7 +421,7 @@ Format type 1:
 Format type 2:
      <nametag> = [ logfile ] : <line_type> : <line_id>
          where:
-                   nametag - The symbolic name of the artifact, which will be referenced in the
+                   nametag - The symbolic name of the result, which will be referenced in the
                              goals configuration file.  It must be alphanumeric, underscores permitted.
                    logfile - The field is in the logfile result file
                    line_type - Identifies how the line is to be identified, values include:
@@ -339,37 +430,57 @@ Format type 2:
                    line_id - See line_type above.
 
 ### Assessing the student results ###
-Artifacts resulting from student lab activity are assigned symbolic names by the results.config file
-as described above.  These symbolic names are then referenced in the goals.config to assess whether
+Results of student lab activity are assigned symbolic names by the results.config file
+as described above.  These results are then referenced in the goals.config to assess whether
 the student obtained expected results.  Each lab goal defined in the goals.config file
-will evaluate to TRUE or FALSE, with TRUE reflecting that the student obtained the desired result.
-The lab designer can also define "subgoals", some number of which are intended to be evaluated
-within a boolen expression representing an actual goal.
+will evaluate to TRUE or FALSE, with TRUE reflecting that the student met the defined goal.
+Once evaluated, a goal may determine the state of subsequent goals within the goals.config file, 
+i.e., through use of boolean expressions and temporal comparisons between goals.  The evaluated
+state of each goal can then contribte to a student grade.
 
 As noted earlier, student results may derive from multiple invocations of the same program or system utility.  
-To account for cases where students continue
-to experiment with programs after they have obtained the desired results, the framework includes
-a goal "type" of "matchany", which evaluates as TRUE if the student obtained the expected
-result during any invocation of the program or system utility.  In those cases where the student is required
-to obtain the expected result during the last invocation of a program, the "matchlast" goal type 
-may be specified.
+The framework does not discourage students from continuing to experiment and explore aspects of the 
+exercise subsequent to obtiaining the desired results.  In general, the assessment determines if the student
+obtained expected results during any invocation of a program or system utility.  In those cases 
+where the student is required to obtain the expected results during the *last* invocation of a program, 
+the *matchlast* goal type may be specified as described below.
+
+To facilitate grading multiple attempts or explorations of a lab exercise, the framework associates
+timestamps with the results of processing the results.config file.  A single timestamp will
+include results from a stdin file and a stdout file.  In general, there will be a distinct, 
+timestamped set of results for each occurance of a student invoking a targeted program.
 
 The following syntax defines each goal or subgoal within the goals.config file:
 
 
-     <id> = <type> : [<operator> : <resulttag> : <answertag> | <boolean_expression>]
+     <goal_id> = <type> : [<operator> : <resulttag> : <answertag> | <boolean_expression> | goal1 : goal2]
        Where: 
-         <id> - And identifer for the goal.  It must be alphanumeric (underscores permitted).
+         <goal_id> - An identifer for the goal.  It must be alphanumeric (underscores permitted).
          <type> - must be one of the following:
-              'matchany' - if the answertag matches any resulttag
-                         - note: 'matchany' will NOT be used as sub-goal for goal of type 'boolean' below
-              'matchlast' - if the answertag matches the last resulttag
-                          - note: 'matchlast' can also be used as sub-goal for goal of type 'boolean' below
-              'matchacross' - if the answertag matches resulttag (across different timestamp)
-                            - note: 'matchacross' will NOT be used as sub-goal for goal of type 'boolean' below
-              'boolean_set' - this is sub-goal to be used with goal of type 'boolean' below
-              'boolean' - goal based on boolean operation
-                          string that follows will be evaluated for boolean value
+              'matchany'    - Results from all timestamped sets are evaluated.
+                              If the answertag names a result, then both that result and
+                              the resulttag must occur in the same timestamped set.
+                              The 'matchany' goals are treated as a set of values, each 
+                              timestamped based on the timestamp of the reference resulttag.
+                           
+              'matchlast'   - only results from the latest timestamped set are evaluated.
+              'matchacross' - The answertag must name a result, and that result must occur
+                              in a timestamped set that differs from the set in which the resulttag occurs.
+                            - note: 'matchacross' cannot be used within the boolean expression defined below.
+              'boolean'     - The goal value is computed from a boolean expression consisting of 
+                              goal_id's and boolean operators, ("and" & "or"), and parenthisis for precedence.
+                              The goal_id's must be from goals defined earlier in the goals.config file. 
+                              The goal evalutes to TRUE if the boolen expression evaluates to TRUE for any
+                              of the timestamped sets of goal_ids, (see the 'matchany' discussion above).
+                              The goal_id's cannot include any "matchacross" goals.
+              'time_before' - Both goal1 and goal2 must be goal_ids from previous *matchany* goal types.
+                              Evaluates to TRUE if any TRUE goal1 has a timestamp that is before than any
+                              TRUE goal2
+              'time_during' - Both goal1 and goal2 must be goal_ids from previous *matchany* goal types.
+                              Timestamps include a start and end time, reflecting when the program starts
+                              and when it terminates.
+                              Evaluates to TRUE if any TRUE goal1 has a start timestamp within the start
+                              and end tmes of any TRUE goal2.
     
      <operator> - the following operators evaluate to TRUE as described below:
         'string_equal' -  The strings derived from <answertag> and <resulttag>
