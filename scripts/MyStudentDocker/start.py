@@ -114,7 +114,22 @@ def CreateSubnets(subnets):
                 sys.exit(1)
         else:
             print "Already exists! Not creating %s subnet at %s!\n" % (subnet_name, subnet_network_mask)
-        
+       
+EMAIL_TMP='./.tmp/email.txt' 
+def getLastEmail():
+    retval = None
+    if os.path.isfile(EMAIL_TMP):
+        with open(EMAIL_TMP) as fh:
+            retval = fh.read()
+    return retval
+
+def putLastEmail(email):
+    try:
+        os.mkdir('./.tmp')
+    except:
+        pass
+    with open(EMAIL_TMP, 'w') as fh:
+            fh.write(email)
 
 def DoStart(start_config, labname):
     host_home_xfer = start_config.host_home_xfer
@@ -175,8 +190,22 @@ def DoStart(start_config, labname):
         # If the container is just created, prompt user's e-mail
         # then parameterize the container
         if need_seeds:
-            # Prompt user for e-mail address
-            user_email = raw_input("Please enter your e-mail address: ")
+            done = False
+            while not done:
+                done = True
+                # Prompt user for e-mail address
+                eprompt = 'Please enter your e-mail address '
+                prev_email = getLastEmail()
+                if prev_email is not None:
+                    eprompt = eprompt+" [%s]" % prev_email
+                user_email = raw_input(eprompt)
+                if len(user_email.strip()) == 0:
+                    if prev_email is None:
+                        done = False
+                    else:
+                        user_email = prev_email
+                else:
+                    putLastEmail(user_email)
             # Create hash using LAB_MASTER_SEED concatenated with user's e-mail
             # LAB_MASTER_SEED is per laboratory - specified in start.config
             string_to_be_hashed = '%s:%s' % (lab_master_seed, user_email)
