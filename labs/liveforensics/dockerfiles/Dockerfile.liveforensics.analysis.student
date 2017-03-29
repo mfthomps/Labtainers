@@ -15,7 +15,7 @@ RUN wget https://forensics.cert.org/cert-forensics-tools-release-24.rpm && rpm -
 
 EXPOSE 22
 
-ADD fed_sudoers /etc/sudoers
+ADD $labdir/fed_sudoers /etc/sudoers
 RUN useradd -ms /bin/bash abby
 RUN echo "abby:abby" | chpasswd
 RUN chown -R abby:abby /home/abby

@@ -24,7 +24,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     zip \
     zsh
 
-ADD sudoers /etc/sudoers
+ADD $labdir/sudoers /etc/sudoers
 RUN useradd -ms /bin/bash ubuntu
 RUN echo "ubuntu:ubuntu" | chpasswd
 RUN chown -R ubuntu:ubuntu /home/ubuntu
