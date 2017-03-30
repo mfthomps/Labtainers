@@ -23,6 +23,11 @@ if [ ! -d $LABIMAGE_DIR ]; then
     echo "$LABIMAGE_DIR not found"
     exit
 fi
+BASE_DIR=`realpath ../designer/base_dockerfiles`
+if [ ! -d $BASE_DIR ]; then
+    echo "$BASE_DIR not found as a base directory"
+    exit
+fi
 
 ORIG_PWD=`pwd`
 echo $ORIG_PWD
@@ -46,7 +51,9 @@ fixresolve='../../setup_scripts/fixresolv.sh'
 if [ -f $fixresolve ]; then
     $fixresolve
 fi
+cp $BASE_DIR/sudoers .
 
-docker build --build-arg lab=$labimage labdir=$LAB_DIR -f ./$dfile -t $labimage:student .
+docker build --build-arg lab=$labimage --build-arg labdir=$LAB_DIR -f ./$dfile -t $labimage:student .
 echo "removing temporary $dfile, reference original in $LAB_DIR/dockerfiles/$dfile"
 rm ./$dfile
+rm ./sudoers
