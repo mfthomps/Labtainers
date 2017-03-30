@@ -409,9 +409,9 @@ def RedoLab(labname, role):
         os.system(cmd)
         if CheckBuild(labname, mycontainer_image_name, mycontainer_name, name):
             if os.path.isfile(build_student):
-                cmd = '%s %s' % (build_student, labname)
+                cmd = '%s %s %s' % (build_student, labname, name)
             elif os.path.isfile(build_instructor):
-                cmd = '%s %s' % (build_instructor, labname)
+                cmd = '%s %s %s' % (build_instructor, labname, name)
             else:
                 sys.stderr.write("ERROR: RedoLab, no image rebuild script")
                 exit(1)
