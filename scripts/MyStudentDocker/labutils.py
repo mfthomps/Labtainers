@@ -127,7 +127,7 @@ def ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname):
     while not done:
         done = True
         # Prompt user for e-mail address
-        eprompt = 'Please enter your e-mail address '
+        eprompt = 'Please enter your e-mail address: '
         prev_email = getLastEmail()
         if prev_email is not None:
             eprompt = eprompt+" [%s]" % prev_email
