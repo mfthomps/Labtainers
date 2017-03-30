@@ -47,6 +47,6 @@ if [ -f $fixresolve ]; then
     $fixresolve
 fi
 
-docker build --build-arg lab=$labimage --build-arg labdir=$LAB_DIR -f ./$dfile -t $labimage:student .
+docker build --build-arg lab=$labimage --build-arg labdir=$LABIMAGE_DIR -f ./$dfile -t $labimage:student .
 echo "removing temporary $dfile, reference original in $LAB_DIR/dockerfiles/$dfile"
 rm ./$dfile
