@@ -63,6 +63,14 @@ def ConnectNetworkToContainer(mycontainer_name, mysubnet_name, mysubnet_ip):
     #print "Result of subprocess.call ConnectNetworkToContainer is %s" % result
     return result
 
+def DisconnectNetworkFromContainer(mycontainer_name, mysubnet_name):
+    #print "Disconnecting more network subnet to container %s" % mycontainer_name
+    command = "docker network disconnect %s %s 2> /dev/null" % (mysubnet_name, mycontainer_name)
+    #print "Command to execute is (%s)" % command
+    result = subprocess.call(command, shell=True)
+    #print "Result of subprocess.call DisconnectNetworkFromContainer is %s" % result
+    return result
+
 def CreateSingleContainer(mycontainer_name, mycontainer_image_name, mysubnet_name=None, mysubnet_ip=None):
     #print "Create Single Container"
     docker0_IPAddr = getDocker0IPAddr()
@@ -226,9 +234,6 @@ def DoStart(start_config, labname, role):
             # If we just create it, then set need_seeds=True
             need_seeds=True
 
-            for mysubnet_name, mysubnet_ip in container.container_nets.items():
-                connectNetworkResult = ConnectNetworkToContainer(mycontainer_name, mysubnet_name, mysubnet_ip)
-
         # Check again - 
         haveContainer = IsContainerCreated(mycontainer_name)
         #print "IsContainerCreated result (%s)" % haveContainer
@@ -238,6 +243,9 @@ def DoStart(start_config, labname, role):
             sys.stderr.write("ERROR: DoStartMultiple Container %s still not created!\n" % mycontainer_name)
             sys.exit(1)
         else:
+            for mysubnet_name, mysubnet_ip in container.container_nets.items():
+                connectNetworkResult = ConnectNetworkToContainer(mycontainer_name, mysubnet_name, mysubnet_ip)
+
             # Start the container
             start_result = StartMyContainer(mycontainer_name)
             if start_result == FAILURE:
@@ -521,6 +529,10 @@ def DoStop(start_config, mycwd, labname, role):
                 # Before stopping a container, run 'Student.py'
                 # This will create zip file of the result
                 CreateCopyChownZip(mycwd, start_config, mycontainer_name, mycontainer_image, container_user)
+
+            for mysubnet_name, mysubnet_ip in container.container_nets.items():
+                disconnectNetworkResult = DisconnectNetworkFromContainer(mycontainer_name, mysubnet_name)
+
             # Stop the container
             StopMyContainer(mycwd, start_config, mycontainer_name)
 
