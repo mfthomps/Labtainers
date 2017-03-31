@@ -3,7 +3,7 @@ MAINTAINER jkhosali@nps.edu
 ARG lab
 ARG labdir
 ARG imagedir
-ADD $labdir/$lab.student.tar.gz /home/ubuntu
+ADD $labdir/$lab.tar.gz /home/ubuntu
 ADD bin/funbuffer /usr/bin/
 
 USER ubuntu
