@@ -13,7 +13,8 @@ fi
 
 echo "Labname is $lab with image name $imagename"
 
-LAB_DIR=`realpath ../../labs/$lab/`
+LAB_TOP=`realpath ../../labs`
+LAB_DIR=$LAB_TOP/$lab
 if [ ! -d $LAB_DIR ]; then
     echo "$LAB_DIR not found as a lab directory"
     exit
@@ -24,9 +25,14 @@ if [ ! -d $LABIMAGE_DIR ]; then
     exit
 fi
 
+fixresolve='../../setup_scripts/fixresolv.sh'
+if [ -f $fixresolve ]; then
+    $fixresolve
+fi
+
 ORIG_PWD=`pwd`
 echo $ORIG_PWD
-LAB_TAR=${ORIG_PWD}/$labimage.student.tar.gz
+LAB_TAR=$LAB_DIR/$labimage.student.tar.gz
 TMP_DIR=/tmp/$labimage
 rm -rf $TMP_DIR
 mkdir $TMP_DIR
@@ -39,14 +45,9 @@ cp  $LABIMAGE_DIR/bin/* $TMP_DIR/.local/bin 2>>/dev/null
 mkdir $TMP_DIR/.local/result
 cd $TMP_DIR
 tar --atime-preserve -zcvf $LAB_TAR .local *
-cd $ORIG_PWD
+cd $LAB_TOP
 dfile=Dockerfile.$labimage.student
-cp $LAB_DIR/dockerfiles/$dfile .
-fixresolve='../../setup_scripts/fixresolv.sh'
-if [ -f $fixresolve ]; then
-    $fixresolve
-fi
-
-docker build --build-arg lab=$labimage --build-arg labdir=$LABIMAGE_DIR -f ./$dfile -t $labimage:student .
+docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename -f $LAB_DIR/dockerfiles/$dfile -t $labimage:student .
 echo "removing temporary $dfile, reference original in $LAB_DIR/dockerfiles/$dfile"
-rm ./$dfile
+#rm $LABIMAGE_DIR
+cd $ORIG_PWD

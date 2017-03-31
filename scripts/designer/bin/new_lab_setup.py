@@ -18,6 +18,7 @@ tdir = os.path.join(SEED_DIR, 'scripts','designer','templates')
 template_dirs = os.listdir(tdir)
 here = os.getcwd()
 labname = os.path.basename(here)
+config_dir = None
 for source in template_dirs:
     if source == 'bin':
         os.mkdir(labname)
