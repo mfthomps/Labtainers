@@ -71,14 +71,15 @@ def DisconnectNetworkFromContainer(mycontainer_name, mysubnet_name):
     #print "Result of subprocess.call DisconnectNetworkFromContainer is %s" % result
     return result
 
-def CreateSingleContainer(mycontainer_name, mycontainer_image_name, mysubnet_name=None, mysubnet_ip=None):
+def CreateSingleContainer(mycontainer_name, mycontainer_image_name, hostname, mysubnet_name=None, mysubnet_ip=None):
     #print "Create Single Container"
     docker0_IPAddr = getDocker0IPAddr()
     #print "getDockerIPAddr result (%s)" % docker0_IPAddr
     if mysubnet_name:
-        createsinglecommand = "docker create -t --network=%s --ip=%s --privileged --add-host my_host:%s --name=%s %s bash" % (mysubnet_name, mysubnet_ip, docker0_IPAddr, mycontainer_name, mycontainer_image_name)
+        createsinglecommand = "docker create -t --network=%s --ip=%s --privileged --add-host my_host:%s --name=%s --hostname %s %s bash" % (mysubnet_name, mysubnet_ip, docker0_IPAddr, mycontainer_name, hostname, mycontainer_image_name)
     else:
-        createsinglecommand = "docker create -t --privileged --add-host my_host:%s --name=%s %s bash" % (docker0_IPAddr, mycontainer_name, mycontainer_image_name)
+        createsinglecommand = "docker create -t --privileged --add-host my_host:%s --name=%s --hostname %s %s bash" % (docker0_IPAddr, 
+           mycontainer_name, hostname, mycontainer_image_name)
     #print "Command to execute is (%s)" % createsinglecommand
     result = subprocess.call(createsinglecommand, shell=True)
     #print "Result of subprocess.call CreateSingleContainer is %s" % result
@@ -113,7 +114,12 @@ def CreateSubnets(subnets):
                 sys.exit(1)
         else:
             print "Already exists! Not creating %s subnet at %s!\n" % (subnet_name, subnet_network_mask)
-       
+
+def RemoveSubnets(subnets):
+    for subnet_name in subnets:
+        command = "docker network rm %s" % subnet_name
+        remove_result = subprocess.call(command, shell=True)
+
 EMAIL_TMP='./.tmp/email.txt' 
 def getLastEmail():
     retval = None
@@ -130,23 +136,27 @@ def putLastEmail(email):
     with open(EMAIL_TMP, 'w') as fh:
             fh.write(email)
 
-def ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname):
-    done = False
-    while not done:
-        done = True
-        # Prompt user for e-mail address
-        eprompt = 'Please enter your e-mail address: '
-        prev_email = getLastEmail()
-        if prev_email is not None:
-            eprompt = eprompt+" [%s]" % prev_email
-        user_email = raw_input(eprompt)
-        if len(user_email.strip()) == 0:
-            if prev_email is None:
-                done = False
+def ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname, student_email):
+    if student_email is not None:
+        user_email = student_email
+    else:
+        done = False
+        while not done and student_email is None:
+            done = True
+            # Prompt user for e-mail address
+            eprompt = 'Please enter your e-mail address: '
+            prev_email = getLastEmail()
+            if prev_email is not None:
+                eprompt = eprompt+" [%s]" % prev_email
+            user_email = raw_input(eprompt)
+            if len(user_email.strip()) == 0:
+                if prev_email is None:
+                    done = False
+                else:
+                    user_email = prev_email
             else:
-                user_email = prev_email
-        else:
-            putLastEmail(user_email)
+                putLastEmail(user_email)
+    
     # Create hash using LAB_MASTER_SEED concatenated with user's e-mail
     # LAB_MASTER_SEED is per laboratory - specified in start.config
     string_to_be_hashed = '%s:%s' % (lab_master_seed, user_email)
@@ -160,6 +170,7 @@ def ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname):
     if parameterize_result == FAILURE:
         sys.stderr.write("ERROR: Failed to parameterize lab container %s!\n" % mycontainer_name)
         sys.exit(1)
+    return user_email
 
 # Copy Students' Artifacts from host to instructor's lab container
 def CopyStudentArtifacts(start_config, mycontainer_name, labname, container_user):
@@ -205,11 +216,12 @@ def DoStart(start_config, labname, role):
 
     # Create SUBNETS
     CreateSubnets(start_config.subnets)
-
+    student_email = None
     for name, container in start_config.containers.items():
         mycontainer_name       = container.full_name
         mycontainer_image_name = container.image_name
         container_user         = container.user
+        container_hostname         = container.hostname
 
         haveContainer = IsContainerCreated(mycontainer_name)
         #print "IsContainerCreated result (%s)" % haveContainer
@@ -222,10 +234,10 @@ def DoStart(start_config, labname, role):
             # Container does not exist, create the container
             # Use CreateSingleContainer()
             if len(container.container_nets) == 0:
-                containerCreated = CreateSingleContainer(mycontainer_name, mycontainer_image_name)
+                containerCreated = CreateSingleContainer(mycontainer_name, mycontainer_image_name, container_hostname)
             else:
                 mysubnet_name, mysubnet_ip = container.container_nets.popitem()
-                containerCreated = CreateSingleContainer(mycontainer_name, mycontainer_image_name,
+                containerCreated = CreateSingleContainer(mycontainer_name, mycontainer_image_name, container_hostname,
                                                          mysubnet_name, mysubnet_ip)
                 
             #print "CreateSingleContainer result (%s)" % containerCreated
@@ -266,7 +278,7 @@ def DoStart(start_config, labname, role):
         # If the container is just created, prompt user's e-mail
         # then parameterize the container
         elif need_seeds and role == 'student':
-            ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname)
+            student_email = ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname, student_email)
     
     # Reach here - Everything is OK - spawn terminal for each container based on num_terminal
     for container in start_config.containers.values():
@@ -415,6 +427,7 @@ def RedoLab(labname, role):
         mycontainer_image_name = container.image_name
         cmd = 'docker rm %s' % mycontainer_name
         os.system(cmd)
+        print('did %s' % cmd)
         if CheckBuild(labname, mycontainer_image_name, mycontainer_name, name):
             if os.path.isfile(build_student):
                 cmd = '%s %s %s' % (build_student, labname, name)
@@ -535,6 +548,8 @@ def DoStop(start_config, mycwd, labname, role):
 
             # Stop the container
             StopMyContainer(mycwd, start_config, mycontainer_name)
+
+    RemoveSubnets(start_config.subnets)
 
     return retval
 

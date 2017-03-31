@@ -32,6 +32,7 @@ class ParseStartConfig():
             self.name       = name
             self.terminals  = 2
             self.user       = "user"
+            self.hostname       = ""
             self.image_name = ""
             self.full_name  = ""
             self.container_nets = {} #dictionary of name and ip addr 
@@ -168,6 +169,8 @@ class ParseStartConfig():
                self.containers[name].full_name = full
             if self.containers[name].image_name == "":
                self.containers[name].image_name = image 
+            if self.containers[name].hostname == "":
+               self.containers[name].hostname = name
 
     def show_current_settings(self):
         bar = "="*80
