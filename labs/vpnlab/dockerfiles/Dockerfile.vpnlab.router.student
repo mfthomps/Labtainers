@@ -1,40 +1,14 @@
-FROM ubuntu:xenial
+FROM mfthomps/labtainer.base
 MAINTAINER jkhosali@nps.edu
-LABEL description="This is base Docker image for VPN Labs (client)"
-
 ARG lab
 ARG labdir
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    expect \
-    file \
-    gcc-multilib \
-    gdb \
-    iputils-ping \
-    less \
-    man \
-    manpages-dev \
-    net-tools \
-    openssl \
-    openssh-client \
-    python \
-    sudo \
-    tcl8.6 \
-    tcpdump \
-    vim \
-    wget \
-    zip \
-    zsh
-
-ADD $labdir/sudoers /etc/sudoers
-RUN useradd -ms /bin/bash ubuntu
-RUN echo "ubuntu:ubuntu" | chpasswd
-RUN chown -R ubuntu:ubuntu /home/ubuntu
-RUN adduser ubuntu sudo
-ADD $lab.student.tar.gz /home/ubuntu
+ARG imagedir
 ADD bin/funbuffer /usr/bin/
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    tcpdump
 
 USER ubuntu
+ADD $labdir/$lab.tar.gz /home/ubuntu
 ENV HOME /home/ubuntu
 RUN echo "source $HOME/.local/bin/bash-preexec.sh" >> /home/ubuntu/.profile
 RUN echo "source $HOME/.local/bin/bash-pre-capinout.sh" >> /home/ubuntu/.profile
@@ -42,13 +16,3 @@ RUN echo "cd" >> /home/ubuntu/.profile
 RUN echo "source /home/ubuntu/.local/bin/startup.sh" >> /home/ubuntu/.profile
 RUN echo "" > /home/ubuntu/.bash_logout
 
-#    g++ \
-#    cpp \
-#    libc6-dev \
-#    man-db \
-#    autoconf \
-#pkg-config
-#
-#    make \
-#    automake \
-#    gcc \
