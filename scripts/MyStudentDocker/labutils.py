@@ -49,11 +49,14 @@ def StartMyContainer(mycontainer_name):
 
 # Check to see if my_container_name container has been created or not
 def IsContainerCreated(mycontainer_name):
-    command = "docker inspect -f {{.Created}} %s 2> /dev/null" % mycontainer_name
+    retval = True
+    command = "docker inspect -f {{.Created}} --type container %s 2> /dev/null" % mycontainer_name
     #print "Command to execute is (%s)" % command
     result = subprocess.call(command, shell=True)
+    if result == FAILURE:
+       retval = False
     #print "Result of subprocess.call IsContainerCreated is %s" % result
-    return result
+    return retval
 
 def ConnectNetworkToContainer(mycontainer_name, mysubnet_name, mysubnet_ip):
     #print "Connecting more network subnet to container %s" % mycontainer_name
@@ -224,13 +227,13 @@ def DoStart(start_config, labname, role):
         container_hostname         = container.hostname
 
         haveContainer = IsContainerCreated(mycontainer_name)
-        #print "IsContainerCreated result (%s)" % haveContainer
+        #print "DoStart IsContainerCreated result (%s)" % haveContainer
 
         # Set need_seeds=False first
         need_seeds=False
 
         # IsContainerCreated returned FAILURE if container does not exists
-        if haveContainer == FAILURE:
+        if not haveContainer:
             # Container does not exist, create the container
             # Use CreateSingleContainer()
             if len(container.container_nets) == 0:
@@ -251,8 +254,8 @@ def DoStart(start_config, labname, role):
         #print "IsContainerCreated result (%s)" % haveContainer
 
         # IsContainerCreated returned FAILURE if container does not exists
-        if haveContainer == FAILURE:
-            sys.stderr.write("ERROR: DoStartMultiple Container %s still not created!\n" % mycontainer_name)
+        if not haveContainer:
+            sys.stderr.write("ERROR: DoStart Container %s still not created!\n" % mycontainer_name)
             sys.exit(1)
         else:
             for mysubnet_name, mysubnet_ip in container.container_nets.items():
@@ -261,7 +264,7 @@ def DoStart(start_config, labname, role):
             # Start the container
             start_result = StartMyContainer(mycontainer_name)
             if start_result == FAILURE:
-                sys.stderr.write("ERROR: DoStartMultiple Container %s failed to start!\n" % mycontainer_name)
+                sys.stderr.write("ERROR: DoStart Container %s failed to start!\n" % mycontainer_name)
                 sys.exit(1)
 
         if role == 'instructor':
@@ -273,7 +276,7 @@ def DoStart(start_config, labname, role):
             if mycontainer_name == start_config.grade_container:
                 copy_result = CopyStudentArtifacts(start_config, mycontainer_name, labname, container_user)
                 if copy_result == FAILURE:
-                    sys.stderr.write("ERROR: DoStartMultiple Failed to copy students' artifacts to container %s!\n" % mycontainer_name)
+                    sys.stderr.write("ERROR: DoStart Failed to copy students' artifacts to container %s!\n" % mycontainer_name)
                     sys.exit(1)
         # If the container is just created, prompt user's e-mail
         # then parameterize the container
@@ -379,34 +382,49 @@ def CheckBuild(labname, image_name, container_name, name):
     Determine if a container image needs to be rebuilt.
     '''
     retval = False
-    print('check build for container %s image %s' % (container_name, image_name))
-    cmd = "docker inspect -f '{{.Created}}' %s" % image_name
+    #print('check build for container %s image %s' % (container_name, image_name))
+    cmd = "docker inspect -f '{{.Created}}' --type image %s" % image_name
     child = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
     result = child.stdout.read().strip()
     if 'Error:' in result or len(result.strip()) == 0:
         return True
-    print('result is %s' % result)
+    #print('result is %s' % result)
     parts = result.strip().split('.')
     time_string = parts[0]
     #print('image time string %s' % time_string)
     ts = time.mktime(time.strptime(time_string, "%Y-%m-%dT%H:%M:%S"))
     #print('image ts %s' % ts)
+
+
     lab_path = os.path.join(LABS_ROOT,labname)
     df_name = 'Dockerfile.%s' % container_name
     df = os.path.join(lab_path, 'dockerfiles', df_name)
     if FileModLater(ts, df):
-        print('dockerfile changed, would build')
+        print('dockerfile changed, will build')
         retval = True
     else:
         container_dir = os.path.join(lab_path, name)
         #print('container dir %s' % container_dir)
-        for folder, subs, files in os.walk(container_dir):
-            for f in files:
-               f_path = os.path.join(folder, f)
-               if FileModLater(ts, f_path):
-                   print('%s is later, would build' % f_path)
-                   retval = True
-                   break
+        if FileModLater(ts, container_dir):
+           print('%s is later, will build' % container_dir)
+           retval = True
+        else:
+            for folder, subs, files in os.walk(container_dir):
+                for f in files:
+                   f_path = os.path.join(folder, f)
+                   if FileModLater(ts, f_path):
+                       print('%s is later, will build' % f_path)
+                       retval = True
+                       break
+    if not retval:
+        my_bin = './bin' 
+        my_bin_files = os.listdir('./bin')
+        for f in my_bin_files:
+            f_path = os.path.join(my_bin, f)
+            if FileModLater(ts, f_path):
+               print('%s is later, will build' % f_path)
+               retval = True
+               break
     return retval
 
 def RedoLab(labname, role):
@@ -422,22 +440,30 @@ def RedoLab(labname, role):
     StopLab(labname, role)
     build_student = './buildImage.sh'
     build_instructor = './buildInstructorImage.sh'
+    fixresolve='../../setup_scripts/fixresolv.sh'
+    didfix = False
     for name, container in start_config.containers.items():
         mycontainer_name       = container.full_name
         mycontainer_image_name = container.image_name
         cmd = 'docker rm %s' % mycontainer_name
         os.system(cmd)
-        print('did %s' % cmd)
+        #print('did %s' % cmd)
         if CheckBuild(labname, mycontainer_image_name, mycontainer_name, name):
+            if os.path.isfile(fixresolve) and not didfix:
+                ''' DNS name resolution from containers (while being built) fails when behind NAT? '''
+                os.system(fixresolve)
+                didfix=True
             if os.path.isfile(build_student):
                 cmd = '%s %s %s' % (build_student, labname, name)
             elif os.path.isfile(build_instructor):
                 cmd = '%s %s %s' % (build_instructor, labname, name)
             else:
-                sys.stderr.write("ERROR: RedoLab, no image rebuild script")
+                sys.stderr.write("ERROR: RedoLab, no image rebuild script\n")
                 exit(1)
                  
-            os.system(cmd)
+            if os.system(cmd) != 0:
+                sys.stderr.write("ERROR: build of image failed\n")
+                exit(1)
     StartLab(labname, role)
 
 
@@ -452,7 +478,7 @@ def CreateCopyChownZip(mycwd, start_config, container_name, container_image, con
     bash_command = "'cd ; . .profile ; Student.py'"
 #   bash_command = "'cd ; . .bash_profile ; Student.py'"
     command = 'docker exec -it %s script -q -c "/bin/bash -c %s" /dev/null' % (container_name, bash_command)
-#   print "Command to execute is (%s)" % command
+    #print "Command to execute is (%s)" % command
     result = subprocess.call(command, shell=True)
 #   print "CreateCopyChownZip: Result of subprocess.call exec Student.py is %s" % result
     if result == FAILURE:
@@ -461,7 +487,7 @@ def CreateCopyChownZip(mycwd, start_config, container_name, container_image, con
 
     username = getpass.getuser()
     command='docker exec -it %s cat /home/%s/.local/zip.flist' % (container_name, container_user)
-#   print "Command to execute is (%s)" % command
+    #print "Command to execute is (%s)" % command
     child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
     orig_zipfilenameext = child.stdout.read().strip()
 #   print "CreateCopyChownZip: Result of subprocess.Popen exec cat zip.flist is %s" % orig_zipfilenameext
@@ -528,7 +554,7 @@ def DoStop(start_config, mycwd, labname, role):
 
         # IsContainerCreated returned FAILURE if container does not exists
         # error: can't stop non-existent container
-        if haveContainer == FAILURE:
+        if not haveContainer:
             sys.stderr.write("ERROR: DoStopMultiple Container %s does not exist!\n" % mycontainer_name)
             retval = False
         elif not IsContainerRunning(mycontainer_name):
