@@ -323,7 +323,7 @@ def ParseGoals(studentdir):
 # Usage: GoalsParser.py <studentdir>
 # Arguments:
 #     <studentdir> - directory containing the student lab work
-#                    extracted from zip file (done in Instructor.py)
+#                    extracted from zip file (done in instructor.py)
 def main():
     #print "Running GoalsParser.py"
     if len(sys.argv) != 2:

@@ -562,7 +562,7 @@ def processLabExercise(studentlabdir, labidname, grades, goals):
 # Usage: ProcessStudentLab <studentlabdir> <labidname>
 # Arguments:
 #     <studentlabdir> - directory containing the student lab work
-#                    extracted from zip file (done in Instructor.py)
+#                    extracted from zip file (done in instructor.py)
 #     <labidname> - labidname should represent filename of output json file
 def ProcessStudentLab(studentlabdir, labidname):
     grades = {}
@@ -579,7 +579,7 @@ def ProcessStudentLab(studentlabdir, labidname):
 # Usage: Grader.py <studentlabdir> <labidname>
 # Arguments:
 #     <studentlabdir> - directory containing the student lab work
-#                    extracted from zip file (done in Instructor.py)
+#                    extracted from zip file (done in instructor.py)
 #     <labidname> - labidname should represent filename of output json file
 def main():
     #print "Running Grader.py"
