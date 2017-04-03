@@ -164,7 +164,7 @@ class ParseStartConfig():
             else:
                 namestr = "." + name
             full  = self.labname + namestr + "." + self.caller 
-            image = self.labname + namestr + ":" + self.caller
+            image = self.labname + namestr + "." + self.caller
             if self.containers[name].full_name == "":
                self.containers[name].full_name = full
             if self.containers[name].image_name == "":
