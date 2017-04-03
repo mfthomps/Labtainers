@@ -1,15 +1,16 @@
-
 Title: Telnet Lab Exercise
 
 1. Background
 
-This lab exercise is intended to teach student how to use simple telnet.
+This lab exercise illustrates the use of a telnet client to
+access resources on a server.  It is a simple lab intended
+to test Labtainer networking.
 
 This lab exercise consists of the following tasks:
     a. Telnet to telnet server and display a file on the server
 
-This instruction file is viewed or showed by startup.sh as part of
-the initial start.sh command.
+This instruction file displayed when the lab is started using
+the "./start.py telnetlab" command.
 
 To navigate this instruction, the arrow keys along with 
 with the Space/Home/End/Page-Up/Page-Down keys are usable.
@@ -18,44 +19,37 @@ To exit navigation of this instruction, type 'q'.
 
 2. Performing Lab Tasks
 
-2.1. Open a terminal window and execute start.sh on Linux guest VM
+The start.py script will have opened three virtual terminals:
+the one displaying this file, one on a client and one on the server.
+You will invoke the telnet program on the client to interact with the
+server.
 
-Open a terminal (typically Ctrl-Alt-t combination should open a terminal window)
-on a Linux system and run 'start.sh' on the Linux guest VM
-
-The 'start.sh' script will startup the Linux container, pause 3 seconds, and
-then open two more gnome-terminal window (one displaying this instruction and
-another window attaching to the Linux container as user 'ubuntu'. Note the
-different prompt on the window attached to the Linux container (compared to
-the one on the Linux guest VM)
-
-To close the terminal window (that is attached to the Linux container),
-simply type 'exit'.
+2.1. Determine the server IP address
+In the server window, type "ifconfig" to view the IP address of the server.
+The server IP address will follow the "inet adddr:" label.
 
 2.2. Telnet to telnet server and display a file on the server
 
-On the terminal (attached to the Linux container), normal Linux commands 
-should be available.
+Use the telnet command to access the server using its IP address:
 
-There is a pre-created file 'filetoview.txt'
+    telnet <ip>
 
-View the file contect by doing a 'cat filetoview.txt'.
+You will be prompted for a user ID at a login prompt, and then a password.
+Both of them are: "ubuntu".
 
-The wrapper script will capture stdin and stdout to files.
+There is a pre-created file on the server named 'filetoview.txt'.
 
-To close the terminal window (that is attached to the Linux container),
-simply type 'exit'.
+View the file content by doing a 'cat filetoview.txt'.
 
-2.3. Stop Linux container LXCs
 
-Open a terminal (typically Ctrl-Alt-t combination should open a terminal window)
-on a Linux system and run 'stop.sh' on the Linux guest VM
+2.3. Stop the Labtainer
 
-As part of stopping the Linux container LXCs, a zip file will be created and
-any zip files on the home directory will be copied to the shared folder
-with the host.
+From your host Labtainer work directory, type:
+    ./stop.py telnetlab.
 
-Verify the zip files are successfully copied and then sent to instructor
-from the shared folder/directory.
+This will stop the Labtainer and identify the local host directory
+into which results are copied.
+
+Send these results to the instructor.
 
 
