@@ -5,10 +5,10 @@
 lab=$1
 if [ "$#" -eq 2 ]; then
     imagename=$2
-    labimage=$lab.$imagename
+    labimage=$lab.$imagename.student
 else
     imagename=$lab
-    labimage=$lab.$lab
+    labimage=$lab.$lab.student
 fi
 
 echo "Labname is $lab with image name $imagename"
@@ -25,14 +25,10 @@ if [ ! -d $LABIMAGE_DIR ]; then
     exit
 fi
 
-fixresolve='../../setup_scripts/fixresolv.sh'
-if [ -f $fixresolve ]; then
-    $fixresolve
-fi
-
 ORIG_PWD=`pwd`
 echo $ORIG_PWD
-LAB_TAR=$LAB_DIR/$labimage.student.tar.gz
+#LAB_TAR=$LAB_DIR/$labimage.student.tar.gz
+LAB_TAR=$LAB_DIR/$labimage.tar.gz
 TMP_DIR=/tmp/$labimage
 rm -rf $TMP_DIR
 mkdir $TMP_DIR
@@ -46,8 +42,13 @@ mkdir $TMP_DIR/.local/result
 cd $TMP_DIR
 tar --atime-preserve -zcvf $LAB_TAR .local *
 cd $LAB_TOP
-dfile=Dockerfile.$labimage.student
-docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename -f $LAB_DIR/dockerfiles/$dfile -t $labimage:student .
+dfile=Dockerfile.$labimage
+docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename -f $LAB_DIR/dockerfiles/$dfile -t $labimage .
+result=$?
 echo "removing temporary $dfile, reference original in $LAB_DIR/dockerfiles/$dfile"
 #rm $LABIMAGE_DIR
 cd $ORIG_PWD
+if [ $result != 0 ]; then
+    echo "Error in docker build result $result"
+    exit 1
+fi
