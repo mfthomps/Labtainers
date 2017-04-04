@@ -13,3 +13,5 @@ RUN echo "source $HOME/.local/bin/bash-pre-capinout.sh" >> /home/ubuntu/.profile
 RUN echo "cd" >> /home/ubuntu/.profile
 RUN echo "source /home/ubuntu/.local/bin/startup.sh" >> /home/ubuntu/.profile
 RUN echo "" > /home/ubuntu/.bash_logout
+
+ENTRYPOINT /home/ubuntu/.local/bin/MyHTTPServer.sh && bash

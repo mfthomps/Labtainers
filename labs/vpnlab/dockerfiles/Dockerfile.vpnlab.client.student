@@ -10,8 +10,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     openvpn 
 
-USER ubuntu
 
+ADD $labdir/$imagedir/etc/rc.local /etc/rc.local
 USER ubuntu
 ADD $labdir/$lab.tar.gz /home/ubuntu
 ENV HOME /home/ubuntu
@@ -21,3 +21,4 @@ RUN echo "cd" >> /home/ubuntu/.profile
 RUN echo "source /home/ubuntu/.local/bin/startup.sh" >> /home/ubuntu/.profile
 RUN echo "" > /home/ubuntu/.bash_logout
 
+ENTRYPOINT sudo service rc.local start && bash

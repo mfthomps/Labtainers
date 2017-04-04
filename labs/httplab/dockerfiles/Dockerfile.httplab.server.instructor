@@ -10,3 +10,4 @@ USER ubuntu
 ADD $labdir/$lab.tar.gz /home/ubuntu
 ENV HOME /home/ubuntu
 
+ENTRYPOINT /home/ubuntu/.local/bin/MyHTTPServer.sh && bash

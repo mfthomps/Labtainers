@@ -11,7 +11,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     openvpn 
 
+ADD $labdir/$imagedir/etc/rc.local /etc/rc.local
 USER ubuntu
 ADD $labdir/$lab.tar.gz /home/ubuntu
 ENV HOME /home/ubuntu
 
+ENTRYPOINT sudo service rc.local start && bash
