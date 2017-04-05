@@ -5,11 +5,13 @@
 #              * Parse stdin and stdout files based on results.config
 #              * Create a json file
 
+import datetime
 import json
 import glob
 import os
 import re
 import sys
+import time
 import MyUtil
 
 UBUNTUHOME = "/home/ubuntu/"
@@ -276,6 +278,14 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, labidname):
                         #sys.stderr.write("ERROR: No %s file does not exist\n" % targetfname)
                         #sys.exit(1)
                     else:
+                        # Get the modified time
+                        targetmtime = os.path.getmtime(targetfname)
+                        #print('target mtime %s' % targetmtime)
+                        targetmtime_string = datetime.datetime.fromtimestamp(targetmtime)
+                        targetmtime_formatted = targetmtime_string.strftime("%Y%m%d%H%M%S")
+                        #print('targetmtime time is %s' % targetmtime_string)
+                        #print('targetmtime formatted is %s' % targetmtime_formatted)
+
                         # Read in corresponding file
                         targetf = open(targetfname, "r")
                         targetlines = targetf.readlines()
@@ -392,8 +402,9 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, labidname):
             else:
                 program_end_time = lastlinetokens[2]
         else:
-            sys.stderr.write("FATAL: NO PROGRAM FINISH line!\n")
-            sys.exit(1)
+            # No 'PROGRAM FINISH' line - Use the target file modified time
+            program_end_time = targetmtime_formatted
+
         nametags[mycontainername]['PROGRAM_ENDTIME'] = program_end_time
 
 
