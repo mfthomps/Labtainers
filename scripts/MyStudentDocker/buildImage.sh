@@ -27,7 +27,6 @@ fi
 
 ORIG_PWD=`pwd`
 echo $ORIG_PWD
-#LAB_TAR=$LAB_DIR/$labimage.student.tar.gz
 LAB_TAR=$LAB_DIR/$labimage.tar.gz
 TMP_DIR=/tmp/$labimage
 rm -rf $TMP_DIR

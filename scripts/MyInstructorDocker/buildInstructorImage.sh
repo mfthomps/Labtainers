@@ -9,10 +9,10 @@
 lab=$1
 if [ "$#" -eq 2 ]; then
     imagename=$2
-    labimage=$lab.$imagename
+    labimage=$lab.$imagename.instructor
 else
     imagename=$lab
-    labimage=$lab.$lab
+    labimage=$lab.$lab.instructor
 fi
 
 echo "Labname is $lab with image name $imagename"
@@ -34,7 +34,7 @@ if [ -f $fixresolve ]; then
 fi
 ORIG_PWD=`pwd`
 echo $ORIG_PWD
-LAB_TAR=$LAB_DIR/$labimage.instructor.tar.gz
+LAB_TAR=$LAB_DIR/$labimage.tar.gz
 TMP_DIR=/tmp/$labimage
 rm -rf $TMP_DIR
 mkdir $TMP_DIR
@@ -57,8 +57,8 @@ echo tar --atime-preserve -zcvf $LAB_TAR .local *
 tar --atime-preserve -zcvf $LAB_TAR .local *
 
 cd $LAB_TOP
-dfile=Dockerfile.$labimage.instructor
-docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename -f $LAB_DIR/dockerfiles/$dfile -t $labimage:instructor .
+dfile=Dockerfile.$labimage
+docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename -f $LAB_DIR/dockerfiles/$dfile -t $labimage .
 echo "removing temporary $dfile, reference original in $LAB_DIR/dockerfiles/$dfile"
 
 cd $ORIG_PWD
