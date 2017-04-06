@@ -1,0 +1,21 @@
+FROM mfthomps/labtainer.base
+MAINTAINER jkhosali@nps.edu
+LABEL description="This is base Docker image for Parameterized labs"
+
+ARG lab
+ARG labdir
+ARG imagedir
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openssl \
+    openssh-client \
+    wget \
+    openvpn 
+
+ADD $labdir/$imagedir/etc/rc.local /etc/rc.local
+USER ubuntu
+ADD $labdir/$lab.tar.gz /home/ubuntu
+ENV HOME /home/ubuntu
+RUN echo "cd" >> /home/ubuntu/.profile
+RUN echo "" > /home/ubuntu/.bash_logout
+
+ENTRYPOINT sudo service rc.local start && bash
