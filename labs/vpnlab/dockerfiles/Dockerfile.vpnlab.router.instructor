@@ -12,4 +12,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 USER ubuntu
 ADD $labdir/$lab.tar.gz /home/ubuntu
 ENV HOME /home/ubuntu
+RUN echo "cd" >> /home/ubuntu/.profile
+RUN echo "" > /home/ubuntu/.bash_logout
 

@@ -9,4 +9,6 @@ ADD $labdir/$lab.tar.gz /home/ubuntu
 RUN apt-get update && apt-get install -y --no-install-recommends telnet
 USER ubuntu
 ENV HOME /home/ubuntu
+RUN echo "cd" >> /home/ubuntu/.profile
+RUN echo "" > /home/ubuntu/.bash_logout
 
