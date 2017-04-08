@@ -27,11 +27,13 @@ def compare_time_during(goal1timestamp, goal2timestamp):
     #print "goal1start (%s) goal1end (%s)" % (goal1start, goal1end)
     #print "goal2start (%s) goal2end (%s)" % (goal2start, goal2end)
     if goal1start == 'default' or goal2start == 'default':
-        print "Can't compare 'default' timestamp!"
-        exit(1)
+        return False
+        #print "Can't compare 'default' timestamp!"
+        #exit(1)
     if goal1end == 'NONE' or goal2end == 'NONE':
-        print "Can't compare 'NONE' timestamp!"
-        exit(1)
+        return False
+        #print "Can't compare 'NONE' timestamp!"
+        #exit(1)
     if goal2start <= goal1start and goal1start <= goal2end:
         #print "goal2start (%s) <= goal1start (%s) <= goal2end (%s)" % (goal1start, goal2start, goal1end)
         return True
