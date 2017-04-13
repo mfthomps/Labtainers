@@ -24,7 +24,6 @@ import subprocess
 import sys
 import time
 import zipfile
-from netaddr import *
 import ParseStartConfig
 import labutils
 

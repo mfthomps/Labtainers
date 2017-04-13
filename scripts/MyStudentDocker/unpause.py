@@ -17,7 +17,6 @@ import subprocess
 import sys
 import time
 import zipfile
-from netaddr import *
 import ParseStartConfig
 
 LABS_ROOT = os.path.abspath("../../labs/")
