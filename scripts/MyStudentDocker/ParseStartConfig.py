@@ -2,7 +2,6 @@
 
 import os
 import sys
-from netaddr import *
 import re
 
 def isalphadashscore(name):
