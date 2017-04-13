@@ -7,7 +7,6 @@ import subprocess
 import sys
 import time
 import zipfile
-from netaddr import *
 import ParseStartConfig
 import datetime
 import getpass
