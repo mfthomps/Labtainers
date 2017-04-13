@@ -124,11 +124,11 @@ This will create a set of template files that you can then customize
 for the new lab.  These template files are referenced in the discussion
 below.  After creating the new lab directory, cd to that directory and then run
 
-    $SEED_DIR/scripts/designer/bin/new_lab_setup.py
+    $LABTAINER_DIR/scripts/designer/bin/new_lab_setup.py
 
 where SEED\_DIR is set to the top of the svn repo, e.g.,
 
-    export SEED_DIR=/home/mike/svn/seed/trunk
+    export LABTAINER_DIR=/home/mike/svn/seed/trunk
 
 The result is a new labtainer lab that can be run.  While this new
 lab will initially only present the student with a bash shell to an
@@ -141,7 +141,7 @@ MyStudentDocker directory.  Lab development workflow is easiest if at least two
 terminals or tabs are used, one in the new lab directory, and one in the MyStudentDocker
 directory.  So, open a new tab or window and:
 
-    cd scripts/MyStudentDocker
+    cd $LABTAINER_DIR/scripts/MyStudentDocker
 
 Then start the container using the:
 
@@ -150,9 +150,7 @@ Then start the container using the:
 command, where labname is the name of the lab you just created.  
 The first time you run this for a given lab, it will 
 take a relatively long time because it must fetch and build the entire Ubuntu container image.  Subsequent builds
-should be faster because your local Docker system will cache portions of the build.  [After a campus-local
-Docker registry is established, this step should be a lot faster because it will not require separate
-installation of Linux development environment tools within the container images.]
+should be faster because your local Docker system will cache portions of the build.  
 
 The redo.py command will remove and recreate the container
 each time the script is run.  And it will rebuild the container image if any of its configuration 
@@ -170,7 +168,7 @@ This is the zip file that the student will forward to the instructor.
 
 To test adding a "hello world" program to the new labtainer, perform the following steps:
 
-    From the new lab directory window, cd $SEED_DIR/labs/[labname]/[labname]
+    From the new lab directory window, cd $LABTAINER_DIR/labs/[labname]/[labname]
 
     Create a "hello world" program, e.g., in python or compiled C.
 
@@ -208,16 +206,16 @@ A given lab can include multiple containers, each appearing as distinct
 computers connected via networks.  The execution environment seen by a
 student when interacting with one of these "computers" is therefore defined
 by the configuration of the associated container.  
-If a lab is to contain only one container, you can
+If a lab is to include only one container, you can
 skip ahead to the subsection titled *Lab-specific files in the student's home directory*.
 
 You must assign a name to each container within the new lab.  Each new lab
 starts with a single container, whose name matches the lab name.  You are free
 to change that name. The names of containers should reflect their role in the lab,
 e.g., "client" and "server".  Once you have picked container names, you must create
-Dockerfiles and update the *$SEED_DIR/labs/[labname]/config/start.config* file.
+Dockerfiles and update the *$LABTAINER_DIR/labs/[labname]/config/start.config* file.
 
-Each container must have its own Dockerfile within the *$SEED_DIR/labs/[labname]/dockerfiles*
+Each container must have its own Dockerfile within the *$LABTAINER_DIR/labs/[labname]/dockerfiles*
 directory.  The naming convention for dockerfiles is
 
     Dockerfile.[labname].[container_name].[role]
@@ -258,7 +256,8 @@ If missing, it defaults to 2.
     * USER [user name] The user name whose account will be accessed via the virtual terminals.
     * [network name] [ip address] Network address assignments for each network (defined via a NETWORK section), 
 that is to be connected to this container.  A separate line should be entered for each network.
-   
+  
+A simple example of a two-container lab can be found in $SEED\_DIR/labs/telnetlab. 
 
 
 ### Lab-specific files in the student's home directory ###
@@ -268,9 +267,9 @@ should be created in the lab container directory, and it will appear in the stud
 home directory within the container when the container starts.  The lab container
 directory is at:  
 
-    $SEED_DIR/labs/[labname]/[container name]
+    $LABTAINER_DIR/labs/[labname]/[container name]
 
-Note the name of the container in labs with a single container matches the labname by default.
+Note the name of the container name in labs with a single container matches the labname by default.
 
 ### Final lab environment fixup ###
 The initial environment encountered by the student is further refined using
@@ -281,7 +280,7 @@ this could be used to compile lab-specific programs afer they have been paramete
 that cannot be easily performed by the Dockerfile.  These scripts are per-container
 and reside at:
 
-    $SEED_DIR/labs/[labname]/[container name]/bin
+    $LABTAINER_DIR/labs/[labname]/[container name]/bin
 
 Parameterizing a lab
 --------------------
@@ -291,7 +290,7 @@ code or/and data.  The framework will replace these symbols with randomized valu
 specific to each student.  The config/parameter.config file identifies the files, and
 the symbols within those files that are to be modified.  A simple example can be found in 
 
-    $SEED_DIR/labs/formatstring/formatstring/config/parameter.config
+    $LABTAINER_DIR/labs/formatstring/formatstring/config/parameter.config
 
 That configuration file causes the string "SECRET2\_VALUE" within the file:
 
