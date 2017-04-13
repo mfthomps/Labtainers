@@ -7,14 +7,14 @@ import pwd
 Copy a set of initial lab configuration files into a new lab and
 adjust their names and content to reflect the lab name.
 '''
-SEED_DIR=None
+LABTAINER_DIR=None
 try:
-    SEED_DIR = os.environ['SEED_DIR']
+    LABTAINER_DIR = os.environ['LABTAINER_DIR']
 except:
-    print('SEED_DIR environment variable not set.')
+    print('LABTAINER_DIR environment variable not set.')
     exit(1)
 
-tdir = os.path.join(SEED_DIR, 'scripts','designer','templates')
+tdir = os.path.join(LABTAINER_DIR, 'scripts','designer','templates')
 template_dirs = os.listdir(tdir)
 here = os.getcwd()
 labname = os.path.basename(here)
