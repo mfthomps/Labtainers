@@ -18,6 +18,16 @@ trapfun()
 pipe_sym="|"
 full=$*
 #echo $full
+#
+# Look for redirect, and remove from command
+#
+if [[ "$full" == *"$redirect_sym"* ]]; then
+    IFS='>' read -ra COMMAND_ARRAY <<< "$full"
+    full=${COMMAND_ARRAY[0]}
+    redirect_file=${COMMAND_ARRAY[1]}
+    IFS=' '
+fi
+
 if [[ "$full" == *"$pipe_sym"* ]]; then
     #echo is pipe has $pipe_sym
     IFS='|' read -ra COMMAND_ARRAY <<< "$full"
@@ -90,11 +100,21 @@ fi
 exec 3<>$pipe
 rm $pipe
 if [ -z "$precommand" ]; then
-   (echo $BASHPID >&3; tee -a $stdinfile) | (funbuffer -p $EXECPROG $PROGRAM_ARGUMENTS; r=$?; kill $(head -n1 <&3); exit $r) | tee $stdoutfile
+   if [ -z "$redirect_file" ]; then
+       (echo $BASHPID >&3; tee -a $stdinfile) | (funbuffer -p $EXECPROG $PROGRAM_ARGUMENTS; r=$?; kill $(head -n1 <&3); exit $r) | tee $stdoutfile
+   else
+       (echo $BASHPID >&3; tee -a $stdinfile) | (funbuffer -p $EXECPROG $PROGRAM_ARGUMENTS; r=$?; kill $(head -n1 <&3); exit $r) | tee $stdoutfile > $redirect_file
+   fi
 else
     #echo "precommand before is $precommand"
-    (echo $BASHPID >&3; eval $precommand | tee -a $stdinfile) | ($EXECPROG $PROGRAM_ARGUMENTS; r=$?; exit $r) | tee $stdoutfile
+
+   if [ -z "$redirect_file" ]; then
+       (echo $BASHPID >&3; eval $precommand | tee -a $stdinfile) | ($EXECPROG $PROGRAM_ARGUMENTS; r=$?; exit $r) | tee $stdoutfile
+   else
+       (echo $BASHPID >&3; eval $precommand | tee -a $stdinfile) | ($EXECPROG $PROGRAM_ARGUMENTS; r=$?; exit $r) | tee $stdoutfile > $redirect_file
+   fi
 fi
+
 
 TEE_PID=$(ps | grep [t]ee | awk '{print $1}')
 if [ ! -z "$TEE_PID" ]; then
