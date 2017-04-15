@@ -22,7 +22,8 @@ stdinfnameslist = []
 stdoutfnameslist = []
 timestamplist = {}
 nametags = {}
-line_types = ['CONTAINS', 'LINE', 'STARTSWITH', 'HAVESTRING']
+line_types = ['CONTAINS', 'LINE', 'STARTSWITH', 'HAVESTRING', 'LINE_COUNT']
+just_field_type = ['LINE_COUNT']
 def ValidateTokenId(each_value, token_id):
     if token_id != 'ALL' and token_id != 'LAST':
         try:
@@ -36,16 +37,18 @@ def findLineIndex(values):
     for ltype in line_types:
         if ltype in values:
             return values.index(ltype)
+
     return None
     
 def ValidateConfigfile(labidname, each_key, each_value):
+    valid_field_types = ['TOKEN', 'PARENS', 'QUOTES', 'SLASH', 'LINE_COUNT']
     if not MyUtil.CheckAlphaDashUnder(each_key):
         sys.stderr.write("ERROR: Not allowed characters in results.config's key (%s)\n" % each_key)
         sys.exit(1)
     values = []
     # expecting either:
     # 1. - [ stdin | stdout ] : [<field_type>] : <field_id> :  <line_type1> : <line_id>
-    #    field_type = TOKEN | PARENS | QUOTES | SLASH
+    #    field_type = (a valid_field_type defined above)
     #    field_value is a numeric identifying the nth field of the given type
     #    line_type1 = LINE | STARTSWITH | HAVESTRING
     #    line_id is a number if the type is LINE, or a string if the type is STARTSWITH/HAVESTRING
@@ -58,7 +61,7 @@ def ValidateConfigfile(labidname, each_key, each_value):
     #print values
     numvalues = len(values)
     #print "numvalues is (%d)" % numvalues
-    if numvalues < 3:
+    if numvalues < 3 and values[1] not in just_field_type:
         sys.stderr.write("ERROR: results.config contains unexpected value (%s) format\n" % each_value)
         sys.exit(1)
     line_at = findLineIndex(values)
@@ -121,7 +124,7 @@ def ValidateConfigfile(labidname, each_key, each_value):
     #                       - because <field_type> is optional
     if line_at == 3:
         field_type = values[1].strip()
-        if (field_type != "TOKEN") and (field_type != "PARENS") and (field_type != "QUOTES") and (field_type != "SLASH"):
+        if field_type not in valid_field_types:
             sys.stderr.write("ERROR: results.config line (%s)\n" % each_value)
             sys.stderr.write("ERROR: results.config invalid field_type\n")
             sys.exit(1)
@@ -252,8 +255,8 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, labidname):
 
                     command = values[line_at].strip()
                     # field_type - if exists (because field_type is optional)
-                    #              has been validated to be either
-                    #              'TOKEN' or 'PARENS' or 'QUOTES' or 'SLASH'
+                    #              has been validated to be one of the valid field types.
+                    #              
                     # if it does not exists, default field_type is TOKEN
                     if line_at == 3:
                         field_type = values[1].strip()
@@ -266,7 +269,7 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, labidname):
                     token_id = values[token_index].strip()
                     if command == 'LINE':
                         lineno = int(values[line_at+1].strip())
-                    else:
+                    elif command not in just_field_type:
                         # command = 'STARTSWITH': or 'HAVESTRING'
                         lookupstring = values[line_at+1].strip()
 
@@ -297,12 +300,10 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, labidname):
 
                         #print "targetfile is %s" % targetfile
                         # command has been validated to be either 'LINE' or 'STARTSWITH' or 'HAVESTRING'
+                        linerequested = "NONE"
                         if command == 'LINE':
                             # make sure lineno <= targetfilelen
-                            if lineno > targetfilelen:
-                                linerequested = "NONE"
-                                #print "setting result to none lineno > stdin length"
-                            else:
+                            if lineno <= targetfilelen:
                                 linerequested = targetlines[lineno-1]
                         elif command == 'HAVESTRING':
                             # command = 'HAVESTRING':
@@ -316,6 +317,9 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, labidname):
                             # If not found - set to NONE
                             if found_lookupstring == False:
                                 linerequested = "NONE"
+                        elif command == 'LINE_COUNT':
+                            tagstring = str(targetfilelen)
+                            #print('tag string is %s for eachkey %s' % (tagstring, each_key))
                         else:
                             # command = 'STARTSWITH':
                             found_lookupstring = False
@@ -410,7 +414,11 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, labidname):
 
         #print nametags
         jsonoutput = open(outputjsonfname, "w")
-        jsondumpsoutput = json.dumps(nametags[mycontainername], indent=4)
+        try:
+            jsondumpsoutput = json.dumps(nametags[mycontainername], indent=4)
+        except:
+            print('json dumps failed on %s' % nametags[mycontainername])
+            exit(1)
         jsonoutput.write(jsondumpsoutput)
         jsonoutput.write('\n')
         jsonoutput.close()
@@ -436,7 +444,7 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, labidname):
                 line_at = findLineIndex(values)
 
                 # Do only line_at == 1
-                if line_at != 1:
+                if line_at != 1 or values[1] in just_field_type:
                     continue
 
                 num_splits = line_at+1
@@ -504,7 +512,11 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, labidname):
 
     #print nametags
     jsonoutput = open(outputjsonfname, "w")
-    jsondumpsoutput = json.dumps(nametags[mycontainername], indent=4)
+    try:
+        jsondumpsoutput = json.dumps(nametags[mycontainername], indent=4)
+    except:
+        print('json dumps failed on %s' % nametags[mycontainername])
+        exit(1)
     jsonoutput.write(jsondumpsoutput)
     jsonoutput.write('\n')
     jsonoutput.close()
