@@ -458,20 +458,21 @@ def processLabExercise(studentlabdir, labidname, grades, goals):
             continue
         elif eachgoal['goaltype'] == "boolean":
             t_string = eachgoal['boolean_string']
-            evalBooleanResult = False
+            evalBooleanResult = None
             # Process all goals_ts_id dictionary
+            goalid = None
             for timestamppart, current_goals in goals_ts_id.iteritems():
                 evalBooleanResult = evalBoolean.evaluate_boolean_expression(t_string, current_goals)
                 timestampend = "NONE"
                 fulltimestamp = '%s-%s' % (timestamppart, timestampend)
-                if evalBooleanResult:
-                    # found - break from loop
-                    goalid = eachgoal['goalid']
-                    add_goals_id_ts(goalid, fulltimestamp, evalBooleanResult)
-                    break
+                # found - break from loop
+                goalid = eachgoal['goalid']
+                add_goals_id_ts(goalid, fulltimestamp, evalBooleanResult)
+                break
             # if evalBooleanResult is False - means not found
-            if evalBooleanResult == False:
+            if evalBooleanResult is None:
                 fulltimestamp = 'default-NONE'
+                goalid = eachgoal['goalid']
                 add_goals_id_ts(goalid, fulltimestamp, False)
         else:
             sys.stdout.write("Error: Invalid goal type!\n")
