@@ -319,7 +319,10 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, labidname):
                                 linerequested = "NONE"
                         elif command == 'LINE_COUNT':
                             tagstring = str(targetfilelen)
+                            nametags[mycontainername][each_key] = tagstring
                             #print('tag string is %s for eachkey %s' % (tagstring, each_key))
+                            continue
+
                         else:
                             # command = 'STARTSWITH':
                             found_lookupstring = False
@@ -510,16 +513,6 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, labidname):
         # Got to here - for line_type2, set PROGRAM_ENDTIME as 'NONE'
         nametags[mycontainername]['PROGRAM_ENDTIME'] = "NONE"
 
-    #print nametags
-    jsonoutput = open(outputjsonfname, "w")
-    try:
-        jsondumpsoutput = json.dumps(nametags[mycontainername], indent=4)
-    except:
-        print('json dumps failed on %s' % nametags[mycontainername])
-        exit(1)
-    jsonoutput.write(jsondumpsoutput)
-    jsonoutput.write('\n')
-    jsonoutput.close()
 
 # Usage: ResultParser.py <studentlabdir> <mycontainername> <instructordir> <labidname>
 # Arguments:
