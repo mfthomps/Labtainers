@@ -463,13 +463,11 @@ def processLabExercise(studentlabdir, labidname, grades, goals):
             goalid = None
             for timestamppart, current_goals in goals_ts_id.iteritems():
                 evalBooleanResult = evalBoolean.evaluate_boolean_expression(t_string, current_goals)
-                timestampend = "NONE"
-                fulltimestamp = '%s-%s' % (timestamppart, timestampend)
                 # found - break from loop
                 goalid = eachgoal['goalid']
-                add_goals_id_ts(goalid, fulltimestamp, evalBooleanResult)
+                add_goals_id_ts(goalid, timestamppart, evalBooleanResult)
                 break
-            # if evalBooleanResult is False - means not found
+            # if evalBooleanResult is None - means not found
             if evalBooleanResult is None:
                 fulltimestamp = 'default-NONE'
                 goalid = eachgoal['goalid']
