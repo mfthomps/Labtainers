@@ -98,7 +98,7 @@ def evaluate_boolean_expression(s, the_dict):
     for t in tokens:
         remains = remains.replace(t,'')
     if len(remains.strip()) > 0:
-        print('ERROR: unknown token: %s' % remains)
+        print('ERROR: boolean expression %s, unknown token(s): %s' % (s, remains))
         exit(1)
     
     return nested_bool_eval(s) 
