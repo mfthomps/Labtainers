@@ -417,6 +417,10 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, labidname):
 
         #print nametags
         jsonoutput = open(outputjsonfname, "w")
+        for key in nametags[mycontainername]:
+            old = nametags[mycontainername][key]
+            new = repr(old)
+            nametags[mycontainername][key] = new
         try:
             jsondumpsoutput = json.dumps(nametags[mycontainername], indent=4)
         except:
