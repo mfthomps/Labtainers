@@ -36,6 +36,7 @@ cp $LABIMAGE_DIR/* $TMP_DIR 2>>/dev/null
 cp -r $LAB_DIR/config $TMP_DIR/.local/ 2>>/dev/null
 cp  -r bin/ $TMP_DIR/.local/  2>>/dev/null
 cp  $LAB_DIR/bin/* $TMP_DIR/.local/bin 2>>/dev/null
+chmod a+x $TMP_DIR/.local/bin/* 2>>/dev/null
 cp  $LABIMAGE_DIR/bin/* $TMP_DIR/.local/bin 2>>/dev/null
 mkdir $TMP_DIR/.local/result
 cd $TMP_DIR
