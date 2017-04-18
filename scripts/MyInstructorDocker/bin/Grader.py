@@ -9,6 +9,8 @@ import json
 import glob
 import os
 import sys
+import ast
+import string
 import evalBoolean
 
 UBUNTUHOME="/home/ubuntu/"
@@ -121,6 +123,18 @@ def add_goals_id_ts(goalid, goalts, goalvalue):
         else:
             goals_ts_id[goalts][goalid] = goalvalue
 
+def getJsonOut(outputjsonfile):
+    with open(outputjsonfile, "r") as jsonfile:
+        jsonoutput = json.load(jsonfile)
+
+    for key in jsonoutput:
+        old = jsonoutput[key]
+        new = ast.literal_eval(old)
+        new_filtered = filter(lambda x: x in string.printable, new)
+        jsonoutput[key] = new_filtered
+        #print('is %s' % new)
+    return jsonoutput
+
 
 def compare_result_answer(current_result, current_answer, operator):
     found = False
@@ -196,10 +210,7 @@ def processMatchLast(outjsonfnames, eachgoal):
         (filenamepart, timestamppart) = outputjsonfile.rsplit('.', 1)
     #print "processMatchLast: Last file timestamped is (%s)" % outputjsonfile
     #print "processMatchLast: Output json %s" % outputjsonfile
-    jsonfile = open(outputjsonfile, "r")
-    jsonoutput = json.load(jsonfile)
-    jsonfile.close()
-    #print "processMatchLast: goalid is (%s), timestamppart is (%s)" % (goalid, timestamppart)
+    jsonoutput = getJsonOut(outputjsonfile)
 
     #print jsonoutput
     if jsonoutput == {}:
@@ -265,9 +276,7 @@ def processMatchAcross(outjsonfnames, eachgoal):
             timestamppart = "default"
         else:
             (filenamepart, timestamppart) = outputjsonfile.rsplit('.', 1)
-        jsonfile = open(outputjsonfile, "r")
-        jsonoutput = json.load(jsonfile)
-        jsonfile.close()
+        jsonoutput = getJsonOut(outputjsonfile)
         #print "processMatchAcross: goalid is (%s), timestamppart is (%s)" % (goalid, timestamppart)
 
         #print jsonoutput
@@ -293,10 +302,7 @@ def processMatchAcross(outjsonfnames, eachgoal):
             if outputjsonfile == outputjsonfile2:
                 continue
             #print "processMatchAcross Output 2 json %s" % outputjsonfile
-            jsonfile2 = open(outputjsonfile2, "r")
-            jsonoutput2 = json.load(jsonfile2)
-            jsonfile2.close()
-
+            jsonfile2 = getJsonOut(outputjsonfile2)
             try:
                 current_answer = jsonoutput2[answertagstring]
             except:
@@ -350,9 +356,7 @@ def processMatchAny(outjsonfnames, eachgoal):
             timestamppart = "default"
         else:
             (filenamepart, timestamppart) = outputjsonfile.rsplit('.', 1)
-        jsonfile = open(outputjsonfile, "r")
-        jsonoutput = json.load(jsonfile)
-        jsonfile.close()
+        jsonoutput = getJsonOut(outputjsonfile)
 
         #print "processMatchAny: goalid is (%s), timestamppart is (%s)" % (goalid, timestamppart)
         #print jsonoutput
@@ -463,10 +467,8 @@ def processLabExercise(studentlabdir, labidname, grades, goals):
             goalid = None
             for timestamppart, current_goals in goals_ts_id.iteritems():
                 evalBooleanResult = evalBoolean.evaluate_boolean_expression(t_string, current_goals)
-                # found - break from loop
                 goalid = eachgoal['goalid']
                 add_goals_id_ts(goalid, timestamppart, evalBooleanResult)
-                break
             # if evalBooleanResult is None - means not found
             if evalBooleanResult is None:
                 fulltimestamp = 'default-NONE'
