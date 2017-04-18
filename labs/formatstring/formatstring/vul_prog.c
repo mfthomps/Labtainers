@@ -10,10 +10,12 @@ int main(int argc, char *argv[])
 {
     char user_input[100];
     int *secret;
+    int *address_fix; /* hack to keep scanf delimiters out of addresses */
     int int_input;
     int a, b, c, d; /* other variables, not used here.*/
     
     /* The secret value is stored on the heap */
+    address_fix = (int *) malloc(2*sizeof(int));
     secret = (int *) malloc(2*sizeof(int));
     
     /* getting the secret */
