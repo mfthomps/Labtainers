@@ -78,7 +78,7 @@ if [ -f $HOME/.local/bin/checklocal.sh ]
 then
     checklocaloutfile="$HOME/.local/result/checklocal.stdout.$timestamp"
     checklocalinfile="$HOME/.local/result/checklocal.stdin.$timestamp"
-    $HOME/.local/bin/checklocal.sh $checklocaloutfile
+    $HOME/.local/bin/checklocal.sh > $checklocaloutfile
     # For now, there is nothing (i.e., no stdin) for checklocal
     echo "" >> $checklocalinfile
 fi
