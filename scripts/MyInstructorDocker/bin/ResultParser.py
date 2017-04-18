@@ -22,7 +22,7 @@ stdinfnameslist = []
 stdoutfnameslist = []
 timestamplist = {}
 nametags = {}
-line_types = ['CONTAINS', 'LINE', 'STARTSWITH', 'HAVESTRING', 'LINE_COUNT']
+line_types = ['CONTAINS', 'LINE', 'STARTSWITH', 'NEXT_STARTSWITH', 'HAVESTRING', 'LINE_COUNT']
 just_field_type = ['LINE_COUNT']
 def ValidateTokenId(each_value, token_id):
     if token_id != 'ALL' and token_id != 'LAST':
@@ -50,7 +50,7 @@ def ValidateConfigfile(labidname, each_key, each_value):
     # 1. - [ stdin | stdout ] : [<field_type>] : <field_id> :  <line_type1> : <line_id>
     #    field_type = (a valid_field_type defined above)
     #    field_value is a numeric identifying the nth field of the given type
-    #    line_type1 = LINE | STARTSWITH | HAVESTRING
+    #    line_type1 = LINE | STARTSWITH | NEXT_STARTSWITH | HAVESTRING
     #    line_id is a number if the type is LINE, or a string if the type is STARTSWITH/HAVESTRING
     # 2. - [ stdin | stdout ] : <line_type2> : <line_id>
     #    line_type2 = CONTAINS
@@ -323,8 +323,7 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, labidname):
                             #print('tag string is %s for eachkey %s' % (tagstring, each_key))
                             continue
 
-                        else:
-                            # command = 'STARTSWITH':
+                        elif command == 'STARTSWITH':
                             found_lookupstring = False
                             for currentline in targetlines:
                                 if found_lookupstring == False:
@@ -335,6 +334,22 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, labidname):
                             # If not found - set to NONE
                             if found_lookupstring == False:
                                 linerequested = "NONE"
+                        elif command == 'NEXT_STARTSWITH':
+                            found_lookupstring = False
+                            prev_line = None
+                            for currentline in targetlines:
+                                if found_lookupstring == False:
+                                    if currentline.startswith(lookupstring) and prev_line is not None:
+                                        found_lookupstring = True
+                                        linerequested = prev_line
+                                        break
+                                prev_line = currentline
+                            # If not found - set to NONE
+                            if found_lookupstring == False:
+                                linerequested = "NONE"
+                        else:
+                            print('ERROR: unknown command %s' % command)
+                            exit(1)
 
                         #print "Line requested is (%s)" % linerequested
                         if linerequested == "NONE":
