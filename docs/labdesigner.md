@@ -98,6 +98,8 @@ student activity, e.g., student-developed programs, output files, or even bash h
 
 Obtaining the Labtainer Development Kit
 ---------------------------------------
+Installation of an Ubunut VM and the Docker system is described
+in [Appendix A](#AppendixA).
 The Labtainer Development Kit (LDK) is available as an subversion repository at
 [https://tor.ern.nps.edu/svn/proj/seed](https://tor.ern.nps.edu/svn/proj/seed).
 
@@ -126,12 +128,12 @@ below.  After creating the new lab directory, cd to that directory and then run
 
     $LABTAINER_DIR/scripts/designer/bin/new_lab_setup.py
 
-where SEED\_DIR is set to the top of the svn repo, e.g.,
+where LABTAINER\_DIR is set to the top of the svn repo, e.g.,
 
-    export LABTAINER_DIR=/home/mike/svn/seed/trunk
+    export LABTAINER_DIR=/home/mike/seed/trunk
 
 The result is a new labtainer lab that can be run.  While this new
-lab will initially only present the student with a bash shell to an
+lab will initially only present you with a bash shell to an
 empty directory, it is worth testing the lab to understand the workflow.
 
 ## Testing the new lab ##
@@ -148,8 +150,8 @@ Then start the container using the:
     ./redo.py [labname] 
 
 command, where labname is the name of the lab you just created.  
-The first time you run this for a given lab, it will 
-take a relatively long time because it must fetch and build the entire Ubuntu container image.  Subsequent builds
+The very first time you run this, it may take a bit of time because it fetches the 
+base Labtainer Docker image from the Docker registry.  Subsequent builds
 should be faster because your local Docker system will cache portions of the build.  
 
 The redo.py command will remove and recreate the container
@@ -168,16 +170,21 @@ This is the zip file that the student will forward to the instructor.
 
 To test adding a "hello world" program to the new labtainer, perform the following steps:
 
-    From the new lab directory window, cd $LABTAINER_DIR/labs/[labname]/[labname]
+ * From the new lab directory window, cd $LABTAINER\_DIR/labs/[labname]/[labname]
 
-    Create a "hello world" program, e.g., in python or compiled C.
+ * Create a "hello world" program, e.g., in python or compiled C.
 
-    From the MyStudentDocker window, run redo.py [labname]
+ * From the MyStudentDocker window, run redo.py [labname]
     
 You should see the new program in the container's
 home directory.  If you run the program from the container, and then stop the container
 with stop.py, you will see the stdin and stdout results of the program within the
 saved zip file.
+
+Note how the "hello world" program was placed in $LABTAINER\_DIR/labs/[labname]/[labname].
+The seemingly redundant "labname" directories are a naming convention in which the
+second directory names one of potentially many containers.  In this simple example,
+the lab has but one container, whose name defaults to the lab name.
 
 The following sections describe how to futher alter the lab execution environment seen by 
 the student.
@@ -185,9 +192,8 @@ the student.
 Defining the lab execution environment
 --------------------------------------
 A given lab typically requires some set of software packages, and some
-system configuration, e.g., network settings.  Identifying an expected
-environment is not unique to this framework, rather, it is typically part of any
-lab design.  The framework captures most configuration details within a standard
+system configuration, e.g., network settings.  
+The framework captures most configuration details within a standard
 Dockerfile.  Templates for two Dockerfiles are placed in the new lab's "dockerfiles" 
 directory, one for student containers and one for instructor containers.
 These use standard Docker file syntax, which is described at:
@@ -196,9 +202,10 @@ These use standard Docker file syntax, which is described at:
 
 Lab designers should reference that Docker documentation for the 
 syntax and semantics of these files.
-Simple labs should be able to use the default Dockerfile created by the 
-new\_lab\_setup.py script.  That Dockerfile includes the minimal set
-of Linux packages necessary to host a lab within the framework.  The default
+Simple labs should be able to use the default Dockerfile copied by the 
+new\_lab\_setup.py script.  That Dockerfile refers to a base Labtainer
+image that contains the minimum set of Linux packages necessary to 
+host a lab within the framework.  The default
 execution environment builds off of a recent Ubuntu image.
 [MFT: Note alternate mimimal images as developed, e.g., Fedora.]
 
@@ -206,6 +213,17 @@ A given lab can include multiple containers, each appearing as distinct
 computers connected via networks.  The execution environment seen by a
 student when interacting with one of these "computers" is therefore defined
 by the configuration of the associated container.  
+
+### Container Isolation ###
+Docker provides namespace isolation between different containers, and
+between the containers and the host platform.  Note however, that all
+containers and the host share the same operating system kernel.  Kernel
+configuration changes will affect all containers and the host.  For example,
+use of sysctl to modify Address Space Layout Randomization (ASLR) will effect
+all containers and the effects will persist in the host after the containers
+are stopped.
+
+### Naming Containers ###
 If a lab is to include only one container, you can
 skip ahead to the subsection titled *Lab-specific files in the student's home directory*.
 
@@ -382,8 +400,8 @@ could be compared to "expected" values.  These lab-specific artifacts are identi
 
   1) the program that was invoked;
   2) whether the artifict is in stdin or stdout
-  3) the line containing the artifact
-  4) a token within that line.
+  3) the line containing the artifact, and a token within that line.
+  4) ad-hoc properties, such as the quantity of lines in the stdin file.
 
 Each identified artifact is given a symbolic name. A named artifact is referred to herein as a *result*, which 
 is then referenced in the goals.config file to assess whether it is an expected value.
@@ -408,13 +426,18 @@ Format type 1:
                        TOKEN -- Treat the line as space-delimited tokens
                        PARENS -- The desired value is contained in parenthesis
                        QUOTES -- The desired value is contained in parenthesis
+                       SLASH -- The desired value is contained within slashes, e.g., /foo/
+                       LINE_COUNT -- The quantity of lines in the file. Remaining fields are ignored.
                    field_id - An integer identifying the nth occurance of the field type.
                               Alternately may be "LAST" for the last occurance of the field type,
                               or "ALL" for the entire line (which causes the field type to be ignored).
                    line_type - Identifies how the line is to be identified, values include:
-                       LINE -- The line_id will be an integer line number (starting at one).
+                       LINE -- The line_id will be an integer line number (starting at one). Use of this
+                               to identify lines is discouraged since minor lab changes might alter the count.
                        STARTSWITH -- the line_id will be a string.  This names the first occurrence of a line
                                that starts with this string. 
+                       NEXTSTARTSWITH -- the line_id will be a string.  This names the line preceeding the 
+                               first occurrence of a line that starts with this string. 
                    line_id - See line_type above.
 
 Format type 2:
@@ -427,6 +450,16 @@ Format type 2:
                        CONTAINS -- the line_id will be a string. nametag will be set to true if logfile
                                    contains the string identified by line_id
                    line_id - See line_type above.
+
+#### Capturing information about the environment ####
+Some labs require the student to alter system configuration settings,
+e.g., using the sysctl command to effect ASLR. A *checklocal.sh* script in:
+
+    $LABTAINER_DIR/labs/[labname]/[container name]/bin
+
+is intended to contain whatever commands are necessary to record the 
+state of the system at the time a program was invoked.  The stdout of
+the checklocal.sh script is recorded at the beginning of the stdout artifact. 
 
 ### Assessing the student results ###
 Results of student lab activity are assigned symbolic names by the results.config file
@@ -519,3 +552,37 @@ The following syntax defines each goal or subgoal within the goals.config file:
 
          Note that values derived from the parameters.config file are assigned the same values as
          were assigned when the lab was parameterized for the student.
+
+
+
+<a name="AppendixA"/>
+Appendix A: Installing Ubuntu & Docker
+=======================================
+</a>
+The instructions below describe installation of an Ubuntu Linux VM 
+to serve as the Labtainer host.
+
+Install Virutal Box: https://www.virtualbox.org/wiki/Downloads
+Download the latest Ubuntu LTS distribution .iso image.
+Use VirtualBox to create a new VM, allocate at least 10GB of disk storage.
+Select the Ubuntu iso image in the VirtualBox storage settings, and select "Live CD/DVD"
+Power on the virtual machine and install Ubuntu.
+Install subversion on Ubuntu:
+sudo apt-get install subversion
+
+Retrieve the labtainer repository.
+
+    svn co https://tor.ern.nps.edu/svn/proj/seed
+
+Define the LABTAINER\_DIR environment variable (and consider
+placing the definition in your ~/.bashrc file), e.g., 
+
+    export LABTAINER_DIR=/home/mike/seed/trunk
+
+Install Docker on Ubuntu (this will lead to a reboot of the VM).
+
+    cd $LABTAINER_DIR/setup_scripts
+    ./installDocker.sh
+
+Edit the $LABTAINER\_DIR/setup\_scripts/fixresolve.sh script to help Docker resolve
+host names.  The fixresolve.sh script is configured for use within the NPS network.
