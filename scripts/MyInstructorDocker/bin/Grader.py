@@ -138,15 +138,25 @@ def getJsonOut(outputjsonfile):
 
 def compare_result_answer(current_result, current_answer, operator):
     found = False
+    result_int = None
     if "integer" in operator:
-        if current_result.startswith('0x'):
-            result_int = int(current_result, 16)
-        else:
-            result_int = int(current_result, 10)
-        if current_answer.startswith('0x'):
-            answer_int = int(current_answer, 16)
-        else:
-            answer_int = int(current_answer, 10)
+        try:
+            if current_result.startswith('0x'):
+                result_int = int(current_result, 16)
+            else:
+                result_int = int(current_result, 10)
+        except ValueError:
+            pass
+            #print('Could not get integer from result <%s>' % current_result)
+        try:
+            if current_answer.startswith('0x'):
+                answer_int = int(current_answer, 16)
+            else:
+                answer_int = int(current_answer, 10)
+        except ValueError:
+            pass
+            #print('Could not get integer from answer <%s>' % current_answer)
+
     if operator == "string_equal":
         if current_result == current_answer:
             found = True
