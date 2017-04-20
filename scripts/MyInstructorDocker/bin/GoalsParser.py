@@ -36,7 +36,8 @@ class MyGoal(object):
     def goal_dict(object):
         return object.__dict__
 
-    def __init__(self, goalid, goaltype, goaloperator, answertag, resulttag, boolean_string, goal1tag, goal2tag):
+    def __init__(self, goalid, goaltype, goaloperator="", answertag="", 
+                 resulttag="", boolean_string="", goal1tag="", goal2tag=""):
         self.goalid = goalid
         self.goaltype = goaltype
         self.goaloperator = goaloperator
@@ -244,6 +245,7 @@ def ParseGoals(studentdir):
                     sys.stderr.write("ERROR: goals.config contains unexpected value (%s) format\n" % each_value)
                     sys.exit(1)
                 if numvalues == 4:
+                    ''' <type> : <operator> : <resulttag> : <answertag> '''
                     goal_type = values[0].strip()
                     goal_operator = values[1].strip()
                     resulttag = values[2].strip()
@@ -265,37 +267,38 @@ def ParseGoals(studentdir):
                         goal_operator == "integer_lessthan"):
                         sys.stderr.write("ERROR: goals.config contains unrecognized operator (%s)\n" % goal_operator)
                         sys.exit(1)
-                    boolean_string = ""
-                    goal1tag = ""
-                    goal2tag = ""
-                    nametags[each_key] = MyGoal(each_key, goal_type, goal_operator, valid_answertag, valid_resulttag, boolean_string, goal1tag, goal2tag)
+                    nametags[each_key] = MyGoal(each_key, goal_type, goaloperator=goal_operator, answertag=valid_answertag, resulttag=valid_resulttag)
                     #print "goal_type non-boolean"
                     #print nametags[each_key].goal_dict()
                 elif numvalues == 3:
+                    ''' <type> : <goal1tag> : <goal2tag> '''
                     goal_type = values[0].strip()
-                    goal1tag = values[1].strip()
-                    goal2tag = values[2].strip()
-                    if not (goal_type == "time_before" or goal_type == "time_during"):
-                        sys.stderr.write("ERROR: goals.config contains unrecognized type (2) (%s)\n" % goal_type)
-                        sys.exit(1)
-                    goal_operator = ""
-                    valid_answertag = ""
-                    valid_resulttag = ""
-                    boolean_string = ""
-                    nametags[each_key] = MyGoal(each_key, goal_type, goal_operator, valid_answertag, valid_resulttag, boolean_string, goal1tag, goal2tag)
+                    if goal_type == 'time_before' or goal_type == 'time_during':
+                        goal1tag = values[1].strip()
+                        goal2tag = values[2].strip()
+                        nametags[each_key] = MyGoal(each_key, goal_type, goal1tag=goal1tag, goal2tag=goal2tag)
+                    elif goal_type == 'count_greater':
+                        answertag = values[1].strip()
+                        subgoal_list = values[2].strip()
+                        nametags[each_key] = MyGoal(each_key, goal_type, answertag=answertag, boolean_string=subgoal_list)
+                    else:
+                        print('ERROR: could not parse goals.config line %s' % s)
+                        exit(1)
                     #print "goal_type non-boolean"
                     #print nametags[each_key].goal_dict()
                 else:
+                    ''' <type> : <string> '''
                     goal_type = values[0].strip()
-                    boolean_string = values[1].strip()
-                    goal_operator = ""
-                    valid_resulttag = ""
-                    valid_answertag = ""
-                    goal1tag = ""
-                    goal2tag = ""
-                    nametags[each_key] = MyGoal(each_key, goal_type, goal_operator, valid_answertag, valid_resulttag, boolean_string, goal1tag, goal2tag)
+                    if goal_type == 'boolean':
+                        boolean_string = values[1].strip()
+                        nametags[each_key] = MyGoal(each_key, goal_type, boolean_string=boolean_string)
+                    else:
+                        print('ERROR: could not parse goals.config line %s' % s)
+                        exit(1)
+       
                     #print "goal_type boolean"
                     #print nametags[each_key].goal_dict()
+
                 #nametags[each_key].toJSON()
                 #nametags[each_key].goal_type = goal_type
                 #nametags[each_key].goal_operator = goal_operator
