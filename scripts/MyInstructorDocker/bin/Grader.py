@@ -14,14 +14,6 @@ import string
 import evalBoolean
 
 UBUNTUHOME="/home/ubuntu/"
-dirlist = []
-matchanylist = []
-matchlastlist = []
-matchacrosslist = []
-
-# Goals
-goals_id_ts = {}
-goals_ts_id = {}
 
 def compare_time_during(goal1timestamp, goal2timestamp):
     goal1start, goal1end = goal1timestamp.split('-')
@@ -99,7 +91,7 @@ def evalTimeDuring(goals_tag1, goals_tag2):
 
     return evalTimeDuringResult
 
-def add_goals_id_ts(goalid, goalts, goalvalue):
+def add_goals_id_ts(goalid, goalts, goalvalue, goals_id_ts, goals_ts_id):
     # Do goals_id_ts first
     if goalid not in goals_id_ts:
         goals_id_ts[goalid] = {}
@@ -243,7 +235,7 @@ def processMatchLast(outjsonfnames, eachgoal):
         found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
         if found:
             #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_onlyanswer)
-            add_goals_id_ts(goalid, fulltimestamp, True)
+            add_goals_id_ts(goalid, fulltimestamp, True, goals_id_ts, goals_ts_id)
             return
     else:
         current_onlyanswer = jsonoutput[answertagstring]
@@ -251,13 +243,13 @@ def processMatchLast(outjsonfnames, eachgoal):
         found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
         if found:
             #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_onlyanswer)
-            add_goals_id_ts(goalid, fulltimestamp, True)
+            add_goals_id_ts(goalid, fulltimestamp, True, goals_id_ts, goals_ts_id)
             return
  
     # All file processed - still not found
     if not found:
         #print "processMatchLast failed"
-        add_goals_id_ts(goalid, fulltimestamp, False)
+        add_goals_id_ts(goalid, fulltimestamp, False, goals_id_ts, goals_ts_id)
 
 def processMatchAcross(outjsonfnames, eachgoal):
     #print "Inside processMatchAcross"
@@ -324,15 +316,15 @@ def processMatchAcross(outjsonfnames, eachgoal):
             found = compare_result_answer(resulttagresult, current_answer, eachgoal['goaloperator'])
             if found:
                 #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_answer)
-                add_goals_id_ts(goalid, fulltimestamp, True)
+                add_goals_id_ts(goalid, fulltimestamp, True, goals_id_ts, goals_ts_id)
                 return
  
     # All file processed - still not found
     if not found:
         #print "processMatchAcross failed"
-        add_goals_id_ts(goalid, fulltimestamp, False)
+        add_goals_id_ts(goalid, fulltimestamp, False, goals_id_ts, goals_ts_id)
 
-def processMatchAny(outjsonfnames, eachgoal):
+def processMatchAny(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
     #print "Inside processMatchAny"
     found = False
     goalid = eachgoal['goalid']
@@ -387,29 +379,30 @@ def processMatchAny(outjsonfnames, eachgoal):
             exit(1)
         fulltimestamp = '%s-%s' % (timestamppart, timestampend)
         if one_answer:
+            #print "Correct answer is (%s) result (%s)" % (current_onlyanswer, resulttagresult)
             found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
             if found:
                 #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_onlyanswer)
-                add_goals_id_ts(goalid, fulltimestamp, True)
+                add_goals_id_ts(goalid, fulltimestamp, True, goals_id_ts, goals_ts_id)
             else:
-                add_goals_id_ts(goalid, fulltimestamp, False)
+                add_goals_id_ts(goalid, fulltimestamp, False, goals_id_ts, goals_ts_id)
         else:
             answertagresult = jsonoutput[answertagstring]
             current_answer = answertagresult.strip()
-            #print "Correct answer is (%s)" % current_answer
+            #print "Correct answer is (%s) result (%s)" % (current_answer, resulttagresult)
             found = compare_result_answer(resulttagresult, current_answer, eachgoal['goaloperator'])
             if found:
                 #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_answer)
-                add_goals_id_ts(goalid, fulltimestamp, True)
+                add_goals_id_ts(goalid, fulltimestamp, True, goals_id_ts, goals_ts_id)
             else:
-                add_goals_id_ts(goalid, fulltimestamp, False)
+                add_goals_id_ts(goalid, fulltimestamp, False, goals_id_ts, goals_ts_id)
  
     # All file processed
     #print goals_id_ts
     #print goals_ts_id
 
 # Process Lab Exercise
-def processLabExercise(studentlabdir, labidname, grades, goals):
+def processLabExercise(studentlabdir, labidname, grades, goals, goals_id_ts, goals_ts_id):
     #print "Goals JSON config is"
     #print goals
     #for eachgoal in goals:
@@ -420,7 +413,6 @@ def processLabExercise(studentlabdir, labidname, grades, goals):
     #    print "    answertag is (%s)" % eachgoal['answertag']
     #    print "    resulttag is (%s)" % eachgoal['resulttag']
     #    print ""
-
     RESULTHOME = '%s/%s' % (studentlabdir, ".local/result/")
     #print RESULTHOME
     if not os.path.exists(RESULTHOME):
@@ -438,7 +430,7 @@ def processLabExercise(studentlabdir, labidname, grades, goals):
     # Do the goaltype of non 'boolean' first
     for eachgoal in goals:
         if eachgoal['goaltype'] == "matchany":
-            processMatchAny(outjsonfnames, eachgoal)
+            processMatchAny(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id)
         elif eachgoal['goaltype'] == "matchlast":
             processMatchLast(outjsonfnames, eachgoal)
         elif eachgoal['goaltype'] == "matchacross":
@@ -478,12 +470,12 @@ def processLabExercise(studentlabdir, labidname, grades, goals):
             for timestamppart, current_goals in goals_ts_id.iteritems():
                 evalBooleanResult = evalBoolean.evaluate_boolean_expression(t_string, current_goals)
                 goalid = eachgoal['goalid']
-                add_goals_id_ts(goalid, timestamppart, evalBooleanResult)
+                add_goals_id_ts(goalid, timestamppart, evalBooleanResult, goals_id_ts, goals_ts_id)
             # if evalBooleanResult is None - means not found
             if evalBooleanResult is None:
                 fulltimestamp = 'default-NONE'
                 goalid = eachgoal['goalid']
-                add_goals_id_ts(goalid, fulltimestamp, False)
+                add_goals_id_ts(goalid, fulltimestamp, False, goals_id_ts, goals_ts_id)
         else:
             sys.stdout.write("Error: Invalid goal type!\n")
             sys.exit(1)
@@ -529,7 +521,7 @@ def processLabExercise(studentlabdir, labidname, grades, goals):
                 # (2) goal2start (%s) <= goal1start (%s) <= goal2end (%s)
 
             fulltimestamp = 'default-NONE'
-            add_goals_id_ts(goalid, fulltimestamp, evalTimeResult)
+            add_goals_id_ts(goalid, fulltimestamp, evalTimeResult, goals_id_ts, goals_ts_id)
         else:
             sys.stdout.write("Error: Invalid goal type!\n")
             sys.exit(1)
@@ -578,15 +570,26 @@ def processLabExercise(studentlabdir, labidname, grades, goals):
 #                    extracted from zip file (done in instructor.py)
 #     <labidname> - labidname should represent filename of output json file
 def ProcessStudentLab(studentlabdir, labidname):
+    # Goals
+    goals_id_ts = {}
+    goals_ts_id = {}
     grades = {}
-    goalsjsonfname = '%s/.local/instr_config/%s' % (UBUNTUHOME, "goals.json")
+    # Goals
+    goals_id_ts.clear()
+    goals_ts_id.clear()
+    resultsdir = os.path.join(studentlabdir, '.local','result')
+    try:
+        os.makedirs(resultsdir)
+    except:
+        pass
+    goalsjsonfname = os.path.join(resultsdir,'goals.json')
     goalsjson = open(goalsjsonfname, "r")
     goals = json.load(goalsjson)
     goalsjson.close()
     #print "Goals JSON config is"
     #print goals
 
-    processLabExercise(studentlabdir, labidname, grades, goals)
+    processLabExercise(studentlabdir, labidname, grades, goals, goals_id_ts, goals_ts_id)
     return grades
 
 # Usage: Grader.py <studentlabdir> <labidname>

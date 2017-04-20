@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-
-# GoalsParser.py
-# Description: * Read goals.config
-#              * Create a json file
-
+'''
+  GoalsParser.py
+  Description: * Read goals.config and create the goals.json file
+               * with values specific to this student (parameterized).
+'''
 import json
 import glob
 import md5
@@ -310,7 +310,13 @@ def ParseGoals(studentdir):
     #print nametags["crash"].toJSON()
     #for (each_key, each_goal) in nametags.items():
     #    print nametags[each_key].toJSON()
-    outputjsonfname = '%s/.local/instr_config/%s' % (UBUNTUHOME, "goals.json")
+    student_parent_dir = os.path.dirname(studentdir)
+    resultsdir = os.path.join(student_parent_dir, '.local','result')
+    try:
+        os.makedirs(resultsdir)
+    except:
+        pass
+    outputjsonfname = os.path.join(resultsdir,'goals.json')
     #print "GoalsParser: Outputjsonfname is (%s)" % outputjsonfname
         
     #print nametags

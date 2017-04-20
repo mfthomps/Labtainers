@@ -139,8 +139,18 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, labidname):
     jsonoutputfilename = labidname
     #print "ParseStdinStdout: jsonoutputfilename is (%s)" % jsonoutputfilename
   
+    nametags.clear()
+    timestamplist.clear()
     timestamplist[mycontainername] = []
     nametags[mycontainername] = {}
+
+    del logfilelist[:]
+    del exec_proglist[:]
+    del containernamelist[:]
+    del stdinfnameslist[:]
+    del stdoutfnameslist[:]
+
+
     for line in configfilelines:
         linestrip = line.rstrip()
         if linestrip:
