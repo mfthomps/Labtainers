@@ -40,7 +40,9 @@ b) Perform Task 1 per the Buffer_Overflow.pdf, but while in the
        cat /root/.secret
 
 c) Perform Task 2, using the whilebash.sh script instead of
-   the shell command line.
+   the shell command line. Use the following to enable ASLR:
+
+      sudo sysctl -w kernel.randomize_va_space=2
 
 d) Explore the remaining tasks in Buffer_Overflow.pdf
 
