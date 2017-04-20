@@ -424,15 +424,12 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, labidname):
         lastline = targetlines[targetfilelen-1].strip()
         #print "lastline = (%s)" % lastline
         if 'PROGRAM FINISH' in targetlines[targetfilelen-1]:
+            ''' do not assume program issued a newline before the PROGRAM FINISH was written '''
             lastline = targetlines[targetfilelen-1]
             lastlinestrip = lastline.strip()
             lastlinetokens = lastlinestrip.split()
             numlastlinetokens = len(lastlinetokens)
-            if numlastlinetokens != 3:
-                sys.stderr.write("FATAL: Corrupted PROGRAM FINISH line!\n")
-                sys.exit(1)
-            else:
-                program_end_time = lastlinetokens[2]
+            program_end_time = lastlinetokens[numlastlinetokens-1]
         else:
             # No 'PROGRAM FINISH' line - Use the target file modified time
             program_end_time = targetmtime_formatted
