@@ -41,7 +41,7 @@ def findLineIndex(values):
     return None
     
 def ValidateConfigfile(labidname, each_key, each_value):
-    valid_field_types = ['TOKEN', 'PARENS', 'QUOTES', 'SLASH', 'LINE_COUNT']
+    valid_field_types = ['TOKEN', 'PARENS', 'QUOTES', 'SLASH', 'LINE_COUNT', 'CONTAINS']
     if not MyUtil.CheckAlphaDashUnder(each_key):
         sys.stderr.write("ERROR: Not allowed characters in results.config's key (%s)\n" % each_key)
         sys.exit(1)
@@ -333,6 +333,19 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, labidname):
                             #print('tag string is %s for eachkey %s' % (tagstring, each_key))
                             continue
 
+                        elif command == 'CONTAINS':
+                            remain = linestrip.split(command,1)[1]
+                            remain = remain.split(':', 1)[1].strip()
+                            tagstring = 'False'
+                            for currentline in targetlines:
+                                if remain in currentline:
+                                    tagstring = 'True'
+                                    break 
+                            nametags[mycontainername][each_key] = tagstring
+                            #print('tag string is %s for eachkey %s' % (tagstring, each_key))
+                            continue
+
+
                         elif command == 'STARTSWITH':
                             found_lookupstring = False
                             for currentline in targetlines:
@@ -473,7 +486,7 @@ def ParseStdinStdout(studentlabdir, mycontainername, instructordir, labidname):
                 line_at = findLineIndex(values)
 
                 # Do only line_at == 1
-                if line_at != 1 or values[1] in just_field_type:
+                if line_at != 1 or values[1] in just_field_type or values[1] == 'CONTAINS':
                     continue
 
                 num_splits = line_at+1
