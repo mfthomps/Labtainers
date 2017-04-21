@@ -24,79 +24,55 @@ import subprocess
 import sys
 import time
 import zipfile
-from netaddr import *
-
 instructor_cwd = os.getcwd()
 student_cwd = instructor_cwd.replace('labtainer-instructor', 'labtainer-student')
-print "Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd)
 # Append Student CWD to sys.path
 sys.path.append(student_cwd)
 
 import ParseStartConfig
+import labutils
 
 LABS_ROOT = os.path.abspath("../../labs/")
 
-# Error code returned by docker inspect
-SUCCESS=0
-FAILURE=1
-
-def isalphadashscore(name):
-    # check name - alphanumeric,dash,underscore
-    return re.match(r'^[a-zA-Z0-9_-]*$', name)
-
-# Check to see if my_container_name container has been created or not
-def IsContainerCreated(mycontainer_name):
-    command = "docker inspect -f {{.Created}} %s 2> /dev/null" % mycontainer_name
-    #print "Command to execute is (%s)" % command
-    result = subprocess.call(command, shell=True)
-    #print "Result of subprocess.call IsContainerCreated is %s" % result
-    return result
-
-def DoMoreterm(start_config, mycwd, labname, requested_term):
-    host_home_xfer = start_config.host_home_xfer
-    lab_master_seed = start_config.lab_master_seed
-    #print "Do: Moreterm Multiple Containers and/or multi-home networking"
-
-    # Reach here - Everything is OK - spawn terminal for each container based on num_terminal
-    for name, container in start_config.containers.items():
-        mycontainer_name       = container.full_name
-        mycontainer_image_name = container.image_name
-        container_user         = container.user
-
-        # if requested_term != 0 then use it
-        if requested_term != 0:
-            num_terminal = requested_term
-        else:
-            num_terminal = container.terminals
-
-        #print "Number of terminal is %d" % num_terminal
-        # If the number of terminal is zero -- do not spawn
-        if num_terminal != 0:
-            for x in range(num_terminal):
-                spawn_command = "gnome-terminal -x docker exec -it %s bash -l &" % mycontainer_name
-                #print "spawn_command is (%s)" % spawn_command
-                os.system(spawn_command)
+def DoMoreterm(start_config, mycwd, labname, container, num_terminal):
+    mycontainer_name = '%s.%s.instructor' % (labname, container)
+    if not labutils.IsContainerCreated(mycontainer_name):
+        print('container %s not found' % mycontainer_name)
+        exit(1)
+    for x in range(num_terminal):
+        spawn_command = "gnome-terminal -x docker exec -it %s bash -l &" % mycontainer_name
+        #print "spawn_command is (%s)" % spawn_command
+        os.system(spawn_command)
 
     return 0
 
+def usage():
+    sys.stderr.write("Usage: moreterm.py <labname> [<container>] [<requested_term>]\n")
+    exit(1)
 
-# Usage: moreterm.py <labname> [<requested_term>]
-# Arguments:
-#    <labname> - the lab to start
-#    [<requested_term>] - optional argument to specify the number of terminal to spawn
+# Usage: (see usage)
 def main():
     #print "moreterm.py -- main"
     num_args = len(sys.argv)
+    print('numargs %d' % num_args)
+    container = None
+    requested_term = 1
     if num_args < 2:
-        sys.stderr.write("Usage: moreterm.py <labname> [<requested_term>]\n")
-        sys.exit(1)
+        usage()
     elif num_args == 2:
         requested_term = 0
+        container = sys.argv[1]
     elif num_args == 3:
-        requested_term = int(sys.argv[2])
+        if type(sys.argv[2]) is int:
+            requested_term = int(sys.argv[2])
+            container = sys.argv[1]
+        else:
+            container = sys.argv[2]
+    elif num_args == 4:
+        requested_term = int(sys.argv[3])
+        container = sys.argv[2]
     else:
-        sys.stderr.write("Usage: moreterm.py <labname> [<requested_term>]\n")
-        sys.exit(1)
+        usage()
 
     labname = sys.argv[1]
     mycwd = os.getcwd()
@@ -110,7 +86,7 @@ def main():
 
     start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, "instructor")
 
-    DoMoreterm(start_config, mycwd, labname, requested_term)
+    DoMoreterm(start_config, mycwd, labname, container, requested_term)
 
     return 0
 
