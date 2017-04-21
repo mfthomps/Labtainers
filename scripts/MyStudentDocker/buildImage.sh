@@ -33,6 +33,7 @@ rm -rf $TMP_DIR
 mkdir $TMP_DIR
 mkdir $TMP_DIR/.local
 cp $LABIMAGE_DIR/* $TMP_DIR 2>>/dev/null
+cp $LABIMAGE_DIR/.* $TMP_DIR/ 2>>/dev/null
 cp -r $LAB_DIR/config $TMP_DIR/.local/ 2>>/dev/null
 cp  -r bin/ $TMP_DIR/.local/  2>>/dev/null
 cp  $LAB_DIR/bin/* $TMP_DIR/.local/bin 2>>/dev/null
@@ -40,7 +41,7 @@ chmod a+x $TMP_DIR/.local/bin/* 2>>/dev/null
 cp  $LABIMAGE_DIR/bin/* $TMP_DIR/.local/bin 2>>/dev/null
 mkdir $TMP_DIR/.local/result
 cd $TMP_DIR
-tar --atime-preserve -zcvf $LAB_TAR .local *
+tar --atime-preserve -zcvf $LAB_TAR .
 cd $LAB_TOP
 dfile=Dockerfile.$labimage
 docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename -f $LAB_DIR/dockerfiles/$dfile -t $labimage .
