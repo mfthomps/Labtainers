@@ -38,7 +38,11 @@ if [[ "$full" == *"$pipe_sym"* ]]; then
     #echo "target command is $targetcommand"
     TARGET_ARGS=($targetcommand)
     EXECPROG=${TARGET_ARGS[0]}
-    PROGNAME=`basename ${EXECPROG}`
+    if [ ${TARGET_ARGS[0]} == "sudo" ]; then
+       PROGNAME=`basename ${TARGET_ARGS[1]}`
+    else
+       PROGNAME=`basename ${TARGET_ARGS[0]}`
+    fi
     len=${#TARGET_ARGS[@]}
     if [ $len -gt 1 ]; then
        PROGRAM_ARGUMENTS=${TARGET_ARGS[@]:1:$len}
@@ -49,7 +53,11 @@ else
     targetcommand=${full}
     TARGET_ARGS=($targetcommand)
     EXECPROG=${TARGET_ARGS[0]}
-    PROGNAME=`basename $EXECPROG`
+    if [ ${TARGET_ARGS[0]} == "sudo" ]; then
+       PROGNAME=`basename ${TARGET_ARGS[1]}`
+    else
+       PROGNAME=`basename ${TARGET_ARGS[0]}`
+    fi
     len=${#TARGET_ARGS[@]}
     if [ $len -gt 1 ]; then
        PROGRAM_ARGUMENTS=${TARGET_ARGS[@]:1:$len}
