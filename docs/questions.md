@@ -18,3 +18,8 @@ Package the labtainers lab creation as a container (likely not possible).
 
 What if student changes the name of the program, e.g., from vuln to my_vuln?
 A general way to name programs in the results.config?
+
+Record "grades" in a json file.
+Alter start of instructor to allow full automation (no need to start container just to type "Instructor.py"
+
+Automate testing.  suite of results files that should all grade a specific way?

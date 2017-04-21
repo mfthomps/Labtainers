@@ -9,7 +9,7 @@
 import sys
 import os
 instructor_cwd = os.getcwd()
-student_cwd = instructor_cwd.replace('MyInstructorDocker', 'MyStudentDocker')
+student_cwd = instructor_cwd.replace('labtainer-instructor', 'labtainer-student')
 print "Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd)
 # Append Student CWD to sys.path
 sys.path.append(student_cwd)

@@ -1,12 +1,19 @@
 #!/usr/bin/env python
 
-# Filename: unpause.py
+# Filename: moreterm.py
 # Description:
-# This is the script to be run by the instructor to unpause container(s).
+# This is the script to be run by the instructor to spawn more terminals.
 # Note:
 # 1. It needs 'start.config' file, where
 #    <labname> is given as a parameter to the script.
 #
+# It will perform the following tasks:
+# a. If the lab has only one container, only one terminal for that
+#    container will be spawned
+# b. If the lab has multiple containers, the number of terminals
+#    specified in the start.config will be used, unless
+#    the user passed the optional argument specifying the number of
+#    terminal
 
 import glob
 import json
@@ -20,7 +27,7 @@ import zipfile
 from netaddr import *
 
 instructor_cwd = os.getcwd()
-student_cwd = instructor_cwd.replace('MyInstructorDocker', 'MyStudentDocker')
+student_cwd = instructor_cwd.replace('labtainer-instructor', 'labtainer-student')
 print "Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd)
 # Append Student CWD to sys.path
 sys.path.append(student_cwd)
@@ -45,7 +52,7 @@ def IsContainerCreated(mycontainer_name):
     #print "Result of subprocess.call IsContainerCreated is %s" % result
     return result
 
-def DoUnpause(start_config, mycwd, labname):
+def DoMoreterm(start_config, mycwd, labname, requested_term):
     host_home_xfer = start_config.host_home_xfer
     lab_master_seed = start_config.lab_master_seed
     #print "Do: Moreterm Multiple Containers and/or multi-home networking"
@@ -56,21 +63,39 @@ def DoUnpause(start_config, mycwd, labname):
         mycontainer_image_name = container.image_name
         container_user         = container.user
 
-        command = "docker unpause %s" % mycontainer_name
-        #print "command is (%s)" % command
-        os.system(command)
+        # if requested_term != 0 then use it
+        if requested_term != 0:
+            num_terminal = requested_term
+        else:
+            num_terminal = container.terminals
+
+        #print "Number of terminal is %d" % num_terminal
+        # If the number of terminal is zero -- do not spawn
+        if num_terminal != 0:
+            for x in range(num_terminal):
+                spawn_command = "gnome-terminal -x docker exec -it %s bash -l &" % mycontainer_name
+                #print "spawn_command is (%s)" % spawn_command
+                os.system(spawn_command)
 
     return 0
 
 
-# Usage: unpause.py <labname>
+# Usage: moreterm.py <labname> [<requested_term>]
 # Arguments:
 #    <labname> - the lab to start
+#    [<requested_term>] - optional argument to specify the number of terminal to spawn
 def main():
-    #print "unpause.py -- main"
+    #print "moreterm.py -- main"
     num_args = len(sys.argv)
     if num_args < 2:
-        sys.stderr.write("Usage: unpause.py <labname>\n")
+        sys.stderr.write("Usage: moreterm.py <labname> [<requested_term>]\n")
+        sys.exit(1)
+    elif num_args == 2:
+        requested_term = 0
+    elif num_args == 3:
+        requested_term = int(sys.argv[2])
+    else:
+        sys.stderr.write("Usage: moreterm.py <labname> [<requested_term>]\n")
         sys.exit(1)
 
     labname = sys.argv[1]
@@ -85,7 +110,7 @@ def main():
 
     start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, "instructor")
 
-    DoUnpause(start_config, mycwd, labname)
+    DoMoreterm(start_config, mycwd, labname, requested_term)
 
     return 0
 

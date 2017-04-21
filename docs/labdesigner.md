@@ -485,7 +485,8 @@ timestamped set of results for each occurance of a student invoking a targeted p
 The following syntax defines each goal or subgoal within the goals.config file:
 
 
-     <goal_id> = <type> : [<operator> : <resulttag> : <answertag> | <boolean_expression> | goal1 : goal2]
+     <goal_id> = <type> : [<operator> : <resulttag> : <answertag> | <boolean_expression> | goal1 : goal2 
+                           | count_greater : value : subgoal_list ]
        Where: 
          <goal_id> - An identifer for the goal.  It must be alphanumeric (underscores permitted).
          <type> - must be one of the following:
@@ -500,11 +501,14 @@ The following syntax defines each goal or subgoal within the goals.config file:
                               in a timestamped set that differs from the set in which the resulttag occurs.
                             - note: 'matchacross' cannot be used within the boolean expression defined below.
               'boolean'     - The goal value is computed from a boolean expression consisting of 
-                              goal_id's and boolean operators, ("and" & "or"), and parenthisis for precedence.
+                              goal_id's and boolean operators, ("and", "or", "and_not", "or_not", and "not"), 
+                              and parenthisis for precedence.
                               The goal_id's must be from goals defined earlier in the goals.config file. 
                               The goal evalutes to TRUE if the boolen expression evaluates to TRUE for any
                               of the timestamped sets of goal_ids, (see the 'matchany' discussion above).
                               The goal_id's cannot include any "matchacross" goals.
+              'count_greater' The goal is true if the count of true subgoals in the list exceeds the given value.
+                              The subgoal list is comma-separated within parenthesis.
               'time_before' - Both goal1 and goal2 must be goal_ids from previous *matchany* goal types.
                               Evaluates to TRUE if any TRUE goal1 has a timestamp that is before than any
                               TRUE goal2

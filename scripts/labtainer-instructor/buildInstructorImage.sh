@@ -46,7 +46,7 @@ mkdir $TMP_DIR/.local/config
 
 cp -r bin $TMP_DIR/.local/
 cp  $LAB_DIR/bin/* $TMP_DIR/.local/bin 2>>/dev/null
-cp ../MyStudentDocker/bin/ParameterParser.py $TMP_DIR/.local/bin/
+cp ../labtainer-student/bin/ParameterParser.py $TMP_DIR/.local/bin/
 cp $LABIMAGE_DIR/* $TMP_DIR/
 cp $LABIMAGE_DIR/.* $TMP_DIR/ 2>>/dev/null
 cp $LAB_DIR/instr_config/* $TMP_DIR/.local/instr_config/ 2>>/dev/null
