@@ -3,6 +3,7 @@
 import os
 import sys
 import re
+from netaddr import *
 
 def isalphadashscore(name):
     # check name - alphanumeric,dash,underscore
@@ -19,7 +20,7 @@ class ParseStartConfig():
         self.grade_container = None # GRADE_CONTAINER - this is where the instructor performs the grading
 
         if not os.path.exists(fname):
-            sys.stderr.write("Config file %s does not exists!\n" % fname)
+            sys.stderr.write("ParseStartConfig, Config file %s does not exists!\n" % fname)
             sys.exit(1)
 
         self.get_configs(fname)
@@ -43,16 +44,16 @@ class ParseStartConfig():
             self.terminals = int(self.terminals) #replace with something smarter
           
             if '=' in self.name: # TODO: do we still need this?
-                sys.stderr.write('Character "=" is not allowed in container name (%s)' % self.name)
+                sys.stderr.write('ParseStartConfig, Character "=" is not allowed in container name (%s)\n' % self.name)
                 exit(1)
             for name, addr in self.container_nets.items():
                 if name not in valid_networks:
-                    sys.stderr.write('Container %s cannot be added to undefined network %s' % (self.full_name, name))
+                    sys.stderr.write('ParseStartConfig, Container %s cannot be added to undefined network %s\n' % (self.full_name, name))
                     exit(1)
                 try:
                     IPAddress(addr)
-                except:
-                    sys.stderr.write('bad ip addr %s in \t%s' % (addr, name))
+                except :
+                    sys.stderr.write('ParseStartConfig, bad ip addr %s in %s\n' % (addr, name))
                     exit(1)
 
     class Subnet():
@@ -63,21 +64,21 @@ class ParseStartConfig():
 
         def validate(self):
             if not isalphadashscore(self.name):
-                sys.stderr.write('bad subnet name %s in for network %s' % (self.name, self.id))
+                sys.stderr.write('ParseStartConfig, bad subnet name %s \n' % (self.name))
                 exit(1)
             try:
                 IPNetwork(self.mask)
             except:
-                sys.stderr.write('bad ip subnet %s for network %s' % (self.mask, self.id))
+                sys.stderr.write('ParseStartConfig, bad ip subnet %s for subnet %s\n' % (self.mask, self.name))
                 exit(1)
             if not IPAddress(self.gateway) in IPNetwork(self.mask):
-                sys.stderr.write('Gateway IP (%s) not in subnet for SUBNET line(%s)!\n' % 
+                sys.stderr.write('ParseStartConfig, Gateway IP (%s) not in subnet for SUBNET line(%s)!\n' % 
                     (self.gateway, self.mask))
                 exit(1)
 
     def add_if_new(self, name, location, thing):
         if name in location:
-            sys.stderr.write("Fatal. '%s' already defined." % name)
+            sys.stderr.write("ParseStartConfig, Fatal. '%s' already defined." % name)
             exit(1)
         location[name] = thing
 
@@ -100,7 +101,7 @@ class ParseStartConfig():
                 elif key in defaults_ok:
                     val = "default"
                 else:
-                    sys.stderr.write("Fatal. Missing value for: %s" % line)
+                    sys.stderr.write("ParseStartConfig, Fatal. Missing value for: %s" % line)
                     exit(1)
 
                 if key == "global_settings":
@@ -117,13 +118,13 @@ class ParseStartConfig():
                     try:
                         active.add_net(key,val)
                     except:
-                        sys.stderr.write("Fatal. Can't understand config setting: %s" % line)
+                        sys.stderr.write("ParseStartConfig, Fatal. Can't understand config setting: %s" % line)
                         exit(1)
 
     def validate(self):
         """ Checks to make sure we have all the info we need from the user."""
         if self.caller != "student" and self.caller != "instructor":
-            sys.stderr.write("Unexpected caller of ParseStartConfig module!\n")
+            sys.stderr.write("ParseStartConfig, Unexpected caller of ParseStartConfig module!\n")
             exit(1)
 
         if not self.host_home_xfer:
