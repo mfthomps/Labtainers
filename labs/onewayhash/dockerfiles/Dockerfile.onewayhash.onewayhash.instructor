@@ -10,6 +10,8 @@ ADD $labdir/$lab.tar.gz /home/ubuntu
 RUN apt-get update && apt-get install -y --no-install-recommends \
     openssl \
     openssh-server
+RUN apt-get install -y \
+    hexedit
 
 USER ubuntu
 ENV HOME /home/ubuntu
