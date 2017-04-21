@@ -3,6 +3,64 @@ Title: One-Way Hash Function and MAC Lab Exercise
 
 1. Background
 
+This Labtainer exercise explores one way hash functions.
+It is derived from the lab described in Crypto_Hash.pdf found at
+www.cis.syr.edu/~wedu/seed/cryptography.html
+
+These lab instructions augment that Crypt_Hash.pdf
+manual.  Perform the tasks describe in these instructions
+and refer to that manual and other resources, e.g., course
+notes and lectures, to learn about one way hashes.
+
+2. Performing the lab
+The lab is started from the Labtainer working 
+directory on your Docker-enabled host, e.g., a Linux VM.
+From there, issue the command:
+
+    ./start.sh onewayhash
+
+The resulting virtual terminals will include a display of
+these instructions, and a bash shell.  The openssl package
+and other software described in Crypo_Hash.pdf are pre-installed
+on the system.  
+
+To navigate this instruction, the arrow keys along with 
+with the Space/Home/End/Page-Up/Page-Down keys are usable.
+To exit navigation of this instruction, type 'q'.
+
+3. Tasks
+
+Perform the tasks described in Crypto_Hash.pdf, augmenting
+those instructions as follows:
+  
+Task 1: Generate hashes for the file named: "filetodigest.txt".
+And, note that the man pages for openssl has an 
+incorrect list of hash algoriths.  You'll see the correct 
+list if you attempt to use an incorrect name.
+
+Task 2: Generate keyed hashes for the file named: "filetodigest.txt"
+
+Task 3: Create a file named "edit-this-file.txt" and populate it with
+any text.  Generate hashes per the task description.  Edit the file
+using hexedit, i.e.,:
+    hexedit edit-this-file.txt
+and then generate the hashes again per the task description.
+
+4. Stop the Labtainer
+
+When the lab is completed, or you'd like to stop working for a while, run
+
+    ./stop.sh formatstring
+
+from the host Labtainer working directory.  You can always restart the
+Labtainer to continue your work.  When the Labtainer is stopped, a
+zip file is created and copied to a location displayed by the stop.sh
+command.  When the lab is completed, send that zip file to the instructor.
+
+
+
+1. Background
+
 This lab exercise is intended to teach student about one-way hash
 function and Message Authentication Code (MAC).
 
