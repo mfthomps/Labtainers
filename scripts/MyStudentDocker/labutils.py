@@ -326,8 +326,9 @@ def CopyChownGradesFile(mycwd, start_config, container_name, container_image, co
     #print "CopyChownGradesFile: Result of subprocess.Popen exec cp grades.txt file is %s" % result
     if result == FAILURE:
         StopMyContainer(mycwd, start_config, container_name)
-        sys.stderr.write("ERROR: CopyChownGradesFile Container %s fail on executing cp grades.txt file!\n" % container_name)
-        sys.exit(1)
+        sys.stderr.write("WARNING: CopyChownGradesFile Container %s fail on executing cp grades.txt file!\n" % container_name)
+        #sys.exit(1)
+        return
 
     # Change ownership to defined user $USER
     command = "sudo chown %s:%s /home/%s/%s/grades.txt" % (username, username, username, host_home_xfer)
@@ -376,7 +377,7 @@ def FileModLater(ts, fname):
     else:
         return False
 
-def CheckBuild(labname, image_name, container_name, name):
+def CheckBuild(labname, image_name, container_name, name, role):
     '''
     Determine if a container image needs to be rebuilt.
     '''
@@ -391,6 +392,8 @@ def CheckBuild(labname, image_name, container_name, name):
     parts = result.strip().split('.')
     time_string = parts[0]
     #print('image time string %s' % time_string)
+
+    ''' ts is the timestamp of the image '''
     ts = time.mktime(time.strptime(time_string, "%Y-%m-%dT%H:%M:%S"))
     #print('image ts %s' % ts)
 
@@ -415,17 +418,32 @@ def CheckBuild(labname, image_name, container_name, name):
                        print('%s is later, will build' % f_path)
                        retval = True
                        break
+
     if not retval:
-        my_bin = './bin' 
-        my_bin_files = os.listdir('./bin')
-        for f in my_bin_files:
-            f_path = os.path.join(my_bin, f)
+        all_bin = './bin' 
+        all_bin_files = os.listdir(all_bin)
+        for f in all_bin_files:
+            f_path = os.path.join(all_bin, f)
+            if FileModLater(ts, f_path):
+               print('%s is later, will build' % f_path)
+               retval = True
+               break
+
+    if not retval and role == 'instructor':
+        inst_cfg = os.path.join(lab_path,'instr_config')
+        inst_cfg_files = os.listdir(inst_cfg)
+        for f in inst_cfg_files:
+            f_path = os.path.join(inst_cfg, f)
             if FileModLater(ts, f_path):
                print('%s is later, will build' % f_path)
                retval = True
                break
     return retval
 
+def dumb():
+    pass
+    '''
+    '''
 def RedoLab(labname, role):
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
@@ -447,7 +465,7 @@ def RedoLab(labname, role):
         cmd = 'docker rm %s' % mycontainer_name
         os.system(cmd)
         #print('did %s' % cmd)
-        if CheckBuild(labname, mycontainer_image_name, mycontainer_name, name):
+        if CheckBuild(labname, mycontainer_image_name, mycontainer_name, name, role):
             if os.path.isfile(fixresolve) and not didfix:
                 ''' DNS name resolution from containers (while being built) fails when behind NAT? '''
                 os.system(fixresolve)
