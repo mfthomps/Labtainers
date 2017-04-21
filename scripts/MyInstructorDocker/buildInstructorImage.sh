@@ -48,13 +48,15 @@ cp -r bin $TMP_DIR/.local/
 cp  $LAB_DIR/bin/* $TMP_DIR/.local/bin 2>>/dev/null
 cp ../MyStudentDocker/bin/ParameterParser.py $TMP_DIR/.local/bin/
 cp $LABIMAGE_DIR/* $TMP_DIR/
+cp $LABIMAGE_DIR/.* $TMP_DIR/ 2>>/dev/null
 cp $LAB_DIR/instr_config/* $TMP_DIR/.local/instr_config/ 2>>/dev/null
 cp $LAB_DIR/config/* $TMP_DIR/.local/config/ 2>>/dev/null
 cp config/* $TMP_DIR/.local/instr_config/ 2>>/dev/null
 cd $TMP_DIR
 pwd
-echo tar --atime-preserve -zcvf $LAB_TAR .local *
-tar --atime-preserve -zcvf $LAB_TAR .local *
+#tar --atime-preserve -zcvf $LAB_TAR .local .
+echo tar --atime-preserve -zcvf $LAB_TAR .
+tar --atime-preserve -zcvf $LAB_TAR .
 
 cd $LAB_TOP
 dfile=Dockerfile.$labimage
