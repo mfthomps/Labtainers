@@ -9,6 +9,7 @@ echo "deb https://apt.dockerproject.org/repo ubuntu-xenial main" > /tmp/docker.l
 sudo cp /tmp/docker.list /etc/apt/sources.list.d/docker.list
 sudo apt-get update
 sudo apt-get install apt-transport-https ca-certificates
+# The step below is to add the GPG key for the official Docker repository to the system
 sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
 sudo apt-get purge lxc-docker
 apt-cache policy docker-engine
