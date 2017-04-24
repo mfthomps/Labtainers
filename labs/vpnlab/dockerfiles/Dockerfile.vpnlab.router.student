@@ -6,6 +6,8 @@ ARG imagedir
 ADD bin/funbuffer /usr/bin/
 RUN apt-get update && apt-get install -y --no-install-recommends \
     tcpdump
+# tcpdump fails to run if in /usr/sbin 
+RUN sudo mv /usr/sbin/tcpdump /usr/bin/tcpdump
 
 USER ubuntu
 ADD $labdir/$lab.tar.gz /home/ubuntu
