@@ -2,33 +2,33 @@ Title: Telnet Lab Exercise
 
 1. Background
 
-This lab exercise illustrates the use of a telnet client to
+This Labtainer exercise illustrates the use of a telnet client to
 access resources on a server.  It is a simple lab intended
-to test Labtainer networking.
+to illustrate basic client-server networking and the transmission
+of plaintext passwords over a network by telnet.
 
-This lab exercise consists of the following tasks:
-    a. Telnet to telnet server and display a file on the server
+2. Performing the lab
+The lab is started from the Labtainer working 
+directory on your Docker-enabled host, e.g., a Linux VM.
+From there, issue the command:
 
-This instruction file displayed when the lab is started using
-the "./start.py telnetlab" command.
+    ./start.sh telnetlab
+
+The resulting virtual terminals include a display of
+these instructions, a terminal connected to a client, and a
+terminal connected to a server.
 
 To navigate this instruction, the arrow keys along with 
 with the Space/Home/End/Page-Up/Page-Down keys are usable.
 To exit navigation of this instruction, type 'q'.
 
+3. Tasks
 
-2. Performing Lab Tasks
-
-The start.py script will have opened three virtual terminals:
-the one displaying this file, one on a client and one on the server.
-You will invoke the telnet program on the client to interact with the
-server.
-
-2.1. Determine the server IP address
+3.1. Determine the server IP address
 In the server window, type "ifconfig" to view the IP address of the server.
 The server IP address will follow the "inet adddr:" label.
 
-2.2. Telnet to telnet server and display a file on the server
+3.2. Telnet to telnet server and display a file on the server
 
 Use the telnet command to access the server using its IP address:
 
@@ -41,15 +41,24 @@ There is a pre-created file on the server named 'filetoview.txt'.
 
 View the file content by doing a 'cat filetoview.txt'.
 
+Exit the telnet session on the client via the "exit" telnet command.
 
-2.3. Stop the Labtainer
+3.3. View plaintext passwords.
+On the server, start tcpdump to display TCP network traffic with this command:
+    sudo tcpdump -i eth0 -X tcp
 
-From your host Labtainer work directory, type:
-    ./stop.py telnetlab.
+On the client, start a telnet session, but when prompted for the password, 
+type a string that is easy to recognize.  Observe that string in the tcpdump
+of traffic.
 
-This will stop the Labtainer and identify the local host directory
-into which results are copied.
+4. Stop the Labtainer
 
-Send these results to the instructor.
+When the lab is completed, or you'd like to stop working for a while, run
 
+    ./stop.sh telnetlab
+
+from the host Labtainer working directory.  You can always restart the
+Labtainer to continue your work.  When the Labtainer is stopped, a
+zip file is created and copied to a location displayed by the stop.sh
+command.  When the lab is completed, send that zip file to the instructor.
 

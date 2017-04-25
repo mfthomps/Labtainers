@@ -18,5 +18,7 @@ ADD $labdir/$lab.tar.gz /home/ubuntu
 RUN echo "cd" >> /home/ubuntu/.profile
 RUN echo "" > /home/ubuntu/.bash_logout
 
+RUN sudo apt-get install -y tcpdump
+RUN sudo mv /usr/sbin/tcpdump /usr/bin/tcpdump
 
 ENTRYPOINT sudo service xinetd restart && bash
