@@ -12,4 +12,4 @@ ENV HOME /home/ubuntu
 RUN echo "cd" >> /home/ubuntu/.profile
 RUN echo "" > /home/ubuntu/.bash_logout
 
-ENTRYPOINT /home/ubuntu/.local/bin/MyHTTPServer.sh && bash
+ENTRYPOINT /home/ubuntu/MyHTTPServer.sh && bash
