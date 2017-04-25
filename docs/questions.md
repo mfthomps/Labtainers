@@ -23,3 +23,21 @@ Record "grades" in a json file.
 Alter start of instructor to allow full automation (no need to start container just to type "Instructor.py"
 
 Automate testing.  suite of results files that should all grade a specific way?
+
+Manage instructor containers so not running multiple labs at once, net conflicts?
+
+Artifact gathering mostly assumes user is "ubuntu".  need to generalize that.  Same with instructor
+scripts -- do not rely on user ubuntu outside of a dockerfile.
+
+moreterm, pause etc redundant between student and instructor.  fix that
+
+handle nohup when collecting artifacts
+
+lab/container/bin is used for fixlocal and other junk.  change the name of that so we 
+can use "bin" as a directory in the container home directory.  Tar of home should include
+all files and directories except selected reserved names (and "bin" should not be reserved).
+
+Remove instructor scripts from non-grader machines, less time confused about where I am when debugging.
+
+Validate boolen strings against entire goals.json, by the time of the evaluation, cannot tell if
+tokens are defined or not.

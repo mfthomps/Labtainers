@@ -101,7 +101,7 @@ Obtaining the Labtainer Development Kit
 Installation of an Ubunut VM and the Docker system is described
 in [Appendix A](#AppendixA).
 The Labtainer Development Kit (LDK) is available as an subversion repository at
-[https://tor.ern.nps.edu/svn/proj/seed](https://tor.ern.nps.edu/svn/proj/seed).
+[https://tor.ern.nps.edu/svn/proj/labtainer](https://tor.ern.nps.edu/svn/proj/labtainer).
 
 (Our intent is release versions to a Github repository for access beyond NPS.)
 
@@ -271,7 +271,7 @@ In addition to naming the container, the following values are defined:
 
     * TERMINALS [quantity] The number of virtual terminals to open and attach to this container when a lab starts.
 If missing, it defaults to 2.
-    * USER [user name] The user name whose account will be accessed via the virtual terminals.
+    * USER [user name] The user name whose account will be accessed via the virtual terminals. (For now, this must be "ubuntu.)
     * [network name] [ip address] Network address assignments for each network (defined via a NETWORK section), 
 that is to be connected to this container.  A separate line should be entered for each network.
   
@@ -392,6 +392,12 @@ the student's home directory, are automatically packaged when the student comple
 These packages of artifacts are then transfered to the instructor, (e.g., via email or a CLE), and 
 ingested into the instructor's system where lab assessment occurs.
 
+The stdin and stdout for all non-system programs is captured, e.g., the results of an "ls" command
+are not captured.  The stdin and stdout of selected system programs will be captured if the program
+names appear in the *treataslocal* file at
+    $LABTAINER_DIR/labs/[labname]/[container name]/bin/treataslocal
+
+
 ### Identify Lab-specifc Artifacts ###
 The automated assessement fuctions encourage labs to be organized into a set of distinct "goals".
 For each goal, the lab designer should identify specific fields within stdin and/or stdout that
@@ -412,43 +418,42 @@ found by looking at stdout from the "vul\_prog" program, finding the first line 
 "\*\*\* stack smashing detected".  The result is assigned the value of the third space-delimited 
 token in that line.
 
-Entries within the results.config file each have one of the two following formats:
+Entries within the results.config file each have the following format:
 
-Format type 1:
      <nametag> = <file_id> : <field_type> : <field_id> : <line_type> : <line_id>
          where:
                    nametag - The symbolic name of the result, which will be referenced in the
                              goals configuration file.  It must be alphanumeric, underscores permitted.
                    file_id -- identifies the set of files to be parsed.  The format of this id is:
-                       <prog>.[stdin | stdout]
-                          where <prog> is the program or utility name.
-                   field_type - Optional, defaults to "TOKEN", values include:
-                       TOKEN -- Treat the line as space-delimited tokens
-                       PARENS -- The desired value is contained in parenthesis
-                       QUOTES -- The desired value is contained in parenthesis
-                       SLASH -- The desired value is contained within slashes, e.g., /foo/
+                       [container_name:]<prog>.[stdin | stdout] | file_path
+                          where <prog> is a program or utility name whose stdin and stdout artifacts
+                          will include timestamps.  The optional container_name identifies the container
+                          hosting the file.  Labs with a single container can omit this qualifier.
+                          Alternately, a file_path is intended for log files
+                          of services that persist across multiple student operations. If the given
+                          path is not absolute, it is relative to the first users's home directory. 
+                   field_type - Optional, defaults to "TOKEN", possible values include:
+                       TOKEN      -- Treat the line as space-delimited tokens
+                       PARENS     -- The desired value is contained in parenthesis
+                       QUOTES     -- The desired value is contained in parenthesis
+                       SLASH      -- The desired value is contained within slashes, e.g., /foo/
                        LINE_COUNT -- The quantity of lines in the file. Remaining fields are ignored.
-                   field_id - An integer identifying the nth occurance of the field type.
-                              Alternately may be "LAST" for the last occurance of the field type,
-                              or "ALL" for the entire line (which causes the field type to be ignored).
+                       CONTAINS   -- The value of nametag will be set to true if the file contains the
+                                     string represented in field_id.
+                   field_id -  An integer identifying the nth occurance of the field type.
+                               Alternately may be "LAST" for the last occurance of the field type,
+                               or "ALL" for the entire line (which causes the field type to be ignored).
+                               If field_type is "CONTAINS", the remainder of the line is treated as a string
+                               to be searched for.
                    line_type - Identifies how the line is to be identified, values include:
-                       LINE -- The line_id will be an integer line number (starting at one). Use of this
-                               to identify lines is discouraged since minor lab changes might alter the count.
-                       STARTSWITH -- the line_id will be a string.  This names the first occurrence of a line
-                               that starts with this string. 
+                       LINE           -- The line_id will be an integer line number (starting at one). Use of this
+                                         to identify lines is discouraged since minor lab changes might alter the count.
+                       STARTSWITH     -- the line_id will be a string.  This names the first occurrence of a line
+                                         that starts with this string. 
+                       CONTAINS       -- The line_id will be a string.  This names the first occurrence of a line
+                                         that contains the string.
                        NEXTSTARTSWITH -- the line_id will be a string.  This names the line preceeding the 
-                               first occurrence of a line that starts with this string. 
-                   line_id - See line_type above.
-
-Format type 2:
-     <nametag> = [ logfile ] : <line_type> : <line_id>
-         where:
-                   nametag - The symbolic name of the result, which will be referenced in the
-                             goals configuration file.  It must be alphanumeric, underscores permitted.
-                   logfile - The field is in the logfile result file
-                   line_type - Identifies how the line is to be identified, values include:
-                       CONTAINS -- the line_id will be a string. nametag will be set to true if logfile
-                                   contains the string identified by line_id
+                                         first occurrence of a line that starts with this string. 
                    line_id - See line_type above.
 
 #### Capturing information about the environment ####
@@ -508,7 +513,8 @@ The following syntax defines each goal or subgoal within the goals.config file:
                               of the timestamped sets of goal_ids, (see the 'matchany' discussion above).
                               The goal_id's cannot include any "matchacross" goals.
               'count_greater' The goal is true if the count of true subgoals in the list exceeds the given value.
-                              The subgoal list is comma-separated within parenthesis.
+                              The subgoals are summed across all timestamps.  The subgoal list is 
+                              comma-separated within parenthesis.
               'time_before' - Both goal1 and goal2 must be goal_ids from previous *matchany* goal types.
                               Evaluates to TRUE if any TRUE goal1 has a timestamp that is before than any
                               TRUE goal2
