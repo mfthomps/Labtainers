@@ -289,17 +289,31 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
             return True
 
         elif command == 'CONTAINS':
-            remain = line.split(command,1)[1]
-            remain = remain.split(':', 1)[1].strip()
-            tagstring = 'False'
-            for currentline in targetlines:
-                #print('look for <%s> in %s' % (remain, currentline))
-                if remain in currentline:
-                    tagstring = 'True'
-                    break 
-            nametags[each_key] = tagstring
-            #print('tag string is %s for eachkey %s' % (tagstring, each_key))
-            return True
+            if token_id == 'CONTAINS':
+                ''' search entire file, vice searching for line '''
+                remain = line.split(command,1)[1]
+                remain = remain.split(':', 1)[1].strip()
+                tagstring = 'False'
+                for currentline in targetlines:
+                    #print('look for <%s> in %s' % (remain, currentline))
+                    if remain in currentline:
+                        tagstring = 'True'
+                        break 
+                nametags[each_key] = tagstring
+                #print('tag string is %s for eachkey %s' % (tagstring, each_key))
+                return True
+            else:
+                found_lookupstring = False
+                for currentline in targetlines:
+                    if found_lookupstring == False:
+                        if lookupstring in currentline:
+                            found_lookupstring = True
+                            linerequested = currentline
+                            #print('line requested is %s' % linerequested)
+                            break
+                # If not found - set to NONE
+                if found_lookupstring == False:
+                    linerequested = "NONE"
 
 
         elif command == 'STARTSWITH':
