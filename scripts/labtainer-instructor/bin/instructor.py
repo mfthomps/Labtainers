@@ -53,6 +53,10 @@ def main():
     gradesfile.write("\n")
     StudentHomeDir = '/home/ubuntu'
     lab_name_dir = '/home/ubuntu/.local/.labname'
+    if not os.path.isfile(lab_name_dir):
+        print('ERROR: no file at %s, perhaps running instructor script on wrong containers?')
+        exit(1)
+
     with open(lab_name_dir) as fh:
         LabIDName = fh.read().strip()
     InstructorName = instructorconfig['instructorname']
@@ -60,6 +64,7 @@ def main():
     InstructorBaseDir = instructorconfig['instructorbasedir']
     GraderScript = instructorconfig['graderscript']
 
+    student_list = {}
     zip_files = glob.glob(InstructorHomeDir+'/*.zip')
     for zfile in zip_files:
         ZipFileName = os.path.basename(zfile)
@@ -79,7 +84,10 @@ def main():
             return 1
         student_id = email_labname.rsplit('.', 1)[0]
         #print "student_id is %s" % student_id
-
+        if email_labname not in student_list:
+            student_list[email_labname] = []
+        student_list[email_labname].append(containername) 
+        #print('append container %s for student %s' % (containername, email_labname))
         OutputName = '%s%s' % (InstructorHomeDir, ZipFileName)
         LabDirName = '%s%s' % (InstructorHomeDir, email_labname)
         DestDirName = '%s%s' % (InstructorHomeDir, DestinationDirName)
@@ -115,15 +123,21 @@ def main():
 
         zipoutput.close()
 
+
+    for email_labname in student_list:
         # GoalsParser is now tied per student - do this after unzipping file
         # Call GoalsParser script to parse 'goals'
+        ''' note odd hack, labinstance seed is stored on container, so need to fine one, use first '''
+        DestinationDirName = '%s/%s' % (email_labname, student_list[email_labname][0])
+        DestDirName = '%s%s' % (InstructorHomeDir, DestinationDirName)
         GoalsParser.ParseGoals(DestDirName)
 
         # Call ResultParser script to parse students' result
         #command = 'ResultParser.py %s %s %s %s' % (LabDirName, containername, InstDirName, LabIDName)
         #print "About to do (%s)" % command
         #os.popen(command)
-        ResultParser.ParseStdinStdout(LabDirName, containername, InstDirName, LabIDName)
+        ResultParser.ParseStdinStdout(LabDirName, student_list[email_labname], InstDirName, LabIDName)
+        #ResultParser.ParseStdinStdout(LabDirName, containername, InstDirName, LabIDName)
 
     #print "Student Lab list : "
     #print studentslablist

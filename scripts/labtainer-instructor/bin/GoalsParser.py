@@ -18,7 +18,7 @@ exec_proglist = []
 stdinfnameslist = []
 stdoutfnameslist = []
 timestamplist = []
-nametags = {}
+nametags = []
 global parameter_list
 parameter_list = None
 answer_tokens=['result', 'parameter', 'parameter_ascii']
@@ -267,7 +267,7 @@ def ParseGoals(studentdir):
                         goal_operator == "integer_lessthan"):
                         sys.stderr.write("ERROR: goals.config contains unrecognized operator (%s)\n" % goal_operator)
                         sys.exit(1)
-                    nametags[each_key] = MyGoal(each_key, goal_type, goaloperator=goal_operator, answertag=valid_answertag, resulttag=valid_resulttag)
+                    nametags.append(MyGoal(each_key, goal_type, goaloperator=goal_operator, answertag=valid_answertag, resulttag=valid_resulttag))
                     #print "goal_type non-boolean"
                     #print nametags[each_key].goal_dict()
                 elif numvalues == 3:
@@ -276,11 +276,11 @@ def ParseGoals(studentdir):
                     if goal_type == 'time_before' or goal_type == 'time_during':
                         goal1tag = values[1].strip()
                         goal2tag = values[2].strip()
-                        nametags[each_key] = MyGoal(each_key, goal_type, goal1tag=goal1tag, goal2tag=goal2tag)
+                        nametags.append(MyGoal(each_key, goal_type, goal1tag=goal1tag, goal2tag=goal2tag))
                     elif goal_type == 'count_greater':
                         answertag = values[1].strip()
                         subgoal_list = values[2].strip()
-                        nametags[each_key] = MyGoal(each_key, goal_type, answertag=answertag, boolean_string=subgoal_list)
+                        nametags.append(MyGoal(each_key, goal_type, answertag=answertag, boolean_string=subgoal_list))
                     else:
                         print('ERROR: could not parse goals.config line %s' % s)
                         exit(1)
@@ -291,7 +291,7 @@ def ParseGoals(studentdir):
                     goal_type = values[0].strip()
                     if goal_type == 'boolean':
                         boolean_string = values[1].strip()
-                        nametags[each_key] = MyGoal(each_key, goal_type, boolean_string=boolean_string)
+                        nametags.append(MyGoal(each_key, goal_type, boolean_string=boolean_string))
                     else:
                         print('ERROR: could not parse goals.config line %s' % s)
                         exit(1)
@@ -324,7 +324,7 @@ def ParseGoals(studentdir):
         
     #print nametags
     jsonoutput = open(outputjsonfname, "w")
-    jsondumpsoutput = json.dumps([nametags[each_key].goal_dict() for (each_key, each_goal) in nametags.items()], indent=4)
+    jsondumpsoutput = json.dumps([x.goal_dict() for x in nametags], indent=4)
     jsonoutput.write(jsondumpsoutput)
     jsonoutput.write('\n')
     jsonoutput.close()
