@@ -31,20 +31,28 @@ def getDocker0IPAddr():
 
 # Parameterize my_container_name container
 def ParameterizeMyContainer(mycontainer_name, container_user, lab_instance_seed, user_email, labname):
+    retval = True
     #print "About to call parameterize.sh with LAB_INSTANCE_SEED = (%s)" % lab_instance_seed
     command = 'docker exec -it %s script -q -c "/home/%s/.local/bin/parameterize.sh %s %s %s %s" /dev/null' % (mycontainer_name, container_user, lab_instance_seed, user_email, labname, mycontainer_name)
-    #print "Command to execute is (%s)" % command
-    result = subprocess.call(command, shell=True)
-    #print "Result of subprocess.call ParameterizeMyContainer is %s" % result
-    return result
+    ps = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if len(output[1]) > 0:
+        print('ERROR: ParaemterizeMyContainer %s' % output[1])
+        print('command was %s' % command)
+        retval = False
+    return retval
 
 # Start my_container_name container
 def StartMyContainer(mycontainer_name):
-    command = "docker start %s 2> /dev/null" % mycontainer_name
-    #print "Command to execute is (%s)" % command
-    result = subprocess.call(command, shell=True)
-    #print "Result of subprocess.call StartMyContainer is %s" % result
-    return result
+    retval = True
+    command = "docker start %s" % mycontainer_name
+    ps = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if len(output[1]) > 0:
+        print('ERROR: ParaemterizeMyContainer %s' % str(output))
+        print('command was %s' % command)
+        retval = False
+    return retval
 
 # Check to see if my_container_name container has been created or not
 def IsContainerCreated(mycontainer_name):
@@ -105,14 +113,17 @@ def CreateSubnets(subnets):
             if subnets[subnet_name].gateway != None:
                 #print subnets[subnet_name].gateway
                 subnet_gateway = subnets[subnet_name].gateway
-                command = "docker network create -d bridge --gateway=%s --subnet %s %s 2> /dev/null" % (subnet_gateway, subnet_network_mask, subnet_name)
+                command = "docker network create -d bridge --gateway=%s --subnet %s %s" % (subnet_gateway, subnet_network_mask, subnet_name)
             else:
-                command = "docker network create -d bridge --subnet %s %s 2> /dev/null" % (subnet_network_mask, subnet_name)
+                command = "docker network create -d bridge --subnet %s %s" % (subnet_network_mask, subnet_name)
             #print "Command to execute is (%s)" % command
-            create_result = subprocess.call(command, shell=True)
+            #create_result = subprocess.call(command, shell=True)
+            ps = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            output = ps.communicate()
             #print "Result of subprocess.call CreateSubnets docker network create is %s" % create_result
-            if create_result == FAILURE:
-                sys.stderr.write("ERROR: Failed to create %s subnet at %s!\n" % (subnet_name, subnet_network_mask))
+            if len(output[1]) > 0:
+                sys.stderr.write("ERROR: Failed to create %s subnet at %s, %s\n" % (subnet_name, subnet_network_mask, output[1]))
+                sys.stderr.write("command was %s\n" % command)
                 sys.exit(1)
         else:
             print "Already exists! Not creating %s subnet at %s!\n" % (subnet_name, subnet_network_mask)
@@ -167,9 +178,8 @@ def ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname, 
     mymd5_hex_string = mymd5.hexdigest()
     #print mymd5_hex_string
 
-    parameterize_result = ParameterizeMyContainer(mycontainer_name, container_user, mymd5_hex_string,
-                                                          user_email, labname)
-    if parameterize_result == FAILURE:
+    if not ParameterizeMyContainer(mycontainer_name, container_user, mymd5_hex_string,
+                                                          user_email, labname):
         sys.stderr.write("ERROR: Failed to parameterize lab container %s!\n" % mycontainer_name)
         sys.exit(1)
     return user_email
@@ -231,7 +241,7 @@ def DoStart(start_config, labname, role):
         # Set need_seeds=False first
         need_seeds=False
 
-        # IsContainerCreated returned FAILURE if container does not exists
+        # IsContainerCreated return False if container does not exists
         if not haveContainer:
             # Container does not exist, create the container
             # Use CreateSingleContainer()
@@ -252,7 +262,7 @@ def DoStart(start_config, labname, role):
         haveContainer = IsContainerCreated(mycontainer_name)
         #print "IsContainerCreated result (%s)" % haveContainer
 
-        # IsContainerCreated returned FAILURE if container does not exists
+        # IsContainerCreated returned False if container does not exists
         if not haveContainer:
             sys.stderr.write("ERROR: DoStart Container %s still not created!\n" % mycontainer_name)
             sys.exit(1)
@@ -261,8 +271,7 @@ def DoStart(start_config, labname, role):
                 connectNetworkResult = ConnectNetworkToContainer(mycontainer_name, mysubnet_name, mysubnet_ip)
 
             # Start the container
-            start_result = StartMyContainer(mycontainer_name)
-            if start_result == FAILURE:
+            if not StartMyContainer(mycontainer_name):
                 sys.stderr.write("ERROR: DoStart Container %s failed to start!\n" % mycontainer_name)
                 sys.exit(1)
 
@@ -371,7 +380,7 @@ def FileModLater(ts, fname):
     df_ts = time.mktime(time.strptime(parts[0], "%Y-%m-%d %H:%M:%S"))
 
     #print('df_utc time is %s' % df_utc_string)
-    #print('df_utc ts is %s' % df_ts)
+    #print('df_utc ts is %s given ts is %s' % (df_ts, ts))
     if df_ts > ts:
         return True
     else:
@@ -438,6 +447,16 @@ def CheckBuild(labname, image_name, container_name, name, role):
                print('%s is later, will build' % f_path)
                retval = True
                break
+        print('is instructor')
+        if not retval:  
+            inst_bin = './bin'
+            inst_bin_files = os.listdir(inst_bin)
+            for f in inst_bin_files:
+                f_path = os.path.join(inst_bin, f)
+                if FileModLater(ts, f_path):
+                   print('%s is later, will build' % f_path)
+                   retval = True
+                   break
     return retval
 
 def dumb():
@@ -483,6 +502,47 @@ def RedoLab(labname, role):
                 exit(1)
     StartLab(labname, role)
 
+def GatherOtherArtifacts(labname, name, container_name, container_user):
+    '''
+    Parse the results.config file looking for files named by absolute paths,
+    and copy those into the .local/result directory, maintaining the original
+    directory structure, e.g., .local/result/var/log/foo.log
+    '''
+    lab_path          = os.path.join(LABS_ROOT,labname)
+    config_path       = os.path.join(lab_path,"instr_config") 
+    results_config_path = os.path.join(config_path,"results.config")
+    with open (results_config_path) as fh:
+        for line in fh:
+            ''' container:filename is between "=" and first " : " '''
+            line = line.strip()
+            if line.startswith('#') or len(line) == 0:
+                continue
+            if '=' not in line:
+                print('no = in line %s' % line)
+                continue
+            after_equals = line.split('=', 1)[1]
+            fname = after_equals.split(' : ')[0]
+            is_mine = False
+            if ':' in fname:
+                f_container, fname = fname.split(':')
+                print('f_container <%s> container_name %s' % (f_container, container_name))
+                if f_container.strip() == name:
+                    is_mine = True 
+                fname = fname.strip()
+            else: 
+                is_mine = True
+            if is_mine:
+                if fname.startswith('/'):
+                    ''' copy from abs path to ~/.local/result ''' 
+               
+                    command='docker exec -it %s cp --parents %s /home/%s/.local/result' % (container_name, fname, container_user)
+                    print command
+                    child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                    error = child.stderr.read().strip()
+                    if len(error) > 0:
+                        print('GatherOtherArtifacts, ERROR: %s' % error)
+                        print('command was %s' % command)
+                        
 
 # CreateCopyChownZip
 def CreateCopyChownZip(mycwd, start_config, container_name, container_image, container_user):
@@ -582,6 +642,7 @@ def DoStop(start_config, mycwd, labname, role):
                 if mycontainer_name == start_config.grade_container:
                     CopyChownGradesFile(mycwd, start_config, mycontainer_name, mycontainer_image, container_user)
             else:
+                GatherOtherArtifacts(labname, name, mycontainer_name, container_user)
                 # Before stopping a container, run 'Student.py'
                 # This will create zip file of the result
                 CreateCopyChownZip(mycwd, start_config, mycontainer_name, mycontainer_image, container_user)
