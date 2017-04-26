@@ -513,6 +513,7 @@ def GatherOtherArtifacts(labname, name, container_name, container_user):
     lab_path          = os.path.join(LABS_ROOT,labname)
     config_path       = os.path.join(lab_path,"instr_config") 
     results_config_path = os.path.join(config_path,"results.config")
+    did_file = []
     with open (results_config_path) as fh:
         for line in fh:
             ''' container:filename is between "=" and first " : " '''
@@ -534,7 +535,7 @@ def GatherOtherArtifacts(labname, name, container_name, container_user):
             else: 
                 is_mine = True
             if is_mine:
-                if fname.startswith('/'):
+                if fname.startswith('/') and fname not in did_file:
                     ''' copy from abs path to ~/.local/result ''' 
                
                     command='docker exec -it %s cp --parents %s /home/%s/.local/result' % (container_name, fname, container_user)
@@ -544,6 +545,7 @@ def GatherOtherArtifacts(labname, name, container_name, container_user):
                     if len(error) > 0:
                         print('GatherOtherArtifacts, ERROR: %s' % error)
                         print('command was %s' % command)
+                    did_file.append(fname)
                         
 
 # RunInstructorCreateGradeFile
