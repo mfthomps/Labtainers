@@ -1,3 +1,4 @@
+import filecmp
 import glob
 import json
 import md5
@@ -543,6 +544,43 @@ def GatherOtherArtifacts(labname, name, container_name, container_user):
                         print('GatherOtherArtifacts, ERROR: %s' % error)
                         print('command was %s' % command)
                         
+
+# RunInstructorCreateGradeFile
+def RunInstructorCreateGradeFile(container_name):
+    # Run 'instructor.py' - This will create 'grades.txt' 
+#   print "About to call instructor.py"
+    bash_command = "'cd ; . .profile ; instructor.py'"
+    command = 'docker exec -it %s script -q -c "/bin/bash -c %s" /dev/null' % (container_name, bash_command)
+    #print "Command to execute is (%s)" % command
+    result = subprocess.call(command, shell=True)
+#   print "RunInstructorCreateGradeFile: Result of subprocess.call exec instructor.py is %s" % result
+    if result == FAILURE:
+        sys.stderr.write("ERROR: RunInstructorCreateGradeFile Container %s fail on executing instructor.py!\n" % container_name)
+        sys.exit(1)
+
+
+def RegressTest(labname, role):
+    username = getpass.getuser()
+    mycwd = os.getcwd()
+    myhomedir = os.environ['HOME']
+    #print "current working directory for %s" % mycwd
+    #print "current user's home directory for %s" % myhomedir
+    #print "ParseStartConfig for %s" % labname
+    lab_path          = os.path.join(LABS_ROOT,labname)
+    config_path       = os.path.join(lab_path,"config") 
+    start_config_path = os.path.join(config_path,"start.config")
+    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role)
+    host_home_xfer = start_config.host_home_xfer
+    GradesGold = "/home/%s/%s/grades.txt.GOLD" % (username, host_home_xfer)
+    Grades = "/home/%s/%s/grades.txt" % (username, host_home_xfer)
+
+    RedoLab(labname, role)
+    RunInstructorCreateGradeFile(start_config.grade_container)
+    StopLab(labname, role)
+
+    CompareResult = filecmp.cmp(GradesGold, Grades)
+    return CompareResult
+
 
 # CreateCopyChownZip
 def CreateCopyChownZip(mycwd, start_config, container_name, container_image, container_user):
