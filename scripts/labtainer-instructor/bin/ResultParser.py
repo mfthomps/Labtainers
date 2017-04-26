@@ -210,6 +210,9 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
     # Construct proper containername from cfgcontainername
     if containername is None:
         containername = labidname + "." + cfgcontainername + ".student"
+    result_home = '%s/%s/%s' % (studentlabdir, containername, ".local/result/")
+    if targetfile.startswith('/'):
+        targetfile = os.path.join(result_home, targetfile[1:])
     #print('targetfile is %s containername is %s' % (targetfile, containername))
 
     if containername is not None and containername not in container_list:
@@ -239,7 +242,6 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
         # command = 'STARTSWITH': or 'HAVESTRING'
         lookupstring = values[line_at+1].strip()
 
-    result_home = '%s/%s/%s' % (studentlabdir, containername, ".local/result/")
     if timestamppart is not None:
         targetfname = '%s%s.%s' % (result_home, targetfile, timestamppart)
     else:
