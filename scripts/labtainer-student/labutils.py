@@ -525,7 +525,7 @@ def GatherOtherArtifacts(labname, name, container_name, container_user):
             is_mine = False
             if ':' in fname:
                 f_container, fname = fname.split(':')
-                print('f_container <%s> container_name %s' % (f_container, container_name))
+                #print('f_container <%s> container_name %s' % (f_container, container_name))
                 if f_container.strip() == name:
                     is_mine = True 
                 fname = fname.strip()
@@ -536,7 +536,7 @@ def GatherOtherArtifacts(labname, name, container_name, container_user):
                     ''' copy from abs path to ~/.local/result ''' 
                
                     command='docker exec -it %s cp --parents %s /home/%s/.local/result' % (container_name, fname, container_user)
-                    print command
+                    #print command
                     child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                     error = child.stderr.read().strip()
                     if len(error) > 0:

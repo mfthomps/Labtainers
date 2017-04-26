@@ -32,13 +32,15 @@ TMP_DIR=/tmp/$labimage
 rm -rf $TMP_DIR
 mkdir $TMP_DIR
 mkdir $TMP_DIR/.local
-cp $LABIMAGE_DIR/* $TMP_DIR 2>>/dev/null
-cp $LABIMAGE_DIR/.* $TMP_DIR/ 2>>/dev/null
+cp -r $LABIMAGE_DIR/. $TMP_DIR 2>>/dev/null
+# ugly!
+rm -r $TMP_DIR/_bin
+rm -r $TMP_DIR/_system
 cp -r $LAB_DIR/config $TMP_DIR/.local/ 2>>/dev/null
 cp  -r bin/ $TMP_DIR/.local/  2>>/dev/null
 cp  $LAB_DIR/bin/* $TMP_DIR/.local/bin 2>>/dev/null
 chmod a+x $TMP_DIR/.local/bin/* 2>>/dev/null
-cp  $LABIMAGE_DIR/bin/* $TMP_DIR/.local/bin 2>>/dev/null
+cp  $LABIMAGE_DIR/_bin/* $TMP_DIR/.local/bin 2>>/dev/null
 mkdir $TMP_DIR/.local/result
 cd $TMP_DIR
 tar --atime-preserve -zcvf $LAB_TAR .
