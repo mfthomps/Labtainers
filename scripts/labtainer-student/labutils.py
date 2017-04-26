@@ -12,6 +12,7 @@ import ParseStartConfig
 import datetime
 import getpass
 LABS_ROOT = os.path.abspath("../../labs/")
+TESTSETS_ROOT = os.path.abspath("../../../testsets/labs/")
 
 # Error code returned by docker inspect
 SUCCESS=0
@@ -571,8 +572,19 @@ def RegressTest(labname, role):
     start_config_path = os.path.join(config_path,"start.config")
     start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role)
     host_home_xfer = start_config.host_home_xfer
-    GradesGold = "/home/%s/%s/grades.txt.GOLD" % (username, host_home_xfer)
+
+    regresstest_lab_path = os.path.join(TESTSETS_ROOT,labname)
+    #print "Regression Test path for labname %s is %s" % (labname, regresstest_lab_path)
+    GradesGold = "%s/grades.txt" % regresstest_lab_path
     Grades = "/home/%s/%s/grades.txt" % (username, host_home_xfer)
+    #print "GradesGold is %s - Grades is %s" % (GradesGold, Grades)
+
+    # Remove any zip files in host_home_xfer first
+    command = "rm -f /home/%s/%s/*.zip" % (username, host_home_xfer)
+    os.system(command)
+    # Copy zip files in regression_lab_path to host_home_xfer
+    command = "cp %s/*.zip /home/%s/%s" % (regresstest_lab_path, username, host_home_xfer)
+    os.system(command)
 
     RedoLab(labname, role)
     RunInstructorCreateGradeFile(start_config.grade_container)
