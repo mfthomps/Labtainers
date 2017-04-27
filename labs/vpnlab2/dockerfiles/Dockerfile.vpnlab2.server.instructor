@@ -6,7 +6,7 @@ ARG lab
 ARG labdir
 ARG imagedir
 
-ADD $labdir/$imagedir/etc/rc.local /etc/rc.local
+ADD $labdir/sys_$lab.tar.gz /
 USER ubuntu
 ADD $labdir/$lab.tar.gz /home/ubuntu
 ENV HOME /home/ubuntu
