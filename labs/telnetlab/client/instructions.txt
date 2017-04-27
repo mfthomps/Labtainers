@@ -48,7 +48,7 @@ On the server, start tcpdump to display TCP network traffic with this command:
     sudo tcpdump -i eth0 -X tcp
 
 On the client, start a telnet session, but when prompted for the password, 
-type a string that is easy to recognize.  Observe that string in the tcpdump
+type "mydoghasfleas".  Observe that string in the tcpdump
 of traffic.
 
 4. Stop the Labtainer
