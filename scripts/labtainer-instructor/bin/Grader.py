@@ -175,6 +175,12 @@ def compare_result_answer(current_result, current_answer, operator):
     elif operator == "integer_lessthan":
         if result_int < answer_int:
             found = True
+    elif operator == "is_true":
+        if current_result.lower() == 'true':
+            found = True
+    elif operator == "is_false":
+        if current_result.lower() == 'false':
+            found = True
     else:
         found = False
 
@@ -388,27 +394,57 @@ def processMatchAny(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
         if one_answer:
             #print "Correct answer is (%s) result (%s)" % (current_onlyanswer, resulttagresult)
             found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
-            if found:
-                #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_onlyanswer)
-                add_goals_id_ts(goalid, fulltimestamp, True, goals_id_ts, goals_ts_id)
-            else:
-                #print "resulttagresult is (%s) does not match answer (%s)" % (resulttagresult, current_onlyanswer)
-                add_goals_id_ts(goalid, fulltimestamp, False, goals_id_ts, goals_ts_id)
+            add_goals_id_ts(goalid, fulltimestamp, found, goals_id_ts, goals_ts_id)
         else:
             answertagresult = jsonoutput[answertagstring]
             current_answer = answertagresult.strip()
             #print "Correct answer is (%s) result (%s)" % (current_answer, resulttagresult)
             found = compare_result_answer(resulttagresult, current_answer, eachgoal['goaloperator'])
-            if found:
-                #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_answer)
-                add_goals_id_ts(goalid, fulltimestamp, True, goals_id_ts, goals_ts_id)
-            else:
-                add_goals_id_ts(goalid, fulltimestamp, False, goals_id_ts, goals_ts_id)
+            add_goals_id_ts(goalid, fulltimestamp, found, goals_id_ts, goals_ts_id)
  
     # All file processed
     #print goals_id_ts
     #print goals_ts_id
 
+def processTrueFalse(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
+    #print "Inside processTrueFalse"
+    found = False
+    goalid = eachgoal['goalid']
+    #print goalid
+    resulttag = eachgoal['resulttag']
+    #print resulttag
+    #print eachgoal
+
+    for outputjsonfile in outjsonfnames:
+        #print "processTrueFalse: outputjsonfile is (%s)" % outputjsonfile
+        # Use rsplit to get the timestamppart
+        if outputjsonfile.endswith("student"):
+            filenamepart = outputjsonfile
+            timestamppart = "default"
+        else:
+            (filenamepart, timestamppart) = outputjsonfile.rsplit('.', 1)
+        jsonoutput = getJsonOut(outputjsonfile)
+
+        if jsonoutput == {}:
+            # empty - skip
+            continue
+
+        try:
+            resulttagresult = jsonoutput[resulttag]
+        except:
+            #print('processTrueFalse: %s not found in file %s' % (resulttag, outputjsonfile))
+            continue
+        
+        try:
+            timestampend = jsonoutput['PROGRAM_ENDTIME']
+        except:
+            print('processTrueFalse: PROGRAM_ENDTIME not found in file %s' % outputjsonfile)
+            exit(1)
+        fulltimestamp = '%s-%s' % (timestamppart, timestampend)
+        #print('compare %s operator %s' % (resulttagresult, eachgoal['goaltype']))
+        found = compare_result_answer(resulttagresult, None, eachgoal['goaltype'])
+        add_goals_id_ts(goalid, fulltimestamp, found, goals_id_ts, goals_ts_id)
+ 
 def countTrue(goal_list, current_goals):
     the_list = goal_list[goal_list.find("(")+1:goal_list.find(")")]
     the_goals = the_list.strip().split(',')
@@ -523,7 +559,8 @@ def processLabExercise(studentlabdir, labidname, grades, goals, goals_id_ts, goa
     # Go through each goal for each student
     # Do the goaltype of non 'boolean' first
     for eachgoal in goals:
-        #print('goal is %s' % eachgoal['goalid'])
+        #print('goal is %s type %s' % (eachgoal['goalid'], eachgoal['goaltype']))
+
         if eachgoal['goaltype'] == "matchany":
             processMatchAny(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id)
         elif eachgoal['goaltype'] == "matchlast":
@@ -537,6 +574,8 @@ def processLabExercise(studentlabdir, labidname, grades, goals, goals_id_ts, goa
             processTemporal(eachgoal, goals_id_ts, goals_ts_id)
         elif eachgoal['goaltype'] == "count_greater":
             processCountGreater(eachgoal, goals_id_ts, goals_ts_id)
+        elif eachgoal['goaltype'].startswith('is_'):
+            processTrueFalse(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id)
         else:
             sys.stdout.write("Error: Invalid goal type!\n")
             sys.exit(1)

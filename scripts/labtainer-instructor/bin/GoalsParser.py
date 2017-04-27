@@ -288,6 +288,10 @@ def ParseGoals(studentdir):
                     if goal_type == 'boolean':
                         boolean_string = values[1].strip()
                         nametags.append(MyGoal(each_key, goal_type, boolean_string=boolean_string))
+                    elif goal_type == 'is_true' or goal_type == 'is_false':
+                        resulttag = values[1].strip()
+                        #print('parsegoals type is %s result %s' % (goal_type, resulttag))
+                        nametags.append(MyGoal(each_key, goal_type, resulttag=resulttag))
                     else:
                         print('ERROR: could not parse goals.config line %s' % s)
                         exit(1)
