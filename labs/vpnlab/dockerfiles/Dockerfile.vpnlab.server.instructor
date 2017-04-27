@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     openssh-server \
     openvpn
 
-ADD $labdir/$imagedir/_system/etc/rc.local /etc/rc.local
+ADD $labdir/sys_$lab.tar.gz /
 USER ubuntu
 ADD $labdir/$lab.tar.gz /home/ubuntu
 ENV HOME /home/ubuntu
