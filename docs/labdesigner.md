@@ -289,9 +289,34 @@ directory is at:
 
 Note the name of the container name in labs with a single container matches the labname by default.
 
+All files and directories in the lab container directory will be copied to the student's HOME
+directory except for the \_bin and \_system directories.
+
+Each initial Dockerfile from the templates include this line:
+
+    ADD $labdir/$lab.tar.gz /home/ubuntu
+
+to accomplish the copying. The Dockerfile should not include any other ADD commands
+to copy files to the HOME directory.
+
+### Lab-specific system files ###
+All files in the
+
+    $LABTAINER_DIR/labs/[labname]/[container name]/_system
+
+directory will be copied to their corresponding paths relative to the root directory.
+For example, configuration files for /etc should appear in \_system/etc/.
+
+Each initial Dockerfile from the templates include this line:
+
+    ADD $labdir/sys_$lab.tar.gz /
+
+to accomplish the copying. The Dockerfile should not include any other ADD commands
+to copy system files.
+
 ### Final lab environment fixup ###
 The initial environment encountered by the student is further refined using
-the optional bin/fixlocal.sh script.  The framework executes
+the optional \_bin/fixlocal.sh script.  The framework executes
 this script the first time a student starts the lab container.  For example,
 this could be used to compile lab-specific programs afer they have been parameterized,
 (as described below).  Or this script could perform final configuration adjustments
@@ -395,7 +420,7 @@ ingested into the instructor's system where lab assessment occurs.
 The stdin and stdout for all non-system programs is captured, e.g., the results of an "ls" command
 are not captured.  The stdin and stdout of selected system programs will be captured if the program
 names appear in the *treataslocal* file at
-    $LABTAINER_DIR/labs/[labname]/[container name]/bin/treataslocal
+    $LABTAINER_DIR/labs/[labname]/[container name]/_bin/treataslocal
 
 
 ### Identify Lab-specifc Artifacts ###
@@ -422,39 +447,39 @@ Entries within the results.config file each have the following format:
 
      <nametag> = <file_id> : <field_type> : <field_id> : <line_type> : <line_id>
          where:
-                   nametag - The symbolic name of the result, which will be referenced in the
-                             goals configuration file.  It must be alphanumeric, underscores permitted.
-                   file_id -- identifies the set of files to be parsed.  The format of this id is:
-                       [container_name:]<prog>.[stdin | stdout] | file_path
-                          where <prog> is a program or utility name whose stdin and stdout artifacts
-                          will include timestamps.  The optional container_name identifies the container
-                          hosting the file.  Labs with a single container can omit this qualifier.
-                          Alternately, a file_path is intended for log files
-                          of services that persist across multiple student operations. If the given
-                          path is not absolute, it is relative to the first users's home directory. 
-                   field_type - Optional, defaults to "TOKEN", possible values include:
-                       TOKEN      -- Treat the line as space-delimited tokens
-                       PARENS     -- The desired value is contained in parenthesis
-                       QUOTES     -- The desired value is contained in parenthesis
-                       SLASH      -- The desired value is contained within slashes, e.g., /foo/
-                       LINE_COUNT -- The quantity of lines in the file. Remaining fields are ignored.
-                       CONTAINS   -- The value of nametag will be set to true if the file contains the
-                                     string represented in field_id.
-                   field_id -  An integer identifying the nth occurance of the field type.
-                               Alternately may be "LAST" for the last occurance of the field type,
-                               or "ALL" for the entire line (which causes the field type to be ignored).
-                               If field_type is "CONTAINS", the remainder of the line is treated as a string
-                               to be searched for.
-                   line_type - Identifies how the line is to be identified, values include:
-                       LINE           -- The line_id will be an integer line number (starting at one). Use of this
-                                         to identify lines is discouraged since minor lab changes might alter the count.
-                       STARTSWITH     -- the line_id will be a string.  This names the first occurrence of a line
-                                         that starts with this string. 
-                       CONTAINS       -- The line_id will be a string.  This names the first occurrence of a line
-                                         that contains the string.
-                       NEXTSTARTSWITH -- the line_id will be a string.  This names the line preceeding the 
-                                         first occurrence of a line that starts with this string. 
-                   line_id - See line_type above.
+               nametag - The symbolic name of the result, which will be referenced in the
+                         goals configuration file.  It must be alphanumeric, underscores permitted.
+               file_id -- Identifies a single file, or the set of files to be parsed.  The format of this id is:
+                   [container_name:]<prog>.[stdin | stdout] | file_path
+                      where <prog> is a program or utility name whose stdin and stdout artifacts
+                      will include timestamps.  The optional container_name identifies the container
+                      hosting the file.  Labs with a single container can omit this qualifier.
+                      Alternately, an explicit file_path is intended for log files
+                      of services that persist across multiple student operations. If the given
+                      path is not absolute, it is relative to the container user's home directory. 
+               field_type - Optional, defaults to "TOKEN", possible values include:
+                   TOKEN      -- Treat the line as space-delimited tokens
+                   PARENS     -- The desired value is contained in parenthesis
+                   QUOTES     -- The desired value is contained in parenthesis
+                   SLASH      -- The desired value is contained within slashes, e.g., /foo/
+                   LINE_COUNT -- The quantity of lines in the file. Remaining fields are ignored.
+                   CONTAINS   -- The value of nametag will be set to true if the file contains the
+                                 string represented in field_id.
+               field_id -  An integer identifying the nth occurance of the field type.
+                           Alternately may be "LAST" for the last occurance of the field type,
+                           or "ALL" for the entire line (which causes the field type to be ignored).
+                           If field_type is "CONTAINS", the remainder of the line is treated as a string
+                           to be searched for.
+               line_type - Identifies how the line is to be identified, values include:
+                   LINE           -- The line_id will be an integer line number (starting at one). Use of this
+                                     to identify lines is discouraged since minor lab changes might alter the count.
+                   STARTSWITH     -- the line_id will be a string.  This names the first occurrence of a line
+                                     that starts with this string. 
+                   CONTAINS       -- The line_id will be a string.  This names the first occurrence of a line
+                                     that contains the string.
+                   NEXTSTARTSWITH -- the line_id will be a string.  This names the line preceeding the 
+                                     first occurrence of a line that starts with this string. 
+               line_id - See line_type above.
 
 #### Capturing information about the environment ####
 Some labs require the student to alter system configuration settings,
