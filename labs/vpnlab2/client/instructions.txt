@@ -48,6 +48,9 @@ The wrapper script will capture stdin and stdout to files.
 To close the terminal window (that is attached to the Linux container),
 simply type 'exit'.
 
+Note: To observe the unencrypted traffic, run 'tcpdump' on the router container
+      sudo tcpdump -n -i eth0
+
 2.3. Setup VPN tunnel
 
 Use 'openvpn' to setup VPN tunnel
@@ -58,6 +61,9 @@ There are pre-created files 'index.html', 'link1.html' and 'link2.html'
 
 Use 'wget' to get files 'http://<IPADDr>/index.html
 Use the tunnel IP Address
+
+Note: To observe the encrypted traffic, run 'tcpdump' on the router container
+      sudo tcpdump -n -i eth0
 
 2.5. Stop Linux container LXCs
 
