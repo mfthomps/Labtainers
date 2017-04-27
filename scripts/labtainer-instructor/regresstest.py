@@ -15,22 +15,22 @@ student_cwd = instructor_cwd.replace('labtainer-instructor', 'labtainer-student'
 sys.path.append(student_cwd)
 import labutils
 
+def usage():
+    sys.stderr.write("Usage: regresstest.py [<labname>]\n")
+    sys.exit(1)
+
 # Usage: regresstest.py
 # Arguments: None
 def main():
     labnamelist = []
     num_args = len(sys.argv)
-    if num_args < 1:
-        sys.stderr.write("Usage: regresstest.py [<labname>]\n")
-        sys.exit(1)
-    elif num_args == 1:
+    if num_args == 1:
         #print "LABS_ROOT is %s" % labutils.LABS_ROOT
         labnamelist = os.listdir(labutils.LABS_ROOT)
     elif num_args == 2:
         labnamelist.append(sys.argv[1])
     else:
-        sys.stderr.write("Usage: regresstest.py [<labname>]\n")
-        sys.exit(1)
+        usage()
 
     for labname in labnamelist:
         #print "Current name is (%s)" % labname
