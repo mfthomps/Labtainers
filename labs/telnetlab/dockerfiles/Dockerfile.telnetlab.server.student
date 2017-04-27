@@ -8,9 +8,10 @@ ADD bin/funbuffer /usr/bin/
 RUN apt-get update && apt-get install -y --no-install-recommends \
     telnetd \
     update-inetd \
-    xinetd
+    xinetd \
+    rsyslog
 
-ADD $labdir/config/telnet /etc/xinetd.d/
+ADD $labdir/sys_$lab.tar.gz /
 
 USER ubuntu
 ADD $labdir/$lab.tar.gz /home/ubuntu
@@ -24,4 +25,4 @@ RUN echo "" > /home/ubuntu/.bash_logout
 RUN sudo apt-get install -y tcpdump
 RUN sudo mv /usr/sbin/tcpdump /usr/bin/tcpdump
 
-ENTRYPOINT sudo service xinetd restart && bash
+ENTRYPOINT sudo /sbin/faux_init && bash

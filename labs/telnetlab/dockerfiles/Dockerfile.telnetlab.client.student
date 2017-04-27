@@ -7,6 +7,7 @@ ADD bin/funbuffer /usr/bin/
 
 RUN apt-get update && apt-get install -y --no-install-recommends telnet
 
+ADD $labdir/sys_$lab.tar.gz /
 USER ubuntu
 ADD $labdir/$lab.tar.gz /home/ubuntu
 ENV HOME /home/ubuntu
