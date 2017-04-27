@@ -64,6 +64,7 @@ def main():
     InstructorBaseDir = instructorconfig['instructorbasedir']
     GraderScript = instructorconfig['graderscript']
 
+    ''' dictionary of container lists keyed by student email_labname '''
     student_list = {}
     zip_files = glob.glob(InstructorHomeDir+'/*.zip')
     for zfile in zip_files:
@@ -133,18 +134,17 @@ def main():
         GoalsParser.ParseGoals(DestDirName)
 
         # Call ResultParser script to parse students' result
-        #command = 'ResultParser.py %s %s %s %s' % (LabDirName, containername, InstDirName, LabIDName)
-        #print "About to do (%s)" % command
-        #os.popen(command)
+        LabDirName = '%s%s' % (InstructorHomeDir, email_labname)
+        #print('call ResultParser for %s %s' % (email_labname, student_list[email_labname]))
         ResultParser.ParseStdinStdout(LabDirName, student_list[email_labname], InstDirName, LabIDName)
-        #ResultParser.ParseStdinStdout(LabDirName, containername, InstDirName, LabIDName)
 
     #print "Student Lab list : "
     #print studentslablist
     for studentslabname in studentslablist:
-        #print studentslablist[studentslabname]
+        #print('grade %s' % studentslablist[studentslabname])
         for eachlistitem in studentslablist[studentslabname]:
             student_id, LabDirName, LabIDName = eachlistitem.split()
+            #print('grade student %s labdirname %s labidname %s' % (student_id, LabDirName, LabIDName))
             # Call grader script 
             #command = '%s %s %s' % (GraderScript, LabDirName, LabIDName)
             #print "About to do (%s)" % command

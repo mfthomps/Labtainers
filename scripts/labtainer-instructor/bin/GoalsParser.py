@@ -14,11 +14,6 @@ import MyUtil
 import ParameterParser
 
 UBUNTUHOME = "/home/ubuntu/"
-exec_proglist = []
-stdinfnameslist = []
-stdoutfnameslist = []
-timestamplist = []
-nametags = []
 global parameter_list
 parameter_list = None
 answer_tokens=['result', 'parameter', 'parameter_ascii']
@@ -211,6 +206,7 @@ def GetLabInstanceSeed(studentdir):
     return student_lab_instance_seed
 
 def ParseGoals(studentdir):
+    nametags = []
     configfilename = '%s/.local/instr_config/%s' % (UBUNTUHOME, "goals.config")
     configfile = open(configfilename)
     configfilelines = configfile.readlines()

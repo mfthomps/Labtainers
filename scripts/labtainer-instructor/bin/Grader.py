@@ -92,6 +92,7 @@ def evalTimeDuring(goals_tag1, goals_tag2):
     return evalTimeDuringResult
 
 def add_goals_id_ts(goalid, goalts, goalvalue, goals_id_ts, goals_ts_id):
+    #print('add_goals_id_ts goalid %s goalts %s' % (goalid, goalts))
     # Do goals_id_ts first
     if goalid not in goals_id_ts:
         goals_id_ts[goalid] = {}
@@ -238,7 +239,7 @@ def processMatchLast(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
     if one_answer:
         found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
         if found:
-            print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_onlyanswer)
+            #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_onlyanswer)
             add_goals_id_ts(goalid, fulltimestamp, True, goals_id_ts, goals_ts_id)
             return
     else:
@@ -246,7 +247,7 @@ def processMatchLast(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
         #print "Correct onlyanswer is (%s)" % current_onlyanswer
         found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
         if found:
-            print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_onlyanswer)
+            #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_onlyanswer)
             add_goals_id_ts(goalid, fulltimestamp, True, goals_id_ts, goals_ts_id)
             return
  
@@ -320,7 +321,7 @@ def processMatchAcross(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
 
             found = compare_result_answer(resulttagresult, current_answer, eachgoal['goaloperator'])
             if found:
-                print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_answer)
+                #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_answer)
                 add_goals_id_ts(goalid, fulltimestamp, True, goals_id_ts, goals_ts_id)
                 return
  
@@ -376,6 +377,7 @@ def processMatchAny(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
         except:
             #print('processMatchAny: %s not found in file %s' % (resulttag, outputjsonfile))
             continue
+        
         #print resulttagresult
         try:
             timestampend = jsonoutput['PROGRAM_ENDTIME']
@@ -390,6 +392,7 @@ def processMatchAny(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
                 #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_onlyanswer)
                 add_goals_id_ts(goalid, fulltimestamp, True, goals_id_ts, goals_ts_id)
             else:
+                #print "resulttagresult is (%s) does not match answer (%s)" % (resulttagresult, current_onlyanswer)
                 add_goals_id_ts(goalid, fulltimestamp, False, goals_id_ts, goals_ts_id)
         else:
             answertagresult = jsonoutput[answertagstring]
@@ -397,7 +400,7 @@ def processMatchAny(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
             #print "Correct answer is (%s) result (%s)" % (current_answer, resulttagresult)
             found = compare_result_answer(resulttagresult, current_answer, eachgoal['goaloperator'])
             if found:
-                print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_answer)
+                #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_answer)
                 add_goals_id_ts(goalid, fulltimestamp, True, goals_id_ts, goals_ts_id)
             else:
                 add_goals_id_ts(goalid, fulltimestamp, False, goals_id_ts, goals_ts_id)
@@ -436,7 +439,7 @@ def processCountGreater(eachgoal, goals_id_ts, goals_ts_id):
     is_greater = False
     if true_count > value:
         is_greater = True
-    print('countGreater result is %r' % is_greater)
+    #print('countGreater result is %r' % is_greater)
     add_goals_id_ts(goalid, default_timestamp, is_greater, goals_id_ts, goals_ts_id)
     
 
@@ -472,7 +475,7 @@ def processTemporal(eachgoal, goals_id_ts, goals_ts_id):
         # (1) goals_tag1 is True and goals_tag2 is True
         # (2) goal2start (%s) <= goal1start (%s) <= goal2end (%s)
 
-    print('processTemporal %s' % goalid)
+    #print('processTemporal %s' % goalid)
     add_goals_id_ts(goalid, default_timestamp, evalTimeResult, goals_id_ts, goals_ts_id)
 
 def processBoolean(eachgoal, goals_id_ts, goals_ts_id):
@@ -493,6 +496,7 @@ def processBoolean(eachgoal, goals_id_ts, goals_ts_id):
 
 # Process Lab Exercise
 def processLabExercise(studentlabdir, labidname, grades, goals, goals_id_ts, goals_ts_id):
+    #print('processLabExercise studentlabdir %s ' % (studentlabdir))
     #print "Goals JSON config is"
     #print goals
     #for eachgoal in goals:
@@ -519,6 +523,7 @@ def processLabExercise(studentlabdir, labidname, grades, goals, goals_id_ts, goa
     # Go through each goal for each student
     # Do the goaltype of non 'boolean' first
     for eachgoal in goals:
+        #print('goal is %s' % eachgoal['goalid'])
         if eachgoal['goaltype'] == "matchany":
             processMatchAny(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id)
         elif eachgoal['goaltype'] == "matchlast":
@@ -569,6 +574,7 @@ def processLabExercise(studentlabdir, labidname, grades, goals, goals_id_ts, goa
                         break
                 current_goals_result = current_value
                 break
+        #print('assign grades[%s] %r' % (goalid, current_goals_result))
         grades[goalid] = current_goals_result
 
     #print grades
@@ -585,9 +591,6 @@ def ProcessStudentLab(studentlabdir, labidname):
     goals_id_ts = {}
     goals_ts_id = {}
     grades = {}
-    # Goals
-    goals_id_ts.clear()
-    goals_ts_id.clear()
     resultsdir = os.path.join(studentlabdir, '.local','result')
     try:
         os.makedirs(resultsdir)

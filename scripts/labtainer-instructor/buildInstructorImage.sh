@@ -35,6 +35,7 @@ fi
 ORIG_PWD=`pwd`
 echo $ORIG_PWD
 LAB_TAR=$LAB_DIR/$labimage.tar.gz
+SYS_TAR=$LAB_DIR/sys_$labimage.tar.gz
 TMP_DIR=/tmp/$labimage
 rm -rf $TMP_DIR
 mkdir $TMP_DIR
@@ -49,16 +50,22 @@ cp  $LAB_DIR/bin/* $TMP_DIR/.local/bin 2>>/dev/null
 cp ../labtainer-student/bin/ParameterParser.py $TMP_DIR/.local/bin/
 cp -r $LABIMAGE_DIR/. $TMP_DIR 2>>/dev/null
 # ugly!
-rm -r $TMP_DIR/_bin
-rm -r $TMP_DIR/_system
+rm -fr $TMP_DIR/_bin
+rm -fr $TMP_DIR/_system
 cp $LAB_DIR/instr_config/* $TMP_DIR/.local/instr_config/ 2>>/dev/null
 cp $LAB_DIR/config/* $TMP_DIR/.local/config/ 2>>/dev/null
 cp config/* $TMP_DIR/.local/instr_config/ 2>>/dev/null
 cd $TMP_DIR
-pwd
-#tar --atime-preserve -zcvf $LAB_TAR .local .
-echo tar --atime-preserve -zcvf $LAB_TAR .
 tar --atime-preserve -zcvf $LAB_TAR .
+if [ -d $LABIMAGE_DIR/_system ]; then
+    cd $LABIMAGE_DIR/_system
+    tar --atime-preserve -zcvf $SYS_TAR .
+else
+    echo nothing at $LABIMAGE_DIR/_system
+    mkdir $LABIMAGE_DIR/_system
+    cd $LABIMAGE_DIR/_system
+    tar --atime-preserve -zcvf $SYS_TAR .
+fi
 
 cd $LAB_TOP
 dfile=Dockerfile.$labimage
