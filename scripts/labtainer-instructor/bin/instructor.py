@@ -16,7 +16,6 @@ import GoalsParser
 import ResultParser
 
 UBUNTUHOME="/home/ubuntu"
-studentslablist = {}
 
 def printresult(gradesfile, LabIDStudentName, grades):
     gradesfile.write("%s" % LabIDStudentName)
@@ -66,6 +65,8 @@ def main():
 
     ''' dictionary of container lists keyed by student email_labname '''
     student_list = {}
+   
+    ''' unzip everything ''' 
     zip_files = glob.glob(InstructorHomeDir+'/*.zip')
     for zfile in zip_files:
         ZipFileName = os.path.basename(zfile)
@@ -96,19 +97,6 @@ def main():
 
         #print "Student Lab list : "
         #print studentslablist
-        if email_labname not in studentslablist:
-            labdirnamelist = '%s %s %s' % (student_id, LabDirName, LabIDName)
-            #print "labdirname is (%s)" % labdirnamelist
-            studentslablist[email_labname] = []
-            studentslablist[email_labname].append(labdirnamelist)
-        else:
-            if labdirnamelist not in studentslablist[email_labname]:
-                studentslablist[email_labname].append(labdirnamelist)
-
-        #print "Current ZipFilename is %s" % ZipFileName
-        #print "Current DestinationDirName is %s" % DestinationDirName
-        #print "Current DestDirName is %s" % DestDirName
-        #print "Current InstDirName is %s" % InstDirName
 
         if os.path.exists(DestDirName):
             #print "Removing %s" % DestDirName
@@ -124,7 +112,7 @@ def main():
 
         zipoutput.close()
 
-
+    ''' create per-student goals.json and process results for each student '''
     for email_labname in student_list:
         # GoalsParser is now tied per student - do this after unzipping file
         # Call GoalsParser script to parse 'goals'
@@ -138,22 +126,13 @@ def main():
         #print('call ResultParser for %s %s' % (email_labname, student_list[email_labname]))
         ResultParser.ParseStdinStdout(LabDirName, student_list[email_labname], InstDirName, LabIDName)
 
-    #print "Student Lab list : "
-    #print studentslablist
-    for studentslabname in studentslablist:
-        #print('grade %s' % studentslablist[studentslabname])
-        for eachlistitem in studentslablist[studentslabname]:
-            student_id, LabDirName, LabIDName = eachlistitem.split()
-            #print('grade student %s labdirname %s labidname %s' % (student_id, LabDirName, LabIDName))
-            # Call grader script 
-            #command = '%s %s %s' % (GraderScript, LabDirName, LabIDName)
-            #print "About to do (%s)" % command
-            #grades = os.popen(command).read().splitlines()
-            grades = Grader.ProcessStudentLab(LabDirName, LabIDName)
-            #print "After ProcessStudentLab Instructor, grades is "
-            #print grades
-            LabIDStudentName = '%s : %s : ' % (LabIDName, student_id)
-            printresult(gradesfile, LabIDStudentName, grades)
+    ''' assess the results and generate simple report '''
+    for email_labname in student_list:
+        LabDirName = '%s%s' % (InstructorHomeDir, email_labname)
+        grades = Grader.ProcessStudentLab(LabDirName, LabIDName)
+        student_id = email_labname.rsplit('.', 1)[0]
+        LabIDStudentName = '%s : %s : ' % (LabIDName, student_id)
+        printresult(gradesfile, LabIDStudentName, grades)
 
     gradesfile.write("\n")
     gradesfile.close()
