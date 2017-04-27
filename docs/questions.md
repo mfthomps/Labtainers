@@ -33,11 +33,11 @@ moreterm, pause etc redundant between student and instructor.  fix that
 
 handle nohup when collecting artifacts
 
-lab/container/bin is used for fixlocal and other junk.  change the name of that so we 
-can use "bin" as a directory in the container home directory.  Tar of home should include
-all files and directories except selected reserved names (and "bin" should not be reserved).
-
 Remove instructor scripts from non-grader machines, less time confused about where I am when debugging.
 
 Validate boolen strings against entire goals.json, by the time of the evaluation, cannot tell if
 tokens are defined or not.
+
+Shorter form for a goal that is a boolean.
+
+Error check on redo so that if a image build fails, the continer is not started -- delete the container first?

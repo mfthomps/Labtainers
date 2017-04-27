@@ -512,10 +512,12 @@ timestamps with the results of processing the results.config file.  A single tim
 include results from a stdin file and a stdout file.  In general, there will be a distinct, 
 timestamped set of results for each occurance of a student invoking a targeted program.
 
-The following syntax defines each goal or subgoal within the goals.config file:
+The following syntax defines each goal or subgoal within the goals.config file.  While the syntax
+may appear complex, most goals can be expressed simply as can be seen in the labtainer examples distributed
+with the framework.
 
 
-     <goal_id> = <type> : [<operator> : <resulttag> : <answertag> | <boolean_expression> | goal1 : goal2 
+     <goal_id> = <type> : [<operator> : <resulttag> : <answertag> | <boolean_expression> | goal1 : goal2 | <resulttag> 
                            | count_greater : value : subgoal_list ]
        Where: 
          <goal_id> - An identifer for the goal.  It must be alphanumeric (underscores permitted).
@@ -529,7 +531,11 @@ The following syntax defines each goal or subgoal within the goals.config file:
               'matchlast'   - only results from the latest timestamped set are evaluated.
               'matchacross' - The answertag must name a result, and that result must occur
                               in a timestamped set that differs from the set in which the resulttag occurs.
-                            - note: 'matchacross' cannot be used within the boolean expression defined below.
+                              Note: 'matchacross' cannot be used within the boolean expression defined below.
+              'is_true'     - The goal is true if the value of the resulttag is true, e.g., from a "CONTAINS"
+                              field type in the result.config
+              'is_false'    - The goal is true if the value of the resulttag is not true, e.g., from a "CONTAINS"
+                              field type in the result.config
               'boolean'     - The goal value is computed from a boolean expression consisting of 
                               goal_id's and boolean operators, ("and", "or", "and_not", "or_not", and "not"), 
                               and parenthisis for precedence.
