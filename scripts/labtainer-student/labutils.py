@@ -528,17 +528,18 @@ def GatherOtherArtifacts(labname, name, container_name, container_user):
             is_mine = False
             if ':' in fname:
                 f_container, fname = fname.split(':')
-                #print('f_container <%s> container_name %s' % (f_container, container_name))
+                #print('f_container <%s> container_name %s' % (f_container, name))
                 if f_container.strip() == name:
                     is_mine = True 
                 fname = fname.strip()
             else: 
                 is_mine = True
             if is_mine:
+                #print(' is mine %s' % fname )
                 if fname.startswith('/') and fname not in did_file:
                     ''' copy from abs path to ~/.local/result ''' 
                
-                    command='docker exec -it %s cp --parents %s /home/%s/.local/result' % (container_name, fname, container_user)
+                    command='docker exec -it %s sudo cp --parents %s /home/%s/.local/result' % (container_name, fname, container_user)
                     #print command
                     child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                     error = child.stderr.read().strip()
@@ -546,6 +547,12 @@ def GatherOtherArtifacts(labname, name, container_name, container_user):
                         print('GatherOtherArtifacts, ERROR: %s' % error)
                         print('command was %s' % command)
                     did_file.append(fname)
+                    command='docker exec -it %s sudo chmod a+r -R /home/%s/.local/result' % (container_name, container_user)
+                    child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                    error = child.stderr.read().strip()
+                    if len(error) > 0:
+                        print('GatherOtherArtifacts, chmod ERROR: %s' % error)
+                        print('command was %s' % command)
                         
 
 # RunInstructorCreateGradeFile
