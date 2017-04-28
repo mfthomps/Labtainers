@@ -491,45 +491,45 @@ token in that line.
 Entries within the results.config file each have the following format:
 
 \begin{verbatim}
-     <nametag> = <file_id> : <field_type> : <field_id> : <line_type> : <line_id>
-         where:
-               nametag -- The symbolic name of the result, which will be referenced in 
-                          the goals configuration file.  It must be alphanumeric, 
-                          underscores permitted.
-               file_id -- Identifies a single file, or the set of files to be parsed.  The 
-                          format of this id is:
-                   [container_name:]<prog>.[stdin | stdout] | file_path
-                      where <prog> is a program or utility name whose stdin and stdout 
-                      artifacts will include timestamps.  The optional container_name 
-                      identifies the container hosting the file.  Labs with a single container 
-                      can omit this qualifier.  Alternately, an explicit file_path is intended 
-                      for log files of services that persist across multiple student operations. 
-                      If the given path is not absolute, it is relative to the container user's 
-                      home directory. 
-               field_type - Optional, defaults to "TOKEN", possible values include:
-                   TOKEN      -- Treat the line as space-delimited tokens
-                   PARENS     -- The desired value is contained in parenthesis
-                   QUOTES     -- The desired value is contained in parenthesis
-                   SLASH      -- The desired value is contained within slashes, e.g., /foo/
-                   LINE_COUNT -- The quantity of lines in the file. Remaining fields are ignored.
-                   CONTAINS   -- The value of nametag will be set to true if the file contains the
-                                 string represented in field_id.
-               field_id -- An integer identifying the nth occurance of the field type.
-                           Alternately may be "LAST" for the last occurance of the field type,
-                           or "ALL" for the entire line (which causes the field type to be ignored).
-                           If field_type is "CONTAINS", the remainder of the line is treated as a 
-                           string to be searched for.
-               line_type - Identifies how the line is to be identified, values include:
-                   LINE           -- The line_id will be an integer line number (starting at one). 
-                                     Use of this to identify lines is discouraged since minor lab 
-                                     changes might alter the count.
-                   STARTSWITH     -- the line_id will be a string.  This names the first occurrence 
-                                     of a line that starts with this string. 
-                   CONTAINS       -- The line_id will be a string.  This names the first occurrence 
-                                     of a line that contains the string.
-                   NEXTSTARTSWITH -- the line_id will be a string.  This names the line preceeding the 
-                                     first occurrence of a line that starts with this string. 
-               line_id - See line_type above.
+  <nametag> = <file_id> : <field_type> : <field_id> : <line_type> : <line_id>
+      where:
+            nametag -- The symbolic name of the result, which will be referenced in 
+                       the goals configuration file.  It must be alphanumeric, 
+                       underscores permitted.
+            file_id -- Identifies a single file, or the set of files to be parsed.  The 
+                       format of this id is:
+                [container_name:]<prog>.[stdin | stdout] | file_path
+                   where <prog> is a program or utility name whose stdin and stdout 
+                   artifacts will include timestamps.  The optional container_name 
+                   identifies the container hosting the file.  Labs with a single container 
+                   can omit this qualifier.  Alternately, an explicit file_path is intended 
+                   for log files of services that persist across multiple student operations. 
+                   If the given path is not absolute, it is relative to the container user's 
+                   home directory. 
+            field_type - Optional, defaults to "TOKEN", possible values include:
+                TOKEN      -- Treat the line as space-delimited tokens
+                PARENS     -- The desired value is contained in parenthesis
+                QUOTES     -- The desired value is contained in parenthesis
+                SLASH      -- The desired value is contained within slashes, e.g., /foo/
+                LINE_COUNT -- The quantity of lines in the file. Remaining fields are ignored.
+                CONTAINS   -- The value of nametag will be set to true if the file contains the
+                              string represented in field_id.
+            field_id -- An integer identifying the nth occurance of the field type.
+                        Alternately may be "LAST" for the last occurance of the field type,
+                        or "ALL" for the entire line (which causes the field type to be ignored).
+                        If field_type is "CONTAINS", the remainder of the line is treated as a 
+                        string to be searched for.
+            line_type - Identifies how the line is to be identified, values include:
+                LINE           -- The line_id will be an integer line number (starting at one). 
+                                  Use of this to identify lines is discouraged since minor lab 
+                                  changes might alter the count.
+                STARTSWITH     -- the line_id will be a string.  This names the first occurrence 
+                                  of a line that starts with this string. 
+                CONTAINS       -- The line_id will be a string.  This names the first occurrence 
+                                  of a line that contains the string.
+                NEXTSTARTSWITH -- the line_id will be a string.  This names the line preceeding the 
+                                  first occurrence of a line that starts with this string. 
+            line_id - See line_type above.
 \end{verbatim}
 
 \subsection{Capturing information about the environment}
