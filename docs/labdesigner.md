@@ -2,19 +2,20 @@ Labtainer Lab Designer User Guide
 =================================
 
 This manual is intended for use by lab designers wanting
-to create or adapt cyber security labs to use the Docker lab framework known
+to create or adapt cyber security labs to use the Docker-based lab framework known
 as "Labtainers".
 
 Benefits of Labtainers
 ----------------------
 The Labtainer framework is designed for use with computer and network security
-laboratory exercises targeting Linux
-environments, and it is built around standard Linux Docker containers.
+laboratory exercises targeting Linux environments, and it is built around 
+standard Linux Docker containers.  A Labtainer lab may include multiple 
+networked components, all running locally on a student's computer.
 
 Deploying cyber security labs using this framework
 provides three primary benefits:
 
-1) The lab execution environment is controlled and consistent
+1. The lab execution environment is controlled and consistent
 across all student computers regardless of the Linux distribution
 and configuration present on individual student computers.  
 This allows each lab designer to control
@@ -23,16 +24,16 @@ specific configuration settings, e.g., /etc file values. These configurations
 may vary between labs, and they may vary between multiple containers in
 a single lab.
 
-2) Assessment of student lab activity can be automated through a
+2. Assessment of student lab activity can be automated through a
 set of configuration files that identify expected results, thus
 relieving lab instructors from having to individually review detailed lab
 results.
 
-3) Labs may be automatically "parameterized" for each student such that
+3. Labs may be automatically "parameterized" for each student such that
 students cannot easily copy results from another student or from internet
 repositories.  
 
-Labtainers have the advantages of a consistent
+Labtainers provide the advantages of a consistent
 execution environment without requiring
 an individual Virtual Machine (VM) per lab, and without requiring all labs to be adapted for
 a common Linux execution environment.   These benefits can be realized 
@@ -42,21 +43,21 @@ or are parameterized for each student.
 Exercises that include multiple networked computers illustrate another advantage 
 of using containers over VMs, namely, containers require significantly less resources
 than do VMs.  A student laptop that struggles to run two or more VMs can readily 
-run multiple containers simultaneously.  
+run multiple containers simultaneously. 
 
 Overview of the Student Environment and Workflow
 ------------------------------------------------
 Labtainers support laboratory exercises designed for Linux environments,
 ranging from interaction with individual programs to labs that include
 what appear to be multiple components and networks.  Students see and interact with Linux
-environments, primarily via bash shell commands. In general, the Labtainer 
-framework implementation is not visible to the student, and the Linux 
+environments, primarily via bash shell commands. In general, the Labtainer
+framework implementation is not visible to the student, and the Linux
 environment as seen by the student is not augmented to support the framework.
 The Linux execution environments presented by Docker containers do not readily
 include GUIs.  As a result, Labtainer should not be used for exercises requiring
 GUIs.
 
-Labtainers are intended for use on individual student computers.  
+Labtainers are intended for use on individual student computers.
 The computer utilized by a student must include the Linux operating system, e.g.,
 as a single VM.  This Linux operating system, referred to herein
 as the "host", can be any distribution and version
@@ -75,9 +76,10 @@ present a bash shell.  Each container appears to the student as a separate
 computer, and these computers may appear to be connected via one or more networks.  
 
 When a student starts a given exercise for the first time, the framework fetches
-Docker images from a centralized repository named in the host system's /etc/hosts
-file.  If no such repository exists, the framework will build the Docker images
-on the student's host as needed.
+Docker images from the Docker registery.  In its current implementation, a single
+base image (about 500MB) is retreived from the Docker registry, and the remainder of the image
+is built on the student's computer, i.e., by fetching packages. This is transparent to
+the student, other than waiting for downloads and package installation. 
 
 After the student performs the lab exercise, artifacts from the container
 environments are automatically collected into a zip file that appears on
@@ -98,13 +100,15 @@ student activity, e.g., student-developed programs, output files, or even bash h
 
 Obtaining the Labtainer Development Kit
 ---------------------------------------
-Installation of an Ubunut VM and the Docker system is described
-in [Appendix A](#AppendixA).
+Installation of an Ubuntu VM and the Docker system is described
+in [Appendix A](#AppendixA).  Note Labtainers will work with any Linux
+distribution that supports Dockers.  Our instructions are for Ubuntu.
 The Labtainer Development Kit (LDK) is available as an subversion repository at
 [https://tor.ern.nps.edu/svn/proj/labtainer](https://tor.ern.nps.edu/svn/proj/labtainer).
 
 (Our intent is release versions to a Github repository for access beyond NPS.)
 
+<a name="Defining_New_Labs"/>
 Defining New Labs
 -----------------
 The most challenging and critical part of designing a new cyber security lab
@@ -112,9 +116,9 @@ is the design of the lab itself, i.e., identifying learning objectives and
 organizing exercises to achieve those objectives.  The Labtainer framework
 does not specifically address any of that.  Rather, the framework is intended
 to allow you to focus more time on the design of the lab and less time on mitigating and
-explaining system administration burdens you are placing on students and instructors.  
+explaining system administration burdens you are placing on students and instructors.
 The framework does not require lab designers to program or create scripts.  The
-lab designer primarily interacts with the framework by editing configuration files,
+lab designer primarily interacts with the framework by editing configuration files
 which affect the student's execution environment and the optional automated
 assessment of student activity.
 
@@ -126,7 +130,7 @@ This will create a set of template files that you can then customize
 for the new lab.  These template files are referenced in the discussion
 below.  After creating the new lab directory, cd to that directory and then run
 
-    $LABTAINER_DIR/scripts/designer/bin/new_lab_setup.py
+    $LABTAINER_DIR/scripts/designer/_bin/new_lab_setup.py
 
 where LABTAINER\_DIR is set to the top of the svn repo, e.g.,
 
@@ -139,11 +143,11 @@ empty directory, it is worth testing the lab to understand the workflow.
 ## Testing the new lab ##
 Once a new lab directory is created, and the new\_lab\_setup.py has been run, then 
 you can test the new, (currently empty) lab.  All student labs are launched from the
-MyStudentDocker directory.  Lab development workflow is easiest if at least two
-terminals or tabs are used, one in the new lab directory, and one in the MyStudentDocker
+labtainer-student directory.  Lab development workflow is easiest if at least two
+terminals or tabs are used, one in the new lab directory, and one in the labtainer-student
 directory.  So, open a new tab or window and:
 
-    cd $LABTAINER_DIR/scripts/MyStudentDocker
+    cd $LABTAINER_DIR/scripts/labtainer-student
 
 Then start the container using the:
 
@@ -174,7 +178,7 @@ To test adding a "hello world" program to the new labtainer, perform the followi
 
  * Create a "hello world" program, e.g., in python or compiled C.
 
- * From the MyStudentDocker window, run redo.py [labname]
+ * From the labtainer-student window, run redo.py [labname]
     
 You should see the new program in the container's
 home directory.  If you run the program from the container, and then stop the container
@@ -246,33 +250,32 @@ You must also describe your containers within the *start.config* file as describ
 
 ### Container definitions in start.config ###
 Most single container labs can use the automatically generated start.config file file
-without modification.  Labs consisting of multiple containers, or requiring custom users
-must modify the start.config file.  The following describes the major sections of that configuration
-file.
+without modification.  Labs consisting of multiple containers must modify the start.config 
+file.  The following describes the major sections of that configuration file.
 
-  * GLOBAL\_SETTINGS Beneath this keyword, the following values must be defined:
+  * GLOBAL\_SETTINGS -- Beneath this keyword, the following values must be defined:
 
-    * GRADE\_CONTAINER [container name] All lab containers are available the instructor while assessing student labs.
+    * GRADE\_CONTAINER [container name] -- All lab containers are available to the instructor while assessing student labs.
 This setting identifies which of the lab containers will host automated grading functions.
-    * HOST\_HOME\_XFER [dir name]   Identifies the host directory via which to transfer student artifacts, relative to 
+    * HOST\_HOME\_XFER [dir name] --  Identifies the host directory via which to transfer student artifacts, relative to 
 the home directory.  For students, this is where the zip files of their results end up.  For instructors, this is
 where zip files should be gathered for assessment.
-    * LAB\_MASTER\_SEED [seed]  The master seed string for this lab.  It is combined with the student email
+    * LAB\_MASTER\_SEED [seed] -- The master seed string for this lab.  It is combined with the student email
 address to create an instance seed that controls parameterization of individual student labs.
 
-  * NETWORK [network name]  One of these sections is require for each network within the lab.  In addition to
+  * NETWORK [network name] -- One of these sections is require for each network within the lab.  In addition to
 providing a name for the network, the following values are defined:
 
-    * MASK [network address mask] The network mask, e.g., 172.25.0.0./24
-    * GATEWAY [gateway address] The IP address of the network gateway
+    * MASK [network address mask] -- The network mask, e.g., 172.25.0.0./24
+    * GATEWAY [gateway address] -- The IP address of the network gateway
 
-  * CONTAINER [container name]  One of these sections is reqired for each container in the lab.
+  * CONTAINER [container name] -- One of these sections is reqired for each container in the lab.
 In addition to naming the container, the following values are defined: 
 
-    * TERMINALS [quantity] The number of virtual terminals to open and attach to this container when a lab starts.
+    * TERMINALS [quantity] -- The number of virtual terminals to open and attach to this container when a lab starts.
 If missing, it defaults to 2.
-    * USER [user name] The user name whose account will be accessed via the virtual terminals. (For now, this must be "ubuntu.)
-    * [network name] [ip address] Network address assignments for each network (defined via a NETWORK section), 
+    * USER [user name] -- The user name whose account will be accessed via the virtual terminals. (For now, this must be "ubuntu.)
+    * [network name] [ip address] -- Network address assignments for each network (defined via a NETWORK section), 
 that is to be connected to this container.  A separate line should be entered for each network.
   
 A simple example of a two-container lab can be found in $SEED\_DIR/labs/telnetlab. 
@@ -314,6 +317,19 @@ Each initial Dockerfile from the templates include this line:
 to accomplish the copying. The Dockerfile should not include any other ADD commands
 to copy system files.
 
+### System services ###
+The default Labtainer Dockerfiles build containers having no executing programs (other than
+bash shells attached to the virtual terminals created via the start.py or redo.py commands.)  
+The Dockerfile "ENTRYPOINT" command can be used to start a system service.  The general Docker 
+model is that a single Docker container runs a single service, with logging being forwarded to 
+the host.  Labtainers disregards this model because our goal is to make a container look more like a Linux
+system rather than a conformant Docker container. As such, a container that includes one or more
+system services will typically use the ENTRYPOINT command to launch a simple script that itself then
+starts system services, e.g., using xinetd.  This script will also typically start the rsyslog
+daemon (or equivalent) so that system logs appear within /var/log.  The *telnetlab* server container
+provides an example of creating a service and the rsyslog daemon.
+
+
 ### Final lab environment fixup ###
 The initial environment encountered by the student is further refined using
 the optional \_bin/fixlocal.sh script.  The framework executes
@@ -323,7 +339,7 @@ this could be used to compile lab-specific programs afer they have been paramete
 that cannot be easily performed by the Dockerfile.  These scripts are per-container
 and reside at:
 
-    $LABTAINER_DIR/labs/[labname]/[container name]/bin
+    $LABTAINER_DIR/labs/[labname]/[container name]/_bin
 
 Parameterizing a lab
 --------------------
@@ -343,7 +359,7 @@ to be replaced with a hexidecimal representation of a random value
 between 0x41 and 0x5a, inclusive.
 
 This symbolic replacement occurs when the student first starts the lab container,
-but before the execution of the bin/fixlocal.sh script.  Thus, in the formatstring
+but before the execution of the \_bin/fixlocal.sh script.  Thus, in the formatstring
 lab, the executable program resulting from the fixlocal.sh script will be specific
 to each student (though not necessarily unique).
 
@@ -485,7 +501,7 @@ Entries within the results.config file each have the following format:
 Some labs require the student to alter system configuration settings,
 e.g., using the sysctl command to effect ASLR. A *checklocal.sh* script in:
 
-    $LABTAINER_DIR/labs/[labname]/[container name]/bin
+    $LABTAINER_DIR/labs/[labname]/[container name]/_bin
 
 is intended to contain whatever commands are necessary to record the 
 state of the system at the time a program was invoked.  The stdout of
@@ -601,29 +617,39 @@ Appendix A: Installing Ubuntu & Docker
 =======================================
 </a>
 The instructions below describe installation of an Ubuntu Linux VM 
-to serve as the Labtainer host.
+to serve as the Labtainer host.  If you already have a Linux system
+that can support Dockers, you may skip this section.
 
-Install Virutal Box: https://www.virtualbox.org/wiki/Downloads
-Download the latest Ubuntu LTS distribution .iso image.
-Use VirtualBox to create a new VM, allocate at least 10GB of disk storage.
-Select the Ubuntu iso image in the VirtualBox storage settings, and select "Live CD/DVD"
-Power on the virtual machine and install Ubuntu.
-Install subversion on Ubuntu:
-sudo apt-get install subversion
+*  Install Virutal Box from : https://www.virtualbox.org/wiki/Downloads
+*  Download the latest Ubuntu LTS distribution .iso image.
+*  Use VirtualBox to create a new VM, allocate at least 10GB of disk storage.
+*  Select the Ubuntu iso image in the VirtualBox storage settings, and select "Live CD/DVD"
+*  Power on the virtual machine and install Ubuntu.
+*  Install subversion on Ubuntu:
 
-Retrieve the labtainer repository.
+         sudo apt-get install subversion
 
-    svn co https://tor.ern.nps.edu/svn/proj/seed
+Once you have a Linux system, then:
 
-Define the LABTAINER\_DIR environment variable (and consider
+* Retrieve the labtainer repository.
+
+         svn co https://tor.ern.nps.edu/svn/proj/seed
+
+* Define the LABTAINER\_DIR environment variable (and consider
 placing the definition in your ~/.bashrc file), e.g., 
 
-    export LABTAINER_DIR=/home/mike/seed/trunk
+          export LABTAINER_DIR=/home/mike/seed/trunk
 
-Install Docker on Ubuntu (this will lead to a reboot of the VM).
+* Install on the Linux system.  The following script works on Ubuntu (this will lead to a reboot of the VM).
 
-    cd $LABTAINER_DIR/setup_scripts
-    ./installDocker.sh
+          cd $LABTAINER_DIR/setup_scripts
+          ./installDocker.sh
+(Note the installDocker.sh script also installs the *netaddr* python module.)
 
-Edit the $LABTAINER\_DIR/setup\_scripts/fixresolve.sh script to help Docker resolve
+* Edit the $LABTAINER\_DIR/setup\_scripts/fixresolve.sh script to help Docker resolve
 host names.  The fixresolve.sh script is configured for use within the NPS network.
+
+You should now be able build your first new Labtainer lab as described
+in [Defining New Labs](#Defining_New_Labs).
+
+
