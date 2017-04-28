@@ -17,6 +17,34 @@ import ResultParser
 
 UBUNTUHOME="/home/ubuntu"
 
+def store_student_parameter(storejson, email_labname, student_parameter):
+    #print('store_student_parameter email_labname %s student_parameter %s' % (email_labname, student_parameter))
+    if email_labname not in storejson:
+        storejson[email_labname] = {}
+        storejson[email_labname]['parameter'] = student_parameter
+        storejson[email_labname]['grades'] = {}
+    else:
+        if storejson[email_labname]['parameter'] != {}:
+            # Already have that student's parameter stored
+            print("instructor.py store_student_parameter: duplicate email_labname %s student_parameter %s" % (email_labname, student_parameter))
+            exit(1)
+        else:
+            storejson[email_labname]['parameter'] = student_parameter
+
+def store_student_grades(storejson, email_labname, grades):
+    #print('store_student_grades email_labname %s grades %s' % (email_labname, grades))
+    if email_labname not in storejson:
+        storejson[email_labname] = {}
+        storejson[email_labname]['parameter'] = {}
+        storejson[email_labname]['grades'] = grades
+    else:
+        if storejson[email_labname]['grades'] != {}:
+            # Already have that student's grades stored
+            print("instructor.py store_student_grades: duplicate email_labname %s grades %s" % (email_labname, grades))
+            exit(1)
+        else:
+            storejson[email_labname]['grades'] = grades
+
 def printresult(gradesfile, LabIDStudentName, grades):
     gradesfile.write("%s" % LabIDStudentName)
     for (each_key, each_value) in grades.iteritems():
@@ -114,6 +142,9 @@ def main():
 
         zipoutput.close()
 
+    # Store grades, goals, etc
+    storejson = {}
+
     ''' create per-student goals.json and process results for each student '''
     for email_labname in student_list:
         # GoalsParser is now tied per student - do this after unzipping file
@@ -121,12 +152,15 @@ def main():
         ''' note odd hack, labinstance seed is stored on container, so need to fine one, use first '''
         DestinationDirName = '%s/%s' % (email_labname, student_list[email_labname][0])
         DestDirName = '%s%s' % (InstructorHomeDir, DestinationDirName)
-        GoalsParser.ParseGoals(DestDirName)
+        student_parameter = GoalsParser.ParseGoals(DestDirName)
 
         # Call ResultParser script to parse students' result
         LabDirName = '%s%s' % (InstructorHomeDir, email_labname)
         #print('call ResultParser for %s %s' % (email_labname, student_list[email_labname]))
         ResultParser.ParseStdinStdout(LabDirName, student_list[email_labname], InstDirName, LabIDName)
+
+        # Add student's parameter
+        store_student_parameter(storejson, email_labname, student_parameter)
 
     ''' assess the results and generate simple report '''
     for email_labname in student_list:
@@ -136,8 +170,27 @@ def main():
         LabIDStudentName = '%s : %s : ' % (LabIDName, student_id)
         printresult(gradesfile, LabIDStudentName, grades)
 
+        # Add student's grades
+        store_student_grades(storejson, email_labname, grades)
+
     gradesfile.write("\n")
     gradesfile.close()
+
+    #print "store is "
+    #print storejson
+
+    # Output <labname>.store.json
+    storejsonname = '%s/%s.%s' % (UBUNTUHOME, LabIDName, "store.json")
+    storejsonoutput = open(storejsonname, "w")
+    try:
+        jsondumpsoutput = json.dumps(storejson, indent=4)
+    except:
+        print('json dumps failed on %s' % storejson)
+        exit(1)
+    #print('dumping %s' % str(jsondumpsoutput))
+    storejsonoutput.write(jsondumpsoutput)
+    storejsonoutput.write('\n')
+    storejsonoutput.close()
 
     # Inform user where the 'grades.txt' are created
     print "Grades are stored in '%s'" % gradesfilename

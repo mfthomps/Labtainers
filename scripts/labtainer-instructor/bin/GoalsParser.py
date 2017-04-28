@@ -329,6 +329,8 @@ def ParseGoals(studentdir):
     jsonoutput.write('\n')
     jsonoutput.close()
 
+    return parameter_list
+
 # Usage: GoalsParser.py <studentdir>
 # Arguments:
 #     <studentdir> - directory containing the student lab work
