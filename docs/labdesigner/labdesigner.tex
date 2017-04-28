@@ -86,7 +86,7 @@ obtain and expand a tarball, which contains the Labtainer workspace utilities.
 e.g., Debian and/or RPM packages.)  Students initiate any and all labs from a
 single workspace directory on the Linux host.
 
-To perform a specific Labtainer exercise, the student runs a \textit{start.sh} command from
+To perform a specific Labtainer exercise, the student runs a \textit{start.py} command from
 the Labtainer workspace, naming the lab exercise.  This results in one or more
 containers starting up along with corresponding virtual terminals via which the 
 student will interact with the containers.  These virtual terminals typically
@@ -152,7 +152,7 @@ below.  After creating the new lab directory, cd to that directory and then run
 where LABTAINER\_DIR is set to the top of the svn repo, e.g.,
 
 \begin{verbatim}
-    export LABTAINER_DIR=/home/mike/seed/trunk
+    export LABTAINER_DIR=/home/mike/labtainer/trunk
 \end{verbatim}
 
 The result is a new labtainer lab that can be run.  While this new
@@ -674,13 +674,13 @@ Once you have a Linux system, then:
 \begin{itemize}
 \item Retrieve the labtainer repository.
 \begin{verbatim}
-         svn co https://tor.ern.nps.edu/svn/proj/seed
+         svn co https://tor.ern.nps.edu/svn/proj/labtainer
 \end{verbatim}
 
 \item Define the LABTAINER\_DIR environment variable (and consider
 placing the definition in your ~/.bashrc file), e.g., 
 \begin{verbatim}
-          export LABTAINER_DIR=/home/mike/seed/trunk
+          export LABTAINER_DIR=/home/mike/labtainer/trunk
 \end{verbatim}
 
 \item Install Docker on the Linux system.  The following script works on Ubuntu (this will lead to a reboot of the VM).
