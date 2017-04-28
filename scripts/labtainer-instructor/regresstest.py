@@ -43,7 +43,6 @@ def main():
             print "(%s) is directory - assume (%s) is a labname" % (fulllabname, labname)
     
             # RegressTest will do test following:
-            # 0. Copy zip files from testsets directory to transfer directory
             # 1. This will stop containers of a lab, create or update lab images and start the containers.
             # 2. After the containers are started, it will invoke 'instructor.py' on the GRADE_CONTAINER.
             # 3. Stop the containers to obtain the 'grades.txt'

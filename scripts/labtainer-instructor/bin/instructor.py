@@ -46,10 +46,6 @@ def main():
     instructorconfig = json.load(instructorconfigjson)
     instructorconfigjson.close()
 
-    # Output grades.txt
-    gradesfilename = '%s/%s' % (UBUNTUHOME, "grades.txt")
-    gradesfile = open(gradesfilename, "w")
-    gradesfile.write("\n")
     StudentHomeDir = '/home/ubuntu'
     lab_name_dir = '/home/ubuntu/.local/.labname'
     if not os.path.isfile(lab_name_dir):
@@ -58,6 +54,12 @@ def main():
 
     with open(lab_name_dir) as fh:
         LabIDName = fh.read().strip()
+
+    # Output <labname>.grades.txt
+    gradesfilename = '%s/%s.%s' % (UBUNTUHOME, LabIDName, "grades.txt")
+    gradesfile = open(gradesfilename, "w")
+    gradesfile.write("\n")
+
     InstructorName = instructorconfig['instructorname']
     InstructorHomeDir = instructorconfig['instructorhomedir']
     InstructorBaseDir = instructorconfig['instructorbasedir']

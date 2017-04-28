@@ -9,10 +9,11 @@ import sys
 import time
 import zipfile
 import ParseStartConfig
+import ParseLabtainerConfig
 import datetime
 import getpass
 LABS_ROOT = os.path.abspath("../../labs/")
-TESTSETS_ROOT = os.path.abspath("../../../testsets/labs/")
+LABTAINER_CONFIG = os.path.abspath("../../config/labtainer.config")
 
 # Error code returned by docker inspect
 SUCCESS=0
@@ -187,8 +188,7 @@ def ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname, 
     return user_email
 
 # Copy Students' Artifacts from host to instructor's lab container
-def CopyStudentArtifacts(start_config, mycontainer_name, labname, container_user):
-    host_home_xfer = start_config.host_home_xfer
+def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_user, is_regress_test):
     # Set the lab name 
     command = 'docker exec -it %s script -q -c "echo %s > /home/%s/.local/.labname" /dev/null' % (mycontainer_name, labname, container_user)
     #print "Command to execute is (%s)" % command
@@ -199,9 +199,14 @@ def CopyStudentArtifacts(start_config, mycontainer_name, labname, container_user
         sys.exit(1)
 
     username = getpass.getuser()
-    # Copy zip files from 'Shared' folder to 'home/$CONTAINER_USER'
-    zip_filelist = glob.glob('/home/%s/%s/*.zip' % (username, host_home_xfer))
+    if is_regress_test:
+        xfer_dir = labtainer_config.testsets_root
+        zip_filelist = glob.glob('%s/*.zip' % xfer_dir)
+    else:
+        xfer_dir = labtainer_config.host_home_xfer
+        zip_filelist = glob.glob('/home/%s/%s/*.zip' % (username, xfer_dir))
     #print "filenames is (%s)" % zip_filelist
+    # Copy zip files from 'Shared' folder to 'home/$CONTAINER_USER'
     for fname in zip_filelist:
         #print "name is %s" % fname
         base_fname = os.path.basename(fname)
@@ -221,8 +226,7 @@ def CopyStudentArtifacts(start_config, mycontainer_name, labname, container_user
             sys.stderr.write("ERROR: Failed to set labname in container %s!\n" % mycontainer_name)
             sys.exit(1)
 
-def DoStart(start_config, labname, role):
-    host_home_xfer = start_config.host_home_xfer
+def DoStart(start_config, labtainer_config, labname, role, is_regress_test):
     lab_master_seed = start_config.lab_master_seed
     #print "Do: START Multiple Containers and/or multi-home networking"
     docker0_IPAddr = getDocker0IPAddr()
@@ -280,11 +284,11 @@ def DoStart(start_config, labname, role):
         if role == 'instructor':
             '''
             Copy students' artifacts only to the container where 'Instructor.py' supposed
-            to be run - where grades.txt will later reside also (i.e., don't copy to all containers)
+            to be run - where <labname>.grades.txt will later reside also (i.e., don't copy to all containers)
             Copy to container named start_config.grade_container
             '''
             if mycontainer_name == start_config.grade_container:
-                copy_result = CopyStudentArtifacts(start_config, mycontainer_name, labname, container_user)
+                copy_result = CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_user, is_regress_test)
                 if copy_result == FAILURE:
                     sys.stderr.write("ERROR: DoStart Failed to copy students' artifacts to container %s!\n" % mycontainer_name)
                     sys.exit(1)
@@ -325,33 +329,34 @@ def CreateHostHomeXfer(host_xfer_dir):
         os.makedirs(host_xfer_dir)
 
 # CopyChownGradesFile
-def CopyChownGradesFile(mycwd, start_config, container_name, container_image, container_user):
-    host_home_xfer = start_config.host_home_xfer
+def CopyChownGradesFile(mycwd, start_config, labtainer_config, container_name, container_image, container_user):
+    host_home_xfer = labtainer_config.host_home_xfer
     lab_master_seed = start_config.lab_master_seed
+    labname = start_config.labname
 
     username = getpass.getuser()
-    grade_filename = '/home/%s/grades.txt' % container_user
+    grade_filename = '/home/%s/%s.grades.txt' % (container_user, labname)
     command = "docker cp %s:%s /home/%s/%s" % (container_name, grade_filename, username, host_home_xfer)
     #print "Command to execute is (%s)" % command
     result = subprocess.call(command, shell=True)
-    #print "CopyChownGradesFile: Result of subprocess.Popen exec cp grades.txt file is %s" % result
+    #print "CopyChownGradesFile: Result of subprocess.Popen exec cp %s.grades.txt file is %s" % (labname, result)
     if result == FAILURE:
         StopMyContainer(mycwd, start_config, container_name)
-        sys.stderr.write("WARNING: CopyChownGradesFile Container %s fail on executing cp grades.txt file!\n" % container_name)
+        sys.stderr.write("WARNING: CopyChownGradesFile Container %s fail on executing cp %s.grades.txt file!\n" % (container_name, labname))
         #sys.exit(1)
         return
 
     # Change ownership to defined user $USER
-    command = "sudo chown %s:%s /home/%s/%s/grades.txt" % (username, username, username, host_home_xfer)
+    command = "sudo chown %s:%s /home/%s/%s/%s.grades.txt" % (username, username, username, host_home_xfer, labname)
     #print "Command to execute is (%s)" % command
     result = subprocess.call(command, shell=True)
-    #print "CopyChownGradesFile: Result of subprocess.Popen exec chown grades.txt file is %s" % result
+    #print "CopyChownGradesFile: Result of subprocess.Popen exec chown %s.grades.txt file is %s" % (labname, result)
     if result == FAILURE:
         StopMyContainer(mycwd, start_config, container_name)
-        sys.stderr.write("ERROR: CopyChownGradesFile Container %s fail on executing chown grades.txt file!\n" % container_name)
+        sys.stderr.write("ERROR: CopyChownGradesFile Container %s fail on executing chown %s.grades.txt file!\n" % (container_name, labname))
         sys.exit(1)
 
-def StartLab(labname, role):
+def StartLab(labname, role, is_regress_test):
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
     #print "current working directory for %s" % mycwd
@@ -362,12 +367,14 @@ def StartLab(labname, role):
     start_config_path = os.path.join(config_path,"start.config")
    
     start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role)
+    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(LABTAINER_CONFIG, labname)
+    host_home_xfer = labtainer_config.host_home_xfer
 
     # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
-    host_xfer_dir = '%s/%s' % (myhomedir, start_config.host_home_xfer)
+    host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
     CreateHostHomeXfer(host_xfer_dir)
 
-    DoStart(start_config, labname, role)
+    DoStart(start_config, labtainer_config, labname, role, is_regress_test)
 
 def FileModLater(ts, fname):
     ''' is the given file later than the timestamp (which is in UTC)? '''
@@ -465,7 +472,7 @@ def dumb():
     pass
     '''
     '''
-def RedoLab(labname, role):
+def RedoLab(labname, role, is_regress_test):
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
     #print "current working directory for %s" % mycwd
@@ -502,7 +509,7 @@ def RedoLab(labname, role):
             if os.system(cmd) != 0:
                 sys.stderr.write("ERROR: build of image failed\n")
                 exit(1)
-    StartLab(labname, role)
+    StartLab(labname, role, is_regress_test)
 
 def GatherOtherArtifacts(labname, name, container_name, container_user):
     '''
@@ -557,7 +564,7 @@ def GatherOtherArtifacts(labname, name, container_name, container_user):
 
 # RunInstructorCreateGradeFile
 def RunInstructorCreateGradeFile(container_name):
-    # Run 'instructor.py' - This will create 'grades.txt' 
+    # Run 'instructor.py' - This will create '<labname>.grades.txt' 
 #   print "About to call instructor.py"
     bash_command = "'cd ; . .profile ; instructor.py'"
     command = 'docker exec -it %s script -q -c "/bin/bash -c %s" /dev/null' % (container_name, bash_command)
@@ -580,22 +587,18 @@ def RegressTest(labname, role):
     config_path       = os.path.join(lab_path,"config") 
     start_config_path = os.path.join(config_path,"start.config")
     start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role)
-    host_home_xfer = start_config.host_home_xfer
 
-    regresstest_lab_path = os.path.join(TESTSETS_ROOT,labname)
-    #print "Regression Test path for labname %s is %s" % (labname, regresstest_lab_path)
-    GradesGold = "%s/grades.txt" % regresstest_lab_path
-    Grades = "/home/%s/%s/grades.txt" % (username, host_home_xfer)
+    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(LABTAINER_CONFIG, labname)
+    regresstest_lab_path = labtainer_config.testsets_root
+    host_home_xfer = labtainer_config.host_home_xfer
+    print "Host Xfer directory for labname %s is %s" % (labname, host_home_xfer)
+    print "Regression Test path for labname %s is %s" % (labname, regresstest_lab_path)
+
+    GradesGold = "%s/%s.grades.txt" % (regresstest_lab_path, labname)
+    Grades = "/home/%s/%s/%s.grades.txt" % (username, host_home_xfer, labname)
     #print "GradesGold is %s - Grades is %s" % (GradesGold, Grades)
 
-    # Remove any zip files in host_home_xfer first
-    command = "rm -f /home/%s/%s/*.zip" % (username, host_home_xfer)
-    os.system(command)
-    # Copy zip files in regression_lab_path to host_home_xfer
-    command = "cp %s/*.zip /home/%s/%s" % (regresstest_lab_path, username, host_home_xfer)
-    os.system(command)
-
-    RedoLab(labname, role)
+    RedoLab(labname, role, True)
     RunInstructorCreateGradeFile(start_config.grade_container)
     StopLab(labname, role)
 
@@ -604,9 +607,9 @@ def RegressTest(labname, role):
 
 
 # CreateCopyChownZip
-def CreateCopyChownZip(mycwd, start_config, container_name, container_image, container_user):
+def CreateCopyChownZip(mycwd, start_config, labtainer_config, container_name, container_image, container_user):
     #TODO: FIX
-    host_home_xfer  = start_config.host_home_xfer
+    host_home_xfer  = labtainer_config.host_home_xfer
     lab_master_seed = start_config.lab_master_seed
 
     # Run 'Student.py' - This will create zip file of the result
@@ -634,7 +637,7 @@ def CreateCopyChownZip(mycwd, start_config, container_name, container_image, con
     # The zip filename created by Student.py has the format of e-mail.labname.zip
     orig_zipfilename, orig_zipext = os.path.splitext(orig_zipfilenameext)
     baseZipFilename = os.path.basename(orig_zipfilename)
-    #NOTE: Use the '=' to separate e-mail+lab_name from the container_name
+    #NOTE: Use the '=' to separate e-mail+labname from the container_name
     DestZipFilename = '%s=%s.zip' % (baseZipFilename, container_name)
     command = "docker cp %s:%s /home/%s/%s/%s" % (container_name, orig_zipfilenameext, username, host_home_xfer, DestZipFilename)
 #   print "Command to execute is (%s)" % command
@@ -675,9 +678,8 @@ def IsContainerRunning(mycontainer_name):
         return False 
 
 
-def DoStop(start_config, mycwd, labname, role):
+def DoStop(start_config, labtainer_config, mycwd, labname, role):
     retval = True
-    host_home_xfer = start_config.host_home_xfer
     lab_master_seed = start_config.lab_master_seed
     #print "Do: STOP Multiple Containers and/or multi-home networking"
 
@@ -699,12 +701,12 @@ def DoStop(start_config, mycwd, labname, role):
         else:
             if role == 'instructor':
                 if mycontainer_name == start_config.grade_container:
-                    CopyChownGradesFile(mycwd, start_config, mycontainer_name, mycontainer_image, container_user)
+                    CopyChownGradesFile(mycwd, start_config, labtainer_config, mycontainer_name, mycontainer_image, container_user)
             else:
                 GatherOtherArtifacts(labname, name, mycontainer_name, container_user)
                 # Before stopping a container, run 'Student.py'
                 # This will create zip file of the result
-                CreateCopyChownZip(mycwd, start_config, mycontainer_name, mycontainer_image, container_user)
+                CreateCopyChownZip(mycwd, start_config, labtainer_config, mycontainer_name, mycontainer_image, container_user)
 
             for mysubnet_name, mysubnet_ip in container.container_nets.items():
                 disconnectNetworkResult = DisconnectNetworkFromContainer(mycontainer_name, mysubnet_name)
@@ -727,11 +729,13 @@ def StopLab(labname, role):
     start_config_path = os.path.join(config_path,"start.config")
    
     start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role)
+    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(LABTAINER_CONFIG, labname)
+    host_home_xfer = labtainer_config.host_home_xfer
 
     # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
-    host_xfer_dir = '%s/%s' % (myhomedir, start_config.host_home_xfer)
+    host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
     CreateHostHomeXfer(host_xfer_dir)
 
-    if DoStop(start_config, mycwd, labname, role):
+    if DoStop(start_config, labtainer_config, mycwd, labname, role):
         # Inform user where results are stored
         print "Results stored in directory: %s" % host_xfer_dir

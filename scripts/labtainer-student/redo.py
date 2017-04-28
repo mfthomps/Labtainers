@@ -18,7 +18,7 @@ def main():
         sys.exit(1)
     
     labname = sys.argv[1]
-    labutils.RedoLab(labname, "student")
+    labutils.RedoLab(labname, "student", False)
 
     return 0
 

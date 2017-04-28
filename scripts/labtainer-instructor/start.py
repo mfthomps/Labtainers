@@ -33,7 +33,7 @@ def main():
         sys.exit(1)
     
     labname = sys.argv[1]
-    labutils.StartLab(labname, "instructor")
+    labutils.StartLab(labname, "instructor", False)
 
     return 0
 
