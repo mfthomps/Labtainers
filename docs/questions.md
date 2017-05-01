@@ -35,9 +35,13 @@ handle nohup when collecting artifacts
 
 Remove instructor scripts from non-grader machines, less time confused about where I am when debugging.
 
-Validate boolen strings against entire goals.json, by the time of the evaluation, cannot tell if
+Validate boolean strings against entire goals.json, by the time of the evaluation, cannot tell if
 tokens are defined or not.
 
 Shorter form for a goal that is a boolean.
 
-Error check on redo so that if a image build fails, the continer is not started -- delete the container first?
+Error check on redo so that if a image build fails, the container is not started -- delete the container first?
+
+Extract timestamps from descrete log files.
+
+timestamp on checklocal file might differ from that of the prog.stdout file?

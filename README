@@ -1,5 +1,24 @@
-This directory contains:
-README - this README file
-docs - directory for documentation/procedures
-scripts - scripts to install various Parameterization labs
-setup_scripts - scripts to setup environments
+Labtainers README file     May 1, 2017
+
+This is a Labtainers repository containing scripts and data
+necessary to construct, run and grade Labtainers labs.
+
+Please refer to the "Labtainers Lab Designer User Guide",
+(labdesigner.pdf) for detains on using Labtainers.
+
+Quick guide to directories:
+
+scripts/labtainers-student -- the work directory for running and 
+testing student labs.  You must be in that directory to run 
+student labs.
+
+scripts/labtainers-instructor -- the work directory for 
+running and testing automated assessment and viewing student
+results.
+
+setup_scripts -- scripts for installing Dockers and fixing DNS naming.
+
+docs -- latex source for the labdesigner.pdf, and other documentation.
+
+config -- system-wide configuration settings (these are not the 
+lab-specific configuration settings.

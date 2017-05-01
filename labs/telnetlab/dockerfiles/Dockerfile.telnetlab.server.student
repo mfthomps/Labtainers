@@ -5,6 +5,11 @@ ARG labdir
 ARG imagedir
 ADD bin/funbuffer /usr/bin/
 
+#
+# Example of installing xinetd to manage inetd type system services
+# And, installation of rsyslog to cause system logging local to the
+# container.
+#
 RUN apt-get update && apt-get install -y --no-install-recommends \
     telnetd \
     update-inetd \
@@ -25,4 +30,7 @@ RUN echo "" > /home/ubuntu/.bash_logout
 RUN sudo apt-get install -y tcpdump
 RUN sudo mv /usr/sbin/tcpdump /usr/bin/tcpdump
 
+#
+# the faux_init script starts the rsyslog daemon & the xinetd
+#
 ENTRYPOINT sudo /sbin/faux_init && bash
