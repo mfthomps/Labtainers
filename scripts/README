@@ -1,0 +1,11 @@
+README for Labtainers trunk/scripts directory
+
+labtainers-student -- the work directory for running and 
+testing student labs.  You must be in that directory to run 
+student labs.
+
+labtainers-instructor -- the work directory for 
+running and testing automated assessment and viewing student
+results.
+
+designer -- supporting scripts and templates for lab designers.
