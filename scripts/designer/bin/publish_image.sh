@@ -8,4 +8,10 @@ created  by United States Government employees, pursuant to Title 17
 United States Code Section 105.   This software is in the public 
 domain and is not subject to copyright. 
 END
-docker build -f ../base_dockerfiles/Dockerfile.labtainer.base -t labtainer.base:latest .
+
+export DOCKER_ID_USER="mfthomps"
+image=$1
+docker login
+docker tag $image $DOCKER_ID_USER/$image
+docker push $DOCKER_ID_USER/$image
+
