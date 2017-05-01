@@ -14,22 +14,19 @@ Each lab requires two sets of components, one for
 students and one for instructors, and these are
 partitioned into two development directories: 
 
- * MyStudentDocker -- all configuration files and scripts to manage student containers.
- * MyInstructorDocker -- same, but for instructor containers.
+ * labtainer-student -- all configuration files and scripts to manage student containers.
+ * labtainer-instructor -- same, but for instructor containers.
 
 The next several sections of this document describe images and containers for 
 students.  Management of images and containers for instructors is similar and is
 not repeated, though differences are noted.
 
-TBD: Transistion all lab-specific files to a single lab directory, which itself may be
-partitioned as needed.  Or, at least move image-related config files and scripts all
-to the instructor side?
 
 Docker Images
 -------------
 Parameterized labs use Docker Containers.  
 The containers are built with images defined by
-the Dockerfile.<labname>.student file, which 
+the Dockerfile.<labname>.<container>.student file, which 
 identifies the specific software packages and configuration
 of the container image.  The images are created
 using the student.build.sh, which builds images
@@ -39,24 +36,20 @@ Currently, to simplify the development environment,
 images must be built on each host that is to 
 run containers.  The future intent is to manage a repository
 of images that students & developers would draw from.
-Another future plan is to create a baseline image that includes
-a common set of packages, and then use that for the lab-specific
-images.  It is expected that some labs will simply use the baseline image.
+All Labtainer images are build from a baseline image that includes
+a common set of packages.
 
-When testing lab development tools and labs, it may be necessary to update the docker
-image, e.g., to ensure the proper packages and setup scripts are part of
-the lab. Use the student.build.sh script for this, it will recreate the image.
 
 Docker Containers
 -----------------
 The container for each lab is built for the student when they
-first run the "start.sh" script, naming the lab.  Once built, a container
+first run the "start.py" script, naming the lab.  Once built, a container
 can be stopped, started and paused. 
 
 Parameterization of labs, (e.g., modifying configuration data or source code to reflect
 values specific to the student), is controlled by a "parameter.config" configuration file in each lab's
-config directory.  The processing is performed by "parameterize.sh" in MyStudentDocker/bin,
-which is executed by the Docker exec command that launches a container from the start.sh script.
+config directory.  The processing is performed by "parameterize.sh" in labtainer-student/bin,
+which is executed by the Docker exec command that launches a container from the start.py script.
 Each lab has a unique master seed that is combined with the student's email address to create
 an instance-specific seed that is then used as the source of randomness to parameterize the lab.
 This same seed is available on the instructor side for use in functions that assess the correctness
