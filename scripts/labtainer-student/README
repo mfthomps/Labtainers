@@ -1,0 +1,22 @@
+README for Labtainers trunk/scripts/labtainters-student
+
+This is the Labtainers workspace from which all student
+labs are started using:
+
+    ./start.py <labname>
+
+Lab testing should use:
+ 
+    ./redo.py <labname>
+
+Note however that redo.py will wipe out all previous state
+within containers.
+
+Use
+
+    ./stop.py <labname>
+
+to stop a lab and collect its results.  Note, it is
+good practice to stop labs before transitioning to
+new labs or to instructor instances, otherwise there
+may be networking name conflicts.
