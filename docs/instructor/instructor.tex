@@ -1,14 +1,15 @@
 \documentclass{article}
 \usepackage{geometry}
-\geometry{a4paper, total={170mm,257mm},left=20mm, top=10mm,}
+\geometry{a4paper, total={170mm,257mm},left=20mm, top=20mm, }
 \usepackage[colorlinks=true,linkcolor=blue,urlcolor=black]{hyperref}
 \usepackage{bookmark}
 \begin{document}
-\title {Labtainer Student Guide}
+\title {Labtainer Instructor Guide\vspace{-4ex}}
 \maketitle
 
 \section {Introduction}
-This manual is intended for use by students performing labs with Labtainers.
+This manual is intended for use by instructors who assign and/or grade
+labs using Labtainers.
 Labtainers assume you have a Linux system, e.g., a virtual machine.  Refer to
 in Appendix~\ref{sec:appendixA} for installation of Virtual Box and a Linux system.
 
@@ -33,30 +34,53 @@ If you already have Dockers installed, or installed Docker for a different distr
 make sure you also have python, and
 the python \textit{netaddr} module installed.
 
-\subsection{Performing a Lab}
-All labs are run from the same workspace directory:
+\subsection{Assiging a Lab}
+Student instructions for using Labtainers are in labtainers-student.pdf.  Available labs are
+listed at 
 \begin{verbatim}
-    cd labtainers/trunk/scripts/labtainers-student
+    labtainers/trunk/labs!
 \end{verbatim}
-\noindent Then run the lab:
+
+\subsection{Assessing a Lab}
+Collect all of the lab zip files from each student into the Labtainer xfer directory, which
+is typically at
+\begin{verbatim}
+    ~/labtainers/<labname>
+\end{verbatim}
+All labs are assessed from the same Labtainer workspace:
+\begin{verbatim}
+    cd labtainers/trunk/scripts/labtainers-instructor
+\end{verbatim}
+\noindent Then start the lab containers:
 \begin{verbatim}
     ./start.py <labname>
 \end{verbatim}
 
-The first time any given lab is run, it may take a while to build the Docker images 
+The first time any given lab is started, it may take a while to build the Docker images 
 required for the lab.  Subsequent runs will start much faster.
 
-Follow the instructions that appear in one of the resulting virtual terminals.
+In one of the resulting virtual terminals, run:
+\begin{verbatim}
+    instructor.py
+\end{verbatim}
+\noindent This will generate the grading output file and display the file name.  In
+addition to the grading output, a directory is created that will contain each student's
+home directory content.  And container-specific artifacts are found in:
+\begin{verbatim}
+    <student_dir>/<container>/.local/result
+\end{verbatim}
+
 While running the lab, if you require more virtual terminals, use:
 \begin{verbatim}
-    ./moreterm.py <labname>
+    ./moreterm.py <labname> <container>
 \end{verbatim}
 
 When you are finished, or wish to stop working, type:
 \begin{verbatim}
     ./stop.py <labname>
 \end{verbatim}
-The stop.py command will display the directory containing a zip file that should be provided to your instructor.
+The stop.py command will terminate the containers.  This is recommended to avoid network
+name conflicts when assessing other labs.
 
 \newpage
 \appendix 
