@@ -29,13 +29,45 @@ LABTAINER_CONFIG = os.path.abspath("../../config/labtainer.config")
 SUCCESS=0
 FAILURE=1
 
+def is_platform_ubuntu():
+    command = "python -mplatform | grep -qi ubuntu"
+    #print "Command to execute is (%s)" % command
+    result = subprocess.call(command, shell=True)
+    #print "Result of subprocess.Popen is_platform_ubuntu is %s" % result
+    if result == FAILURE:
+       retval = False
+    else:
+       retval = True
+    return retval
+
+def is_platform_fedora():
+    command = "python -mplatform | grep -qi fedora"
+    #print "Command to execute is (%s)" % command
+    result = subprocess.call(command, shell=True)
+    #print "Result of subprocess.Popen is_platform_fedora is %s" % result
+    if result == FAILURE:
+       retval = False
+    else:
+       retval = True
+    return retval
+
 def isalphadashscore(name):
     # check name - alphanumeric,dash,underscore
     return re.match(r'^[a-zA-Z0-9_-]*$', name)
 
 # get docker0 IP address
 def getDocker0IPAddr():
-    command="ifconfig docker0 | awk '/inet addr:/ {print $2}' | sed 's/addr://'"
+    command = ""
+    if is_platform_ubuntu():
+        #print "Running on Ubuntu"
+        command="ifconfig docker0 | awk '/inet addr:/ {print $2}' | sed 's/addr://'"
+    elif is_platform_fedora():
+        #print "Running on Fedora"
+        command="ifconfig docker0 | awk '/inet / {print $2}' "
+    else:
+        print "Unknown platform"
+        sys.exit(1)
+
     #print "Command to execute is (%s)" % command
     child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
     result = child.stdout.read().strip()
