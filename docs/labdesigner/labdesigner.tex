@@ -94,8 +94,8 @@ present a bash shell.  Each container appears to the student as a separate
 computer, and these computers may appear to be connected via one or more networks.  
 
 When a student starts a given exercise for the first time, the framework fetches
-Docker images from the Docker registery.  In its current implementation, a single
-base image (about 500MB) is retreived from the Docker registry, and the remainder of the image
+Docker images from the Docker registry.  In its current implementation, a single
+base image (about 500MB) is retrieved from the Docker registry, and the remainder of the image
 is built on the student's computer, i.e., by fetching packages. This is transparent to
 the student, other than waiting for downloads and package installation. 
 
@@ -182,7 +182,7 @@ should be faster because your local Docker system will cache portions of the bui
 The redo.py command will remove and recreate the container
 each time the script is run.  And it will rebuild the container image if any of its configuration 
 information has changed.  This is often necessary when building and testing new labs, to ensure the
-new envriroment does not contain artifacts from previous runs.
+new environment does not contain artifacts from previous runs.
 
 Note the "redo.py" command is not intended for use by students, they would use the "start.py" command.  
 
@@ -291,7 +291,7 @@ providing a name for the network, the following values are defined:
 \item GATEWAY [gateway address] -- The IP address of the network gateway
 \end{itemize}
 
-\item CONTAINER [container name] -- One of these sections is reqired for each container in the lab.
+\item CONTAINER [container name] -- One of these sections is required for each container in the lab.
 In addition to naming the container, the following values are defined: 
 
 \begin{itemize}
@@ -448,7 +448,7 @@ students performed the lab, and to give instructors insight into which parts
 of a lab students may be having difficulty with.  The automated assessment functions are
 not intended to standardize each student's approach to a lab, rather the goal is to permit
 ad-hock exploration by students.  Therefore, lab designer should consider ways to identify
-evidence that steps of a lab were performed rather than trying to identfy everything a student
+evidence that steps of a lab were performed rather than trying to identify everything a student
 may have done in the course of the lab.
 
 The framework's automated assessment functions generally assume the student will interact with one or
@@ -456,7 +456,7 @@ more programs or system utilities.  Each time the student invokes a selected pro
 framework captures copies of standard input and standard output, (stdin and stdout) into timestamped file sets.
 This is transparent to the student.  These timestamped file sets, and everything else relative to
 the student's home directory, are automatically packaged when the student completes the lab.
-These packages of artifacts are then transfered to the instructor, (e.g., via email or a CLE), and 
+These packages of artifacts are then transferred to the instructor, (e.g., via email or a CLE), and 
 ingested into the instructor's system where lab assessment occurs.
 
 The stdin and stdout for all non-system programs is captured, e.g., the results of an "ls" command
@@ -468,13 +468,13 @@ names appear in the \textit{treataslocal} file at
 
 
 \{section{Identify Lab-specifc Artifacts}
-The automated assessement fuctions encourage labs to be organized into a set of distinct "goals".
+The automated assessment functions encourage labs to be organized into a set of distinct "goals".
 For each goal, the lab designer should identify specific fields within stdin and/or stdout that
 could be compared to "expected" values.  These lab-specific artifacts are identified within the
 "instr\_config/results.config file".  Artifacts are identified in terms of:
 \begin{enumerate}
 \item the program that was invoked;
-\item whether the artifict is in stdin or stdout
+\item whether the artifact is in stdin or stdout
 \item the line containing the artifact, and a token within that line.
 \item ad-hoc properties, such as the quantity of lines in the stdin file.
 \end{enumerate}
@@ -549,11 +549,11 @@ the student obtained expected results.  Each lab goal defined in the goals.confi
 will evaluate to TRUE or FALSE, with TRUE reflecting that the student met the defined goal.
 Once evaluated, a goal may determine the state of subsequent goals within the goals.config file, 
 i.e., through use of boolean expressions and temporal comparisons between goals.  The evaluated
-state of each goal can then contribte to a student grade.
+state of each goal can then contribute to a student grade.
 
 As noted earlier, student results may derive from multiple invocations of the same program or system utility.  
 The framework does not discourage students from continuing to experiment and explore aspects of the 
-exercise subsequent to obtiaining the desired results.  In general, the assessment determines if the student
+exercise subsequent to obtaining the desired results.  In general, the assessment determines if the student
 obtained expected results during any invocation of a program or system utility.  In those cases 
 where the student is required to obtain the expected results during the last invocation of a program, 
 the \textit{matchlast} goal type may be specified as described below.
@@ -561,7 +561,7 @@ the \textit{matchlast} goal type may be specified as described below.
 To facilitate grading multiple attempts or explorations of a lab exercise, the framework associates
 timestamps with the results of processing the results.config file.  A single timestamp will
 include results from a stdin file and a stdout file.  In general, there will be a distinct, 
-timestamped set of results for each occurance of a student invoking a targeted program.
+timestamped set of results for each occurrence of a student invoking a targeted program.
 
 The following syntax defines each goal or subgoal within the goals.config file.  While the syntax
 may appear complex, most goals can be expressed simply as can be seen in the labtainer examples distributed
