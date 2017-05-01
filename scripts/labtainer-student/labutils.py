@@ -12,6 +12,10 @@ import ParseStartConfig
 import ParseLabtainerConfig
 import datetime
 import getpass
+import socket
+import fcntl
+import struct
+
 '''
 This software was created by United States Government employees at 
 The Center for the Information Systems Studies and Research (CISR) 
@@ -29,27 +33,14 @@ LABTAINER_CONFIG = os.path.abspath("../../config/labtainer.config")
 SUCCESS=0
 FAILURE=1
 
-def is_platform_ubuntu():
-    command = "python -mplatform | grep -qi ubuntu"
-    #print "Command to execute is (%s)" % command
-    result = subprocess.call(command, shell=True)
-    #print "Result of subprocess.Popen is_platform_ubuntu is %s" % result
-    if result == FAILURE:
-       retval = False
-    else:
-       retval = True
-    return retval
+def get_ip_address(ifname):
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    return socket.inet_ntoa(fcntl.ioctl(
+        s.fileno(),
+        0x8915,  # SIOCGIFADDR
+        struct.pack('256s', ifname[:15])
+    )[20:24])
 
-def is_platform_fedora():
-    command = "python -mplatform | grep -qi fedora"
-    #print "Command to execute is (%s)" % command
-    result = subprocess.call(command, shell=True)
-    #print "Result of subprocess.Popen is_platform_fedora is %s" % result
-    if result == FAILURE:
-       retval = False
-    else:
-       retval = True
-    return retval
 
 def isalphadashscore(name):
     # check name - alphanumeric,dash,underscore
@@ -57,22 +48,7 @@ def isalphadashscore(name):
 
 # get docker0 IP address
 def getDocker0IPAddr():
-    command = ""
-    if is_platform_ubuntu():
-        #print "Running on Ubuntu"
-        command="ifconfig docker0 | awk '/inet addr:/ {print $2}' | sed 's/addr://'"
-    elif is_platform_fedora():
-        #print "Running on Fedora"
-        command="ifconfig docker0 | awk '/inet / {print $2}' "
-    else:
-        print "Unknown platform"
-        sys.exit(1)
-
-    #print "Command to execute is (%s)" % command
-    child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
-    result = child.stdout.read().strip()
-    #print "Result of subprocess.Popen getDocket0IPAddr is %s" % result
-    return result
+    return get_ip_address('docker0')
 
 # Parameterize my_container_name container
 def ParameterizeMyContainer(mycontainer_name, container_user, lab_instance_seed, user_email, labname):
@@ -271,8 +247,6 @@ def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_
 def DoStart(start_config, labtainer_config, labname, role, is_regress_test):
     lab_master_seed = start_config.lab_master_seed
     #print "Do: START Multiple Containers and/or multi-home networking"
-    docker0_IPAddr = getDocker0IPAddr()
-    #print "getDockerIPAddr result (%s)" % docker0_IPAddr
 
     # Create SUBNETS
     CreateSubnets(start_config.subnets)
