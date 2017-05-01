@@ -45,3 +45,5 @@ Error check on redo so that if a image build fails, the container is not started
 Extract timestamps from descrete log files.
 
 timestamp on checklocal file might differ from that of the prog.stdout file?
+
+enhance start.py to list available labs.  add one-liner to each lab, as file or line in lab directory, and display that.

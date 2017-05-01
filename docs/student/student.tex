@@ -1,0 +1,100 @@
+\documentclass{article}
+\usepackage{geometry}
+\geometry{a4paper, total={170mm,257mm},left=20mm, top=10mm,}
+\usepackage[colorlinks=true,linkcolor=blue,urlcolor=black]{hyperref}
+\usepackage{bookmark}
+\begin{document}
+\title {Labtainer Student Guide}
+\maketitle
+
+\section {Introduction}
+This manual is intended for use by students performing labs with Labtainers.
+Labtainers assume you have a Linux system, e.g., a virtual machine.  Refer to
+in Appendix~\ref{sec:appendixA} for installation of Virtual Box and a Linux system.
+
+\subsection{Obtaining Labtainers and installing Docker}
+The Labtainers environment is distributed as a tarball from:
+\url{https://my.nps.edu/documents/107523850/109121362/labtainer.tar/6fc80410-e87d-4e47-ae24-cbb60c7619fa}
+Untar this file in your Linux system.
+
+Install Docker by running one of the install-docker scripts, depending on your Linux
+distribution:
+\verb    ./labtainers/trunk/setupscripts/install-docker-ubuntu.sh
+\noindent or 
+\verb    ./labtainers/trunk/setupscripts/install-docker-fedora.sh
+If you have a different Linux distribution, find instructions for installing Docker at
+\url{https://docs.docker.com/engine/installation/}
+
+If you already have Dockers installed, or installed Docker for a different distribution,
+make sure you also have python, and
+the python \textit{netaddr} module installed.
+
+\subsection{Performing a Lab}
+All labs are run from the same workspace directory:
+\begin{verbatim}
+    cd labtainers/trunk/scripts/labtainers-student
+\end{verbatim}
+\noindent Then run the lab:
+\begin{verbatim}
+    ./start.py <labname>
+\end{verbatim}
+
+The first time any given lab is run, it may take a while to build the Docker images 
+required for the lab.  Subsequent runs will start much faster.
+
+Follow the instructions that appear in one of the resulting virtual terminals.
+While running the lab, if you require more virtual terminals, use:
+\begin{verbatim}
+    ./moreterm.py <labname>
+\end{verbatim}
+
+When you are finished, or wish to stop working, type:
+\begin{verbatim}
+    ./stop.py <labname>
+\end{verbatim}
+The stop.py command will display the directory containing a zip file that should be provided to your instructor.
+
+\newpage
+\appendix 
+\section {Appendix A: Installing Virtual Box and Ubuntu}
+\label{sec:appendixA}
+The instructions below describe installation of an Ubuntu Linux VM 
+to serve as the Labtainer host.  If you already have a Linux system
+that can support Dockers, you may skip this section.
+\begin{itemize}
+\item Install Virutal Box from : https://www.virtualbox.org/wiki/Downloads
+\item Download the latest Ubuntu LTS distribution .iso image.
+\item Use VirtualBox to create a new VM, allocate at least 10GB of disk storage.
+\item Select the Ubuntu iso image in the VirtualBox storage settings, and select "Live CD/DVD"
+\item Power on the virtual machine and install Ubuntu.
+\end{itemize}
+
+The following additions simplify movement of files between Virtual Box guests
+and the host computer.
+
+To setup shared folder:
+\begin{itemize}
+\item create or identify a folder on the host to share with the guest
+\item on the virtualbox guest, select "settings" / "Shared Folders",
+then select host's shared folder.
+
+\item download a virtualbox guest additions iso from 
+\url{http://download.virtualbox.org/virtualbox} and select
+the version of virtual box you are using (5.0.24 for example)
+
+\item on the virtualbox guest, select "settings" / "Storage" and
+change the CD rom to mount the iso downloaded
+
+\item If the guest additions does not automatically prompt you, then mount the CD 
+inside the guest then run the guestadditions
+
+\item Once VBox Guest Additions is completed, reboot the guest
+
+\item Add the user (in the guest) to the vboxsf group:
+\begin{verbatim}
+    sudo adduser $USER vboxsf
+\end{verbatim}
+\end{itemize}
+
+
+\end{document}
