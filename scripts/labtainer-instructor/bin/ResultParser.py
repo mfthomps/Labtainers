@@ -54,14 +54,12 @@ def ValidateConfigfile(labidname, each_key, each_value):
         sys.stderr.write("ERROR: Not allowed characters in results.config's key (%s)\n" % each_key)
         sys.exit(1)
     values = []
-    # expecting either:
-    # 1. - [ stdin | stdout ] : [<field_type>] : <field_id> :  <line_type1> : <line_id>
+    # expecting:
+    # . - [ stdin | stdout ] : [<field_type>] : <field_id> :  <line_type1> : <line_id>
     #    field_type = (a valid_field_type defined above)
     #    field_value is a numeric identifying the nth field of the given type
     #    line_type1 = LINE | STARTSWITH | NEXT_STARTSWITH | HAVESTRING
     #    line_id is a number if the type is LINE, or a string if the type is STARTSWITH/HAVESTRING
-    # 2. - [ stdin | stdout ] : <line_type2> : <line_id>
-    #    line_type2 = CONTAINS
     #    line_id is a string if the type is CONTAINS
 
     # NOTE: Split using ' : ' - i.e., "space colon space"
@@ -79,11 +77,10 @@ def ValidateConfigfile(labidname, each_key, each_value):
     num_splits = line_at+1
     #print "line_at is (%d) and num_splits is (%d)" % (line_at, num_splits)
      
-    # Split into either four or five parts (for line_type1) or three parts (for line_type2)
     # NOTE: Split using ' : ' - i.e., "space colon space"
     values = [x.strip() for x in each_value.split(' : ', num_splits)]
 
-    # Make sure it is 'stdin' or 'stdout'
+    # get optional container name and determine if it is 'stdin' or 'stdout'
     newprogname_type = values[0].strip()
     # <cfgcontainername>:<exec_program>.<type>
     if ':' in newprogname_type:
@@ -100,14 +97,14 @@ def ValidateConfigfile(labidname, each_key, each_value):
     if containername != "":
         if containername not in containernamelist:
             containernamelist.append(containername)
-    # Use rsplit() here because exec_program may have '.' as part of name
-    (exec_program, targetfile) = progname_type.rsplit('.', 1)
+
     # No longer restricted to stdin/stdout filenames anymore
-    if (targetfile != "stdin") and (targetfile != "stdout"):
+    if ('stdin' not in progname_type) and ('stdout' not in progname_type):
         # Not stdin/stdout - add the full name
         if progname_type not in logfilelist:
             logfilelist.append(progname_type)
     else:
+        (exec_program, targetfile) = progname_type.rsplit('.', 1)
         if exec_program not in exec_proglist:
             exec_proglist.append(exec_program)
     #    sys.stderr.write("ERROR: results.config line (%s)\n" % each_value)

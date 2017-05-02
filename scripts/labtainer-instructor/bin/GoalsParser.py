@@ -287,7 +287,7 @@ def ParseGoals(studentdir):
                         subgoal_list = values[2].strip()
                         nametags.append(MyGoal(each_key, goal_type, answertag=answertag, boolean_string=subgoal_list))
                     else:
-                        print('ERROR: could not parse goals.config line %s' % s)
+                        print('ERROR: could not parse goals.config line %s' % each_value)
                         exit(1)
                     #print "goal_type non-boolean"
                     #print nametags[each_key].goal_dict()
