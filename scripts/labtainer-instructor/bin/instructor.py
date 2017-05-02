@@ -106,9 +106,29 @@ def main():
     student_list = {}
    
     ''' unzip everything ''' 
+    ''' First level unzip '''
+    zip_files = glob.glob(InstructorHomeDir+'/*.zip')
+    first_level_zip = []
+    for zfile in zip_files:
+        ZipFileName = os.path.basename(zfile)
+        first_level_zip.append(ZipFileName)
+        OutputName = '%s%s' % (InstructorHomeDir, ZipFileName)
+        zipoutput = zipfile.ZipFile(OutputName, "r")
+        ''' retain dates of student files '''
+        for zi in zipoutput.infolist():
+            zipoutput.extract(zi, InstructorHomeDir)
+            date_time = time.mktime(zi.date_time + (0, 0, -1))
+            dest = os.path.join(InstructorHomeDir, zi.filename)
+            os.utime(dest, (date_time, date_time))
+        zipoutput.close()
+
+    ''' Second level unzip '''
     zip_files = glob.glob(InstructorHomeDir+'/*.zip')
     for zfile in zip_files:
         ZipFileName = os.path.basename(zfile)
+        # Skip first level zip files
+        if ZipFileName in first_level_zip:
+            continue
         #print('zipfile is %s' % ZipFileName)
         DestinationDirName = os.path.splitext(ZipFileName)[0]
         if '=' in DestinationDirName:

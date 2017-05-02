@@ -698,6 +698,9 @@ def CreateCopyChownZip(mycwd, start_config, labtainer_config, container_name, co
         sys.stderr.write("ERROR: CreateCopyChownZip Container %s fail on executing chown zip file!\n" % container_name)
         sys.exit(1)
 
+    currentContainerZipFilename = "/home/%s/%s/%s" % (username, host_home_xfer, DestZipFilename)
+    return baseZipFilename, currentContainerZipFilename
+
 
 # Stop my_container_name container
 def StopMyContainer(mycwd, start_config, container_name):
@@ -720,9 +723,14 @@ def IsContainerRunning(mycontainer_name):
 
 def DoStop(start_config, labtainer_config, mycwd, labname, role):
     retval = True
+    host_home_xfer  = labtainer_config.host_home_xfer
     lab_master_seed = start_config.lab_master_seed
     #print "Do: STOP Multiple Containers and/or multi-home networking"
 
+    ZipFileList = []
+    username = getpass.getuser()
+
+    baseZipFilename = ""
     for name, container in start_config.containers.items():
         mycontainer_name  = container.full_name
         container_user    = container.user
@@ -746,7 +754,9 @@ def DoStop(start_config, labtainer_config, mycwd, labname, role):
                 GatherOtherArtifacts(labname, name, mycontainer_name, container_user)
                 # Before stopping a container, run 'Student.py'
                 # This will create zip file of the result
-                CreateCopyChownZip(mycwd, start_config, labtainer_config, mycontainer_name, mycontainer_image, container_user)
+                baseZipFilename, currentContainerZipFilename = CreateCopyChownZip(mycwd, start_config, labtainer_config, mycontainer_name, mycontainer_image, container_user)
+                ZipFileList.append(currentContainerZipFilename)
+                print "baseZipFilename is (%s)" % baseZipFilename
 
             for mysubnet_name, mysubnet_ip in container.container_nets.items():
                 disconnectNetworkResult = DisconnectNetworkFromContainer(mycontainer_name, mysubnet_name)
@@ -755,6 +765,24 @@ def DoStop(start_config, labtainer_config, mycwd, labname, role):
             StopMyContainer(mycwd, start_config, mycontainer_name)
 
     RemoveSubnets(start_config.subnets)
+
+    if role == 'student':
+        # Combine all the zip files
+        #print "ZipFileList is "
+        #print ZipFileList
+        print "baseZipFilename is (%s)" % baseZipFilename
+        xfer_dir = "/home/%s/%s" % (username, host_home_xfer)
+        combinedZipFilename = "%s/%s.zip" % (xfer_dir, baseZipFilename)
+        #print "The combined zip filename is %s" % combinedZipFilename
+        zipoutput = zipfile.ZipFile(combinedZipFilename, "w")
+        # Go to the xfer_dir
+        os.chdir(xfer_dir)
+        for fname in ZipFileList:
+            basefname = os.path.basename(fname)
+            zipoutput.write(basefname, compress_type=zipfile.ZIP_DEFLATED)
+            # Remove after the file is zipped
+            os.remove(basefname)
+        zipoutput.close()
 
     return retval
 
