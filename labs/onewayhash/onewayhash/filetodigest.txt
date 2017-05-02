@@ -3,5 +3,5 @@
 # Description: This is a pre-created file for each student container
 
 # This file is modified when container is created
-# The secret string below will be replaced with a keyed hash
-My secret string is: DIGEST_SECRET
+# The  string below will be replaced with a keyed hash
+My string is: MY_DIGEST
