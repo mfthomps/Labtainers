@@ -374,26 +374,26 @@ def CopyChownGradesFile(mycwd, start_config, labtainer_config, container_name, c
         sys.stderr.write("ERROR: CopyChownGradesFile Container %s fail on executing chown %s.grades.txt file!\n" % (container_name, labname))
         sys.exit(1)
 
-    # Copy <labname>.store.json file
-    store_filename = '/home/%s/%s.store.json' % (container_user, labname)
-    command = "docker cp %s:%s /home/%s/%s" % (container_name, store_filename, username, host_home_xfer)
+    # Copy <labname>.grades.json file
+    gradejson_filename = '/home/%s/%s.grades.json' % (container_user, labname)
+    command = "docker cp %s:%s /home/%s/%s" % (container_name, gradejson_filename, username, host_home_xfer)
     #print "Command to execute is (%s)" % command
     result = subprocess.call(command, shell=True)
-    #print "CopyChownGradesFile: Result of subprocess.Popen exec cp %s.store.json file is %s" % (labname, result)
+    #print "CopyChownGradesFile: Result of subprocess.Popen exec cp %s.grades.json file is %s" % (labname, result)
     if result == FAILURE:
         StopMyContainer(mycwd, start_config, container_name)
-        sys.stderr.write("WARNING: CopyChownGradesFile Container %s fail on executing cp %s.store.json file!\n" % (container_name, labname))
+        sys.stderr.write("WARNING: CopyChownGradesFile Container %s fail on executing cp %s.grades.json file!\n" % (container_name, labname))
         #sys.exit(1)
         return
 
-    # Change <labname>.store.json ownership to defined user $USER
-    command = "sudo chown %s:%s /home/%s/%s/%s.store.json" % (username, username, username, host_home_xfer, labname)
+    # Change <labname>.grades.json ownership to defined user $USER
+    command = "sudo chown %s:%s /home/%s/%s/%s.grades.json" % (username, username, username, host_home_xfer, labname)
     #print "Command to execute is (%s)" % command
     result = subprocess.call(command, shell=True)
-    #print "CopyChownGradesFile: Result of subprocess.Popen exec chown %s.store.json file is %s" % (labname, result)
+    #print "CopyChownGradesFile: Result of subprocess.Popen exec chown %s.grades.json file is %s" % (labname, result)
     if result == FAILURE:
         StopMyContainer(mycwd, start_config, container_name)
-        sys.stderr.write("ERROR: CopyChownGradesFile Container %s fail on executing chown %s.store.json file!\n" % (container_name, labname))
+        sys.stderr.write("ERROR: CopyChownGradesFile Container %s fail on executing chown %s.grades.json file!\n" % (container_name, labname))
         sys.exit(1)
 
 def StartLab(labname, role, is_regress_test):

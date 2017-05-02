@@ -26,33 +26,33 @@ import ResultParser
 
 UBUNTUHOME="/home/ubuntu"
 
-def store_student_parameter(storejson, email_labname, student_parameter):
+def store_student_parameter(gradesjson, email_labname, student_parameter):
     #print('store_student_parameter email_labname %s student_parameter %s' % (email_labname, student_parameter))
-    if email_labname not in storejson:
-        storejson[email_labname] = {}
-        storejson[email_labname]['parameter'] = student_parameter
-        storejson[email_labname]['grades'] = {}
+    if email_labname not in gradesjson:
+        gradesjson[email_labname] = {}
+        gradesjson[email_labname]['parameter'] = student_parameter
+        gradesjson[email_labname]['grades'] = {}
     else:
-        if storejson[email_labname]['parameter'] != {}:
+        if gradesjson[email_labname]['parameter'] != {}:
             # Already have that student's parameter stored
             print("instructor.py store_student_parameter: duplicate email_labname %s student_parameter %s" % (email_labname, student_parameter))
             exit(1)
         else:
-            storejson[email_labname]['parameter'] = student_parameter
+            gradesjson[email_labname]['parameter'] = student_parameter
 
-def store_student_grades(storejson, email_labname, grades):
+def store_student_grades(gradesjson, email_labname, grades):
     #print('store_student_grades email_labname %s grades %s' % (email_labname, grades))
-    if email_labname not in storejson:
-        storejson[email_labname] = {}
-        storejson[email_labname]['parameter'] = {}
-        storejson[email_labname]['grades'] = grades
+    if email_labname not in gradesjson:
+        gradesjson[email_labname] = {}
+        gradesjson[email_labname]['parameter'] = {}
+        gradesjson[email_labname]['grades'] = grades
     else:
-        if storejson[email_labname]['grades'] != {}:
+        if gradesjson[email_labname]['grades'] != {}:
             # Already have that student's grades stored
             print("instructor.py store_student_grades: duplicate email_labname %s grades %s" % (email_labname, grades))
             exit(1)
         else:
-            storejson[email_labname]['grades'] = grades
+            gradesjson[email_labname]['grades'] = grades
 
 def printresult(gradesfile, LabIDStudentName, grades):
     gradesfile.write("%s" % LabIDStudentName)
@@ -152,7 +152,7 @@ def main():
         zipoutput.close()
 
     # Store grades, goals, etc
-    storejson = {}
+    gradesjson = {}
 
     ''' create per-student goals.json and process results for each student '''
     for email_labname in student_list:
@@ -169,7 +169,7 @@ def main():
         ResultParser.ParseStdinStdout(LabDirName, student_list[email_labname], InstDirName, LabIDName)
 
         # Add student's parameter
-        store_student_parameter(storejson, email_labname, student_parameter)
+        store_student_parameter(gradesjson, email_labname, student_parameter)
 
     ''' assess the results and generate simple report '''
     for email_labname in student_list:
@@ -180,26 +180,26 @@ def main():
         printresult(gradesfile, LabIDStudentName, grades)
 
         # Add student's grades
-        store_student_grades(storejson, email_labname, grades)
+        store_student_grades(gradesjson, email_labname, grades)
 
     gradesfile.write("\n")
     gradesfile.close()
 
-    #print "store is "
-    #print storejson
+    #print "grades (in JSON) is "
+    #print gradesjson
 
-    # Output <labname>.store.json
-    storejsonname = '%s/%s.%s' % (UBUNTUHOME, LabIDName, "store.json")
-    storejsonoutput = open(storejsonname, "w")
+    # Output <labname>.grades.json
+    gradesjsonname = '%s/%s.%s' % (UBUNTUHOME, LabIDName, "grades.json")
+    gradesjsonoutput = open(gradesjsonname, "w")
     try:
-        jsondumpsoutput = json.dumps(storejson, indent=4)
+        jsondumpsoutput = json.dumps(gradesjson, indent=4)
     except:
-        print('json dumps failed on %s' % storejson)
+        print('json dumps failed on %s' % gradesjson)
         exit(1)
     #print('dumping %s' % str(jsondumpsoutput))
-    storejsonoutput.write(jsondumpsoutput)
-    storejsonoutput.write('\n')
-    storejsonoutput.close()
+    gradesjsonoutput.write(jsondumpsoutput)
+    gradesjsonoutput.write('\n')
+    gradesjsonoutput.close()
 
     # Inform user where the 'grades.txt' are created
     print "Grades are stored in '%s'" % gradesfilename
