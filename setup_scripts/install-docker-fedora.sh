@@ -14,7 +14,7 @@ END
 read -p "This script will reboot the system when done, press enter to continue"
 
 sudo dnf upgrade
-sudo dnf install mod_dav_svn subversion python docker
+sudo dnf install python docker
 sudo pip install netaddr
 sudo systemctl start docker
 sudo systemctl enable docker
