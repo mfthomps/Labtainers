@@ -766,7 +766,7 @@ def DoStop(start_config, labtainer_config, mycwd, labname, role):
 
     RemoveSubnets(start_config.subnets)
 
-    if role == 'student':
+    if retval != False and role == 'student':
         # Combine all the zip files
         #print "ZipFileList is "
         #print ZipFileList
