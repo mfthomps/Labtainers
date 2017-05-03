@@ -21,10 +21,10 @@ END
 #echo "Parameterizing laboratory"
 
 # Configuration variables
-LAB_SEEDFILE="/home/ubuntu/.local/.seed"
-USER_EMAILFILE="/home/ubuntu/.local/.email"
-LAB_NAMEFILE="/home/ubuntu/.local/.labname"
-LAB_PARAMCONFIGFILE="/home/ubuntu/.local/config/parameter.config"
+LAB_SEEDFILE="$HOME/.local/.seed"
+USER_EMAILFILE="$HOME/.local/.email"
+LAB_NAMEFILE="$HOME/.local/.labname"
+LAB_PARAMCONFIGFILE="$HOME/.local/config/parameter.config"
 
 # Do not display instruction during parameterization
 LOCKDIR=/tmp/.mylockdir
@@ -55,13 +55,13 @@ echo "$USER_EMAIL" > $USER_EMAILFILE
 echo "$LAB_NAME" > $LAB_NAMEFILE
 
 # call ParameterParser.py (passing $LAB_INSTANCE_SEED)
-sudo /home/ubuntu/.local/bin/ParameterParser.py $LAB_INSTANCE_SEED $CONTAINER_NAME $LAB_PARAMCONFIGFILE
+sudo $HOME/.local/bin/ParameterParser.py $LAB_INSTANCE_SEED $CONTAINER_NAME $LAB_PARAMCONFIGFILE
 
-# If file /home/ubuntu/.local/bin/fixlocal.sh exist, run it
-if [ -f /home/ubuntu/.local/bin/fixlocal.sh ]
+# If file $HOME/.local/bin/fixlocal.sh exist, run it
+if [ -f $HOME/.local/bin/fixlocal.sh ]
 then
-    /home/ubuntu/.local/bin/fixlocal.sh 2>>/tmp/fixlocal.output
+    $HOME/.local/bin/fixlocal.sh 2>>/tmp/fixlocal.output
 fi
-
+$HOME/.local/bin/hookBash.sh 2>>/tmp/hookBash.output
 rmdir $LOCKDIR
 
