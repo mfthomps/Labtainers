@@ -756,7 +756,7 @@ def DoStop(start_config, labtainer_config, mycwd, labname, role):
                 # This will create zip file of the result
                 baseZipFilename, currentContainerZipFilename = CreateCopyChownZip(mycwd, start_config, labtainer_config, mycontainer_name, mycontainer_image, container_user)
                 ZipFileList.append(currentContainerZipFilename)
-                print "baseZipFilename is (%s)" % baseZipFilename
+                #print "baseZipFilename is (%s)" % baseZipFilename
 
             for mysubnet_name, mysubnet_ip in container.container_nets.items():
                 disconnectNetworkResult = DisconnectNetworkFromContainer(mycontainer_name, mysubnet_name)
@@ -770,7 +770,7 @@ def DoStop(start_config, labtainer_config, mycwd, labname, role):
         # Combine all the zip files
         #print "ZipFileList is "
         #print ZipFileList
-        print "baseZipFilename is (%s)" % baseZipFilename
+        #print "baseZipFilename is (%s)" % baseZipFilename
         xfer_dir = "/home/%s/%s" % (username, host_home_xfer)
         combinedZipFilename = "%s/%s.zip" % (xfer_dir, baseZipFilename)
         #print "The combined zip filename is %s" % combinedZipFilename
