@@ -78,7 +78,13 @@ fi
 
 cd $LAB_TOP
 dfile=Dockerfile.$labimage
-docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename -f $LAB_DIR/dockerfiles/$dfile -t $labimage .
+full_dfile=$LAB_DIR/dockerfiles/$dfile
+echo "full_file is $full_dfile"
+if [ ! -f $full_dfile ]; then
+   full_dfile=${full_dfile/instructor/student}
+   echo "full_file now is $full_dfile"
+fi
+docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename -f $full_dfile -t $labimage .
 echo "removing temporary $dfile, reference original in $LAB_DIR/dockerfiles/$dfile"
 
 cd $ORIG_PWD
