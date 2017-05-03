@@ -459,6 +459,8 @@ def CheckBuild(labname, image_name, container_name, name, role):
     lab_path = os.path.join(LABS_ROOT,labname)
     df_name = 'Dockerfile.%s' % container_name
     df = os.path.join(lab_path, 'dockerfiles', df_name)
+    if not os.path.isfile(df):
+         df = df.replace('instructor', 'student')
     if FileModLater(ts, df):
         print('dockerfile changed, will build')
         retval = True
