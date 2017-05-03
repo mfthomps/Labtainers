@@ -28,21 +28,21 @@ template_dirs = os.listdir(tdir)
 here = os.getcwd()
 labname = os.path.basename(here)
 config_dir = None
+os.mkdir(labname)
 for source in template_dirs:
-    if source == 'bin':
-        os.mkdir(labname)
+    if source == '_bin':
         try:
             shutil.copytree(os.path.join(tdir, source), os.path.join(here, labname, source)) 
         except:
             print('error copying %s to %s, expected %s to be empty' % (source, here, here))
             exit(1)
-        
-    print('copying %s' %  source)
-    try:
-        shutil.copytree(os.path.join(tdir, source), os.path.join(here, source)) 
-    except:
-        print('error copying %s to %s, expected %s to be empty' % (source, here, here))
-        exit(1)
+    else:        
+        print('copying %s' %  source)
+        try:
+            shutil.copytree(os.path.join(tdir, source), os.path.join(here, source)) 
+        except:
+            print('error copying %s to %s, expected %s to be empty' % (source, here, here))
+            exit(1)
 
 ''' alter template file names, except those that will have altered content '''
 start_config_template = 'config/start.config.template'
