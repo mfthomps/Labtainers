@@ -119,13 +119,12 @@ student activity, e.g., student-developed programs, output files, or even bash h
 \section {Obtaining the Labtainer Development Kit}
 Installation of an Ubuntu VM and the Docker system is described
 in Appendix ~\ref{sec:appendixA}.  Note Labtainers will work with any Linux
-distribution that supports Dockers.  Our instructions are for Ubuntu.
+distribution that supports Dockers.  
 The Labtainer Development Kit (LDK) is available as an subversion repository at
 \url{https://tor.ern.nps.edu/svn/proj/labtainer}.  Alternately, a tar file
 is at 
 \url{https://my.nps.edu/documents/107523850/109121362/labtainer.tar/6fc80410-e87d-4e47-ae24-cbb60c7619fa}
 
-(Our intent is release versions to a Github repository for access beyond NPS.)
 
 \section {Defining New Labs}
 \label{sec:new_labs}
@@ -678,6 +677,8 @@ Once you have a Linux system, then:
 \begin{verbatim}
          svn co https://tor.ern.nps.edu/svn/proj/labtainer
 \end{verbatim}
+or the tar file at
+\url{https://my.nps.edu/documents/107523850/109121362/labtainer.tar/6fc80410-e87d-4e47-ae24-cbb60c7619fa}
 
 \item Define the LABTAINER\_DIR environment variable (and consider
 placing the definition in your ~/.bashrc file), e.g., 
@@ -686,25 +687,27 @@ placing the definition in your ~/.bashrc file), e.g.,
 \end{verbatim}
 
 \item Install Docker on the Linux system.  The following script works on Ubuntu (this will lead to a reboot of the VM).
+Install Docker by running one of the install-docker scripts, depending on your Linux
+distribution:
 \begin{verbatim}
-          cd $LABTAINER_DIR/setup_scripts
-          ./installDocker.sh
+    $LABTAINER_DIR/setup_scripts/install-docker-ubuntu.sh
 \end{verbatim}
-(Note the installDocker.sh script also installs the \textit{netaddr} python module.)
+\noindent or 
+\begin{verbatim}
+    $LABTAINER_DIR/setup_scripts/install-docker-fedora.sh
+\end{verbatim}
+If you have a different Linux distribution, find instructions for installing Docker at
+\url{https://docs.docker.com/engine/installation/}
+
+If you already have Dockers installed, or installed Docker for a different distribution,
+make sure you also have python, and
+the python \textit{netaddr} module installed.
 
 \item Edit the \verb!$LABTAINER\_DIR/setup\_scripts/fixresolve.sh! script to help Docker resolve
 host names.  The fixresolve.sh script is configured for use within the NPS network.
 \end{itemize}
 You should now be able build your first new Labtainer lab as described
 in ~\ref{sec:new_labs} Defining New Labs.
-
-These instructions and the intallDocker.sh script were tested on the following distribution:
-\begin{verbatim}
-    Distributor ID:     Ubuntu
-    Description:        Ubuntu 16.04 LTS
-    Release:    16.04
-    Codename:   xenial
-\end{verbatim}
 
 
 \end{document}
