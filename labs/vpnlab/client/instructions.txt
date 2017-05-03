@@ -12,7 +12,7 @@ be able to observe traffic flowing through this container.
 
 The client and server containers act an HTTP client and an HTTP server accordingly.
 The client container has 'wget' and 'openvpn' software installed.
-The server container has a simple HTTP server listening on port 8000
+The server container has a simple HTTP server listening on port 80
 (implemented in a simple python script) and 'openvpn' software installed.
 
 This lab exercise consists of the following tasks:
@@ -51,7 +51,7 @@ should be available.
 
 There are pre-created files 'index.html', 'link1.html' and 'link2.html'
 
-Use 'wget' to get files 'http://<IPADDr>:8000/index.html
+Use 'wget' to get files 'http://<IPADDr>/index.html
 
 The wrapper script will capture stdin and stdout to files.
 
@@ -85,7 +85,7 @@ files, will now become available for use.
 
 There are pre-created files 'index.html', 'link1.html' and 'link2.html'
 
-Use 'wget' to get files 'http://<IPADDr>:8000/index.html
+Use 'wget' to get files 'http://<IPADDr>/index.html
 Use the tunnel IP Address
 
 Note: To observe the encrypted traffic, run 'tcpdump' on the router container
