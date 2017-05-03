@@ -13,10 +13,9 @@ END
 #
 # Usage: startup.sh
 # 
-# Description: Concatenate instructions.txt file and pipe to less
+# Placeholder for Jean's auto grading.
 
 LOCKDIR=/tmp/.mylockdir
 if mkdir "$LOCKDIR" >/dev/null 2>&1; then
-    echo "Starting startup.sh"
-    cat "$HOME"/instructions.txt | less
+    echo "would dump grades here"
 fi
