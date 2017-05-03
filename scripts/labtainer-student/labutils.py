@@ -784,6 +784,7 @@ def DoStop(start_config, labtainer_config, mycwd, labname, role):
             os.remove(basefname)
         zipoutput.close()
 
+    os.chdir(mycwd)
     return retval
 
 def StopLab(labname, role):
