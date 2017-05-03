@@ -1,9 +1,19 @@
 
-Title: VPN Lab Exercise
+Title: VPN Lab Exercise (host-to-host VPN)
 
 1. Background
 
 This lab exercise is intended to teach student about VPN using simple HTTP operations.
+
+This lab exercise consists of three containers : client, router and server containers.
+
+The router container acts as a router and it has 'tcpdump' installed, student will
+be able to observe traffic flowing through this container.
+
+The client and server containers act an HTTP client and an HTTP server accordingly.
+The client container has 'wget' and 'openvpn' software installed.
+The server container has a simple HTTP server listening on port 8000
+(implemented in a simple python script) and 'openvpn' software installed.
 
 This lab exercise consists of the following tasks:
     a. Use 'wget' to get files from HTTP server -- no tunnel and unencrypted
@@ -41,7 +51,7 @@ should be available.
 
 There are pre-created files 'index.html', 'link1.html' and 'link2.html'
 
-Use 'wget' to get files 'http://<IPADDr>/index.html
+Use 'wget' to get files 'http://<IPADDr>:8000/index.html
 
 The wrapper script will capture stdin and stdout to files.
 
@@ -53,13 +63,29 @@ Note: To observe the unencrypted traffic, run 'tcpdump' on the router container
 
 2.3. Setup VPN tunnel
 
-Use 'openvpn' to setup VPN tunnel
+The client and server containers contain configuration files 'client.conf'
+and 'server.conf', and the same 'static.key'.
+Note: the 'static.key' is generated using the following command:
+      openvpn --genkey --secret static.key
+      The generated 'static.key' file is then distributed to client/server containers
+      as part of the setup of those containers.
+
+Student uses the configuration files to setup a host-to-host VPN tunnel,
+by running the command:
+
+a. On the server container: openvpn server.conf
+b. On the client container: openvpn client.conf
+
+Note that the client.conf and server.conf is setup as a host-to-host VPN configuration.
+
+Once the tunnel is setup, new tunnel addresses as specified in the configuration
+files, will now become available for use.
 
 2.4. Use 'wget' to get files from HTTP server -- use tunnel and encrypted
 
 There are pre-created files 'index.html', 'link1.html' and 'link2.html'
 
-Use 'wget' to get files 'http://<IPADDr>/index.html
+Use 'wget' to get files 'http://<IPADDr>:8000/index.html
 Use the tunnel IP Address
 
 Note: To observe the encrypted traffic, run 'tcpdump' on the router container
