@@ -236,6 +236,9 @@ def ParseGoals(studentdir):
                 if not MyUtil.CheckAlphaDashUnder(each_key):
                     sys.stderr.write("ERROR: Not allowed characters in goals.config's key (%s)\n" % each_key)
                     sys.exit(1)
+                if len(each_key) > 15:
+                    print("WARNING: goal (%s) is more than 15 characters long\n" % each_key)
+
                 values = []
                 # expecting - either:
                 # <type> : <operator> : <resulttag> : <answertag>
