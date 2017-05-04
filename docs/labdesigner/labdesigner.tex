@@ -148,14 +148,14 @@ for the new lab.  These template files are referenced in the discussion
 below.  After creating the new lab directory, cd to that directory and then run
 
 \begin{verbatim}
-    $LABTAINER_DIR/scripts/designer/_bin/new_lab_setup.py
+    $LABTAINER_DIR/scripts/designer/bin/new_lab_setup.py
 \end{verbatim}
 where LABTAINER\_DIR is set to the top of the svn repo, e.g.,
 
 \begin{verbatim}
     export LABTAINER_DIR=/home/mike/labtainer/trunk
 \end{verbatim}
-
+It is suggested that you add the LABTAINER\_DIR definition in your .bashrc.
 The result is a new labtainer lab that can be run.  While this new
 lab will initially only present you with a bash shell to an
 empty directory, it is worth testing the lab to understand the workflow.
@@ -165,7 +165,8 @@ Once a new lab directory is created, and the new\_lab\_setup.py has been run, th
 you can test the new, (currently empty) lab.  All student labs are launched from the
 labtainer-student directory.  Lab development workflow is easiest if at least two
 terminals or tabs are used, one in the new lab directory, and one in the labtainer-student
-directory.  So, open a new tab or window and:
+directory.  So, open a new tab or window and set the LABTAINER\_DIR environment variable
+if you had not added it to your .bashrc.  Then:
 
 \begin{verbatim}
     cd $LABTAINER_DIR/scripts/labtainer-student
@@ -196,7 +197,7 @@ This is the zip file that the student will forward to the instructor.
 
 To test adding a "hello world" program to the new labtainer, perform the following steps:
 \begin{itemize}
-\item From the new lab directory window, cd \verb!$LABTAINER\_DIR/labs/[labname]/[labname]!
+\item From the new lab directory window, cd \verb!$LABTAINER_DIR/labs/[labname]/[labname]!
 \item Create a "hello world" program, e.g., in python or compiled C.
 \item From the labtainer-student window, run redo.py [labname]
 \end{itemize}
@@ -206,7 +207,7 @@ home directory.  If you run the program from the container, and then stop the co
 with stop.py, you will see the stdin and stdout results of the program within the
 saved zip file.
 
-Note how the "hello world" program was placed in \verb!$LABTAINER\_DIR/labs/[labname]/[labname]!.
+Note how the "hello world" program was placed in \verb!$LABTAINER_DIR/labs/[labname]/[labname]!.
 The seemingly redundant "labname" directories are a naming convention in which the
 second directory names one of potentially many containers.  In this simple example,
 the lab has but one container, whose name defaults to the lab name.
@@ -218,9 +219,8 @@ the student.
 A given lab typically requires some set of software packages, and some
 system configuration, e.g., network settings.  
 The framework captures most configuration details within a standard
-Dockerfile.  Templates for two Dockerfiles are placed in the new lab's "dockerfiles" 
-directory, one for student containers and one for instructor containers.
-These use standard Docker file syntax, which is described at 
+Dockerfile.  A default Labtainer-specific Dockerfiles is placed in the new lab's "dockerfiles" 
+directory when the new lab is created.  We use standard Docker file syntax, which is described at 
 \url{https://docs.docker.com/engine/reference/builder/}
 
 Lab designers should reference that Docker documentation for the 
@@ -261,8 +261,10 @@ directory.  The naming convention for dockerfiles is
 \begin{verbatim}
     Dockerfile.[labname].[container_name].[role]
 \end{verbatim}
-where role is either "student" or "instructor".  The system automatically creates one Dockerfile
-per role.  You are responsible for creating (copying to) additional Dockerfiles for other containers,
+where role is either "student" or "instructor".  The framework will use the student Dockerfile to
+create the instructor container unless a distinct instructor file is present (e.g., if the designer
+wishes the instructor to have unique software packages.) The system automatically creates a student Dockerfile
+when a new lab is created.  You are responsible for creating (copying to) additional Dockerfiles for other containers,
 and changing the name of the initial Dockerfile if its container name changes.
 
 You must also describe your containers within the \textit{start.config} file as described below.
@@ -336,7 +338,7 @@ All files in the
 directory will be copied to their corresponding paths relative to the root directory.
 For example, configuration files for /etc should appear in \_system/etc/.
 
-Each initial Dockerfile from the templates include this line:
+The initial Dockerfile from the templates include this line:
 \begin{verbatim}
     ADD \$labdir/sys_\$lab.tar.gz /
 \end{verbatim}
@@ -344,7 +346,7 @@ to accomplish the copying. The Dockerfile should not include any other ADD comma
 to copy system files.
 
 \subsection {System services}
-The default Labtainer Dockerfiles build containers having no executing programs (other than
+Default Labtainer Dockerfiles build containers having no executing programs (other than
 bash shells attached to the virtual terminals created via the start.py or redo.py commands.)  
 The Dockerfile "ENTRYPOINT" command can be used to start a system service.  The general Docker 
 model is that a single Docker container runs a single service, with logging being forwarded to 
