@@ -13,9 +13,10 @@ END
 #
 # Usage: startup.sh
 # 
-# Placeholder for Jean's auto grading.
+# Description: run instructor.py to auto grading and display <labname>.grades.txt
 
 LOCKDIR=/tmp/.mylockdir
 if mkdir "$LOCKDIR" >/dev/null 2>&1; then
-    echo "would dump grades here"
+    instructor.py
+    cat "$HOME"/*.grades.txt | less
 fi
