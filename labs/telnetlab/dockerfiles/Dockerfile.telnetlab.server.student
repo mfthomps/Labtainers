@@ -13,8 +13,7 @@ ADD bin/funbuffer /usr/bin/
 RUN apt-get update && apt-get install -y --no-install-recommends \
     telnetd \
     update-inetd \
-    xinetd \
-    rsyslog
+    xinetd
 
 ADD $labdir/sys_$lab.tar.gz /
 
