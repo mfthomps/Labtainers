@@ -3,19 +3,20 @@ MAINTAINER jkhosali@nps.edu
 ARG lab
 ARG labdir
 ARG imagedir
-ADD $labdir/$lab.tar.gz /home/ubuntu
 ADD bin/funbuffer /usr/bin/
 
 RUN echo "# This secret file is generated when container is created" >> /root/.secret
 RUN echo "# The root secret string below will be replaced with a keyed hash" >> /root/.secret
 RUN echo "My ROOT secret string is: ROOT_SECRET" >> /root/.secret
+ADD $labdir/sys_$lab.tar.gz /
 
 USER ubuntu
 ENV HOME /home/ubuntu
-RUN echo "cd" >> /home/ubuntu/.profile
-RUN echo "source /home/ubuntu/.local/bin/startup.sh" >> $HOME/.profile
+ADD $labdir/$lab.tar.gz $HOME
+RUN echo "cd" >> $HOME/.profile
+RUN echo "source $HOME/.local/bin/startup.sh" >> $HOME/.profile
 RUN echo "" > $HOME/.bash_logout
 RUN echo "# This secret file is generated when container is created" >> $HOME/.secret
 RUN echo "# The user secret string below will be replaced with a keyed hash" >> $HOME/.secret
 RUN echo "My Ubuntu secret string is: UBUNTU_SECRET" >> $HOME/.secret
-
+ENTRYPOINT sudo /sbin/faux_init && bash

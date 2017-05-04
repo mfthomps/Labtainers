@@ -3,8 +3,8 @@ MAINTAINER jkhosali@nps.edu
 ARG lab
 ARG labdir
 ARG imagedir
-ADD $labdir/$lab.tar.gz /home/ubuntu
 ADD bin/funbuffer /usr/bin/
+ADD $labdir/sys_$lab.tar.gz /
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     openssl \
@@ -14,6 +14,8 @@ RUN apt-get install -y \
 
 USER ubuntu
 ENV HOME /home/ubuntu
+ADD $labdir/$lab.tar.gz $HOME
 RUN echo "cd" >> /home/ubuntu/.profile
 RUN echo "source /home/ubuntu/.local/bin/startup.sh" >> /home/ubuntu/.profile
 RUN echo "" > /home/ubuntu/.bash_logout
+ENTRYPOINT sudo /sbin/faux_init && bash
