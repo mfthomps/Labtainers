@@ -14,6 +14,7 @@ domain and is not subject to copyright.
 #                containing the student lab work
 #              * Call script to grade the student lab work
 
+import copy
 import json
 import os
 import sys
@@ -30,7 +31,7 @@ def store_student_parameter(gradesjson, email_labname, student_parameter):
     #print('store_student_parameter email_labname %s student_parameter %s' % (email_labname, student_parameter))
     if email_labname not in gradesjson:
         gradesjson[email_labname] = {}
-        gradesjson[email_labname]['parameter'] = student_parameter
+        gradesjson[email_labname]['parameter'] = copy.deepcopy(student_parameter)
         gradesjson[email_labname]['grades'] = {}
     else:
         if gradesjson[email_labname]['parameter'] != {}:
@@ -38,21 +39,21 @@ def store_student_parameter(gradesjson, email_labname, student_parameter):
             print("instructor.py store_student_parameter: duplicate email_labname %s student_parameter %s" % (email_labname, student_parameter))
             exit(1)
         else:
-            gradesjson[email_labname]['parameter'] = student_parameter
+            gradesjson[email_labname]['parameter'] = copy.deepcopy(student_parameter)
 
 def store_student_grades(gradesjson, email_labname, grades):
     #print('store_student_grades email_labname %s grades %s' % (email_labname, grades))
     if email_labname not in gradesjson:
         gradesjson[email_labname] = {}
         gradesjson[email_labname]['parameter'] = {}
-        gradesjson[email_labname]['grades'] = grades
+        gradesjson[email_labname]['grades'] = copy.deepcopy(grades)
     else:
         if gradesjson[email_labname]['grades'] != {}:
             # Already have that student's grades stored
             print("instructor.py store_student_grades: duplicate email_labname %s grades %s" % (email_labname, grades))
             exit(1)
         else:
-            gradesjson[email_labname]['grades'] = grades
+            gradesjson[email_labname]['grades'] = copy.deepcopy(grades)
 
 def printresult(gradesfile, LabIDStudentName, grades):
     gradesfile.write("%s" % LabIDStudentName)
@@ -105,6 +106,12 @@ def main():
     ''' dictionary of container lists keyed by student email_labname '''
     student_list = {}
    
+    ''' remove zip files in /tmp directory '''
+    # /tmp will be used to store temporary zip files
+    TMPDIR = "/tmp"
+    for tmpzip in glob.glob("%s/*.zip" % TMPDIR):
+        os.remove(tmpzip)
+    
     ''' unzip everything ''' 
     ''' First level unzip '''
     zip_files = glob.glob(InstructorHomeDir+'/*.zip')
@@ -116,14 +123,14 @@ def main():
         zipoutput = zipfile.ZipFile(OutputName, "r")
         ''' retain dates of student files '''
         for zi in zipoutput.infolist():
-            zipoutput.extract(zi, InstructorHomeDir)
+            zipoutput.extract(zi, TMPDIR)
             date_time = time.mktime(zi.date_time + (0, 0, -1))
-            dest = os.path.join(InstructorHomeDir, zi.filename)
+            dest = os.path.join(TMPDIR, zi.filename)
             os.utime(dest, (date_time, date_time))
         zipoutput.close()
 
     ''' Second level unzip '''
-    zip_files = glob.glob(InstructorHomeDir+'/*.zip')
+    zip_files = glob.glob(TMPDIR+'/*.zip')
     for zfile in zip_files:
         ZipFileName = os.path.basename(zfile)
         # Skip first level zip files
@@ -149,7 +156,7 @@ def main():
             student_list[email_labname] = []
         student_list[email_labname].append(containername) 
         #print('append container %s for student %s' % (containername, email_labname))
-        OutputName = '%s%s' % (InstructorHomeDir, ZipFileName)
+        OutputName = '%s/%s' % (TMPDIR, ZipFileName)
         LabDirName = '%s%s' % (InstructorHomeDir, email_labname)
         DestDirName = '%s%s' % (InstructorHomeDir, DestinationDirName)
         InstDirName = '%s%s' % (InstructorBaseDir, DestinationDirName)

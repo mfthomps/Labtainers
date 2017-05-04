@@ -23,8 +23,6 @@ import MyUtil
 import ParameterParser
 
 UBUNTUHOME = "/home/ubuntu/"
-global parameter_list
-parameter_list = None
 answer_tokens=['result', 'parameter', 'parameter_ascii']
 class MyGoal(object):
     """ Goal - goalid, goaltype, goaloperator, answertag, resulttag, boolean_string, goal1tag, goal2tag """
@@ -98,8 +96,7 @@ def getRandom(bounds, type):
         random_str = '%s' % int(random_int)
     return random_str
 
-def getTagValue(target, finaltag):
-    global parameter_list
+def getTagValue(parameter_list, target, finaltag):
     if target == "answer":
         returnTagValue = 'answer=%s' % finaltag
     else:
@@ -169,7 +166,7 @@ def generateSpecialTagValue(studentdir, target, finaltag):
 
     return returnTagValue
 
-def ValidateTag(studentdir, goal_type, inputtag, allowed_special_answer):
+def ValidateTag(parameter_list, studentdir, goal_type, inputtag, allowed_special_answer):
     # if allowed_special_answer is true, then allow 'answer=<string>'
     # UNLESS if the goal_type is matchacross
     returntag = ""
@@ -181,7 +178,7 @@ def ValidateTag(studentdir, goal_type, inputtag, allowed_special_answer):
             sys.stderr.write("ERROR: goals.config answer=<string> and goal_type==matchacross is not allowed\n")
             sys.exit(1)
         (target, finaltag) = inputtag.split('=')
-        returntag = getTagValue(target, finaltag)
+        returntag = getTagValue(parameter_list, target, finaltag)
 
     elif '.' in inputtag:
         #print "tag %s contains '.'" % inputtag
@@ -194,7 +191,7 @@ def ValidateTag(studentdir, goal_type, inputtag, allowed_special_answer):
             sys.stderr.write("ERROR: Not allowed characters in goals.config's tag (%s)\n" % inputtag)
             sys.exit(1)
 
-        returntag = getTagValue(target, finaltag)
+        returntag = getTagValue(parameter_list, target, finaltag)
     else:
         #print "tag is %s" % inputtag
         if not MyUtil.CheckAlphaDashUnder(inputtag):
@@ -223,7 +220,7 @@ def ParseGoals(studentdir):
     lab_instance_seed = GetLabInstanceSeed(studentdir)
     param_filename = os.path.join(UBUNTUHOME, '.local', 'config',
           'parameter.config')
-    global parameter_list
+    parameter_list = {}
     parameter_list = ParameterParser.ParseParameterConfig(lab_instance_seed,
        param_filename)
 
@@ -256,8 +253,8 @@ def ParseGoals(studentdir):
                     resulttag = values[2].strip()
                     answertag = values[3].strip()
                     # Allowed 'answer=<string>' for answertag only
-                    valid_answertag = ValidateTag(studentdir, goal_type, answertag, True)
-                    valid_resulttag = ValidateTag(studentdir, goal_type, resulttag, False)
+                    valid_answertag = ValidateTag(parameter_list, studentdir, goal_type, answertag, True)
+                    valid_resulttag = ValidateTag(parameter_list, studentdir, goal_type, resulttag, False)
                     if not (goal_type == "matchany" or
                         goal_type == "matchlast" or
                         goal_type == "matchacross"):
