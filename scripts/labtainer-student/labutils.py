@@ -318,6 +318,12 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test):
         num_terminal = container.terminals
         mycontainer_name = container.full_name
         #print "Number of terminal is %d" % num_terminal
+        # If this is instructor - spawn 2 terminal for 'grader' container otherwise 1 terminal
+        if role == 'instructor':
+            if mycontainer_name == start_config.grade_container:
+                num_terminal = 2
+            else:
+                num_terminal = 1
         # If the number of terminal is zero -- do not spawn
         if num_terminal != 0:
             for x in range(num_terminal):
