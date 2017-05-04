@@ -654,33 +654,39 @@ def RegressTest(labname, role):
     return CompareResult
 
 
-# CreateCopyChownZip
 def CreateCopyChownZip(mycwd, start_config, labtainer_config, container_name, container_image, container_user):
+    '''
+    Zip up the student home directory and copy it to the Linux host home directory
+    '''
     #TODO: FIX
     host_home_xfer  = labtainer_config.host_home_xfer
     lab_master_seed = start_config.lab_master_seed
 
     # Run 'Student.py' - This will create zip file of the result
 #   print "About to call Student.py"
-    bash_command = "'cd ; . .profile ; Student.py'"
-#   bash_command = "'cd ; . .bash_profile ; Student.py'"
-    command = 'docker exec -it %s script -q -c "/bin/bash -c %s" /dev/null' % (container_name, bash_command)
+#   bash_command = "'cd ; . .profile ; Student.py'"
+#   command = 'docker exec -it %s script -q -c "/bin/bash -c %s" /dev/null' % (container_name, bash_command)
+    command='docker exec -it %s sudo /home/%s/.local/bin/Student.py %s' % (container_name, container_user, container_user)
     #print "Command to execute is (%s)" % command
     result = subprocess.call(command, shell=True)
 #   print "CreateCopyChownZip: Result of subprocess.call exec Student.py is %s" % result
     if result == FAILURE:
         sys.stderr.write("ERROR: CreateCopyChownZip Container %s fail on executing Student.py!\n" % container_name)
-        sys.exit(1)
+        return None, None
 
     username = getpass.getuser()
     command='docker exec -it %s cat /home/%s/.local/zip.flist' % (container_name, container_user)
     #print "Command to execute is (%s)" % command
-    child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+    child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    error_string = child.stderr.read().strip()
+    if len(error_string) > 0:
+        sys.stderr.write('ERROR getting zipfile list %s\n' % error_string)
+        return None, None
     orig_zipfilenameext = child.stdout.read().strip()
-#   print "CreateCopyChownZip: Result of subprocess.Popen exec cat zip.flist is %s" % orig_zipfilenameext
+    #print "CreateCopyChownZip: Result of subprocess.Popen exec cat zip.flist is %s" % orig_zipfilenameext
     if orig_zipfilenameext == None:
         sys.stderr.write("ERROR: CreateCopyChownZip Container %s fail on executing cat zip.flist!\n" % container_name)
-        sys.exit(1)
+        return None, None
 
     # The zip filename created by Student.py has the format of e-mail.labname.zip
     orig_zipfilename, orig_zipext = os.path.splitext(orig_zipfilenameext)
@@ -688,13 +694,14 @@ def CreateCopyChownZip(mycwd, start_config, labtainer_config, container_name, co
     #NOTE: Use the '=' to separate e-mail+labname from the container_name
     DestZipFilename = '%s=%s.zip' % (baseZipFilename, container_name)
     command = "docker cp %s:%s /home/%s/%s/%s" % (container_name, orig_zipfilenameext, username, host_home_xfer, DestZipFilename)
-#   print "Command to execute is (%s)" % command
+    #print "Command to execute is (%s)" % command
     result = subprocess.call(command, shell=True)
     #print "CreateCopyChownZip: Result of subprocess.Popen exec cp zip file is %s" % result
     if result == FAILURE:
-        StopMyContainer(mycwd, start_config, container_name)
         sys.stderr.write("ERROR: CreateCopyChownZip Container %s fail on executing cp zip file!\n" % container_name)
-        sys.exit(1)
+        print "Command was (%s)" % command
+        StopMyContainer(mycwd, start_config, container_name)
+        return None, None
 
     # Change ownership to defined user $USER
     command = "sudo chown %s:%s /home/%s/%s/*.zip" % (username, username, username, host_home_xfer)
@@ -704,7 +711,7 @@ def CreateCopyChownZip(mycwd, start_config, labtainer_config, container_name, co
     if result == FAILURE:
         StopMyContainer(mycwd, start_config, container_name)
         sys.stderr.write("ERROR: CreateCopyChownZip Container %s fail on executing chown zip file!\n" % container_name)
-        sys.exit(1)
+        return None, None
 
     currentContainerZipFilename = "/home/%s/%s/%s" % (username, host_home_xfer, DestZipFilename)
     return baseZipFilename, currentContainerZipFilename
@@ -763,7 +770,8 @@ def DoStop(start_config, labtainer_config, mycwd, labname, role):
                 # Before stopping a container, run 'Student.py'
                 # This will create zip file of the result
                 baseZipFilename, currentContainerZipFilename = CreateCopyChownZip(mycwd, start_config, labtainer_config, mycontainer_name, mycontainer_image, container_user)
-                ZipFileList.append(currentContainerZipFilename)
+                if baseZipFilename is not None:
+                    ZipFileList.append(currentContainerZipFilename)
                 #print "baseZipFilename is (%s)" % baseZipFilename
 
             for mysubnet_name, mysubnet_ip in container.container_nets.items():
