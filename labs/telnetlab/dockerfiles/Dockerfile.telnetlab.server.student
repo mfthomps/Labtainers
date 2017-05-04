@@ -21,8 +21,6 @@ ADD $labdir/sys_$lab.tar.gz /
 USER ubuntu
 ADD $labdir/$lab.tar.gz /home/ubuntu
 ENV HOME /home/ubuntu
-RUN echo "source $HOME/.local/bin/bash-preexec.sh" >> /home/ubuntu/.profile
-RUN echo "source $HOME/.local/bin/bash-pre-capinout.sh" >> /home/ubuntu/.profile
 RUN echo "cd" >> /home/ubuntu/.profile
 RUN echo "source /home/ubuntu/.local/bin/startup.sh" >> /home/ubuntu/.profile
 RUN echo "" > /home/ubuntu/.bash_logout
