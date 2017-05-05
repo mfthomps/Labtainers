@@ -3,111 +3,79 @@ Title: VPN Lab Exercise (host-to-gateway VPN)
 
 1. Background
 
-This lab exercise is intended to teach student about VPN using simple HTTP operations.
+This Labtainer exercise illustrates a simple
+host-to-gateway vpn implemented with openvpn, and
+a static shared key.
 
-This lab exercise is very similar to the previous VPN Lab exercise (host-to-host VPN)
-with the exception that this is a host-to-gateway VPN.
+The example network is identical to that in
+the "host-to-host VPN" lab exercise, except
+there is now gateway in front of the server.
+As with the previous exercise, the server
+offers a simple HTTP service,  and the student
+will use wget on the client to retrieve html
+files from the server.
 
-This lab exercise consists of four containers : client, router, gateway and server containers.
+The openvpn application is pre-installed
+on the client and the gateway, and the
+corresponding openvpn configurtion files
+already exist.  To create an encrypted tunnel,
+the student only has to execute openvpn on
+the client and the gateway.
 
-The router container acts as a router and it has 'tcpdump' installed, student will
-be able to observe traffic flowing through this container.
+In this excercise, the student will observe
+that the client is unable to reach the server
+until the openvpn tunnel is established. And,
+use of the gateway allows the client to name 
+the server useing the server's network address
+rather than the network address associated with
+the tunnel as was required in the host-to-host 
+VPN lab exercise.
 
-The client and server containers act as an HTTP client and an HTTP server accordingly.
-The client container has 'wget' and 'openvpn' software installed.
-The server container has a simple HTTP server listening on port 80
-(implemented in a simple python script).
+2. Performing the lab
+The lab is started from the Labtainer working 
+directory on your Docker-enabled host, e.g., a Linux VM.
+From there, issue the command:
 
-The difference is server container no longer has 'openvpn' software installed.
+    ./start.sh vpnlab
 
-Instead the gateway container has 'openvpn' software and will provide the encryption tunnel
-on behalf of the server container.
-
-This lab exercise consists of the following tasks:
-    a. Use 'wget' to get files from HTTP server -- no tunnel and unencrypted
-    b. Setup VPN tunnel
-    c. Use 'wget' to get files from HTTP server -- use tunnel and encrypted
-
-This instruction file is viewed or showed by startup.sh as part of
-the initial start.sh command.
+The resulting virtual terminals include a display of
+these instructions, a terminal connected to a client,
+and a terminal connected to a server.
 
 To navigate this instruction, the arrow keys along with 
 with the Space/Home/End/Page-Up/Page-Down keys are usable.
 To exit navigation of this instruction, type 'q'.
 
+3. Tasks
+3.1 Use tcpdump on the router to display network traffic:
+    sudo tcpdump -n -XX -i eth0
 
-2. Performing Lab Tasks
+3.2 Use wget on the client to fetch the index.html file
+    wget  http://<IPADDr>/index.html
+Where <IPADDR> is the server network address, which you
+can learn by running "ifconfig" on the server.
 
-2.1. Open a terminal window and execute start.sh on Linux guest VM
+Observe that wget fails.  
 
-Open a terminal (typically Ctrl-Alt-t combination should open a terminal window)
-on a Linux system and run 'start.sh' on the Linux guest VM
+3.3 Start the openvpn program on the gateway:
+sudo openvpn --config gateway.conf --daemon
 
-The 'start.sh' script will startup the Linux container, pause 3 seconds, and
-then open two more gnome-terminal window (one displaying this instruction and
-another window attaching to the Linux container as user 'ubuntu'. Note the
-different prompt on the window attached to the Linux container (compared to
-the one on the Linux guest VM)
+3.4 Start the openvpn program on the client:
+sudo  openvpn --config client.conf --daemon
 
-To close the terminal window (that is attached to the Linux container),
-simply type 'exit'.
+3.5 Use wget again, just as was done previously.
+Note the wget succeeds this time.
+Observe the network traffic in tcpdump.
 
-2.2. Use 'wget' to get files from HTTP server -- no tunnel and unencrypted
 
-On the terminal (attached to the Linux container), normal Linux commands 
-should be available.
+4. Stop the Labtainer
 
-There are pre-created files 'index.html', 'link1.html' and 'link2.html'
+When the lab is completed, or you'd like to stop working for a while, run
 
-Use 'wget' to get files 'http://<IPADDr>/index.html
+    ./stop.sh httplab
 
-The wrapper script will capture stdin and stdout to files.
-
-To close the terminal window (that is attached to the Linux container),
-simply type 'exit'.
-
-Note: To observe the unencrypted traffic, run 'tcpdump' on the router container
-      sudo tcpdump -n -i eth0
-
-2.3. Setup VPN tunnel
-
-The client and gateway containers contain configuration files 'client.conf'
-and 'gateway.conf', and the same 'static.key'.
-Note: the 'static.key' is generated using the following command:
-      openvpn --genkey --secret static.key
-      The generated 'static.key' file is then distributed to client/gateway containers
-      as part of the setup of those containers.
-
-Student uses the configuration files to setup a host-to-gateway VPN tunnel,
-by running the command:
-a. On the gateway container: openvpn gateway.conf
-b. On the client container: openvpn client.conf
-
-Note that the client.conf and gateway.conf is setup as a host-to-gateway VPN configuration.
-
-Once the tunnel is setup, new tunnel addresses as specified in the configuration
-files, will now become available for use.
-
-2.4. Use 'wget' to get files from HTTP server -- use tunnel and encrypted
-
-There are pre-created files 'index.html', 'link1.html' and 'link2.html'
-
-Use 'wget' to get files 'http://<IPADDr>/index.html
-Use the tunnel IP Address
-
-Note: To observe the encrypted traffic, run 'tcpdump' on the router container
-      sudo tcpdump -n -i eth0
-
-2.5. Stop Linux container LXCs
-
-Open a terminal (typically Ctrl-Alt-t combination should open a terminal window)
-on a Linux system and run 'stop.sh' on the Linux guest VM
-
-As part of stopping the Linux container LXCs, a zip file will be created and
-any zip files on the home directory will be copied to the shared folder
-with the host.
-
-Verify the zip files are successfully copied and then sent to instructor
-from the shared folder/directory.
-
+from the host Labtainer working directory.  You can always restart the
+Labtainer to continue your work.  When the Labtainer is stopped, a
+zip file is created and copied to a location displayed by the stop.sh
+command.  When the lab is completed, send that zip file to the instructor.
 

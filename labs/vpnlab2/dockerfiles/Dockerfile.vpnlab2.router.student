@@ -9,12 +9,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # tcpdump fails to run if in /usr/sbin 
 RUN sudo mv /usr/sbin/tcpdump /usr/bin/tcpdump
 
+ADD $labdir/sys_$lab.tar.gz /
 USER ubuntu
-ADD $labdir/$lab.tar.gz /home/ubuntu
 ENV HOME /home/ubuntu
-RUN echo "source $HOME/.local/bin/bash-preexec.sh" >> /home/ubuntu/.profile
-RUN echo "source $HOME/.local/bin/bash-pre-capinout.sh" >> /home/ubuntu/.profile
-RUN echo "cd" >> /home/ubuntu/.profile
-RUN echo "source /home/ubuntu/.local/bin/startup.sh" >> /home/ubuntu/.profile
-RUN echo "" > /home/ubuntu/.bash_logout
+ADD $labdir/$lab.tar.gz $HOME
+RUN echo "cd" >> $HOME/.profile
+RUN echo "source $HOME/.local/bin/startup.sh" >> $HOME/.profile
+RUN echo "" > $HOME/.bash_logout
+ENTRYPOINT sudo /sbin/faux_init && bash
 
