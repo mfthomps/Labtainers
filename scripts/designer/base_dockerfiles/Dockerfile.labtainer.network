@@ -1,0 +1,13 @@
+FROM mfthomps/labtainer.base
+LABEL description="This is base Docker image for networking Parameterized labs"
+ARG lab
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openssl \
+    openssh-server \
+    openvpn \
+    wget \
+    tcpdump \
+    update-inetd \
+    xinetd
+
+RUN sudo mv /usr/sbin/tcpdump /usr/bin/tcpdump
