@@ -1,13 +1,9 @@
-FROM mfthomps/labtainer.base
+FROM mfthomps/labtainer.network
 MAINTAINER jkhosali@nps.edu
 ARG lab
 ARG labdir
 ARG imagedir
 ADD $labdir/sys_$lab.tar.gz /
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    tcpdump
-# tcpdump fails to run if in /usr/sbin 
-RUN sudo mv /usr/sbin/tcpdump /usr/bin/tcpdump
 
 USER ubuntu
 ENV HOME /home/ubuntu

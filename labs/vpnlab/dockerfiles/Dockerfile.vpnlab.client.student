@@ -1,14 +1,8 @@
-FROM mfthomps/labtainer.base
+FROM mfthomps/labtainer.network
 MAINTAINER jkhosali@nps.edu
 ARG lab
 ARG labdir
 ARG imagedir
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    openssl \
-    openssh-client \
-    wget \
-    openvpn 
-
 
 ADD $labdir/sys_$lab.tar.gz /
 USER ubuntu
