@@ -16,11 +16,15 @@ import json
 import os
 import sys
 
+fifteenequal = "="*15
+twentyequal = "="*20
+goalprintformat = ' %15s |'
+emailprintformat = '%20s |'
+
 def ValidateLabGrades(labgrades):
     storedlabname = ""
     storedgoalsline = ""
     storedbarline = ""
-    fifteenequal = "="*15
     for emaillabname, keyvalue in labgrades.iteritems():
         email, labname = emaillabname.rsplit('.', 1)
         #print "emaillabname is (%s) email is (%s) labname is (%s)" % (emaillabname, email, labname)
@@ -44,8 +48,8 @@ def ValidateLabGrades(labgrades):
                 for goalid, goalresult in sorted(value.iteritems()):
                     #print "goalid is (%s)" % goalid
                     #print "goalresult is (%s)" % goalresult
-                    currentgoalsline = currentgoalsline + ' %15s' % goalid[:15] + ' |'
-                    currentbarline = currentbarline + ' %15s' % fifteenequal + ' |'
+                    currentgoalsline = currentgoalsline + goalprintformat % goalid[:15]
+                    currentbarline = currentbarline + goalprintformat % fifteenequal
 
         if storedbarline == "":
             storedbarline = currentbarline
@@ -59,22 +63,19 @@ def ValidateLabGrades(labgrades):
 
     return storedlabname, storedgoalsline, storedbarline
 
-def PrintHeaderGrades(labgrades, labname, goalsline, barline):
-    print "Labname %s" % labname
-    headerline = '%20s |%s' % ('Student', goalsline)
-    print "\n" + headerline
-    twentyequal = "="*20
-    barline = '%s |%s' % (twentyequal, barline)
-    #barlen = len(headerline)
-    #bar = "="*barlen
-    #print bar
-    print barline
+def PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline):
+
+    gradestxtouput = open(gradestxtfile, "w")
+    headerline = emailprintformat % 'Student' + goalsline
+    barline = emailprintformat % twentyequal + barline
+    gradestxtouput.write("Labname %s" % labname)
+    gradestxtouput.write("\n\n" + headerline + "\n" + barline + "\n")
 
     for emaillabname, keyvalue in labgrades.iteritems():
         email, labname = emaillabname.rsplit('.', 1)
         #print "emaillabname is (%s) email is (%s) labname is (%s)" % (emaillabname, email, labname)
         # Get the first 20 characters of the student's e-mail only
-        curline = '%20s' % email[:20] + ' |'
+        curline = emailprintformat % email[:20]
 
         #print "keyvalue is (%s)" % keyvalue
         for key, value in keyvalue.iteritems():
@@ -86,20 +87,22 @@ def PrintHeaderGrades(labgrades, labname, goalsline, barline):
                     #print "goalid is (%s)" % goalid
                     #print "goalresult is (%s)" % goalresult
                     if goalresult:
-                        curline = curline + ' %15s' % 'Y' + ' |'
+                        curline = curline + goalprintformat % 'Y'
                     else:
-                        curline = curline + ' %15s' % '' + ' |'
-        print curline
+                        curline = curline + goalprintformat % ''
+        gradestxtouput.write(curline + "\n")
 
+    gradestxtouput.close()
 
-# Usage: GenReport.py <labgradesjsonfile>
+# Usage: CreateReport <gradesjsonfile> <gradestxtfile>
 # Arguments:
-#     <labgradesjsonfile> - <labname>.grades.json filename
-def CreateReport(labgradesjsonfile):
-    if not os.path.exists(labgradesjsonfile):
-        sys.stderr.write("ERROR: missing grades.json file (%s)\n" % labgradesjsonfile)
+#     <gradesjsonfile> - This is the input file <labname>.grades.json
+#     <gradestxtfile> - This is the output file <labname>.grades.txt
+def CreateReport(gradesjsonfile, gradestxtfile):
+    if not os.path.exists(gradesjsonfile):
+        sys.stderr.write("ERROR: missing grades.json file (%s)\n" % gradesjsonfile)
         sys.exit(1)
-    labgradesjson = open(labgradesjsonfile, "r")
+    labgradesjson = open(gradesjsonfile, "r")
     labgrades = json.load(labgradesjson)
     labgradesjson.close()
 
@@ -108,21 +111,22 @@ def CreateReport(labgradesjsonfile):
 
     labname, goalsline, barline = ValidateLabGrades(labgrades)
 
-    PrintHeaderGrades(labgrades, labname, goalsline, barline)
+    PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline)
 
 
-# Usage: GenReport.py <labgradesjsonfile>
+# Usage: GenReport.py <gradesjsonfile> <gradestxtfile>
 # Arguments:
-#     <labgradesjsonfile> - <labname>.grades.json filename
+#     <gradesjsonfile> - This is the input file <labname>.grades.json
+#     <gradestxtfile> - This is the output file <labname>.grades.txt
 def main():
     #print "Running GenReport.py"
-    if len(sys.argv) != 2:
-        sys.stderr.write("Usage: GenReport.py <labgradesjsonfile>\n")
+    if len(sys.argv) != 3:
+        sys.stderr.write("Usage: GenReport.py <gradesjsonfile> <gradestxtfile>\n")
         return 1
 
-    labgradesjsonfile = sys.argv[1]
-
-    CreateReport(labgradesjsonfile)
+    gradesjsonfile = sys.argv[1]
+    gradestxtfile = sys.argv[2]
+    CreateReport(gradesjsonfile, gradestxtfile)
 
 if __name__ == '__main__':
     sys.exit(main())

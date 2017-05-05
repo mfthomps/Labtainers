@@ -21,6 +21,7 @@ import sys
 import zipfile
 import time
 import glob
+import GenReport
 import Grader
 import GoalsParser
 import ResultParser
@@ -55,22 +56,6 @@ def store_student_grades(gradesjson, email_labname, grades):
         else:
             gradesjson[email_labname]['grades'] = copy.deepcopy(grades)
 
-def printresult(gradesfile, LabIDStudentName, grades):
-    gradesfile.write("%s" % LabIDStudentName)
-    for (each_key, each_value) in grades.iteritems():
-        #print "Current key is ", each_key
-        #print "Current value is ", each_value
-        if each_key.startswith('_'):
-            # Skip, i.e., do not print if it starts with '_'
-            continue
-        else:
-            if each_value:
-                gradestring = '%s=%s' % (each_key, "P")
-            else:
-                gradestring = '%s=%s' % (each_key, "F")
-            gradesfile.write('%s ' % gradestring)
-    gradesfile.write('\n')
-
 # Usage: Instructor.py
 # Arguments: None
 def main():
@@ -93,11 +78,6 @@ def main():
     with open(lab_name_dir) as fh:
         LabIDName = fh.read().strip()
 
-    # Output <labname>.grades.txt
-    gradesfilename = '%s/%s.%s' % (UBUNTUHOME, LabIDName, "grades.txt")
-    gradesfile = open(gradesfilename, "w")
-    gradesfile.write("\n")
-
     InstructorName = instructorconfig['instructorname']
     InstructorHomeDir = instructorconfig['instructorhomedir']
     InstructorBaseDir = instructorconfig['instructorbasedir']
@@ -106,9 +86,18 @@ def main():
     ''' dictionary of container lists keyed by student email_labname '''
     student_list = {}
    
-    ''' remove zip files in /tmp directory '''
-    # /tmp will be used to store temporary zip files
-    TMPDIR = "/tmp"
+    ''' remove zip files in /tmp/labtainer directory '''
+    # /tmp/labtainer will be used to store temporary zip files
+    TMPDIR = "/tmp/labtainer"
+    if os.path.exists(TMPDIR):
+        # exists but is not a directory
+        if not os.path.isdir(TMPDIR):
+            # remove file then create directory
+            os.remove(TMPDIR)
+            os.makedirs(TMPDIR)
+    else:
+        # does not exists, create directory
+        os.makedirs(TMPDIR)
     for tmpzip in glob.glob("%s/*.zip" % TMPDIR):
         os.remove(tmpzip)
     
@@ -204,13 +193,9 @@ def main():
         grades = Grader.ProcessStudentLab(LabDirName, LabIDName)
         student_id = email_labname.rsplit('.', 1)[0]
         LabIDStudentName = '%s : %s : ' % (LabIDName, student_id)
-        printresult(gradesfile, LabIDStudentName, grades)
 
         # Add student's grades
         store_student_grades(gradesjson, email_labname, grades)
-
-    gradesfile.write("\n")
-    gradesfile.close()
 
     #print "grades (in JSON) is "
     #print gradesjson
@@ -228,8 +213,12 @@ def main():
     gradesjsonoutput.write('\n')
     gradesjsonoutput.close()
 
+    # Output <labname>.grades.txt
+    gradestxtname = '%s/%s.%s' % (UBUNTUHOME, LabIDName, "grades.txt")
+    GenReport.CreateReport(gradesjsonname, gradestxtname)
+
     # Inform user where the 'grades.txt' are created
-    print "Grades are stored in '%s'" % gradesfilename
+    print "Grades are stored in '%s'" % gradestxtname
     return 0
 
 if __name__ == '__main__':
