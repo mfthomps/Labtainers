@@ -23,5 +23,4 @@ httpd = SocketServer.TCPServer(("", PORT), Handler)
 
 print "serving at port", PORT
 
-os.chdir("/home/ubuntu")
 httpd.serve_forever()

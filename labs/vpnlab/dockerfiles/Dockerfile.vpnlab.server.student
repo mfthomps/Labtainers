@@ -17,5 +17,4 @@ ADD $labdir/$lab.tar.gz $HOME
 RUN echo "cd" >> $HOME/.profile
 RUN echo "source $HOME/.local/bin/startup.sh" >> $HOME/.profile
 RUN echo "" > $HOME/.bash_logout
-
-ENTRYPOINT /home/ubuntu/.local/bin/MyHTTPServer.sh && sudo service rc.local start && bash
+ENTRYPOINT sudo /sbin/faux_init && bash
