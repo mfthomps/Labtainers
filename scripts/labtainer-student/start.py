@@ -10,6 +10,9 @@ domain and is not subject to copyright.
 '''
 import sys
 import labutils
+import logging
+import LabtainerLogging
+import MyGlobal
 
 # Filename: start.py
 # Description:
@@ -19,15 +22,14 @@ import labutils
 #    <labname> is given as a parameter to the script.
 #
 
-
-   
 # Usage: start.py <labname>
 # Arguments:
 #    <labname> - the lab to start
 def main():
-    #print "start.py -- main"
+    MyGlobal.logger = LabtainerLogging.LabtainerLogging("labtainer.log", logging.INFO, "labtainerlog")
+
     if len(sys.argv) != 2:
-        sys.stderr.write("Usage: start.py <labname>\n")
+        MyGlobal.logger.ERROR("Usage: start.py <labname>\n")
         sys.exit(1)
     
     labname = sys.argv[1]

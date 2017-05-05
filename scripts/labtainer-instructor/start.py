@@ -32,13 +32,18 @@ sys.path.append(student_cwd)
 
 import ParseStartConfig
 import labutils
+import logging
+import LabtainerLogging
+import MyGlobal
+
 # Usage: start.py <labname>
 # Arguments:
 #    <labname> - the lab to start
 def main():
-    #print "start.py -- main"
+    MyGlobal.logger = LabtainerLogging.LabtainerLogging("labtainer.log", logging.INFO, "labtainerlog")
+
     if len(sys.argv) != 2:
-        sys.stderr.write("Usage: start.py <labname>\n")
+        MyGlobal.logger.ERROR("Usage: start.py <labname>\n")
         sys.exit(1)
     
     labname = sys.argv[1]

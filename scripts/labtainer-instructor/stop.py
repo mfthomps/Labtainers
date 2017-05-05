@@ -30,14 +30,18 @@ print "Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd
 # Append Student CWD to sys.path
 sys.path.append(student_cwd)
 import labutils
+import logging
+import LabtainerLogging
+import MyGlobal
 
 # Usage: stop.py <labname>
 # Arguments:
 #    <labname> - the lab to stop
 def main():
-    #print "stop.py -- main"
+    MyGlobal.logger = LabtainerLogging.LabtainerLogging("labtainer.log", logging.INFO, "labtainerlog")
+
     if len(sys.argv) != 2:
-        sys.stderr.write("Usage: stop.py <labname>\n")
+        MyGlobal.logger.ERROR("Usage: stop.py <labname>\n")
         sys.exit(1)
     
     labname = sys.argv[1]
