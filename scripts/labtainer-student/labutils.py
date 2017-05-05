@@ -738,18 +738,7 @@ def IsContainerRunning(mycontainer_name):
     else:
         return False 
 
-
-def DoStop(start_config, labtainer_config, mycwd, labname, role):
-    retval = True
-    host_home_xfer  = labtainer_config.host_home_xfer
-    lab_master_seed = start_config.lab_master_seed
-    #print "Do: STOP Multiple Containers and/or multi-home networking"
-
-    ZipFileList = []
-    username = getpass.getuser()
-
-    baseZipFilename = ""
-    for name, container in start_config.containers.items():
+def DoStopOne(start_config, labtainer_config, mycwd, labname, role, name, container, ZipFileList):
         mycontainer_name  = container.full_name
         container_user    = container.user
         mycontainer_image = container.image_name
@@ -782,6 +771,19 @@ def DoStop(start_config, labtainer_config, mycwd, labname, role):
 
             # Stop the container
             StopMyContainer(mycwd, start_config, mycontainer_name)
+
+def DoStop(start_config, labtainer_config, mycwd, labname, role):
+    retval = True
+    host_home_xfer  = labtainer_config.host_home_xfer
+    lab_master_seed = start_config.lab_master_seed
+    #print "Do: STOP Multiple Containers and/or multi-home networking"
+
+    username = getpass.getuser()
+
+    baseZipFilename = ""
+    ZipFileList = []
+    for name, container in start_config.containers.items():
+        DoStopOne(start_config, labtainer_config, mycwd, labname, role, name, container, ZipFileList)
 
     RemoveSubnets(start_config.subnets)
 
