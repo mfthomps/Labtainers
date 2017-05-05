@@ -17,16 +17,16 @@ files from the server.
 
 The openvpn application is pre-installed
 on the client and the gateway, and the
-corresponding openvpn configurtion files
+corresponding openvpn configuration files
 already exist.  To create an encrypted tunnel,
 the student only has to execute openvpn on
 the client and the gateway.
 
-In this excercise, the student will observe
+In this exercise, the student will observe
 that the client is unable to reach the server
 until the openvpn tunnel is established. And,
 use of the gateway allows the client to name 
-the server useing the server's network address
+the server using the server's network address
 rather than the network address associated with
 the tunnel as was required in the host-to-host 
 VPN lab exercise.
@@ -55,7 +55,7 @@ To exit navigation of this instruction, type 'q'.
 Where <IPADDR> is the server network address, which you
 can learn by running "ifconfig" on the server.
 
-Observe that wget fails.  
+Observe that wget fails.  Use "<ctrl> c" to exit wget.
 
 3.3 Start the openvpn program on the gateway:
 sudo openvpn --config gateway.conf --daemon
@@ -65,8 +65,9 @@ sudo  openvpn --config client.conf --daemon
 
 3.5 Use wget again, just as was done previously.
 Note the wget succeeds this time.
+Note you are using the server's network address
+rather than the address associated with an encrypted tunnel.
 Observe the network traffic in tcpdump.
-
 
 4. Stop the Labtainer
 
