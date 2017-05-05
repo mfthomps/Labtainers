@@ -30,7 +30,7 @@ labname = os.path.basename(here)
 config_dir = None
 os.mkdir(labname)
 for source in template_dirs:
-    if source == '_bin':
+    if source == '_bin' or source == '_system':
         try:
             shutil.copytree(os.path.join(tdir, source), os.path.join(here, labname, source)) 
         except:

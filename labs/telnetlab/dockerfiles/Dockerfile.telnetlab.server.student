@@ -3,7 +3,6 @@ MAINTAINER jkhosali@nps.edu
 ARG lab
 ARG labdir
 ARG imagedir
-ADD bin/funbuffer /usr/bin/
 
 #
 # Example of installing xinetd to manage inetd type system services

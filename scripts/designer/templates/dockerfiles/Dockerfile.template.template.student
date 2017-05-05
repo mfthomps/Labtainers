@@ -2,11 +2,11 @@ FROM mfthomps/labtainer.base
 ARG lab
 ARG labdir
 ARG imagedir
-ADD bin/funbuffer /usr/bin/
 ADD $labdir/sys_$lab.tar.gz /
 USER ubuntu
-ADD $labdir/$lab.tar.gz /home/ubuntu
 ENV HOME /home/ubuntu
+ADD $labdir/$lab.tar.gz $HOME
 RUN echo "cd" >> $HOME/.profile
 RUN echo "source $HOME/.local/bin/startup.sh" >> $HOME/.profile
 RUN echo "" > $HOME/.bash_logout
+ENTRYPOINT sudo /sbin/faux_init && bash

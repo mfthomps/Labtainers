@@ -49,3 +49,11 @@ timestamp on checklocal file might differ from that of the prog.stdout file?
 enhance start.py to list available labs.  add one-liner to each lab, as file or line in lab directory, and display that.
 
 validate count_greater fields (and double-check boolean validation)
+
+strategy for one Dockerfile shared between studnets & instructors
+
+Change automated test environment to eliminate need to rebuild containers, build and use a single grader?
+
+Tools for visualizing the network topology, automaticly based on start.conf file?
+
+Tools/api for student to change network topology?

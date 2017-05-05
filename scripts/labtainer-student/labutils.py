@@ -461,7 +461,7 @@ def CheckBuild(labname, image_name, container_name, name, role):
     ts = time.mktime(time.strptime(time_string, "%Y-%m-%dT%H:%M:%S"))
     #print('image ts %s' % ts)
 
-
+    ''' look at dockerfiles '''
     lab_path = os.path.join(LABS_ROOT,labname)
     df_name = 'Dockerfile.%s' % container_name
     df = os.path.join(lab_path, 'dockerfiles', df_name)
@@ -471,15 +471,18 @@ def CheckBuild(labname, image_name, container_name, name, role):
         print('dockerfile changed, will build')
         retval = True
     else:
+        ''' look for new/deleted files in the container '''
         container_dir = os.path.join(lab_path, name)
         #print('container dir %s' % container_dir)
         if FileModLater(ts, container_dir):
            print('%s is later, will build' % container_dir)
            retval = True
         else:
+            ''' look at all files in container '''
             for folder, subs, files in os.walk(container_dir):
                 for f in files:
                    f_path = os.path.join(folder, f)
+                   #print('check %s' % f_path)
                    if FileModLater(ts, f_path):
                        print('%s is later, will build' % f_path)
                        retval = True

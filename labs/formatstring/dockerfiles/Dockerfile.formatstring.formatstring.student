@@ -2,7 +2,6 @@ FROM mfthomps/labtainer.base
 ARG lab
 ARG labdir
 ARG imagedir
-ADD bin/funbuffer /usr/bin/
 ADD $labdir/sys_$lab.tar.gz /
 
 USER ubuntu
