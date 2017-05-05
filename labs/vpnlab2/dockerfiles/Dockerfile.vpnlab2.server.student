@@ -1,4 +1,4 @@
-FROM mfthomps/labtainer.base
+FROM mfthomps/labtainer.network
 MAINTAINER jkhosali@nps.edu
 ARG lab
 ARG labdir
