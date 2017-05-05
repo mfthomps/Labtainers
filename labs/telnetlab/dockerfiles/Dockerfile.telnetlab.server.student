@@ -1,5 +1,4 @@
-FROM mfthomps/labtainer.base
-MAINTAINER jkhosali@nps.edu
+FROM mfthomps/labtainer.network
 ARG lab
 ARG labdir
 ARG imagedir
@@ -10,9 +9,7 @@ ARG imagedir
 # container.
 #
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    telnetd \
-    update-inetd \
-    xinetd
+    telnetd 
 
 ADD $labdir/sys_$lab.tar.gz /
 
@@ -22,9 +19,6 @@ ADD $labdir/$lab.tar.gz $HOME
 RUN echo "cd" >> $HOME/.profile
 RUN echo "source $HOME/.local/bin/startup.sh" >> $HOME/.profile
 RUN echo "" > $HOME/.bash_logout
-
-RUN sudo apt-get install -y tcpdump
-RUN sudo mv /usr/sbin/tcpdump /usr/bin/tcpdump
 
 #
 # the faux_init script starts the rsyslog daemon & the xinetd
