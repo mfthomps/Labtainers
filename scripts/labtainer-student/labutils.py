@@ -3,6 +3,7 @@ import glob
 import json
 import md5
 import os
+import shutil
 import re
 import subprocess
 import sys
@@ -15,7 +16,7 @@ import getpass
 import socket
 import fcntl
 import struct
-
+import threading
 '''
 This software was created by United States Government employees at 
 The Center for the Information Systems Studies and Research (CISR) 
@@ -661,72 +662,83 @@ def CreateCopyChownZip(mycwd, start_config, labtainer_config, container_name, co
     '''
     Zip up the student home directory and copy it to the Linux host home directory
     '''
-    #TODO: FIX
+    #print('in CreateCopyChownZip')
     host_home_xfer  = labtainer_config.host_home_xfer
     lab_master_seed = start_config.lab_master_seed
 
     # Run 'Student.py' - This will create zip file of the result
 #   print "About to call Student.py"
-#   bash_command = "'cd ; . .profile ; Student.py'"
-#   command = 'docker exec -it %s script -q -c "/bin/bash -c %s" /dev/null' % (container_name, bash_command)
-    command='docker exec -it %s sudo /home/%s/.local/bin/Student.py %s' % (container_name, container_user, container_user)
-    #print "Command to execute is (%s)" % command
-    result = subprocess.call(command, shell=True)
-#   print "CreateCopyChownZip: Result of subprocess.call exec Student.py is %s" % result
-    if result == FAILURE:
-        sys.stderr.write("ERROR: CreateCopyChownZip Container %s fail on executing Student.py!\n" % container_name)
-        return None, None
-
-    username = getpass.getuser()
-    command='docker exec -it %s cat /home/%s/.local/zip.flist' % (container_name, container_user)
-    #print "Command to execute is (%s)" % command
-    child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    cmd_path = '/home/%s/.local/bin/Student.py' % (container_user)
+    command=['docker', 'exec', '-i',  container_name, '/usr/bin/sudo', cmd_path, container_user]
+    #print('cmd: %s' % str(command))
+    child = subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     error_string = child.stderr.read().strip()
     if len(error_string) > 0:
-        sys.stderr.write('ERROR getting zipfile list %s\n' % error_string)
+        #sys.stderr.write("ERROR: CreateCopyChownZip Container %s fail on executing Student.py %s\n" % (container_name, error_string))
+        sys.stderr.write("ERROR: CreateCopyChownZip Container %s fail on executing Student.py \n" % (container_name))
         return None, None
-    orig_zipfilenameext = child.stdout.read().strip()
-    #print "CreateCopyChownZip: Result of subprocess.Popen exec cat zip.flist is %s" % orig_zipfilenameext
-    if orig_zipfilenameext == None:
-        sys.stderr.write("ERROR: CreateCopyChownZip Container %s fail on executing cat zip.flist!\n" % container_name)
-        return None, None
+    
+    #out_string = output[0].strip()
+    #if len(out_string) > 0:
+    #    print('output of Student.py is %s' % out_string)
+    username = getpass.getuser()
 
+    tmp_dir=os.path.join('/tmp/labtainers', container_name)
+    shutil.rmtree(tmp_dir, ignore_errors=True)
+    os.makedirs(tmp_dir)
+    source_dir = os.path.join('/home', container_user, '.local', 'zip')
+    cont_source = '%s:%s' % (container_name, source_dir)
+    #print('will copy from %s ' % combine)
+    command = ['docker', 'cp', cont_source, tmp_dir]
     # The zip filename created by Student.py has the format of e-mail.labname.zip
-    orig_zipfilename, orig_zipext = os.path.splitext(orig_zipfilenameext)
-    baseZipFilename = os.path.basename(orig_zipfilename)
-    #NOTE: Use the '=' to separate e-mail+labname from the container_name
-    DestZipFilename = '%s=%s.zip' % (baseZipFilename, container_name)
-    command = "docker cp %s:%s /home/%s/%s/%s" % (container_name, orig_zipfilenameext, username, host_home_xfer, DestZipFilename)
     #print "Command to execute is (%s)" % command
-    result = subprocess.call(command, shell=True)
-    #print "CreateCopyChownZip: Result of subprocess.Popen exec cp zip file is %s" % result
-    if result == FAILURE:
+    child = subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    error_string = child.stderr.read().strip()
+    if len(error_string) > 0:
         sys.stderr.write("ERROR: CreateCopyChownZip Container %s fail on executing cp zip file!\n" % container_name)
         print "Command was (%s)" % command
         StopMyContainer(mycwd, start_config, container_name)
         return None, None
+    
+    local_tmp_zip = os.path.join(tmp_dir, 'zip')
+    try:
+        orig_zipfilenameext = os.listdir(local_tmp_zip)[0]
+    except:
+        print('no files at %s' % local_tmp_zip)
+        sys.stderr.write('ERROR no files at %s\n' % local_tmp_zip)
+        return None, None
+    orig_zipfilename, orig_zipext = os.path.splitext(orig_zipfilenameext)
+    baseZipFilename = os.path.basename(orig_zipfilename)
+    #NOTE: Use the '=' to separate e-mail+labname from the container_name
+    DestZipFilename = '%s=%s.zip' % (baseZipFilename, container_name)
+    DestZipPath = os.path.join('/home', username, host_home_xfer, DestZipFilename)
+    shutil.copyfile(os.path.join(local_tmp_zip, orig_zipfilenameext), DestZipPath)
 
     # Change ownership to defined user $USER
     command = "sudo chown %s:%s /home/%s/%s/*.zip" % (username, username, username, host_home_xfer)
     #print "Command to execute is (%s)" % command
-    result = subprocess.call(command, shell=True)
-    #print "CreateCopyChownZip: Result of subprocess.Popen exec chown zip file is %s" % result
-    if result == FAILURE:
+    child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    error_string = child.stderr.read().strip()
+    if len(error_string) > 0:
+        print "chown failed Command was (%s)" % command
         StopMyContainer(mycwd, start_config, container_name)
         sys.stderr.write("ERROR: CreateCopyChownZip Container %s fail on executing chown zip file!\n" % container_name)
         return None, None
 
     currentContainerZipFilename = "/home/%s/%s/%s" % (username, host_home_xfer, DestZipFilename)
     return baseZipFilename, currentContainerZipFilename
-
-
+   
 # Stop my_container_name container
 def StopMyContainer(mycwd, start_config, container_name):
-    command = "docker stop %s 2> /dev/null" % container_name
+    command = "docker stop %s" % container_name
     #print "Command to execute is (%s)" % command
-    result = subprocess.call(command, shell=True)
-    #print "Result of subprocess.call StopMyContainer stop is %s" % result
-    return result
+    ps = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if len(output[1].strip()) > 0:
+        print('StopMyContainer stderr %s' % output[1])
+    #if len(output[0].strip()) > 0:
+    #    print('StopMyContainer stdout %s' % output[0])
+    #result = subprocess.call(command, shell=True)
 
 def IsContainerRunning(mycontainer_name):
     try:
@@ -739,6 +751,9 @@ def IsContainerRunning(mycontainer_name):
         return False 
 
 def DoStopOne(start_config, labtainer_config, mycwd, labname, role, name, container, ZipFileList):
+        #dumlog = os.path.join('/tmp', name+'.log')
+        #sys.stdout = open(dumlog, 'w')
+        #sys.stderr = sys.stdout
         mycontainer_name  = container.full_name
         container_user    = container.user
         mycontainer_image = container.image_name
@@ -761,10 +776,12 @@ def DoStopOne(start_config, labtainer_config, mycwd, labname, role, name, contai
                 GatherOtherArtifacts(labname, name, mycontainer_name, container_user)
                 # Before stopping a container, run 'Student.py'
                 # This will create zip file of the result
+    
                 baseZipFilename, currentContainerZipFilename = CreateCopyChownZip(mycwd, start_config, labtainer_config, mycontainer_name, mycontainer_image, container_user)
                 if baseZipFilename is not None:
                     ZipFileList.append(currentContainerZipFilename)
                 #print "baseZipFilename is (%s)" % baseZipFilename
+   
 
             for mysubnet_name, mysubnet_ip in container.container_nets.items():
                 disconnectNetworkResult = DisconnectNetworkFromContainer(mycontainer_name, mysubnet_name)
@@ -782,8 +799,19 @@ def DoStop(start_config, labtainer_config, mycwd, labname, role):
 
     baseZipFilename = ""
     ZipFileList = []
+    threads = []
     for name, container in start_config.containers.items():
-        DoStopOne(start_config, labtainer_config, mycwd, labname, role, name, container, ZipFileList)
+        #DoStopOne(start_config, labtainer_config, mycwd, labname, role, name, container, ZipFileList)
+        t = threading.Thread(target=DoStopOne, args=(start_config, labtainer_config, mycwd, labname, 
+              role, name, container, ZipFileList))
+        threads.append(t)
+        t.setName(name)
+        t.start()
+      
+    #print('started all')
+    for t in threads:
+        t.join()
+        #print('joined %s' % t.getName())
 
     RemoveSubnets(start_config.subnets)
 

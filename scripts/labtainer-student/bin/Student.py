@@ -20,7 +20,7 @@ import sys
 import zipfile
 
 
-print os.path.expanduser("~")
+#print os.path.expanduser("~")
 
 # Usage: Student.py
 # Arguments:
@@ -45,17 +45,19 @@ def main():
 
     #print 'The lab name is (%s)' % LabName
     #print 'Output ZipFileName is (%s)' % ZipFileName
-
-    OutputName=os.path.join(HomeLocal, ZipFileName)
+    HomeLocalZip = os.path.join(HomeLocal, 'zip')
+    if not os.path.isdir(HomeLocalZip):
+        os.makedirs(HomeLocalZip)
+    OutputName=os.path.join(HomeLocalZip, ZipFileName)
     TempOutputName=os.path.join("/tmp/", ZipFileName)
     # Remove temp zip file and any zip file in HomeLocal
     if os.path.exists(TempOutputName):
         os.remove(TempOutputName)
-    zip_filenames = glob.glob('%s*.zip' % HomeLocal)
+    zip_filenames = glob.glob('%s*.zip' % HomeLocalZip)
     for zip_file in zip_filenames:
         #print "Removing %s" % zip_file
         os.remove(zip_file)
-
+    
     # Note: Use /tmp to temporary store the zip file first
     # Create temp zip file and zip everything under StudentHomeDir
     zipoutput = zipfile.ZipFile(TempOutputName, "w")
@@ -66,16 +68,19 @@ def main():
             #print "savefname is %s" % savefname
             zipoutput.write(savefname, compress_type=zipfile.ZIP_DEFLATED)
     zipoutput.close()
+   
     os.chmod(TempOutputName, 0666)
 
     # Rename from temp zip file to its proper location
     os.rename(TempOutputName, OutputName)
+    '''
     # Store 'OutputName' into 'zip.flist' 
     zip_fname = os.path.join(HomeLocal, 'zip.flist')
     zip_flist = open(zip_fname, "w")
     zip_flist.write('%s ' % OutputName)
     zip_flist.close()
     os.chmod(zip_fname, 0666)
+    '''
     return 0
 
 if __name__ == '__main__':
