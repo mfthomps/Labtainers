@@ -31,13 +31,13 @@ sys.path.append(student_cwd)
 import labutils
 import logging
 import LabtainerLogging
-labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
 
 # Usage: stop.py <labname>
 # Arguments:
 #    <labname> - the lab to stop
 def main():
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", logging.INFO, "labtainerlog")
+    labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
 
     if len(sys.argv) != 2:
         labutils.logger.ERROR("Usage: stop.py <labname>\n")
