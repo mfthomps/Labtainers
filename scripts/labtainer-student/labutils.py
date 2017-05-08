@@ -18,7 +18,7 @@ import fcntl
 import struct
 import threading
 import LabtainerLogging
-import Labtainer
+global logger
 '''
 This software was created by United States Government employees at 
 The Center for the Information Systems Studies and Research (CISR) 
@@ -56,13 +56,13 @@ def getDocker0IPAddr():
 # Parameterize my_container_name container
 def ParameterizeMyContainer(mycontainer_name, container_user, lab_instance_seed, user_email, labname):
     retval = True
-    Labtainer.logger.DEBUG("About to call parameterize.sh with LAB_INSTANCE_SEED = (%s)" % lab_instance_seed)
+    logger.DEBUG("About to call parameterize.sh with LAB_INSTANCE_SEED = (%s)" % lab_instance_seed)
     command = 'docker exec -it %s script -q -c "/home/%s/.local/bin/parameterize.sh %s %s %s %s" /dev/null' % (mycontainer_name, container_user, lab_instance_seed, user_email, labname, mycontainer_name)
     ps = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[1]) > 0:
-        Labtainer.logger.ERROR('ParameterizeMyContainer %s' % output[1])
-        Labtainer.logger.ERROR('command was %s' % command)
+        logger.ERROR('ParameterizeMyContainer %s' % output[1])
+        logger.ERROR('command was %s' % command)
         retval = False
     return retval
 
@@ -73,8 +73,8 @@ def StartMyContainer(mycontainer_name):
     ps = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[1]) > 0:
-        Labtainer.logger.ERROR('StartMyContainer %s' % str(output))
-        Labtainer.logger.ERROR('command was %s' % command)
+        logger.ERROR('StartMyContainer %s' % str(output))
+        logger.ERROR('command was %s' % command)
         retval = False
     return retval
 
@@ -82,41 +82,41 @@ def StartMyContainer(mycontainer_name):
 def IsContainerCreated(mycontainer_name):
     retval = True
     command = "docker inspect -f {{.Created}} --type container %s 2> /dev/null" % mycontainer_name
-    Labtainer.logger.DEBUG("Command to execute is (%s)" % command)
+    logger.DEBUG("Command to execute is (%s)" % command)
     result = subprocess.call(command, shell=True)
     if result == FAILURE:
        retval = False
-    Labtainer.logger.DEBUG("Result of subprocess.call IsContainerCreated is %s" % result)
+    logger.DEBUG("Result of subprocess.call IsContainerCreated is %s" % result)
     return retval
 
 def ConnectNetworkToContainer(mycontainer_name, mysubnet_name, mysubnet_ip):
-    Labtainer.logger.DEBUG("Connecting more network subnet to container %s" % mycontainer_name)
+    logger.DEBUG("Connecting more network subnet to container %s" % mycontainer_name)
     command = "docker network connect --ip=%s %s %s 2> /dev/null" % (mysubnet_ip, mysubnet_name, mycontainer_name)
-    Labtainer.logger.DEBUG("Command to execute is (%s)" % command)
+    logger.DEBUG("Command to execute is (%s)" % command)
     result = subprocess.call(command, shell=True)
-    Labtainer.logger.DEBUG("Result of subprocess.call ConnectNetworkToContainer is %s" % result)
+    logger.DEBUG("Result of subprocess.call ConnectNetworkToContainer is %s" % result)
     return result
 
 def DisconnectNetworkFromContainer(mycontainer_name, mysubnet_name):
-    Labtainer.logger.DEBUG("Disconnecting more network subnet to container %s" % mycontainer_name)
+    logger.DEBUG("Disconnecting more network subnet to container %s" % mycontainer_name)
     command = "docker network disconnect %s %s 2> /dev/null" % (mysubnet_name, mycontainer_name)
-    Labtainer.logger.DEBUG("Command to execute is (%s)" % command)
+    logger.DEBUG("Command to execute is (%s)" % command)
     result = subprocess.call(command, shell=True)
-    Labtainer.logger.DEBUG("Result of subprocess.call DisconnectNetworkFromContainer is %s" % result)
+    logger.DEBUG("Result of subprocess.call DisconnectNetworkFromContainer is %s" % result)
     return result
 
 def CreateSingleContainer(mycontainer_name, mycontainer_image_name, hostname, mysubnet_name=None, mysubnet_ip=None):
-    Labtainer.logger.DEBUG("Create Single Container")
+    logger.DEBUG("Create Single Container")
     docker0_IPAddr = getDocker0IPAddr()
-    Labtainer.logger.DEBUG("getDockerIPAddr result (%s)" % docker0_IPAddr)
+    logger.DEBUG("getDockerIPAddr result (%s)" % docker0_IPAddr)
     if mysubnet_name:
         createsinglecommand = "docker create -t --network=%s --ip=%s --privileged --add-host my_host:%s --name=%s --hostname %s %s bash" % (mysubnet_name, mysubnet_ip, docker0_IPAddr, mycontainer_name, hostname, mycontainer_image_name)
     else:
         createsinglecommand = "docker create -t --privileged --add-host my_host:%s --name=%s --hostname %s %s bash" % (docker0_IPAddr, 
            mycontainer_name, hostname, mycontainer_image_name)
-    Labtainer.logger.DEBUG("Command to execute is (%s)" % createsinglecommand)
+    logger.DEBUG("Command to execute is (%s)" % createsinglecommand)
     result = subprocess.call(createsinglecommand, shell=True)
-    Labtainer.logger.DEBUG("Result of subprocess.call CreateSingleContainer is %s" % result)
+    logger.DEBUG("Result of subprocess.call CreateSingleContainer is %s" % result)
     return result
 
 
@@ -125,32 +125,32 @@ def CreateSubnets(subnets):
     #for (subnet_name, subnet_network_mask) in networklist.iteritems():
     for subnet_name in subnets:
         subnet_network_mask = subnets[subnet_name].mask
-        Labtainer.logger.DEBUG("subnet_name is %s" % subnet_name)
-        Labtainer.logger.DEBUG("subnet_network_mask is %s" % subnet_network_mask)
+        logger.DEBUG("subnet_name is %s" % subnet_name)
+        logger.DEBUG("subnet_network_mask is %s" % subnet_network_mask)
 
         command = "docker network inspect %s > /dev/null" % subnet_name
-        Labtainer.logger.DEBUG("Command to execute is (%s)" % command)
+        logger.DEBUG("Command to execute is (%s)" % command)
         inspect_result = subprocess.call(command, shell=True)
-        Labtainer.logger.DEBUG("Result of subprocess.call CreateSubnets docker network inspect is %s" % inspect_result)
+        logger.DEBUG("Result of subprocess.call CreateSubnets docker network inspect is %s" % inspect_result)
         if inspect_result == FAILURE:
             # Fail means does not exist - then we can create
             if subnets[subnet_name].gateway != None:
-                Labtainer.logger.DEBUG(subnets[subnet_name].gateway)
+                logger.DEBUG(subnets[subnet_name].gateway)
                 subnet_gateway = subnets[subnet_name].gateway
                 command = "docker network create -d bridge --gateway=%s --subnet %s %s" % (subnet_gateway, subnet_network_mask, subnet_name)
             else:
                 command = "docker network create -d bridge --subnet %s %s" % (subnet_network_mask, subnet_name)
-            Labtainer.logger.DEBUG("Command to execute is (%s)" % command)
+            logger.DEBUG("Command to execute is (%s)" % command)
             #create_result = subprocess.call(command, shell=True)
             ps = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             output = ps.communicate()
-            Labtainer.logger.DEBUG("Result of subprocess.call CreateSubnets docker network create is %s" % create_result)
+            logger.DEBUG("Result of subprocess.call CreateSubnets docker network create is %s" % output[0])
             if len(output[1]) > 0:
-                Labtainer.logger.ERROR("Failed to create %s subnet at %s, %s\n" % (subnet_name, subnet_network_mask, output[1]))
-                Labtainer.logger.ERROR("command was %s\n" % command)
+                logger.ERROR("Failed to create %s subnet at %s, %s\n" % (subnet_name, subnet_network_mask, output[1]))
+                logger.ERROR("command was %s\n" % command)
                 sys.exit(1)
         else:
-            Labtainer.logger.WARNING("Already exists! Not creating %s subnet at %s!\n" % (subnet_name, subnet_network_mask))
+            logger.WARNING("Already exists! Not creating %s subnet at %s!\n" % (subnet_name, subnet_network_mask))
 
 def RemoveSubnets(subnets):
     for subnet_name in subnets:
@@ -200,11 +200,11 @@ def ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname, 
     mymd5 = md5.new()
     mymd5.update(string_to_be_hashed)
     mymd5_hex_string = mymd5.hexdigest()
-    Labtainer.logger.DEBUG(mymd5_hex_string)
+    logger.DEBUG(mymd5_hex_string)
 
     if not ParameterizeMyContainer(mycontainer_name, container_user, mymd5_hex_string,
                                                           user_email, labname):
-        Labtainer.logger.ERROR("Failed to parameterize lab container %s!\n" % mycontainer_name)
+        logger.ERROR("Failed to parameterize lab container %s!\n" % mycontainer_name)
         sys.exit(1)
     return user_email
 
@@ -212,11 +212,11 @@ def ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname, 
 def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_user, is_regress_test):
     # Set the lab name 
     command = 'docker exec -it %s script -q -c "echo %s > /home/%s/.local/.labname" /dev/null' % (mycontainer_name, labname, container_user)
-    Labtainer.logger.DEBUG("Command to execute is (%s)" % command)
+    logger.DEBUG("Command to execute is (%s)" % command)
     result = subprocess.call(command, shell=True)
-    Labtainer.logger.DEBUG("Result of subprocess.call CopyStudentArtifacts set labname is %s" % result)
+    logger.DEBUG("Result of subprocess.call CopyStudentArtifacts set labname is %s" % result)
     if result == FAILURE:
-        Labtainer.logger.ERROR("Failed to set labname in container %s!\n" % mycontainer_name)
+        logger.ERROR("Failed to set labname in container %s!\n" % mycontainer_name)
         sys.exit(1)
 
     username = getpass.getuser()
@@ -226,30 +226,30 @@ def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_
     else:
         xfer_dir = labtainer_config.host_home_xfer
         zip_filelist = glob.glob('/home/%s/%s/*.zip' % (username, xfer_dir))
-    Labtainer.logger.DEBUG("filenames is (%s)" % zip_filelist)
+    logger.DEBUG("filenames is (%s)" % zip_filelist)
     # Copy zip files from 'Shared' folder to 'home/$CONTAINER_USER'
     for fname in zip_filelist:
-        Labtainer.logger.DEBUG("name is %s" % fname)
+        logger.DEBUG("name is %s" % fname)
         base_fname = os.path.basename(fname)
         # Copy zip file and chown it
         command = 'docker cp %s %s:/home/%s/' % (fname, mycontainer_name, container_user)
-        Labtainer.logger.DEBUG("Command to execute is (%s)" % command)
+        logger.DEBUG("Command to execute is (%s)" % command)
         result = subprocess.call(command, shell=True)
-        Labtainer.logger.DEBUG("Result of subprocess.call CopyStudentArtifacts copy zipfile (%s) is %s" % (fname, result))
+        logger.DEBUG("Result of subprocess.call CopyStudentArtifacts copy zipfile (%s) is %s" % (fname, result))
         if result == FAILURE:
-            Labtainer.logger.ERROR("Failed to set labname in container %s!\n" % mycontainer_name)
+            logger.ERROR("Failed to set labname in container %s!\n" % mycontainer_name)
             sys.exit(1)
         command = 'docker exec -it %s sudo chown %s:%s /home/%s/%s' % (mycontainer_name, container_user, container_user, container_user, base_fname)
-        Labtainer.logger.DEBUG("Command to execute is (%s)" % command)
+        logger.DEBUG("Command to execute is (%s)" % command)
         result = subprocess.call(command, shell=True)
-        Labtainer.logger.DEBUG("Result of subprocess.call CopyStudentArtifacts copy zipfile (%s) is %s" % (fname, result))
+        logger.DEBUG("Result of subprocess.call CopyStudentArtifacts copy zipfile (%s) is %s" % (fname, result))
         if result == FAILURE:
-            Labtainer.logger.ERROR("Failed to set labname in container %s!\n" % mycontainer_name)
+            logger.ERROR("Failed to set labname in container %s!\n" % mycontainer_name)
             sys.exit(1)
 
 def DoStart(start_config, labtainer_config, labname, role, is_regress_test):
     lab_master_seed = start_config.lab_master_seed
-    Labtainer.logger.DEBUG("DoStart Multiple Containers and/or multi-home networking")
+    logger.DEBUG("DoStart Multiple Containers and/or multi-home networking")
 
     # Create SUBNETS
     CreateSubnets(start_config.subnets)
@@ -261,7 +261,7 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test):
         container_hostname         = container.hostname
 
         haveContainer = IsContainerCreated(mycontainer_name)
-        Labtainer.logger.DEBUG("DoStart IsContainerCreated result (%s)" % haveContainer)
+        logger.DEBUG("DoStart IsContainerCreated result (%s)" % haveContainer)
 
         # Set need_seeds=False first
         need_seeds=False
@@ -277,7 +277,7 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test):
                 containerCreated = CreateSingleContainer(mycontainer_name, mycontainer_image_name, container_hostname,
                                                          mysubnet_name, mysubnet_ip)
                 
-            Labtainer.logger.DEBUG("CreateSingleContainer result (%s)" % containerCreated)
+            logger.DEBUG("CreateSingleContainer result (%s)" % containerCreated)
             # Give the container some time -- just in case
             time.sleep(3)
             # If we just create it, then set need_seeds=True
@@ -285,11 +285,11 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test):
 
         # Check again - 
         haveContainer = IsContainerCreated(mycontainer_name)
-        Labtainer.logger.DEBUG("IsContainerCreated result (%s)" % haveContainer)
+        logger.DEBUG("IsContainerCreated result (%s)" % haveContainer)
 
         # IsContainerCreated returned False if container does not exists
         if not haveContainer:
-            Labtainer.logger.ERROR("Container %s still not created!\n" % mycontainer_name)
+            logger.ERROR("Container %s still not created!\n" % mycontainer_name)
             sys.exit(1)
         else:
             for mysubnet_name, mysubnet_ip in container.container_nets.items():
@@ -297,7 +297,7 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test):
 
             # Start the container
             if not StartMyContainer(mycontainer_name):
-                Labtainer.logger.ERROR("Container %s failed to start!\n" % mycontainer_name)
+                logger.ERROR("Container %s failed to start!\n" % mycontainer_name)
                 sys.exit(1)
 
         if role == 'instructor':
@@ -309,7 +309,7 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test):
             if mycontainer_name == start_config.grade_container:
                 copy_result = CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_user, is_regress_test)
                 if copy_result == FAILURE:
-                    Labtainer.logger.ERROR("Failed to copy students' artifacts to container %s!\n" % mycontainer_name)
+                    logger.ERROR("Failed to copy students' artifacts to container %s!\n" % mycontainer_name)
                     sys.exit(1)
         # If the container is just created, prompt user's e-mail
         # then parameterize the container
@@ -320,7 +320,7 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test):
     for container in start_config.containers.values():
         num_terminal = container.terminals
         mycontainer_name = container.full_name
-        Labtainer.logger.DEBUG("Number of terminal is %d" % num_terminal)
+        logger.DEBUG("Number of terminal is %d" % num_terminal)
         # If this is instructor - spawn 2 terminal for 'grader' container otherwise 1 terminal
         if role == 'instructor':
             if mycontainer_name == start_config.grade_container:
@@ -340,7 +340,7 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test):
 def CreateHostHomeXfer(host_xfer_dir):
     # remove trailing '/'
     host_xfer_dir = host_xfer_dir.rstrip('/')
-    Labtainer.logger.DEBUG("host_home_xfer directory (%s)" % host_xfer_dir)
+    logger.DEBUG("host_home_xfer directory (%s)" % host_xfer_dir)
     if os.path.exists(host_xfer_dir):
         # exists but is not a directory
         if not os.path.isdir(host_xfer_dir):
@@ -348,7 +348,7 @@ def CreateHostHomeXfer(host_xfer_dir):
             os.remove(host_xfer_dir)
             os.makedirs(host_xfer_dir)
         #else:
-        #    Labtainer.logger.DEBUG("host_home_xfer directory (%s) exists" % host_xfer_dir)
+        #    logger.DEBUG("host_home_xfer directory (%s) exists" % host_xfer_dir)
     else:
         # does not exists, create directory
         os.makedirs(host_xfer_dir)
@@ -364,51 +364,51 @@ def CopyChownGradesFile(mycwd, start_config, labtainer_config, container_name, c
     # Copy <labname>.grades.txt file
     grade_filename = '/home/%s/%s.grades.txt' % (container_user, labname)
     command = "docker cp %s:%s /home/%s/%s" % (container_name, grade_filename, username, host_home_xfer)
-    Labtainer.logger.DEBUG("Command to execute is (%s)" % command)
+    logger.DEBUG("Command to execute is (%s)" % command)
     result = subprocess.call(command, shell=True)
-    Labtainer.logger.DEBUG("Result of subprocess.Popen exec cp %s.grades.txt file is %s" % (labname, result))
+    logger.DEBUG("Result of subprocess.Popen exec cp %s.grades.txt file is %s" % (labname, result))
     if result == FAILURE:
         StopMyContainer(mycwd, start_config, container_name)
-        Labtainer.logger.WARNING("Container %s fail on executing cp %s.grades.txt file!\n" % (container_name, labname))
+        logger.WARNING("Container %s fail on executing cp %s.grades.txt file!\n" % (container_name, labname))
         return
 
     # Change <labname>.grades.txt ownership to defined user $USER
     command = "sudo chown %s:%s /home/%s/%s/%s.grades.txt" % (username, username, username, host_home_xfer, labname)
-    Labtainer.logger.DEBUG("Command to execute is (%s)" % command)
+    logger.DEBUG("Command to execute is (%s)" % command)
     result = subprocess.call(command, shell=True)
-    Labtainer.logger.DEBUG("Result of subprocess.Popen exec chown %s.grades.txt file is %s" % (labname, result))
+    logger.DEBUG("Result of subprocess.Popen exec chown %s.grades.txt file is %s" % (labname, result))
     if result == FAILURE:
         StopMyContainer(mycwd, start_config, container_name)
-        Labtainer.logger.ERROR("Container %s fail on executing chown %s.grades.txt file!\n" % (container_name, labname))
+        logger.ERROR("Container %s fail on executing chown %s.grades.txt file!\n" % (container_name, labname))
         sys.exit(1)
 
     # Copy <labname>.grades.json file
     gradejson_filename = '/home/%s/%s.grades.json' % (container_user, labname)
     command = "docker cp %s:%s /home/%s/%s" % (container_name, gradejson_filename, username, host_home_xfer)
-    Labtainer.logger.DEBUG("Command to execute is (%s)" % command)
+    logger.DEBUG("Command to execute is (%s)" % command)
     result = subprocess.call(command, shell=True)
-    Labtainer.logger.DEBUG("Result of subprocess.Popen exec cp %s.grades.json file is %s" % (labname, result))
+    logger.DEBUG("Result of subprocess.Popen exec cp %s.grades.json file is %s" % (labname, result))
     if result == FAILURE:
         StopMyContainer(mycwd, start_config, container_name)
-        Labtainer.logger.WARNING("Container %s fail on executing cp %s.grades.json file!\n" % (container_name, labname))
+        logger.WARNING("Container %s fail on executing cp %s.grades.json file!\n" % (container_name, labname))
         return
 
     # Change <labname>.grades.json ownership to defined user $USER
     command = "sudo chown %s:%s /home/%s/%s/%s.grades.json" % (username, username, username, host_home_xfer, labname)
-    Labtainer.logger.DEBUG("Command to execute is (%s)" % command)
+    logger.DEBUG("Command to execute is (%s)" % command)
     result = subprocess.call(command, shell=True)
-    Labtainer.logger.DEBUG("Result of subprocess.Popen exec chown %s.grades.json file is %s" % (labname, result))
+    logger.DEBUG("Result of subprocess.Popen exec chown %s.grades.json file is %s" % (labname, result))
     if result == FAILURE:
         StopMyContainer(mycwd, start_config, container_name)
-        Labtainer.logger.ERROR("Container %s fail on executing chown %s.grades.json file!\n" % (container_name, labname))
+        logger.ERROR("Container %s fail on executing chown %s.grades.json file!\n" % (container_name, labname))
         sys.exit(1)
 
 def StartLab(labname, role, is_regress_test):
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
-    Labtainer.logger.DEBUG("current working directory for %s" % mycwd)
-    Labtainer.logger.DEBUG("current user's home directory for %s" % myhomedir)
-    Labtainer.logger.DEBUG("ParseStartConfig for %s" % labname)
+    logger.DEBUG("current working directory for %s" % mycwd)
+    logger.DEBUG("current user's home directory for %s" % myhomedir)
+    logger.DEBUG("ParseStartConfig for %s" % labname)
     lab_path          = os.path.join(LABS_ROOT,labname)
     config_path       = os.path.join(lab_path,"config") 
     start_config_path = os.path.join(config_path,"start.config")
@@ -426,17 +426,17 @@ def StartLab(labname, role, is_regress_test):
 def FileModLater(ts, fname):
     ''' is the given file later than the timestamp (which is in UTC)? '''
     df_time = os.path.getmtime(fname)
-    Labtainer.logger.DEBUG('df ts %s' % df_time)
+    logger.DEBUG('df ts %s' % df_time)
 
     df_string = datetime.datetime.fromtimestamp(df_time)
-    Labtainer.logger.DEBUG('df_local time is %s' % df_string)
+    logger.DEBUG('df_local time is %s' % df_string)
 
     df_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
     parts = df_utc_string.split('.')
     df_ts = time.mktime(time.strptime(parts[0], "%Y-%m-%d %H:%M:%S"))
 
-    Labtainer.logger.DEBUG('df_utc time is %s' % df_utc_string)
-    Labtainer.logger.DEBUG('df_utc ts is %s given ts is %s' % (df_ts, ts))
+    logger.DEBUG('df_utc time is %s' % df_utc_string)
+    logger.DEBUG('df_utc ts is %s given ts is %s' % (df_ts, ts))
     if df_ts > ts:
         return True
     else:
@@ -447,20 +447,20 @@ def CheckBuild(labname, image_name, container_name, name, role):
     Determine if a container image needs to be rebuilt.
     '''
     retval = False
-    Labtainer.logger.DEBUG('check build for container %s image %s' % (container_name, image_name))
+    logger.DEBUG('check build for container %s image %s' % (container_name, image_name))
     cmd = "docker inspect -f '{{.Created}}' --type image %s" % image_name
     child = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
     result = child.stdout.read().strip()
     if 'Error:' in result or len(result.strip()) == 0:
         return True
-    Labtainer.logger.DEBUG('result is %s' % result)
+    logger.DEBUG('result is %s' % result)
     parts = result.strip().split('.')
     time_string = parts[0]
-    Labtainer.logger.DEBUG('image time string %s' % time_string)
+    logger.DEBUG('image time string %s' % time_string)
 
     ''' ts is the timestamp of the image '''
     ts = time.mktime(time.strptime(time_string, "%Y-%m-%dT%H:%M:%S"))
-    Labtainer.logger.DEBUG('image ts %s' % ts)
+    logger.DEBUG('image ts %s' % ts)
 
     ''' look at dockerfiles '''
     lab_path = os.path.join(LABS_ROOT,labname)
@@ -469,23 +469,23 @@ def CheckBuild(labname, image_name, container_name, name, role):
     if not os.path.isfile(df):
          df = df.replace('instructor', 'student')
     if FileModLater(ts, df):
-        Labtainer.logger.WARNING('dockerfile changed, will build')
+        logger.WARNING('dockerfile changed, will build')
         retval = True
     else:
         ''' look for new/deleted files in the container '''
         container_dir = os.path.join(lab_path, name)
-        Labtainer.logger.DEBUG('container dir %s' % container_dir)
+        logger.DEBUG('container dir %s' % container_dir)
         if FileModLater(ts, container_dir):
-           Labtainer.logger.WARNING('%s is later, will build' % container_dir)
+           logger.WARNING('%s is later, will build' % container_dir)
            retval = True
         else:
             ''' look at all files in container '''
             for folder, subs, files in os.walk(container_dir):
                 for f in files:
                    f_path = os.path.join(folder, f)
-                   Labtainer.logger.DEBUG('check %s' % f_path)
+                   logger.DEBUG('check %s' % f_path)
                    if FileModLater(ts, f_path):
-                       Labtainer.logger.WARNING('%s is later, will build' % f_path)
+                       logger.WARNING('%s is later, will build' % f_path)
                        retval = True
                        break
 
@@ -495,7 +495,7 @@ def CheckBuild(labname, image_name, container_name, name, role):
         for f in all_bin_files:
             f_path = os.path.join(all_bin, f)
             if FileModLater(ts, f_path):
-               Labtainer.logger.WARNING('%s is later, will build' % f_path)
+               logger.WARNING('%s is later, will build' % f_path)
                retval = True
                break
 
@@ -505,17 +505,17 @@ def CheckBuild(labname, image_name, container_name, name, role):
         for f in inst_cfg_files:
             f_path = os.path.join(inst_cfg, f)
             if FileModLater(ts, f_path):
-               Labtainer.logger.WARNING('%s is later, will build' % f_path)
+               logger.WARNING('%s is later, will build' % f_path)
                retval = True
                break
-        Labtainer.logger.DEBUG('is instructor')
+        logger.DEBUG('is instructor')
         if not retval:  
             inst_bin = './bin'
             inst_bin_files = os.listdir(inst_bin)
             for f in inst_bin_files:
                 f_path = os.path.join(inst_bin, f)
                 if FileModLater(ts, f_path):
-                   Labtainer.logger.WARNING('%s is later, will build' % f_path)
+                   logger.WARNING('%s is later, will build' % f_path)
                    retval = True
                    break
     return retval
@@ -527,9 +527,9 @@ def dumb():
 def RedoLab(labname, role, is_regress_test):
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
-    Labtainer.logger.DEBUG("current working directory for %s" % mycwd)
-    Labtainer.logger.DEBUG("current user's home directory for %s" % myhomedir)
-    Labtainer.logger.DEBUG("ParseStartConfig for %s" % labname)
+    logger.DEBUG("current working directory for %s" % mycwd)
+    logger.DEBUG("current user's home directory for %s" % myhomedir)
+    logger.DEBUG("ParseStartConfig for %s" % labname)
     lab_path          = os.path.join(LABS_ROOT,labname)
     config_path       = os.path.join(lab_path,"config") 
     start_config_path = os.path.join(config_path,"start.config")
@@ -544,7 +544,7 @@ def RedoLab(labname, role, is_regress_test):
         mycontainer_image_name = container.image_name
         cmd = 'docker rm %s' % mycontainer_name
         os.system(cmd)
-        Labtainer.logger.DEBUG('did %s' % cmd)
+        logger.DEBUG('did %s' % cmd)
         if CheckBuild(labname, mycontainer_image_name, mycontainer_name, name, role):
             if os.path.isfile(fixresolve) and not didfix:
                 ''' DNS name resolution from containers (while being built) fails when behind NAT? '''
@@ -555,11 +555,11 @@ def RedoLab(labname, role, is_regress_test):
             elif os.path.isfile(build_instructor):
                 cmd = '%s %s %s' % (build_instructor, labname, name)
             else:
-                Labtainer.logger.ERROR("no image rebuild script\n")
+                logger.ERROR("no image rebuild script\n")
                 exit(1)
                  
             if os.system(cmd) != 0:
-                Labtainer.logger.ERROR("build of image failed\n")
+                logger.ERROR("build of image failed\n")
                 exit(1)
     StartLab(labname, role, is_regress_test)
 
@@ -580,51 +580,51 @@ def GatherOtherArtifacts(labname, name, container_name, container_user):
             if line.startswith('#') or len(line) == 0:
                 continue
             if '=' not in line:
-                Labtainer.logger.WARNING('no = in line %s' % line)
+                logger.WARNING('no = in line %s' % line)
                 continue
             after_equals = line.split('=', 1)[1]
             fname = after_equals.split(' : ')[0]
             is_mine = False
             if ':' in fname:
                 f_container, fname = fname.split(':')
-                Labtainer.logger.DEBUG('f_container <%s> container_name %s' % (f_container, name))
+                logger.DEBUG('f_container <%s> container_name %s' % (f_container, name))
                 if f_container.strip() == name:
                     is_mine = True 
                 fname = fname.strip()
             else: 
                 is_mine = True
             if is_mine:
-                Labtainer.logger.DEBUG(' is mine %s' % fname )
+                logger.DEBUG(' is mine %s' % fname )
                 if fname.startswith('/') and fname not in did_file:
                     ''' copy from abs path to ~/.local/result ''' 
                
                     command='docker exec -it %s sudo cp --parents %s /home/%s/.local/result' % (container_name, fname, container_user)
-                    Labtainer.logger.DEBUG(command)
+                    logger.DEBUG(command)
                     child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                     error = child.stderr.read().strip()
                     if len(error) > 0:
-                        Labtainer.logger.ERROR('ERROR: %s' % error)
-                        Labtainer.logger.ERROR('command was %s' % command)
+                        logger.ERROR('ERROR: %s' % error)
+                        logger.ERROR('command was %s' % command)
                     did_file.append(fname)
                     command='docker exec -it %s sudo chmod a+r -R /home/%s/.local/result' % (container_name, container_user)
                     child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                     error = child.stderr.read().strip()
                     if len(error) > 0:
-                        Labtainer.logger.ERROR('chmod ERROR: %s' % error)
-                        Labtainer.logger.ERROR('command was %s' % command)
+                        logger.ERROR('chmod ERROR: %s' % error)
+                        logger.ERROR('command was %s' % command)
                         
 
 # RunInstructorCreateGradeFile
 def RunInstructorCreateGradeFile(container_name):
     # Run 'instructor.py' - This will create '<labname>.grades.txt' 
-    Labtainer.logger.DEBUG("About to call instructor.py")
+    logger.DEBUG("About to call instructor.py")
     bash_command = "'cd ; . .profile ; instructor.py'"
     command = 'docker exec -it %s script -q -c "/bin/bash -c %s" /dev/null' % (container_name, bash_command)
-    Labtainer.logger.DEBUG("Command to execute is (%s)" % command)
+    logger.DEBUG("Command to execute is (%s)" % command)
     result = subprocess.call(command, shell=True)
-    Labtainer.logger.DEBUG("Result of subprocess.call exec instructor.py is %s" % result)
+    logger.DEBUG("Result of subprocess.call exec instructor.py is %s" % result)
     if result == FAILURE:
-        Labtainer.logger.ERROR("Container %s fail on executing instructor.py!\n" % container_name)
+        logger.ERROR("Container %s fail on executing instructor.py!\n" % container_name)
         sys.exit(1)
 
 
@@ -632,9 +632,9 @@ def RegressTest(labname, role):
     username = getpass.getuser()
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
-    Labtainer.logger.DEBUG("current working directory for %s" % mycwd)
-    Labtainer.logger.DEBUG("current user's home directory for %s" % myhomedir)
-    Labtainer.logger.DEBUG("ParseStartConfig for %s" % labname)
+    logger.DEBUG("current working directory for %s" % mycwd)
+    logger.DEBUG("current user's home directory for %s" % myhomedir)
+    logger.DEBUG("ParseStartConfig for %s" % labname)
     lab_path          = os.path.join(LABS_ROOT,labname)
     config_path       = os.path.join(lab_path,"config") 
     start_config_path = os.path.join(config_path,"start.config")
@@ -643,12 +643,12 @@ def RegressTest(labname, role):
     labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(LABTAINER_CONFIG, labname)
     regresstest_lab_path = labtainer_config.testsets_root
     host_home_xfer = labtainer_config.host_home_xfer
-    Labtainer.logger.DEBUG("Host Xfer directory for labname %s is %s" % (labname, host_home_xfer))
-    Labtainer.logger.DEBUG("Regression Test path for labname %s is %s" % (labname, regresstest_lab_path))
+    logger.DEBUG("Host Xfer directory for labname %s is %s" % (labname, host_home_xfer))
+    logger.DEBUG("Regression Test path for labname %s is %s" % (labname, regresstest_lab_path))
 
     GradesGold = "%s/%s.grades.txt" % (regresstest_lab_path, labname)
     Grades = "/home/%s/%s/%s.grades.txt" % (username, host_home_xfer, labname)
-    Labtainer.logger.DEBUG("GradesGold is %s - Grades is %s" % (GradesGold, Grades))
+    logger.DEBUG("GradesGold is %s - Grades is %s" % (GradesGold, Grades))
 
     RedoLab(labname, role, True)
     RunInstructorCreateGradeFile(start_config.grade_container)
@@ -662,24 +662,24 @@ def CreateCopyChownZip(mycwd, start_config, labtainer_config, container_name, co
     '''
     Zip up the student home directory and copy it to the Linux host home directory
     '''
-    Labtainer.logger.DEBUG('in CreateCopyChownZip')
+    logger.DEBUG('in CreateCopyChownZip')
     host_home_xfer  = labtainer_config.host_home_xfer
     lab_master_seed = start_config.lab_master_seed
 
     # Run 'Student.py' - This will create zip file of the result
-    Labtainer.logger.DEBUG("About to call Student.py")
+    logger.DEBUG("About to call Student.py")
     cmd_path = '/home/%s/.local/bin/Student.py' % (container_user)
     command=['docker', 'exec', '-i',  container_name, '/usr/bin/sudo', cmd_path, container_user]
-    Labtainer.logger.DEBUG('cmd: %s' % str(command))
+    logger.DEBUG('cmd: %s' % str(command))
     child = subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     error_string = child.stderr.read().strip()
     if len(error_string) > 0:
-        Labtainer.logger.ERROR("Container %s fail on executing Student.py \n" % (container_name))
+        logger.ERROR("Container %s fail on executing Student.py \n" % (container_name))
         return None, None
     
     #out_string = output[0].strip()
     #if len(out_string) > 0:
-    #    Labtainer.logger.DEBUG('output of Student.py is %s' % out_string)
+    #    logger.DEBUG('output of Student.py is %s' % out_string)
     username = getpass.getuser()
 
     tmp_dir=os.path.join('/tmp/labtainers', container_name)
@@ -687,15 +687,15 @@ def CreateCopyChownZip(mycwd, start_config, labtainer_config, container_name, co
     os.makedirs(tmp_dir)
     source_dir = os.path.join('/home', container_user, '.local', 'zip')
     cont_source = '%s:%s' % (container_name, source_dir)
-    Labtainer.logger.DEBUG('will copy from %s ' % combine)
+    logger.DEBUG('will copy from %s ' % combine)
     command = ['docker', 'cp', cont_source, tmp_dir]
     # The zip filename created by Student.py has the format of e-mail.labname.zip
-    Labtainer.logger.DEBUG("Command to execute is (%s)" % command)
+    logger.DEBUG("Command to execute is (%s)" % command)
     child = subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     error_string = child.stderr.read().strip()
     if len(error_string) > 0:
-        Labtainer.logger.ERROR("Container %s fail on executing cp zip file!\n" % container_name)
-        Labtainer.logger.ERROR("Command was (%s)" % command)
+        logger.ERROR("Container %s fail on executing cp zip file!\n" % container_name)
+        logger.ERROR("Command was (%s)" % command)
         StopMyContainer(mycwd, start_config, container_name)
         return None, None
     
@@ -703,7 +703,7 @@ def CreateCopyChownZip(mycwd, start_config, labtainer_config, container_name, co
     try:
         orig_zipfilenameext = os.listdir(local_tmp_zip)[0]
     except:
-        Labtainer.logger.ERROR('no files at %s\n' % local_tmp_zip)
+        logger.ERROR('no files at %s\n' % local_tmp_zip)
         return None, None
     orig_zipfilename, orig_zipext = os.path.splitext(orig_zipfilenameext)
     baseZipFilename = os.path.basename(orig_zipfilename)
@@ -714,13 +714,13 @@ def CreateCopyChownZip(mycwd, start_config, labtainer_config, container_name, co
 
     # Change ownership to defined user $USER
     command = "sudo chown %s:%s /home/%s/%s/*.zip" % (username, username, username, host_home_xfer)
-    Labtainer.logger.DEBUG("Command to execute is (%s)" % command)
+    logger.DEBUG("Command to execute is (%s)" % command)
     child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     error_string = child.stderr.read().strip()
     if len(error_string) > 0:
-        Labtainer.logger.ERROR("chown failed Command was (%s)" % command)
+        logger.ERROR("chown failed Command was (%s)" % command)
         StopMyContainer(mycwd, start_config, container_name)
-        Labtainer.logger.ERROR("Container %s fail on executing chown zip file!\n" % container_name)
+        logger.ERROR("Container %s fail on executing chown zip file!\n" % container_name)
         return None, None
 
     currentContainerZipFilename = "/home/%s/%s/%s" % (username, host_home_xfer, DestZipFilename)
@@ -729,13 +729,13 @@ def CreateCopyChownZip(mycwd, start_config, labtainer_config, container_name, co
 # Stop my_container_name container
 def StopMyContainer(mycwd, start_config, container_name):
     command = "docker stop %s" % container_name
-    Labtainer.logger.DEBUG("Command to execute is (%s)" % command)
+    logger.DEBUG("Command to execute is (%s)" % command)
     ps = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[1].strip()) > 0:
-        Labtainer.logger.ERROR('stderr %s' % output[1])
+        logger.ERROR('stderr %s' % output[1])
     #if len(output[0].strip()) > 0:
-    #    Labtainer.logger.DEBUG('StopMyContainer stdout %s' % output[0])
+    #    logger.DEBUG('StopMyContainer stdout %s' % output[0])
     #result = subprocess.call(command, shell=True)
 
 def IsContainerRunning(mycontainer_name):
@@ -756,15 +756,15 @@ def DoStopOne(start_config, labtainer_config, mycwd, labname, role, name, contai
         container_user    = container.user
         mycontainer_image = container.image_name
         haveContainer     = IsContainerCreated(mycontainer_name)
-        Labtainer.logger.DEBUG("IsContainerCreated result (%s)" % haveContainer)
+        logger.DEBUG("IsContainerCreated result (%s)" % haveContainer)
 
         # IsContainerCreated returned FAILURE if container does not exists
         # error: can't stop non-existent container
         if not haveContainer:
-            Labtainer.logger.ERROR("Container %s does not exist!\n" % mycontainer_name)
+            logger.ERROR("Container %s does not exist!\n" % mycontainer_name)
             retval = False
         elif not IsContainerRunning(mycontainer_name):
-            Labtainer.logger.ERROR("container %s not running\n" % (mycontainer_name))
+            logger.ERROR("container %s not running\n" % (mycontainer_name))
             retval = False
         else:
             if role == 'instructor':
@@ -778,7 +778,7 @@ def DoStopOne(start_config, labtainer_config, mycwd, labname, role, name, contai
                 baseZipFilename, currentContainerZipFilename = CreateCopyChownZip(mycwd, start_config, labtainer_config, mycontainer_name, mycontainer_image, container_user)
                 if baseZipFilename is not None:
                     ZipFileList.append(currentContainerZipFilename)
-                Labtainer.logger.DEBUG("baseZipFilename is (%s)" % baseZipFilename)
+                logger.DEBUG("baseZipFilename is (%s)" % baseZipFilename)
    
 
             for mysubnet_name, mysubnet_ip in container.container_nets.items():
@@ -791,7 +791,7 @@ def DoStop(start_config, labtainer_config, mycwd, labname, role):
     retval = True
     host_home_xfer  = labtainer_config.host_home_xfer
     lab_master_seed = start_config.lab_master_seed
-    Labtainer.logger.DEBUG("DoStop Multiple Containers and/or multi-home networking")
+    logger.DEBUG("DoStop Multiple Containers and/or multi-home networking")
 
     username = getpass.getuser()
 
@@ -806,21 +806,21 @@ def DoStop(start_config, labtainer_config, mycwd, labname, role):
         t.setName(name)
         t.start()
       
-    Labtainer.logger.DEBUG('started all')
+    logger.DEBUG('started all')
     for t in threads:
         t.join()
-        Labtainer.logger.DEBUG('joined %s' % t.getName())
+        logger.DEBUG('joined %s' % t.getName())
 
     RemoveSubnets(start_config.subnets)
 
     if retval != False and role == 'student':
         # Combine all the zip files
-        Labtainer.logger.DEBUG("ZipFileList is ")
-        Labtainer.logger.DEBUG(ZipFileList)
-        Labtainer.logger.DEBUG("baseZipFilename is (%s)" % baseZipFilename)
+        logger.DEBUG("ZipFileList is ")
+        logger.DEBUG(ZipFileList)
+        logger.DEBUG("baseZipFilename is (%s)" % baseZipFilename)
         xfer_dir = "/home/%s/%s" % (username, host_home_xfer)
         combinedZipFilename = "%s/%s.zip" % (xfer_dir, baseZipFilename)
-        Labtainer.logger.DEBUG("The combined zip filename is %s" % combinedZipFilename)
+        logger.DEBUG("The combined zip filename is %s" % combinedZipFilename)
         zipoutput = zipfile.ZipFile(combinedZipFilename, "w")
         # Go to the xfer_dir
         os.chdir(xfer_dir)
@@ -837,9 +837,9 @@ def DoStop(start_config, labtainer_config, mycwd, labname, role):
 def StopLab(labname, role):
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
-    Labtainer.logger.DEBUG("current working directory for %s" % mycwd)
-    Labtainer.logger.DEBUG("current user's home directory for %s" % myhomedir)
-    Labtainer.logger.DEBUG("ParseStartConfig for %s" % labname)
+    logger.DEBUG("current working directory for %s" % mycwd)
+    logger.DEBUG("current user's home directory for %s" % myhomedir)
+    logger.DEBUG("ParseStartConfig for %s" % labname)
     lab_path          = os.path.join(LABS_ROOT,labname)
     config_path       = os.path.join(lab_path,"config") 
     start_config_path = os.path.join(config_path,"start.config")

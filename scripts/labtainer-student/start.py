@@ -26,10 +26,10 @@ import Labtainer
 # Arguments:
 #    <labname> - the lab to start
 def main():
-    Labtainer.logger = LabtainerLogging.LabtainerLogging("labtainer.log", logging.INFO, "labtainerlog")
+    labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", logging.INFO, "labtainerlog")
 
     if len(sys.argv) != 2:
-        Labtainer.logger.ERROR("Usage: start.py <labname>\n")
+        labutils.logger.ERROR("Usage: start.py <labname>\n")
         sys.exit(1)
     
     labname = sys.argv[1]

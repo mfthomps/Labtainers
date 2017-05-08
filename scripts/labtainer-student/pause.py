@@ -28,8 +28,7 @@ import time
 import zipfile
 import ParseStartConfig
 import logging
-import LabtainerLogging
-import Labtainer
+import labutils
 
 LABS_ROOT = os.path.abspath("../../labs/")
 
@@ -44,15 +43,15 @@ def isalphadashscore(name):
 # Check to see if my_container_name container has been created or not
 def IsContainerCreated(mycontainer_name):
     command = "docker inspect -f {{.Created}} %s 2> /dev/null" % mycontainer_name
-    Labtainer.logger.DEBUG("Command to execute is (%s)" % command)
+    labutils.logger.DEBUG("Command to execute is (%s)" % command)
     result = subprocess.call(command, shell=True)
-    Labtainer.logger.DEBUG("Result of subprocess.call IsContainerCreated is %s" % result)
+    labutils.logger.DEBUG("Result of subprocess.call IsContainerCreated is %s" % result)
     return result
 
 def DoPause(start_config, mycwd, labname):
     host_home_xfer = start_config.host_home_xfer
     lab_master_seed = start_config.lab_master_seed
-    Labtainer.logger.DEBUG("DoPause Multiple Containers and/or multi-home networking")
+    labutils.logger.DEBUG("DoPause Multiple Containers and/or multi-home networking")
 
     # Reach here - Everything is OK - pause the container
     for name, container in start_config.containers.items():
@@ -61,7 +60,7 @@ def DoPause(start_config, mycwd, labname):
         container_user         = container.user
 
         command = "docker pause %s" % mycontainer_name
-        Labtainer.logger.DEBUG("command is (%s)" % command)
+        labutils.logger.DEBUG("command is (%s)" % command)
         os.system(command)
 
     return 0
@@ -71,19 +70,19 @@ def DoPause(start_config, mycwd, labname):
 # Arguments:
 #    <labname> - the lab to start
 def main():
-    Labtainer.logger = LabtainerLogging.LabtainerLogging("labtainer.log", logging.INFO, "labtainerlog")
-    Labtainer.logger.DEBUG("main")
+    labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", logging.INFO, "labtainerlog")
+    labutils.logger.DEBUG("main")
     num_args = len(sys.argv)
     if num_args < 2:
-        Labtainer.logger.ERROR("Usage: pause.py <labname>\n")
+        labutils.logger.ERROR("Usage: pause.py <labname>\n")
         sys.exit(1)
 
     labname = sys.argv[1]
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
-    Labtainer.logger.DEBUG("current working directory for %s" % mycwd)
-    Labtainer.logger.DEBUG("current user's home directory for %s" % myhomedir)
-    Labtainer.logger.DEBUG("ParseStartConfig for %s" % labname)
+    labutils.logger.DEBUG("current working directory for %s" % mycwd)
+    labutils.logger.DEBUG("current user's home directory for %s" % myhomedir)
+    labutils.logger.DEBUG("ParseStartConfig for %s" % labname)
     lab_path          = os.path.join(LABS_ROOT,labname)
     config_path       = os.path.join(lab_path,"config")
     start_config_path = os.path.join(config_path,"start.config")
