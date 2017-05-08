@@ -21,7 +21,7 @@ def isalphadashscore(name):
     return re.match(r'^[a-zA-Z0-9_-]*$', name)
 
 class ParseStartConfig():
-    def __init__(self, fname, labname, caller):
+    def __init__(self, fname, labname, caller, logger):
         self.containers = {} # dictionary of containers
         self.subnets    = {} # dictionary of subnets 
         self.labname = labname
@@ -29,9 +29,10 @@ class ParseStartConfig():
         self.host_home_xfer= "" # HOST_HOME_XFER - directory to transfer artifact to/from containers
         self.lab_master_seed= None # LAB_MASTER_SEED - this is the master seed string for to this laboratory
         self.grade_container = None # GRADE_CONTAINER - this is where the instructor performs the grading
+        self.logger = logger
 
         if not os.path.exists(fname):
-            Labtainer.logger.ERROR("Config file %s does not exists!\n" % fname)
+            self.logger.ERROR("Config file %s does not exists!\n" % fname)
             sys.exit(1)
 
         self.get_configs(fname)
@@ -55,16 +56,16 @@ class ParseStartConfig():
             self.terminals = int(self.terminals) #replace with something smarter
           
             if '=' in self.name: # TODO: do we still need this?
-                Labtainer.logger.ERROR('Character "=" is not allowed in container name (%s)\n' % self.name)
+                self.logger.ERROR('Character "=" is not allowed in container name (%s)\n' % self.name)
                 exit(1)
             for name, addr in self.container_nets.items():
                 if name not in valid_networks:
-                    Labtainer.logger.ERROR('Container %s cannot be added to undefined network %s\n' % (self.full_name, name))
+                    self.logger.ERROR('Container %s cannot be added to undefined network %s\n' % (self.full_name, name))
                     exit(1)
                 try:
                     IPAddress(addr)
                 except :
-                    Labtainer.logger.ERROR('bad ip addr %s in %s\n' % (addr, name))
+                    self.logger.ERROR('bad ip addr %s in %s\n' % (addr, name))
                     exit(1)
 
     class Subnet():
@@ -75,21 +76,21 @@ class ParseStartConfig():
 
         def validate(self):
             if not isalphadashscore(self.name):
-                Labtainer.logger.ERROR('bad subnet name %s \n' % (self.name))
+                self.logger.ERROR('bad subnet name %s \n' % (self.name))
                 exit(1)
             try:
                 IPNetwork(self.mask)
             except:
-                Labtainer.logger.ERROR('bad ip subnet %s for subnet %s\n' % (self.mask, self.name))
+                self.logger.ERROR('bad ip subnet %s for subnet %s\n' % (self.mask, self.name))
                 exit(1)
             if not IPAddress(self.gateway) in IPNetwork(self.mask):
-                Labtainer.logger.ERROR('Gateway IP (%s) not in subnet for SUBNET line(%s)!\n' % 
+                self.logger.ERROR('Gateway IP (%s) not in subnet for SUBNET line(%s)!\n' % 
                     (self.gateway, self.mask))
                 exit(1)
 
     def add_if_new(self, name, location, thing):
         if name in location:
-            Labtainer.logger.ERROR("Fatal. '%s' already defined." % name)
+            self.logger.ERROR("Fatal. '%s' already defined." % name)
             exit(1)
         location[name] = thing
 
@@ -112,7 +113,7 @@ class ParseStartConfig():
                 elif key in defaults_ok:
                     val = "default"
                 else:
-                    Labtainer.logger.ERROR("Fatal. Missing value for: %s" % line)
+                    self.logger.ERROR("Fatal. Missing value for: %s" % line)
                     exit(1)
 
                 if key == "global_settings":
@@ -129,26 +130,26 @@ class ParseStartConfig():
                     try:
                         active.add_net(key,val)
                     except:
-                        Labtainer.logger.ERROR("Fatal. Can't understand config setting: %s" % line)
+                        self.logger.ERROR("Fatal. Can't understand config setting: %s" % line)
                         exit(1)
 
     def validate(self):
         """ Checks to make sure we have all the info we need from the user."""
         if self.caller != "student" and self.caller != "instructor":
-            Labtainer.logger.ERROR("Unexpected caller of ParseStartConfig module!\n")
+            self.logger.ERROR("Unexpected caller of ParseStartConfig module!\n")
             exit(1)
 
         if not self.host_home_xfer:
-            Labtainer.logger.ERROR("Missing host_home_xfer in start.config!\n")
+            self.logger.ERROR("Missing host_home_xfer in start.config!\n")
             exit(1)
         
         if (self.caller == "student"):
            if not self.lab_master_seed:
-               Labtainer.logger.ERROR("Missing lab_master_seed in start.config!\n")
+               self.logger.ERROR("Missing lab_master_seed in start.config!\n")
                exit(1)
 
         if not self.grade_container:
-            Labtainer.logger.ERROR("Missing grade_container in start.config!\n")
+            self.logger.ERROR("Missing grade_container in start.config!\n")
             exit(1)
 
         for subnet in self.subnets.values():

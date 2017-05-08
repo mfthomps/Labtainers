@@ -12,16 +12,15 @@ domain and is not subject to copyright.
 import os
 import sys
 import LabtainerLogging
-import Labtainer
 
 class ParseLabtainerConfig():
-    def __init__(self, fname, labname):
+    def __init__(self, fname, labname, logger):
         self.labname = labname
         self.host_home_xfer= "" # HOST_HOME_XFER - directory to transfer artifact to/from containers
         self.testsets_root= None # TESTSETS_ROOT - regression test root
-
+        self.logger = logger
         if not os.path.exists(fname):
-            Labtainer.logger.ERROR("Config file %s does not exists!\n" % fname)
+            self.logger.ERROR("Config file %s does not exists!\n" % fname)
             sys.exit(1)
 
         self.get_configs(fname)
@@ -47,7 +46,7 @@ class ParseLabtainerConfig():
                 elif key in defaults_ok:
                     val = "default"
                 else:
-                    Labtainer.logger.ERROR("Fatal. Missing value for: %s" % line)
+                    self.logger.ERROR("Fatal. Missing value for: %s" % line)
                     exit(1)
 
                 if key == "global_settings":
@@ -55,16 +54,16 @@ class ParseLabtainerConfig():
                 elif hasattr(active, key):
                     setattr(active, key, val) 
                 else:
-                    Labtainer.logger.ERROR("Fatal. Can't understand config setting: %s" % line)
+                    self.logger.ERROR("Fatal. Can't understand config setting: %s" % line)
                     exit(1)
 
     def validate(self):
         """ Checks to make sure we have all the info we need from the user."""
         if not self.host_home_xfer:
-            Labtainer.logger.ERROR("Missing host_home_xfer in labtainer.config!\n")
+            self.logger.ERROR("Missing host_home_xfer in labtainer.config!\n")
             exit(1)
         if not self.testsets_root:
-            Labtainer.logger.ERROR("Missing testsets_root in labtainer.config!\n")
+            self.logger.ERROR("Missing testsets_root in labtainer.config!\n")
             exit(1)
         
     def finalize(self):

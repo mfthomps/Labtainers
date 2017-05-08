@@ -413,8 +413,8 @@ def StartLab(labname, role, is_regress_test):
     config_path       = os.path.join(lab_path,"config") 
     start_config_path = os.path.join(config_path,"start.config")
    
-    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role)
-    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(LABTAINER_CONFIG, labname)
+    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, logger)
+    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(LABTAINER_CONFIG, labname, logger)
     host_home_xfer = labtainer_config.host_home_xfer
 
     # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
@@ -533,7 +533,7 @@ def RedoLab(labname, role, is_regress_test):
     lab_path          = os.path.join(LABS_ROOT,labname)
     config_path       = os.path.join(lab_path,"config") 
     start_config_path = os.path.join(config_path,"start.config")
-    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role)
+    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, logger)
     StopLab(labname, role)
     build_student = './buildImage.sh'
     build_instructor = './buildInstructorImage.sh'
@@ -638,9 +638,9 @@ def RegressTest(labname, role):
     lab_path          = os.path.join(LABS_ROOT,labname)
     config_path       = os.path.join(lab_path,"config") 
     start_config_path = os.path.join(config_path,"start.config")
-    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role)
+    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, logger)
 
-    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(LABTAINER_CONFIG, labname)
+    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(LABTAINER_CONFIG, labname, logger)
     regresstest_lab_path = labtainer_config.testsets_root
     host_home_xfer = labtainer_config.host_home_xfer
     logger.DEBUG("Host Xfer directory for labname %s is %s" % (labname, host_home_xfer))
@@ -844,8 +844,8 @@ def StopLab(labname, role):
     config_path       = os.path.join(lab_path,"config") 
     start_config_path = os.path.join(config_path,"start.config")
    
-    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role)
-    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(LABTAINER_CONFIG, labname)
+    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, logger)
+    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(LABTAINER_CONFIG, labname, logger)
     host_home_xfer = labtainer_config.host_home_xfer
 
     # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
