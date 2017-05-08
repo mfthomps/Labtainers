@@ -33,9 +33,10 @@ mkdir "$LOCKDIR" >/dev/null 2>&1
 #echo "number of argument is $#"
 #echo "argument is $@"
 
-if [ $# -ne 4 ]
+if [ $# -ne 5 ]
 then
-    echo "Usage: parameterize.sh <LAB_INSTANCE_SEED> <USER_EMAIL> <LAB_NAME> <CONTAINER_NAME>"
+    echo "Usage: parameterize.sh <CONTAINER_USER> <LAB_INSTANCE_SEED> <USER_EMAIL> <LAB_NAME> <CONTAINER_NAME>"
+    echo "       <CONTAINER_USER> -- username of the container"
     echo "       <LAB_INSTANCE_SEED> -- laboratory instance seed"
     echo "       <USER_EMAIL> -- user's e-mail"
     echo "       <LAB_NAME> -- name of the lab"
@@ -43,10 +44,11 @@ then
     exit 1
 fi
 
-LAB_INSTANCE_SEED=$1
-USER_EMAIL=$2
-LAB_NAME=$3
-CONTAINER_NAME=$4
+CONTAINER_USER=$1
+LAB_INSTANCE_SEED=$2
+USER_EMAIL=$3
+LAB_NAME=$4
+CONTAINER_NAME=$5
 
 # Laboratory instance seed is always stored in $LAB_SEEDFILE
 echo "$LAB_INSTANCE_SEED" > $LAB_SEEDFILE
@@ -55,7 +57,7 @@ echo "$USER_EMAIL" > $USER_EMAILFILE
 echo "$LAB_NAME" > $LAB_NAMEFILE
 
 # call ParameterParser.py (passing $LAB_INSTANCE_SEED)
-sudo $HOME/.local/bin/ParameterParser.py $LAB_INSTANCE_SEED $CONTAINER_NAME $LAB_PARAMCONFIGFILE
+sudo $HOME/.local/bin/ParameterParser.py $CONTAINER_USER $LAB_INSTANCE_SEED $CONTAINER_NAME $LAB_PARAMCONFIGFILE
 
 # If file $HOME/.local/bin/fixlocal.sh exist, run it
 if [ -f $HOME/.local/bin/fixlocal.sh ]

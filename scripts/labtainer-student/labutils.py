@@ -57,10 +57,11 @@ def getDocker0IPAddr():
 def ParameterizeMyContainer(mycontainer_name, container_user, lab_instance_seed, user_email, labname):
     retval = True
     logger.DEBUG("About to call parameterize.sh with LAB_INSTANCE_SEED = (%s)" % lab_instance_seed)
-    command = 'docker exec -it %s script -q -c "/home/%s/.local/bin/parameterize.sh %s %s %s %s" /dev/null' % (mycontainer_name, container_user, lab_instance_seed, user_email, labname, mycontainer_name)
-    ps = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    output = ps.communicate()
-    if len(output[1]) > 0:
+    cmd_path = '/home/%s/.local/bin/parameterize.sh' % (container_user)
+    command=['docker', 'exec', '-i',  mycontainer_name, '/usr/bin/sudo', cmd_path, container_user, lab_instance_seed, user_email, labname, mycontainer_name ]
+    child = subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    error_string = child.stderr.read().strip()
+    if len(error_string) > 0:
         logger.ERROR('ParameterizeMyContainer %s' % output[1])
         logger.ERROR('command was %s' % command)
         retval = False

@@ -21,15 +21,13 @@ import os
 import random
 import sys
 
-UBUNTUHOME = "/home/ubuntu/"
 randreplacelist = {}
 hashcreatelist = {}
 hashreplacelist = {}
 paramlist = {}
 global container_name
 
-def CheckRandReplaceEntry(lab_instance_seed, param_id, each_value):
-
+def CheckRandReplaceEntry(container_user, lab_instance_seed, param_id, each_value):
     # RAND_REPLACE : <filename> : <token> : <LowerBound> : <UpperBound>
     #print "Checking RAND_REPLACE entry"
     entryline = each_value.split(':')
@@ -78,6 +76,27 @@ def CheckRandReplaceEntry(lab_instance_seed, param_id, each_value):
         random_str = '%s' % int(random_int)
     else:
         random_str = '%s' % hex(random_int)
+    # Check to see if '=' in myfilename
+    if '=' in myfilename:
+        # myfilename has the container_name also
+        tempcontainer_name, myactualfilename = myfilename.split('=')
+        # Assume filename is relative to /home/<container_user>
+        if not myactualfilename.startswith('/'):
+            user_home_dir = '/home/%s' % container_user
+            myfullactualfilename = os.path.join(user_home_dir, myactualfilename)
+        else:
+            myfullactualfilename = myactualfilename
+        myfilename = '%s=%s' % (tempcontainer_name, myfullactualfilename)
+    else:
+        # myfilename does not have the containername
+        # Assume filename is relative to /home/<container_user>
+        if not myfilename.startswith('/'):
+            user_home_dir = '/home/%s' % container_user
+            myfullfilename = os.path.join(user_home_dir, myfilename)
+        else:
+            myfullfilename = myfilename
+        myfilename = myfullfilename
+
     if myfilename in randreplacelist:
         randreplacelist[myfilename].append('%s:%s' % (token, random_str))
     else:
@@ -86,7 +105,7 @@ def CheckRandReplaceEntry(lab_instance_seed, param_id, each_value):
     paramlist[param_id] = random_str
 
 
-def CheckHashCreateEntry(lab_instance_seed, param_id, each_value):
+def CheckHashCreateEntry(container_user, lab_instance_seed, param_id, each_value):
     # HASH_CREATE : <filename> : <string>
     #print "Checking HASH_CREATE entry"
     entryline = each_value.split(':')
@@ -110,18 +129,29 @@ def CheckHashCreateEntry(lab_instance_seed, param_id, each_value):
     if '=' in myfilename:
         # myfilename has the container_name also
         tempcontainer_name, myactualfilename = myfilename.split('=')
-        # If file does not exist, create an empty file
-        if not os.path.exists(myactualfilename):
-            outfile = open(myactualfilename, 'w')
-            outfile.write('')
-            outfile.close()
+        # Assume filename is relative to /home/<container_user>
+        if not myactualfilename.startswith('/'):
+            user_home_dir = '/home/%s' % container_user
+            myfullactualfilename = os.path.join(user_home_dir, myactualfilename)
+        else:
+            myfullactualfilename = myactualfilename
+        myfilename = '%s=%s' % (tempcontainer_name, myfullactualfilename)
     else:
         # myfilename does not have the containername
-        # If file does not exist, create an empty file
-        if not os.path.exists(myfilename):
-            outfile = open(myfilename, 'w')
-            outfile.write('')
-            outfile.close()
+        # Assume filename is relative to /home/<container_user>
+        if not myfilename.startswith('/'):
+            user_home_dir = '/home/%s' % container_user
+            myfullfilename = os.path.join(user_home_dir, myfilename)
+        else:
+            myfullfilename = myfilename
+        myfilename = myfullfilename
+
+    # If file does not exist, create an empty file
+    if not os.path.exists(myfilename):
+        outfile = open(myfilename, 'w')
+        outfile.write('')
+        outfile.close()
+
     if myfilename in hashcreatelist:
         hashcreatelist[myfilename].append('%s' % mymd5_hex_string)
     else:
@@ -129,7 +159,7 @@ def CheckHashCreateEntry(lab_instance_seed, param_id, each_value):
         hashcreatelist[myfilename].append('%s' % mymd5_hex_string)
     paramlist[param_id] = mymd5_hex_string
 
-def CheckHashReplaceEntry(lab_instance_seed, param_id, each_value):
+def CheckHashReplaceEntry(container_user, lab_instance_seed, param_id, each_value):
     # HASH_REPLACE : <filename> : <token> : <string>
     #print "Checking HASH_REPLACE entry"
     entryline = each_value.split(':')
@@ -149,6 +179,28 @@ def CheckHashReplaceEntry(lab_instance_seed, param_id, each_value):
     #print "filename is (%s)" % myfilename
     #print "token is (%s)" % token
     #print "the_string is (%s)" % the_string
+
+    # Check to see if '=' in myfilename
+    if '=' in myfilename:
+        # myfilename has the container_name also
+        tempcontainer_name, myactualfilename = myfilename.split('=')
+        # Assume filename is relative to /home/<container_user>
+        if not myactualfilename.startswith('/'):
+            user_home_dir = '/home/%s' % container_user
+            myfullactualfilename = os.path.join(user_home_dir, myactualfilename)
+        else:
+            myfullactualfilename = myactualfilename
+        myfilename = '%s=%s' % (tempcontainer_name, myfullactualfilename)
+    else:
+        # myfilename does not have the containername
+        # Assume filename is relative to /home/<container_user>
+        if not myfilename.startswith('/'):
+            user_home_dir = '/home/%s' % container_user
+            myfullfilename = os.path.join(user_home_dir, myfilename)
+        else:
+            myfullfilename = myfilename
+        myfilename = myfullfilename
+
     if myfilename in hashreplacelist:
         hashreplacelist[myfilename].append('%s:%s' % (token, mymd5_hex_string))
     else:
@@ -157,16 +209,16 @@ def CheckHashReplaceEntry(lab_instance_seed, param_id, each_value):
     paramlist[param_id] = mymd5_hex_string
 
 
-def ValidateParameterConfig(lab_instance_seed, param_id, each_key, each_value):
+def ValidateParameterConfig(container_user, lab_instance_seed, param_id, each_key, each_value):
     if each_key == "RAND_REPLACE":
         #print "RAND_REPLACE"
-        CheckRandReplaceEntry(lab_instance_seed, param_id, each_value)
+        CheckRandReplaceEntry(container_user, lab_instance_seed, param_id, each_value)
     elif each_key == "HASH_CREATE":
         #print "HASH_CREATE"
-        CheckHashCreateEntry(lab_instance_seed, param_id, each_value)
+        CheckHashCreateEntry(container_user, lab_instance_seed, param_id, each_value)
     elif each_key == "HASH_REPLACE":
         #print "HASH_REPLACE"
-        CheckHashReplaceEntry(lab_instance_seed, param_id, each_value)
+        CheckHashReplaceEntry(container_user, lab_instance_seed, param_id, each_value)
     else:
         sys.stderr.write("ERROR: Invalid operator %s\n" % each_key)
         sys.exit(1)
@@ -296,7 +348,7 @@ def DoReplace(lab_instance_seed):
     # Perform HASH_REPLACE
     Perform_HASH_REPLACE(lab_instance_seed)
 
-def ParseParameterConfig(lab_instance_seed, configfilename):
+def ParseParameterConfig(container_user, lab_instance_seed, configfilename):
     # Seed random with lab seed
     random.seed(lab_instance_seed)
     configfile = open(configfilename)
@@ -311,7 +363,7 @@ def ParseParameterConfig(lab_instance_seed, configfilename):
                 (param_id, each_key, each_value) = linestrip.split(':', 2)
                 each_key = each_key.strip()
                 param_id = param_id.strip()
-                ValidateParameterConfig(lab_instance_seed, param_id, each_key, each_value)
+                ValidateParameterConfig(container_user, lab_instance_seed, param_id, each_key, each_value)
         #else:
         #    print "Skipping empty linestrip is (%s)" % linestrip
     return paramlist
@@ -320,6 +372,7 @@ def ParseParameterConfig(lab_instance_seed, configfilename):
 
 # Usage: ParameterParser.py <lab_instance_seed> <container_name> [<config_file>]
 # Arguments:
+#     <container_user> - username of the container
 #     <lab_instance_seed> - laboratory instance seed
 #     <container_name> - name of the container"
 #     [<config_file>] - optional configuration file
@@ -329,18 +382,19 @@ def main():
     global container_name
     #print "Running ParameterParser.py"
     numargs = len(sys.argv)
-    if not (numargs == 3 or numargs == 4):
-        sys.stderr.write("Usage: ParameterParser.py <lab_instance_seed> <container_name> [<config_file>]\n")
+    if not (numargs == 4 or numargs == 5):
+        sys.stderr.write("Usage: ParameterParser.py <container_user> <lab_instance_seed> <container_name> [<config_file>]\n")
         sys.exit(1)
 
-    lab_instance_seed = sys.argv[1]
-    container_name = sys.argv[2]
-    if numargs == 4:
-        configfilename = sys.argv[3]
+    container_user = sys.argv[1]
+    lab_instance_seed = sys.argv[2]
+    container_name = sys.argv[3]
+    if numargs == 5:
+        configfilename = sys.argv[4]
     else:
-        configfilename = '%s/.local/config/%s' % (UBUNTUHOME, "parameter.config")
+        configfilename = '/home/%s/.local/config/%s' % (container_user, "parameter.config")
 
-    ParseParameterConfig(lab_instance_seed, configfilename)
+    ParseParameterConfig(container_user, lab_instance_seed, configfilename)
     DoReplace(lab_instance_seed)
     return 0
 
