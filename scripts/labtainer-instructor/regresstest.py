@@ -24,7 +24,6 @@ sys.path.append(student_cwd)
 import labutils
 import logging
 import LabtainerLogging
-Labtainer.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
 
 def usage():
     labutils.logger.ERROR("Usage: regresstest.py [<labname>]\n")
@@ -44,8 +43,9 @@ def main():
     else:
         usage()
 
+    labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
     for labname in labnamelist:
-        Labtainer.logger.DEBUG("Current name is (%s)" % labname)
+        labutils.logger.DEBUG("Current name is (%s)" % labname)
         fulllabname = os.path.join(labutils.LABS_ROOT, labname)
         if labname == "etc" or labname == "bin":
             labutils.logger.DEBUG("skipping etc or bin")

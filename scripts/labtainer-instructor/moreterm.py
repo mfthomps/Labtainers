@@ -42,32 +42,31 @@ import ParseStartConfig
 import labutils
 import logging
 import LabtainerLogging
-import Labtainer
 
 LABS_ROOT = os.path.abspath("../../labs/")
 
 def DoMoreterm(start_config, mycwd, labname, container, num_terminal):
     mycontainer_name = '%s.%s.instructor' % (labname, container)
     if not labutils.IsContainerCreated(mycontainer_name):
-        Labtainer.logger.ERROR('container %s not found' % mycontainer_name)
+        labutils.logger.ERROR('container %s not found' % mycontainer_name)
         exit(1)
     for x in range(num_terminal):
         spawn_command = "gnome-terminal -x docker exec -it %s bash -l &" % mycontainer_name
-        Labtainer.logger.DEBUG("spawn_command is (%s)" % spawn_command)
+        labutils.logger.DEBUG("spawn_command is (%s)" % spawn_command)
         os.system(spawn_command)
 
     return 0
 
 def usage():
-    Labtainer.logger.ERROR("Usage: moreterm.py <labname> [<container>] [<requested_term>]\n")
+    labutils.logger.ERROR("Usage: moreterm.py <labname> [<container>] [<requested_term>]\n")
     exit(1)
 
 # Usage: (see usage)
 def main():
-    Labtainer.logger = LabtainerLogging.LabtainerLogging("labtainer.log", logging.INFO, "labtainerlog")
-    Labtainer.logger.DEBUG("main")
+    labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", logging.INFO, "labtainerlog")
+    labutils.logger.DEBUG("main")
     num_args = len(sys.argv)
-    Labtainer.logger.DEBUG('numargs %d' % num_args)
+    labutils.logger.DEBUG('numargs %d' % num_args)
     container = None
     requested_term = 1
     if num_args < 2:
@@ -90,9 +89,9 @@ def main():
     labname = sys.argv[1]
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
-    Labtainer.logger.DEBUG("current working directory for %s" % mycwd)
-    Labtainer.logger.DEBUG("current user's home directory for %s" % myhomedir)
-    Labtainer.logger.DEBUG("ParseStartConfig for %s" % labname)
+    labutils.logger.DEBUG("current working directory for %s" % mycwd)
+    labutils.logger.DEBUG("current user's home directory for %s" % myhomedir)
+    labutils.logger.DEBUG("ParseStartConfig for %s" % labname)
     lab_path          = os.path.join(LABS_ROOT,labname)
     config_path       = os.path.join(lab_path,"config")
     start_config_path = os.path.join(config_path,"start.config")

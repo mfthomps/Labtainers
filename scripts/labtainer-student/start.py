@@ -12,7 +12,6 @@ import sys
 import labutils
 import logging
 import LabtainerLogging
-import Labtainer
 
 # Filename: start.py
 # Description:

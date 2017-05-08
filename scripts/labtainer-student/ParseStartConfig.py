@@ -14,7 +14,6 @@ import sys
 import re
 from netaddr import *
 import LabtainerLogging
-import Labtainer
 
 def isalphadashscore(name):
     # check name - alphanumeric,dash,underscore

@@ -36,7 +36,6 @@ sys.path.append(student_cwd)
 import ParseStartConfig
 import logging
 import LabtainerLogging
-labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
 
 LABS_ROOT = os.path.abspath("../../labs/")
 
@@ -85,6 +84,7 @@ def main():
         labutils.logger.ERROR("Usage: unpause.py <labname>\n")
         sys.exit(1)
 
+    labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
     labname = sys.argv[1]
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']

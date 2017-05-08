@@ -33,7 +33,6 @@ import ParseStartConfig
 import labutils
 import logging
 import LabtainerLogging
-labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
 
 # Usage: start.py <labname>
 # Arguments:
@@ -45,6 +44,7 @@ def main():
         labutils.logger.ERROR("Usage: start.py <labname>\n")
         sys.exit(1)
     
+    labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
     labname = sys.argv[1]
     labutils.StartLab(labname, "instructor", False)
 
