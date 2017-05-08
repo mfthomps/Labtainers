@@ -35,6 +35,7 @@ import time
 import zipfile
 import ParseStartConfig
 import labutils
+import logging
 import LabtainerLogging
 import Labtainer
 
@@ -58,6 +59,7 @@ def usage():
 
 # Usage: (see usage)
 def main():
+    Labtainer.logger = LabtainerLogging.LabtainerLogging("labtainer.log", logging.INFO, "labtainerlog")
     Labtainer.logger.DEBUG("main")
     num_args = len(sys.argv)
     Labtainer.logger.DEBUG('numargs %d' % num_args)

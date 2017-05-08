@@ -17,6 +17,7 @@ domain and is not subject to copyright.
 
 import sys
 import labutils
+import logging
 import LabtainerLogging
 import Labtainer
 
@@ -24,6 +25,7 @@ import Labtainer
 # Arguments:
 #    <labname> - the lab to stop, delete and start
 def main():
+    Labtainer.logger = LabtainerLogging.LabtainerLogging("labtainer.log", logging.INFO, "labtainerlog")
     if len(sys.argv) != 2:
         Labtainer.logger.ERROR("Usage: redo.py <labname>\n")
         sys.exit(1)

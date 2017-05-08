@@ -34,6 +34,7 @@ student_cwd = instructor_cwd.replace('labtainer-instructor', 'labtainer-student'
 sys.path.append(student_cwd)
 
 import ParseStartConfig
+import logging
 import LabtainerLogging
 import Labtainer
 Labtainer.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
@@ -78,6 +79,7 @@ def DoPause(start_config, mycwd, labname):
 # Arguments:
 #    <labname> - the lab to start
 def main():
+    Labtainer.logger = LabtainerLogging.LabtainerLogging("labtainer.log", logging.INFO, "labtainerlog")
     Labtainer.logger.DEBUG("main")
     num_args = len(sys.argv)
     if num_args < 2:

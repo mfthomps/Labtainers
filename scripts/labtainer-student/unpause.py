@@ -27,6 +27,7 @@ import sys
 import time
 import zipfile
 import ParseStartConfig
+import logging
 import LabtainerLogging
 import Labtainer
 
@@ -70,6 +71,7 @@ def DoUnpause(start_config, mycwd, labname):
 # Arguments:
 #    <labname> - the lab to start
 def main():
+    Labtainer.logger = LabtainerLogging.LabtainerLogging("labtainer.log", logging.INFO, "labtainerlog")
     Labtainer.logger.DEBUG("main")
     num_args = len(sys.argv)
     if num_args < 2:
