@@ -12,7 +12,7 @@ import sys
 import labutils
 import logging
 import LabtainerLogging
-import MyGlobal
+import Labtainer
 
 # Filename: start.py
 # Description:
@@ -26,10 +26,10 @@ import MyGlobal
 # Arguments:
 #    <labname> - the lab to start
 def main():
-    MyGlobal.logger = LabtainerLogging.LabtainerLogging("labtainer.log", logging.INFO, "labtainerlog")
+    Labtainer.logger = LabtainerLogging.LabtainerLogging("labtainer.log", logging.INFO, "labtainerlog")
 
     if len(sys.argv) != 2:
-        MyGlobal.logger.ERROR("Usage: start.py <labname>\n")
+        Labtainer.logger.ERROR("Usage: start.py <labname>\n")
         sys.exit(1)
     
     labname = sys.argv[1]
