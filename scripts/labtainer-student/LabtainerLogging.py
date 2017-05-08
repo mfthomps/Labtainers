@@ -15,8 +15,6 @@ import os
 import sys
 import re
 
-import Labtainer
-
 class LabtainerLogging():
     def __init__(self, logfilename, loglevel, logname):
         #print "filename is (%s)" % logfilename
