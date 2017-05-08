@@ -687,7 +687,7 @@ def CreateCopyChownZip(mycwd, start_config, labtainer_config, container_name, co
     os.makedirs(tmp_dir)
     source_dir = os.path.join('/home', container_user, '.local', 'zip')
     cont_source = '%s:%s' % (container_name, source_dir)
-    logger.DEBUG('will copy from %s ' % combine)
+    logger.DEBUG('will copy from %s ' % source_dir)
     command = ['docker', 'cp', cont_source, tmp_dir]
     # The zip filename created by Student.py has the format of e-mail.labname.zip
     logger.DEBUG("Command to execute is (%s)" % command)
