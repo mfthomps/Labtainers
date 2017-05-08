@@ -87,7 +87,7 @@ def main():
     labname = sys.argv[1]
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
-    Labtainer.logger.DEBUG("current working directory for %s" % mycwd0
+    Labtainer.logger.DEBUG("current working directory for %s" % mycwd)
     Labtainer.logger.DEBUG("current user's home directory for %s" % myhomedir)
     Labtainer.logger.DEBUG("ParseStartConfig for %s" % labname)
     lab_path          = os.path.join(LABS_ROOT,labname)

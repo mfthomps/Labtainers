@@ -694,7 +694,7 @@ def CreateCopyChownZip(mycwd, start_config, labtainer_config, container_name, co
     child = subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     error_string = child.stderr.read().strip()
     if len(error_string) > 0:
-        Labtainer.logger.ERROR("Container %s fail on executing cp zip file!\n" % container_name))
+        Labtainer.logger.ERROR("Container %s fail on executing cp zip file!\n" % container_name)
         Labtainer.logger.ERROR("Command was (%s)" % command)
         StopMyContainer(mycwd, start_config, container_name)
         return None, None
