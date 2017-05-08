@@ -11,6 +11,8 @@ domain and is not subject to copyright.
 
 import os
 import sys
+import LabtainerLogging
+import Labtainer
 
 class ParseLabtainerConfig():
     def __init__(self, fname, labname):
@@ -19,7 +21,7 @@ class ParseLabtainerConfig():
         self.testsets_root= None # TESTSETS_ROOT - regression test root
 
         if not os.path.exists(fname):
-            sys.stderr.write("ParseLabtainerConfig, Config file %s does not exists!\n" % fname)
+            Labtainer.logger.ERROR("Config file %s does not exists!\n" % fname)
             sys.exit(1)
 
         self.get_configs(fname)
@@ -45,7 +47,7 @@ class ParseLabtainerConfig():
                 elif key in defaults_ok:
                     val = "default"
                 else:
-                    sys.stderr.write("ParseLabtainerConfig, Fatal. Missing value for: %s" % line)
+                    Labtainer.logger.ERROR("Fatal. Missing value for: %s" % line)
                     exit(1)
 
                 if key == "global_settings":
@@ -53,16 +55,16 @@ class ParseLabtainerConfig():
                 elif hasattr(active, key):
                     setattr(active, key, val) 
                 else:
-                    sys.stderr.write("ParseLabtainerConfig, Fatal. Can't understand config setting: %s" % line)
+                    Labtainer.logger.ERROR("Fatal. Can't understand config setting: %s" % line)
                     exit(1)
 
     def validate(self):
         """ Checks to make sure we have all the info we need from the user."""
         if not self.host_home_xfer:
-            sys.stderr.write("ERROR: Missing host_home_xfer in labtainer.config!\n")
+            Labtainer.logger.ERROR("Missing host_home_xfer in labtainer.config!\n")
             exit(1)
         if not self.testsets_root:
-            sys.stderr.write("ERROR: Missing testsets_root in labtainer.config!\n")
+            Labtainer.logger.ERROR("Missing testsets_root in labtainer.config!\n")
             exit(1)
         
     def finalize(self):

@@ -19,13 +19,15 @@ import sys
 import os
 instructor_cwd = os.getcwd()
 student_cwd = instructor_cwd.replace('labtainer-instructor', 'labtainer-student')
-#print "Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd)
 # Append Student CWD to sys.path
 sys.path.append(student_cwd)
 import labutils
+import LabtainerLogging
+import Labtainer
+Labtainer.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
 
 def usage():
-    sys.stderr.write("Usage: regresstest.py [<labname>]\n")
+    Labtainer.logger.ERROR("Usage: regresstest.py [<labname>]\n")
     sys.exit(1)
 
 # Usage: regresstest.py
@@ -34,7 +36,7 @@ def main():
     labnamelist = []
     num_args = len(sys.argv)
     if num_args == 1:
-        #print "LABS_ROOT is %s" % labutils.LABS_ROOT
+        Labtainer.logger.DEBUG("LABS_ROOT is %s" % labutils.LABS_ROOT)
         labnamelist = os.listdir(labutils.LABS_ROOT)
     elif num_args == 2:
         labnamelist.append(sys.argv[1])
@@ -42,14 +44,14 @@ def main():
         usage()
 
     for labname in labnamelist:
-        #print "Current name is (%s)" % labname
+        Labtainer.logger.DEBUG("Current name is (%s)" % labname)
         fulllabname = os.path.join(labutils.LABS_ROOT, labname)
         if labname == "etc" or labname == "bin":
-            #print "skipping etc or bin"
+            Labtainer.logger.DEBUG("skipping etc or bin")
             continue
 
         if os.path.isdir(fulllabname):
-            print "(%s) is directory - assume (%s) is a labname" % (fulllabname, labname)
+            Labtainer.logger.DEBUG("(%s) is directory - assume (%s) is a labname" % (fulllabname, labname))
     
             # RegressTest will do test following:
             # 1. This will stop containers of a lab, create or update lab images and start the containers.
@@ -58,11 +60,11 @@ def main():
             # 4. Compare 'grades.txt.GOLD' vs. 'grades.txt'
             RegressTestResult = labutils.RegressTest(labname, "instructor")
             if RegressTestResult == False:
-                # False means grades.txt.GOLD != grades.txt, print error then break
-                print "RegressTest fails on %s lab" % labname
+                # False means grades.txt.GOLD != grades.txt, output error then break
+                print("RegressTest fails on %s lab" % labname)
                 sys.exit(1)
             else:
-                print "RegressTest on %s lab SUCCESS" % labname
+                print("RegressTest on %s lab SUCCESS" % labname)
 
     return 0
 

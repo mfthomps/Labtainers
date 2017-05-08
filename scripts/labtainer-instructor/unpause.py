@@ -30,11 +30,13 @@ from netaddr import *
 
 instructor_cwd = os.getcwd()
 student_cwd = instructor_cwd.replace('labtainer-instructor', 'labtainer-student')
-print "Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd)
 # Append Student CWD to sys.path
 sys.path.append(student_cwd)
 
 import ParseStartConfig
+import LabtainerLogging
+import Labtainer
+Labtainer.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
 
 LABS_ROOT = os.path.abspath("../../labs/")
 
@@ -49,15 +51,15 @@ def isalphadashscore(name):
 # Check to see if my_container_name container has been created or not
 def IsContainerCreated(mycontainer_name):
     command = "docker inspect -f {{.Created}} %s 2> /dev/null" % mycontainer_name
-    #print "Command to execute is (%s)" % command
+    Labtainer.logger.DEBUG("Command to execute is (%s)" % command)
     result = subprocess.call(command, shell=True)
-    #print "Result of subprocess.call IsContainerCreated is %s" % result
+    Labtainer.logger.DEBUG("Result of subprocess.call IsContainerCreated is %s" % result)
     return result
 
 def DoUnpause(start_config, mycwd, labname):
     host_home_xfer = start_config.host_home_xfer
     lab_master_seed = start_config.lab_master_seed
-    #print "Do: Moreterm Multiple Containers and/or multi-home networking"
+    Labtainer.logger.DEBUG("DoUnpause Multiple Containers and/or multi-home networking")
 
     # Reach here - Everything is OK - spawn terminal for each container based on num_terminal
     for name, container in start_config.containers.items():
@@ -66,7 +68,7 @@ def DoUnpause(start_config, mycwd, labname):
         container_user         = container.user
 
         command = "docker unpause %s" % mycontainer_name
-        #print "command is (%s)" % command
+        Labtainer.logger.DEBUG("command is (%s)" % command)
         os.system(command)
 
     return 0
@@ -76,18 +78,18 @@ def DoUnpause(start_config, mycwd, labname):
 # Arguments:
 #    <labname> - the lab to start
 def main():
-    #print "unpause.py -- main"
+    Labtainer.logger.DEBUG("main")
     num_args = len(sys.argv)
     if num_args < 2:
-        sys.stderr.write("Usage: unpause.py <labname>\n")
+        Labtainer.logger.ERROR("Usage: unpause.py <labname>\n")
         sys.exit(1)
 
     labname = sys.argv[1]
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
-    #print "current working directory for %s" % mycwd
-    #print "current user's home directory for %s" % myhomedir
-    #print "ParseStartConfig for %s" % labname
+    Labtainer.logger.DEBUG("current working directory for %s" % mycwd0
+    Labtainer.logger.DEBUG("current user's home directory for %s" % myhomedir)
+    Labtainer.logger.DEBUG("ParseStartConfig for %s" % labname)
     lab_path          = os.path.join(LABS_ROOT,labname)
     config_path       = os.path.join(lab_path,"config")
     start_config_path = os.path.join(config_path,"start.config")

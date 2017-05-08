@@ -17,13 +17,15 @@ domain and is not subject to copyright.
 
 import sys
 import labutils
+import LabtainerLogging
+import Labtainer
 
 # Usage: redo.py <labname>
 # Arguments:
 #    <labname> - the lab to stop, delete and start
 def main():
     if len(sys.argv) != 2:
-        sys.stderr.write("Usage: redo.py <labname>\n")
+        Labtainer.logger.ERROR("Usage: redo.py <labname>\n")
         sys.exit(1)
     
     labname = sys.argv[1]
