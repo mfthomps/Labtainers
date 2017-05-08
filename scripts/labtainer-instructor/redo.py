@@ -24,7 +24,6 @@ sys.path.append(student_cwd)
 import labutils
 import logging
 import LabtainerLogging
-labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
 
 # Usage: redo.py <labname>
 # Arguments:
@@ -35,6 +34,7 @@ def main():
         labutils.logger.ERROR("Usage: redo.py <labname>\n")
         sys.exit(1)
     
+    labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
     labname = sys.argv[1]
     labutils.RedoLab(labname, "instructor", False)
 
