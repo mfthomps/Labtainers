@@ -24,16 +24,15 @@ sys.path.append(student_cwd)
 import labutils
 import logging
 import LabtainerLogging
-import Labtainer
-Labtainer.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
+labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
 
 # Usage: redo.py <labname>
 # Arguments:
 #    <labname> - the lab to stop, delete and start
 def main():
-    Labtainer.logger = LabtainerLogging.LabtainerLogging("labtainer.log", logging.INFO, "labtainerlog")
+    labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", logging.INFO, "labtainerlog")
     if len(sys.argv) != 2:
-        Labtainer.logger.ERROR("Usage: redo.py <labname>\n")
+        labutils.logger.ERROR("Usage: redo.py <labname>\n")
         sys.exit(1)
     
     labname = sys.argv[1]

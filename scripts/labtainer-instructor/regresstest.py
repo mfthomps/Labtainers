@@ -24,21 +24,20 @@ sys.path.append(student_cwd)
 import labutils
 import logging
 import LabtainerLogging
-import Labtainer
 Labtainer.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
 
 def usage():
-    Labtainer.logger.ERROR("Usage: regresstest.py [<labname>]\n")
+    labutils.logger.ERROR("Usage: regresstest.py [<labname>]\n")
     sys.exit(1)
 
 # Usage: regresstest.py
 # Arguments: None
 def main():
-    Labtainer.logger = LabtainerLogging.LabtainerLogging("labtainer.log", logging.INFO, "labtainerlog")
+    labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", logging.INFO, "labtainerlog")
     labnamelist = []
     num_args = len(sys.argv)
     if num_args == 1:
-        Labtainer.logger.DEBUG("LABS_ROOT is %s" % labutils.LABS_ROOT)
+        labutils.logger.DEBUG("LABS_ROOT is %s" % labutils.LABS_ROOT)
         labnamelist = os.listdir(labutils.LABS_ROOT)
     elif num_args == 2:
         labnamelist.append(sys.argv[1])
@@ -49,11 +48,11 @@ def main():
         Labtainer.logger.DEBUG("Current name is (%s)" % labname)
         fulllabname = os.path.join(labutils.LABS_ROOT, labname)
         if labname == "etc" or labname == "bin":
-            Labtainer.logger.DEBUG("skipping etc or bin")
+            labutils.logger.DEBUG("skipping etc or bin")
             continue
 
         if os.path.isdir(fulllabname):
-            Labtainer.logger.DEBUG("(%s) is directory - assume (%s) is a labname" % (fulllabname, labname))
+            labutils.logger.DEBUG("(%s) is directory - assume (%s) is a labname" % (fulllabname, labname))
     
             # RegressTest will do test following:
             # 1. This will stop containers of a lab, create or update lab images and start the containers.
