@@ -14,24 +14,30 @@ import logging
 import os
 import sys
 import re
+import ParseLabtainerConfig
+
+LABTAINER_CONFIG = os.path.abspath("../../config/labtainer.config")
 
 class LabtainerLogging():
-    def __init__(self, logfilename, loglevel, logname):
+    def __init__(self, logfilename, labname):
         #print "filename is (%s)" % logfilename
-        #print "loglevel is (%d)" % loglevel
-        #print "logname is (%s)" % logname
+        #print "labname is (%s)" % labname
+        logname = "labtainer.%s" % labname
+
+        labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(LABTAINER_CONFIG, labname, None)
+        file_log_level = labtainer_config.file_log_level
+        console_log_level = labtainer_config.console_log_level
 
         self.logger = logging.getLogger(logname)
-        self.logger.setLevel(loglevel)
+        self.logger.setLevel(file_log_level)
         formatter = logging.Formatter('[%(asctime)s - %(levelname)s : %(message)s')
 
         file_handler = logging.FileHandler(logfilename)
-        file_handler.setLevel(loglevel)
+        file_handler.setLevel(file_log_level)
         file_handler.setFormatter(formatter)
 
-        # Add console handler and set level to logging.WARNING
         console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.WARNING)
+        console_handler.setLevel(console_log_level)
         console_handler.setFormatter(formatter)
 
         self.logger.addHandler(file_handler)

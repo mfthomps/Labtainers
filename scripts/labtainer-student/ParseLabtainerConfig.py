@@ -9,6 +9,7 @@ United States Code Section 105.   This software is in the public
 domain and is not subject to copyright. 
 '''
 
+import logging
 import os
 import sys
 import LabtainerLogging
@@ -18,14 +19,26 @@ class ParseLabtainerConfig():
         self.labname = labname
         self.host_home_xfer= "" # HOST_HOME_XFER - directory to transfer artifact to/from containers
         self.testsets_root= None # TESTSETS_ROOT - regression test root
-        self.logger = logger
+        self.file_log_level= "" # FILE_LOG_LEVEL - level to log to file
+        self.console_log_level= "" # CONSOLE_LOG_LEVEL - level to log to console
+        if logger != None:
+            self.logger = logger
+        else:
+            self.logger = None
         if not os.path.exists(fname):
-            self.logger.ERROR("Config file %s does not exists!\n" % fname)
+            self.mylog("Config file %s does not exists!\n" % fname)
             sys.exit(1)
 
         self.get_configs(fname)
         self.finalize()
         self.validate()
+
+    def mylog(self, message):
+        if self.logger != None:
+            self.logger.ERROR(message)
+        else:
+            sys.stderr.write(message)
+
 
     def get_configs(self, fname):
         """Reads the new config format. There is basically no format validation so 
@@ -46,7 +59,7 @@ class ParseLabtainerConfig():
                 elif key in defaults_ok:
                     val = "default"
                 else:
-                    self.logger.ERROR("Fatal. Missing value for: %s" % line)
+                    self.mylog("Fatal. Missing value for: %s" % line)
                     exit(1)
 
                 if key == "global_settings":
@@ -54,16 +67,22 @@ class ParseLabtainerConfig():
                 elif hasattr(active, key):
                     setattr(active, key, val) 
                 else:
-                    self.logger.ERROR("Fatal. Can't understand config setting: %s" % line)
+                    self.mylog("Fatal. Can't understand config setting: %s" % line)
                     exit(1)
 
     def validate(self):
         """ Checks to make sure we have all the info we need from the user."""
         if not self.host_home_xfer:
-            self.logger.ERROR("Missing host_home_xfer in labtainer.config!\n")
+            self.mylog("Missing host_home_xfer in labtainer.config!\n")
             exit(1)
         if not self.testsets_root:
-            self.logger.ERROR("Missing testsets_root in labtainer.config!\n")
+            self.mylog("Missing testsets_root in labtainer.config!\n")
+            exit(1)
+        if not self.file_log_level:
+            self.mylog("Missing file_log_level in labtainer.config!\n")
+            exit(1)
+        if not self.console_log_level:
+            self.mylog("Missing console_log_level in labtainer.config!\n")
             exit(1)
         
     def finalize(self):
@@ -72,6 +91,20 @@ class ParseLabtainerConfig():
         # fixing up global parameters
         self.host_home_xfer = os.path.join(self.host_home_xfer,self.labname)
         self.testsets_root = os.path.join(os.path.abspath(self.testsets_root), self.labname)
+        valid_log_levels = {"debug", "info", "warning", "error"}
+        if self.file_log_level not in valid_log_levels:
+            self.mylog("Invalid file_log_level (%s) in labtainer.config!\n" % self.file_log_level)
+            exit(1)
+        if self.console_log_level not in valid_log_levels:
+            self.mylog("Invalid console_log_level (%s) in labtainer.config!\n" % self.console_log_level)
+            exit(1)
+        logging_levels = {'debug' : logging.DEBUG,
+                          'info' : logging.INFO,
+                          'warning' : logging.WARNING,
+                          'error' : logging.ERROR}
+        self.file_log_level = logging_levels[self.file_log_level]
+        self.console_log_level = logging_levels[self.console_log_level]
+
 
     def show_current_settings(self):
         bar = "="*80
