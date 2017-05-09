@@ -24,7 +24,6 @@ END
 LAB_SEEDFILE="$HOME/.local/.seed"
 USER_EMAILFILE="$HOME/.local/.email"
 LAB_NAMEFILE="$HOME/.local/.labname"
-CONTAINER_USERFILE="$HOME/.local/.container_user"
 LAB_PARAMCONFIGFILE="$HOME/.local/config/parameter.config"
 
 # Do not display instruction during parameterization
@@ -56,7 +55,6 @@ echo "$LAB_INSTANCE_SEED" > $LAB_SEEDFILE
 # User's e-mail is always stored in $USER_EMAILFILE
 echo "$USER_EMAIL" > $USER_EMAILFILE
 echo "$LAB_NAME" > $LAB_NAMEFILE
-echo "$CONTAINER_USER" > $CONTAINER_USERFILE
 
 # call ParameterParser.py (passing $LAB_INSTANCE_SEED)
 sudo $HOME/.local/bin/ParameterParser.py $CONTAINER_USER $LAB_INSTANCE_SEED $CONTAINER_NAME $LAB_PARAMCONFIGFILE
