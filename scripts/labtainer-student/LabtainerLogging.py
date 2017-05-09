@@ -32,7 +32,7 @@ class LabtainerLogging():
         filename = os.path.basename(func.f_code.co_filename)
         lineno = func.f_lineno
         funcname = func.f_code.co_name
-        linemessage = '%s:%s - %s() ] %s' % (filename, lineno, funcname[:15], message)
+        linemessage = 'DEBUG: %s:%s - %s() ] %s' % (filename, lineno, funcname[:15], message)
         self.logger.debug(linemessage)
 
     def INFO(self, message):
@@ -43,7 +43,7 @@ class LabtainerLogging():
         filename = os.path.basename(func.f_code.co_filename)
         lineno = func.f_lineno
         funcname = func.f_code.co_name
-        linemessage = '%s:%s - %s() ] %s' % (filename, lineno, funcname[:15], message)
+        linemessage = 'INFO: %s:%s - %s() ] %s' % (filename, lineno, funcname[:15], message)
         self.logger.info(linemessage)
 
     def WARNING(self, message):
@@ -54,7 +54,7 @@ class LabtainerLogging():
         filename = os.path.basename(func.f_code.co_filename)
         lineno = func.f_lineno
         funcname = func.f_code.co_name
-        linemessage = '%s:%s - %s() ] %s' % (filename, lineno, funcname[:15], message)
+        linemessage = 'WARNING: %s:%s - %s() ] %s' % (filename, lineno, funcname[:15], message)
         self.logger.warning(linemessage)
 
     def ERROR(self, message):
@@ -65,6 +65,6 @@ class LabtainerLogging():
         filename = os.path.basename(func.f_code.co_filename)
         lineno = func.f_lineno
         funcname = func.f_code.co_name
-        linemessage = '%s:%s - %s() ] %s' % (filename, lineno, funcname[:15], message)
+        linemessage = 'ERROR: %s:%s - %s() ] %s' % (filename, lineno, funcname[:15], message)
         self.logger.error(linemessage)
 
