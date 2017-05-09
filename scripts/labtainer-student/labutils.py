@@ -813,6 +813,11 @@ def DoStop(start_config, labtainer_config, mycwd, labname, role):
         logger.DEBUG('joined %s' % t.getName())
 
     RemoveSubnets(start_config.subnets)
+    if len(ZipFileList) == 0:
+        logger.ERROR('No zip files found')
+        return None
+    base_filename = os.path.basename(ZipFileList[0])
+    baseZipFilename = base_filename.split('=')[0]
 
     if retval != False and role == 'student':
         # Combine all the zip files
