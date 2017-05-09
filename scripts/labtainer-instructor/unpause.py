@@ -77,15 +77,15 @@ def DoUnpause(start_config, mycwd, labname):
 # Arguments:
 #    <labname> - the lab to start
 def main():
-    labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", logging.INFO, "labtainerlog")
-    labutils.logger.DEBUG("main")
     num_args = len(sys.argv)
     if num_args < 2:
-        labutils.logger.ERROR("Usage: unpause.py <labname>\n")
+        sys.stderr.write("Usage: unpause.py <labname>\n")
         sys.exit(1)
 
-    labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
     labname = sys.argv[1]
+    labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname)
+    labutils.logger.INFO("Begin logging unpause.py for %s lab" % labname)
+    labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
     labutils.logger.DEBUG("current working directory for %s" % mycwd)

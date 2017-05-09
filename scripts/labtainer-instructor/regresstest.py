@@ -26,25 +26,24 @@ import logging
 import LabtainerLogging
 
 def usage():
-    labutils.logger.ERROR("Usage: regresstest.py [<labname>]\n")
+    sys.stderr.write("Usage: regresstest.py <labname>\n")
     sys.exit(1)
 
 # Usage: regresstest.py
 # Arguments: None
 def main():
-    labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", logging.INFO, "labtainerlog")
     labnamelist = []
     num_args = len(sys.argv)
     if num_args == 1:
-        labutils.logger.DEBUG("LABS_ROOT is %s" % labutils.LABS_ROOT)
         labnamelist = os.listdir(labutils.LABS_ROOT)
     elif num_args == 2:
         labnamelist.append(sys.argv[1])
     else:
         usage()
 
-    labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
     for labname in labnamelist:
+        labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname)
+        labutils.logger.INFO("Begin logging regresstest.py for %s lab" % labname)
         labutils.logger.DEBUG("Current name is (%s)" % labname)
         fulllabname = os.path.join(labutils.LABS_ROOT, labname)
         if labname == "etc" or labname == "bin":

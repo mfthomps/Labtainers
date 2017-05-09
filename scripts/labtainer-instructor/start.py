@@ -38,14 +38,14 @@ import LabtainerLogging
 # Arguments:
 #    <labname> - the lab to start
 def main():
-    labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", logging.INFO, "labtainerlog")
-
     if len(sys.argv) != 2:
-        labutils.logger.ERROR("Usage: start.py <labname>\n")
+        sys.stderr.write("Usage: start.py <labname>\n")
         sys.exit(1)
     
-    labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
     labname = sys.argv[1]
+    labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname)
+    labutils.logger.INFO("Begin logging start.py for %s lab" % labname)
+    labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
     labutils.StartLab(labname, "instructor", False)
 
     return 0

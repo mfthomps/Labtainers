@@ -36,14 +36,15 @@ import LabtainerLogging
 # Arguments:
 #    <labname> - the lab to stop
 def main():
-    labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", logging.INFO, "labtainerlog")
-    labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
-
     if len(sys.argv) != 2:
         labutils.logger.ERROR("Usage: stop.py <labname>\n")
+        sys.stderr.write("Usage: stop.py <labname>\n")
         sys.exit(1)
     
     labname = sys.argv[1]
+    labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname)
+    labutils.logger.INFO("Begin logging stop.py for %s lab" % labname)
+    labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
     labutils.StopLab(labname, "instructor")
 
     return 0

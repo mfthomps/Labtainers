@@ -58,15 +58,12 @@ def DoMoreterm(start_config, mycwd, labname, container, num_terminal):
     return 0
 
 def usage():
-    labutils.logger.ERROR("Usage: moreterm.py <labname> [<container>] [<requested_term>]\n")
+    sys.stderr.write("Usage: moreterm.py <labname> [<container>] [<requested_term>]\n")
     exit(1)
 
 # Usage: (see usage)
 def main():
-    labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", logging.INFO, "labtainerlog")
-    labutils.logger.DEBUG("main")
     num_args = len(sys.argv)
-    labutils.logger.DEBUG('numargs %d' % num_args)
     container = None
     requested_term = 1
     if num_args < 2:
@@ -87,6 +84,9 @@ def main():
         usage()
 
     labname = sys.argv[1]
+    labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname)
+    labutils.logger.INFO("Begin logging moreterm.py for %s lab" % labname)
+    labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
     labutils.logger.DEBUG("current working directory for %s" % mycwd)
