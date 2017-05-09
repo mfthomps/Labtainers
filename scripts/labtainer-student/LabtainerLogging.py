@@ -20,9 +20,22 @@ class LabtainerLogging():
         #print "filename is (%s)" % logfilename
         #print "loglevel is (%d)" % loglevel
         #print "logname is (%s)" % logname
+
         self.logger = logging.getLogger(logname)
-        LOGFORMAT = '[%(asctime)s %(message)s'
-        logging.basicConfig(filename=logfilename, level=loglevel, format=LOGFORMAT)
+        self.logger.setLevel(loglevel)
+        formatter = logging.Formatter('[%(asctime)s - %(levelname)s : %(message)s')
+
+        file_handler = logging.FileHandler(logfilename)
+        file_handler.setLevel(loglevel)
+        file_handler.setFormatter(formatter)
+
+        # Add console handler and set level to logging.WARNING
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.WARNING)
+        console_handler.setFormatter(formatter)
+
+        self.logger.addHandler(file_handler)
+        self.logger.addHandler(console_handler)
 
     def DEBUG(self, message):
         func = inspect.currentframe().f_back
@@ -32,7 +45,7 @@ class LabtainerLogging():
         filename = os.path.basename(func.f_code.co_filename)
         lineno = func.f_lineno
         funcname = func.f_code.co_name
-        linemessage = 'DEBUG: %s:%s - %s() ] %s' % (filename, lineno, funcname[:15], message)
+        linemessage = '%s:%s - %s() ] %s' % (filename, lineno, funcname[:15], message)
         self.logger.debug(linemessage)
 
     def INFO(self, message):
@@ -43,7 +56,7 @@ class LabtainerLogging():
         filename = os.path.basename(func.f_code.co_filename)
         lineno = func.f_lineno
         funcname = func.f_code.co_name
-        linemessage = 'INFO: %s:%s - %s() ] %s' % (filename, lineno, funcname[:15], message)
+        linemessage = '%s:%s - %s() ] %s' % (filename, lineno, funcname[:15], message)
         self.logger.info(linemessage)
 
     def WARNING(self, message):
@@ -54,7 +67,7 @@ class LabtainerLogging():
         filename = os.path.basename(func.f_code.co_filename)
         lineno = func.f_lineno
         funcname = func.f_code.co_name
-        linemessage = 'WARNING: %s:%s - %s() ] %s' % (filename, lineno, funcname[:15], message)
+        linemessage = '%s:%s - %s() ] %s' % (filename, lineno, funcname[:15], message)
         self.logger.warning(linemessage)
 
     def ERROR(self, message):
@@ -65,6 +78,6 @@ class LabtainerLogging():
         filename = os.path.basename(func.f_code.co_filename)
         lineno = func.f_lineno
         funcname = func.f_code.co_name
-        linemessage = 'ERROR: %s:%s - %s() ] %s' % (filename, lineno, funcname[:15], message)
+        linemessage = '%s:%s - %s() ] %s' % (filename, lineno, funcname[:15], message)
         self.logger.error(linemessage)
 
