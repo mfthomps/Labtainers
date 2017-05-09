@@ -211,6 +211,16 @@ def GetLabInstanceSeed(studentdir):
         exit(1)
     return student_lab_instance_seed
 
+def GetContainerUser(studentdir):
+    container_userfile = os.path.join(studentdir, ".local",".container_user")
+    container_user = None
+    with open(container_userfile) as fh:
+        container_user = fh.read().strip()
+    if container_user is None:
+        print('could not get container username from %s' % container_userfile)
+        exit(1)
+    return container_user
+
 def ParseGoals(studentdir):
     nametags = []
     configfilename = '%s/.local/instr_config/%s' % (UBUNTUHOME, "goals.config")
@@ -218,11 +228,11 @@ def ParseGoals(studentdir):
     configfilelines = configfile.readlines()
     configfile.close()
     lab_instance_seed = GetLabInstanceSeed(studentdir)
+    container_user = GetContainerUser(studentdir)
     param_filename = os.path.join(UBUNTUHOME, '.local', 'config',
           'parameter.config')
     parameter_list = {}
-    parameter_list = ParameterParser.ParseParameterConfig(lab_instance_seed,
-       param_filename)
+    parameter_list = ParameterParser.ParseParameterConfig(container_user, lab_instance_seed, param_filename)
 
     for line in configfilelines:
         linestrip = line.rstrip()
