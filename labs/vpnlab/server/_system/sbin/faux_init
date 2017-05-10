@@ -5,3 +5,4 @@
 #
 /usr/sbin/rsyslogd -n &
 service rc.local start
+/home/ubuntu/MyHTTPServer.sh 
