@@ -15,8 +15,11 @@ END
 # 
 # Description: run instructor.py to auto grading and display <labname>.grades.txt
 
+grade_container="$HOME"/.local/.is_grade_container
 LOCKDIR=/tmp/.mylockdir
 if mkdir "$LOCKDIR" >/dev/null 2>&1; then
-    instructor.py
-    cat "$HOME"/*.grades.txt | less
+    if -f $grade_container; then
+        instructor.py
+        cat "$HOME"/*.grades.txt | less
+    fi
 fi

@@ -62,7 +62,7 @@ def ParameterizeMyContainer(mycontainer_name, container_user, lab_instance_seed,
     child = subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     error_string = child.stderr.read().strip()
     if len(error_string) > 0:
-        logger.ERROR('ParameterizeMyContainer %s' % output[1])
+        logger.ERROR('ParameterizeMyContainer %s' % error_string)
         logger.ERROR('command was %s' % command)
         retval = False
     return retval
@@ -71,6 +71,7 @@ def ParameterizeMyContainer(mycontainer_name, container_user, lab_instance_seed,
 def StartMyContainer(mycontainer_name):
     retval = True
     command = "docker start %s" % mycontainer_name
+    logger.DEBUG("Command to execute is (%s)" % command)
     ps = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[1]) > 0:
@@ -218,6 +219,15 @@ def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_
     logger.DEBUG("Result of subprocess.call CopyStudentArtifacts set labname is %s" % result)
     if result == FAILURE:
         logger.ERROR("Failed to set labname in container %s!\n" % mycontainer_name)
+        sys.exit(1)
+
+    # Create is_grade_container
+    command = 'docker exec -it %s script -q -c "echo TRUE > /home/%s/.local/.is_grade_container" /dev/null' % (mycontainer_name, labname, container_user)
+    logger.DEBUG("Command to execute is (%s)" % command)
+    result = subprocess.call(command, shell=True)
+    logger.DEBUG("Result of subprocess.call CopyStudentArtifacts create is_grade_container is %s" % result)
+    if result == FAILURE:
+        logger.ERROR("Failed to create is_grade_container in container %s!\n" % mycontainer_name)
         sys.exit(1)
 
     username = getpass.getuser()
