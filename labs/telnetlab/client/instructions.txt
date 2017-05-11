@@ -51,6 +51,13 @@ On the client, start a telnet session, but when prompted for the password,
 type "mydoghasfleas".  Observe that string in the tcpdump
 of traffic.
 
+3.4 Use ssh to protect communications with the server
+Use the telnet command to access the server using its IP address:
+    telnet <ip>
+View the file content by doing a 'cat filetoview.txt'.
+
+Observe the tcpdump output, and note there is no readable plain text.
+
 4. Stop the Labtainer
 
 When the lab is completed, or you'd like to stop working for a while, run
