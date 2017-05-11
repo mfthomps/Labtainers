@@ -11,6 +11,7 @@
 This manual is intended for use by students performing labs with Labtainers.
 Labtainers assume you have a Linux system, e.g., a virtual machine.  Refer to
 in Appendix~\ref{sec:appendixA} for installation of Virtual Box and a Linux system.
+Note though, that any Linux system can be used as long as it supports Dockers.
 
 \subsection{Obtaining Labtainers and installing Docker}
 The Labtainers environment is distributed as a tarball from:
@@ -33,7 +34,7 @@ If you already have Dockers installed, or installed Docker for a different distr
 make sure you also have python, and
 the python \textit{netaddr} module installed.
 
-\subsection{Performing a Lab}
+\section{Performing a Lab}
 All labs are run from the same workspace directory:
 \begin{verbatim}
     cd labtainers/trunk/scripts/labtainers-student
@@ -43,7 +44,7 @@ All labs are run from the same workspace directory:
     ./start.py <labname>
 \end{verbatim}
 
-The first time any given lab is run, it may take a while to build the Docker images 
+The first time any given lab is run, it may take a short while to build the Docker images 
 required for the lab.  Subsequent runs will start much faster.
 
 Follow the instructions that appear in one of the resulting virtual terminals.
@@ -52,6 +53,27 @@ While running the lab, if you require more virtual terminals, use:
     ./moreterm.py <labname>
 \end{verbatim}
 
+The virtual terminals for most labs present bash shells via which you can interact
+with the attached computer, (which is actually a Docker container).  A single computer
+may have multiple virtual terminals attached to it.  Each computer is independent, and 
+may use networks to interact with other computers within the lab.  
+
+\subsection{Limitations}
+The "computers" are individual Docker containers that are interconnected via virtual
+networks.  These containers each share the Linux kernel of your host.  Thus, a change
+to the kernel configuration on one computer, (e.g., enabling ASLR), will be visible on
+other containers, as well as your host.
+
+The computers each include a ".local" directory beneath the HOME directory.  This is used
+by the Labtainer framework and includes results that get packaged up for forwarding to the
+instructor.  Do not modify any files beneath the .local directory.  Otherwise, you can treat
+those containers as Linux systems, and explore them.
+
+Please note that while running programs in the virtual computers, passwords provided to
+applications such as "ssh" are not supressed.  This is a side effect of the Labtainers
+support for automated assessment.
+
+\subsection{Stopping Labtainers}
 When you are finished, or wish to stop working, type:
 \begin{verbatim}
     ./stop.py <labname>
