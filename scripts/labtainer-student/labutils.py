@@ -222,7 +222,7 @@ def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_
         sys.exit(1)
 
     # Create is_grade_container
-    command = 'docker exec -it %s script -q -c "echo TRUE > /home/%s/.local/.is_grade_container" /dev/null' % (mycontainer_name, labname, container_user)
+    command = 'docker exec -it %s script -q -c "echo TRUE > /home/%s/.local/.is_grade_container" /dev/null' % (mycontainer_name, container_user)
     logger.DEBUG("Command to execute is (%s)" % command)
     result = subprocess.call(command, shell=True)
     logger.DEBUG("Result of subprocess.call CopyStudentArtifacts create is_grade_container is %s" % result)
