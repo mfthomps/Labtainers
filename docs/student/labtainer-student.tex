@@ -58,6 +58,20 @@ with the attached computer, (which is actually a Docker container).  A single co
 may have multiple virtual terminals attached to it.  Each computer is independent, and 
 may use networks to interact with other computers within the lab.  
 
+\subsection{Networking}
+In addition to networks properties defined for the lab,
+each component \texttt{/etc/host} file includes a "my\_host entry" that names
+the host Linux.  Most containers will include a default gateway that
+leads to the Linux host.  This allows students to scp files to/from the container and host.
+It also allows the student to reach external networks, e.g., to fetch additional packages in
+support of student exploration.
+
+In some instances, the lab requires one or more components to a have different default route.
+Typically, these components will include a \textit{togglegw.sh} script that the student
+can use to toggle the default gateway between one that leads to the host, and one defined for the lab.
+This allows students to add packages on components having lab-specific default gateways.
+Use of the \textit{togglegw.sh} script is not necessary to reach the Linux host, (e.g., to scp files).
+
 \subsection{Limitations}
 The "computers" are individual Docker containers that are interconnected via virtual
 networks.  These containers each share the Linux kernel of your host.  Thus, a change

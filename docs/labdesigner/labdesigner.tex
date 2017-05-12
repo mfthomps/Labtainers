@@ -270,6 +270,7 @@ and changing the name of the initial Dockerfile if its container name changes.
 You must also describe your containers within the \textit{start.config} file as described below.
 
 \subsection{Container definitions in start.config}
+\label{start.config}
 Most single container labs can use the automatically generated start.config file file
 without modification.  Labs consisting of multiple containers must modify the start.config 
 file.  The following describes the major sections of that configuration file.
@@ -650,6 +651,25 @@ with the framework.
 \end{verbatim}
          Note that values derived from the parameters.config file are assigned the same values as
          were assigned when the lab was parameterized for the student.
+
+\section{Networking}
+Most networking is simply a matter of defining networks and assigning them to containers
+as described in \ref{start.config}.  
+
+In addition to networks properties defined in the
+start.config file, each container \texttt{/etc/host} file includes a "my\_host entry" that names
+the host Linux.  By Docker default, each container includes a default gateway that
+leads to the Linux host.  This allows students to scp files to/from the container and host.
+It also allows the student to reach external networks, e.g., to fetch additional packages in
+support of student exploration.
+
+In some instances, the lab designer will want to define a different default route for a 
+container.  Each container derived from the Labtainer network base includes a \textit{set\_default\_gw.sh}
+script that can be added to the \textit{/etc/rc.local} file to redefine the default gateway.
+This script will automatically retain a route table entry so that the student can reach the "my\_host"
+address.  Additionally, those baseline images include a \textit{togglegw.sh} script that the student
+can use to toggle the default gateway between one that leads to the host, and one defined for the lab.
+This allows students to add packages on components having lab-specific default gateways.
 
 \section{Limitations}
 The labtainers framework limits labs to the Linux execution environment.
