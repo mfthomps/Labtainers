@@ -16,8 +16,10 @@ END
 # 
 # Description: Toggle the default gateway
 
-container_gw="$HOME"/.local/.container_gateway
-host_gw="$HOME"/.local/.host_gateway
+#container_gw="$HOME"/.local/.container_gateway
+#host_gw="$HOME"/.local/.host_gateway
+container_gw=/var/run/labtainers/container_gw
+host_gw=/var/run/labtainers/host_gw
 
 if [ "$#" -ne 1 ]; then
     echo "USAGE: togglegw.sh container | host"
