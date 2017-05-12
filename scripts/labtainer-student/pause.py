@@ -87,7 +87,7 @@ def main():
     config_path       = os.path.join(lab_path,"config")
     start_config_path = os.path.join(config_path,"start.config")
 
-    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, "student")
+    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, "student", labutils.logger)
 
     DoPause(start_config, mycwd, labname)
 
