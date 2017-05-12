@@ -57,3 +57,5 @@ Change automated test environment to eliminate need to rebuild containers, build
 Tools for visualizing the network topology, automaticly based on start.conf file?
 
 Tools/api for student to change network topology?
+
+error checks for top level scripts to ensure lab exists (friendlier error message than just log entry).
