@@ -414,7 +414,7 @@ def CopyChownGradesFile(mycwd, start_config, labtainer_config, container_name, c
         logger.ERROR("Container %s fail on executing chown %s.grades.json file!\n" % (container_name, labname))
         sys.exit(1)
 
-def StartLab(labname, role, is_regress_test):
+def StartLab(labname, role, is_regress_test=False):
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
     logger.DEBUG("current working directory for %s" % mycwd)
@@ -535,7 +535,7 @@ def dumb():
     pass
     '''
     '''
-def RedoLab(labname, role, is_regress_test):
+def RedoLab(labname, role, is_regress_test=False, force_build=False):
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
     logger.DEBUG("current working directory for %s" % mycwd)
@@ -556,7 +556,7 @@ def RedoLab(labname, role, is_regress_test):
         cmd = 'docker rm %s' % mycontainer_name
         os.system(cmd)
         logger.DEBUG('did %s' % cmd)
-        if CheckBuild(labname, mycontainer_image_name, mycontainer_name, name, role):
+        if force_build or CheckBuild(labname, mycontainer_image_name, mycontainer_name, name, role):
             if os.path.isfile(fixresolve) and not didfix:
                 ''' DNS name resolution from containers (while being built) fails when behind NAT? '''
                 os.system(fixresolve)

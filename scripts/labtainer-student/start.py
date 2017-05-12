@@ -32,7 +32,7 @@ def main():
     labname = sys.argv[1]
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname)
     labutils.logger.INFO("Begin logging start.py for %s lab" % labname)
-    labutils.StartLab(labname, "student", False)
+    labutils.StartLab(labname, "student")
 
     return 0
 
