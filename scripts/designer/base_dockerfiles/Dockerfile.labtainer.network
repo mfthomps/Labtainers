@@ -11,3 +11,5 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     xinetd
 
 RUN sudo mv /usr/sbin/tcpdump /usr/bin/tcpdump
+ADD system/bin/togglegw.sh /usr/bin/
+ADD system/bin/set_default_gw.sh /usr/bin/
