@@ -47,7 +47,7 @@ def DoMoreterm(start_config, mycwd, labname, container, num_terminal):
         exit(1)
     for x in range(num_terminal):
         spawn_command = "gnome-terminal -x docker exec -it %s bash -l &" % mycontainer_name
-        labutils.logger.ERROR("spawn_command is (%s)" % spawn_command)
+        labutils.logger.DEBUG("spawn_command is (%s)" % spawn_command)
         os.system(spawn_command)
 
     return 0
