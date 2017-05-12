@@ -37,7 +37,6 @@ import LabtainerLogging
 #    <labname> - the lab to stop
 def main():
     if len(sys.argv) != 2:
-        labutils.logger.ERROR("Usage: stop.py <labname>\n")
         sys.stderr.write("Usage: stop.py <labname>\n")
         sys.exit(1)
     

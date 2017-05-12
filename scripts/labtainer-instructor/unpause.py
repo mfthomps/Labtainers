@@ -43,18 +43,6 @@ LABS_ROOT = os.path.abspath("../../labs/")
 SUCCESS=0
 FAILURE=1
 
-def isalphadashscore(name):
-    # check name - alphanumeric,dash,underscore
-    return re.match(r'^[a-zA-Z0-9_-]*$', name)
-
-# Check to see if my_container_name container has been created or not
-def IsContainerCreated(mycontainer_name):
-    command = "docker inspect -f {{.Created}} %s 2> /dev/null" % mycontainer_name
-    labutils.logger.DEBUG("Command to execute is (%s)" % command)
-    result = subprocess.call(command, shell=True)
-    labutils.logger.DEBUG("Result of subprocess.call IsContainerCreated is %s" % result)
-    return result
-
 def DoUnpause(start_config, mycwd, labname):
     host_home_xfer = start_config.host_home_xfer
     lab_master_seed = start_config.lab_master_seed
