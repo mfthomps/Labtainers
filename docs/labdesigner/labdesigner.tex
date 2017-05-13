@@ -267,7 +267,14 @@ wishes the instructor to have unique software packages.) The system automaticall
 when a new lab is created.  You are responsible for creating (copying to) additional Dockerfiles for other containers,
 and changing the name of the initial Dockerfile if its container name changes.
 
-You must also describe your containers within the \textit{start.config} file as described below.
+The first line of each Dockerfile identifies the base image to be pulled from the Docker Hub.
+The initial default image is a basic Ubuntu system with a minimal set of packages.  To use an
+alternate image having additional networking packges (e.g., tcpdump, xinetd, sshd), change the first line to:
+\begin{verbatim}
+FROM mfthomps/labtainer.network
+\end{verbatim}
+
+Next, you must also describe your containers within the \textit{start.config} file as described below.
 
 \subsection{Container definitions in start.config}
 \label{start.config}
