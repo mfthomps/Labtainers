@@ -365,7 +365,7 @@ def CreateHostHomeXfer(host_xfer_dir):
         os.makedirs(host_xfer_dir)
 
 # CopyChownGradesFile
-def CopyChownGradesFile(mycwd, start_config, labtainer_config, container_name, container_image, container_user):
+def CopyChownGradesFile(mycwd, start_config, labtainer_config, container_name, container_image, container_user, ignore_stop_error):
     host_home_xfer = labtainer_config.host_home_xfer
     lab_master_seed = start_config.lab_master_seed
     labname = start_config.labname
@@ -379,8 +379,11 @@ def CopyChownGradesFile(mycwd, start_config, labtainer_config, container_name, c
     result = subprocess.call(command, shell=True)
     logger.DEBUG("Result of subprocess.Popen exec cp %s.grades.txt file is %s" % (labname, result))
     if result == FAILURE:
-        StopMyContainer(mycwd, start_config, container_name)
-        logger.WARNING("Container %s fail on executing cp %s.grades.txt file!\n" % (container_name, labname))
+        StopMyContainer(mycwd, start_config, container_name, ignore_stop_error)
+        if ignore_stop_error:
+            logger.DEBUG("Container %s fail on executing cp %s.grades.txt file!\n" % (container_name, labname))
+        else:
+            logger.WARNING("Container %s fail on executing cp %s.grades.txt file!\n" % (container_name, labname))
         return
 
     # Change <labname>.grades.txt ownership to defined user $USER
@@ -389,8 +392,11 @@ def CopyChownGradesFile(mycwd, start_config, labtainer_config, container_name, c
     result = subprocess.call(command, shell=True)
     logger.DEBUG("Result of subprocess.Popen exec chown %s.grades.txt file is %s" % (labname, result))
     if result == FAILURE:
-        StopMyContainer(mycwd, start_config, container_name)
-        logger.ERROR("Container %s fail on executing chown %s.grades.txt file!\n" % (container_name, labname))
+        StopMyContainer(mycwd, start_config, container_name, ignore_stop_error)
+        if ignore_stop_error:
+            logger.DEBUG("Container %s fail on executing chown %s.grades.txt file!\n" % (container_name, labname))
+        else:
+            logger.ERROR("Container %s fail on executing chown %s.grades.txt file!\n" % (container_name, labname))
         sys.exit(1)
 
     # Copy <labname>.grades.json file
@@ -400,8 +406,11 @@ def CopyChownGradesFile(mycwd, start_config, labtainer_config, container_name, c
     result = subprocess.call(command, shell=True)
     logger.DEBUG("Result of subprocess.Popen exec cp %s.grades.json file is %s" % (labname, result))
     if result == FAILURE:
-        StopMyContainer(mycwd, start_config, container_name)
-        logger.WARNING("Container %s fail on executing cp %s.grades.json file!\n" % (container_name, labname))
+        StopMyContainer(mycwd, start_config, container_name, ignore_stop_error)
+        if ignore_stop_error:
+            logger.DEBUG("Container %s fail on executing cp %s.grades.json file!\n" % (container_name, labname))
+        else:
+            logger.WARNING("Container %s fail on executing cp %s.grades.json file!\n" % (container_name, labname))
         return
 
     # Change <labname>.grades.json ownership to defined user $USER
@@ -410,8 +419,11 @@ def CopyChownGradesFile(mycwd, start_config, labtainer_config, container_name, c
     result = subprocess.call(command, shell=True)
     logger.DEBUG("Result of subprocess.Popen exec chown %s.grades.json file is %s" % (labname, result))
     if result == FAILURE:
-        StopMyContainer(mycwd, start_config, container_name)
-        logger.ERROR("Container %s fail on executing chown %s.grades.json file!\n" % (container_name, labname))
+        StopMyContainer(mycwd, start_config, container_name, ignore_stop_error)
+        if ignore_stop_error:
+            logger.DEBUG("Container %s fail on executing chown %s.grades.json file!\n" % (container_name, labname))
+        else:
+            logger.ERROR("Container %s fail on executing chown %s.grades.json file!\n" % (container_name, labname))
         sys.exit(1)
 
 def StartLab(labname, role, is_regress_test=False):
@@ -545,7 +557,9 @@ def RedoLab(labname, role, is_regress_test=False, force_build=False):
     config_path       = os.path.join(lab_path,"config") 
     start_config_path = os.path.join(config_path,"start.config")
     start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, logger)
-    StopLab(labname, role)
+    # Pass 'True' to ignore_stop_error (i.e., ignore certain error encountered during StopLab
+    #                                         since it might not even be an error)
+    StopLab(labname, role, True)
     build_student = './buildImage.sh'
     build_instructor = './buildInstructorImage.sh'
     fixresolve='../../setup_scripts/fixresolv.sh'
@@ -574,7 +588,7 @@ def RedoLab(labname, role, is_regress_test=False, force_build=False):
                 exit(1)
     StartLab(labname, role, is_regress_test)
 
-def GatherOtherArtifacts(labname, name, container_name, container_user):
+def GatherOtherArtifacts(labname, name, container_name, container_user, ignore_stop_error):
     '''
     Parse the results.config file looking for files named by absolute paths,
     and copy those into the .local/result directory, maintaining the original
@@ -614,15 +628,23 @@ def GatherOtherArtifacts(labname, name, container_name, container_user):
                     child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                     error = child.stderr.read().strip()
                     if len(error) > 0:
-                        logger.ERROR('ERROR: %s' % error)
-                        logger.ERROR('command was %s' % command)
+                        if ignore_stop_error:
+                            logger.DEBUG('ERROR: %s' % error)
+                            logger.DEBUG('command was %s' % command)
+                        else:
+                            logger.ERROR('ERROR: %s' % error)
+                            logger.ERROR('command was %s' % command)
                     did_file.append(fname)
                     command='docker exec -it %s sudo chmod a+r -R /home/%s/.local/result' % (container_name, container_user)
                     child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                     error = child.stderr.read().strip()
                     if len(error) > 0:
-                        logger.ERROR('chmod ERROR: %s' % error)
-                        logger.ERROR('command was %s' % command)
+                        if ignore_stop_error:
+                            logger.DEBUG('chmod ERROR: %s' % error)
+                            logger.DEBUG('command was %s' % command)
+                        else:
+                            logger.ERROR('chmod ERROR: %s' % error)
+                            logger.ERROR('command was %s' % command)
                         
 
 # RunInstructorCreateGradeFile
@@ -663,13 +685,14 @@ def RegressTest(labname, role):
 
     RedoLab(labname, role, True)
     RunInstructorCreateGradeFile(start_config.grade_container)
-    StopLab(labname, role)
+    # Pass 'False' to ignore_stop_error (i.e., do not ignore error)
+    StopLab(labname, role, False)
 
     CompareResult = filecmp.cmp(GradesGold, Grades)
     return CompareResult
 
 
-def CreateCopyChownZip(mycwd, start_config, labtainer_config, container_name, container_image, container_user):
+def CreateCopyChownZip(mycwd, start_config, labtainer_config, container_name, container_image, container_user, ignore_stop_error):
     '''
     Zip up the student home directory and copy it to the Linux host home directory
     '''
@@ -685,7 +708,10 @@ def CreateCopyChownZip(mycwd, start_config, labtainer_config, container_name, co
     child = subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     error_string = child.stderr.read().strip()
     if len(error_string) > 0:
-        logger.ERROR("Container %s fail on executing Student.py \n" % (container_name))
+        if ignore_stop_error:
+            logger.DEBUG("Container %s fail on executing Student.py \n" % (container_name))
+        else:
+            logger.ERROR("Container %s fail on executing Student.py \n" % (container_name))
         return None, None
     
     #out_string = output[0].strip()
@@ -705,16 +731,23 @@ def CreateCopyChownZip(mycwd, start_config, labtainer_config, container_name, co
     child = subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     error_string = child.stderr.read().strip()
     if len(error_string) > 0:
-        logger.ERROR("Container %s fail on executing cp zip file!\n" % container_name)
-        logger.ERROR("Command was (%s)" % command)
-        StopMyContainer(mycwd, start_config, container_name)
+        if ignore_stop_error:
+            logger.DEBUG("Container %s fail on executing cp zip file!\n" % container_name)
+            logger.DEBUG("Command was (%s)" % command)
+        else:
+            logger.ERROR("Container %s fail on executing cp zip file!\n" % container_name)
+            logger.ERROR("Command was (%s)" % command)
+        StopMyContainer(mycwd, start_config, container_name, ignore_stop_error)
         return None, None
     
     local_tmp_zip = os.path.join(tmp_dir, 'zip')
     try:
         orig_zipfilenameext = os.listdir(local_tmp_zip)[0]
     except:
-        logger.ERROR('no files at %s\n' % local_tmp_zip)
+        if ignore_stop_error:
+            logger.DEBUG('no files at %s\n' % local_tmp_zip)
+        else:
+            logger.ERROR('no files at %s\n' % local_tmp_zip)
         return None, None
     orig_zipfilename, orig_zipext = os.path.splitext(orig_zipfilenameext)
     baseZipFilename = os.path.basename(orig_zipfilename)
@@ -729,22 +762,29 @@ def CreateCopyChownZip(mycwd, start_config, labtainer_config, container_name, co
     child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     error_string = child.stderr.read().strip()
     if len(error_string) > 0:
-        logger.ERROR("chown failed Command was (%s)" % command)
-        StopMyContainer(mycwd, start_config, container_name)
-        logger.ERROR("Container %s fail on executing chown zip file!\n" % container_name)
+        if ignore_stop_error:
+            logger.DEBUG("chown failed Command was (%s)" % command)
+            logger.DEBUG("Container %s fail on executing chown zip file!\n" % container_name)
+        else:
+            logger.ERROR("chown failed Command was (%s)" % command)
+            logger.ERROR("Container %s fail on executing chown zip file!\n" % container_name)
+        StopMyContainer(mycwd, start_config, container_name, ignore_stop_error)
         return None, None
 
     currentContainerZipFilename = "/home/%s/%s/%s" % (username, host_home_xfer, DestZipFilename)
     return baseZipFilename, currentContainerZipFilename
    
 # Stop my_container_name container
-def StopMyContainer(mycwd, start_config, container_name):
+def StopMyContainer(mycwd, start_config, container_name, ignore_stop_error):
     command = "docker stop %s" % container_name
     logger.DEBUG("Command to execute is (%s)" % command)
     ps = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[1].strip()) > 0:
-        logger.ERROR('stderr %s' % output[1])
+        if ignore_stop_error:
+            logger.DEBUG('stderr %s' % output[1])
+        else:
+            logger.ERROR('stderr %s' % output[1])
     #if len(output[0].strip()) > 0:
     #    logger.DEBUG('StopMyContainer stdout %s' % output[0])
     #result = subprocess.call(command, shell=True)
@@ -759,7 +799,7 @@ def IsContainerRunning(mycontainer_name):
     else:
         return False 
 
-def DoStopOne(start_config, labtainer_config, mycwd, labname, role, name, container, ZipFileList):
+def DoStopOne(start_config, labtainer_config, mycwd, labname, role, name, container, ZipFileList, ignore_stop_error):
         #dumlog = os.path.join('/tmp', name+'.log')
         #sys.stdout = open(dumlog, 'w')
         #sys.stderr = sys.stdout
@@ -772,21 +812,27 @@ def DoStopOne(start_config, labtainer_config, mycwd, labname, role, name, contai
         # IsContainerCreated returned FAILURE if container does not exists
         # error: can't stop non-existent container
         if not haveContainer:
-            logger.ERROR("Container %s does not exist!\n" % mycontainer_name)
+            if ignore_stop_error:
+                logger.DEBUG("Container %s does not exist!\n" % mycontainer_name)
+            else:
+                logger.ERROR("Container %s does not exist!\n" % mycontainer_name)
             retval = False
         elif not IsContainerRunning(mycontainer_name):
-            logger.ERROR("container %s not running\n" % (mycontainer_name))
+            if ignore_stop_error:
+                logger.DEBUG("container %s not running\n" % (mycontainer_name))
+            else:
+                logger.ERROR("container %s not running\n" % (mycontainer_name))
             retval = False
         else:
             if role == 'instructor':
                 if mycontainer_name == start_config.grade_container:
-                    CopyChownGradesFile(mycwd, start_config, labtainer_config, mycontainer_name, mycontainer_image, container_user)
+                    CopyChownGradesFile(mycwd, start_config, labtainer_config, mycontainer_name, mycontainer_image, container_user, ignore_stop_error)
             else:
-                GatherOtherArtifacts(labname, name, mycontainer_name, container_user)
+                GatherOtherArtifacts(labname, name, mycontainer_name, container_user, ignore_stop_error)
                 # Before stopping a container, run 'Student.py'
                 # This will create zip file of the result
     
-                baseZipFilename, currentContainerZipFilename = CreateCopyChownZip(mycwd, start_config, labtainer_config, mycontainer_name, mycontainer_image, container_user)
+                baseZipFilename, currentContainerZipFilename = CreateCopyChownZip(mycwd, start_config, labtainer_config, mycontainer_name, mycontainer_image, container_user, ignore_stop_error)
                 if baseZipFilename is not None:
                     ZipFileList.append(currentContainerZipFilename)
                 logger.DEBUG("baseZipFilename is (%s)" % baseZipFilename)
@@ -796,9 +842,9 @@ def DoStopOne(start_config, labtainer_config, mycwd, labname, role, name, contai
                 disconnectNetworkResult = DisconnectNetworkFromContainer(mycontainer_name, mysubnet_name)
 
             # Stop the container
-            StopMyContainer(mycwd, start_config, mycontainer_name)
+            StopMyContainer(mycwd, start_config, mycontainer_name, ignore_stop_error)
 
-def DoStop(start_config, labtainer_config, mycwd, labname, role):
+def DoStop(start_config, labtainer_config, mycwd, labname, role, ignore_stop_error):
     retval = True
     host_home_xfer  = labtainer_config.host_home_xfer
     lab_master_seed = start_config.lab_master_seed
@@ -812,7 +858,7 @@ def DoStop(start_config, labtainer_config, mycwd, labname, role):
     for name, container in start_config.containers.items():
         #DoStopOne(start_config, labtainer_config, mycwd, labname, role, name, container, ZipFileList)
         t = threading.Thread(target=DoStopOne, args=(start_config, labtainer_config, mycwd, labname, 
-              role, name, container, ZipFileList))
+              role, name, container, ZipFileList, ignore_stop_error))
         threads.append(t)
         t.setName(name)
         t.start()
@@ -825,7 +871,10 @@ def DoStop(start_config, labtainer_config, mycwd, labname, role):
     RemoveSubnets(start_config.subnets)
     if retval != False and role == 'student':
         if len(ZipFileList) == 0:
-            logger.ERROR('No zip files found')
+            if ignore_stop_error:
+                logger.DEBUG('No zip files found')
+            else:
+                logger.ERROR('No zip files found')
             return None
         base_filename = os.path.basename(ZipFileList[0])
         baseZipFilename = base_filename.split('=')[0]
@@ -850,7 +899,10 @@ def DoStop(start_config, labtainer_config, mycwd, labname, role):
     os.chdir(mycwd)
     return retval
 
-def StopLab(labname, role):
+# ignore_stop_error - set to 'False' : do not ignore error
+# ignore_stop_error - set to 'True' : ignore certain error encountered since it might not even be an error
+#                                     such as error encountered when trying to stop non-existent container
+def StopLab(labname, role, ignore_stop_error):
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
     logger.DEBUG("current working directory for %s" % mycwd)
@@ -868,6 +920,6 @@ def StopLab(labname, role):
     host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
     CreateHostHomeXfer(host_xfer_dir)
 
-    if DoStop(start_config, labtainer_config, mycwd, labname, role):
+    if DoStop(start_config, labtainer_config, mycwd, labname, role, ignore_stop_error):
         # Inform user where results are stored
         print "Results stored in directory: %s" % host_xfer_dir

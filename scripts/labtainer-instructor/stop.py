@@ -44,7 +44,8 @@ def main():
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname)
     labutils.logger.INFO("Begin logging stop.py for %s lab" % labname)
     labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
-    labutils.StopLab(labname, "instructor")
+    # Pass 'False' to ignore_stop_error (i.e., do not ignore error)
+    labutils.StopLab(labname, "instructor", False)
 
     return 0
 
