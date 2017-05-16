@@ -36,6 +36,15 @@ LABTAINER_CONFIG = os.path.abspath("../../config/labtainer.config")
 SUCCESS=0
 FAILURE=1
 
+def is_valid_lab(lab_path):
+    # Lab path must exist and must be a directory
+    if os.path.exists(lab_path) and os.path.isdir(lab_path):
+        # Assume it is valid lab then
+        logger.DEBUG("lab_path directory (%s) exists" % lab_path)
+    else:
+        logger.ERROR("Invalid lab! lab_path directory (%s) does not exist!" % lab_path)
+        sys.exit(1)
+
 def get_ip_address(ifname):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     return socket.inet_ntoa(fcntl.ioctl(
@@ -433,6 +442,7 @@ def StartLab(labname, role, is_regress_test=False):
     logger.DEBUG("current user's home directory for %s" % myhomedir)
     logger.DEBUG("ParseStartConfig for %s" % labname)
     lab_path          = os.path.join(LABS_ROOT,labname)
+    is_valid_lab(lab_path)
     config_path       = os.path.join(lab_path,"config") 
     start_config_path = os.path.join(config_path,"start.config")
    
@@ -557,6 +567,7 @@ def RedoLab(labname, role, is_regress_test=False, force_build=False):
     logger.DEBUG("current user's home directory for %s" % myhomedir)
     logger.DEBUG("ParseStartConfig for %s" % labname)
     lab_path          = os.path.join(LABS_ROOT,labname)
+    is_valid_lab(lab_path)
     config_path       = os.path.join(lab_path,"config") 
     start_config_path = os.path.join(config_path,"start.config")
     start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, logger)
@@ -675,6 +686,7 @@ def RegressTest(labname, role):
     logger.DEBUG("current user's home directory for %s" % myhomedir)
     logger.DEBUG("ParseStartConfig for %s" % labname)
     lab_path          = os.path.join(LABS_ROOT,labname)
+    is_valid_lab(lab_path)
     config_path       = os.path.join(lab_path,"config") 
     start_config_path = os.path.join(config_path,"start.config")
     start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, logger)
@@ -915,6 +927,7 @@ def StopLab(labname, role, ignore_stop_error):
     logger.DEBUG("current user's home directory for %s" % myhomedir)
     logger.DEBUG("ParseStartConfig for %s" % labname)
     lab_path          = os.path.join(LABS_ROOT,labname)
+    is_valid_lab(lab_path)
     config_path       = os.path.join(lab_path,"config") 
     start_config_path = os.path.join(config_path,"start.config")
    
