@@ -1,1 +1,2 @@
-/usr/bin/wget /usr/sbin/openvpn
+/usr/bin/wget
+/usr/sbin/openvpn
