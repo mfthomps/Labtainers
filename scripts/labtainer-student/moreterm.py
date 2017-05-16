@@ -87,6 +87,7 @@ def main():
     labutils.logger.DEBUG("current user's home directory for %s" % myhomedir)
     labutils.logger.DEBUG("ParseStartConfig for %s" % labname)
     lab_path          = os.path.join(LABS_ROOT,labname)
+    labutils.is_valid_lab(lab_path)
     config_path       = os.path.join(lab_path,"config")
     start_config_path = os.path.join(config_path,"start.config")
 
