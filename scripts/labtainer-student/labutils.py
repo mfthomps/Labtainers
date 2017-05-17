@@ -303,6 +303,7 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test):
         if not haveContainer:
             # Container does not exist, create the container
             # Use CreateSingleContainer()
+            containerCreated = False
             if len(container.container_nets) == 0:
                 containerCreated = CreateSingleContainer(mycontainer_name, mycontainer_image_name, container_hostname)
             else:
@@ -311,18 +312,18 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test):
                                                          mysubnet_name, mysubnet_ip)
                 
             logger.DEBUG("CreateSingleContainer result (%s)" % containerCreated)
+            if not containerCreated:
+                logger.ERROR("CreateSingleContaier fails to create container %s!\n" % mycontainer_name)
+                sys.exit(1)
+
             # Give the container some time -- just in case
             time.sleep(3)
             # If we just create it, then set need_seeds=True
             need_seeds=True
 
         # Check again - 
-        if containerCreated:
-            haveContainer = IsContainerCreated(mycontainer_name)
-            logger.DEBUG("IsContainerCreated result (%s)" % haveContainer)
-        else:
-            logger.ERROR("Container %s still not created!\n" % mycontainer_name)
-            sys.exit(1)
+        haveContainer = IsContainerCreated(mycontainer_name)
+        logger.DEBUG("IsContainerCreated result (%s)" % haveContainer)
 
         # IsContainerCreated returned False if container does not exists
         if not haveContainer:
@@ -834,10 +835,11 @@ def IsContainerRunning(mycontainer_name):
     else:
         return False 
 
-def DoStopOne(start_config, labtainer_config, mycwd, labname, role, name, container, ZipFileList, ignore_stop_error):
+def DoStopOne(start_config, labtainer_config, mycwd, labname, role, name, container, ZipFileList, ignore_stop_error, results):
         #dumlog = os.path.join('/tmp', name+'.log')
         #sys.stdout = open(dumlog, 'w')
         #sys.stderr = sys.stdout
+        retval = True
         mycontainer_name  = container.full_name
         container_user    = container.user
         mycontainer_image = container.image_name
@@ -879,6 +881,8 @@ def DoStopOne(start_config, labtainer_config, mycwd, labname, role, name, contai
             # Stop the container
             StopMyContainer(mycwd, start_config, mycontainer_name, ignore_stop_error)
 
+        results.append(retval)
+
 def DoStop(start_config, labtainer_config, mycwd, labname, role, ignore_stop_error):
     retval = True
     host_home_xfer  = labtainer_config.host_home_xfer
@@ -890,10 +894,11 @@ def DoStop(start_config, labtainer_config, mycwd, labname, role, ignore_stop_err
     baseZipFilename = ""
     ZipFileList = []
     threads = []
+    results = []
     for name, container in start_config.containers.items():
         #DoStopOne(start_config, labtainer_config, mycwd, labname, role, name, container, ZipFileList)
         t = threading.Thread(target=DoStopOne, args=(start_config, labtainer_config, mycwd, labname, 
-              role, name, container, ZipFileList, ignore_stop_error))
+              role, name, container, ZipFileList, ignore_stop_error, results))
         threads.append(t)
         t.setName(name)
         t.start()
@@ -903,8 +908,13 @@ def DoStop(start_config, labtainer_config, mycwd, labname, role, ignore_stop_err
         t.join()
         logger.DEBUG('joined %s' % t.getName())
 
+    if not ignore_stop_error:
+        if False in results:
+            logger.ERROR('DoStopOne has at least one failure!')
+            sys.exit(1)
+
     RemoveSubnets(start_config.subnets)
-    if retval != False and role == 'student':
+    if role == 'student':
         if len(ZipFileList) == 0:
             if ignore_stop_error:
                 logger.DEBUG('No zip files found')
