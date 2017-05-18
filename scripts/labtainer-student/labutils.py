@@ -453,7 +453,7 @@ def CopyChownGradesFile(mycwd, start_config, labtainer_config, container_name, c
             logger.ERROR("Container %s fail on executing chown %s.grades.json file!\n" % (container_name, labname))
         sys.exit(1)
 
-def StartLab(labname, role, is_regress_test=False):
+def StartLab(labname, role, is_regress_test=False, force_build=False):
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
     logger.DEBUG("current working directory for %s" % mycwd)
@@ -467,6 +467,37 @@ def StartLab(labname, role, is_regress_test=False):
     start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, logger)
     labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(LABTAINER_CONFIG, labname, logger)
     host_home_xfer = labtainer_config.host_home_xfer
+
+    build_student = './buildImage.sh'
+    build_instructor = './buildInstructorImage.sh'
+    fixresolve='../../setup_scripts/fixresolv.sh'
+    didfix = False
+    for name, container in start_config.containers.items():
+        mycontainer_name       = container.full_name
+        mycontainer_image_name = container.image_name
+        if force_build:
+            cmd = 'docker rm %s' % mycontainer_name
+            ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            output = ps.communicate()
+            logger.DEBUG("Command was (%s)" % cmd)
+            if len(output[1]) > 0:
+                logger.DEBUG("Error from command = '%s'" % str(output[1]))
+        if force_build or CheckBuild(labname, mycontainer_image_name, mycontainer_name, name, role):
+            if os.path.isfile(fixresolve) and not didfix:
+                ''' DNS name resolution from containers (while being built) fails when behind NAT? '''
+                os.system(fixresolve)
+                didfix=True
+            if os.path.isfile(build_student):
+                cmd = '%s %s %s' % (build_student, labname, name)
+            elif os.path.isfile(build_instructor):
+                cmd = '%s %s %s' % (build_instructor, labname, name)
+            else:
+                logger.ERROR("no image rebuild script\n")
+                exit(1)
+                 
+            if os.system(cmd) != 0:
+                logger.ERROR("build of image failed\n")
+                exit(1)
 
     # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
     host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
@@ -584,44 +615,10 @@ def RedoLab(labname, role, is_regress_test=False, force_build=False):
     logger.DEBUG("current working directory for %s" % mycwd)
     logger.DEBUG("current user's home directory for %s" % myhomedir)
     logger.DEBUG("ParseStartConfig for %s" % labname)
-    lab_path          = os.path.join(LABS_ROOT,labname)
-    is_valid_lab(lab_path)
-    config_path       = os.path.join(lab_path,"config") 
-    start_config_path = os.path.join(config_path,"start.config")
-    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, logger)
     # Pass 'True' to ignore_stop_error (i.e., ignore certain error encountered during StopLab
     #                                         since it might not even be an error)
     StopLab(labname, role, True)
-    build_student = './buildImage.sh'
-    build_instructor = './buildInstructorImage.sh'
-    fixresolve='../../setup_scripts/fixresolv.sh'
-    didfix = False
-    for name, container in start_config.containers.items():
-        mycontainer_name       = container.full_name
-        mycontainer_image_name = container.image_name
-        cmd = 'docker rm %s' % mycontainer_name
-        ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-        output = ps.communicate()
-        logger.DEBUG("Command was (%s)" % cmd)
-        if len(output[1]) > 0:
-            logger.DEBUG("Error from command = '%s'" % str(output[1]))
-        if force_build or CheckBuild(labname, mycontainer_image_name, mycontainer_name, name, role):
-            if os.path.isfile(fixresolve) and not didfix:
-                ''' DNS name resolution from containers (while being built) fails when behind NAT? '''
-                os.system(fixresolve)
-                didfix=True
-            if os.path.isfile(build_student):
-                cmd = '%s %s %s' % (build_student, labname, name)
-            elif os.path.isfile(build_instructor):
-                cmd = '%s %s %s' % (build_instructor, labname, name)
-            else:
-                logger.ERROR("no image rebuild script\n")
-                exit(1)
-                 
-            if os.system(cmd) != 0:
-                logger.ERROR("build of image failed\n")
-                exit(1)
-    StartLab(labname, role, is_regress_test)
+    StartLab(labname, role, is_regress_test, force_build)
 
 def GatherOtherArtifacts(labname, name, container_name, container_user, ignore_stop_error):
     '''

@@ -46,7 +46,7 @@ def main():
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname)
     labutils.logger.INFO("Begin logging start.py for %s lab" % labname)
     labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
-    labutils.StartLab(labname, "instructor", False)
+    labutils.StartLab(labname, "instructor")
 
     return 0
 

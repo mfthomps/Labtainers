@@ -25,19 +25,23 @@ import labutils
 import logging
 import LabtainerLogging
 
-# Usage: redo.py <labname>
+# Usage: redo.py <labname> [-f]
 # Arguments:
 #    <labname> - the lab to stop, delete and start
+#    [-f] will force a rebuild
 def main():
-    if len(sys.argv) != 2:
-        sys.stderr.write("Usage: redo.py <labname>\n")
+    if len(sys.argv) < 2 or len(sys.argv)>3:
+        sys.stderr.write("Usage: redo.py <labname> [-f]\n")
+        sys.stderr.write("   -f will force a rebuild.\n")
         sys.exit(1)
-    
+    force_build = False
+    if len(sys.argv) == 3 and sys.argv[2] == '-f':
+        force_build = True 
     labname = sys.argv[1]
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname)
     labutils.logger.INFO("Begin logging redo.py for %s lab" % labname)
     labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
-    labutils.RedoLab(labname, "instructor", False)
+    labutils.RedoLab(labname, "instructor", force_build=force_build)
 
     return 0
 

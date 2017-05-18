@@ -20,9 +20,10 @@ import labutils
 import logging
 import LabtainerLogging
 
-# Usage: redo.py <labname>
+# Usage: redo.py <labname> [-f]
 # Arguments:
 #    <labname> - the lab to stop, delete and start
+#    [-f] will force a rebuild
 def main():
     if len(sys.argv) < 2 or len(sys.argv)>3:
         sys.stderr.write("Usage: redo.py <labname> [-f]\n")
