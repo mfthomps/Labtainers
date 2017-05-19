@@ -969,3 +969,29 @@ def StopLab(labname, role, ignore_stop_error):
     if DoStop(start_config, labtainer_config, mycwd, labname, role, ignore_stop_error):
         # Inform user where results are stored
         print "Results stored in directory: %s" % host_xfer_dir
+
+def DoMoreterm(labname, role, container, num_terminal):
+    mycwd = os.getcwd()
+    myhomedir = os.environ['HOME']
+    logger.DEBUG("current working directory for %s" % mycwd)
+    logger.DEBUG("current user's home directory for %s" % myhomedir)
+    logger.DEBUG("ParseStartConfig for %s" % labname)
+    lab_path          = os.path.join(LABS_ROOT,labname)
+    is_valid_lab(lab_path)
+    config_path       = os.path.join(lab_path,"config")
+    start_config_path = os.path.join(config_path,"start.config")
+
+    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, logger)
+
+    mycontainer_name = '%s.%s.%s' % (labname, container, role)
+    if not IsContainerCreated(mycontainer_name):
+        logger.ERROR('container %s not found' % mycontainer_name)
+        sys.exit(1)
+    if not IsContainerRunning(mycontainer_name):
+        logger.ERROR("Container %s is not running!\n" % (mycontainer_name))
+        sys.exit(1)
+    for x in range(num_terminal):
+        spawn_command = "gnome-terminal -x docker exec -it %s bash -l &" % mycontainer_name
+        logger.DEBUG("spawn_command is (%s)" % spawn_command)
+        os.system(spawn_command)
+

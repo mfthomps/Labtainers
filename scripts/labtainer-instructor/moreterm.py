@@ -45,18 +45,6 @@ import LabtainerLogging
 
 LABS_ROOT = os.path.abspath("../../labs/")
 
-def DoMoreterm(start_config, mycwd, labname, container, num_terminal):
-    mycontainer_name = '%s.%s.instructor' % (labname, container)
-    if not labutils.IsContainerCreated(mycontainer_name):
-        labutils.logger.ERROR('container %s not found' % mycontainer_name)
-        exit(1)
-    for x in range(num_terminal):
-        spawn_command = "gnome-terminal -x docker exec -it %s bash -l &" % mycontainer_name
-        labutils.logger.DEBUG("spawn_command is (%s)" % spawn_command)
-        os.system(spawn_command)
-
-    return 0
-
 def usage():
     sys.stderr.write("Usage: moreterm.py <labname> [<container>] [<requested_term>]\n")
     exit(1)
@@ -87,19 +75,7 @@ def main():
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname)
     labutils.logger.INFO("Begin logging moreterm.py for %s lab" % labname)
     labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
-    mycwd = os.getcwd()
-    myhomedir = os.environ['HOME']
-    labutils.logger.DEBUG("current working directory for %s" % mycwd)
-    labutils.logger.DEBUG("current user's home directory for %s" % myhomedir)
-    labutils.logger.DEBUG("ParseStartConfig for %s" % labname)
-    lab_path          = os.path.join(LABS_ROOT,labname)
-    labutils.is_valid_lab(lab_path)
-    config_path       = os.path.join(lab_path,"config")
-    start_config_path = os.path.join(config_path,"start.config")
-
-    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, "instructor", labutils.logger)
-
-    DoMoreterm(start_config, mycwd, labname, container, requested_term)
+    labutils.DoMoreterm(labname, "instructor", container, requested_term)
 
     return 0
 
