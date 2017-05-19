@@ -179,10 +179,16 @@ def CreateSubnets(subnets):
         else:
             logger.WARNING("Already exists! Not creating %s subnet at %s!\n" % (subnet_name, subnet_network_mask))
 
-def RemoveSubnets(subnets):
+def RemoveSubnets(subnets, ignore_stop_error):
     for subnet_name in subnets:
         command = "docker network rm %s" % subnet_name
-        remove_result = subprocess.call(command, shell=True)
+        ps = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        output = ps.communicate()
+        if len(output[1]) > 0:
+            if ignore_stop_error:
+                logger.DEBUG('Encountered error removing subnet %s' % subnet_name)
+            else:
+                logger.ERROR('Encountered error removing subnet %s' % subnet_name)
 
 EMAIL_TMP='./.tmp/email.txt' 
 def getLastEmail():
@@ -456,7 +462,7 @@ def CopyChownGradesFile(mycwd, start_config, labtainer_config, container_name, c
             logger.ERROR("Container %s fail on executing chown %s.grades.json file!\n" % (container_name, labname))
         sys.exit(1)
 
-def StartLab(labname, role, is_regress_test=False, force_build=False):
+def StartLab(labname, role, is_regress_test=False, force_build=False, is_redo=False):
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
     logger.DEBUG("current working directory for %s" % mycwd)
@@ -485,7 +491,7 @@ def StartLab(labname, role, is_regress_test=False, force_build=False):
             logger.DEBUG("Command was (%s)" % cmd)
             if len(output[1]) > 0:
                 logger.DEBUG("Error from command = '%s'" % str(output[1]))
-        if force_build or CheckBuild(labname, mycontainer_image_name, mycontainer_name, name, role):
+        if force_build or CheckBuild(labname, mycontainer_image_name, mycontainer_name, name, role, is_redo):
             if os.path.isfile(fixresolve) and not didfix:
                 ''' DNS name resolution from containers (while being built) fails when behind NAT? '''
                 os.system(fixresolve)
@@ -527,21 +533,29 @@ def FileModLater(ts, fname):
     else:
         return False
 
-def CheckBuild(labname, image_name, container_name, name, role):
+def CheckBuild(labname, image_name, container_name, name, role, is_redo):
     '''
     Determine if a container image needs to be rebuilt.
     '''
     retval = False
     logger.DEBUG('check build for container %s image %s' % (container_name, image_name))
     cmd = "docker inspect -f '{{.Created}}' --type image %s" % image_name
-    child = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    result = child.stdout.read().strip()
+    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    result = output[0].strip()
+    logger.DEBUG('result is %s' % result)
     if 'Error:' in result or len(result.strip()) == 0:
         if 'Error:' in result:
             logger.DEBUG("Command was (%s)" % cmd)
             logger.DEBUG("Error from command = '%s'" % result)
         return True
-    logger.DEBUG('result is %s' % result)
+    if len(output[1].strip()) > 0:
+        logger.DEBUG('No image: error returned %s, do build' % output[1])
+        return True
+    else:
+        if not is_redo:
+            logger.DEBUG('Container %s image %s exist, not a redo, just return (no need to check build)' % (container_name, image_name))
+            return False
     parts = result.strip().split('.')
     time_string = parts[0]
     logger.DEBUG('image time string %s' % time_string)
@@ -621,7 +635,8 @@ def RedoLab(labname, role, is_regress_test=False, force_build=False):
     # Pass 'True' to ignore_stop_error (i.e., ignore certain error encountered during StopLab
     #                                         since it might not even be an error)
     StopLab(labname, role, True)
-    StartLab(labname, role, is_regress_test, force_build)
+    is_redo = True
+    StartLab(labname, role, is_regress_test, force_build, is_redo=is_redo)
 
 def GatherOtherArtifacts(labname, name, container_name, container_user, ignore_stop_error):
     '''
@@ -719,7 +734,8 @@ def RegressTest(labname, role):
     Grades = "/home/%s/%s/%s.grades.txt" % (username, host_home_xfer, labname)
     logger.DEBUG("GradesGold is %s - Grades is %s" % (GradesGold, Grades))
 
-    RedoLab(labname, role, True)
+    is_regress_test = True
+    RedoLab(labname, role, is_regress_test=is_regress_test)
     RunInstructorCreateGradeFile(start_config.grade_container)
     # Pass 'False' to ignore_stop_error (i.e., do not ignore error)
     StopLab(labname, role, False)
@@ -818,9 +834,9 @@ def StopMyContainer(mycwd, start_config, container_name, ignore_stop_error):
     output = ps.communicate()
     if len(output[1].strip()) > 0:
         if ignore_stop_error:
-            logger.DEBUG('stderr %s' % output[1])
+            logger.DEBUG('Fail to stop container, error returned %s' % output[1])
         else:
-            logger.ERROR('stderr %s' % output[1])
+            logger.ERROR('Fail to stop container, error returned %s' % output[1])
     #if len(output[0].strip()) > 0:
     #    logger.DEBUG('StopMyContainer stdout %s' % output[0])
     #result = subprocess.call(command, shell=True)
@@ -913,7 +929,7 @@ def DoStop(start_config, labtainer_config, mycwd, labname, role, ignore_stop_err
             logger.ERROR('DoStopOne has at least one failure!')
             sys.exit(1)
 
-    RemoveSubnets(start_config.subnets)
+    RemoveSubnets(start_config.subnets, ignore_stop_error)
     if role == 'student':
         if len(ZipFileList) == 0:
             if ignore_stop_error:
