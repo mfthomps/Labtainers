@@ -79,6 +79,9 @@ def ParameterizeMyContainer(mycontainer_name, container_user, lab_instance_seed,
 # Start my_container_name container
 def StartMyContainer(mycontainer_name):
     retval = True
+    if IsContainerRunning(mycontainer_name):
+        logger.ERROR("Container %s is already running!\n" % (mycontainer_name))
+        sys.exit(1)
     command = "docker start %s" % mycontainer_name
     logger.DEBUG("Command to execute is (%s)" % command)
     ps = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
