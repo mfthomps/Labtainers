@@ -1011,3 +1011,47 @@ def DoMoreterm(labname, role, container, num_terminal):
         logger.DEBUG("spawn_command is (%s)" % spawn_command)
         os.system(spawn_command)
 
+def DoPauseorUnPause(labname, role, command_desired):
+    mycwd = os.getcwd()
+    myhomedir = os.environ['HOME']
+    logger.DEBUG("current working directory for %s" % mycwd)
+    logger.DEBUG("current user's home directory for %s" % myhomedir)
+    logger.DEBUG("ParseStartConfig for %s" % labname)
+    lab_path          = os.path.join(LABS_ROOT,labname)
+    is_valid_lab(lab_path)
+    config_path       = os.path.join(lab_path,"config")
+    start_config_path = os.path.join(config_path,"start.config")
+
+    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, logger)
+
+    error_encountered = False
+    for name, container in start_config.containers.items():
+        mycontainer_name       = container.full_name
+        mycontainer_image_name = container.image_name
+        container_user         = container.user
+
+        if not IsContainerCreated(mycontainer_name):
+            logger.ERROR('container %s not found' % mycontainer_name)
+            error_encountered = True
+            continue
+        if not IsContainerRunning(mycontainer_name):
+            logger.ERROR("Container %s is not running!\n" % mycontainer_name)
+            error_encountered = True
+            continue
+
+        if command_desired == "pause":
+            logger.DEBUG("command_desired pause")
+        elif command_desired == "unpause":
+            logger.DEBUG("command_desired unpause")
+        else:
+            logger.ERROR("Invalid command_desired %s" % command_desired)
+            error_encountered = True
+            break
+
+        command = "docker %s %s" % (command_desired, mycontainer_name)
+        logger.DEBUG("command is (%s)" % command)
+        os.system(command)
+
+    if error_encountered:
+        logger.ERROR("One of more error encountered during %s container!\n" % command_desired)
+

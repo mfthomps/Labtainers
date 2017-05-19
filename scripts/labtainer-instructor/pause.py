@@ -40,27 +40,6 @@ import LabtainerLogging
 
 LABS_ROOT = os.path.abspath("../../labs/")
 
-# Error code returned by docker inspect
-SUCCESS=0
-FAILURE=1
-
-def DoPause(start_config, mycwd, labname):
-    host_home_xfer = start_config.host_home_xfer
-    lab_master_seed = start_config.lab_master_seed
-    labutils.logger.DEBUG("DoPause Multiple Containers and/or multi-home networking")
-
-    # Reach here - Everything is OK - spawn terminal for each container based on num_terminal
-    for name, container in start_config.containers.items():
-        mycontainer_name       = container.full_name
-        mycontainer_image_name = container.image_name
-        container_user         = container.user
-
-        command = "docker pause %s" % mycontainer_name
-        labutils.logger.DEBUG("command is (%s)" % command)
-        os.system(command)
-
-    return 0
-
 
 # Usage: pause.py <labname>
 # Arguments:
@@ -75,19 +54,7 @@ def main():
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname)
     labutils.logger.INFO("Begin logging pause.py for %s lab" % labname)
     labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
-    mycwd = os.getcwd()
-    myhomedir = os.environ['HOME']
-    labutils.logger.DEBUG("current working directory for %s" % mycwd)
-    labutils.logger.DEBUG("current user's home directory for %s" % myhomedir)
-    labutils.logger.DEBUG("ParseStartConfig for %s" % labname)
-    lab_path          = os.path.join(LABS_ROOT,labname)
-    labutils.is_valid_lab(lab_path)
-    config_path       = os.path.join(lab_path,"config")
-    start_config_path = os.path.join(config_path,"start.config")
-
-    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, "instructor", labutils.logger)
-
-    DoPause(start_config, mycwd, labname)
+    labutils.DoPauseorUnPause(labname, "instructor", "pause")
 
     return 0
 
