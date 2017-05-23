@@ -244,7 +244,7 @@ def ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname, 
 # Copy Students' Artifacts from host to instructor's lab container
 def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_user, is_regress_test):
     # Set the lab name 
-    command = 'docker exec -it %s script -q -c "echo %s > /home/%s/.local/.labname" /dev/null' % (mycontainer_name, labname, container_user)
+    command = 'docker exec %s script -q -c "echo %s > /home/%s/.local/.labname" /dev/null' % (mycontainer_name, labname, container_user)
     logger.DEBUG("Command to execute is (%s)" % command)
     result = subprocess.call(command, shell=True)
     logger.DEBUG("Result of subprocess.call CopyStudentArtifacts set labname is %s" % result)
@@ -253,7 +253,7 @@ def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_
         sys.exit(1)
 
     # Create is_grade_container
-    command = 'docker exec -it %s script -q -c "echo TRUE > /home/%s/.local/.is_grade_container" /dev/null' % (mycontainer_name, container_user)
+    command = 'docker exec %s script -q -c "echo TRUE > /home/%s/.local/.is_grade_container" /dev/null' % (mycontainer_name, container_user)
     logger.DEBUG("Command to execute is (%s)" % command)
     result = subprocess.call(command, shell=True)
     logger.DEBUG("Result of subprocess.call CopyStudentArtifacts create is_grade_container is %s" % result)
@@ -281,7 +281,7 @@ def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_
         if result == FAILURE:
             logger.ERROR("Failed to set labname in container %s!\n" % mycontainer_name)
             sys.exit(1)
-        command = 'docker exec -it %s sudo chown %s:%s /home/%s/%s' % (mycontainer_name, container_user, container_user, container_user, base_fname)
+        command = 'docker exec %s sudo chown %s:%s /home/%s/%s' % (mycontainer_name, container_user, container_user, container_user, base_fname)
         logger.DEBUG("Command to execute is (%s)" % command)
         result = subprocess.call(command, shell=True)
         logger.DEBUG("Result of subprocess.call CopyStudentArtifacts copy zipfile (%s) is %s" % (fname, result))
@@ -675,7 +675,7 @@ def GatherOtherArtifacts(labname, name, container_name, container_user, ignore_s
                 if fname.startswith('/') and fname not in did_file:
                     ''' copy from abs path to ~/.local/result ''' 
                
-                    command='docker exec -it %s sudo cp --parents %s /home/%s/.local/result' % (container_name, fname, container_user)
+                    command='docker exec %s sudo cp --parents %s /home/%s/.local/result' % (container_name, fname, container_user)
                     logger.DEBUG(command)
                     child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                     error = child.stderr.read().strip()
@@ -687,7 +687,7 @@ def GatherOtherArtifacts(labname, name, container_name, container_user, ignore_s
                             logger.ERROR('ERROR: %s' % error)
                             logger.ERROR('command was %s' % command)
                     did_file.append(fname)
-                    command='docker exec -it %s sudo chmod a+r -R /home/%s/.local/result' % (container_name, container_user)
+                    command='docker exec %s sudo chmod a+r -R /home/%s/.local/result' % (container_name, container_user)
                     child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                     error = child.stderr.read().strip()
                     if len(error) > 0:
@@ -704,7 +704,7 @@ def RunInstructorCreateGradeFile(container_name):
     # Run 'instructor.py' - This will create '<labname>.grades.txt' 
     logger.DEBUG("About to call instructor.py")
     bash_command = "'cd ; . .profile ; instructor.py'"
-    command = 'docker exec -it %s script -q -c "/bin/bash -c %s" /dev/null' % (container_name, bash_command)
+    command = 'docker exec %s script -q -c "/bin/bash -c %s" /dev/null' % (container_name, bash_command)
     logger.DEBUG("Command to execute is (%s)" % command)
     result = subprocess.call(command, shell=True)
     logger.DEBUG("Result of subprocess.call exec instructor.py is %s" % result)
