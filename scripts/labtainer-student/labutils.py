@@ -422,6 +422,7 @@ def CopyChownGradesFile(mycwd, start_config, labtainer_config, container_name, c
             logger.WARNING("Container %s fail on executing cp %s.grades.txt file!\n" % (container_name, labname))
         return
 
+    '''
     # Change <labname>.grades.txt ownership to defined user $USER
     command = "sudo chown %s:%s /home/%s/%s/%s.grades.txt" % (username, username, username, host_home_xfer, labname)
     logger.DEBUG("Command to execute is (%s)" % command)
@@ -434,6 +435,7 @@ def CopyChownGradesFile(mycwd, start_config, labtainer_config, container_name, c
         else:
             logger.ERROR("Container %s fail on executing chown %s.grades.txt file!\n" % (container_name, labname))
         sys.exit(1)
+    '''
 
     # Copy <labname>.grades.json file
     gradejson_filename = '/home/%s/%s.grades.json' % (container_user, labname)
@@ -448,7 +450,7 @@ def CopyChownGradesFile(mycwd, start_config, labtainer_config, container_name, c
         else:
             logger.WARNING("Container %s fail on executing cp %s.grades.json file!\n" % (container_name, labname))
         return
-
+    '''
     # Change <labname>.grades.json ownership to defined user $USER
     command = "sudo chown %s:%s /home/%s/%s/%s.grades.json" % (username, username, username, host_home_xfer, labname)
     logger.DEBUG("Command to execute is (%s)" % command)
@@ -461,6 +463,7 @@ def CopyChownGradesFile(mycwd, start_config, labtainer_config, container_name, c
         else:
             logger.ERROR("Container %s fail on executing chown %s.grades.json file!\n" % (container_name, labname))
         sys.exit(1)
+    '''
 
 def StartLab(labname, role, is_regress_test=False, force_build=False, is_redo=False):
     mycwd = os.getcwd()
@@ -807,6 +810,7 @@ def CreateCopyChownZip(mycwd, start_config, labtainer_config, container_name, co
     DestZipPath = os.path.join('/home', username, host_home_xfer, DestZipFilename)
     shutil.copyfile(os.path.join(local_tmp_zip, orig_zipfilenameext), DestZipPath)
 
+    '''
     # Change ownership to defined user $USER
     command = "sudo chown %s:%s /home/%s/%s/*.zip" % (username, username, username, host_home_xfer)
     logger.DEBUG("Command to execute is (%s)" % command)
@@ -822,6 +826,7 @@ def CreateCopyChownZip(mycwd, start_config, labtainer_config, container_name, co
         StopMyContainer(mycwd, start_config, container_name, ignore_stop_error)
         return None, None
 
+    '''
     currentContainerZipFilename = "/home/%s/%s/%s" % (username, host_home_xfer, DestZipFilename)
     return baseZipFilename, currentContainerZipFilename
    
