@@ -65,7 +65,7 @@ else
 fi
 cd $LAB_TOP
 dfile=Dockerfile.$labimage
-docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename -f $LAB_DIR/dockerfiles/$dfile -t $labimage .
+docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename --pull -f $LAB_DIR/dockerfiles/$dfile -t $labimage .
 result=$?
 echo "removing temporary $dfile, reference original in $LAB_DIR/dockerfiles/$dfile"
 #rm $LABIMAGE_DIR
