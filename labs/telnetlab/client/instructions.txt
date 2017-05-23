@@ -54,6 +54,10 @@ of traffic.
 3.4 Use ssh to protect communications with the server
 Use the ssh command to access the server using its IP address:
     ssh <ip>
+The first time you ssh to a server, ssh will warn you that the
+"authenticity of the host... can't be established".  Type "yes"
+at the prompt.
+
 View the file content by doing a 'cat filetoview.txt'.
 
 Observe the tcpdump output, and note there is no readable plain text.
