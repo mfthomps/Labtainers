@@ -52,8 +52,8 @@ type "mydoghasfleas".  Observe that string in the tcpdump
 of traffic.
 
 3.4 Use ssh to protect communications with the server
-Use the telnet command to access the server using its IP address:
-    telnet <ip>
+Use the ssh command to access the server using its IP address:
+    ssh <ip>
 View the file content by doing a 'cat filetoview.txt'.
 
 Observe the tcpdump output, and note there is no readable plain text.
