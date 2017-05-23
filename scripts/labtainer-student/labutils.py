@@ -484,14 +484,13 @@ def StartLab(labname, role, is_regress_test=False, force_build=False, is_redo=Fa
     for name, container in start_config.containers.items():
         mycontainer_name       = container.full_name
         mycontainer_image_name = container.image_name
-        if force_build:
+        if force_build or CheckBuild(labname, mycontainer_image_name, mycontainer_name, name, role, is_redo):
             cmd = 'docker rm %s' % mycontainer_name
             ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             output = ps.communicate()
             logger.DEBUG("Command was (%s)" % cmd)
             if len(output[1]) > 0:
                 logger.DEBUG("Error from command = '%s'" % str(output[1]))
-        if force_build or CheckBuild(labname, mycontainer_image_name, mycontainer_name, name, role, is_redo):
             if os.path.isfile(fixresolve) and not didfix:
                 ''' DNS name resolution from containers (while being built) fails when behind NAT? '''
                 os.system(fixresolve)
@@ -542,13 +541,6 @@ def CheckBuild(labname, image_name, container_name, name, role, is_redo):
     cmd = "docker inspect -f '{{.Created}}' --type image %s" % image_name
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
-    result = output[0].strip()
-    logger.DEBUG('result is %s' % result)
-    if 'Error:' in result or len(result.strip()) == 0:
-        if 'Error:' in result:
-            logger.DEBUG("Command was (%s)" % cmd)
-            logger.DEBUG("Error from command = '%s'" % result)
-        return True
     if len(output[1].strip()) > 0:
         logger.DEBUG('No image: error returned %s, do build' % output[1])
         return True
@@ -556,6 +548,13 @@ def CheckBuild(labname, image_name, container_name, name, role, is_redo):
         if not is_redo:
             logger.DEBUG('Container %s image %s exist, not a redo, just return (no need to check build)' % (container_name, image_name))
             return False
+    result = output[0].strip()
+    logger.DEBUG('result is %s' % result)
+    if 'Error:' in result or len(result.strip()) == 0:
+        if 'Error:' in result:
+            logger.DEBUG("Command was (%s)" % cmd)
+            logger.DEBUG("Error from command = '%s'" % result)
+        return True
     parts = result.strip().split('.')
     time_string = parts[0]
     logger.DEBUG('image time string %s' % time_string)
