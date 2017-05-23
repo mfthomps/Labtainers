@@ -894,7 +894,7 @@ def DoStopOne(start_config, labtainer_config, mycwd, labname, role, name, contai
                     ZipFileList.append(currentContainerZipFilename)
                 logger.DEBUG("baseZipFilename is (%s)" % baseZipFilename)
 
-            command = 'docker exec %s sudo rmdir /tmp/.mylockdir >>/dev/null' % (mycontainer_name)
+            command = 'docker exec %s sudo rmdir /tmp/.mylockdir 2>/dev/null' % (mycontainer_name)
             os.system(command)
 
             for mysubnet_name, mysubnet_ip in container.container_nets.items():
