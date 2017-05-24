@@ -487,13 +487,16 @@ def StartLab(labname, role, is_regress_test=False, force_build=False, is_redo=Fa
     for name, container in start_config.containers.items():
         mycontainer_name       = container.full_name
         mycontainer_image_name = container.image_name
-        if force_build or CheckBuild(labname, mycontainer_image_name, mycontainer_name, name, role, is_redo):
+        if is_redo:
+            # If it is a redo then always remove any previous container
+            # If it is not a redo, i.e., start.py then DO NOT remove existing container
             cmd = 'docker rm %s' % mycontainer_name
             ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             output = ps.communicate()
             logger.DEBUG("Command was (%s)" % cmd)
             if len(output[1]) > 0:
                 logger.DEBUG("Error from command = '%s'" % str(output[1]))
+        if force_build or CheckBuild(labname, mycontainer_image_name, mycontainer_name, name, role, is_redo):
             if os.path.isfile(fixresolve) and not didfix:
                 ''' DNS name resolution from containers (while being built) fails when behind NAT? '''
                 os.system(fixresolve)
