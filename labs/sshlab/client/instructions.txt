@@ -1,0 +1,61 @@
+Title: SSH Lab Exercise
+
+1. Background
+
+This Labtainer exercise explores the use of SSH
+from a client computer to connect securely to a server.
+It is primarily to test artifacts in service logs.
+
+2. Performing the lab
+The lab is started from the Labtainer working 
+directory on your Docker-enabled host, e.g., a Linux VM.
+From there, issue the command:
+
+    ./start.py sshlab
+
+The resulting virtual terminals include a display of
+these instructions, a terminal connected to a client,
+and a terminal connected to a server.
+
+To navigate this instruction, the arrow keys along with 
+with the Space/Home/End/Page-Up/Page-Down keys are usable.
+To exit navigation of this instruction, type 'q'.
+
+3. Tasks
+3.1. Generate authentication keys (public/private RSA key pair)
+
+On the client computer: ssh-keygen -t rsa
+Note: when prompted, DO NOT enter a passphrase
+
+3.2. Setup SSH on server for user to use authentication keys
+
+Obtain the server's IP address <server_ip> 
+The following commands assume the user on the server is 'ubuntu':
+On the client computer:
+     Note: for all commands below, when prompted, enter the user's password
+     a. ssh ubuntu@<server_ip> mkdir -p .ssh
+     b. scp .ssh/id_rsa.pub ubuntu@<server_ip>:.ssh/authorized_keys
+     c. scp .ssh/id_rsa.pub ubuntu@<server_ip>:.ssh/authorized_keys2
+     d. ssh ubuntu@<server_ip> chmod 700 .ssh
+     e. ssh ubuntu@<server_ip> chmod 640 .ssh/authorized_keys
+     f. ssh ubuntu@<server_ip> chmod 640 .ssh/authorized_keys2
+
+3.3. Connect using SSH and display a file on the server
+
+On the client computer:
+     a. ssh ubuntu@<server_ip>
+        The user should be connected to the server
+     b. After connected to the server: cat filetoview.txt
+     c. exit 
+
+4. Stop the Labtainer
+
+When the lab is completed, or you'd like to stop working for a while, run
+
+    ./stop.sh httplab
+
+from the host Labtainer working directory.  You can always restart the
+Labtainer to continue your work.  When the Labtainer is stopped, a
+zip file is created and copied to a location displayed by the stop.sh
+command.  When the lab is completed, send that zip file to the instructor.
+
