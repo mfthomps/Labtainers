@@ -24,12 +24,19 @@ trapfun()
 }
 
 pipe_sym="|"
+redirect_sym=">"
+append_sym=">>"
 full=$*
 #echo $full
 #
 # Look for redirect, and remove from command
 #
-if [[ "$full" == *"$redirect_sym"* ]]; then
+if [[ "$full" == *"$append_sym"* ]]; then
+    IFS='>' read -ra COMMAND_ARRAY <<< "$full"
+    full=${COMMAND_ARRAY[0]}
+    append_file=${COMMAND_ARRAY[2]}
+    IFS=' '
+elif [[ "$full" == *"$redirect_sym"* ]]; then
     IFS='>' read -ra COMMAND_ARRAY <<< "$full"
     full=${COMMAND_ARRAY[0]}
     redirect_file=${COMMAND_ARRAY[1]}
@@ -116,18 +123,22 @@ fi
 exec 3<>$pipe
 rm $pipe
 if [ -z "$precommand" ]; then
-   if [ -z "$redirect_file" ]; then
-       (echo $BASHPID >&3; tee -a $stdinfile) | (funbuffer -p $EXECPROG $PROGRAM_ARGUMENTS; r=$?; kill $(head -n1 <&3); exit $r) | tee $stdoutfile
-   else
+   if [ -n "$redirect_file" ]; then
        (echo $BASHPID >&3; tee -a $stdinfile) | (funbuffer -p $EXECPROG $PROGRAM_ARGUMENTS; r=$?; kill $(head -n1 <&3); exit $r) | tee $stdoutfile > $redirect_file
+   elif [ -n "$append_file" ]; then
+       (echo $BASHPID >&3; tee -a $stdinfile) | (funbuffer -p $EXECPROG $PROGRAM_ARGUMENTS; r=$?; kill $(head -n1 <&3); exit $r) | tee $stdoutfile >> $append_file
+   else
+       (echo $BASHPID >&3; tee -a $stdinfile) | (funbuffer -p $EXECPROG $PROGRAM_ARGUMENTS; r=$?; kill $(head -n1 <&3); exit $r) | tee $stdoutfile
    fi
 else
     #echo "precommand before is $precommand"
 
-   if [ -z "$redirect_file" ]; then
-       (echo $BASHPID >&3; eval $precommand | tee -a $stdinfile) | ($EXECPROG $PROGRAM_ARGUMENTS; r=$?; exit $r) | tee $stdoutfile
-   else
+   if [ -n "$redirect_file" ]; then
        (echo $BASHPID >&3; eval $precommand | tee -a $stdinfile) | ($EXECPROG $PROGRAM_ARGUMENTS; r=$?; exit $r) | tee $stdoutfile > $redirect_file
+   elif [ -n "$append_file" ]; then
+       (echo $BASHPID >&3; eval $precommand | tee -a $stdinfile) | ($EXECPROG $PROGRAM_ARGUMENTS; r=$?; exit $r) | tee $stdoutfile >> $append_file
+   else
+       (echo $BASHPID >&3; eval $precommand | tee -a $stdinfile) | ($EXECPROG $PROGRAM_ARGUMENTS; r=$?; exit $r) | tee $stdoutfile
    fi
 fi
 
