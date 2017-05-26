@@ -22,6 +22,19 @@ trapfun()
     echo "PROGRAM FINISH: $endtime" >> $stdinfile
     echo "PROGRAM FINISH: $endtime" >> $stdoutfile
 }
+tailingquote()
+{
+    local string=$1
+    #if [[ "$string" == "*\'" ] || [ "$string" == "*\"" ]]; then
+    if [[ "$string" == *\' ]]; then
+        return 1
+    fi
+    if [[ "$string" == *\" ]]; then
+        return 1
+    fi
+    echo no
+    return 0
+}
 
 pipe_sym="|"
 redirect_sym=">"
@@ -33,14 +46,23 @@ full=$*
 #
 if [[ "$full" == *"$append_sym"* ]]; then
     IFS='>' read -ra COMMAND_ARRAY <<< "$full"
-    full=${COMMAND_ARRAY[0]}
-    append_file=${COMMAND_ARRAY[2]}
-    IFS=' '
+    tailingquote ${COMMAND_ARRAY[2]}
+    result=$?
+    if [ $result == 0 ]; then
+        full=${COMMAND_ARRAY[0]}
+        append_file=${COMMAND_ARRAY[2]}
+        echo "append file $append_file"
+        IFS=' '
+    fi
 elif [[ "$full" == *"$redirect_sym"* ]]; then
     IFS='>' read -ra COMMAND_ARRAY <<< "$full"
-    full=${COMMAND_ARRAY[0]}
-    redirect_file=${COMMAND_ARRAY[1]}
-    IFS=' '
+    tailingquote ${COMMAND_ARRAY[2]}
+    result=$?
+    if [ $result == 0 ]; then
+       full=${COMMAND_ARRAY[0]}
+       redirect_file=${COMMAND_ARRAY[1]}
+       IFS=' '
+    fi
 fi
 
 if [[ "$full" == *"$pipe_sym"* ]]; then
@@ -124,21 +146,26 @@ exec 3<>$pipe
 rm $pipe
 if [ -z "$precommand" ]; then
    if [ -n "$redirect_file" ]; then
-       (echo $BASHPID >&3; tee -a $stdinfile) | (funbuffer -p $EXECPROG $PROGRAM_ARGUMENTS; r=$?; kill $(head -n1 <&3); exit $r) | tee $stdoutfile > $redirect_file
+       (echo $BASHPID >&3; tee -a $stdinfile) | (eval funbuffer -p $EXECPROG $PROGRAM_ARGUMENTS; r=$?; kill $(head -n1 <&3); exit $r) | tee $stdoutfile > $redirect_file
    elif [ -n "$append_file" ]; then
-       (echo $BASHPID >&3; tee -a $stdinfile) | (funbuffer -p $EXECPROG $PROGRAM_ARGUMENTS; r=$?; kill $(head -n1 <&3); exit $r) | tee $stdoutfile >> $append_file
+       (echo $BASHPID >&3; tee -a $stdinfile) | (eval funbuffer -p $EXECPROG $PROGRAM_ARGUMENTS; r=$?; kill $(head -n1 <&3); exit $r) | tee $stdoutfile >> $append_file
    else
-       (echo $BASHPID >&3; tee -a $stdinfile) | (funbuffer -p $EXECPROG $PROGRAM_ARGUMENTS; r=$?; kill $(head -n1 <&3); exit $r) | tee $stdoutfile
+       (echo $BASHPID >&3; tee -a $stdinfile) | (eval funbuffer -p $EXECPROG $PROGRAM_ARGUMENTS; r=$?; kill $(head -n1 <&3); exit $r) | tee $stdoutfile
    fi
 else
-    #echo "precommand before is $precommand"
 
    if [ -n "$redirect_file" ]; then
-       (echo $BASHPID >&3; eval $precommand | tee -a $stdinfile) | ($EXECPROG $PROGRAM_ARGUMENTS; r=$?; exit $r) | tee $stdoutfile > $redirect_file
+
+       (echo $BASHPID >&3; eval $precommand | tee -a $stdinfile) | (eval $EXECPROG $PROGRAM_ARGUMENTS; r=$?; exit $r) | tee $stdoutfile > $redirect_file
+
    elif [ -n "$append_file" ]; then
-       (echo $BASHPID >&3; eval $precommand | tee -a $stdinfile) | ($EXECPROG $PROGRAM_ARGUMENTS; r=$?; exit $r) | tee $stdoutfile >> $append_file
+
+       (echo $BASHPID >&3; eval $precommand | tee -a $stdinfile) | (eval $EXECPROG $PROGRAM_ARGUMENTS; r=$?; exit $r) | tee $stdoutfile >> $append_file
+
    else
-       (echo $BASHPID >&3; eval $precommand | tee -a $stdinfile) | ($EXECPROG $PROGRAM_ARGUMENTS; r=$?; exit $r) | tee $stdoutfile
+       #echo "precommand before is $precommand"
+
+       (echo $BASHPID >&3; eval $precommand | tee -a $stdinfile) | (eval $EXECPROG $PROGRAM_ARGUMENTS; r=$?; exit $r) | tee $stdoutfile
    fi
 fi
 
