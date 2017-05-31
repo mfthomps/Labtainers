@@ -365,6 +365,9 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test):
     
     # Reach here - Everything is OK - spawn terminal for each container based on num_terminal
     for container in start_config.containers.values():
+        # Do not spawn terminal if it is regression testing
+        if is_regress_test:
+            continue
         num_terminal = container.terminals
         mycontainer_name = container.full_name
         logger.DEBUG("Number of terminal is %d" % num_terminal)
@@ -703,18 +706,16 @@ def GatherOtherArtifacts(labname, name, container_name, container_user, ignore_s
                         
 
 # RunInstructorCreateGradeFile
-def RunInstructorCreateGradeFile(container_name):
+def RunInstructorCreateGradeFile(container_name, container_user):
     # Run 'instructor.py' - This will create '<labname>.grades.txt' 
     logger.DEBUG("About to call instructor.py")
-    bash_command = "'cd ; . .profile ; instructor.py'"
-    command = 'docker exec %s script -q -c "/bin/bash -c %s" /dev/null' % (container_name, bash_command)
-    logger.DEBUG("Command to execute is (%s)" % command)
-    result = subprocess.call(command, shell=True)
-    logger.DEBUG("Result of subprocess.call exec instructor.py is %s" % result)
-    if result == FAILURE:
-        logger.ERROR("Container %s fail on executing instructor.py!\n" % container_name)
-        sys.exit(1)
-
+    cmd_path = '/home/%s/.local/bin/instructor.py' % container_user
+    command=['docker', 'exec', '-i',  container_name, cmd_path]
+    logger.DEBUG('cmd: %s' % str(command))
+    child = subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    error_string = child.stderr.read().strip()
+    if len(error_string) > 0:
+        logger.ERROR("Container %s fail on executing instructor.py \n" % (container_name))
 
 def RegressTest(labname, role):
     username = getpass.getuser()
@@ -741,11 +742,29 @@ def RegressTest(labname, role):
 
     is_regress_test = True
     RedoLab(labname, role, is_regress_test=is_regress_test)
-    RunInstructorCreateGradeFile(start_config.grade_container)
+
+    for name, container in start_config.containers.items():
+        mycontainer_name       = container.full_name
+        mycontainer_image_name = container.image_name
+        container_user         = container.user
+
+        if mycontainer_name == start_config.grade_container:
+            RunInstructorCreateGradeFile(start_config.grade_container, container_user)
+
     # Pass 'False' to ignore_stop_error (i.e., do not ignore error)
     StopLab(labname, role, False)
 
-    CompareResult = filecmp.cmp(GradesGold, Grades)
+    # Give the container some time to copy the result out -- just in case
+    time.sleep(3)
+
+    CompareResult = False
+    # GradesGold and Grades must exist
+    if not os.path.exists(GradesGold):
+        logger.ERROR("GradesGold %s file does not exist!" % GradesGold)
+    elif not os.path.exists(Grades):
+        logger.ERROR("Grades %s file does not exist!" % Grades)
+    else:
+        CompareResult = filecmp.cmp(GradesGold, Grades)
     return CompareResult
 
 
