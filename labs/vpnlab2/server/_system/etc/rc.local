@@ -9,14 +9,12 @@
 # In order to enable or disable this script just change the execution
 # bits.
 #
-# By default this script does nothing.
+# 
 
-#echo 192.168.0.3 > /home/ubuntu/.local/.container_gateway
-#echo 192.168.0.102 > /home/ubuntu/.local/.host_gateway
+#  Set the default gateway to the gateway component,
+#  while maintaining a route to my_host.
+#  
 
-# route to client - via gateway
-#route delete default
-#route add default gw 192.168.0.3
 set_default_gw.sh 192.168.0.3
 
 exit 0

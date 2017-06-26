@@ -28,7 +28,7 @@ The lab is started from the Labtainer working
 directory on your Docker-enabled host, e.g., a Linux VM.
 From there, issue the command:
 
-    ./start.sh vpnlab
+    ./start.py vpnlab
 
 The resulting virtual terminals include a display of
 these instructions, a terminal connected to a client,
@@ -67,10 +67,10 @@ Observe the network traffic in tcpdump.
 
 When the lab is completed, or you'd like to stop working for a while, run
 
-    ./stop.sh httplab
+    ./stop.py vpnlab
 
 from the host Labtainer working directory.  You can always restart the
 Labtainer to continue your work.  When the Labtainer is stopped, a
-zip file is created and copied to a location displayed by the stop.sh
+zip file is created and copied to a location displayed by the stop.py
 command.  When the lab is completed, send that zip file to the instructor.
 

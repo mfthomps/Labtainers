@@ -52,10 +52,10 @@ On the client computer:
 
 When the lab is completed, or you'd like to stop working for a while, run
 
-    ./stop.sh httplab
+    ./stop.py sshlab
 
 from the host Labtainer working directory.  You can always restart the
 Labtainer to continue your work.  When the Labtainer is stopped, a
-zip file is created and copied to a location displayed by the stop.sh
+zip file is created and copied to a location displayed by the stop.py
 command.  When the lab is completed, send that zip file to the instructor.
 
