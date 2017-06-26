@@ -12,6 +12,7 @@ import sys
 import labutils
 import logging
 import LabtainerLogging
+import os
 
 # Filename: start.py
 # Description:
@@ -27,6 +28,23 @@ import LabtainerLogging
 def main():
     if len(sys.argv) != 2:
         sys.stderr.write("Usage: start.py <labname>\n")
+#	tell user list of lesson/folder names in "/labtainer/trunk/labs/"
+	sys.stderr.write("List of available labs:\n\n")
+	dir_path = os.path.dirname(os.path.realpath(__file__))
+	dir_path = dir_path[:dir_path.index("scripts/labtainer-student")]	
+	path = dir_path + "labs/"
+	dirs = os.listdir(path)
+	for loc in dirs:
+                description = loc
+		aboutFile = path + loc + "/config/about.txt"
+		if(os.path.isfile(aboutFile)):
+                    description += ' - '
+		    with open(aboutFile) as fh:
+		        for line in fh:
+                            description += line
+                else:
+                    description += "\n"
+                sys.stderr.write(description)
         sys.exit(1)
     
     labname = sys.argv[1]
