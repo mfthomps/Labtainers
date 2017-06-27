@@ -327,8 +327,8 @@ def processMatchAcross(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
             #print "processMatchAcross Output 2 json %s" % outputjsonfile
             jsonfile2 = getJsonOut(outputjsonfile2)
             try:
-                current_answer = jsonoutput2[answertagstring]
-            except:
+                current_answer = jsonfile2[answertagstring]
+            except KeyError:
                 #print('processMatchAcross: (2) %s not found in file %s' % (answertagstring, outputjsonfile2))
                 continue
 
@@ -389,14 +389,14 @@ def processMatchAny(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
 
         try:
             resulttagresult = jsonoutput[resulttag]
-        except:
+        except KeyError:
             #print('processMatchAny: %s not found in file %s' % (resulttag, outputjsonfile))
             continue
         
         #print resulttagresult
         try:
             timestampend = jsonoutput['PROGRAM_ENDTIME']
-        except:
+        except KeyError:
             print('processMatchAny: PROGRAM_ENDTIME not found in file %s' % outputjsonfile)
             exit(1)
         fulltimestamp = '%s-%s' % (timestamppart, timestampend)
@@ -440,13 +440,13 @@ def processTrueFalse(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
 
         try:
             resulttagresult = jsonoutput[resulttag]
-        except:
+        except KeyError:
             #print('processTrueFalse: %s not found in file %s' % (resulttag, outputjsonfile))
             continue
         
         try:
             timestampend = jsonoutput['PROGRAM_ENDTIME']
-        except:
+        except KeyError:
             print('processTrueFalse: PROGRAM_ENDTIME not found in file %s' % outputjsonfile)
             exit(1)
         fulltimestamp = '%s-%s' % (timestamppart, timestampend)
