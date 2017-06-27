@@ -57,7 +57,7 @@ def main():
     if num_args < 2:
         usage()
     elif num_args == 2:
-        requested_term = 0
+        requested_term = 1
         container = sys.argv[1]
     elif num_args == 3:
         if type(sys.argv[2]) is int:
