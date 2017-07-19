@@ -262,8 +262,8 @@ def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_
         sys.exit(1)
 
     username = getpass.getuser()
-    if is_regress_test:
-        xfer_dir = labtainer_config.testsets_root
+    if not is_regress_test == None:
+        xfer_dir = os.path.join(labtainer_config.testsets_root, is_regress_test)
         zip_filelist = glob.glob('%s/*.zip' % xfer_dir)
     else:
         xfer_dir = labtainer_config.host_home_xfer
@@ -468,7 +468,7 @@ def CopyChownGradesFile(mycwd, start_config, labtainer_config, container_name, c
         sys.exit(1)
     '''
 
-def StartLab(labname, role, is_regress_test=False, force_build=False, is_redo=False):
+def StartLab(labname, role, is_regress_test=None, force_build=False, is_redo=False):
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
     logger.DEBUG("current working directory for %s" % mycwd)
@@ -634,7 +634,7 @@ def dumb():
     pass
     '''
     '''
-def RedoLab(labname, role, is_regress_test=False, force_build=False):
+def RedoLab(labname, role, is_regress_test=None, force_build=False):
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
     logger.DEBUG("current working directory for %s" % mycwd)
@@ -717,7 +717,7 @@ def RunInstructorCreateGradeFile(container_name, container_user):
     if len(error_string) > 0:
         logger.ERROR("Container %s fail on executing instructor.py \n" % (container_name))
 
-def RegressTest(labname, role):
+def RegressTest(labname, role, standard):
     username = getpass.getuser()
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
@@ -731,7 +731,7 @@ def RegressTest(labname, role):
     start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, logger)
 
     labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(LABTAINER_CONFIG, labname, logger)
-    regresstest_lab_path = labtainer_config.testsets_root
+    regresstest_lab_path = ("%s/%s" % (labtainer_config.testsets_root, standard))
     host_home_xfer = labtainer_config.host_home_xfer
     logger.DEBUG("Host Xfer directory for labname %s is %s" % (labname, host_home_xfer))
     logger.DEBUG("Regression Test path for labname %s is %s" % (labname, regresstest_lab_path))
@@ -740,8 +740,8 @@ def RegressTest(labname, role):
     Grades = "/home/%s/%s/%s.grades.txt" % (username, host_home_xfer, labname)
     logger.DEBUG("GradesGold is %s - Grades is %s" % (GradesGold, Grades))
 
-    is_regress_test = True
-    RedoLab(labname, role, is_regress_test=is_regress_test)
+    is_regress_test = standard
+    RedoLab(labname, role, is_regress_test)
 
     for name, container in start_config.containers.items():
         mycontainer_name       = container.full_name
