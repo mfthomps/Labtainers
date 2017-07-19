@@ -20,6 +20,10 @@ else
     labimage=$lab.$lab.student
 fi
 
+echo "Please wait while the lab is built."
+
+sleep 3
+
 echo "Labname is $lab with image name $imagename"
 
 LAB_TOP=`realpath ../../labs`
