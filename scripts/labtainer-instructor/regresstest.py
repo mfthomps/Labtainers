@@ -58,13 +58,22 @@ def main():
             # 2. After the containers are started, it will invoke 'instructor.py' on the GRADE_CONTAINER.
             # 3. Stop the containers to obtain the 'grades.txt'
             # 4. Compare 'grades.txt.GOLD' vs. 'grades.txt'
-            RegressTestResult = labutils.RegressTest(labname, "instructor")
-            if RegressTestResult == False:
+	    dir_path = os.path.dirname(os.path.realpath(__file__))
+	    dir_path = dir_path[:dir_path.index("trunk")] 
+	    dir_path += "/testsets/labs/" + labname
+	    crude_standards = os.listdir(dir_path)
+	    standards = []
+	    for items in crude_standards:
+		if "." not in items:
+		    standards.append(items)
+	    for standard in standards:
+            	RegressTestResult = labutils.RegressTest(labname, "instructor", standard)	
+            	if RegressTestResult == False:
                 # False means grades.txt.GOLD != grades.txt, output error then break
-                print("RegressTest fails on %s lab" % labname)
-                sys.exit(1)
-            else:
-                print("RegressTest on %s lab SUCCESS" % labname)
+                    print("RegressTest fails on %s lab %s" % (labname, standard))
+                    sys.exit(1)
+            	else:
+                    print("RegressTest on %s lab SUCCESS %s" % (labname, standard))
 
     return 0
 
