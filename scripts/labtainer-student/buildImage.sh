@@ -50,6 +50,8 @@ if [ ! -z "$imagecheck" ] && [ $force_build = "False" ]; then
     #create tmp file
     echo "FROM mfthomps/$labimage" > $LAB_DIR/dockerfiles/tmp/Dockerfile.$labimage.tmp 
 else
+    echo "Please wait while the lab is built"
+    sleep 3
     ORIG_PWD=`pwd`
     echo $ORIG_PWD
     LAB_TAR=$LAB_DIR/$labimage.tar.gz
