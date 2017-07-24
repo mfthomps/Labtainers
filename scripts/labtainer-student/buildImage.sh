@@ -10,9 +10,12 @@ domain and is not subject to copyright.
 END
 
 # Usage: buildImage.sh <labname> [<imagename>]
+##~ Usage: buildImage.sh <labname> [<imagename>] force_build(true or false)
 #        <imagename> is optional for lab that only has one image
+
 lab=$1
-if [ "$#" -eq 2 ]; then
+#------------------------------------V
+if [ "$#" -eq 3 ]; then
     imagename=$2
     labimage=$lab.$imagename.student
 else
@@ -20,9 +23,8 @@ else
     labimage=$lab.$lab.student
 fi
 
-echo "Please wait while the lab is built."
-
-sleep 3
+force_build=$3 
+#------------------------------------^
 
 echo "Labname is $lab with image name $imagename"
 
@@ -37,39 +39,57 @@ if [ ! -d $LABIMAGE_DIR ]; then
     echo "$LABIMAGE_DIR not found"
     exit
 fi
+#------------------------------------V
+imagecheck=$(docker search mfthomps/$labimage | grep mfthomps/$labimage)
 
-ORIG_PWD=`pwd`
-echo $ORIG_PWD
-LAB_TAR=$LAB_DIR/$labimage.tar.gz
-SYS_TAR=$LAB_DIR/sys_$labimage.tar.gz
-TMP_DIR=/tmp/$labimage
-rm -rf $TMP_DIR
-mkdir $TMP_DIR
-mkdir $TMP_DIR/.local
-cp -r $LABIMAGE_DIR/. $TMP_DIR 2>>/dev/null
-# ugly!
-rm -fr $TMP_DIR/_bin
-rm -fr $TMP_DIR/_system
-cp -r $LAB_DIR/config $TMP_DIR/.local/ 2>>/dev/null
-cp  -r bin/ $TMP_DIR/.local/  2>>/dev/null
-cp  $LAB_DIR/bin/* $TMP_DIR/.local/bin 2>>/dev/null
-chmod a+x $TMP_DIR/.local/bin/* 2>>/dev/null
-cp  $LABIMAGE_DIR/_bin/* $TMP_DIR/.local/bin 2>>/dev/null
-mkdir $TMP_DIR/.local/result
-cd $TMP_DIR
-tar --atime-preserve -zcvf $LAB_TAR .
-if [ -d $LABIMAGE_DIR/_system ]; then
-    cd $LABIMAGE_DIR/_system
-    tar --atime-preserve -zcvf $SYS_TAR .
+if [ ! -z "$imagecheck" ] && [ $force_build = "False" ]; then
+    #create tmp folder
+    if [ ! -d "$LAB_DIR/dockerfiles/tmp" ]; then
+    	mkdir $LAB_DIR/dockerfiles/tmp
+    fi
+    #create tmp file
+    echo "FROM mfthomps/$labimage" > $LAB_DIR/dockerfiles/tmp/Dockerfile.$labimage.tmp 
 else
-    echo nothing at $LABIMAGE_DIR/_system
-    mkdir $LABIMAGE_DIR/_system
-    cd $LABIMAGE_DIR/_system
-    tar --atime-preserve -zcvf $SYS_TAR .
+    ORIG_PWD=`pwd`
+    echo $ORIG_PWD
+    LAB_TAR=$LAB_DIR/$labimage.tar.gz
+    SYS_TAR=$LAB_DIR/sys_$labimage.tar.gz
+    TMP_DIR=/tmp/$labimage
+    rm -rf $TMP_DIR
+    mkdir $TMP_DIR
+    mkdir $TMP_DIR/.local
+    cp -r $LABIMAGE_DIR/. $TMP_DIR 2>>/dev/null
+    # ugly!
+    rm -fr $TMP_DIR/_bin
+    rm -fr $TMP_DIR/_system
+    cp -r $LAB_DIR/config $TMP_DIR/.local/ 2>>/dev/null
+    cp  -r bin/ $TMP_DIR/.local/  2>>/dev/null
+    cp  $LAB_DIR/bin/* $TMP_DIR/.local/bin 2>>/dev/null
+    chmod a+x $TMP_DIR/.local/bin/* 2>>/dev/null
+    cp  $LABIMAGE_DIR/_bin/* $TMP_DIR/.local/bin 2>>/dev/null
+    mkdir $TMP_DIR/.local/result
+    cd $TMP_DIR
+    tar --atime-preserve -zcvf $LAB_TAR .
+    if [ -d $LABIMAGE_DIR/_system ]; then
+        cd $LABIMAGE_DIR/_system
+        tar --atime-preserve -zcvf $SYS_TAR .
+    else
+        echo nothing at $LABIMAGE_DIR/_system
+        mkdir $LABIMAGE_DIR/_system
+        cd $LABIMAGE_DIR/_system
+        tar --atime-preserve -zcvf $SYS_TAR .
+    fi
 fi
+#---------------------------------------------------------------^
 cd $LAB_TOP
 dfile=Dockerfile.$labimage
-docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename --pull -f $LAB_DIR/dockerfiles/$dfile -t $labimage .
+#---------------------------------V
+if [ ! -z "$imagecheck" ] && [ $force_build = "False" ]; then 
+    docker build --pull -f $LAB_DIR/dockerfiles/tmp/$dfile.tmp -t $labimage .
+else
+    docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename --pull -f $LAB_DIR/dockerfiles/$dfile -t $labimage .
+fi
+#---------------------------------^
 result=$?
 echo "removing temporary $dfile, reference original in $LAB_DIR/dockerfiles/$dfile"
 #rm $LABIMAGE_DIR
