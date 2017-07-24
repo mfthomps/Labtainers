@@ -505,7 +505,7 @@ def StartLab(labname, role, is_regress_test=None, force_build=False, is_redo=Fal
                 os.system(fixresolve)
                 didfix=True
             if os.path.isfile(build_student):
-                cmd = '%s %s %s' % (build_student, labname, name)
+                cmd = '%s %s %s %s' % (build_student, labname, name, force_build)
             elif os.path.isfile(build_instructor):
                 cmd = '%s %s %s' % (build_instructor, labname, name)
             else:
@@ -1026,6 +1026,7 @@ def DoMoreterm(labname, role, container, num_terminal):
     start_config_path = os.path.join(config_path,"start.config")
 
     start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, logger)
+    logger.DEBUG('num terms is %d' % start_config.containers[container].terminals)
 
     mycontainer_name = '%s.%s.%s' % (labname, container, role)
     if not IsContainerCreated(mycontainer_name):
