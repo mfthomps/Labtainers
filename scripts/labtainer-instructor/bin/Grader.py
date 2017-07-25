@@ -287,7 +287,7 @@ def processMatchAcross(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
     (use_target, answertagstring) = jsonanswertag.split('.')
     #print use_target
     #print answertagstring
-
+    fulltimestamp = None
     # MatchAcross - Process each file against other files with different timestamp
     # until match or not found
     for outputjsonfile in outjsonfnames:
