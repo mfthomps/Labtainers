@@ -13,28 +13,33 @@ END
 #
 read -p "This script will reboot the system when done, press enter to continue"
 
-sudo rm -f /tmp/docker.list
-echo "deb https://apt.dockerproject.org/repo ubuntu-xenial main" > /tmp/docker.list
-sudo cp /tmp/docker.list /etc/apt/sources.list.d/docker.list
+#needed packages for install
 sudo apt-get update
-sudo apt-get install apt-transport-https ca-certificates
-# The step below is to add the GPG key for the official Docker repository to the system
-sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
-sudo apt-get purge lxc-docker
-apt-cache policy docker-engine
+sudo apt-get -y install apt-transport-https ca-certificates curl software-properties-common 
 
+#adds docker’s official GPG key
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - 
+
+#sets up stable repository
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+
+#installs Docker: Community Edition
 sudo apt-get update
-sudo apt-get install linux-image-extra-$(uname -r) linux-image-extra-virtual
-sudo apt-get install docker-engine
-sudo service docker start
+sudo apt-get -y install docker-ce 
 
+#starts and enables docker
+sudo systemctl start docker
+sudo systemctl enable docker
+
+#gives user docker commands
 sudo groupadd docker
-sudo usermod -aG docker $USER
+sudo usermod -aG docker $USER 
 
-#
-# Other packages required by Labtainers
-#
-sudo apt-get install python-pip
-sudo pip install netaddr
+#other packages required by Labtainers
+sudo apt-get -y install python-pip 
+sudo -H pip install --upgrade pip
+sudo -H pip install netaddr
 
 sudo reboot
+
+#Notes: The “-y” after each install means that the user doesn’t need to press “y” in between each package download. The install script is based on this page: https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/
