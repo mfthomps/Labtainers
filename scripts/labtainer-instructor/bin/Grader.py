@@ -496,11 +496,11 @@ def processTemporal(eachgoal, goals_id_ts, goals_ts_id):
     #print "goal1tag is (%s) and goal2tag is (%s)" % (goal1tag, goal2tag)
     # Make sure goal1tag and goal2tag is in goals_id_ts
     if goal1tag not in goals_id_ts:
-        sys.stdout.write("Error: goal1tag (%s) does not exist in %s\n" % (goal1tag, eachgoal))
-        sys.exit(1)
+        sys.stdout.write("warning: goal1tag (%s) does not exist in %s\n" % (goal1tag, eachgoal))
+        return
     if goal2tag not in goals_id_ts:
-        sys.stdout.write("Error: goal2tag (%s) does not exist!\n" % goal2tag)
-        sys.exit(1)
+        sys.stdout.write("warning: goal2tag (%s) does not exist!\n" % goal2tag)
+        return
     goals_tag1 = {}
     goals_tag2 = {}
     goals_tag1 = goals_id_ts[goal1tag]
