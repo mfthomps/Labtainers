@@ -60,17 +60,20 @@ def main():
             # 4. Compare 'grades.txt.GOLD' vs. 'grades.txt'
 	    dir_path = os.path.dirname(os.path.realpath(__file__))
 	    dir_path = dir_path[:dir_path.index("trunk")] 
-	    dir_path += "/testsets/labs/" + labname
+	    dir_path += "testsets/labs/" + labname
             if not os.path.isdir(dir_path):
                 labutils.logger.INFO("no tests found for "+labname)
                 continue
+
 	    crude_standards = os.listdir(dir_path)
 	    standards = []
+	    isFirstRun = True
 	    for items in crude_standards:
 		if "." not in items:
 		    standards.append(items)
 	    for standard in standards:
-            	RegressTestResult = labutils.RegressTest(labname, "instructor", standard)	
+            	RegressTestResult = labutils.RegressTest(labname, "instructor", standard, isFirstRun=isFirstRun)	
+		isFirstRun = False
             	if RegressTestResult == False:
                 # False means grades.txt.GOLD != grades.txt, output error then break
                     print("RegressTest fails on %s lab %s" % (labname, standard))
