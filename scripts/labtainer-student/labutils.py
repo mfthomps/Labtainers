@@ -263,7 +263,8 @@ def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_
 
     username = getpass.getuser()
     if not is_regress_test == None:
-        xfer_dir = os.path.join(labtainer_config.testsets_root, is_regress_test)
+        xfer_dir = labtainer_config.testsets_root
+	xfer_dir += "/" + is_regress_test
         zip_filelist = glob.glob('%s/*.zip' % xfer_dir)
     else:
         xfer_dir = labtainer_config.host_home_xfer
@@ -717,7 +718,7 @@ def RunInstructorCreateGradeFile(container_name, container_user):
     if len(error_string) > 0:
         logger.ERROR("Container %s fail on executing instructor.py \n" % (container_name))
 
-def RegressTest(labname, role, standard):
+def RegressTest(labname, role, standard, isFirstRun=False):
     username = getpass.getuser()
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
@@ -741,7 +742,10 @@ def RegressTest(labname, role, standard):
     logger.DEBUG("GradesGold is %s - Grades is %s" % (GradesGold, Grades))
 
     is_regress_test = standard
-    RedoLab(labname, role, is_regress_test)
+    if isFirstRun:   
+	RedoLab(labname, role, is_regress_test)
+    else: 
+	StartLab(labname, role, is_regress_test, is_redo=True)
 
     for name, container in start_config.containers.items():
         mycontainer_name       = container.full_name
@@ -1036,9 +1040,13 @@ def DoMoreterm(labname, role, container, num_terminal):
         logger.ERROR("Container %s is not running!\n" % (mycontainer_name))
         sys.exit(1)
     for x in range(num_terminal):
-        spawn_command = "gnome-terminal -x docker exec -it %s bash -l &" % mycontainer_name
-        logger.DEBUG("spawn_command is (%s)" % spawn_command)
-        os.system(spawn_command)
+	if start_config.containers[container].terminals == 0:
+            print("No terminals supported for this component")
+	    sys.exit(1)
+	else:
+            spawn_command = "gnome-terminal -x docker exec -it %s bash -l &" % 	mycontainer_name
+	    logger.DEBUG("spawn_command is (%s)" % spawn_command)
+	    os.system(spawn_command)
 
 def DoPauseorUnPause(labname, role, command_desired):
     mycwd = os.getcwd()
