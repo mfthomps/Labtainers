@@ -508,7 +508,7 @@ def StartLab(labname, role, is_regress_test=None, force_build=False, is_redo=Fal
             if os.path.isfile(build_student):
                 cmd = '%s %s %s %s' % (build_student, labname, name, force_build)
             elif os.path.isfile(build_instructor):
-                cmd = '%s %s %s' % (build_instructor, labname, name)
+                cmd = '%s %s %s %s' % (build_instructor, labname, name, force_build)
             else:
                 logger.ERROR("no image rebuild script\n")
                 exit(1)
