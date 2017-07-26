@@ -77,31 +77,38 @@ def CheckRandReplaceEntry(container_user, lab_instance_seed, param_id, each_valu
     else:
         random_str = '%s' % hex(random_int)
     # Check to see if '=' in myfilename
+    myfile_list = []
     if '=' in myfilename:
         # myfilename has the container_name also
         tempcontainer_name, myactualfilename = myfilename.split('=')
         # Assume filename is relative to /home/<container_user>
-        if not myactualfilename.startswith('/'):
-            user_home_dir = '/home/%s' % container_user
-            myfullactualfilename = os.path.join(user_home_dir, myactualfilename)
-        else:
-            myfullactualfilename = myactualfilename
-        myfilename = '%s=%s' % (tempcontainer_name, myfullactualfilename)
+        myactual_list = myactualfilename.split(';')
+        for fname in myactual_list:
+            if not fname.startswith('/'):
+                user_home_dir = '/home/%s' % container_user
+                myfullactualfilename = os.path.join(user_home_dir, fname)
+            else:
+                myfullactualfilename = fname
+            myfilename = '%s=%s' % (tempcontainer_name, myfullactualfilename)
+            myfile_list.append(myfilename)
     else:
         # myfilename does not have the containername
         # Assume filename is relative to /home/<container_user>
-        if not myfilename.startswith('/'):
-            user_home_dir = '/home/%s' % container_user
-            myfullfilename = os.path.join(user_home_dir, myfilename)
-        else:
-            myfullfilename = myfilename
-        myfilename = myfullfilename
+        myactual_list = myfilename.split(';')
+        for fname in myactual_list:
+            if not fname.startswith('/'):
+                user_home_dir = '/home/%s' % container_user
+                myfullfilename = os.path.join(user_home_dir, fname)
+            else:
+                myfullfilename = fname
+            myfile_list.append(myfullfilename)
 
-    if myfilename in randreplacelist:
-        randreplacelist[myfilename].append('%s:%s' % (token, random_str))
-    else:
-        randreplacelist[myfilename] = []
-        randreplacelist[myfilename].append('%s:%s' % (token, random_str))
+    for myfilename in myfile_list:
+        if myfilename in randreplacelist:
+            randreplacelist[myfilename].append('%s:%s' % (token, random_str))
+        else:
+            randreplacelist[myfilename] = []
+            randreplacelist[myfilename].append('%s:%s' % (token, random_str))
     paramlist[param_id] = random_str
 
 
