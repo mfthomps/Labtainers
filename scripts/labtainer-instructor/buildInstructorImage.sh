@@ -13,16 +13,31 @@ END
 # First copies all required files to a staging directory in /tmp
 #
 
-# Usage: buildInstructorImage.sh <labname> [<imagename>]
+# Usage: buildInstructorImage.sh <labname> [<imagename>] force_build(true or false)
 #        <imagename> is optional for lab that only has one image
+
 lab=$1
-if [ "$#" -eq 2 ]; then
+
+#if [ "$#" -eq 2 ]; then
+#    imagename=$2
+#    labimage=$lab.$imagename.instructor
+#else
+#    imagename=$lab
+#    labimage=$lab.$lab.instructor
+#fi
+
+#------------------------------------V
+if [ "$#" -eq 3 ]; then
     imagename=$2
     labimage=$lab.$imagename.instructor
 else
     imagename=$lab
     labimage=$lab.$lab.instructor
 fi
+
+force_build=$3 
+#echo $1 $2 $3
+#------------------------------------^
 
 echo "Labname is $lab with image name $imagename"
 
@@ -41,41 +56,54 @@ fixresolve='../../setup_scripts/fixresolv.sh'
 if [ -f $fixresolve ]; then
     $fixresolve
 fi
-ORIG_PWD=`pwd`
-echo $ORIG_PWD
-LAB_TAR=$LAB_DIR/$labimage.tar.gz
-SYS_TAR=$LAB_DIR/sys_$labimage.tar.gz
-TMP_DIR=/tmp/$labimage
-rm -rf $TMP_DIR
-mkdir $TMP_DIR
-mkdir $TMP_DIR/.local
-mkdir $TMP_DIR/.local/result
-mkdir $TMP_DIR/.local/base
-mkdir $TMP_DIR/.local/instr_config
-mkdir $TMP_DIR/.local/config
 
-cp -r bin $TMP_DIR/.local/
-cp  $LAB_DIR/bin/* $TMP_DIR/.local/bin 2>>/dev/null
-cp ../labtainer-student/bin/ParameterParser.py $TMP_DIR/.local/bin/
-cp -r $LABIMAGE_DIR/. $TMP_DIR 2>>/dev/null
-# ugly!
-rm -fr $TMP_DIR/_bin
-rm -fr $TMP_DIR/_system
-cp $LAB_DIR/instr_config/* $TMP_DIR/.local/instr_config/ 2>>/dev/null
-cp $LAB_DIR/config/* $TMP_DIR/.local/config/ 2>>/dev/null
-cp config/* $TMP_DIR/.local/instr_config/ 2>>/dev/null
-cd $TMP_DIR
-tar --atime-preserve -zcvf $LAB_TAR .
-if [ -d $LABIMAGE_DIR/_system ]; then
-    cd $LABIMAGE_DIR/_system
-    tar --atime-preserve -zcvf $SYS_TAR .
+#-----------------------------------V
+imagecheck=$(docker search mfthomps/$labimage | grep mfthomps/$labimage)
+
+if [ ! -z "$imagecheck" ] && [ $force_build = "False" ]; then
+    #create tmp folder
+    if [ ! -d "$LAB_DIR/dockerfiles/tmp" ]; then
+    	mkdir $LAB_DIR/dockerfiles/tmp
+    fi
+    #create tmp file
+    echo "FROM mfthomps/$labimage" > $LAB_DIR/dockerfiles/tmp/Dockerfile.$labimage.tmp
 else
-    echo nothing at $LABIMAGE_DIR/_system
-    mkdir $LABIMAGE_DIR/_system
-    cd $LABIMAGE_DIR/_system
-    tar --atime-preserve -zcvf $SYS_TAR .
-fi
+    ORIG_PWD=`pwd`
+    echo $ORIG_PWD
+    LAB_TAR=$LAB_DIR/$labimage.tar.gz
+    SYS_TAR=$LAB_DIR/sys_$labimage.tar.gz
+    TMP_DIR=/tmp/$labimage
+    rm -rf $TMP_DIR
+    mkdir $TMP_DIR
+    mkdir $TMP_DIR/.local
+    mkdir $TMP_DIR/.local/result
+    mkdir $TMP_DIR/.local/base
+    mkdir $TMP_DIR/.local/instr_config
+    mkdir $TMP_DIR/.local/config
 
+    cp -r bin $TMP_DIR/.local/
+    cp  $LAB_DIR/bin/* $TMP_DIR/.local/bin 2>>/dev/null
+    cp ../labtainer-student/bin/ParameterParser.py $TMP_DIR/.local/bin/
+    cp -r $LABIMAGE_DIR/. $TMP_DIR 2>>/dev/null
+    # ugly!
+    rm -fr $TMP_DIR/_bin
+    rm -fr $TMP_DIR/_system
+    cp $LAB_DIR/instr_config/* $TMP_DIR/.local/instr_config/ 2>>/dev/null
+    cp $LAB_DIR/config/* $TMP_DIR/.local/config/ 2>>/dev/null
+    cp config/* $TMP_DIR/.local/instr_config/ 2>>/dev/null
+    cd $TMP_DIR
+    tar --atime-preserve -zcvf $LAB_TAR .
+    if [ -d $LABIMAGE_DIR/_system ]; then
+        cd $LABIMAGE_DIR/_system
+        tar --atime-preserve -zcvf $SYS_TAR .
+    else
+        echo nothing at $LABIMAGE_DIR/_system
+        mkdir $LABIMAGE_DIR/_system
+        cd $LABIMAGE_DIR/_system
+        tar --atime-preserve -zcvf $SYS_TAR .
+    fi
+fi
+#-------------------------------------------------------------------^
 cd $LAB_TOP
 dfile=Dockerfile.$labimage
 full_dfile=$LAB_DIR/dockerfiles/$dfile
@@ -84,7 +112,14 @@ if [ ! -f $full_dfile ]; then
    full_dfile=${full_dfile/instructor/student}
    echo "full_file now is $full_dfile"
 fi
-docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename --pull -f $full_dfile -t $labimage .
+
+#--------------------------------V
+if [ ! -z "$imagecheck" ] && [ $force_build = "False" ]; then 
+    docker build --pull -f $LAB_DIR/dockerfiles/tmp/$dfile.tmp -t $labimage .
+else
+    docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename --pull -f $full_dfile -t $labimage .
+fi
+#--------------------------------^
 echo "removing temporary $dfile, reference original in $LAB_DIR/dockerfiles/$dfile"
 
 cd $ORIG_PWD
