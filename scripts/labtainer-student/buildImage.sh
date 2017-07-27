@@ -60,7 +60,6 @@ else
     rm -rf $TMP_DIR
     mkdir $TMP_DIR
     mkdir $TMP_DIR/.local
-    cp -r $LABIMAGE_DIR/. $TMP_DIR 2>>/dev/null
     # ugly!
     rm -fr $TMP_DIR/_bin
     rm -fr $TMP_DIR/_system
@@ -69,6 +68,7 @@ else
     cp  $LAB_DIR/bin/* $TMP_DIR/.local/bin 2>>/dev/null
     chmod a+x $TMP_DIR/.local/bin/* 2>>/dev/null
     cp  $LABIMAGE_DIR/_bin/* $TMP_DIR/.local/bin 2>>/dev/null
+    cp -r $LABIMAGE_DIR/. $TMP_DIR 2>>/dev/null
     mkdir $TMP_DIR/.local/result
     cd $TMP_DIR
     tar --atime-preserve -zcvf $LAB_TAR .
