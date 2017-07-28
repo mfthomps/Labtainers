@@ -23,6 +23,22 @@ treatlocal(){
     fi
     return 0
 }
+ignorelocal(){
+   local cmd_path=$1
+   local TAS=/home/ubuntu/.local/bin/ignorelocal
+   if [ -f $TAS ]
+   then
+       # Get the list of commands from ignorelocal
+       while read cmdlocal; do
+           if [[ "$cmd_path" == "$cmdlocal" ]]; then
+               return 1
+           else
+               continue
+           fi
+       done <$TAS
+    fi
+    return 0
+}
 #
 # Invoke the command in $1 using the capinout.sh script, 
 # but only if it is not a system command.  Checks the
@@ -49,6 +65,11 @@ preexec() {
        result=$?
        if [ $result == 1 ]; then
            capinout.sh "$1"
+           return 1
+       fi
+       ignorelocal $cmd_path
+       result=$?
+       if [ $result == 1 ]; then
            return 1
        fi
        if [[ ! -z $cmd_path ]] && [[ "$cmd_path" != /usr/* ]] && \
