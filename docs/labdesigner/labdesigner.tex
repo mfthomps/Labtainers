@@ -142,20 +142,25 @@ assessment of student activity.
 Labtainer exercises each have their own
 directory under the "labs" directory in the project repository.
 The first step in creating a new lab within the framework is to create
-a directory for the lab, cd to it, and then run the "new\_lab\_setup.sh" script.
-This will create a set of template files that you can then customize
-for the new lab.  These template files are referenced in the discussion
-below.  After creating the new lab directory, cd to that directory and then run
-
+a directory for the lab and then cd to it. 
 \begin{verbatim}
-    $LABTAINER_DIR/scripts/designer/bin/new_lab_setup.py
+    cd $LABTAINER_DIR/labs
+    mkdir <new lab name>
+    cd <new lab name>
 \end{verbatim}
-where LABTAINER\_DIR is set to the top of the svn repo, e.g.,
 
+Set the LABTAINER\_DIR environment variable to the top of the svn repo, e.g.,
 \begin{verbatim}
     export LABTAINER_DIR=/home/mike/labtainer/trunk
 \end{verbatim}
 It is suggested that you add the LABTAINER\_DIR definition in your .bashrc.
+
+After the new lab directory is created, run the "new\_lab\_setup.sh" script.
+\begin{verbatim}
+    $LABTAINER_DIR/scripts/designer/bin/new_lab_setup.py
+\end{verbatim}
+This will create a set of template files that you can then customize
+for the new lab.  These template files are referenced in the discussion
 The result is a new labtainer lab that can be run.  While this new
 lab will initially only present you with a bash shell to an
 empty directory, it is worth testing the lab to understand the workflow.
@@ -408,7 +413,8 @@ is followed by one of the following operations:
        range.  The random value generator is initialized with the lab instance
        seed.
 
-         where: <filename> - the file name (file must exist) where <symbol> is to be replaced
+         where: <filename> - the file name (file must exist) where <symbol> is to be replaced.
+                             This may be a list of files, delimited by semicolons 
                <symbol> - the string to be replaced
                <LowerBound> and <UpperBound> specifies the lower and upper bound
                                            to be used by random generator
