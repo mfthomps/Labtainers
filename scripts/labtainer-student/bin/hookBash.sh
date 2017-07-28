@@ -18,6 +18,8 @@ else
     echo "source $HOME/.local/bin/bash-pre-capinout.sh" >> $HOME/.profile
     echo "cd" >> $HOME/.profile
     echo "source $HOME/.local/bin/startup.sh" >> $HOME/.profile
-    echo "history -a" > $HOME/.bash_logout
+    echo "trap \"source /home/ubuntu/.bash_logout\" SIGINT SIGTERM SIGKILL" >> $HOME/.profile
+
+    echo "history -a" >> $HOME/.bash_logout
 fi
 
