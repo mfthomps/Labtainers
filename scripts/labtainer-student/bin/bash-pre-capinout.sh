@@ -70,7 +70,7 @@ preexec() {
        ignorelocal $cmd_path
        result=$?
        if [ $result == 1 ]; then
-           return 1
+           return 0
        fi
        if [[ ! -z $cmd_path ]] && [[ "$cmd_path" != /usr/* ]] && \
           [[ "$cmd_path" != /bin/* ]] && [[ "$cmd_path" != /sbin/* ]]; then
