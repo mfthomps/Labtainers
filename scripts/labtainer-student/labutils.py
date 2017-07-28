@@ -858,8 +858,6 @@ def CreateCopyChownZip(mycwd, start_config, labtainer_config, container_name, co
    
 # Stop my_container_name container
 def StopMyContainer(mycwd, start_config, container_name, ignore_stop_error):
-    command = 'docker exec %s sudo /sbin/shutdown_container 2>/dev/null' % (container_name)
-    os.system(command)
     command = "docker stop %s" % container_name
     logger.DEBUG("Command to execute is (%s)" % command)
     ps = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
@@ -913,6 +911,9 @@ def DoStopOne(start_config, labtainer_config, mycwd, labname, role, name, contai
                 if mycontainer_name == start_config.grade_container:
                     CopyChownGradesFile(mycwd, start_config, labtainer_config, mycontainer_name, mycontainer_image, container_user, ignore_stop_error)
             else:
+                # kill bash login scripts so history is gathered.  TBD better cleanup
+                command = 'docker exec %s sudo /sbin/shutdown_container 2>/dev/null' % (mycontainer_name)
+                os.system(command)
                 GatherOtherArtifacts(labname, name, mycontainer_name, container_user, ignore_stop_error)
                 # Before stopping a container, run 'Student.py'
                 # This will create zip file of the result
