@@ -18,6 +18,6 @@ else
     echo "source $HOME/.local/bin/bash-pre-capinout.sh" >> $HOME/.profile
     echo "cd" >> $HOME/.profile
     echo "source $HOME/.local/bin/startup.sh" >> $HOME/.profile
-    echo "" > $HOME/.bash_logout
+    echo "history -a" > $HOME/.bash_logout
 fi
 
