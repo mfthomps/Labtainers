@@ -37,7 +37,7 @@ the python \textit{netaddr} module installed.
 \section{Performing a Lab}
 All labs are run from the same workspace directory:
 \begin{verbatim}
-    cd labtainers/trunk/scripts/labtainers-student
+    cd labtainer/trunk/scripts/labtainer-student
 \end{verbatim}
 \noindent Then run the lab:
 \begin{verbatim}
@@ -103,8 +103,8 @@ to serve as the Labtainer host.  If you already have a Linux system
 that can support Dockers, you may skip this section.
 \begin{itemize}
 \item Install Virutal Box from : https://www.virtualbox.org/wiki/Downloads
-\item Download the latest Ubuntu LTS distribution .iso image.
-\item Use VirtualBox to create a new VM, allocate at least 10GB of disk storage.
+\item Download the latest Ubuntu Desktop LTS distribution .iso image.  https://www.ubuntu.com/download
+\item Use VirtualBox to create a new VM, allocate at least 10GB of disk storage, 4GB RAM and 2 CPUs.
 \item Select the Ubuntu iso image in the VirtualBox storage settings, and select "Live CD/DVD"
 \item Power on the virtual machine and install Ubuntu.
 \end{itemize}
@@ -135,6 +135,28 @@ inside the guest then run the guestadditions
     sudo adduser $USER vboxsf
 \end{verbatim}
 \end{itemize}
+
+\newpage
+\appendix 
+\section {Appendix B: Labtainer Command Summary}
+\label{sec:appendixB}
+The following labtainer commands are available from the \texttt{labtainer/trunk/scripts/labtainer-student}
+directory:
+\begin{itemize}
+\item \texttt{./start.py <lab> --}
+Start the named lab.  If no name is given, a list of available labs will be displayed.
+\item \texttt{./stop.py <lab> --} Stop the named lab.
+\item \texttt{./moreterm.py <lab> <container> --} create a new virtual terminal for the container.
+\item \texttt{./redo.py <lab> --}
+Delete any previous containers associated with this lab and start it fresh.  \textbf{Warning}: this will lose any
+previous data from the named lab.
+\end{itemize}
+
+Most labs display lab instructions in one of the windows that appears after the lab starts.  If those instructions
+stop displaying, e.g., because "q" is pressed in that window, then type the following in that window:
+\begin{verbatim}
+    less instructions.txt
+\end{verbatim}
 
 
 \end{document}
