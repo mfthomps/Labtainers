@@ -173,7 +173,10 @@ def getToken(linerequested, field_type, token_id):
             if token_id == 'ALL':
                 token = linerequested.strip()
             elif token_id == 'LAST':
-                token = linetokens[numlinetokens-1]
+                if numlinetokens > 0:
+                    token = linetokens[numlinetokens-1]
+                else:
+                    token = None
             else:
                 #print linetokens
                 # make sure tokenno <= numlinetokens

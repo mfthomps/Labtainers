@@ -136,7 +136,10 @@ def getJsonOut(outputjsonfile):
     for key in jsonoutput:
         old = jsonoutput[key]
         new = ast.literal_eval(old)
-        new_filtered = filter(lambda x: x in string.printable, new)
+        if new is not None:
+            new_filtered = filter(lambda x: x in string.printable, new)
+        else:
+            new_filtered = "NONE"
         jsonoutput[key] = new_filtered
         #print('is %s' % new)
     return jsonoutput
