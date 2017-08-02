@@ -46,6 +46,8 @@ def ValidateLabGrades(labgrades):
                 # Do 'grades' portion - skip 'parameter' portion for now
                 #print "value is (%s)" % value
                 for goalid, goalresult in sorted(value.iteritems()):
+                    if goalid.startswith('_'):
+                        continue
                     #print "goalid is (%s)" % goalid
                     #print "goalresult is (%s)" % goalresult
                     currentgoalsline = currentgoalsline + goalprintformat % goalid[:15]
@@ -84,6 +86,8 @@ def PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline):
                 # Do 'grades' portion - skip 'parameter' portion for now
                 #print "value is (%s)" % value
                 for goalid, goalresult in sorted(value.iteritems()):
+                    if goalid.startswith('_'):
+                        continue
                     #print "goalid is (%s)" % goalid
                     #print "goalresult is (%s)" % goalresult
                     if goalresult:

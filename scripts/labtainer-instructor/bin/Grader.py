@@ -606,9 +606,6 @@ def processLabExercise(studentlabdir, labidname, grades, goals, goals_id_ts, goa
     for eachgoal in goals:
         goalid = eachgoal['goalid']
         #print "goalid is (%s)" % goalid
-        # Skip goalid that starts with "_"
-        if goalid.startswith('_'):
-            continue
         current_goals_result = False
         for current_goals, timestamp in goals_id_ts.iteritems():
             #print "current_goals is "
