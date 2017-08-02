@@ -25,13 +25,46 @@ import MyUtil
 
 UBUNTUHOME = "/home/ubuntu/"
 logfilelist = []
-exec_proglist = []
+container_exec_proglist = {}
 containernamelist = []
 stdinfnameslist = []
 stdoutfnameslist = []
 timestamplist = {}
 line_types = ['CONTAINS', 'LINE', 'STARTSWITH', 'NEXT_STARTSWITH', 'HAVESTRING', 'LINE_COUNT']
 just_field_type = ['LINE_COUNT']
+
+def GetExecProgramList(containername, studentlabdir, container_list, targetfile):
+    # This will return a list of executable program name matching
+    # <directory>/.local/result/<exec_program>.targetfile.*
+    # If containername is "" then loop through all directory of studentlabdir/container
+    # where container is from the container_list
+    # If containername is non "" then directory is studentlabdir/containername
+    myexec_proglist = []
+    mylist = []
+    if containername == "":
+        #print "containername is empty - do for all container in the container list"
+        mylist = container_list
+    else:
+        #print "containername is non empty - do for that container only"
+        mylist.append(containername)
+    #print "Final container list is "
+    #print mylist
+    for cur_container in mylist:
+        string_to_glob = "%s/%s/.local/result/*.%s.*" % (studentlabdir, cur_container, targetfile)
+        #print "string_to_glob is (%s)" % string_to_glob
+        globnames = glob.glob('%s' % string_to_glob)
+        for name in globnames:
+            basefilename = os.path.basename(name)
+            #print "basefilename is %s" % basefilename
+            split_string = ".%s" % targetfile
+            #print "split_string is %s" % split_string
+            namesplit = basefilename.split(split_string)
+            #print namesplit
+            if namesplit[0] not in myexec_proglist:
+                myexec_proglist.append(namesplit[0])
+    return myexec_proglist
+
+
 def ValidateTokenId(each_value, token_id):
     if token_id != 'ALL' and token_id != 'LAST':
         try:
@@ -47,8 +80,8 @@ def findLineIndex(values):
             return values.index(ltype)
 
     return None
-    
-def ValidateConfigfile(labidname, each_key, each_value):
+
+def ValidateConfigfile(studentlabdir, container_list, labidname, each_key, each_value):
     valid_field_types = ['TOKEN', 'PARENS', 'QUOTES', 'SLASH', 'LINE_COUNT', 'CONTAINS']
     if not MyUtil.CheckAlphaDashUnder(each_key):
         sys.stderr.write("ERROR: Not allowed characters in results.config's key (%s)\n" % each_key)
@@ -105,8 +138,29 @@ def ValidateConfigfile(labidname, each_key, each_value):
             logfilelist.append(progname_type)
     else:
         (exec_program, targetfile) = progname_type.rsplit('.', 1)
-        if exec_program not in exec_proglist:
-            exec_proglist.append(exec_program)
+        exec_program_list = []
+        if exec_program == "*":
+            exec_program_list = GetExecProgramList(containername, studentlabdir, container_list, targetfile)
+            #print "exec_program_list is %s" % exec_program_list
+        else:
+            exec_program_list.append(exec_program)
+        if containername != "":
+            if containername not in container_exec_proglist:
+                container_exec_proglist[containername] = []
+            for cur_exec_program in exec_program_list:
+                if cur_exec_program not in container_exec_proglist[containername]:
+                    container_exec_proglist[containername].append(cur_exec_program)
+            #print container_exec_proglist[containername]
+        else:
+            if "CURRENT" not in container_exec_proglist:
+                container_exec_proglist["CURRENT"] = []
+            for cur_exec_program in exec_program_list:
+                if cur_exec_program not in container_exec_proglist["CURRENT"]:
+                    container_exec_proglist["CURRENT"].append(cur_exec_program)
+            #print container_exec_proglist["CURRENT"]
+
+        #print container_exec_proglist
+
     #    sys.stderr.write("ERROR: results.config line (%s)\n" % each_value)
     #    sys.stderr.write("ERROR: results.config uses not stdin or sdout\n")
     #    sys.exit(1)
@@ -220,6 +274,7 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
     if containername is None:
         containername = labidname + "." + cfgcontainername + ".student"
     result_home = '%s/%s/%s' % (studentlabdir, containername, ".local/result/")
+
     if targetfile.startswith('/'):
         targetfile = os.path.join(result_home, targetfile[1:])
     #print('targetfile is %s containername is %s' % (targetfile, containername))
@@ -251,73 +306,119 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
         # command = 'STARTSWITH': or 'HAVESTRING'
         lookupstring = values[line_at+1].strip()
 
-    if timestamppart is not None:
-        targetfname = '%s%s.%s' % (result_home, targetfile, timestamppart)
-    else:
-        ''' descrete file, no timestamp. '''
-        if targetfile.startswith('~/'):
-            targetfile = targetfile[2:]
-        targetfname = os.path.join(studentlabdir, containername, targetfile)
-    #print "targetfname is (%s)" % targetfname
-    #print "labdir is (%s)" % studentlabdir
-
-    if not os.path.exists(targetfname):
-        # If file does not exist, treat as can't find token
-        token = "NONE"
-        #sys.stderr.write("ERROR: No %s file does not exist\n" % targetfname)
-        #sys.exit(1)
-        return False
-    else:
-        # Read in corresponding file
-        targetf = open(targetfname, "r")
-        targetlines = targetf.readlines()
-        targetf.close()
-        targetfilelen = len(targetlines)
-        #print('targetfname %s' % targetfname)
-
-        # command has been validated to be either 'LINE' or 'STARTSWITH' or 'HAVESTRING'
-        linerequested = "NONE"
-        if command == 'LINE':
-            # make sure lineno <= targetfilelen
-            if lineno <= targetfilelen:
-                linerequested = targetlines[lineno-1]
-        elif command == 'HAVESTRING':
-            # command = 'HAVESTRING':
-            found_lookupstring = False
-            for currentline in targetlines:
-                if found_lookupstring == False:
-                    if lookupstring in currentline:
-                        found_lookupstring = True
-                        linerequested = currentline
-                        break
-            # If not found - set to NONE
-            if found_lookupstring == False:
-                linerequested = "NONE"
-        elif command == 'LINE_COUNT':
-            tagstring = str(targetfilelen)
-            nametags[each_key] = tagstring
-            #print('tag string is %s for eachkey %s' % (tagstring, each_key))
-            return True
-
-        elif command == 'CONTAINS':
-            if token_id == 'CONTAINS':
-                ''' search entire file, vice searching for line '''
-                remain = line.split(command,1)[1]
-                remain = remain.split(':', 1)[1].strip()
-                tagstring = 'False'
-                for currentline in targetlines:
-                    #print('look for <%s> in %s' % (remain, currentline))
-                    if remain in currentline:
-                        tagstring = 'True'
-                        break 
-                nametags[each_key] = tagstring
-                #print('tag string is %s for eachkey %s' % (tagstring, each_key))
-                return True
+    targetfname_list = []
+    if targetfile.startswith('*'):
+        # Handle 'asterisk' -- 
+        #print "Handling asterisk"
+        #print "containername is %s, targetfile is %s" % (containername, targetfile)
+        # Replace targetfile as a list of files
+        targetfileparts = targetfile.split('.')
+        targetfilestdinstdout = None
+        if targetfileparts is not None:
+            targetfilestdinstdout = targetfileparts[1]
+        if targetfilestdinstdout is not None:
+            #print "targetfilestdinstdout is %s" % targetfilestdinstdout
+            if containername in container_exec_proglist:
+                myproglist = container_exec_proglist[containername]
             else:
+                myproglist = container_exec_proglist["CURRENT"]
+            for progname in myproglist:
+                if timestamppart is not None:
+                    targetfname = '%s%s.%s.%s' % (result_home, progname, targetfilestdinstdout, timestamppart)
+                    targetfname_list.append(targetfname)
+    else:
+        #print "Handling non-asterisk"
+
+        if timestamppart is not None:
+            targetfname = '%s%s.%s' % (result_home, targetfile, timestamppart)
+        else:
+            ''' descrete file, no timestamp. '''
+            if targetfile.startswith('~/'):
+                targetfile = targetfile[2:]
+            targetfname = os.path.join(studentlabdir, containername, targetfile)
+        #print "targetfname is (%s)" % targetfname
+        #print "labdir is (%s)" % studentlabdir
+
+        targetfname_list.append(targetfname)
+
+    print "Current targetfname_list is %s" % targetfname_list
+
+    tagstring = "NONE"
+    # Loop through targetfname_list
+    for current_targetfname in targetfname_list:
+        if not os.path.exists(current_targetfname):
+            # If file does not exist, treat as can't find token
+            token = "NONE"
+            #sys.stderr.write("ERROR: No %s file does not exist\n" % current_targetfname)
+            #sys.exit(1)
+            nametags[each_key] = token
+            return False
+        else:
+            # Read in corresponding file
+            targetf = open(current_targetfname, "r")
+            targetlines = targetf.readlines()
+            targetf.close()
+            targetfilelen = len(targetlines)
+            #print('current_targetfname %s' % current_targetfname)
+
+            # command has been validated to be either 'LINE' or 'STARTSWITH' or 'HAVESTRING'
+            linerequested = "NONE"
+            if command == 'LINE':
+                # make sure lineno <= targetfilelen
+                if lineno <= targetfilelen:
+                    linerequested = targetlines[lineno-1]
+            elif command == 'HAVESTRING':
+                # command = 'HAVESTRING':
                 found_lookupstring = False
                 for currentline in targetlines:
                     if found_lookupstring == False:
                         if lookupstring in currentline:
+                            found_lookupstring = True
+                            linerequested = currentline
+                            break
+                # If not found - set to NONE
+                if found_lookupstring == False:
+                    linerequested = "NONE"
+            elif command == 'LINE_COUNT':
+                tagstring = str(targetfilelen)
+                nametags[each_key] = tagstring
+                #print('tag string is %s for eachkey %s' % (tagstring, each_key))
+                return True
+
+            elif command == 'CONTAINS':
+                if token_id == 'CONTAINS':
+                    ''' search entire file, vice searching for line '''
+                    remain = line.split(command,1)[1]
+                    remain = remain.split(':', 1)[1].strip()
+                    tagstring = 'False'
+                    for currentline in targetlines:
+                        #print('look for <%s> in %s' % (remain, currentline))
+                        if remain in currentline:
+                            tagstring = 'True'
+                            break 
+                    nametags[each_key] = tagstring
+                    #print('tag string is %s for eachkey %s' % (tagstring, each_key))
+                    return True
+                else:
+                    found_lookupstring = False
+                    for currentline in targetlines:
+                        if found_lookupstring == False:
+                            if lookupstring in currentline:
+                                found_lookupstring = True
+                                linerequested = currentline
+                                #print('line requested is %s' % linerequested)
+                                break
+                    # If not found - set to NONE
+                    if found_lookupstring == False:
+                        linerequested = "NONE"
+
+
+            elif command == 'STARTSWITH':
+                #print('is startswith')
+                found_lookupstring = False
+                for currentline in targetlines:
+                    if found_lookupstring == False:
+                        if currentline.startswith(lookupstring):
                             found_lookupstring = True
                             linerequested = currentline
                             #print('line requested is %s' % linerequested)
@@ -325,46 +426,33 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
                 # If not found - set to NONE
                 if found_lookupstring == False:
                     linerequested = "NONE"
+            elif command == 'NEXT_STARTSWITH':
+                found_lookupstring = False
+                prev_line = None
+                for currentline in targetlines:
+                    if found_lookupstring == False:
+                        if currentline.startswith(lookupstring) and prev_line is not None:
+                            found_lookupstring = True
+                            linerequested = prev_line
+                            break
+                    prev_line = currentline
+                # If not found - set to NONE
+                if found_lookupstring == False:
+                    linerequested = "NONE"
+            else:
+                print('ERROR: unknown command %s' % command)
+                exit(1)
+
+            token = getToken(linerequested, field_type, token_id)
 
 
-        elif command == 'STARTSWITH':
-            #print('is startswith')
-            found_lookupstring = False
-            for currentline in targetlines:
-                if found_lookupstring == False:
-                    if currentline.startswith(lookupstring):
-                        found_lookupstring = True
-                        linerequested = currentline
-                        #print('line requested is %s' % linerequested)
-                        break
-            # If not found - set to NONE
-            if found_lookupstring == False:
-                linerequested = "NONE"
-        elif command == 'NEXT_STARTSWITH':
-            found_lookupstring = False
-            prev_line = None
-            for currentline in targetlines:
-                if found_lookupstring == False:
-                    if currentline.startswith(lookupstring) and prev_line is not None:
-                        found_lookupstring = True
-                        linerequested = prev_line
-                        break
-                prev_line = currentline
-            # If not found - set to NONE
-            if found_lookupstring == False:
-                linerequested = "NONE"
+        #print token
+        if token == "NONE":
+            tagstring = "NONE"
         else:
-            print('ERROR: unknown command %s' % command)
-            exit(1)
-
-        token = getToken(linerequested, field_type, token_id)
-
-
-    #print token
-    if token == "NONE":
-        tagstring = "NONE"
-    else:
-        tagstring = token
+            tagstring = token
+            # found the token - break out of the main for loop
+            break
 
     # set nametags - value pair
     nametags[each_key] = tagstring
@@ -427,7 +515,7 @@ def ParseStdinStdout(studentlabdir, container_list, instructordir, labidname):
     timestamplist.clear()
 
     del logfilelist[:]
-    del exec_proglist[:]
+    #del exec_proglist[:]
     del containernamelist[:]
     del stdinfnameslist[:]
     del stdoutfnameslist[:]
@@ -440,7 +528,7 @@ def ParseStdinStdout(studentlabdir, container_list, instructordir, labidname):
                 #print "Current linestrip is (%s)" % linestrip
                 (each_key, each_value) = linestrip.split('=', 1)
                 each_key = each_key.strip()
-                ValidateConfigfile(labidname, each_key, each_value)
+                ValidateConfigfile(studentlabdir, container_list, labidname, each_key, each_value)
         #else:
         #    print "Skipping empty linestrip is (%s)" % linestrip
 
@@ -463,7 +551,10 @@ def ParseStdinStdout(studentlabdir, container_list, instructordir, labidname):
             #print('result directory %s does not exist' % RESULTHOME)
             pass
             
-        for exec_prog in exec_proglist:
+        if mycontainername not in container_exec_proglist:
+            continue
+
+        for exec_prog in container_exec_proglist[mycontainername]:
             stdinfiles = '%s%s.%s.' % (RESULTHOME, exec_prog, "stdin")
             stdoutfiles = '%s%s.%s.' % (RESULTHOME, exec_prog, "stdout")
             #print stdinfiles
@@ -485,7 +576,7 @@ def ParseStdinStdout(studentlabdir, container_list, instructordir, labidname):
 
         for stdoutfname in stdoutfnameslist:
             #print('for stdout %s' % stdoutfname)
-            for exec_prog in exec_proglist:
+            for exec_prog in container_exec_proglist[mycontainername]:
                 stdinfiles = '%s%s.%s.' % (RESULTHOME, exec_prog, "stdin")
                 stdoutfiles = '%s%s.%s.' % (RESULTHOME, exec_prog, "stdout")
                 if stdoutfiles in stdoutfname:
