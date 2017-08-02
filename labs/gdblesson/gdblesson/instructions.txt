@@ -1,0 +1,79 @@
+
+Title: GDB Lesson
+
+1. Background
+
+These lab instructions relate to the use of the program GDB.
+
+2. Performing the lab
+The lab is started from the Labtainer working 
+directory on your Docker-enabled host, e.g., a Linux VM.
+From there, issue the command:
+
+    ./start.py gdblesson
+
+The resulting virtual terminals will include a display of
+these instructions, and a bash shell.
+
+To navigate this instruction, the arrow keys along with 
+with the Space/Home/End/Page-Up/Page-Down keys are usable.
+To exit navigation of this instruction, type 'q'.
+
+3. Tasks
+
+Perform the tasks described:
+  
+a) List the the files in the directory. Use the 'vi' command to
+examine "sampleMath.c". After looking the program over (and without
+editing it) contemplate what the result of the program will be. Once you
+have doen this type ":wq" in the 'vi' editor to leave it. Next, type the
+'gcc' comand into the shell as follows:
+	gcc -g sampleMath.c -o sampleMath.x
+
+b) This will compile "sampleMath.c" and create an executable of the program
+called "sampleMath.x". The ".x" at the end of the program is not
+required, but makes it more noticable as a program. to run the program type 
+"./sampleMath.x". Note the error it throws. Rather than looking at the C program
+alone, the program GDB will help us analyse what is throwing an exception. Type
+"gbd sampleMath.x" into the command line.
+
+c) Once the program begins type 'r' or 'run' to starting running the program. You
+will see that there is an "Arithmatic exception" at the end of the program. To
+better under stand the source of the problem, list the contents of the program
+using the 'l' or 'list' command. To repeat a command without having to re-type
+anything, just hit the return/enter key; doing this for the 'list' command 
+will display the next ten lines of code. Look at the code and figure out what line
+the while-loop begins on. Type 'break #' with the '#' being the line corresponding
+it. Use the 'run' command again. Use the 'p' or 'print' command to display the
+value of any variable, just type its name after 'p'/'print'. Type 's' or 'step'
+to continue running one line through the program. Periodically print the value
+of of num until you see it reach zero. Once you realize what this issue with
+the code is (type "q"), go and change the while-loop condition to compare with the correct
+variable. Finally, execute the program.   
+
+d) Compile "sampleMath2.x" into "sampleMath2.x" using gcc. Execute the
+program by typing "./sampleMath2.x"; notice the message it gives you then 
+pass it an argument in that range by typing it after the name of the program
+and separated by a space. Clearly the program is not running as it is intended,
+given the values are different than expected. Once again, GDB is a useful for 
+for isolating what is going wrong with a program. Use the 'gdb' command to open
+up "sampleMath2.x".
+
+e) Run the program once using "r #" wherein the symbol '#' is the value of
+what parameter is being fed into the program for testing. set a breaking point
+somewhere in the code and step through it. Print variables and try to figure out
+what value is causing the incorrect results. When you find out what needs to be
+changed, modify the code, and input 342 into it.   
+
+4. Stop the Labtainer
+
+When the lab is completed, or you'd like to stop working for a while, run
+
+    ./stop.py gdblesson
+
+from the host Labtainer working directory.  You can always restart the
+Labtainer to continue your work.  When the Labtainer is stopped, a
+zip file is created and copied to a location displayed by the stop.sh
+command.  When the lab is completed, send that zip file to the instructor.
+
+

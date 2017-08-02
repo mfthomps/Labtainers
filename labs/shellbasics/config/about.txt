@@ -1,0 +1,1 @@
+This is a lab designed to teach the basics of working in the linux shell.
