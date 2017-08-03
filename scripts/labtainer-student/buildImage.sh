@@ -9,21 +9,22 @@ United States Code Section 105.   This software is in the public
 domain and is not subject to copyright. 
 END
 
-# Usage: buildImage.sh <labname> [<imagename>]
-##~ Usage: buildImage.sh <labname> [<imagename>] force_build(true or false)
-#        <imagename> is optional for lab that only has one image
+# Usage: buildImage.sh <labname> [<imagename>] [<force_build>]
+#        <imagename> is optional for labs that only have one image
+#        <force_build> is either true or false
 
 lab=$1
+fource_build="False"
 #------------------------------------V
 if [ "$#" -eq 3 ]; then
     imagename=$2
     labimage=$lab.$imagename.student
+    force_build=$3 
 else
     imagename=$lab
     labimage=$lab.$lab.student
 fi
 
-force_build=$3 
 #------------------------------------^
 
 echo "Labname is $lab with image name $imagename"
@@ -60,15 +61,15 @@ else
     rm -rf $TMP_DIR
     mkdir $TMP_DIR
     mkdir $TMP_DIR/.local
-    # ugly!
-    rm -fr $TMP_DIR/_bin
-    rm -fr $TMP_DIR/_system
     cp -r $LAB_DIR/config $TMP_DIR/.local/ 2>>/dev/null
     cp  -r bin/ $TMP_DIR/.local/  2>>/dev/null
     cp  $LAB_DIR/bin/* $TMP_DIR/.local/bin 2>>/dev/null
     chmod a+x $TMP_DIR/.local/bin/* 2>>/dev/null
     cp  $LABIMAGE_DIR/_bin/* $TMP_DIR/.local/bin 2>>/dev/null
     cp -r $LABIMAGE_DIR/. $TMP_DIR 2>>/dev/null
+    # ugly!
+    rm -fr $TMP_DIR/_bin
+    rm -fr $TMP_DIR/_system
     mkdir $TMP_DIR/.local/result
     cd $TMP_DIR
     tar --atime-preserve -zcvf $LAB_TAR .
