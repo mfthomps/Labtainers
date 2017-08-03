@@ -1,0 +1,44 @@
+nmap -sP 172.25.0.0/24
+
+Title: Nmap Lab Exercise
+
+1. Background
+
+This Labtainer exercise explores Nmap.
+
+2. Performing the lab
+
+The lab is started from the Labtainer working directory on your Docker-enabled host, e.g., a Linux VM.
+From there, issue the command:
+
+	./start.py nmaplab
+
+The resulting virtual terminals wil include a display of these instructions, and bash shell. Nmap is pre-installed on the container.
+
+To navigate this instruction, the arrow keys along with the Space/Home/End/Page Up/Page Down keys are usable. To exit navigation of this instruction, type 'q'.
+
+3. Tasks
+
+Task 1: In the mycomputer terminal window, type "ifconfig" to view the IP following the "inet addr:" label. Use the nmap command and interpreter -sP to scan the hosts on your network. Observe the IP addresses in the output.
+
+Task 2: Using the IP addresses, scan the hosts on your network for open ports with the nmap command.
+
+The number of ports scanned can be changed using the interpreter -p followed by either a single number (i.e. nmap -p 12), a range of numbers (i.e. 12-100), or a dash (-p-) to scan all ports. You can detect the OS and services running on the server and client using another nmap interpreter:
+
+	sudo nmap -A <ip>
+
+Task 3: Locate the randomized ssh port, and log on to the ssh server using the randomized port number (ssh -p <port number> <ip>) and the password "ubuntu." After logging on, display the secretfile.txt.
+
+Task 4: Install Wireshark on your host computer using the command:
+
+	sudo apt-get install wireshark
+
+Once installed, use the command sudo wireshark to open the Wireshark application. Capture the packets on the network whose name begins with br-. Monitor the traffic between the client and server, sniff the password, and login using that password. Finally, display the filetoview.txt file.
+
+4. Stop the Labtainer
+
+When the lab is completed, or you'd like to stop working for a while, run
+
+	./stop.py nmaplab
+
+from the host Labtainer working directory. You can always restart the Labtainer to continue your work. When the Labtainer is stopped, a zip file is created and copied to a location displayed by the stop.py command. When the lab is completed, send that zip file to the instructor.

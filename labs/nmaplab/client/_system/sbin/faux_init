@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+#
+# Simulate the linux init process for Labtainers
+# This will start system logging and will run rc.local
+# Add any other system services here, e.g., starting xinetd
+#
+/usr/sbin/rsyslogd -n &
+/etc/init.d/telnet-bot-serv.sh start
+service rc.local start
+
