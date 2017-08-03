@@ -18,6 +18,7 @@ import fcntl
 import struct
 import threading
 import LabtainerLogging
+import shlex
 global logger
 '''
 This software was created by United States Government employees at 
@@ -125,6 +126,8 @@ def CreateSingleContainer(mycontainer_name, mycontainer_image_name, hostname, my
     cmd = "docker inspect -f '{{.Created}}' --type image %s" % mycontainer_image_name
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
+    #s = " --dns "
+    #dns = s.join(GetDNS())
     if len(output[1]) > 0:
         logger.DEBUG("Command was (%s)" % cmd)
         logger.ERROR("CreateSingleContainer image %s does not exist!" % mycontainer_image_name)
@@ -133,6 +136,7 @@ def CreateSingleContainer(mycontainer_name, mycontainer_image_name, hostname, my
         docker0_IPAddr = getDocker0IPAddr()
         logger.DEBUG("getDockerIPAddr result (%s)" % docker0_IPAddr)
         if mysubnet_name:
+            #createsinglecommand = "docker create -t --dns %s --network=%s --ip=%s --privileged --add-host my_host:%s --name=%s --hostname %s %s bash" % (dns, mysubnet_name, mysubnet_ip, docker0_IPAddr, mycontainer_name, hostname, mycontainer_image_name)
             createsinglecommand = "docker create -t --network=%s --ip=%s --privileged --add-host my_host:%s --name=%s --hostname %s %s bash" % (mysubnet_name, mysubnet_ip, docker0_IPAddr, mycontainer_name, hostname, mycontainer_image_name)
         else:
             createsinglecommand = "docker create -t --privileged --add-host my_host:%s --name=%s --hostname %s %s bash" % (docker0_IPAddr, 
@@ -486,7 +490,6 @@ def StartLab(labname, role, is_regress_test=None, force_build=False, is_redo=Fal
 
     build_student = './buildImage.sh'
     build_instructor = './buildInstructorImage.sh'
-    fixresolve='../../setup_scripts/fixresolv.sh'
     didfix = False
     for name, container in start_config.containers.items():
         mycontainer_name       = container.full_name
@@ -501,10 +504,6 @@ def StartLab(labname, role, is_regress_test=None, force_build=False, is_redo=Fal
             if len(output[1]) > 0:
                 logger.DEBUG("Error from command = '%s'" % str(output[1]))
         if force_build or CheckBuild(labname, mycontainer_image_name, mycontainer_name, name, role, is_redo):
-            if os.path.isfile(fixresolve) and not didfix:
-                ''' DNS name resolution from containers (while being built) fails when behind NAT? '''
-                os.system(fixresolve)
-                didfix=True
             if os.path.isfile(build_student):
                 cmd = '%s %s %s %s' % (build_student, labname, name, force_build)
             elif os.path.isfile(build_instructor):
@@ -1095,3 +1094,17 @@ def DoPauseorUnPause(labname, role, command_desired):
     if error_encountered:
         logger.ERROR("One of more error encountered during %s container!\n" % command_desired)
 
+def GetDNS():
+    #command = 'nmcli dev show | grep DNS'
+    retval = []
+    command = 'nmcli dev show'
+    ps = subprocess.Popen(shlex.split(command), True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    grep_command = 'grep DNS'
+    ps_grep = subprocess.Popen(shlex.split(grep_command), stdin=ps.stdout,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    ps.stdout.close()
+    output = ps_grep.communicate()
+    if len(output[0]) > 0:
+        for line in output[0].splitlines(True):
+            parts = line.split()
+            retval.append(parts[1])
+    return retval
