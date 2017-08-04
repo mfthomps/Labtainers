@@ -1,0 +1,55 @@
+Title: PCAP Analysis Lab Exercise
+
+1. Background
+
+This Labtainer exercise illustrates parameterization support
+including a specific PCAP file for each student.
+
+A previously captured packets using tcpdump is stored as a PCAP file
+in the home directory. The traffic packets are the transmission captured
+between a client-server using telnet.
+
+Students performing this exercise will transfer the parameterized PCAP file
+and analyze the PCAP file to identify the time when the attempted 'break-in',
+i.e., incorrect password is submitted.
+
+2. Performing the lab
+The lab is started from the Labtainer working 
+directory on your Docker-enabled host, e.g., a Linux VM.
+From there, issue the command:
+
+    ./start.py pcapanalysis
+
+The resulting virtual terminals include a display of
+these instructions, a terminal connected to a client, and a
+terminal connected to a server.
+
+To navigate this instruction, the arrow keys along with 
+with the Space/Home/End/Page-Up/Page-Down keys are usable.
+To exit navigation of this instruction, type 'q'.
+
+3. Tasks
+
+3.1. Transfer PCAP file to host with wireshark GUI
+
+    ./transfer.py pcapanalysis tcpdump.telnet.pcap
+
+3.2. PCAP Analysis using Wireshark
+
+Open wireshark and analyze the PCAP file tcpdump.telnet.pcap
+
+Identify the time when the attempted 'break-in', i.e., incorrect password is submitted.
+
+Submit the date and time when the attempted 'break-in' to instructor.
+
+4. Stop the Labtainer
+
+When the lab is completed, or you'd like to stop working for a while, run
+
+    ./stop.py telnetlab
+
+from the host Labtainer working directory.  You can always restart the
+Labtainer to continue your work.  When the Labtainer is stopped, a
+zip file is created and copied to a location displayed by the stop.py
+command.  When the lab is completed, send that zip file to the instructor.
+

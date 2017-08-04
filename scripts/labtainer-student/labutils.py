@@ -1050,6 +1050,68 @@ def DoMoreterm(labname, role, container, num_terminal):
 	    logger.DEBUG("spawn_command is (%s)" % spawn_command)
 	    os.system(spawn_command)
 
+def DoTransfer(labname, role, container, filename, direction):
+    mycwd = os.getcwd()
+    myhomedir = os.environ['HOME']
+    logger.DEBUG("current working directory for %s" % mycwd)
+    logger.DEBUG("current user's home directory for %s" % myhomedir)
+    logger.DEBUG("ParseStartConfig for %s" % labname)
+    lab_path          = os.path.join(LABS_ROOT,labname)
+    is_valid_lab(lab_path)
+    config_path       = os.path.join(lab_path,"config")
+    start_config_path = os.path.join(config_path,"start.config")
+
+    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, logger)
+    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(LABTAINER_CONFIG, labname, logger)
+    host_home_xfer = labtainer_config.host_home_xfer
+    logger.DEBUG('num terms is %d' % start_config.containers[container].terminals)
+    host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
+
+    mycontainer_name = '%s.%s.%s' % (labname, container, role)
+    if not IsContainerCreated(mycontainer_name):
+        logger.ERROR('container %s not found' % mycontainer_name)
+        sys.exit(1)
+    if not IsContainerRunning(mycontainer_name):
+        logger.ERROR("Container %s is not running!\n" % (mycontainer_name))
+        sys.exit(1)
+    container_user = ""
+    for name, container in start_config.containers.items():
+        if mycontainer_name == container.full_name:
+            container_user = container.user
+
+    if direction == "TOCONTAINER":
+        # Transfer from host to container
+        filename_path = '%s/%s' % (host_xfer_dir, filename)
+        logger.DEBUG("File to transfer from host is (%s)" % filename_path)
+        if os.path.exists(filename_path) and os.path.isfile(filename_path):
+            # Copy file and chown it
+            command = 'docker cp %s %s:/home/%s/' % (filename_path, mycontainer_name, container_user)
+            logger.DEBUG("Command to execute is (%s)" % command)
+            result = subprocess.call(command, shell=True)
+            logger.DEBUG("Result of subprocess.call DoTransfer copy (TOCONTAINER) file (%s) is %s" % (filename_path, result))
+            if result == FAILURE:
+                logger.ERROR("Failed to copy file to container %s!\n" % mycontainer_name)
+                sys.exit(1)
+            command = 'docker exec %s sudo chown %s:%s /home/%s/%s' % (mycontainer_name, container_user, container_user, container_user, filename)
+            logger.DEBUG("Command to execute is (%s)" % command)
+            result = subprocess.call(command, shell=True)
+            logger.DEBUG("Result of subprocess.call DoTransfer chown file (%s) is %s" % (filename_path, result))
+            if result == FAILURE:
+                logger.ERROR("Failed to set permission in container %s!\n" % mycontainer_name)
+                sys.exit(1)
+        else:
+            logger.ERROR('Host does not have %s file' % filename_path)
+	    sys.exit(1)
+    else:
+        # Transfer from container to host
+        command = 'docker cp %s:/home/%s/%s %s/' % (mycontainer_name, container_user, filename, host_xfer_dir)
+        logger.DEBUG("Command to execute is (%s)" % command)
+        result = subprocess.call(command, shell=True)
+        logger.DEBUG("Result of subprocess.call DoTransfer copy (TOHOST) file (%s) is %s" % (filename, result))
+        if result == FAILURE:
+            logger.ERROR("Failed to copy file from container %s!\n" % mycontainer_name)
+            sys.exit(1)
+
 def DoPauseorUnPause(labname, role, command_desired):
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
