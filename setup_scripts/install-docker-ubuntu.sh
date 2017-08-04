@@ -13,32 +13,81 @@ END
 #
 read -p "This script will reboot the system when done, press enter to continue"
 
-#needed packages for install
+#---needed packages for install
 sudo apt-get update
 sudo apt-get -y install apt-transport-https ca-certificates curl software-properties-common 
 
-#adds docker’s official GPG key
+#---adds docker’s official GPG key
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - 
 
-#sets up stable repository
+#---sets up stable repository
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 
-#installs Docker: Community Edition
-sudo apt-get update
+#---installs Docker: Community Edition
+#sudo apt-get update
 sudo apt-get -y install docker-ce 
 
-#starts and enables docker
+#---starts and enables docker
 sudo systemctl start docker
 sudo systemctl enable docker
 
-#gives user docker commands
+#---gives user docker commands
 sudo groupadd docker
 sudo usermod -aG docker $USER 
 
-#other packages required by Labtainers
+#---other packages required by Labtainers
 sudo apt-get -y install python-pip 
 sudo -H pip install --upgrade pip
 sudo -H pip install netaddr
+sudo apt-get -y install openssh-server
+
+#---Checking if packages have been installed. If not, the system will not reboot and allow the user to investigate.
+declare -a packagelist=("apt-transport-https" "ca-certificates" "curl" "software-properties-common" "docker-ce" "python-pip" "openssh-server")
+packagefail="false"
+
+for i in "${packagelist[@]}"
+do
+#echo $i
+packagecheck=$(dpkg -s $i 2> /dev/null | grep Status)
+#echo $packagecheck
+    if [ "$packagecheck" != "Status: install ok installed" ]; then
+       if [ $i = docker-ce ];then 
+           echo "ERROR: '$i' package did not install properly. Please check the terminal output above for any errors related to the pacakge installation. If the issue persists, go to docker docs and follow the instructions for installing docker. (Make sure the instructions is CE and is for your Linux distribution,e.g., Ubuntu and Fedora.)"
+       else
+           echo "ERROR: '$i' package did not install properly. Please check the terminal output above for any errors related to the pacakge installation. Try installing the '$i' package individually by executing this in the command line: 'sudo apt-get install $i" 
+       fi 
+       packagefail="true"
+       #echo $packagefail
+    fi
+done
+
+pipcheck=$(pip list 2> /dev/null | grep -F netaddr)
+#echo $pipcheck
+if [ -z "$pipcheck" ]; then
+    echo "ERROR: 'netaddr' package did not install properly. Please check the terminal output for any errors related to the pacakge installation. Make sure 'python-pip' is installed and then try running this command: 'sudo -H pip install netaddr' "
+    packagefail="true"
+    #echo $packagefail
+fi
+
+#
+#Add the hosts DNS servers to the /etc/resolv.conf by appending them
+#to the resolv.conf.d/head file.  Dockers on ubuntu, cannot resolve
+#addresses from within containers.
+#
+dns_list=$(nmcli dev show | grep DNS | awk '{print $2 $4}')
+echo already is $dns_list
+for dns in $dns_list
+do
+    already=$(grep $dns /etc/resolvconf/resolv.conf.d/head)
+    if [ -z "$already" ]; then
+        echo "nameserver $dns" | sudo tee -a /etc/resolvconf/resolv.conf.d/head
+    fi
+done
+sudo resolvconf -u
+
+if [ $packagefail = "true" ]; then
+    exit
+fi
 
 sudo reboot
 

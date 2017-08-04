@@ -9,18 +9,21 @@ United States Code Section 105.   This software is in the public
 domain and is not subject to copyright. 
 END
 : <<'END'
-This script modifies the resolv.conf file for use with 
-Dockers installed on a VM.  The resolv.conf file is given
-entries to use the NPS name servers to resolve addresses.
-It should be modified to reflect your local domain and DNS servers.
+Add the hosts DNS servers to the /etc/resolv.conf by appending them
+to the resolv.conf.d/head file.  Some dockers, ubuntu?, cannot resolve
+addresses from within containers.
 END
-
-sudo rm -f /tmp/fixresolv.tmp
-echo "search ern.nps.edu" > /tmp/fixresolv.tmp
-echo "nameserver 172.20.20.12" >> /tmp/fixresolv.tmp
-echo "nameserver 172.20.20.11" >> /tmp/fixresolv.tmp
-sudo cp /tmp/fixresolv.tmp /run/resolvconf/interface/NetworkManager
+dns_list=$(nmcli dev show | grep DNS | awk '{print $2 $4}')
+echo already is $dns_list
+for dns in $dns_list
+do
+    already=$(grep $dns /etc/resolvconf/resolv.conf.d/head)
+    if [ -z "$already" ]; then
+        echo "nameserver $dns" | sudo tee -a /etc/resolvconf/resolv.conf.d/head
+    fi
+done
 sudo resolvconf -u
 
 # Verify /etc/resolv.conf
+echo "resolveconf now contains:"
 cat /etc/resolv.conf
