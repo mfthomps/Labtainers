@@ -21,10 +21,11 @@ sudo apt-get -y install apt-transport-https ca-certificates curl software-proper
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - 
 
 #---sets up stable repository
+sudo apt-get update
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 
 #---installs Docker: Community Edition
-#sudo apt-get update
+sudo apt-get update
 sudo apt-get -y install docker-ce 
 
 #---starts and enables docker
@@ -86,6 +87,7 @@ done
 sudo resolvconf -u
 
 if [ $packagefail = "true" ]; then
+    echo "If you manually install packages to correct the problem, be sure to reboot the system before trying to use Labtainers."
     exit
 fi
 
