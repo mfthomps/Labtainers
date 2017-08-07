@@ -1,0 +1,7 @@
+The proxy is started with:
+    sudo /etc/init.d/proxy.sh start
+and stopped with:
+    sudo /etc/init.d/proxy.sh start
+
+
+Its log is in proxy.log
