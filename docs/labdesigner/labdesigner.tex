@@ -414,15 +414,17 @@ is followed by one of the following operations:
        seed.
 
          where: <filename> - the file name (file must exist) where <symbol> is to be replaced.
+                             The file name is prefixed with a container name and the "=" sign.
                              This may be a list of files, delimited by semicolons 
                <symbol> - the string to be replaced
                <LowerBound> and <UpperBound> specifies the lower and upper bound
                                            to be used by random generator
        example:
 
-         some_parameter_id : RAND_REPLACE: /home/ubuntu/stack.c : BUFFER_SIZE : 200 : 2000
+         some_parameter_id : RAND_REPLACE: mylab.client.student=/home/ubuntu/stack.c : BUFFER_SIZE : 200 : 2000
          will randomly replace the token string "BUFFER_SIZE" found in
-         file stack.c with a number ranging from 200 to 2000
+         file stack.c on the mylab.client.student container with a number ranging from 
+         200 to 2000
  
      HASH_CREATE : <filename> : <string>
        Create or overwrite a file with a hash of a given string and the lab instance seed.
@@ -480,7 +482,8 @@ names appear in the \textit{treataslocal} file at
 \begin{verbatim}
     $LABTAINER_DIR/labs/[labname]/[container name]/_bin/treataslocal
 \end{verbatim}
-
+Non-system programs can be excluded from stdin/stdout capturing by including their names in
+a "ignorelocal" file in that same directory.
 
 \{section{Identify Lab-specifc Artifacts}
 The automated assessment functions encourage labs to be organized into a set of distinct "goals".
