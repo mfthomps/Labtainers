@@ -32,13 +32,22 @@ To exit navigation of this instruction, type 'q'.
 
 3.1. Run tshark to perform PCAP Analysis
 
-    tshark -T json -r tcpdump.telnet.pcap
+    a. To see various options available for tshark, do:
+       man tshark
 
-3.2. Identify the 'break-in' time 
+    b. Sample tshark command to display in JSON format:
+       tshark -T json -r tcpdump.telnet.pcap
 
-Identify the time when the attempted 'break-in', i.e., incorrect password is submitted.
+    c. Sample tshark command to display specific fields:
+       tshark -T fields -e frame.number -e frame.time -e telnet.data -r tcpdump.telnet.pcap
 
-Submit the date and time when the attempted 'break-in' to instructor.
+       Above command, show the fields: frame.number, frame.time and telnet.data
+
+3.2. Identify the 'breakin' packet 
+
+Identify the time when the attempted 'breakin', i.e., incorrect password is submitted.
+
+Submit the packet/frame number and the date and time when the attempted 'breakin' to instructor.
 
 4. Stop the Labtainer
 
