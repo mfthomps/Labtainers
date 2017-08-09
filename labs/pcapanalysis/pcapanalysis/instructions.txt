@@ -30,13 +30,11 @@ To exit navigation of this instruction, type 'q'.
 
 3. Tasks
 
-3.1. Transfer PCAP file to host with wireshark GUI
+3.1. Run tshark to perform PCAP Analysis
 
-    ./transfer.py pcapanalysis tcpdump.telnet.pcap
+    tshark -T json -r tcpdump.telnet.pcap
 
-3.2. PCAP Analysis using Wireshark
-
-Open wireshark and analyze the PCAP file tcpdump.telnet.pcap
+3.2. Identify the 'break-in' time 
 
 Identify the time when the attempted 'break-in', i.e., incorrect password is submitted.
 
