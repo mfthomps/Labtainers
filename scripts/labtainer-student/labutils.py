@@ -369,6 +369,7 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test):
             student_email = ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname, student_email)
     
     # Reach here - Everything is OK - spawn terminal for each container based on num_terminal
+    terminal_count = 0
     for container in start_config.containers.values():
         # Do not spawn terminal if it is regression testing
         if is_regress_test:
@@ -385,11 +386,23 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test):
         # If the number of terminal is zero -- do not spawn
         if num_terminal != 0:
             for x in range(num_terminal):
-                spawn_command = "gnome-terminal -x docker exec -it %s bash -l &" % mycontainer_name
+                sys.stderr.write("%d \n" % terminal_count)
+                terminal_location = terminalCounter(terminal_count)
+                sys.stderr.write("%s \n" % terminal_location)
+                sys.stderr.write("%s \n" % mycontainer_name)
+                terminal_count += 1
+                spawn_command = "gnome-terminal %s -x docker exec -it %s bash -l &" % (terminal_location, mycontainer_name)
+                #spawn_command = "gnome-terminal -x docker exec -it %s bash -l &" % mycontainer_name
                 os.system(spawn_command)
 
     return 0
 
+def terminalCounter(terminal_count):
+    x_coordinate = 100 + ( 50 * terminal_count )
+    y_coordinate = 75 + ( 50 * terminal_count)
+    terminal_location = "--geometry 75x25+%d+%d" % (x_coordinate, y_coordinate)
+    
+    return terminal_location
 
 # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
 def CreateHostHomeXfer(host_xfer_dir):
