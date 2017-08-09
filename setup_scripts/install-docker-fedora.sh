@@ -14,13 +14,14 @@ END
 read -p "This script will reboot the system when done, press enter to continue"
 
 #needed packages for install
-sudo dnf upgrade
+#sudo dnf upgrade
 sudo dnf -y install dnf-plugins-core
 
 #sets up stable repository
 sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
 
 #installs Docker: Community Edition
+#sudo dnf upgrade
 sudo dnf makecache fast
 sudo dnf -y install docker-ce
 
@@ -28,6 +29,7 @@ sudo dnf -y install docker-ce
 sudo dnf -y install python-pip
 sudo pip install --upgrade pip
 sudo pip install netaddr
+sudo dnf install -y openssh-server 
 
 #starts and enables docker
 sudo systemctl start docker
@@ -36,6 +38,40 @@ sudo systemctl enable docker
 #gives user docker commands
 sudo groupadd docker
 sudo usermod -aG docker $USER
+
+
+
+#---Checking if packages have been installed. If not, the system will not reboot and allow the user to investigate.
+declare -a packagelist=("dnf-plugins-core"  "docker-ce" "python-pip" "openssh-server")
+packagefail="false"
+
+for i in "${packagelist[@]}"
+do
+#echo $i
+packagecheck=$(rpm -qa | grep $i)
+#echo $packagecheck
+    if [ -z "$packagecheck" ]; then
+       if [ $i = docker-ce ];then 
+           echo "ERROR: '$i' package did not install properly. Please check the terminal output above for any errors related to the pacakge installation. Run the install script two more times. If the issue persists, go to docker docs and follow the instructions for installing docker. (Make sure the instructions is CE and is for your Linux distribution,e.g., Ubuntu and Fedora.)"
+       else
+           echo "ERROR: '$i' package did not install properly. Please check the terminal output above for any errors related to the pacakge installation. Try installing the '$i' package individually by executing this in the command line: 'sudo apt-get install $i" 
+       fi
+       packagefail="true"
+       #echo $packagefail
+    fi
+done
+
+pipcheck=$(pip list 2> /dev/null | grep -F netaddr)
+#echo $pipcheck
+if [ -z "$pipcheck" ]; then
+    echo "ERROR: 'netaddr' package did not install properly. Please check the terminal output for any errors related to the pacakge installation. Make sure 'python-pip' is installed and then try running this command: 'sudo -H pip install netaddr' "
+    packagefail="true"
+    #echo $packagefail
+fi
+
+if [ $packagefail = "true" ]; then
+    exit
+fi
 
 sudo reboot
 

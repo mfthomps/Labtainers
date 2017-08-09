@@ -14,7 +14,7 @@ END
 read -p "This script will reboot the system when done, press enter to continue"
 
 #needed packages for install
-sudo yum update
+sudo yum makecache fast
 sudo yum install -y yum-utils device-mapper-persistent-data lvm2
 
 #sets up stable repository
@@ -29,6 +29,7 @@ sudo yum --enablerepo=extras -y install epel-release
 sudo yum install -y python-pip
 sudo pip install --upgrade pip
 sudo pip install netaddr
+sudo yum install -y openssh-server 
 
 #starts and enables docker
 sudo systemctl start docker
@@ -37,6 +38,38 @@ sudo systemctl enable docker
 #gives user docker commands
 sudo groupadd docker
 sudo usermod -aG docker $USER
+
+#---Checking if packages have been installed. If not, the system will not reboot and allow the user to investigate.
+declare -a packagelist=("yum-utils" "device-mapper-persistent-data" "lvm2" "epel-release" "docker-ce" "python2-pip" "openssh-server")
+packagefail="false"
+
+for i in "${packagelist[@]}"
+do
+#echo $i
+packagecheck=$(rpm -qa | grep $i)
+#echo $packagecheck
+    if [ -z "$packagecheck" ]; then
+       if [ $i = docker-ce ];then 
+           echo "ERROR: '$i' package did not install properly. Please check the terminal output above for any errors related to the pacakge installation. Run the install script two more times. If the issue persists, go to docker docs and follow the instructions for installing docker. (Make sure the instructions is CE and is for your Linux distribution,e.g., Ubuntu and Fedora.)"
+       else
+           echo "ERROR: '$i' package did not install properly. Please check the terminal output above for any errors related to the pacakge installation. Try installing the '$i' package individually by executing this in the command line: 'sudo apt-get install $i" 
+       fi
+       packagefail="true"
+       #echo $packagefail
+    fi
+done
+
+pipcheck=$(pip list 2> /dev/null | grep -F netaddr)
+#echo $pipcheck
+if [ -z "$pipcheck" ]; then
+    echo "ERROR: 'netaddr' package did not install properly. Please check the terminal output for any errors related to the pacakge installation. Make sure 'python-pip' is installed and then try running this command: 'sudo -H pip install netaddr' "
+    packagefail="true"
+    #echo $packagefail
+fi
+
+if [ $packagefail = "true" ]; then
+    exit
+fi
 
 sudo reboot
 
