@@ -210,7 +210,7 @@ def putLastEmail(email):
     with open(EMAIL_TMP, 'w') as fh:
             fh.write(email)
 
-def ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname, student_email):
+def ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname, student_email, quiet_build):
     if student_email is not None:
         user_email = student_email
     else:
@@ -222,7 +222,14 @@ def ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname, 
             prev_email = getLastEmail()
             if prev_email is not None:
                 eprompt = eprompt+" [%s]" % prev_email
-            user_email = raw_input(eprompt)
+
+	    #checks if quiet_build is true
+            if quiet_build and prev_email is not None:
+                user_email = prev_email
+            else:
+                user_email = raw_input(eprompt)
+
+            #user_email = raw_input(eprompt)
             if len(user_email.strip()) == 0:
                 if prev_email is None:
                     done = False
@@ -294,7 +301,7 @@ def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_
             logger.ERROR("Failed to set labname in container %s!\n" % mycontainer_name)
             sys.exit(1)
 
-def DoStart(start_config, labtainer_config, labname, role, is_regress_test):
+def DoStart(start_config, labtainer_config, labname, role, is_regress_test, quiet_build):
     lab_master_seed = start_config.lab_master_seed
     logger.DEBUG("DoStart Multiple Containers and/or multi-home networking")
 
@@ -363,10 +370,16 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test):
                 if copy_result == FAILURE:
                     logger.ERROR("Failed to copy students' artifacts to container %s!\n" % mycontainer_name)
                     sys.exit(1)
-        # If the container is just created, prompt user's e-mail
+
+	#--Daniel
+    	# If the container is just created, then use the previous user's e-mail
         # then parameterize the container
+    	elif quiet_build and need_seeds and role == 'student':
+            student_email = ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname, student_email, quiet_build)
+        
         elif need_seeds and role == 'student':
-            student_email = ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname, student_email)
+            student_email = ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname, student_email, quiet_build)
+
     
     # Reach here - Everything is OK - spawn terminal for each container based on num_terminal
     terminal_count = 0
@@ -386,10 +399,10 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test):
         # If the number of terminal is zero -- do not spawn
         if num_terminal != 0:
             for x in range(num_terminal):
-                sys.stderr.write("%d \n" % terminal_count)
+                #sys.stderr.write("%d \n" % terminal_count)
                 terminal_location = terminalCounter(terminal_count)
-                sys.stderr.write("%s \n" % terminal_location)
-                sys.stderr.write("%s \n" % mycontainer_name)
+                #sys.stderr.write("%s \n" % terminal_location)
+                #sys.stderr.write("%s \n" % mycontainer_name)
                 terminal_count += 1
                 spawn_command = "gnome-terminal %s -x docker exec -it %s bash -l &" % (terminal_location, mycontainer_name)
                 #spawn_command = "gnome-terminal -x docker exec -it %s bash -l &" % mycontainer_name
@@ -486,7 +499,7 @@ def CopyChownGradesFile(mycwd, start_config, labtainer_config, container_name, c
         sys.exit(1)
     '''
 
-def StartLab(labname, role, is_regress_test=None, force_build=False, is_redo=False):
+def StartLab(labname, role, is_regress_test=None, force_build=False, is_redo=False, quiet_build=False):
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
     logger.DEBUG("current working directory for %s" % mycwd)
@@ -533,7 +546,7 @@ def StartLab(labname, role, is_regress_test=None, force_build=False, is_redo=Fal
     host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
     CreateHostHomeXfer(host_xfer_dir)
 
-    DoStart(start_config, labtainer_config, labname, role, is_regress_test)
+    DoStart(start_config, labtainer_config, labname, role, is_regress_test, quiet_build)
 
 def FileModLater(ts, fname):
     ''' is the given file later than the timestamp (which is in UTC)? '''
@@ -647,7 +660,7 @@ def dumb():
     pass
     '''
     '''
-def RedoLab(labname, role, is_regress_test=None, force_build=False):
+def RedoLab(labname, role, is_regress_test=None, force_build=False, quiet_build=False):
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
     logger.DEBUG("current working directory for %s" % mycwd)
@@ -657,7 +670,7 @@ def RedoLab(labname, role, is_regress_test=None, force_build=False):
     #                                         since it might not even be an error)
     StopLab(labname, role, True)
     is_redo = True
-    StartLab(labname, role, is_regress_test, force_build, is_redo=is_redo)
+    StartLab(labname, role, is_regress_test, force_build, is_redo=is_redo, quiet_build=quiet_build)
 
 def GatherOtherArtifacts(labname, name, container_name, container_user, ignore_stop_error):
     '''

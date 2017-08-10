@@ -22,12 +22,14 @@ import os
 #    <labname> is given as a parameter to the script.
 #
 
-# Usage: start.py <labname>
+# Usage: start.py <labname> [-q]
 # Arguments:
 #    <labname> - the lab to start
+#    [-q] will load the lab using a predetermined email.
 def main():
-    if len(sys.argv) != 2:
-        sys.stderr.write("Usage: start.py <labname>\n")
+    if len(sys.argv) < 2 or len(sys.argv) > 3:
+        sys.stderr.write("Usage: start.py <labname> [-q]\n")
+        sys.stderr.write("   -q will load the lab using a predetermined email.\n")
 #	tell user list of lesson/folder names in "/labtainer/trunk/labs/"
 	sys.stderr.write("List of available labs:\n\n")
 	dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -47,10 +49,14 @@ def main():
                 sys.stderr.write(description)
         sys.exit(1)
     
+    quiet_build = False
+    if len(sys.argv) == 3 and sys.argv[2] == '-q':
+        quiet_build = True
+    
     labname = sys.argv[1]
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname)
     labutils.logger.INFO("Begin logging start.py for %s lab" % labname)
-    labutils.StartLab(labname, "student")
+    labutils.StartLab(labname, "student", quiet_build=quiet_build)
 
     return 0
 
