@@ -22,10 +22,9 @@ Install Docker by running one of the install-docker scripts, depending on your L
 distribution:
 \begin{verbatim}
     ./labtainer/trunk/setup_scripts/install-docker-ubuntu.sh
-\end{verbatim}
-\noindent or 
-\begin{verbatim}
     ./labtainer/trunk/setup_scripts/install-docker-fedora.sh
+    ./labtainer/trunk/setup_scripts/install-docker-debian.sh
+    ./labtainer/trunk/setup_scripts/install-docker-centos.sh
 \end{verbatim}
 If you have a different Linux distribution, find instructions for installing Docker at
 \url{https://docs.docker.com/engine/installation/}
@@ -35,20 +34,23 @@ make sure you also have python, and
 the python \textit{netaddr} module installed.
 
 \section{Performing a Lab}
-All labs are run from the same workspace directory:
+All labs are run from the same Labtainer workspace directory:
 \begin{verbatim}
     cd labtainer/trunk/scripts/labtainer-student
 \end{verbatim}
 \noindent Then run the lab:
 \begin{verbatim}
     ./start.py <labname>
+       where <labname> is the name of the lab to run.  Leaving this out will 
+       display a list of available labs.
 \end{verbatim}
 
 The first time any given lab is run, it may take a short while to build the Docker images 
 required for the lab.  Subsequent runs will start much faster.
 
-Follow the instructions that appear in one of the resulting virtual terminals.
-While running the lab, if you require more virtual terminals, use:
+Follow the instructions that appear in one of the resulting virtual terminals.  Please
+note that some of the initial lab instructions repeat the steps you've already taken, and you need
+not repeat those.  While running the lab, if you require more virtual terminals, use:
 \begin{verbatim}
     ./moreterm.py <labname>
 \end{verbatim}
@@ -59,7 +61,7 @@ may have multiple virtual terminals attached to it.  Each computer is independen
 may use networks to interact with other computers within the lab.  
 
 \subsection{Networking}
-In addition to networks properties defined for the lab,
+In addition to network properties defined for the lab,
 each component \texttt{/etc/host} file includes a "my\_host entry" that names
 the host Linux.  Most containers will include a default gateway that
 leads to the Linux host.  This allows students to scp files to/from the container and host.
