@@ -18,6 +18,7 @@ import json
 import glob
 import os
 import sys
+import subprocess
 import ast
 import string
 import evalBoolean
@@ -418,6 +419,75 @@ def processMatchAny(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
     #print goals_id_ts
     #print goals_ts_id
 
+def processExecute(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
+    #print "Inside processExecute"
+    found = False
+    goalid = eachgoal['goalid']
+    #print goalid
+    executefile = eachgoal['goaloperator']
+    #print executefile
+    jsonanswertag = eachgoal['answertag']
+    #print jsonanswertag
+    jsonresulttag = eachgoal['resulttag']
+    (resulttagtarget, resulttag) = jsonresulttag.split('.')
+    #print jsonresulttag
+    # Handle special case 'answer=<string>'
+    one_answer = False
+    if '=' in jsonanswertag:
+        (answertag, onlyanswer) = jsonanswertag.split('=')
+        current_onlyanswer = onlyanswer.strip()
+        # Change to one_answer = True
+        one_answer = True
+        #print "Current onlyanswer is (%s)" % current_onlyanswer
+    else:
+        print('processExecute: expecting answertag to be the parameterized value')
+        exit(1)
+
+    # for processExecute - Process all files regardless of match found or not found
+    for outputjsonfile in outjsonfnames:
+        #print "processExecute: outputjsonfile is (%s)" % outputjsonfile
+        #print "processExecute Output json %s" % outputjsonfile
+        # Use rsplit to get the timestamppart
+        if outputjsonfile.endswith("student"):
+            filenamepart = outputjsonfile
+            timestamppart = "default"
+        else:
+            (filenamepart, timestamppart) = outputjsonfile.rsplit('.', 1)
+        jsonoutput = getJsonOut(outputjsonfile)
+
+        #print "processExecute: goalid is (%s), timestamppart is (%s)" % (goalid, timestamppart)
+        #print jsonoutput
+        if jsonoutput == {}:
+            # empty - skip
+            continue
+
+        try:
+            resulttagresult = jsonoutput[resulttag]
+        except KeyError:
+            print('processExecute: %s not found in file %s' % (resulttag, outputjsonfile))
+            continue
+        #print resulttagresult
+        
+        try:
+            timestampend = jsonoutput['PROGRAM_ENDTIME']
+        except KeyError:
+            print('processExecute: PROGRAM_ENDTIME not found in file %s' % outputjsonfile)
+            exit(1)
+        fulltimestamp = '%s-%s' % (timestamppart, timestampend)
+
+        #print "Correct answer is (%s) result (%s)" % (current_onlyanswer, resulttagresult)
+        #found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
+
+        command = "%s %s %s" % (executefile, resulttagresult, current_onlyanswer)
+        #print("Command to execute is (%s)" % command)
+        result = subprocess.call(command, shell=True)
+        if result:
+            #print "processExecute return 1"
+            add_goals_id_ts(goalid, fulltimestamp, True, goals_id_ts, goals_ts_id)
+        else:
+            #print "processExecute return 0"
+            add_goals_id_ts(goalid, fulltimestamp, False, goals_id_ts, goals_ts_id)
+
 def processTrueFalse(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
     #print "Inside processTrueFalse"
     found = False
@@ -579,6 +649,8 @@ def processLabExercise(studentlabdir, labidname, grades, goals, goals_id_ts, goa
             processMatchLast(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id)
         elif eachgoal['goaltype'] == "matchacross":
             processMatchAcross(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id)
+        elif eachgoal['goaltype'] == "execute":
+            processExecute(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id)
         elif eachgoal['goaltype'] == "boolean":
             processBoolean(eachgoal, goals_id_ts, goals_ts_id)
         elif eachgoal['goaltype'] == "time_before" or \

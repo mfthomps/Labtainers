@@ -260,18 +260,27 @@ def ParseGoals(studentdir):
                     valid_resulttag = ValidateTag(parameter_list, studentdir, goal_type, resulttag, False)
                     if not (goal_type == "matchany" or
                         goal_type == "matchlast" or
-                        goal_type == "matchacross"):
+                        goal_type == "matchacross" or
+                        goal_type == "execute"):
                         sys.stderr.write("ERROR: goals.config contains unrecognized type (1) (%s)\n" % goal_type)
                         sys.exit(1)
-                    if not (goal_operator == "string_equal" or
-                        goal_operator == "string_diff" or
-                        goal_operator == "string_start" or
-                        goal_operator == "string_end" or
-                        goal_operator == "integer_equal" or
-                        goal_operator == "integer_greater" or
-                        goal_operator == "integer_lessthan"):
-                        sys.stderr.write("ERROR: goals.config contains unrecognized operator (%s)\n" % goal_operator)
-                        sys.exit(1)
+                    if not (goal_type == "execute"):
+                        # If goal_type is not 'execute' then check the goal_operator
+                        if not (goal_operator == "string_equal" or
+                            goal_operator == "string_diff" or
+                            goal_operator == "string_start" or
+                            goal_operator == "string_end" or
+                            goal_operator == "integer_equal" or
+                            goal_operator == "integer_greater" or
+                            goal_operator == "integer_lessthan"):
+                            sys.stderr.write("ERROR: goals.config contains unrecognized operator (%s)\n" % goal_operator)
+                            sys.exit(1)
+                    else:
+                        # Make sure the file to be executed exist
+                        execfile = '%s/.local/bin/%s' % (UBUNTUHOME, goal_operator)
+                        if not (os.path.exists(execfile) and os.path.isfile(execfile)):
+                            sys.stderr.write("ERROR: goals.config contains execute goals with missing exec file (%s)\n" % goal_operator)
+                            sys.exit(1)
                     nametags.append(MyGoal(each_key, goal_type, goaloperator=goal_operator, answertag=valid_answertag, resulttag=valid_resulttag))
                     #print "goal_type non-boolean"
                     #print nametags[each_key].goal_dict()

@@ -341,7 +341,7 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
 
         targetfname_list.append(targetfname)
 
-    print "Current targetfname_list is %s" % targetfname_list
+    #print "Current targetfname_list is %s" % targetfname_list
 
     tagstring = "NONE"
     # Loop through targetfname_list
