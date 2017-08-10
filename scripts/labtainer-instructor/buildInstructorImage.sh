@@ -52,10 +52,6 @@ if [ ! -d $LABIMAGE_DIR ]; then
     echo "$LABIMAGE_DIR not found"
     exit
 fi
-fixresolve='../../setup_scripts/fixresolv.sh'
-if [ -f $fixresolve ]; then
-    $fixresolve
-fi
 
 #-----------------------------------V
 imagecheck=$(docker search mfthomps/$labimage | grep mfthomps/$labimage)
