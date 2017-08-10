@@ -21,5 +21,6 @@ else
     echo "trap \"source /home/ubuntu/.bash_logout\" SIGINT SIGTERM SIGKILL" >> $HOME/.profile
 
     echo "history -a" >> $HOME/.bash_logout
+    cat set-title.sh >> $HOME/.bashrc
 fi
 
