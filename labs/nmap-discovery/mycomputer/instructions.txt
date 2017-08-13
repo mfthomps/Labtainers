@@ -1,0 +1,46 @@
+nmap -sP 172.25.0.0/24
+
+Title: Nmap Lab Exercise
+
+1. Background
+
+This Labtainer exercise explores Nmap.
+
+2. Performing the lab
+
+The lab is started from the Labtainer working directory on your 
+Docker-enabled host, e.g., a Linux VM.  From there, issue the command:
+
+	./start.py nmap-discovery
+
+The resulting virtual terminals will include a display of these 
+instructions, and bash shell. Nmap is pre-installed on the container.
+
+To navigate these instructions, use the arrow keys along with the 
+Space/Home/End/Page Up/Page Down keys. To exit these instruction, type 'q'.
+
+3. Tasks
+
+Your boss wants you to prepare for a meeting on a project you have not 
+worked on for months. You have a summary file on the "friedshrimp" 
+server that you previously accessed via ssh. You cannot remember the 
+IP address of friedshrimp, and you forgot which port the IT staff 
+assigned for SSH on that server. You do know that your password is the 
+usual one used in these labs. Use nmap to find the IP address and port number
+used by the SSH service. Then review the content of "friedshrimp.txt" file
+from an SSH session.
+
+If you need help with nmap commands, you can use the "man nmap" command to 
+view the manual.  And note that to ssh to a host via a port other than the
+default, use "ssh -p <port> <host>".
+
+4. Stop the Labtainer
+
+When the lab is completed, or you'd like to stop working for a while, run
+
+	./stop.py nmap-discovery
+
+from the host Labtainer working directory. You can always restart the 
+Labtainer to continue your work. When the Labtainer is stopped, a zip 
+file is created and copied to a location displayed by the stop.py command. 
+When the lab is completed, send that zip file to the instructor.

@@ -1,0 +1,5 @@
+/usr/sbin/rsyslogd -n &
+service rc.local start
+service xinetd restart
+/etc/xinetd.d/httpservice start
+sleep 20000

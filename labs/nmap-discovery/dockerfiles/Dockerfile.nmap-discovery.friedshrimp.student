@@ -1,0 +1,26 @@
+FROM mfthomps/labtainer.network
+ARG lab
+ARG labdir
+ARG imagedir
+
+#
+# Example of installing xinetd to manage inetd type system services
+# And, installation of rsyslog to cause system logging local to the
+# container.
+#
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    telnetd 
+
+ADD $labdir/sys_$lab.tar.gz /
+
+USER ubuntu
+ENV HOME /home/ubuntu
+ADD $labdir/$lab.tar.gz $HOME
+RUN echo "cd" >> $HOME/.profile
+RUN echo "source $HOME/.local/bin/startup.sh" >> $HOME/.profile
+RUN echo "" > $HOME/.bash_logout
+
+#
+# the faux_init script starts the rsyslog daemon & the xinetd
+#
+ENTRYPOINT sudo /sbin/faux_init && bash
