@@ -68,10 +68,11 @@ class ParseStartConfig():
                     exit(1)
 
     class Subnet():
-        def __init__(self, name):
+        def __init__(self, name, logger):
             self.name   = name
             self.mask = 0
             self.gateway = 0
+            self.logger = logger
 
         def validate(self):
             if not isalphadashscore(self.name):
@@ -118,7 +119,7 @@ class ParseStartConfig():
                 if key == "global_settings":
                     active = self
                 elif key == "network":
-                    self.add_if_new(val, self.subnets, self.Subnet(val))
+                    self.add_if_new(val, self.subnets, self.Subnet(val, self.logger))
                     active = self.subnets[val]
                 elif key == "container":
                     self.add_if_new(val, self.containers, self.Container(val))
