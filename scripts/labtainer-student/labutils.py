@@ -159,7 +159,7 @@ def CreateSubnets(subnets):
         logger.DEBUG("subnet_name is %s" % subnet_name)
         logger.DEBUG("subnet_network_mask is %s" % subnet_network_mask)
 
-        command = "docker network inspect %s > /dev/null" % subnet_name
+        command = "docker network inspect %s 2> /dev/null" % subnet_name
         logger.DEBUG("Command to execute is (%s)" % command)
         inspect_result = subprocess.call(command, shell=True)
         logger.DEBUG("Result of subprocess.call CreateSubnets docker network inspect is %s" % inspect_result)
@@ -185,7 +185,7 @@ def CreateSubnets(subnets):
 
 def RemoveSubnets(subnets, ignore_stop_error):
     for subnet_name in subnets:
-        command = "docker network rm %s" % subnet_name
+        command = "docker network rm %s 2> /dev/null" % subnet_name
         ps = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         output = ps.communicate()
         if len(output[1]) > 0:
