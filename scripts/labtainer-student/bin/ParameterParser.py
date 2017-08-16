@@ -380,7 +380,7 @@ def ParseParameterConfig(container_user, lab_instance_seed, configfilename):
 #     <container_name> - name of the container"
 #     [<config_file>] - optional configuration file
 #                       if <config_file> not specified, it defaults to
-#                       /home/ubuntu/.local/config/parameter.config
+#                       /home/<container_user>/.local/config/parameter.config
 def main():
     global container_name
     #print "Running ParameterParser.py"

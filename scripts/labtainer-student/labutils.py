@@ -531,9 +531,9 @@ def StartLab(labname, role, is_regress_test=None, force_build=False, is_redo=Fal
                 logger.DEBUG("Error from command = '%s'" % str(output[1]))
         if force_build or CheckBuild(labname, mycontainer_image_name, mycontainer_name, name, role, is_redo):
             if os.path.isfile(build_student):
-                cmd = '%s %s %s %s' % (build_student, labname, name, force_build)
+                cmd = '%s %s %s %s %s' % (build_student, labname, name, container.user, force_build)
             elif os.path.isfile(build_instructor):
-                cmd = '%s %s %s %s' % (build_instructor, labname, name, force_build)
+                cmd = '%s %s %s %s %s' % (build_instructor, labname, name, container.user, force_build)
             else:
                 logger.ERROR("no image rebuild script\n")
                 exit(1)

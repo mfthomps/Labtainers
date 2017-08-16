@@ -9,7 +9,7 @@ domain and is not subject to copyright.
 END
 treatlocal(){
    local cmd_path=$1
-   local TAS=/home/ubuntu/.local/bin/treataslocal
+   local TAS=$HOME/.local/bin/treataslocal
    if [ -f $TAS ]
    then
        # Get the list of commands from treataslocal
@@ -25,7 +25,7 @@ treatlocal(){
 }
 ignorelocal(){
    local cmd_path=$1
-   local TAS=/home/ubuntu/.local/bin/ignorelocal
+   local TAS=$HOME/.local/bin/ignorelocal
    if [ -f $TAS ]
    then
        # Get the list of commands from ignorelocal

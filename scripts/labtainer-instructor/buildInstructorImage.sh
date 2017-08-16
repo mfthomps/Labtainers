@@ -12,31 +12,23 @@ END
 # Build an instructor container image for a given lab.
 # First copies all required files to a staging directory in /tmp
 #
-
-# Usage: buildInstructorImage.sh <labname> [<imagename>] force_build(true or false)
-#        <imagename> is optional for lab that only has one image
+# Usage: buildImage.sh <labname> <imagename> <user_name> <force_build>
+#        <force_build> is either true or false
 
 lab=$1
-
-#if [ "$#" -eq 2 ]; then
-#    imagename=$2
-#    labimage=$lab.$imagename.instructor
-#else
-#    imagename=$lab
-#    labimage=$lab.$lab.instructor
-#fi
-
+user_name=$3
+fource_build="False"
 #------------------------------------V
-if [ "$#" -eq 3 ]; then
+if [ "$#" -eq 4 ]; then
     imagename=$2
     labimage=$lab.$imagename.instructor
+    force_build=$4 
 else
-    imagename=$lab
-    labimage=$lab.$lab.instructor
+    echo "Usage: buildImage.sh <labname> <imagename> <user_name> <force_build>"
+    echo "   <force_build> is either true or false"
+    exit
 fi
 
-force_build=$3 
-#echo $1 $2 $3
 #------------------------------------^
 
 echo "Labname is $lab with image name $imagename"
@@ -113,7 +105,7 @@ fi
 if [ ! -z "$imagecheck" ] && [ $force_build = "False" ]; then 
     docker build --pull -f $LAB_DIR/dockerfiles/tmp/$dfile.tmp -t $labimage .
 else
-    docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename --pull -f $full_dfile -t $labimage .
+    docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename --build-arg user_name=$user_name --pull -f $full_dfile -t $labimage .
 fi
 #--------------------------------^
 echo "removing temporary $dfile, reference original in $LAB_DIR/dockerfiles/$dfile"

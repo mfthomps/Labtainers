@@ -9,20 +9,21 @@ United States Code Section 105.   This software is in the public
 domain and is not subject to copyright. 
 END
 
-# Usage: buildImage.sh <labname> [<imagename>] [<force_build>]
-#        <imagename> is optional for labs that only have one image
+# Usage: buildImage.sh <labname> <imagename> <user_name> <force_build>
 #        <force_build> is either true or false
 
 lab=$1
+user_name=$3
 fource_build="False"
 #------------------------------------V
-if [ "$#" -eq 3 ]; then
+if [ "$#" -eq 4 ]; then
     imagename=$2
     labimage=$lab.$imagename.student
-    force_build=$3 
+    force_build=$4 
 else
-    imagename=$lab
-    labimage=$lab.$lab.student
+    echo "Usage: buildImage.sh <labname> <imagename> <user_name> <force_build>"
+    echo "   <force_build> is either true or false"
+    exit
 fi
 
 #------------------------------------^
@@ -90,7 +91,7 @@ dfile=Dockerfile.$labimage
 if [ ! -z "$imagecheck" ] && [ $force_build = "False" ]; then 
     docker build --pull -f $LAB_DIR/dockerfiles/tmp/$dfile.tmp -t $labimage .
 else
-    docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename --pull -f $LAB_DIR/dockerfiles/$dfile -t $labimage .
+    docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename --build-arg user_name=$user_name --pull -f $LAB_DIR/dockerfiles/$dfile -t $labimage .
 fi
 #---------------------------------^
 result=$?

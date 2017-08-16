@@ -30,7 +30,8 @@ def main():
     if len(sys.argv) != 2:
         sys.stderr.write("Usage: Student.py <username>\n")
         return 1
-    StudentHomeDir = os.path.join('/home',sys.argv[1])
+    user_name = sys.argv[1]
+    StudentHomeDir = os.path.join('/home',user_name)
     HomeLocal= os.path.join(StudentHomeDir, '.local')
     os.chdir(StudentHomeDir)
     student_email_file=os.path.join(HomeLocal, '.email')
@@ -61,8 +62,9 @@ def main():
     # Note: Use /tmp to temporary store the zip file first
     # Create temp zip file and zip everything under StudentHomeDir
     zipoutput = zipfile.ZipFile(TempOutputName, "w")
+    udir = "/home/"+user_name
     for rootdir, subdirs, files in os.walk(StudentHomeDir):
-        newdir = rootdir.replace("/home/ubuntu", ".")
+        newdir = rootdir.replace(udir, ".")
         for file in files:
             savefname = os.path.join(newdir, file)
             #print "savefname is %s" % savefname
