@@ -275,21 +275,17 @@ def Perform_RAND_REPLACE(lab_instance_seed):
         #    print "File (%s) exist\n" % filename
         #print "Replace list is "
         #print replacelist
-        filelines = []
+        content = None
         # First open the file - read
         with open(filename, 'r') as infile:
-            for line in infile:
-                # Replace token
-                for replaceitem in replacelist:
-                    (oldtoken, newtoken) = replaceitem.split(':')
-                    line = line.replace(oldtoken, newtoken)
-                filelines.append(line)
-        infile.close()
+            content = infile.read()
+            for replaceitem in replacelist:
+                (oldtoken, newtoken) = replaceitem.split(':')
+                content = content.replace(oldtoken, newtoken)
         # Re-open file with write
         with open(filename, 'w') as outfile:
-            for line in filelines:
-                outfile.write(line)
-        outfile.close()
+            outfile.write(content)
+        
 
 # Perform HASH_CREATE
 def Perform_HASH_CREATE(lab_instance_seed):
@@ -350,20 +346,16 @@ def Perform_HASH_REPLACE(lab_instance_seed):
         #    print "File (%s) exist\n" % filename
         #print "Replace list is "
         #print replacelist
-        filelines = []
+        content = None
+   
         with open(filename, 'r') as infile:
-            for line in infile:
-                # Replace token
-                for replaceitem in replacelist:
-                    (oldtoken, newtoken) = replaceitem.split(':')
-                    line = line.replace(oldtoken, newtoken)
-                filelines.append(line)
-        infile.close()
+            content = infile.read() 
+            for replaceitem in replacelist:
+                (oldtoken, newtoken) = replaceitem.split(':')
+                content = content.replace(oldtoken, newtoken)
         # Re-open file with write
         with open(filename, 'w') as outfile:
-            for line in filelines:
-                outfile.write(line)
-        outfile.close()
+            outfile.write(content)
 
 def DoReplace(lab_instance_seed):
     # Perform RAND_REPLACE
