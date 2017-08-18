@@ -113,17 +113,31 @@ def CheckHashCreateEntry(container_user, lab_instance_seed, param_id, each_value
     #print "Checking HASH_CREATE entry"
     entryline = each_value.split(':')
     #print entryline
+
+
+    entryline = each_value.split(':')
+    #print entryline
     numentry = len(entryline)
-    if numentry != 2:
-        sys.stderr.write("ERROR: RAND_CREATE (%s) improper format\n" % each_value)
-        sys.stderr.write("ERROR: HASH_CREATE : <filename> : <string>\n")
-    myfilename = entryline[0].strip()
+    if numentry != 2 and numentry != 3:
+        sys.stderr.write("ERROR: HASH_CREATE : <filename> : <string> [: length]\n")
+        return
+    myfilename_field = entryline[0].strip()
     the_string = entryline[1].strip()
+    strlen = 32
+    if numentry == 3:
+        try:
+            srlen = int(entryline[2].strip())
+        except:      
+            sys.stderr.write("ERROR: RAND_CREATE (%s) improper format\n" % each_value)
+            sys.stderr.write("ERROR: expected int for length, got %s \n" % entryline[2])
+            return
+
     # Create hash per the_string
     string_to_be_hashed = '%s:%s' % (lab_instance_seed, the_string)
     mymd5 = md5.new()
     mymd5.update(string_to_be_hashed)
-    mymd5_hex_string = mymd5.hexdigest()
+    mymd5_hex_string = mymd5.hexdigest()[:strlen]
+
     #print mymd5_hex_string
     #print "filename is (%s)" % myfilename
     #print "the_string is (%s)" % the_string
@@ -165,20 +179,28 @@ def CheckHashCreateEntry(container_user, lab_instance_seed, param_id, each_value
 def CheckHashReplaceEntry(container_user, lab_instance_seed, param_id, each_value):
     # HASH_REPLACE : <filename> : <token> : <string>
     #print "Checking HASH_REPLACE entry"
+
     entryline = each_value.split(':')
     #print entryline
     numentry = len(entryline)
-    if numentry != 3:
-        sys.stderr.write("ERROR: RAND_REPLACE (%s) improper format\n" % each_value)
-        sys.stderr.write("ERROR: HASH_REPLACE : <filename> : <token> : <string>\n")
-    myfilename = entryline[0].strip()
+    if numentry != 3 and numentry != 4:
+        sys.stderr.write("ERROR: HASH_CREATE : <filename> : <string> [: length]\n")
+    strlen = 32
+    if numentry == 4:
+        try:
+            srlen = int(entryline[3].strip())
+        except:      
+            sys.stderr.write("ERROR: RAND_CREATE (%s) improper format\n" % each_value)
+            sys.stderr.write("ERROR: expected int for length, got %s \n" % entryline[3])
+            return
+    myfilename_field = entryline[0].strip()
     token = entryline[1].strip()
     the_string = entryline[2].strip()
     # Create hash per the_string
     string_to_be_hashed = '%s:%s' % (lab_instance_seed, the_string)
     mymd5 = md5.new()
     mymd5.update(string_to_be_hashed)
-    mymd5_hex_string = mymd5.hexdigest()
+    mymd5_hex_string = mymd5.hexdigest()[:strlen]
     #print "filename is (%s)" % myfilename
     #print "token is (%s)" % token
     #print "the_string is (%s)" % the_string
