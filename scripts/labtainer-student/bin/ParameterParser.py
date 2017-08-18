@@ -122,7 +122,7 @@ def CheckHashCreateEntry(container_user, lab_instance_seed, param_id, each_value
     strlen = 32
     if numentry == 3:
         try:
-            srlen = int(entryline[2].strip())
+            strlen = int(entryline[2].strip())
         except:      
             sys.stderr.write("ERROR: RAND_CREATE (%s) improper format\n" % each_value)
             sys.stderr.write("ERROR: expected int for length, got %s \n" % entryline[2])
@@ -185,7 +185,7 @@ def CheckHashReplaceEntry(container_user, lab_instance_seed, param_id, each_valu
     strlen = 32
     if numentry == 4:
         try:
-            srlen = int(entryline[3].strip())
+            strlen = int(entryline[3].strip())
         except:      
             sys.stderr.write("ERROR: RAND_CREATE (%s) improper format\n" % each_value)
             sys.stderr.write("ERROR: expected int for length, got %s \n" % entryline[3])
