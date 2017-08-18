@@ -113,10 +113,6 @@ def CheckHashCreateEntry(container_user, lab_instance_seed, param_id, each_value
     #print "Checking HASH_CREATE entry"
     entryline = each_value.split(':')
     #print entryline
-
-
-    entryline = each_value.split(':')
-    #print entryline
     numentry = len(entryline)
     if numentry != 2 and numentry != 3:
         sys.stderr.write("ERROR: HASH_CREATE : <filename> : <string> [: length]\n")
@@ -137,53 +133,54 @@ def CheckHashCreateEntry(container_user, lab_instance_seed, param_id, each_value
     mymd5 = md5.new()
     mymd5.update(string_to_be_hashed)
     mymd5_hex_string = mymd5.hexdigest()[:strlen]
-
     #print mymd5_hex_string
-    #print "filename is (%s)" % myfilename
+    #print "filename is (%s)" % myfilename_field
     #print "the_string is (%s)" % the_string
     #print "mymd5_hex_string is (%s)" % mymd5_hex_string
     # Check to see if '=' in myfilename
-    if '=' in myfilename:
-        # myfilename has the container_name also
-        tempcontainer_name, myactualfilename = myfilename.split('=')
-        # Assume filename is relative to /home/<container_user>
-        if not myactualfilename.startswith('/'):
-            user_home_dir = '/home/%s' % container_user
-            myfullactualfilename = os.path.join(user_home_dir, myactualfilename)
+    myfilename_list = myfilename_field.split(';')
+    for myfilename in myfilename_list:
+        if '=' in myfilename:
+            # myfilename has the container_name also
+            tempcontainer_name, myactualfilename = myfilename.split('=')
+            # Assume filename is relative to /home/<container_user>
+            if not myactualfilename.startswith('/'):
+                user_home_dir = '/home/%s' % container_user
+                myfullactualfilename = os.path.join(user_home_dir, myactualfilename)
+            else:
+                myfullactualfilename = myactualfilename
+            myfilename = '%s=%s' % (tempcontainer_name, myfullactualfilename)
         else:
-            myfullactualfilename = myactualfilename
-        myfilename = '%s=%s' % (tempcontainer_name, myfullactualfilename)
-    else:
-        # myfilename does not have the containername
-        # Assume filename is relative to /home/<container_user>
-        if not myfilename.startswith('/'):
-            user_home_dir = '/home/%s' % container_user
-            myfullfilename = os.path.join(user_home_dir, myfilename)
+            # myfilename does not have the containername
+            # Assume filename is relative to /home/<container_user>
+            if not myfilename.startswith('/'):
+                user_home_dir = '/home/%s' % container_user
+                myfullfilename = os.path.join(user_home_dir, myfilename)
+            else:
+                myfullfilename = myfilename
+            myfilename = myfullfilename
+
+        # If file does not exist, create an empty file
+        if not os.path.exists(myfilename):
+            outfile = open(myfilename, 'w')
+            outfile.write('')
+            outfile.close()
+
+        if myfilename in hashcreatelist:
+            hashcreatelist[myfilename].append('%s' % mymd5_hex_string)
         else:
-            myfullfilename = myfilename
-        myfilename = myfullfilename
-
-    # If file does not exist, create an empty file
-    if not os.path.exists(myfilename):
-        outfile = open(myfilename, 'w')
-        outfile.write('')
-        outfile.close()
-
-    if myfilename in hashcreatelist:
-        hashcreatelist[myfilename].append('%s' % mymd5_hex_string)
-    else:
-        hashcreatelist[myfilename] = []
-        hashcreatelist[myfilename].append('%s' % mymd5_hex_string)
+            hashcreatelist[myfilename] = []
+            hashcreatelist[myfilename].append('%s' % mymd5_hex_string)
     paramlist[param_id] = mymd5_hex_string
 
 def CheckHashReplaceEntry(container_user, lab_instance_seed, param_id, each_value):
     # HASH_REPLACE : <filename> : <token> : <string>
     #print "Checking HASH_REPLACE entry"
-
     entryline = each_value.split(':')
     #print entryline
     numentry = len(entryline)
     if numentry != 3 and numentry != 4:
+        sys.stderr.write("ERROR: RAND_REPLACE (%s) improper format\n" % each_value)
         sys.stderr.write("ERROR: HASH_CREATE : <filename> : <string> [: length]\n")
     strlen = 32
     if numentry == 4:
@@ -201,36 +198,39 @@ def CheckHashReplaceEntry(container_user, lab_instance_seed, param_id, each_valu
     mymd5 = md5.new()
     mymd5.update(string_to_be_hashed)
     mymd5_hex_string = mymd5.hexdigest()[:strlen]
-    #print "filename is (%s)" % myfilename
+    #print "filename is (%s)" % myfilename_field
     #print "token is (%s)" % token
     #print "the_string is (%s)" % the_string
 
     # Check to see if '=' in myfilename
-    if '=' in myfilename:
-        # myfilename has the container_name also
-        tempcontainer_name, myactualfilename = myfilename.split('=')
-        # Assume filename is relative to /home/<container_user>
-        if not myactualfilename.startswith('/'):
-            user_home_dir = '/home/%s' % container_user
-            myfullactualfilename = os.path.join(user_home_dir, myactualfilename)
+    myfilename_list = myfilename_field.split(';')
+    for myfilename in myfilename_list:
+        if '=' in myfilename:
+            # myfilename has the container_name also
+            tempcontainer_name, myactualfilename = myfilename.split('=')
+            # Assume filename is relative to /home/<container_user>
+            if not myactualfilename.startswith('/'):
+                user_home_dir = '/home/%s' % container_user
+                myfullactualfilename = os.path.join(user_home_dir, myactualfilename)
+            else:
+                myfullactualfilename = myactualfilename
+            myfilename = '%s=%s' % (tempcontainer_name, myfullactualfilename)
         else:
-            myfullactualfilename = myactualfilename
-        myfilename = '%s=%s' % (tempcontainer_name, myfullactualfilename)
-    else:
-        # myfilename does not have the containername
-        # Assume filename is relative to /home/<container_user>
-        if not myfilename.startswith('/'):
-            user_home_dir = '/home/%s' % container_user
-            myfullfilename = os.path.join(user_home_dir, myfilename)
-        else:
-            myfullfilename = myfilename
-        myfilename = myfullfilename
+            # myfilename does not have the containername
+            # Assume filename is relative to /home/<container_user>
+            if not myfilename.startswith('/'):
 
-    if myfilename in hashreplacelist:
-        hashreplacelist[myfilename].append('%s:%s' % (token, mymd5_hex_string))
-    else:
-        hashreplacelist[myfilename] = []
-        hashreplacelist[myfilename].append('%s:%s' % (token, mymd5_hex_string))
+                user_home_dir = '/home/%s' % container_user
+                myfullfilename = os.path.join(user_home_dir, myfilename)
+            else:
+                myfullfilename = myfilename
+            myfilename = myfullfilename
+
+        if myfilename in hashreplacelist:
+            hashreplacelist[myfilename].append('%s:%s' % (token, mymd5_hex_string))
+        else:
+            hashreplacelist[myfilename] = []
+            hashreplacelist[myfilename].append('%s:%s' % (token, mymd5_hex_string))
     paramlist[param_id] = mymd5_hex_string
 
 
@@ -402,7 +402,6 @@ def ParseParameterConfig(container_user, lab_instance_seed, configfilename):
 #     <container_name> - name of the container"
 #     [<config_file>] - optional configuration file
 #                       if <config_file> not specified, it defaults to
-#                       /home/<container_user>/.local/config/parameter.config
 def main():
     global container_name
     #print "Running ParameterParser.py"
