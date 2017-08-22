@@ -109,7 +109,11 @@ class ParseStartConfig():
                 keyval = linestrip.split()    
                 key = keyval[0].lower()
                 if len(keyval) > 1:
-                    val = keyval[1].lower()
+                    if key == "user":
+                        # DO NOT change case for 'user'
+                        val = keyval[1]
+                    else:
+                        val = keyval[1].lower()
                 elif key in defaults_ok:
                     val = "default"
                 else:
