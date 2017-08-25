@@ -1,0 +1,80 @@
+img { border: none; }
+
+a:link, a:visited, a:focus
+{
+  display: block;
+  text-decoration: none;
+  color: #333333;
+}
+
+a:hover
+{
+  display: block;
+  text-decoration: none;
+  background-color: white;
+  color: #333333;
+}
+
+.entry
+{
+  color: #333333;
+  background-color: #bcbcbc;
+
+  font-family: Verdana;
+  font-size: 10px;
+  
+  padding-top: 2px;
+  padding-left: 0px;
+  padding-bottom: 0px;
+  padding-right: 3px;
+  
+  cursor: pointer; cursor: hand;
+}
+
+.branch
+{
+  color: #333333;
+  background-color: #bcbcbc;
+
+  font-family: Verdana;
+  font-size: 10px;
+  
+  padding-top: 1px;
+  padding-left: 15px;
+  padding-bottom: 0px;
+  padding-right: 3px;
+
+  display: none;
+  
+  cursor: pointer; cursor: hand;
+}
+
+.scrollbarstyle
+{
+  scrollbar-Base-Color: #CCCCCC;
+  scrollbar-Face-Color: #A0A0A0;
+  scrollbar-Highlight-Color: #B7B6B6;
+  scrollbar-Arrow-Color: #FFFFFF;
+  scrollbar-3d-Light-Color: #EEEEEE;
+  scrollbar-Shadow-Color: #555555;
+  scrollbar-Dark-Shadow-Color: #222222;
+}
+
+a.treehead:link {
+	font-family: verdana;
+	font-size: 10px;
+	color: #ffffff;
+	background: #214184; }
+
+a.treehead:visited {
+	font-family: verdana;
+	font-size: 10px;
+	color: #ffffff;
+	background: #214184; }
+
+a.treehead:hover {
+	font-family: verdana;
+	font-size: 10px;
+	color: #ffffff;
+	background: #214184; }
+

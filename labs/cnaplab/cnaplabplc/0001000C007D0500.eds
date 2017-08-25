@@ -1,0 +1,53 @@
+$ EDS file for 1756-EWEB R5.x Firmware
+$
+$ Revision history:
+$       1.1     03-06-2013      JMS     Initial 5.x version. ProdName and Catalog do not have series.
+$
+[File]
+	DescText = "1756-EWEB 1756 Ethernet Web Interface";
+	CreateDate = 03-06-2013;
+	CreateTime = 12:00:00;
+	ModDate = 03-06-2013;
+	ModTime = 12:00:00;
+	Revision = 1.1;
+	HomeURL = "http://www.ab.com/networks/eds/EN/0001000C007D0500.eds";
+
+[Device]
+	VendCode = 1;
+	VendName = "Allen-Bradley";
+	ProdType = 12;
+	ProdTypeStr = "Communications Adapter";
+	ProdCode = 125;
+	MajRev = 5;
+	MinRev = 1;
+	ProdName = "1756-EWEB";
+	Catalog = "1756-EWEB";
+	Icon = "1756enet.ico";
+
+[Port]
+	Port1 = 1_1756_Chassis, "Backplane", "20 66 24 01",1;  $ port name must be Backplane for RSLinx
+	Port2 = TCP, "A","20 F5 24 01",2;  
+	1_RSNetWorx_Backplane_Route_Class1_Connections = NO;
+
+[Device Classification]
+	Class1 = EtherNetIP;
+	Class2 = 1_RSLinx_CLGateway_Tool;
+
+[Modular]
+	Width  = 1;
+	Rack1  = 1,0x6c,0x16,1,1,,,,0,1,2,3;                                    $1756-A4 Chassis, any slot
+	Rack2  = 1,0x6c,0x17,1,1,,,,0,1,2,3,4,5,6;                              $1756-A7 Chassis, any slot
+	Rack3  = 1,0x6c,0x18,1,1,,,,0,1,2,3,4,5,6,7,8,9;                        $1756-A10 Chassis, any slot
+	Rack4  = 1,0x6c,0x19,1,1,,,,0,1,2,3,4,5,6,7,8,9,10,11,12;               $1756-A13 Chassis, any slot
+	Rack5  = 1,0x6c,0x1A,1,1,,,,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16;   $1756-A17 Chassis, any slot
+	Rack6  = 1,0x6c,0x16,2,1,,,,0,1,2,3;                                    $1756-A4 Chassis v2.1, any slot
+	Rack7  = 1,0x6c,0x17,2,1,,,,0,1,2,3,4,5,6;                              $1756-A7 Chassis v2.1, any slot
+	Rack8  = 1,0x6c,0x18,2,1,,,,0,1,2,3,4,5,6,7,8,9;                        $1756-A10 Chassis v2.1, any slot
+	Rack9  = 1,0x6c,0x19,2,1,,,,0,1,2,3,4,5,6,7,8,9,10,11,12;               $1756-A13 Chassis v2.1, any slot
+	Rack10 = 1,0x6c,0x1A,2,1,,,,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16;   $1756-A17 Chassis v2.1, any slot
+
+[Capacity]
+	1_NumberOfTCPIPConnections = 64;   $ Total number of TCP/IP connections supported by CIP router device 
+	1_TCPIPConnectionReuseTime = 30;   $ Sec. TCP/IP connection not avail after TCP/IP attempt to an IP address not present
+	1_TCPIPCIPInactivityTimeout = 120; $ Sec. TCP/IP connection not avail after TCP/IP attempt to a non-EtherNet/IP
+	1_TCPIPInactivityTimeout = 120;    $ Sec. TCP/IP connection remains open with no activity.

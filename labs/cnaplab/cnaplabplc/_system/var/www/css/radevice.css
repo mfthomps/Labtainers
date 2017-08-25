@@ -1,0 +1,101 @@
+.devicename {
+font-family : verdana, helvetica, arial, sans-serif;
+font-size : 24px;
+text-decoration : none;
+color: #FFFFFF; 
+line-height: 1.25
+}
+
+.copy {
+font-family : verdana, helvetica, arial, sans-serif;
+font-size : 11px;
+text-decoration : none;
+color: #333333; 
+line-height: 1.25
+}
+
+.subhead {
+font-family: verdana, helvetica, arial, sans-serif;
+font-size: 14px;
+font-weight: bold;
+line-height : normal;
+color: #333333
+}
+
+P,td,ul { 
+font-family: verdana, helvetica, arial, sans-serif;
+font-size: 10px
+}
+
+tr.row { height: 20px }
+
+body {
+font-family: verdana, helvetica, arial, sans-serif;
+font-size: 10px;
+color: #333333
+}
+
+.tablehead {
+	font-family: verdana, helvetica, arial, sans-serif;
+	font-size: 10px;
+	color: #002569;
+	font : bold;
+}
+
+.bodysinglespace {  
+font-family: verdana, helvetica, arial, sans-serif;
+font-size: 10px; 
+font-style: normal; 
+line-height: normal; 
+font-weight: normal;
+text-decoration: none; 
+color: #333333
+}
+
+.subhead2 { 
+font-family: verdana, helvetica, arial, sans-serif;
+font-size: 12px; 
+font-weight: bold; 
+line-height: normal
+}
+
+.copyright {
+font-family: verdana, helvetica, arial, sans-serif; 
+font-size: 10px; 
+line-height: normal; 
+text-decoration: none;
+color: #333333
+}
+
+a.tab:link {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	text-decoration: none;
+	color: #000000;}
+	
+a.tab:visited {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	word-spacing: normal;
+	text-decoration: none;
+	color: #000000;}
+	
+a.tab:hover {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	word-spacing: normal;
+	text-decoration: underline;
+	color: #000000;}
+
+/* Sortable table headers */
+table.sortable a.sortheader {
+	background-color: #BDC8DD;
+	color: #002569;
+	font-weight: bold;
+	text-decoration: none;
+	display: block;
+}
+table.sortable span.sortarrow {
+	color: black;
+	text-decoration: none;
+}

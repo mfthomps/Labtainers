@@ -1,0 +1,42 @@
+[File]
+	DescText = "1756-EWEB 1756 Ethernet Web Interface";
+	CreateDate = 12-1-2005;
+	CreateTime = 12:00:00;
+	ModDate = 12-1-2005;
+	ModTime = 12:00:00;
+	Revision = 1.1;
+	HomeURL = "http://www.ab.com/networks/eds/EN/0001000C007D0300.eds";
+
+[Device]
+	VendCode = 1;
+	VendName = "Allen-Bradley";
+	ProdType = 12;
+	ProdTypeStr = "Communications Adapter";
+	ProdCode = 125;
+	MajRev = 3;
+	MinRev = 1;
+	ProdName = "1756-EWEB/A";
+	Catalog = "1756-EWEB/A";
+	Icon = "1756enet.ico";
+
+[Port]
+	Port1 = 1_1756_Chassis, "Backplane", "20 66 24 01",1;  $ port name must be Backplane for RSLinx
+	Port2 = TCP, "A","20 F5 24 01",2;  
+	1_RSNetWorx_Backplane_Route_Class1_Connections = NO;
+
+[Device Classification]
+	Class1 = EtherNetIP;
+	Class2 = 1_RSLinx_CLGateway_Tool;
+
+[Modular]
+	Width  = 1;
+	Rack1  = 1,0x6c,0x16,1,1,,,,0,1,2,3;                                    $1756-A4 Chassis, any slot
+	Rack2  = 1,0x6c,0x17,1,1,,,,0,1,2,3,4,5,6;                              $1756-A7 Chassis, any slot
+	Rack3  = 1,0x6c,0x18,1,1,,,,0,1,2,3,4,5,6,7,8,9;                        $1756-A10 Chassis, any slot
+	Rack4  = 1,0x6c,0x19,1,1,,,,0,1,2,3,4,5,6,7,8,9,10,11,12;               $1756-A13 Chassis, any slot
+	Rack5  = 1,0x6c,0x1A,1,1,,,,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16;   $1756-A17 Chassis, any slot
+	Rack6  = 1,0x6c,0x16,2,1,,,,0,1,2,3;                                    $1756-A4 Chassis v2.1, any slot
+	Rack7  = 1,0x6c,0x17,2,1,,,,0,1,2,3,4,5,6;                              $1756-A7 Chassis v2.1, any slot
+	Rack8  = 1,0x6c,0x18,2,1,,,,0,1,2,3,4,5,6,7,8,9;                        $1756-A10 Chassis v2.1, any slot
+	Rack9  = 1,0x6c,0x19,2,1,,,,0,1,2,3,4,5,6,7,8,9,10,11,12;               $1756-A13 Chassis v2.1, any slot
+	Rack10 = 1,0x6c,0x1A,2,1,,,,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16;   $1756-A17 Chassis v2.1, any slot

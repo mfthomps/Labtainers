@@ -1,0 +1,76 @@
+Title: CNAP Lab Exercise
+
+1. Background
+
+This Labtainer exercise illustrates a CNAP Lab Exercise.
+
+This exercise includes a previously captured packets stored as PCAP files.
+These PCAP files have been parameterized for each student.
+
+Students should transfer the PCAP files and use wireshark to analyze them.
+Upon successful analysis, student should be able to see the user 'Guest'
+and its corresponding password, which has been parameterized also.
+
+Using the username and password, the student can confirm access to the
+web server and FTP server on the 'PLC'.
+
+2. Performing the lab
+The lab is started from the Labtainer working 
+directory on your Docker-enabled host, e.g., a Linux VM.
+From there, issue the command:
+
+    ./start.py cnaplab
+
+The resulting virtual terminals include a display of
+these instructions, a terminal connected to a client, and a
+terminal connected to a server.
+
+To navigate this instruction, the arrow keys along with 
+with the Space/Home/End/Page-Up/Page-Down keys are usable.
+To exit navigation of this instruction, type 'q'.
+
+3. Tasks
+
+3.1. Transfer a modified PCAP file to analyze using wireshark
+
+    a. On the terminal where 'start.py' is invoked:
+       ./transfer.py cnaplab Task3-trace.pcap cnaplabattacker
+
+    b. Open a wireshark and analyze the 'Task3-trace.pcap'
+       obtain the password for user 'Guest'
+
+3.2. Verify and obtain a list of services, using wget
+
+    a. Inside one of the terminal started by 'start.py':
+       wget --user Guest --password <password> http://10.1.100.2/services_files/services.html
+
+    Replace <password> with the corresponding parameterized password
+
+    The services.html file downloaded (if successful, i.e., password is correct),
+    will contain a list of services (which includes FTP)
+
+3.3. Verify and obtain files, using FTP
+
+    a. Inside one of the terminal started by 'start.py':
+       ftp 10.1.100.2
+
+    when prompted, enter 'Guest' as the username and the corresponding password
+
+    b. Issue an mget command to obtain '*.eds' files:
+       mget *.eds
+
+    c. Quit FTP
+       bye
+
+
+4. Stop the Labtainer
+
+When the lab is completed, or you'd like to stop working for a while, run
+
+    ./stop.py telnetlab
+
+from the host Labtainer working directory.  You can always restart the
+Labtainer to continue your work.  When the Labtainer is stopped, a
+zip file is created and copied to a location displayed by the stop.py
+command.  When the lab is completed, send that zip file to the instructor.
+
