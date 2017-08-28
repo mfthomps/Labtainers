@@ -626,6 +626,13 @@ with the framework.
                            when the program starts and when it terminates.  Evaluates to TRUE 
                            if any TRUE goal1 has a start timestamp within the start and end 
                            times of any TRUE goal2.
+           'execute'     - For this special type, the <operator> will be an executable file
+                           with the resulttag and answertag passed to the executable as arguments.
+                           The resulttag is expected to be one of the symbolic names defined in
+                           the results.config file, while the answertag is expected to be
+                           a literal value or the symbolic name in the parameters.config file
+                           Note: the answertag is not allowed to be symbolic name from 
+                           results.config 
  
   <operator> - the following operators evaluate to TRUE as described below:
      'string_equal' -  The strings derived from <answertag> and <resulttag>
@@ -646,6 +653,7 @@ with the framework.
                          that derived from <resulttag>.
      'integer_lessthan'- The integer derived from <answertag> is less than
                          that derived from <resulttag>
+     <executable_file' - If the type is 'execute' then <operator> is a filename of an executable.
                
   <resulttag>  -- One of the symbolic names defined in the results.config file.
                   The value is interpreted as either a string or an integer,
