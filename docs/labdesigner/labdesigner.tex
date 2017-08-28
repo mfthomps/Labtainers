@@ -524,6 +524,8 @@ Entries within the results.config file each have the following format:
                    for log files of services that persist across multiple student operations. 
                    If the given path is not absolute, it is relative to the container user's 
                    home directory. 
+                   A special character '*' in place of <prog> can be used as a 'wildcard',
+                   i.e., *.stdin is for stdin artifacts and *.stdout is for stdout artifacts.
             field_type - Optional, defaults to "TOKEN", possible values include:
                 TOKEN      -- Treat the line as space-delimited tokens
                 PARENS     -- The desired value is contained in parenthesis
