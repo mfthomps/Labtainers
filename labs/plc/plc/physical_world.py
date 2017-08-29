@@ -42,7 +42,7 @@ def doMap():
 
 def main(screen):
     flood = "The pond breached its banks and flooded the farmer's field"
-    dry = "The low water level led to catfish mutations.  They walked into the farmer's fields and ate all the crops."
+    dry = "The low water level led to catfish mutations.  They walked into \nthe farmer's fields and ate all the crops."
     clear = ' ' * 200
     buf = doMap()
     # Now create an int in the memory mapping

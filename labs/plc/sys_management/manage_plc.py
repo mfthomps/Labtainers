@@ -36,13 +36,13 @@ def getData(connection):
         while len(rbytes) < size:
             data = connection.recv(remaining)
             remaining = remaining - len(data)
-            print >>sys.stderr, 'received "%d bytes"' % len(data)
+            #print >>sys.stderr, 'received "%d bytes"' % len(data)
             if data:
                 rbytes = rbytes + data
             else:
-                print >>sys.stderr, 'no more data from', client_address
+                #print >>sys.stderr, 'no more data from', client_address
                 break
-        print >>sys.stderr, 'done read, got total of %d bytes' % len(rbytes)
+        #print >>sys.stderr, 'done read, got total of %d bytes' % len(rbytes)
     except socket.error:
         print >>sys.stderr, 'proxy socket error %s' % str(socket.error)
         connection.close()
@@ -64,10 +64,14 @@ sock = doConnect()
 sock.setblocking(True)
 if args.command == 'status':
     doSend(sock, 'status:')
-    print('command sent')
+    #print('command sent')
     data = getData(sock)
-    print('reply received')
-    print(data)
+    #print('reply received')
+    if data == 'status:True':
+        print('PLC is running')
+    else:
+        print('PLC is not running')
+
 elif args.command == 'load':
     print('plc_code is %s data is %s' % (args.program, args.configuration))
     with open(args.program, mode='rb') as fh:
