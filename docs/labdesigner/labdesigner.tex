@@ -235,7 +235,6 @@ new\_lab\_setup.py script.  That Dockerfile refers to a base Labtainer
 image that contains the minimum set of Linux packages necessary to 
 host a lab within the framework.  The default
 execution environment builds off of a recent Ubuntu image.
-[MFT: Note alternate mimimal images as developed, e.g., Fedora.]
 
 A given lab can include multiple containers, each appearing as distinct
 computers connected via networks.  The execution environment seen by a
@@ -311,15 +310,28 @@ providing a name for the network, the following values are defined:
 In addition to naming the container, the following values are defined: 
 
 \begin{itemize}
-\item TERMINALS [quantity] -- The number of virtual terminals to open and attach to this container when a lab starts.
-If missing, it defaults to 2.
-\item USER [user name] -- The user name whose account will be accessed via the virtual terminals. (For now, this must be "ubuntu.)
+\item TERMINALS [quantity] -- The number of virtual terminals to open and attach to this 
+container when a lab starts.  If missing, it defaults to 1. Terminal titles are set to the 
+bash shell prompt.
+\item XTERM [title] [script] -- The named script is execute in a virtual terminal with the
+give title.   The system will change to the user's home directory prior to executing the
+script.  The script should be placed in container \_bin directory, i.e.,
+\begin{verbatim}
+    $LABTAINER_DIR/labs/[labname]/[container]/_bin
+\end{verbatim}
+\noindent If the title is "INSTRUCTIONS", no script is necessary and the instructions.txt file
+in the container home directory will be displayed.
+\item USER [user name] -- The user name whose account will be accessed via the virtual terminals. If
+the user is not "ubuntu", then the Dockerfile must include an entry to add the user to the container.
 \item network name [ip address] -- Network address assignments for each network (defined via a NETWORK section), 
 that is to be connected to this container.  A separate line should be entered for each network.
 \end{itemize}
 \end{itemize}
   
-A simple example of a two-container lab can be found in \$SEED\_DIR/labs/telnetlab. 
+A simple example of a two-container lab can be found in 
+\begin{verbatim}
+    $LABTAINER_DIR/labs/telnetlab
+\end{verbatim}
 
 
 \subsection {Lab-specific files in the student's home directory}
@@ -368,6 +380,25 @@ appear in /var/log), and runs rc.local.  The network configuration of the baseli
 which will then fork services, e.g., the sshd, per the /etc/xinet.d/ configuration files.  The faux\_init script
 can be extended (or replaced) as needed by the lab.  The example telnetlab illustrates the use of this script
 to provide network services.
+
+\subsection {Instructions for Students}
+Lab instructions for students can be displayed in a virtual terminal by placing an
+"instructions.txt" file within the home directory of one of the containers.  Refer to existing
+labs for conventions.  Additionally, textual message can be displayed to the student before any 
+of the lab virtual terminals are created.  Any text within the 
+\begin{verbatim}
+   $LABTAINER_DIR/labs/[labname]/docs/read_first.txt
+\end{verbatim}
+\noindent file will be displayed on the Linux host in the terminal in which the student
+starts the lab.  Any "LAB\_MANUAL" string in that file will be replaced with the full path
+to a [labname].pdf file within that same docs directory.  One intended use is to prompt the
+student to open a PDF lab manual and perhaps read parts of it prior to continuing with the lab.
+
+\subsection {Running programs in Virtual Terminals}
+The "XTERM" section in the 
+\begin{verbatim}
+    $LABTAINER_DIR/labs/[labname]/[container name]/_bin/
+\end{verbatim}
 
 \subsection{Final lab environment fixup}
 The initial environment encountered by the student is further refined using
@@ -524,8 +555,8 @@ Entries within the results.config file each have the following format:
                    for log files of services that persist across multiple student operations. 
                    If the given path is not absolute, it is relative to the container user's 
                    home directory. 
-                   A special character '*' in place of <prog> can be used as a 'wildcard',
-                   i.e., *.stdin is for stdin artifacts and *.stdout is for stdout artifacts.
+                   The wildcard character '*' can be used in place of <prog>,
+                   i.e., *.stdin is for all stdin artifacts and *.stdout is for all stdout artifacts.
             field_type - Optional, defaults to "TOKEN", possible values include:
                 TOKEN      -- Treat the line as space-delimited tokens
                 PARENS     -- The desired value is contained in parenthesis
@@ -626,12 +657,12 @@ with the framework.
                            when the program starts and when it terminates.  Evaluates to TRUE 
                            if any TRUE goal1 has a start timestamp within the start and end 
                            times of any TRUE goal2.
-           'execute'     - For this special type, the <operator> will be an executable file
-                           with the resulttag and answertag passed to the executable as arguments.
+           'execute'     - The <operator> is treated as a file name of a script to execute,
+                           with the resulttag and answertag passed to the script as arguments.
                            The resulttag is expected to be one of the symbolic names defined in
                            the results.config file, while the answertag is expected to be
                            a literal value or the symbolic name in the parameters.config file
-                           Note: the answertag is not allowed to be symbolic name from 
+                           Note: the answertag cannot be a symbolic name from 
                            results.config 
  
   <operator> - the following operators evaluate to TRUE as described below:
@@ -653,7 +684,7 @@ with the framework.
                          that derived from <resulttag>.
      'integer_lessthan'- The integer derived from <answertag> is less than
                          that derived from <resulttag>
-     <executable_file' - If the type is 'execute' then <operator> is a filename of an executable.
+     <executable_file> - If the type is 'execute' then <operator> is a filename of an executable.
                
   <resulttag>  -- One of the symbolic names defined in the results.config file.
                   The value is interpreted as either a string or an integer,
