@@ -67,6 +67,7 @@ else
     cp  $LAB_DIR/bin/* $TMP_DIR/.local/bin 2>>/dev/null
     chmod a+x $TMP_DIR/.local/bin/* 2>>/dev/null
     cp  $LABIMAGE_DIR/_bin/* $TMP_DIR/.local/bin 2>>/dev/null
+    chmod a+x $TMP_DIR/.local/bin/*
     cp -r $LABIMAGE_DIR/. $TMP_DIR 2>>/dev/null
     # ugly!
     rm -fr $TMP_DIR/_bin

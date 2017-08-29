@@ -379,7 +379,26 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test, quie
         
         elif need_seeds and role == 'student':
             student_email = ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname, student_email, quiet_build)
+    #
+    #  If a read_first.txt file exists in the lab's config directory, less it before the student continues.
+    #
+    doc_dir = os.path.join(LABS_ROOT,labname, 'docs')
+    read_first = os.path.join(doc_dir, 'read_first.txt')
+    pdf = '%s.pdf' % labname
+    manual = os.path.join(doc_dir, pdf)
 
+    if os.path.isfile(read_first):
+        print '\n\n'
+        command = 'less %s' % read_first
+        less = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
+        sed_cmd = 'sed s+LAB_MANUAL+%s+' %  manual
+        sed = subprocess.Popen(sed_cmd.split(), stdin=less.stdout)
+        less.stdout.close()
+        output = sed.communicate()[0]
+        less.wait()
+        dumb = raw_input("Press <enter> to start lab")
+
+         
     
     # Reach here - Everything is OK - spawn terminal for each container based on num_terminal
     terminal_count = 0
@@ -396,6 +415,24 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test, quie
                 num_terminal = 2
             else:
                 num_terminal = 1
+        if container.xterm is not None:
+                parts = container.xterm.split()
+                title = parts[0]
+                if title.lower() == 'instructions' and len(parts) == 1:
+                    command = 'startup.sh'
+                elif len(parts) == 2:
+                    command = parts[1]
+                else:
+                    logger.ERROR("Bad XTERM entryin in start.config: %s" % container.xterm)
+                    exit(1)
+                cmd =  'sh -c "cd /home/%s && .local/bin/%s"' % (container.user, command)
+                terminal_location = terminalCounter(terminal_count)
+                terminal_count += 1
+                # note hack to change --geometry to -geometry
+                spawn_command = "xterm %s -title %s  -fa 'Monospace' -fs 11 -e docker exec -it %s %s  &" % (terminal_location[1:], 
+                     title, mycontainer_name, cmd)
+                #print spawn_command
+                os.system(spawn_command)
         # If the number of terminal is zero -- do not spawn
         if num_terminal != 0:
             for x in range(num_terminal):
@@ -405,8 +442,10 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test, quie
                 #sys.stderr.write("%s \n" % mycontainer_name)
                 terminal_count += 1
                 spawn_command = "gnome-terminal %s -x docker exec -it %s bash -l &" % (terminal_location, mycontainer_name)
+                #print spawn_command
                 #spawn_command = "gnome-terminal -x docker exec -it %s bash -l &" % mycontainer_name
                 os.system(spawn_command)
+                
 
     return 0
 

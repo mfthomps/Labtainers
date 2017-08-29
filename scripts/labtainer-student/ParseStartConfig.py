@@ -41,7 +41,8 @@ class ParseStartConfig():
     class Container():
         def __init__(self, name):
             self.name       = name
-            self.terminals  = 2
+            self.terminals  = 1
+            self.xterm      = None
             self.user       = "user"
             self.hostname       = ""
             self.image_name = ""
@@ -106,11 +107,11 @@ class ParseStartConfig():
                 linestrip = line.strip()
                 if not linestrip or linestrip.startswith("#"):
                     continue
-                keyval = linestrip.split()    
+                keyval = linestrip.split(None,1)    
                 key = keyval[0].lower()
                 if len(keyval) > 1:
-                    if key == "user":
-                        # DO NOT change case for 'user'
+                    if key == "user" or key == "xterm":
+                        # DO NOT change case for 'user' or 'xterm'
                         val = keyval[1]
                     else:
                         val = keyval[1].lower()
