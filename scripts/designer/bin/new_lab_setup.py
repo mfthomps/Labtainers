@@ -27,6 +27,12 @@ tdir = os.path.join(LABTAINER_DIR, 'scripts','designer','templates')
 template_dirs = os.listdir(tdir)
 here = os.getcwd()
 labname = os.path.basename(here)
+if labname != labname.lower():
+    print('Lab names must be all lower case')
+    exit(1)
+elif ' ' in labname:
+    print('Lab names cannot contain spaces')
+    exit(1)
 config_dir = None
 os.mkdir(labname)
 for source in template_dirs:
