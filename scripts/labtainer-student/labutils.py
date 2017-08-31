@@ -418,21 +418,24 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test, quie
         if container.xterm is not None:
                 parts = container.xterm.split()
                 title = parts[0]
+                command = None
                 if title.lower() == 'instructions' and len(parts) == 1:
-                    command = 'startup.sh'
+                    if role != 'instructor':
+                        command = 'startup.sh'
                 elif len(parts) == 2:
                     command = parts[1]
                 else:
                     logger.ERROR("Bad XTERM entryin in start.config: %s" % container.xterm)
                     exit(1)
-                cmd =  'sh -c "cd /home/%s && .local/bin/%s"' % (container.user, command)
-                terminal_location = terminalCounter(terminal_count)
-                terminal_count += 1
-                # note hack to change --geometry to -geometry
-                spawn_command = "xterm %s -title %s  -fa 'Monospace' -fs 11 -e docker exec -it %s %s  &" % (terminal_location[1:], 
-                     title, mycontainer_name, cmd)
-                #print spawn_command
-                os.system(spawn_command)
+                if command is not None:
+                    cmd =  'sh -c "cd /home/%s && .local/bin/%s"' % (container.user, command)
+                    terminal_location = terminalCounter(terminal_count)
+                    terminal_count += 1
+                    # note hack to change --geometry to -geometry
+                    spawn_command = "xterm %s -title %s  -rightbar -fa 'Monospace' -fs 11 -e docker exec -it %s %s  &" % (terminal_location[1:], 
+                         title, mycontainer_name, cmd)
+                    #print spawn_command
+                    os.system(spawn_command)
         # If the number of terminal is zero -- do not spawn
         if num_terminal != 0:
             for x in range(num_terminal):
