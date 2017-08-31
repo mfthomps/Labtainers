@@ -416,9 +416,9 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test, quie
                 terminal_location = terminalCounter(terminal_count)
                 terminal_count += 1
                 # note hack to change --geometry to -geometry
-                spawn_command = "xterm %s -title GOAL_RESULTS -rightbar -fa 'Monospace' -fs 11 -e docker exec -it %s %s  &" % (terminal_location[1:], 
+                spawn_command = "xterm %s -title GOAL_RESULTS -fa 'Monospace' -fs 11 -e docker exec -it %s %s  &" % (terminal_location[1:], 
                      mycontainer_name, cmd)
-                print spawn_command
+                #print spawn_command
                 os.system(spawn_command)
             num_terminal = 1
         if container.xterm is not None:
@@ -438,9 +438,9 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test, quie
                     terminal_location = terminalCounter(terminal_count)
                     terminal_count += 1
                     # note hack to change --geometry to -geometry
-                    spawn_command = "xterm %s -title %s  -rightbar -fa 'Monospace' -fs 11 -e docker exec -it %s %s  &" % (terminal_location[1:], 
+                    spawn_command = "xterm %s -title %s -sb -rightbar -fa 'Monospace' -fs 11 -e docker exec -it %s %s  &" % (terminal_location[1:], 
                          title, mycontainer_name, cmd)
-                    print spawn_command
+                    #print spawn_command
                     os.system(spawn_command)
         # If the number of terminal is zero -- do not spawn
         if num_terminal != 0:

@@ -39,6 +39,22 @@ ignorelocal(){
     fi
     return 0
 }
+forcecheck(){
+   local cmd_path=$1
+   local TAS=$HOME/.local/bin/forcecheck
+   if [ -f $TAS ]
+   then
+       # Get the list of commands from forcecheck
+       while read cmdlocal; do
+           if [[ "$cmd_path" == "$cmdlocal" ]]; then
+               return 1
+           else
+               continue
+           fi
+       done <$TAS
+    fi
+    return 0
+}
 #
 # Invoke the command in $1 using the capinout.sh script, 
 # but only if it is not a system command.  Checks the
@@ -61,12 +77,28 @@ preexec() {
        else
           cmd_path=`which ${stringarray[0]}`
        fi
+       # do we want to run checklocal on this command, though it is not otherwise tracked?
+       forcelocal $cmd_path
+       result=$?
+       if [ $result == 1 ]; then
+          if [ -f $HOME/.local/bin/checklocal.sh ]
+          then
+              checklocaloutfile="$HOME/.local/result/checklocal.stdout.$timestamp"
+              checklocalinfile="$HOME/.local/result/checklocal.stdin.$timestamp"
+              $HOME/.local/bin/checklocal.sh > $checklocaloutfile 2>/dev/null
+              # For now, there is nothing (i.e., no stdin) for checklocal
+              echo "" >> $checklocalinfile
+          fi
+          return 0
+       fi
+       # do we treat a system command as a local command to be tracked?
        treatlocal $cmd_path
        result=$?
        if [ $result == 1 ]; then
            capinout.sh "$1"
            return 1
        fi
+       # do we ignore a non-system command?
        ignorelocal $cmd_path
        result=$?
        if [ $result == 1 ]; then
