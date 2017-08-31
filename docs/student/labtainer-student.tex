@@ -31,7 +31,12 @@ If you have a different Linux distribution, find instructions for installing Doc
 
 If you already have Dockers installed, or installed Docker for a different distribution,
 make sure you also have python, and
-the python \textit{netaddr} module installed.  Also note that older Linux distrubions lack the
+the python \textit{netaddr} module installed.  If you have Docker installed on Ubuntu, you
+may need to run:
+\begin{verbatim}
+    ./labtainer/trunk/setup_scripts/fixresolv.sh
+\end{verbatim}
+\noindent Also note that older Linux distributions, e.g., Ubuntu 14.* lack the
 \textit{realpath} package, which should be installed prior to using Labtainers.
 
 \section{Performing a Lab}
