@@ -1,0 +1,14 @@
+When a student container is first started Docer Exec is used
+to run parameterize.sh on the container.
+
+That script also invokes hookBash.sh, which adds the bash
+sdtin/stout capturing hook, and adds the startup.sh call
+into the .profile.
+
+The startup.sh scripts differ between instructor and student.  The latter
+displays instructions.txt.  The former runs grading.
+The startup.sh uses a lock to control which
+terminal displays the instructions or grading.  In practice, this is done by
+an xterm that explicitly runs the startup.sh directly, and thus
+the startup.sh invoked by profile.sh typically never does anything.
+

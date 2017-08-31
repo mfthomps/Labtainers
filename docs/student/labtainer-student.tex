@@ -31,7 +31,8 @@ If you have a different Linux distribution, find instructions for installing Doc
 
 If you already have Dockers installed, or installed Docker for a different distribution,
 make sure you also have python, and
-the python \textit{netaddr} module installed.
+the python \textit{netaddr} module installed.  Also note that older Linux distrubions lack the
+\textit{realpath} package, which should be installed prior to using Labtainers.
 
 \section{Performing a Lab}
 All labs are run from the same Labtainer workspace directory:
@@ -52,7 +53,9 @@ Follow the instructions that appear in one of the resulting virtual terminals.  
 note that some of the initial lab instructions repeat the steps you've already taken, and you need
 not repeat those.  While running the lab, if you require more virtual terminals, use:
 \begin{verbatim}
-    ./moreterm.py <labname>
+    ./moreterm.py <labname> <container>
+    where <container> is the host name of the component on which to attach a terminal.  
+    It can be omitted for labs having a single component.
 \end{verbatim}
 
 The virtual terminals for most labs present bash shells via which you can interact

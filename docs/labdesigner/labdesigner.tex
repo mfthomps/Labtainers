@@ -117,13 +117,13 @@ the other hand, instructors may still wish to collect the zip files to manually 
 student activity, e.g., student-developed programs, output files, or even bash history records.  
 
 \section {Obtaining the Labtainer Development Kit}
-Installation of an Ubuntu VM and the Docker system is described
-in Appendix ~\ref{sec:appendixA}.  Note Labtainers will work with any Linux
-distribution that supports Dockers.  
-The Labtainer Development Kit (LDK) is available as an subversion repository at
-\url{https://tor.ern.nps.edu/svn/proj/labtainer}.  Alternately, a tar file
-is at 
-\url{https://my.nps.edu/documents/107523850/109121362/labtainer.tar/6fc80410-e87d-4e47-ae24-cbb60c7619fa}
+Installation of Labtainers is described in in the Labtainer Student Guide,  
+which also includes instructions for installing an Ubuntu VM (if you do not already have a Linux system),
+and the Docker package.  Note Labtainers will work with any Linux
+distribution that supports Dockers.  If you already have Dockers installed on a Linux system, 
+reference the Student Guide for other dependencies. 
+Future releases may include a separate development kit, but for now there is a single Labtainers distribution
+that contains the entire framework.
 
 
 \section {Defining New Labs}
@@ -139,21 +139,23 @@ lab designer primarily interacts with the framework by editing configuration fil
 which affect the student's execution environment and the optional automated
 assessment of student activity.
 
-Labtainer exercises each have their own
-directory under the "labs" directory in the project repository.
-The first step in creating a new lab within the framework is to create
-a directory for the lab and then cd to it. 
-\begin{verbatim}
-    cd $LABTAINER_DIR/labs
-    mkdir <new lab name>
-    cd <new lab name>
-\end{verbatim}
-
+The examples in this guide assume you have defined the LABTAINER\_DIR environment variable.
 Set the LABTAINER\_DIR environment variable to the top of the svn repo, e.g.,
 \begin{verbatim}
     export LABTAINER_DIR=/home/mike/labtainer/trunk
 \end{verbatim}
 It is suggested that you add the LABTAINER\_DIR definition in your .bashrc.
+
+Labtainer exercises each have their own
+directory under the "labs" directory in the project repository.
+The first step in creating a new lab within the framework is to create
+a directory for the lab and then cd to it.  The directory name will be the named
+used by students when starting the lab.  It must be all lower case and not contain spaces.
+\begin{verbatim}
+    cd $LABTAINER_DIR/labs
+    mkdir <new lab name>
+    cd <new lab name>
+\end{verbatim}
 
 After the new lab directory is created, run the "new\_lab\_setup.sh" script.
 \begin{verbatim}
@@ -753,63 +755,5 @@ that process tree, e.g., the \texttt{tee} function that generates copies of thos
 All of the containers share the Linux kernel with the Linux host.  Changes to
 kernel configuration settings, e.g., enabling ASLR, will be visible across all
 of the containers.
-
-\newpage
-\appendix 
-\section {Appendix A: Installing Ubuntu and Docker}
-\label{sec:appendixA}
-The instructions below describe installation of an Ubuntu Linux VM 
-to serve as the Labtainer host.  If you already have a Linux system
-that can support Dockers, you may skip this section.
-\begin{itemize}
-\item Install Virutal Box from : https://www.virtualbox.org/wiki/Downloads
-\item Download the latest Ubuntu LTS distribution .iso image.
-\item Use VirtualBox to create a new VM, allocate at least 10GB of disk storage.
-\item Select the Ubuntu iso image in the VirtualBox storage settings, and select "Live CD/DVD"
-\item Power on the virtual machine and install Ubuntu.
-\item Install subversion on Ubuntu:
-\begin{verbatim}
-         sudo apt-get install subversion
-\end{verbatim}
-\end{itemize}
-
-Once you have a Linux system, then:
-\begin{itemize}
-\item Retrieve the labtainer repository.
-\begin{verbatim}
-         svn co https://tor.ern.nps.edu/svn/proj/labtainer
-\end{verbatim}
-or the tar file at
-\url{https://my.nps.edu/documents/107523850/109121362/labtainer.tar/6fc80410-e87d-4e47-ae24-cbb60c7619fa}
-
-\item Define the LABTAINER\_DIR environment variable (and consider
-placing the definition in your ~/.bashrc file), e.g., 
-\begin{verbatim}
-          export LABTAINER_DIR=/home/mike/labtainer/trunk
-\end{verbatim}
-
-\item Install Docker on the Linux system.  The following script works on Ubuntu (this will lead to a reboot of the VM).
-Install Docker by running one of the install-docker scripts, depending on your Linux
-distribution:
-\begin{verbatim}
-    $LABTAINER_DIR/setup_scripts/install-docker-ubuntu.sh
-\end{verbatim}
-\noindent or 
-\begin{verbatim}
-    $LABTAINER_DIR/setup_scripts/install-docker-fedora.sh
-\end{verbatim}
-If you have a different Linux distribution, find instructions for installing Docker at
-\url{https://docs.docker.com/engine/installation/}
-
-If you already have Dockers installed, or installed Docker for a different distribution,
-make sure you also have python, and
-the python \textit{netaddr} module installed.
-
-\item Edit the \verb!$LABTAINER\_DIR/setup\_scripts/fixresolve.sh! script to help Docker resolve
-host names.  The fixresolve.sh script is configured for use within the NPS network.
-\end{itemize}
-You should now be able build your first new Labtainer lab as described
-in ~\ref{sec:new_labs} Defining New Labs.
-
 
 \end{document}
