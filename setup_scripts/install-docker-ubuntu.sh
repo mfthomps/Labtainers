@@ -75,7 +75,12 @@ fi
 #to the resolv.conf.d/head file.  Dockers on ubuntu, cannot resolve
 #addresses from within containers.
 #
-dns_list=$(nmcli dev show | grep DNS | awk '{print $2 $4}')
+rel=`lsb_release -a | grep Release | awk '{print $2}'`
+if [[ $rel == 14.* ]]; then
+    dns_list=$(nmcli dev list | grep DNS | awk '{print $2 $4}')
+else
+    dns_list=$(nmcli dev show | grep DNS | awk '{print $2 $4}')
+fi
 echo already is $dns_list
 for dns in $dns_list
 do
