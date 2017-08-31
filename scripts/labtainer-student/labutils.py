@@ -361,7 +361,7 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test, quie
 
         if role == 'instructor':
             '''
-            Copy students' artifacts only to the container where 'Instructor.py' supposed
+            Copy students' artifacts only to the container where 'Instructor.py' is
             to be run - where <labname>.grades.txt will later reside also (i.e., don't copy to all containers)
             Copy to container named start_config.grade_container
             '''
@@ -371,7 +371,6 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test, quie
                     logger.ERROR("Failed to copy students' artifacts to container %s!\n" % mycontainer_name)
                     sys.exit(1)
 
-	#--Daniel
     	# If the container is just created, then use the previous user's e-mail
         # then parameterize the container
     	elif quiet_build and need_seeds and role == 'student':
@@ -412,9 +411,16 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test, quie
         # If this is instructor - spawn 2 terminal for 'grader' container otherwise 1 terminal
         if role == 'instructor':
             if mycontainer_name == start_config.grade_container:
-                num_terminal = 2
-            else:
-                num_terminal = 1
+                # hack use startup.sh instead of instructor.py because some profiles already run startup...
+                cmd =  'sh -c "cd /home/%s && .local/bin/startup.sh"' % (container.user)
+                terminal_location = terminalCounter(terminal_count)
+                terminal_count += 1
+                # note hack to change --geometry to -geometry
+                spawn_command = "xterm %s -title GOAL_RESULTS -rightbar -fa 'Monospace' -fs 11 -e docker exec -it %s %s  &" % (terminal_location[1:], 
+                     mycontainer_name, cmd)
+                print spawn_command
+                os.system(spawn_command)
+            num_terminal = 1
         if container.xterm is not None:
                 parts = container.xterm.split()
                 title = parts[0]
@@ -434,7 +440,7 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test, quie
                     # note hack to change --geometry to -geometry
                     spawn_command = "xterm %s -title %s  -rightbar -fa 'Monospace' -fs 11 -e docker exec -it %s %s  &" % (terminal_location[1:], 
                          title, mycontainer_name, cmd)
-                    #print spawn_command
+                    print spawn_command
                     os.system(spawn_command)
         # If the number of terminal is zero -- do not spawn
         if num_terminal != 0:
@@ -444,9 +450,15 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test, quie
                 #sys.stderr.write("%s \n" % terminal_location)
                 #sys.stderr.write("%s \n" % mycontainer_name)
                 terminal_count += 1
-                spawn_command = "gnome-terminal %s -x docker exec -it %s bash -l &" % (terminal_location, mycontainer_name)
-                #print spawn_command
-                #spawn_command = "gnome-terminal -x docker exec -it %s bash -l &" % mycontainer_name
+                if role == 'instructor':
+                    # hack, instructor does not have augmented profile
+                    cmd = 'sh -c "cd /home/%s && bash -l"' % container.user
+                else:
+                    cmd = 'bash -l' 
+                #spawn_command = "gnome-terminal %s -x docker exec -it %s bash -l &" % (terminal_location, mycontainer_name)
+                spawn_command = 'gnome-terminal %s -x docker exec -it %s %s &' % (terminal_location, 
+                   mycontainer_name, cmd)
+                print spawn_command
                 os.system(spawn_command)
                 
 
