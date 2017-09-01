@@ -262,10 +262,16 @@ You must assign a name to each container within the new lab.  Each new lab
 starts with a single container, whose name matches the lab name.  You are free
 to change that name. The names of containers should reflect their role in the lab,
 e.g., "client" and "server".  Once you have picked container names, you must create
-Dockerfiles and update the \verb!$LABTAINER_DIR/labs/[labname]/config/start.config file.!
+Dockerfiles and update the 
+\begin{verbatim}
+   $LABTAINER_DIR/labs/[labname]/config/start.config file.
 
-Each container must have its own Dockerfile within the \verb!$LABTAINER_DIR/labs/[labname]/dockerfiles!
-directory.  The naming convention for dockerfiles is
+\end{verbatim}
+\noindent Each container must have its own Dockerfile within the 
+\begin{verbatim}
+   $LABTAINER_DIR/labs/[labname]/dockerfiles
+\end{verbatim}
+\noindent directory.  The naming convention for dockerfiles is
 \begin{verbatim}
     Dockerfile.[labname].[container_name].[role]
 \end{verbatim}
@@ -443,48 +449,52 @@ Each line of that file must start with a \verb!"<parameter_id> : "!, which is an
 is followed by one of the following operations:
 
 \begin{verbatim}
-     RAND_REPLACE : <filename> : <symbol> : <LowerBound> : <UpperBound>
-       Replace a symbol within the named file with a random value within a given
-       range.  The random value generator is initialized with the lab instance
-       seed.
+ RAND_REPLACE : <filename> : <symbol> : <LowerBound> : <UpperBound>
+   Replace a symbol within the named file with a random value within a given
+   range.  The random value generator is initialized with the lab instance
+   seed.
 
-         where: <filename> - the file name (file must exist) where <symbol> is to be replaced.
-                             The file name is prefixed with a container name and the "=" sign.
-                             This may be a list of files, delimited by semicolons 
-               <symbol> - the string to be replaced
-               <LowerBound> and <UpperBound> specifies the lower and upper bound
-                                           to be used by random generator
-       example:
+     where: <filename> - the file name (file must exist) where <symbol> is 
+                         to be replaced.  The file name is prefixed with a 
+                         container name and the "=" sign.  This may be a 
+                         list of files, delimited by semicolons 
+           <symbol> - the string to be replaced
+           <LowerBound> and <UpperBound> specifies the lower and upper bound
+                                       to be used by random generator
+   example:
 
-         some_parameter_id : RAND_REPLACE: mylab.client.student=/home/ubuntu/stack.c : BUFFER_SIZE : 200 : 2000
-         will randomly replace the token string "BUFFER_SIZE" found in
-         file stack.c on the mylab.client.student container with a number ranging from 
-         200 to 2000
+     some_parameter_id : RAND_REPLACE: mylab.client.student=/home/ubuntu/stack.c 
+         : BUFFER_SIZE : 200 : 2000
+     (all one line) will randomly replace the token string "BUFFER_SIZE" found in
+     file stack.c on the mylab.client.student container with a number ranging from 
+     200 to 2000
  
-     HASH_CREATE : <filename> : <string>
-       Create or overwrite a file with a hash of a given string and the lab instance seed.
-         where: <filename> - the file name (file will be created if it does not exist)
-                <string> -   the input to a MD5 hash operation (after concatenation 
-                             with the lab instance seed)
-                           
+ HASH_CREATE : <filename> : <string>
+   Create or overwrite a file with a hash of a given string and the lab 
+   instance seed.
+     where: <filename> - the file name (file will be created if it does not exist)
+            <string> -   the input to a MD5 hash operation (after concatenation 
+                         with the lab instance seed)
                        
-       example:
-         some_parameter_id : HASH_CREATE : /home/ubuntu/myseed : bufferoverflowinstance
-         A file named /home/ubuntu/myseed will be created (if it does not exist), 
-         containing an MD5 hash of the lab instance seed concatentated with the 
-         string 'bufferoverflowinstance'.
+                   
+   example:
+     some_parameter_id : HASH_CREATE : /home/ubuntu/myseed : bufferoverflowinstance
+   A file named /home/ubuntu/myseed will be created (if it does not exist), 
+   containing an MD5 hash of the lab instance seed concatentated with the 
+   string 'bufferoverflowinstance'.
  
-     HASH_REPLACE : <filename> : <symbol> : <string>
-       Replace a symbol in a named file with a MD5 hash of a given string concatenated with the
-       lab instance seed.
-         where: <filename> - the filename (file must exist) containing the symbol to be replaced.
-                <symbol> - a string that will be replaced by the hash
-                <string> - a string contatenated with the lab instance seed and hashed
+ HASH_REPLACE : <filename> : <symbol> : <string>
+   Replace a symbol in a named file with a MD5 hash of a given string 
+   concatenated with the lab instance seed.
+     where: <filename> - the filename (file must exist) containing the 
+                         symbol to be replaced.
+            <symbol> - a string that will be replaced by the hash
+            <string> - a string contatenated with the lab instance seed and hashed
 
-         example:
-           some_parameter_id HASH_REPLACE : /root/.secret : ROOT_SECRET : mysupersecretrootfile
-           The string "ROOT_SECRET" in file /root/.secret will be replaced with an MD5 hash
-           of the concatenation of the lab instance seed and "mysupersecretrootfile".
+     example:
+       some_parameter_id HASH_REPLACE : /root/.secret : ROOT_SECRET : myrootfile
+     The string "ROOT_SECRET" in file /root/.secret will be replaced with an MD5 hash
+     of the concatenation of the lab instance seed and "myrootfile".
 \end{verbatim}
 
 The parameter\_id fields may be referenced during the automated grading function, described below. 
@@ -549,41 +559,49 @@ Entries within the results.config file each have the following format:
             nametag -- The symbolic name of the result, which will be referenced in 
                        the goals configuration file.  It must be alphanumeric, 
                        underscores permitted.
-            file_id -- Identifies a single file, or the set of files to be parsed.  The 
-                       format of this id is:
+            file_id -- Identifies a single file, or the set of files to be parsed.  
+                       The format of this id is:
                 [container_name:]<prog>.[stdin | stdout] | file_path
                    where <prog> is a program or utility name whose stdin and stdout 
                    artifacts will include timestamps.  The optional container_name 
-                   identifies the container hosting the file.  Labs with a single container 
-                   can omit this qualifier.  Alternately, an explicit file_path is intended 
-                   for log files of services that persist across multiple student operations. 
-                   If the given path is not absolute, it is relative to the container user's 
-                   home directory. 
+                   identifies the container hosting the file.  Labs with a single 
+                   container can omit this qualifier.  Alternately, an explicit 
+                   file_path is intended for log files of services that persist 
+                   across multiple student operations.  If the given path is not 
+                   absolute, it is relative to the container user's home directory. 
                    The wildcard character '*' can be used in place of <prog>,
-                   i.e., *.stdin is for all stdin artifacts and *.stdout is for all stdout artifacts.
+                   i.e., *.stdin is for all stdin artifacts and *.stdout is for all 
+                   stdout artifacts.
             field_type - Optional, defaults to "TOKEN", possible values include:
                 TOKEN      -- Treat the line as space-delimited tokens
                 PARENS     -- The desired value is contained in parenthesis
                 QUOTES     -- The desired value is contained in parenthesis
-                SLASH      -- The desired value is contained within slashes, e.g., /foo/
-                LINE_COUNT -- The quantity of lines in the file. Remaining fields are ignored.
-                CONTAINS   -- The value of nametag will be set to true if the file contains the
-                              string represented in field_id.
+                SLASH      -- The desired value is contained within slashes, 
+                              e.g., /foo/
+                LINE_COUNT -- The quantity of lines in the file. Remaining fields 
+                              are ignored.
+                CONTAINS   -- The value of nametag will be set to true if the file 
+                              contains the string represented in field_id.
             field_id -- An integer identifying the nth occurance of the field type.
-                        Alternately may be "LAST" for the last occurance of the field type,
-                        or "ALL" for the entire line (which causes the field type to be ignored).
-                        If field_type is "CONTAINS", the remainder of the line is treated as a 
-                        string to be searched for.
+                        Alternately may be "LAST" for the last occurance of the 
+                        field type, or "ALL" for the entire line (which causes the 
+                        field type to be ignored).  If field_type is "CONTAINS", the 
+                        remainder of the line is treated as a string to be 
+                        searched for.
             line_type - Identifies how the line is to be identified, values include:
-                LINE           -- The line_id will be an integer line number (starting at one). 
-                                  Use of this to identify lines is discouraged since minor lab 
-                                  changes might alter the count.
-                STARTSWITH     -- the line_id will be a string.  This names the first occurrence 
-                                  of a line that starts with this string. 
-                CONTAINS       -- The line_id will be a string.  This names the first occurrence 
-                                  of a line that contains the string.
-                NEXT_STARTSWITH -- the line_id will be a string.  This names the line preceeding the 
-                                  first occurrence of a line that starts with this string. 
+                LINE           --  The line_id will be an integer line number 
+                                   (starting at one).  Use of this to identify 
+                                   lines is discouraged since minor lab changes 
+                                   might alter the count.
+                STARTSWITH     --  the line_id will be a string.  This names the 
+                                   first occurrence of a line that starts with 
+                                   this string. 
+                CONTAINS       --  The line_id will be a string.  This names the 
+                                   first occurrence of a line that contains the 
+                                   string.
+                NEXT_STARTSWITH -- the line_id will be a string.  This names the 
+                                   line preceeding the first occurrence of a line 
+                                   that starts with this string. 
             line_id - See line_type above.
 \end{verbatim}
 
@@ -623,91 +641,103 @@ may appear complex, most goals can be expressed simply as can be seen in the lab
 with the framework.
 
 \begin{verbatim}
-  <goal_id> = <type> : [<operator> : <resulttag> : <answertag> | <boolean_expression> 
-                 | goal1 : goal2 | <resulttag> | count_greater : value : subgoal_list ]
-    Where: 
-      <goal_id> - An identifer for the goal. It must be alphanumeric (underscores permitted).
-      <type> - must be one of the following:
-           'matchany'    - Results from all timestamped sets are evaluated.
-                           If the answertag names a result, then both that result and
-                           the resulttag must occur in the same timestamped set.
-                           The 'matchany' goals are treated as a set of values, each 
-                           timestamped based on the timestamp of the reference resulttag.
-                        
-           'matchlast'   - only results from the latest timestamped set are evaluated.
-           'matchacross' - The answertag must name a result, and that result must occur
-                           in a timestamped set that differs from the set in which the 
-                           resulttag occurs.  Note: 'matchacross' cannot be used within 
-                           the boolean expression defined below.
-           'is_true'     - The goal is true if the value of the resulttag is true, e.g., 
-                           from a "CONTAINS" field type in the result.config
-           'is_false'    - The goal is true if the value of the resulttag is not true, e.g., 
-                           from a "CONTAINS" field type in the result.config
-           'boolean'     - The goal value is computed from a boolean expression consisting of 
-                           goal_id's and boolean operators, ("and", "or", "and_not", "or_not", 
-                           and "not"), and parenthisis for precedence.  The goal_id's must be 
-                           from goals defined earlier in the goals.config file.  The goal 
-                           evalutes to TRUE if the boolen expression evaluates to TRUE for any
-                           of the timestamped sets of goal_ids, (see the 'matchany' discussion 
-                           above).  The goal_id's cannot include any "matchacross" goals.
-           'count_greater' The goal is true if the count of true subgoals in the list exceeds 
-                           the given value.  The subgoals are summed across all timestamps.  
-                           The subgoal list is comma-separated within parenthesis.
-           'time_before' - Both goal1 and goal2 must be goal_ids from previous *matchany* 
-                           goal types.  Evaluates to TRUE if any TRUE goal1 has a timestamp that 
-                           is before than any TRUE goal2
-           'time_during' - Both goal1 and goal2 must be goal_ids from previous *matchany* 
-                           goal types.  Timestamps include a start and end time, reflecting 
-                           when the program starts and when it terminates.  Evaluates to TRUE 
-                           if any TRUE goal1 has a start timestamp within the start and end 
-                           times of any TRUE goal2.
-           'execute'     - The <operator> is treated as a file name of a script to execute,
-                           with the resulttag and answertag passed to the script as arguments.
-                           The resulttag is expected to be one of the symbolic names defined in
-                           the results.config file, while the answertag is expected to be
-                           a literal value or the symbolic name in the parameters.config file
-                           Note: the answertag cannot be a symbolic name from 
-                           results.config 
+<goal_id> = <type> : [<operator> : <resulttag> : <answertag> | <boolean_expression> 
+            | goal1 : goal2 | <resulttag> | count_greater : value : subgoal_list ]
+  Where: 
+    <goal_id> - An identifer for the goal. It must be alphanumeric 
+                (underscores permitted).
+    <type> - must be one of the following:
+         'matchany'    - Results from all timestamped sets are evaluated.
+                         If the answertag names a result, then both that 
+                         result and the resulttag must occur in the same 
+                         timestamped set.  The 'matchany' goals are treated 
+                         as a set of values, each timestamped based on the 
+                         timestamp of the reference resulttag.
+                      
+         'matchlast'   - only results from the latest timestamped set are 
+                         evaluated.
+         'matchacross' - The answertag must name a result, and that result 
+                         must occur in a timestamped set that differs from 
+                         the set in which the resulttag occurs.  Note: 
+                         'matchacross' cannot be used within the boolean  
+                         expression defined below.
+         'is_true'     - The goal is true if the value of the resulttag is 
+                         true, e.g., from a "CONTAINS" field type in the 
+                         result.config
+         'is_false'    - The goal is true if the value of the resulttag is 
+                         not true, e.g., from a "CONTAINS" field type in the 
+                         result.config
+         'boolean'     - The goal value is computed from a boolean expression 
+                         consisting of goal_id's and boolean operators, ("and", 
+                         "or", "and_not", "or_not", and "not"), and parenthisis 
+                         for precedence.  The goal_id's must be from goals defined 
+                         earlier in the goals.config file.  The goal evalutes to 
+                         TRUE if the boolen expression evaluates to TRUE for any
+                         of the timestamped sets of goal_ids, (see the 'matchany' 
+                         discussion above).  The goal_id's cannot include any 
+                         "matchacross" goals.
+         'count_greater' The goal is true if the count of true subgoals in the 
+                         list exceeds the given value.  The subgoals are 
+                         summed across all timestamps.  The subgoal list is 
+                         comma-separated within parenthesis.
+         'time_before' - Both goal1 and goal2 must be goal_ids from previous 
+                         *matchany* goal types.  Evaluates to TRUE if any TRUE 
+                         goal1 has a timestamp that is before than any TRUE goal2
+         'time_during' - Both goal1 and goal2 must be goal_ids from previous 
+                         *matchany* goal types.  Timestamps include a start and 
+                         end time, reflecting when the program starts and when it 
+                         terminates.  Evaluates to TRUE if any TRUE goal1 has a 
+                         start timestamp within the start and end times of any 
+                         TRUE goal2.
+         'execute'     - The <operator> is treated as a file name of a script to 
+                         execute, with the resulttag and answertag passed to the 
+                         script as arguments.  The resulttag is expected to be 
+                         one of the symbolic names defined in the results.config 
+                         file, while the answertag is expected to be a literal 
+                         value or the symbolic name in the parameters.config file 
+                         Note: the answertag cannot be a symbolic name from 
+                         results.config 
  
-  <operator> - the following operators evaluate to TRUE as described below:
-     'string_equal' -  The strings derived from <answertag> and <resulttag>
-                       are equal.
-     'string_diff' -   The strings derived from <answertag> and <resulttag>
-                       are not equal.
-     'string_start' -  The string derived from <answertag> is at the start of 
-                       the string derived from <resulttag>.
-             example:  answertag value = 'MySecret'
-                       resulttag value = 'MySecretSauceIsSriracha'
-     'string_end' -    The string derived from <answertag> is at the end of
-                       the string derived from <resulttag>.
-             example:  answertag value = 'Sriracha'
-                       resulttag value = 'EatMoreFoodWithSriracha'
-     'integer_equal' - Integers derived from <answertag> and <resulttag>
-                       are equal.
-     'integer_greater' - The integer derived from <answertag> is greater than
-                         that derived from <resulttag>.
-     'integer_lessthan'- The integer derived from <answertag> is less than
-                         that derived from <resulttag>
-     <executable_file> - If the type is 'execute' then <operator> is a filename of an executable.
-               
-  <resulttag>  -- One of the symbolic names defined in the results.config file.
-                  The value is interpreted as either a string or an integer,
-                  depending on the operator as defined above. 
-                  An alternate syntax is to add "result." as a prefix to the
-                  symbolic name.
-         
-  <answertag>  -- Either a literal value (string, integer or hexidecimal), or a 
-                  symolic name defined in the results.confg file or the 
-                  parameters.config file:
+<operator> - the following operators evaluate to TRUE as described below:
+   'string_equal' -  The strings derived from <answertag> and <resulttag>
+                     are equal.
+   'string_diff' -   The strings derived from <answertag> and <resulttag>
+                     are not equal.
+   'string_start' -  The string derived from <answertag> is at the start of 
+                     the string derived from <resulttag>.
+           example:  answertag value = 'MySecret'
+                     resulttag value = 'MySecretSauceIsSriracha'
+   'string_end' -    The string derived from <answertag> is at the end of
+                     the string derived from <resulttag>.
+           example:  answertag value = 'Sriracha'
+                     resulttag value = 'EatMoreFoodWithSriracha'
+   'integer_equal' - Integers derived from <answertag> and <resulttag>
+                     are equal.
+   'integer_greater' - The integer derived from <answertag> is greater than
+                       that derived from <resulttag>.
+   'integer_lessthan'- The integer derived from <answertag> is less than
+                       that derived from <resulttag>
+   <executable_file> - If the type is 'execute' then <operator> is a filename of 
+                       an executable.
+             
+<resulttag>  -- One of the symbolic names defined in the results.config file.
+                The value is interpreted as either a string or an integer,
+                depending on the operator as defined above. 
+                An alternate syntax is to add "result." as a prefix to the
+                symbolic name.
+       
+<answertag>  -- Either a literal value (string, integer or hexidecimal), or a 
+                symolic name defined in the results.confg file or the 
+                parameters.config file:
  
-                  answer=<literal>    -- literal string, integer or hex value 
-                                         (leading with 0x), interpretation depending 
-                                         on the operator as described above.
-                  result.<symbol>     -- symbol from the results.config file
-                  parameter.<symbol>  -- symbol from the parameters.config file
-                  parameter_ascii.<symbol> -- same as above, but the value parsed as 
-                                         an integer or hexidecimal and converted to an 
-                                         ascii character.
+                answer=<literal>    -- literal string, integer or hex value 
+                                       (leading with 0x), interpretation depending 
+                                       on the operator as described above.
+                result.<symbol>     -- symbol from the results.config file
+                parameter.<symbol>  -- symbol from the parameters.config file
+                parameter_ascii.<symbol> -- same as above, but the value parsed as 
+                                       an integer or hexidecimal and converted to an 
+                                       ascii character.
 
 \end{verbatim}
          Note that values derived from the parameters.config file are assigned the same values as
