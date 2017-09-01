@@ -937,7 +937,7 @@ def CreateCopyChownZip(mycwd, start_config, labtainer_config, container_name, co
    
 # Stop my_container_name container
 def StopMyContainer(mycwd, start_config, container_name, ignore_stop_error):
-    command = "docker stop %s" % container_name
+    command = "docker stop -t 1 %s" % container_name
     logger.DEBUG("Command to execute is (%s)" % command)
     ps = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
