@@ -1,4 +1,4 @@
-\documentclass{article}
+\documentclass[12pt]{article}
 \usepackage{geometry}
 \geometry{a4paper, total={170mm,257mm},left=20mm, top=20mm,}
 \usepackage[colorlinks=true,linkcolor=blue,urlcolor=black]{hyperref}
@@ -190,7 +190,9 @@ should be faster because your local Docker system will cache portions of the bui
 
 The redo.py command will remove and recreate the container
 each time the script is run.  And it will rebuild the container image if any of its configuration 
-information has changed.  This is often necessary when building and testing new labs, to ensure the
+information has changed.\footnote{The build process may generate warnings in red text, some of which are expected.  
+These include an unreferenced "user" variable and the lack of apt-utils if apt-get is used to install packages in 
+Dockerfiles.}  This is often necessary when building and testing new labs, to ensure the
 new environment does not contain artifacts from previous runs.
 
 Note the "redo.py" command is not intended for use by students, they would use the "start.py" command.  
