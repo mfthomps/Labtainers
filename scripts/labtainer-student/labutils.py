@@ -386,7 +386,7 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test, quie
     pdf = '%s.pdf' % labname
     manual = os.path.join(doc_dir, pdf)
 
-    if os.path.isfile(read_first):
+    if os.path.isfile(read_first) and role != 'instructor':
         print '\n\n'
         command = 'less %s' % read_first
         less = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
@@ -458,7 +458,7 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test, quie
                 #spawn_command = "gnome-terminal %s -x docker exec -it %s bash -l &" % (terminal_location, mycontainer_name)
                 spawn_command = 'gnome-terminal %s -x docker exec -it %s %s &' % (terminal_location, 
                    mycontainer_name, cmd)
-                print spawn_command
+                #print spawn_command
                 os.system(spawn_command)
                 
 
