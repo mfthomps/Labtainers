@@ -55,7 +55,8 @@ load_parser = subparsers.add_parser('load', help='load program and configuration
 load_parser.add_argument('program', type=str, help='File name of the program')
 load_parser.add_argument('configuration', type=str, help='File name of the configuration data')
 status_parser = subparsers.add_parser('status', help='determine if the plc is running')
-status_parser = subparsers.add_parser('retrieve', help='Get program and data from the plc and store in local file')
+retrieve_parser = subparsers.add_parser('retrieve', help='Get program and data from the plc and store in local file')
+reset = subparsers.add_parser('reset', help='Resets the PLC to its initial state with no program running.')
 
 
 args = parser.parse_args()
@@ -80,6 +81,8 @@ elif args.command == 'load':
     with open(args.configuration, mode='rb') as fh:
         config = fh.read();
         doSend(sock, config)
+    success = getData(sock)
+    print success
 elif args.command == 'retrieve':
     code_file = 'plc_code.retrieved'
     config_file = 'plc_config.retrieved'
@@ -91,5 +94,8 @@ elif args.command == 'retrieve':
     with open(config_file, 'w') as fh:
         fh.write(config)
     print('Retreived PLC code/data into %s and %s' % (code_file, config_file))
+elif args.command == 'reset':
+    doSend(sock, 'reset:')
 
+sock.shutdown(socket.SHUT_RDWR)
 sock.close()

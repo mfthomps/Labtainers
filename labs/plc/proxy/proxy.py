@@ -10,9 +10,10 @@ import logging
 def signal_handler(signal, frame):
     global connection
     global response_thread
+    logging.debug('got signal, close connection')
     if connection is not None:
         connection.close()
-    logging.debug('got signal, bye')
+    logging.debug('no exit')
     exit(0)
 
 
@@ -58,7 +59,7 @@ def sendData(connection, data, who):
     The who field is simply for debugging
     '''
     size = len(data)
-    #logging.debug('%s sendData %d bytes' % (who, size))
+    logging.debug('%s sendData %d bytes' % (who, size))
     size_str = '%4d' % size
     connection.sendall(size_str)
     connection.sendall(data)
@@ -71,15 +72,17 @@ def responses(connection, remote_sock):
         #logging.debug('responses back from getData with %s' % rdata)
         if rdata is not None:
             sendData(connection, rdata, 'responses')
+        else:
+            logging.debug('responses got None from-plc')
     exit()
  
 def checkData(data):
     retval = True
     if data is None:
         retval = False
-    elif data != 'status' and data != 'retrieve':
+    elif data != 'status:' and data != 'retrieve:' and data != 'reset:':
          if data.startswith('load'):
-             data = data[4:]
+             data = data[5:]
          if 'bad stuff' in data:
              retval = False
     return retval
@@ -87,6 +90,7 @@ def checkData(data):
 def main():
     global connection
     global response_thread
+    sys.stderr = open('err.txt', 'w')
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
     # Create a TCP/IP socket for proxy server & client
@@ -117,9 +121,17 @@ def main():
                 sendData(remote_sock, rdata, 'to-server')
             elif rdata is not None:
                 logging.debug('Data failed check, dropping it!')
-    
+            else:
+                logging.debug('got None from getData from-manager')
+        logging.debug('close the connections, we got None') 
         time.sleep(1)
         connection.close()
+        try:
+            remote_sock.shutdown(socket.SHUT_RDWR)
+            remote_sock.close()
+        except socket.error, msg:
+            logging.debug('Failed to close remote_sock, client dropped?: %s' % msg)
+        
 
 LOGFILE = "./proxy.log"
 print("logging to ./proxy.log")

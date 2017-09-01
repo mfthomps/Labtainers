@@ -49,9 +49,10 @@ From there, issue the command:
 \end{verbatim}
 \noindent The resulting virtual terminals will include: 
 \begin{itemize}
-\item A display of the status of the fish pond level.
-\item A virtual terminal connected to the sys\_management computer.
-\item A virtual terminal connected to the Security Proxy, initially displaying its log.
+\item A display of the status of the fish pond level, titled "Physical\_World".
+\item A bash shell on the sys\_management computer.
+\item A bash shell on the Security Proxy, titled "ubuntu@proxy".
+\item A display of the Security Proxy log file titled "PROXY\_LOG".
 \end{itemize}
 NOTE: When the lab starts, observe the status window. The PLC is intitially
 disabled, and thus the pump does not run and the water rises.  
@@ -79,7 +80,6 @@ best way to restart the lab or reset the PLC if it becomes corrupt.  Any files s
 \item The sys\_management computer includes the openssl utility that you used in the onewayhash lab, might that
 help determine if the files are the same?
 \item Could the Security Proxy be modified to avoid sending bad files to the PLC?
-\item Use "./moreterm.py plc proxy" from your Linux host to look at what's inside proxy and interact with system.
 \end{itemize}
 NOTE: The solution must use the manage\_plc.py as-is. Modifying the code will void the warranty offered by the PLC system vendor!
 
