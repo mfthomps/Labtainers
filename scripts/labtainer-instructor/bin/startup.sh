@@ -19,7 +19,7 @@ grade_container="$HOME"/.local/.is_grade_container
 LOCKDIR=/tmp/.mylockdir
 if mkdir "$LOCKDIR" >/dev/null 2>&1; then
     if [ -f $grade_container ]; then
-        instructor.py
+        $HOME/.local/bin/instructor.py
         cat "$HOME"/*.grades.txt | less
     fi
 fi
