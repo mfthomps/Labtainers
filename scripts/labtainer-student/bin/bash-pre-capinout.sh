@@ -78,7 +78,7 @@ preexec() {
           cmd_path=`which ${stringarray[0]}`
        fi
        # do we want to run checklocal on this command, though it is not otherwise tracked?
-       forcelocal $cmd_path
+       forcecheck $cmd_path
        result=$?
        if [ $result == 1 ]; then
           if [ -f $HOME/.local/bin/checklocal.sh ]
