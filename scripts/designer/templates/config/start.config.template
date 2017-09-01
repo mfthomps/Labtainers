@@ -32,8 +32,10 @@ GLOBAL_SETTINGS
 CONTAINER default
         # user name of user who interacts with the container.
 	USER ubuntu
+        # cause ~/instructions.txt to display, if it exists 
+        XTERM INSTRUCTIONS
         #
-        #  The number of terminals defaults to 2
+        #  The number of terminals defaults to 1
         #
         #TERMINALS 1
         #
