@@ -83,7 +83,7 @@ def StartMyContainer(mycontainer_name):
     if IsContainerRunning(mycontainer_name):
         logger.ERROR("Container %s is already running!\n" % (mycontainer_name))
         sys.exit(1)
-    command = "docker start %s" % mycontainer_name
+    command = "docker start %s  2> /dev/null" % mycontainer_name
     logger.DEBUG("Command to execute is (%s)" % command)
     ps = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
@@ -98,7 +98,7 @@ def IsContainerCreated(mycontainer_name):
     retval = True
     command = "docker inspect -f {{.Created}} --type container %s 2> /dev/null" % mycontainer_name
     logger.DEBUG("Command to execute is (%s)" % command)
-    result = subprocess.call(command, shell=True)
+    result = subprocess.call(command, shell=True, stderr=subprocess.PIPE)
     if result == FAILURE:
        retval = False
     logger.DEBUG("Result of subprocess.call IsContainerCreated is %s" % result)
@@ -937,7 +937,7 @@ def CreateCopyChownZip(mycwd, start_config, labtainer_config, container_name, co
    
 # Stop my_container_name container
 def StopMyContainer(mycwd, start_config, container_name, ignore_stop_error):
-    command = "docker stop -t 1 %s" % container_name
+    command = "docker stop -t 1 %s 2>/dev/null" % container_name
     logger.DEBUG("Command to execute is (%s)" % command)
     ps = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
