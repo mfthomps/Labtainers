@@ -3,8 +3,11 @@ Title: SSH Lab Exercise
 1. Background
 
 This Labtainer exercise explores the use of SSH
-from a client computer to connect securely to a server.
-It is primarily to test artifacts in service logs.
+from a client computer to connect securely to a server
+using a public/private key pair. In this example, mere
+possition of the private key is sufficent to access the
+remote host.  In general, password-protected private keys
+are more secure.
 
 2. Performing the lab
 The lab is started from the Labtainer working 

@@ -1,1 +1,1 @@
-This is a lab designed to teach the basics of working in the linux shell.
+Covers some basic linux shell commands for students to introduce command line processing.

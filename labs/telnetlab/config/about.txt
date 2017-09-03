@@ -1,0 +1,1 @@
+Illustrates the telent protocol transmission of plain-text passwords.
