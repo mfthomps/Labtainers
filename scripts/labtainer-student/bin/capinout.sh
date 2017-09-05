@@ -32,13 +32,15 @@ tailingquote()
     if [[ "$string" == *\" ]]; then
         return 1
     fi
+    echo no
     return 0
 }
 
 pipe_sym="|"
 redirect_sym=">"
 append_sym=">>"
-full=$*
+full=$1
+counter=$2
 #echo $full
 #
 # Look for redirect, and remove from command
@@ -67,10 +69,16 @@ fi
 if [[ "$full" == *"$pipe_sym"* ]]; then
     #echo is pipe has $pipe_sym
     IFS='|' read -ra COMMAND_ARRAY <<< "$full"
-    precommand=${COMMAND_ARRAY[0]}
-    targetcommand=${COMMAND_ARRAY[1]}
+    if [ $counter == 2 ]; then
+       # target on right of pipe
+       prepostcommand=${COMMAND_ARRAY[0]}
+       targetcommand=${COMMAND_ARRAY[1]}
+    else
+       prepostcommand=${COMMAND_ARRAY[1]}
+       targetcommand=${COMMAND_ARRAY[0]}
+    fi
     IFS=' '
-    #echo "precommand is $precommand"
+    #echo "prepostcommand is $prepostcommand"
     #echo "target command is $targetcommand"
     TARGET_ARGS=($targetcommand)
     EXECPROG=${TARGET_ARGS[0]}
@@ -122,7 +130,7 @@ if [ -f $HOME/.local/bin/checklocal.sh ]
 then
     checklocaloutfile="$HOME/.local/result/checklocal.stdout.$timestamp"
     checklocalinfile="$HOME/.local/result/checklocal.stdin.$timestamp"
-    $HOME/.local/bin/checklocal.sh > $checklocaloutfile 2>/dev/null
+    $HOME/.local/bin/checklocal.sh > $checklocaloutfile
     # For now, there is nothing (i.e., no stdin) for checklocal
     echo "" >> $checklocalinfile
 fi
@@ -143,7 +151,10 @@ fi
 
 exec 3<>$pipe
 rm $pipe
-if [ -z "$precommand" ]; then
+if [ -z "$prepostcommand" ]; then
+#
+# no pipe
+#
    if [ -n "$redirect_file" ]; then
        (echo $BASHPID >&3; tee -a $stdinfile) | (eval funbuffer -p $EXECPROG $PROGRAM_ARGUMENTS; r=$?; kill $(head -n1 <&3); exit $r) | tee $stdoutfile > $redirect_file
    elif [ -n "$append_file" ]; then
@@ -152,19 +163,42 @@ if [ -z "$precommand" ]; then
        (echo $BASHPID >&3; tee -a $stdinfile) | (eval funbuffer -p $EXECPROG $PROGRAM_ARGUMENTS; r=$?; kill $(head -n1 <&3); exit $r) | tee $stdoutfile
    fi
 else
-
-   if [ -n "$redirect_file" ]; then
-
-       (echo $BASHPID >&3; eval $precommand | tee -a $stdinfile) | (eval $EXECPROG $PROGRAM_ARGUMENTS; r=$?; exit $r) | tee $stdoutfile > $redirect_file
-
-   elif [ -n "$append_file" ]; then
-
-       (echo $BASHPID >&3; eval $precommand | tee -a $stdinfile) | (eval $EXECPROG $PROGRAM_ARGUMENTS; r=$?; exit $r) | tee $stdoutfile >> $append_file
-
+#
+# no pipe
+#
+   if [ $counter == 2 ];then
+#
+#    target on right side of pipe
+#
+      if [ -n "$redirect_file" ]; then
+   
+          (echo $BASHPID >&3; eval $prepostcommand | tee -a $stdinfile) | (eval $EXECPROG $PROGRAM_ARGUMENTS; r=$?; exit $r) | tee $stdoutfile > $redirect_file
+   
+      elif [ -n "$append_file" ]; then
+   
+          (echo $BASHPID >&3; eval $prepostcommand | tee -a $stdinfile) | (eval $EXECPROG $PROGRAM_ARGUMENTS; r=$?; exit $r) | tee $stdoutfile >> $append_file
+   
+      else
+          #echo "prepostcommand before is $prepostcommand"
+   
+          (echo $BASHPID >&3; eval $prepostcommand | tee -a $stdinfile) | (eval $EXECPROG $PROGRAM_ARGUMENTS; r=$?; exit $r) | tee $stdoutfile
+      fi
    else
-       #echo "precommand before is $precommand"
-
-       (echo $BASHPID >&3; eval $precommand | tee -a $stdinfile) | (eval $EXECPROG $PROGRAM_ARGUMENTS; r=$?; exit $r) | tee $stdoutfile
+#
+#     target on left side of pipe
+#
+      if [ -n "$redirect_file" ]; then
+   
+          (echo $BASHPID >&3; (eval $EXECPROG $PROGRAM_ARGUMENTS; r=$?; exit $r | tee -a $stdinfile)) | tee $stdoutfile | (eval $prepostcommand) > $redirect_file
+   
+      elif [ -n "$append_file" ]; then
+   
+          (echo $BASHPID >&3; (eval $EXECPROG $PROGRAM_ARGUMENTS; r=$?; exit $r | tee -a $stdinfile)) | tee $stdoutfile | (eval $prepostcommand) >> $append_file
+   
+      else
+          #echo "prepostcommand before is $prepostcommand"
+          (echo $BASHPID >&3; (eval $EXECPROG $PROGRAM_ARGUMENTS; r=$?; exit $r | tee -a $stdinfile)) | tee $stdoutfile | (eval $prepostcommand)
+      fi
    fi
 fi
 

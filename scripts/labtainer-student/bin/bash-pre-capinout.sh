@@ -70,7 +70,14 @@ preexec() {
    IFS='|' read -ra commandarray <<< "$1"
    #echo "command array: $commandarray"
    IFS=' '
+   counter=0
    for command in "${commandarray[@]}";do
+       #echo "loop for command $command"
+       #
+       # track whether target is left or right of pipe
+       # TBD test for only one pipe
+       # 
+       counter=$[$counter +1]
        stringarray=($command)
        if [ ${stringarray[0]} == "sudo" ]; then
           cmd_path=`which ${stringarray[1]}`
@@ -95,7 +102,8 @@ preexec() {
        treatlocal $cmd_path
        result=$?
        if [ $result == 1 ]; then
-           capinout.sh "$1"
+           #echo "will treat as local"
+           capinout.sh "$1" $counter
            return 1
        fi
        # do we ignore a non-system command?
@@ -107,7 +115,7 @@ preexec() {
        if [[ ! -z $cmd_path ]] && [[ "$cmd_path" != /usr/* ]] && \
           [[ "$cmd_path" != /bin/* ]] && [[ "$cmd_path" != /sbin/* ]]; then
            #echo "would do this command $1"
-           capinout.sh "$1"
+           capinout.sh "$1" $counter
            return 1
        fi
    done
