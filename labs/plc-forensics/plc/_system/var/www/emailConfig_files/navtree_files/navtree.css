@@ -1,0 +1,33 @@
+IMG {
+	BORDER-RIGHT: medium none; BORDER-TOP: medium none; BORDER-LEFT: medium none; BORDER-BOTTOM: medium none
+}
+A:link {
+	DISPLAY: block; COLOR: #333333; TEXT-DECORATION: none
+}
+A:visited {
+	DISPLAY: block; COLOR: #333333; TEXT-DECORATION: none
+}
+A:unknown {
+	DISPLAY: block; COLOR: #333333; TEXT-DECORATION: none
+}
+A:hover {
+	DISPLAY: block; COLOR: #333333; BACKGROUND-COLOR: white; TEXT-DECORATION: none
+}
+.entry {
+	PADDING-RIGHT: 3px; PADDING-LEFT: 0px; FONT-SIZE: 10px; PADDING-BOTTOM: 0px; CURSOR: hand; COLOR: #333333; PADDING-TOP: 2px; FONT-FAMILY: Verdana; BACKGROUND-COLOR: #bcbcbc
+}
+.branch {
+	PADDING-RIGHT: 3px; DISPLAY: none; PADDING-LEFT: 15px; FONT-SIZE: 10px; PADDING-BOTTOM: 0px; CURSOR: hand; COLOR: #333333; PADDING-TOP: 1px; FONT-FAMILY: Verdana; BACKGROUND-COLOR: #bcbcbc
+}
+.scrollbarstyle {
+	SCROLLBAR-FACE-COLOR: #a0a0a0; SCROLLBAR-HIGHLIGHT-COLOR: #b7b6b6; SCROLLBAR-SHADOW-COLOR: #555555; SCROLLBAR-ARROW-COLOR: #ffffff; SCROLLBAR-BASE-COLOR: #cccccc; scrollbar-3d-Light-Color: #EEEEEE; scrollbar-Dark-Shadow-Color: #222222
+}
+A.treehead:link {
+	FONT-SIZE: 10px; BACKGROUND: #214184; COLOR: #ffffff; FONT-FAMILY: verdana
+}
+A.treehead:visited {
+	FONT-SIZE: 10px; BACKGROUND: #214184; COLOR: #ffffff; FONT-FAMILY: verdana
+}
+A.treehead:hover {
+	FONT-SIZE: 10px; BACKGROUND: #214184; COLOR: #ffffff; FONT-FAMILY: verdana
+}

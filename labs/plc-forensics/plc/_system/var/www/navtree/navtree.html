@@ -1,0 +1,260 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+<head>
+
+<title>Rockwell Automation Tree Navigation</title>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link type="text/css" href="../css/navtree.css" rel="stylesheet">
+<script type="text/javascript" src="../scripts/navtree.js"></script>
+
+<script type="text/javascript">
+
+var highlighted = 0;
+
+var openImg = new Image();
+openImg.src = "../images/folderselect.gif";
+
+var closedImg = new Image();
+closedImg.src = "../images/folder.gif";
+
+</script>
+
+</head>
+
+<body bgcolor="#bcbcbc">
+
+<table width="100%" cellspacing="0" cellpadding="0" border="0"
+	style="color: #ffffff; background: #214184; font-family: verdana; font-size: 10px; border: solid #666666 1px;">
+  
+  <tr height="15px" align="center">
+    <td width="50%" style="padding-left: 15px; padding-right: 15px;">
+      <div><a href="#" class="treehead" style="cursor: pointer; cursor: hand;" id="expandAll" onClick="changeAll('expand');"
+	onMouseOver="overColor(this, '#000000'); window.status=''; return true;" onMouseOut="outColor(this, '#214184');">
+      	Expand</a>
+      </div>
+    </td>
+    <td width="50%" style="padding-left: 15px; padding-right: 15px;">
+      <div><a href="#" class="treehead"style="cursor: pointer; cursor: hand;" id="collapseAll" onClick="changeAll('collapse');"
+	onMouseOver="overColor(this, '#000000'); window.status=''; return true;" onMouseOut="outColor(this, '#214184');">
+      	Minimize</a>
+      </div>
+  </tr>
+
+  </table>
+
+<div style="padding-left: 5px;" id="spacer">
+
+<table width="100%" cellspacing="0" cellpadding="0" border="0">
+
+  <tr>
+  <td nowrap="true" valign="middle">
+ 
+  <!-- * * * HOME * * * -->
+ 
+  <a class="entry" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" onclick="highlightView(this);" href="../home.html" target="home"><img src="../images/paper.gif" alt="">&nbsp;Home</a>
+
+  <!-- * * * DATA VIEWS * * * -->
+  
+  <div class="entry"><a href="#" onClick="showBranch('b_data_views'); swapFolder('f_data_views');"
+	onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');">
+	<img src="../images/folder.gif" alt="" border="0" id="f_data_views">
+	Data Views</a>
+  </div>
+
+  <span class="branch" id="b_data_views">
+	<a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" id="/dataviews.html" href="../dataviews.html" target="home"><img src="../images/paper.gif" alt="">&nbsp;Data Views</a>
+	<a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" id="/newview.html" href="../newview.html" target="home"><img src="../images/paper.gif" alt="">&nbsp;New Data View</a>
+  </span>
+
+  <!-- * * * DIAGNOSTICS * * * -->
+
+  <div class="entry"><a href="#" onClick="showBranch('b_diagnostics'); swapFolder('f_diagnostics');"
+	onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');">
+	<img src="../images/folder.gif" alt="" border="0" id="f_diagnostics">
+	Diagnostics</a>
+  </div>
+
+  <span class="branch" id="b_diagnostics">
+
+	<a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" id="/diagover.html" href="../diagover.html" target="home"><img src="../images/paper.gif" alt="">&nbsp;Diagnostic Overview</a>
+	<a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" id="/diagnetwork.html" href="../diagnetwork.html" target="home"><img src="../images/paper.gif" alt="">&nbsp;Network Settings</a>
+	<a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" id="/msgconnect.html" href="../msgconnect.html" target="home"><img src="../images/paper.gif" alt="">&nbsp;Message Connections</a>
+	<a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" id="/etherstats.html" href="../etherstats.html" target="home"><img src="../images/paper.gif" alt="">&nbsp;Ethernet Statistics</a>
+	
+  <!-- * * * ADVANCED DIAGNOSTICS * * * -->
+
+  <div class="entry"><a href="#" onClick="showBranch('b_adv_diagnostics'); swapFolder('f_adv_diagnostics');"
+	onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');">
+	<img src="../images/folder.gif" alt="" border="0" id="f_adv_diagnostics">
+	Advanced Diagnostics</a>
+  </div>
+
+  	<span class="branch" id="b_adv_diagnostics">
+		
+  		<!-- * * * ETHERNET/IP * * * -->
+
+		<div class="entry"><a href="#" onClick="showBranch('b_enet_ip'); swapFolder('f_enet_ip');"
+			onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');">
+			<img src="../images/folder.gif" alt="" border="0" id="f_enet_ip">
+			EtherNet/IP</a>
+		</div>
+
+ 		<span class="branch" id="b_enet_ip">
+		  <a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" href="/rokform/advancedDiags?pageReq=encapstats" target="home"><img src="../images/paper.gif" alt="">&nbsp;Encapsulation Statistics</a>
+		  <a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" href="/rokform/advancedDiags?pageReq=encapsess" target="home"><img src="../images/paper.gif" alt="">&nbsp;Encapsulation Sessions</a>
+		</span>
+
+		<!-- * * * NETWORK * * * -->
+		
+		<div class="entry"><a href="#" onClick="showBranch('b_network'); swapFolder('f_network');"
+			onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');">
+			<img src="../images/folder.gif" alt="" border="0" id="f_network">
+			Network</a>
+		</div>
+
+ 		<span class="branch" id="b_network">
+		  <a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" href="/rokform/advancedDiags?pageReq=icmp" target="home"><img src="../images/paper.gif" alt="">&nbsp;ICMP Statistics</a>
+		  <a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" href="/rokform/advancedDiags?pageReq=igmp" target="home"><img src="../images/paper.gif" alt="">&nbsp;IGMP Statistics</a>
+		  <a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" href="/rokform/advancedDiags?pageReq=ip" target="home"><img src="../images/paper.gif" alt="">&nbsp;IP Statistics</a>
+		  <a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" href="/rokform/advancedDiags?pageReq=udp" target="home"><img src="../images/paper.gif" alt="">&nbsp;UDP Statistics</a>
+		  <a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" href="/rokform/advancedDiags?pageReq=tcp" target="home"><img src="../images/paper.gif" alt="">&nbsp;TCP Statistics</a>
+		  <a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" href="/rokform/advancedDiags?pageReq=netmem" target="home"><img src="../images/paper.gif" alt="">&nbsp;Network Memory Statistics</a>
+		  <a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" href="/rokform/advancedDiags?pageReq=mbuf" target="home"><img src="../images/paper.gif" alt="">&nbsp;Mbuf Statistics</a>
+		</span>
+
+		<!-- * * * SOCKET OBJECT * * * -->
+		
+		<div class="entry"><a href="#" onClick="showBranch('b_sockobj'); swapFolder('f_sockobj');"
+			onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');">
+			<img src="../images/folder.gif" alt="" border="0" id="f_sockobj">
+			Socket Object</a>
+		</div>
+
+ 		<span class="branch" id="b_sockobj">
+		  <a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" href="/rokform/advancedDiags?pageReq=socketobjdiags" target="home"><img src="../images/paper.gif" alt="">&nbsp;Socket Object Diagnostics</a>
+		  <a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" href="/rokform/advancedDiags?pageReq=socketobjstats" target="home"><img src="../images/paper.gif" alt="">&nbsp;Socket Object Statistics</a>
+		  <a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" href="/rokform/advancedDiags?pageReq=SocketLogShow" target="home"><img src="../images/paper.gif" alt="">&nbsp;Socket Object Log</a>
+		</span>
+		
+		<!-- * * * CONTROLBUS * * * -->
+				
+		<div class="entry"><a href="#" onClick="showBranch('b_controlbus'); swapFolder('f_controlbus');"
+			onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');">
+			<img src="../images/folder.gif" alt="" border="0" id="f_controlbus">
+			ControlBus</a>
+		</div>
+
+ 		<span class="branch" id="b_controlbus">
+		  <a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" href="/rokform/advancedDiags?pageReq=cbstat" target="home"><img src="../images/paper.gif" alt="">&nbsp;ControlBus Statistics</a>
+		  <a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" href="/rokform/advancedDiags?pageReq=cbcip" target="home"><img src="../images/paper.gif" alt="">&nbsp;ControlBus (CIP) Statistics</a>
+		  <a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" href="/rokform/advancedDiags?pageReq=cbext" target="home"><img src="../images/paper.gif" alt="">&nbsp;Extended ControlBus Statistics</a>
+		</span>
+
+		<!-- * * * MISCELLANEOUS * * * -->
+				
+		<div class="entry"><a href="#" onClick="showBranch('b_misc'); swapFolder('f_misc');"
+			onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');">
+			<img src="../images/folder.gif" alt="" border="0" id="f_misc">
+			Miscellaneous</a>
+		</div>
+
+ 		<span class="branch" id="b_misc">
+		  <a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" href="/rokform/advancedDiags?pageReq=crash" target="home"><img src="../images/paper.gif" alt="">&nbsp;Crash Display</a>
+		  <a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" href="/rokform/advancedDiags?pageReq=heap" target="home"><img src="../images/paper.gif" alt="">&nbsp;Heap (CIP) Statistics</a>
+		  <a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" href="/rokform/advancedDiags?pageReq=genmem" target="home"><img src="../images/paper.gif" alt="">&nbsp;General Memory Statistics</a>
+		</span>
+
+    </span>
+  
+
+
+  </span>
+
+	
+  <!-- * * * ADMINISTRATIVE SETTINGS * * * -->
+  
+  <div class="entry"><a href="#" onClick="showBranch('b_admin_settings'); swapFolder('f_admin_settings');"
+	onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');">
+	<img src="../images/folder.gif" alt="" border="0" id="f_admin_settings">
+	Administrative Settings</a>
+  </div>
+
+  	<span class="branch" id="b_admin_settings">
+  
+    	<!-- * * * DEVELOPER SETTINGS * * * -->	
+		
+<!--		<a class="entry" onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" href="../developersettings.html" target="home"><img src="../images/paper.gif" alt="">&nbsp;Developer Settings</a>
+-->
+		
+  		<!-- * * * DEVICE CONFIGURATION * * * -->
+
+		<div class="entry"><a href="#" onClick="showBranch('b_device_config'); swapFolder('f_device_config');"
+			onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');">
+			<img src="../images/folder.gif" alt="" border="0" id="f_device_config">
+			Device Configuration</a>
+		</div>
+
+ 		<span class="branch" id="b_device_config">
+		  <a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" id="/identity.html" href="../identity.html" target="home"><img src="../images/paper.gif" alt="">&nbsp;Device Identity</a>
+		  <a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" id="/network.html" href="../network.html" target="home"><img src="../images/paper.gif" alt="">&nbsp;Network Configuration</a>
+		  <a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" id="/services.html" href="../services.html" target="home"><img src="../images/paper.gif" alt="">&nbsp;Device Services</a>
+		  <a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" id="/emailConfig.html" href="../emailConfig.html" target="home"><img src="../images/paper.gif" alt="">&nbsp;Email Configuration</a>
+		</span>
+
+		<!-- * * * USER MANAGEMENT * * * -->
+				  
+		<div class="entry"><a href="#" onClick="showBranch('b_user_manage'); swapFolder('f_user_manage');"
+			onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');">
+			<img src="../images/folder.gif" alt="" border="0" id="f_user_manage">
+			User Management</a>
+		</div>
+		
+		<span class="branch" id="b_user_manage">
+		  <a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" id="/editusers.html" href="../editusers.html" target="home"><img src="../images/paper.gif" alt="">&nbsp;Edit Users</a>
+		  <a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" id="/editlimits.html" href="../editlimits.html" target="home"><img src="../images/paper.gif" alt="">&nbsp;Edit Access Limits</a>
+		</span>
+	
+		<!-- * * * SERVER MANAGEMENT * * * -->
+				
+		<div class="entry"><a href="#" onClick="showBranch('b_server_manage'); swapFolder('f_server_manage');"
+			onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');">
+			<img src="../images/folder.gif" alt="" border="0" id="f_server_manage">
+			Server Management</a>
+		</div>
+
+ 		<span class="branch" id="b_server_manage">
+		  <a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" id="/rokform/webManage" href="/rokform/webManage" target="home"><img src="../images/paper.gif" alt="">&nbsp;Server Settings</a>
+		  <a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" id="/backupRestore.html" href="../backupRestore.html" target="home"><img src="../images/paper.gif" alt="">&nbsp;Backup/Restore</a>
+		  <a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" id="/rokform/webTime" href="/rokform/webTime" target="home"><img src="../images/paper.gif" alt="">&nbsp;Time Settings</a>
+		  <a onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" id="/serverlog.html" href="../serverlog.html" target="home"><img src="../images/paper.gif" alt="">&nbsp;Server Log</a>
+		</span>
+
+	</span>
+	
+  
+  <!-- * * * BROWSE CHASSIS * * * -->
+
+  <a class="entry" onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" id="/chassisWho.html" href="../chassisWho.html" target="home"><img src="../images/paper.gif" alt="">&nbsp;Browse Chassis</a>
+
+  <!-- * * * MESSAGE BOARD * * * -->
+<!--
+  <a class="entry" onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" id="/msgboard/index.html" href="../msgboard/index.html" target="home"><img src="../images/paper.gif" alt="">&nbsp;Message Board</a>
+-->
+  <!-- * * * EMAIL * * * -->
+
+  <a class="entry" onclick="highlightView(this);" onmouseover="overColor(this, '#ffffff');" onmouseout="outColor(this, '#bcbcbc');" id="/email.html" href="/rokform/SendEmail" target="home">&nbsp;<img src="../images/email.gif" alt="">&nbsp;Send an Email</a>
+ 
+  </td>
+  </tr>
+
+</table>
+
+</div>
+
+</body>
+
+</html>
+
+

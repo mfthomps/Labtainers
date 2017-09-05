@@ -1,0 +1,115 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0033)http://10.1.100.2/emailConfig.html -->
+<HTML><HEAD>
+<META http-equiv=Content-Type content=text/html;charset=utf-8>
+<META http-equiv=Pragma content=no-cache>
+<META http-equiv=Expires content=-1><LINK href="emailConfig_files/radevice.css" 
+type=text/css rel=stylesheet>
+<SCRIPT src="emailConfig_files/URLhandle.js" type=text/javascript></SCRIPT>
+
+<SCRIPT src="emailConfig_files/javaConfirm.js" type=text/javascript></SCRIPT>
+
+<SCRIPT language=javascript>
+
+	function validateSMTPEntries() 
+	{
+		var server = document.getElementById("smtp_server").value;
+		if ((isValidIP(server) || isValidHostname(server) || (server == ""))) {
+			return true;
+		} else {
+			alert("The value specified for \"SMTP Server\" is not a valid hostname or IP address.");
+			return false;
+		}
+	}
+
+	function check_smtp_auth(status)
+	{
+	document.getElementById("smtp_username").disabled = status;
+	document.getElementById("smtp_password").disabled = status;
+	}
+</SCRIPT>
+
+<STYLE>.inputcol {
+	PADDING-RIGHT: 40px; PADDING-LEFT: 10px; PADDING-TOP: 5px
+}
+</STYLE>
+
+<META content="MSHTML 6.00.3790.1830" name=GENERATOR></HEAD>
+<BODY bottomMargin=0 bgColor=#b7b6b6 leftMargin=0 topMargin=0 
+onload="frame_check(); check_smtp_auth(document.getElementById('smtp_auth').checked==false);" 
+rightMargin=0 marginwidth="0">
+<DIV style="MARGIN-LEFT: 10px"><!-- Start tabs -->
+<TABLE cellSpacing=0 cellPadding=0 width="98%" border=0>
+  <TBODY>
+  <TR>
+    <TD noWrap><IMG height=16 src="emailConfig_files/menustartoff.gif" 
+      width=10 border=0></TD>
+    <TD noWrap background=emailConfig_files/menubgoff.gif><A class=tab 
+      onclick="highlightTree('/identity.html');" 
+      href="http://10.1.100.2/identity.html">Device Identity</A></TD>
+    <TD noWrap><IMG height=16 src="emailConfig_files/mensepoffoff.gif" 
+      width=23 border=0></TD>
+    <TD noWrap background=emailConfig_files/menubgoff.gif><A class=tab 
+      onclick="highlightTree('/network.html');" 
+      href="http://10.1.100.2/network.html">Network Configuration</A></TD>
+    <TD noWrap><IMG height=16 src="emailConfig_files/mensepoffoff.gif" 
+      width=23 border=0></TD>
+    <TD noWrap background=emailConfig_files/menubgoff.gif><A class=tab 
+      onclick="highlightTree('/services.html');" 
+      href="http://10.1.100.2/services.html">Device Services</A></TD>
+    <TD noWrap><IMG height=16 src="emailConfig_files/mensepoffon.gif" width=23 
+      border=0></TD>
+    <TD noWrap background=emailConfig_files/menubgon.gif>Email 
+Configuration</TD>
+    <TD noWrap><IMG height=16 src="emailConfig_files/menuendon.gif" width=21 
+      border=0></TD>
+    <TD noWrap align=right width="100%" 
+    background=emailConfig_files/menuendbg.gif></TD></TR></TBODY></TABLE><!-- End tabs --><!-- Start tab background -->
+<TABLE cellSpacing=0 cellPadding=0 width="98%" bgColor=#002569 border=0>
+  <TBODY>
+  <TR>
+    <TD width=1><IMG height=1 src="emailConfig_files/border.gif" width=1 
+      border=0></TD>
+    <TD width="100%" bgColor=#ffffff><BR><!-- Body starts here -->
+      <TABLE cellSpacing=10 cellPadding=0 width="100%" border=0>
+        <TBODY>
+        <TR>
+          <TD class=subhead vAlign=top>
+            <FORM style="DISPLAY: inline" action=/rokform/UpdateEmail 
+            method=post>
+            <TABLE cellSpacing=0 cellPadding=4 width=510 border=0>
+              <TBODY>
+              <TR class=tablehead bgColor=#bdc8dd>
+                <TD bgColor=#bdc8dd>E-Mail Client</TD>
+                <TD></TD>
+                <TD></TD>
+                <TD></TD>
+              <TR class=row>
+                <TD>SMTP Server</TD>
+                <TD align=right>IP or Hostname:&nbsp;</TD>
+                <TD class=inputcol><INPUT class=copy id=smtp_server 
+                  maxLength=255 size=30 name=smtp_server></TD>
+                <TD></TD></TR>
+              <TR bgColor=#dedede>
+                <TD><INPUT class=copy id=smtp_auth 
+                  onclick="check_smtp_auth(document.getElementById('smtp_auth').checked==false);" 
+                  type=checkbox value=1 name=smtp_auth>SMTP Authentication</TD>
+                <TD align=right>User Name:&nbsp;</TD>
+                <TD class=inputcol><INPUT class=copy id=smtp_username 
+                  maxLength=255 size=30 name=smtp_username></TD>
+                <TD></TD></TR>
+              <TR class=row>
+                <TD></TD>
+                <TD align=right>Password:</TD>
+                <TD class=inputcol><INPUT class=copy id=smtp_password 
+                  type=password maxLength=255 size=30 name=smtp_password></TD></TR>
+              <TR>
+                <TD colSpan=2><BR><INPUT class=copy onclick="if (!validateSMTPEntries()) { return false; }" type=submit value="Apply Changes"> 
+                </TD>
+                <TD></TD>
+                <TD></TD></TR></TBODY></TABLE></FORM></TD>
+          <TD></TD></TR></TBODY></TABLE><!-- Do not modify below this point --></TD>
+    <TD width=1><IMG height=1 src="emailConfig_files/border.gif" width=1 
+      border=0></TD></TR>
+  <TR>
+    <TD></TD></TR></TBODY></TABLE></DIV><!-- End body background --></BODY></HTML>

@@ -1,0 +1,125 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0030)http://10.1.100.2/newview.html -->
+<HTML><HEAD><TITLE>Rockwell Automation</TITLE>
+<META http-equiv=Content-Type content=text/html;charset=utf-8><LINK 
+href="newview_files/radevice.css" type=text/css rel=stylesheet>
+<SCRIPT language=JavaScript src="newview_files/URLhandle.js" 
+type=text/javascript></SCRIPT>
+
+<SCRIPT language=JavaScript src="newview_files/javaConfirm.js" 
+type=text/javascript></SCRIPT>
+
+<SCRIPT language=JavaScript src="newview_files/views.js" 
+type=text/javascript></SCRIPT>
+
+<META content="MSHTML 6.00.3790.1830" name=GENERATOR></HEAD>
+<BODY bottomMargin=0 bgColor=#b7b6b6 leftMargin=0 topMargin=0 
+onload="frame_check();initialize('');" rightMargin=0 marginwidth="0">
+<DIV style="MARGIN-LEFT: 10px"><!-- Start tabs -->
+<TABLE cellSpacing=0 cellPadding=0 width="98%" border=0>
+  <TBODY>
+  <TR>
+    <TD vAlign=top noWrap width=6><IMG height=16 
+      src="newview_files/menustartoff.gif" width=10 border=0></TD>
+    <TD noWrap background=newview_files/menubgoff.gif><A class=tab 
+      onclick="highlightTree('/dataviews.html');" 
+      href="http://10.1.100.2/dataviews.html">Data Views</A></TD>
+    <TD noWrap><IMG src="newview_files/mensepoffon.gif" border=0></TD>
+    <TD noWrap background=newview_files/menubgon.gif>New Data View</TD>
+    <TD noWrap><IMG height=16 src="newview_files/menuendon.gif" width=21 
+      border=0></TD>
+    <TD noWrap align=right width="100%" 
+    background=newview_files/menuendbg.gif></TD></TR></TBODY></TABLE><!-- End tabs --><!-- Start tab background -->
+<TABLE cellSpacing=0 cellPadding=0 width="98%" bgColor=#002569 border=0>
+  <TBODY>
+  <TR>
+    <TD width=1><IMG height=1 src="newview_files/border.gif" width=1 
+    border=0></TD>
+    <TD width="100%" bgColor=#ffffff><BR><!-- Body starts here -->
+      <TABLE cellSpacing=10 cellPadding=0 width="100%" border=0>
+        <TBODY>
+        <TR>
+          <TD vAlign=top>
+            <TABLE id=viewtable cellSpacing=0 cellPadding=2 width="100%" 
+            border=0 name="viewtable">
+              <TBODY>
+              <TR class=tablehead bgColor=#bdc8dd>
+                <TD>Slot <A title="Chassis Info" 
+                  onclick="window.open('/chassisinfo.html', 'ChassisInfo', 'width=450,height=400,resizable=0,toolbar=0');" 
+                  href="http://10.1.100.2/newview.html#"><SUP>?</SUP></A></TD>
+                <TD>Tag Name</TD>
+                <TD>Data Type</TD>
+                <TD>Display As</TD>
+                <TD>Access</TD>
+                <TD align=middle>
+                  <DIV id=canceldiv name="canceldiv"></DIV></TD>
+                <TD align=middle>
+                  <DIV id=addsave name="addsave">Add</DIV></TD></TR>
+              <TR>
+                <TD><INPUT class=copy id=slot title="Path to controller" 
+                  tabIndex=3 maxLength=2 size=2 name=slot></TD>
+                <TD><INPUT class=copy id=tagname 
+                  title="Name of data tag to display" tabIndex=4 maxLength=50 
+                  size=25 name=tagname> </TD>
+                <TD><SELECT class=copy id=datatype tabIndex=5 
+                  onchange=typeUpdate(); name=datatype> <OPTION value=0 
+                    selected>BOOL</OPTION> <OPTION value=1>SINT</OPTION> <OPTION 
+                    value=2>INT</OPTION> <OPTION value=3>DINT</OPTION> <OPTION 
+                    value=4>REAL</OPTION> <OPTION value=5>STRING</OPTION></SELECT> 
+                </TD>
+                <TD><SELECT class=copy id=displaytype tabIndex=6 
+                  onchange=validate_displayas(); name=displaytype> <OPTION 
+                    value=0 selected>Decimal</OPTION> <OPTION 
+                    value=1>Hexadecimal</OPTION> <OPTION value=2>Octal</OPTION> 
+                    <OPTION value=3>Binary</OPTION> <OPTION 
+                    value=4>String</OPTION></SELECT> </TD>
+                <TD><SELECT class=copy id=readwrite tabIndex=8 name=readwrite> 
+                    <OPTION value=0 selected>Admin</OPTION> <OPTION 
+                    value=1>Read/Write</OPTION> <OPTION value=2>Read 
+                    Only</OPTION></SELECT> </TD>
+                <TD align=middle>
+                  <DIV id=cancelrow style="DISPLAY: none" name="cancelrow"><A 
+                  tabIndex=9 href="javascript:cancel_row();"><IMG 
+                  title="Cancel tag edits" height=17 
+                  src="newview_files/cancel.bmp" width=17 border=0></A></DIV></TD>
+                <TD align=middle><A tabIndex=10 
+                  href="javascript:do_row();"><IMG id=addrow 
+                  title="Add this Tag" height=17 src="newview_files/save.bmp" 
+                  width=17 border=0 name=addrow></A> 
+</TD></TR></TBODY></TABLE><BR><BR>
+            <DIV id=island align=center name="island"></DIV><BR><BR><!-- HIDDEN VARIABLES --><INPUT 
+            id=e_slot type=hidden name=e_slot> <INPUT id=e_tag type=hidden 
+            name=e_tag> <INPUT id=e_row type=hidden name=e_row> 
+            <FORM id=form1 name=form1 action=/rokforms/CreateView 
+            method=post><INPUT id=xmltext type=hidden name=xmltext> <INPUT 
+            id=xslfile type=hidden value=dataview.xsl name=xslfile> <INPUT 
+            id=xmlname type=hidden name=xmlname> <INPUT id=tagcount type=hidden 
+            name=tagcount> <INPUT id=oldname type=hidden name=oldname> <INPUT 
+            id=oldcount type=hidden name=oldcount> </FORM></TD>
+          <TD style="PADDING-LEFT: 10px" vAlign=top>
+            <TABLE cellSpacing=0 cellPadding=1 width=140 bgColor=#002569 
+            border=0>
+              <TBODY>
+              <TR>
+                <TD vAlign=top>
+                  <TABLE cellSpacing=0 cellPadding=4 width=140 bgColor=#bdc8dd 
+                  border=0>
+                    <TBODY>
+                    <TR>
+                      <TD class=tablehead align=middle bgColor=#b7b6b6>Create 
+                        Data View</TD></TR>
+                    <TR>
+                      <TD>Name:<BR><INPUT class=copy id=dataview tabIndex=10 
+                        maxLength=76 onchange="return update_name();" size=25 
+                        name=dataview></TD></TR>
+                    <TR>
+                      <TD>Description:<BR><TEXTAREA class=copy id=description tabIndex=11 name=description cols=25 maxlength="128"></TEXTAREA> 
+                      </TD></TR>
+                    <TR align=middle>
+                      <TD><INPUT class=copy id=submit onclick=validate() tabIndex=12 type=button value="Create View" name=submit>&nbsp; 
+<INPUT class=copy id=cancel onclick="parent.frames.home.location.href='/dataviews.html';" tabIndex=13 type=button value=Cancel name=cancel> 
+                      </TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE><!-- Do not modify below this point --></TD>
+    <TD width=1><IMG height=1 src="newview_files/border.gif" width=1 
+    border=0></TD></TR>
+  <TR>
+    <TD></TD></TR></TBODY></TABLE><!-- End body background --></DIV></BODY></HTML>
