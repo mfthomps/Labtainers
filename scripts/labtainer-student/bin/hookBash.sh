@@ -18,7 +18,7 @@ else
     echo "source $HOME/.local/bin/bash-pre-capinout.sh" >> $HOME/.profile
     echo "cd" >> $HOME/.profile
     echo "source $HOME/.local/bin/startup.sh" >> $HOME/.profile
-    echo "trap \"source $HOME/.bash_logout\" SIGINT SIGTERM SIGKILL" >> $HOME/.profile
+    echo "trap \"source $HOME/.bash_logout\" SIGTERM SIGKILL" >> $HOME/.profile
 
     echo "history -a" >> $HOME/.bash_logout
     cat set-title.sh >> $HOME/.bashrc
