@@ -32,7 +32,6 @@ tailingquote()
     if [[ "$string" == *\" ]]; then
         return 1
     fi
-    echo no
     return 0
 }
 
