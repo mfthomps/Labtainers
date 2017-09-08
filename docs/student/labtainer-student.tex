@@ -26,12 +26,13 @@ distribution:
     ./labtainer/trunk/setup_scripts/install-docker-debian.sh
     ./labtainer/trunk/setup_scripts/install-docker-centos.sh
 \end{verbatim}
-If you have a different Linux distribution, find instructions for installing Docker at
+If you have a different Linux distribution, find instructions for installing Docker-ce at
 \url{https://docs.docker.com/engine/installation/}
 
-If you already have Dockers installed, or installed Docker for a different distribution,
+If you already have Docker installed, or installed Docker for a different distribution,
 make sure you also have python, and
-the python \textit{netaddr} module installed.  If you have Docker installed on Ubuntu, you
+the python \textit{netaddr} module installed.  Be sure you have at least version 17.06.0-ce of Docker.
+If you have Docker installed on Ubuntu, you
 may need to run:
 \begin{verbatim}
     ./labtainer/trunk/setup_scripts/fixresolv.sh
