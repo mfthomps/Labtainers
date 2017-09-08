@@ -67,3 +67,7 @@ fi
 $HOME/.local/bin/hookBash.sh 2>>/tmp/hookBash.output
 rmdir $LOCKDIR
 
+# Added a permanent 'did_param' lock directory
+PERMLOCKDIR=/var/labtainer/did_param
+sudo mkdir -p "$PERMLOCKDIR" >/dev/null 2>&1
+
