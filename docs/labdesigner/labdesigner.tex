@@ -422,6 +422,19 @@ and reside at:
     $LABTAINER_DIR/labs/[labname]/[container name]/_bin
 \end{verbatim}
 
+\subsection{Automatic copying files from containers to the host}
+Some labs require the use of tools that are not available within containers. For example,
+Wireshark cannot run in a container because it requires a GUI.  In such cases, the
+student can be directed to run the tool from the host, however Labtainers does not support
+automated assessment of the results.  However, the files accessed by such tools can be
+parameterized by Labtainers, and then copied to the host.  Such files are identified within
+\begin{verbatim}
+    $LABTAINER_DIR/labs/[labname]/config/files_to_host.config
+\end{verbatim}
+\noindent with a format of "container:filename".  Any named files within the home directory of
+the named container will be copied to the host computer into a directory named by the lab, relative
+to the Labtainer working directory.
+
 \section{Parameterizing a lab}
 This section describes how to individualize the lab for each student to discourage
 sharing of lab solutions.  This is achieved by defining symbols within source 
