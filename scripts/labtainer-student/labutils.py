@@ -397,7 +397,6 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test, quie
         less.wait()
         dumb = raw_input("Press <enter> to start lab")
 
-         
     
     # Reach here - Everything is OK - spawn terminal for each container based on num_terminal
     terminal_count = 0
@@ -421,6 +420,8 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test, quie
                 #print spawn_command
                 os.system(spawn_command)
             num_terminal = 1
+        else:
+            CopyFilesToHost(labname, container.name, mycontainer_name, container_user)
         if container.xterm is not None:
                 parts = container.xterm.split()
                 title = parts[0]
@@ -1250,3 +1251,33 @@ def GetDNS():
             parts = line.split()
             retval.append(parts[1])
     return retval
+
+def CopyFilesToHost(labname, container_name, full_container_name, container_user):
+    lab_path          = os.path.join(LABS_ROOT,labname)
+    is_valid_lab(lab_path)
+    config_path       = os.path.join(lab_path,"config") 
+    copy_path = os.path.join(config_path,"files_to_host.config")
+    logger.DEBUG('CopyFilesToHost %s %s %s' % (labname, container_name, full_container_name))
+    logger.DEBUG('CopyFilesToHost copypath %s' % copy_path)
+    if os.path.isfile(copy_path):
+        with open(copy_path) as fh:
+            for line in fh:
+                if not line.strip().startswith('#'):
+                    try:
+                        os.mkdir(os.path.join(os.getcwd(), labname))
+                    except OSError as e:
+                        #logger.ERROR('could not mkdir %s in %s %s' % (labname, os.getcwd(),str(e)))
+                        pass
+                    container, file_name = line.split(':')                    
+                    if container == container_name:
+                        dest = os.path.join(os.getcwd(), labname, file_name)
+                        command = 'docker cp %s:/home/%s/%s %s' % (full_container_name, container_user, 
+                            file_name.strip(), dest)
+                        logger.DEBUG("Command to execute is (%s)" % command)
+                        result = subprocess.call(command, shell=True)
+                        logger.DEBUG("Result of subprocess.call DoTransfer copy (TOHOST) file (%s) is %s" % (file_name, 
+                            result))
+                        if result == FAILURE:
+                            logger.ERROR("Failed to copy file from container %s!\n" % full_container_name)
+                            sys.exit(1)
+

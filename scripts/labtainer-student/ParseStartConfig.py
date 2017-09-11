@@ -39,7 +39,7 @@ class ParseStartConfig():
         self.validate()
 
     class Container():
-        def __init__(self, name):
+        def __init__(self, name, logger):
             self.name       = name
             self.terminals  = 1
             self.xterm      = None
@@ -48,6 +48,7 @@ class ParseStartConfig():
             self.image_name = ""
             self.full_name  = ""
             self.container_nets = {} #dictionary of name and ip addr 
+            self.logger = logger
 
         def add_net(self, name, ipaddr):
             self.container_nets[name] = ipaddr
@@ -127,7 +128,7 @@ class ParseStartConfig():
                     self.add_if_new(val, self.subnets, self.Subnet(val, self.logger))
                     active = self.subnets[val]
                 elif key == "container":
-                    self.add_if_new(val, self.containers, self.Container(val))
+                    self.add_if_new(val, self.containers, self.Container(val, self.logger))
                     active = self.containers[val]
                 elif hasattr(active, key):
                     setattr(active, key, val) 
