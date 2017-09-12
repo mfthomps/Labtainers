@@ -3,6 +3,7 @@
 \geometry{a4paper, total={170mm,257mm},left=20mm, top=10mm,}
 \usepackage[colorlinks=true,linkcolor=blue,urlcolor=black]{hyperref}
 \usepackage{bookmark}
+\usepackage{pdfpages}
 \begin{document}
 \title {Labtainer Student Guide}
 \maketitle
@@ -10,12 +11,12 @@
 \section {Introduction}
 This manual is intended for use by students performing labs with Labtainers.
 Labtainers assume you have a Linux system, e.g., a virtual machine.  Refer to
-in Appendix~\ref{sec:appendixA} for installation of Virtual Box and a Linux system.
-Note though, that any Linux system can be used as long as it supports Dockers.
+in Appendix A for installation of Virtual Box and a Linux system.
+Note that any Linux system can be used as long as it supports Dockers.
 
 \subsection{Obtaining Labtainers and installing Docker}
 The Labtainers environment is distributed as a tarball from:
-\url{https://my.nps.edu/documents/107523850/109121362/labtainer.tar/6fc80410-e87d-4e47-ae24-cbb60c7619fa}
+\url{https://my.nps.edu/web/cisr/labtainers}
 Untar this file in your Linux system.
 
 Install Docker by running one of the install-docker scripts, depending on your Linux
@@ -65,7 +66,8 @@ not repeat those.  While running the lab, if you require more virtual terminals,
 \end{verbatim}
 
 The virtual terminals for most labs present bash shells via which you can interact
-with the attached computer, (which is actually a Docker container).  A single computer
+with the attached computer, (which is actually a Docker container designed to appear
+like a separate computer).  A single computer
 may have multiple virtual terminals attached to it.  Each computer is independent, and 
 may use networks to interact with other computers within the lab.  
 
@@ -84,7 +86,7 @@ This allows students to add packages on components having lab-specific default g
 Use of the \textit{togglegw.sh} script is not necessary to reach the Linux host, (e.g., to scp files).
 
 \subsection{Limitations}
-The "computers" are individual Docker containers that are interconnected via virtual
+The Labtainer "computers" are individual Docker containers that are interconnected via virtual
 networks.  These containers each share the Linux kernel of your host.  Thus, a change
 to the kernel configuration on one computer, (e.g., enabling ASLR), will be visible on
 other containers, as well as your host.
@@ -94,9 +96,9 @@ by the Labtainer framework and includes results that get packaged up for forward
 instructor.  Do not modify any files beneath the .local directory.  Otherwise, you can treat
 those containers as Linux systems, and explore them.
 
-Please note that while running programs in the virtual computers, passwords provided to
-applications such as "ssh" are not supressed.  This is a side effect of the Labtainers
-support for automated assessment.
+Please note that while running some programs in the Labtainer computers, passwords provided to
+applications such as "ssh" are not supressed.  This is a side effect of the Labtainer
+support for automated assessment.  
 
 \subsection{Stopping Labtainers}
 When you are finished, or wish to stop working, type:
@@ -105,49 +107,9 @@ When you are finished, or wish to stop working, type:
 \end{verbatim}
 The stop.py command will display the directory containing a zip file that should be provided to your instructor.
 
-\newpage
 \appendix 
 \section {Appendix A: Installing Virtual Box and Ubuntu}
-\label{sec:appendixA}
-The instructions below describe installation of an Ubuntu Linux VM 
-to serve as the Labtainer host.  If you already have a Linux system
-that can support Dockers, you may skip this section.
-\begin{itemize}
-\item Install Virutal Box from : https://www.virtualbox.org/wiki/Downloads
-\item Download the latest Ubuntu Desktop LTS distribution .iso image.  https://www.ubuntu.com/download
-\item Use VirtualBox to create a new VM, allocate at least 10GB of disk storage, 4GB RAM and 2 CPUs.
-\item Select the Ubuntu iso image in the VirtualBox storage settings, and select "Live CD/DVD"
-\item Power on the virtual machine and install Ubuntu.
-\end{itemize}
-
-The following additions simplify movement of files between Virtual Box guests
-and the host computer.
-
-To setup shared folder:
-\begin{itemize}
-\item create or identify a folder on the host to share with the guest
-\item on the virtualbox guest, select "settings" / "Shared Folders",
-then select host's shared folder.
-
-\item download a virtualbox guest additions iso from 
-\url{http://download.virtualbox.org/virtualbox} and select
-the version of virtual box you are using (5.0.24 for example)
-
-\item on the virtualbox guest, select "settings" / "Storage" and
-change the CD rom to mount the iso downloaded
-
-\item If the guest additions does not automatically prompt you, then mount the CD 
-inside the guest then run the guestadditions
-
-\item Once VBox Guest Additions is completed, reboot the guest
-
-\item Add the user (in the guest) to the vboxsf group:
-\begin{verbatim}
-    sudo adduser $USER vboxsf
-\end{verbatim}
-\end{itemize}
-
-\newpage
+\includepdf[pages=-]{InstallingVB-Linux.pdf}
 \appendix 
 \section {Appendix B: Labtainer Command Summary}
 \label{sec:appendixB}
