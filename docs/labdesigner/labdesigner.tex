@@ -485,13 +485,17 @@ is followed by one of the following operations:
  HASH_CREATE : <filename> : <string>
    Create or overwrite a file with a hash of a given string and the lab 
    instance seed.
-     where: <filename> - the file name (file will be created if it does not exist)
+     where: <filename> - the file name that is to contain the resulting hash.
+                         The file name is prefixed with a 
+                         container name and the "=" sign.  This may be a 
+                         list of files, delimited by semicolons 
             <string> -   the input to a MD5 hash operation (after concatenation 
                          with the lab instance seed)
                        
                    
    example:
-     some_parameter_id : HASH_CREATE : /home/ubuntu/myseed : bufferoverflowinstance
+     some_parameter_id : HASH_CREATE : mylab.client.student=/home/ubuntu/myseed 
+        : bufferoverflowinstance
    A file named /home/ubuntu/myseed will be created (if it does not exist), 
    containing an MD5 hash of the lab instance seed concatentated with the 
    string 'bufferoverflowinstance'.
@@ -499,13 +503,16 @@ is followed by one of the following operations:
  HASH_REPLACE : <filename> : <symbol> : <string>
    Replace a symbol in a named file with a MD5 hash of a given string 
    concatenated with the lab instance seed.
-     where: <filename> - the filename (file must exist) containing the 
-                         symbol to be replaced.
+     where: <filename> - the file name (file must exist) where <symbol> is 
+                         to be replaced.  The file name is prefixed with a 
+                         container name and the "=" sign.  This may be a 
+                         list of files, delimited by semicolons 
             <symbol> - a string that will be replaced by the hash
             <string> - a string contatenated with the lab instance seed and hashed
 
      example:
-       some_parameter_id HASH_REPLACE : /root/.secret : ROOT_SECRET : myrootfile
+       some_parameter_id HASH_REPLACE : mylab.client.student=/root/.secret : 
+           ROOT_SECRET : myrootfile
      The string "ROOT_SECRET" in file /root/.secret will be replaced with an MD5 hash
      of the concatenation of the lab instance seed and "myrootfile".
 \end{verbatim}
