@@ -10,6 +10,7 @@
 #define FILEPATH "/tmp/iodevice"
 #define NUMINTS  (1000)
 #define FILESIZE (NUMINTS * sizeof(int))
+#define FILE_ID "MY_FILE_ID"
 void signal_handler(int signo)
 {
     if (signo == SIGINT)
@@ -45,7 +46,7 @@ int main(int argc, char *argv[])
     map = mmap(0, FILESIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if (map == MAP_FAILED) {
         close(fd);
-        printf("Error mmapping the file\n");
+        printf("Error mmapping the file, fid is %s\n", FILE_ID);
         exit(EXIT_FAILURE);
     }
     printf("done mmap \n");
