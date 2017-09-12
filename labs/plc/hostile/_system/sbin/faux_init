@@ -1,7 +1,0 @@
-#
-# Simulate the linux init process for Labtainers
-# This will start system logging and will run rc.local
-# Add any other system services here, e.g., starting xinetd
-#
-/usr/sbin/rsyslogd -n &
-service rc.local start
