@@ -19,12 +19,12 @@ import ParseLabtainerConfig
 LABTAINER_CONFIG = os.path.abspath("../../config/labtainer.config")
 
 class LabtainerLogging():
-    def __init__(self, logfilename, labname):
+    def __init__(self, logfilename, labname, labtainer_config):
         #print "filename is (%s)" % logfilename
         #print "labname is (%s)" % labname
         logname = "labtainer.%s" % labname
 
-        labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(LABTAINER_CONFIG, labname, None)
+        labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config, labname, None)
         file_log_level = labtainer_config.file_log_level
         console_log_level = labtainer_config.console_log_level
 

@@ -38,7 +38,7 @@ def main():
     if len(sys.argv) == 3 and sys.argv[2] == '-f':
         force_build = True 
     labname = sys.argv[1]
-    labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname)
+    labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
     labutils.logger.INFO("Begin logging redo.py for %s lab" % labname)
     labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
     labutils.RedoLab(labname, "instructor", force_build=force_build)

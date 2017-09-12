@@ -50,7 +50,7 @@ def main():
         force_build = True 
 
     labname = sys.argv[1]
-    labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname)
+    labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
     labutils.logger.INFO("Begin logging redo.py for %s lab" % labname)
     labutils.RedoLab(labname, "student", force_build=force_build, quiet_build=quiet_build)
 

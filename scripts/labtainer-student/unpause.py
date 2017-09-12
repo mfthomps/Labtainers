@@ -43,7 +43,7 @@ def main():
         sys.exit(1)
 
     labname = sys.argv[1]
-    labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname)
+    labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
     labutils.logger.INFO("Begin logging unpause.py for %s lab" % labname)
     labutils.DoPauseorUnPause(labname, "student", "unpause")
 

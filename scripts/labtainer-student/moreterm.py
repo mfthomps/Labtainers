@@ -67,7 +67,7 @@ def main():
         usage()
 
     labname = sys.argv[1]
-    labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname)
+    labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
     labutils.logger.INFO("Begin logging moreterm.py for %s lab" % labname)
     labutils.DoMoreterm(labname, "student", container, requested_term)
 

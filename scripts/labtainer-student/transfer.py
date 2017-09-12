@@ -83,7 +83,7 @@ def main():
     print "HERE6"
     labname = sys.argv[1]
     filename = sys.argv[2]
-    labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname)
+    labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
     labutils.logger.INFO("Begin logging transfer.py for %s lab" % labname)
     labutils.DoTransfer(labname, "student", container, filename, requested_direction)
 

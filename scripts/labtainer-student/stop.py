@@ -31,7 +31,7 @@ def main():
         sys.exit(1)
     
     labname = sys.argv[1]
-    labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname)
+    labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
     labutils.logger.INFO("Begin logging stop.py for %s lab" % labname)
     # Pass 'False' to ignore_stop_error (i.e., do not ignore error)
     labutils.StopLab(labname, "student", False)

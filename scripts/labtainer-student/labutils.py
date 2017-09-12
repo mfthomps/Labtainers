@@ -19,6 +19,7 @@ import struct
 import threading
 import LabtainerLogging
 import shlex
+''' logger is defined in whatever script that invokes the labutils '''
 global logger
 '''
 This software was created by United States Government employees at 
@@ -571,7 +572,10 @@ def StartLab(labname, role, is_regress_test=None, force_build=False, is_redo=Fal
 
     build_student = './buildImage.sh'
     build_instructor = './buildInstructorImage.sh'
+    LABS_DIR = os.path.abspath('../../labs')
     didfix = False
+    ''' hackey assumption about running from labtainers-student or labtainers-instructor '''
+    container_bin = './bin'
     for name, container in start_config.containers.items():
         mycontainer_name       = container.full_name
         mycontainer_image_name = container.image_name
@@ -584,9 +588,9 @@ def StartLab(labname, role, is_regress_test=None, force_build=False, is_redo=Fal
             logger.DEBUG("Command was (%s)" % cmd)
             if len(output[1]) > 0:
                 logger.DEBUG("Error from command = '%s'" % str(output[1]))
-        if force_build or CheckBuild(labname, mycontainer_image_name, mycontainer_name, name, role, is_redo):
+        if force_build or CheckBuild(labname, mycontainer_image_name, mycontainer_name, name, role, is_redo, container_bin):
             if os.path.isfile(build_student):
-                cmd = '%s %s %s %s %s' % (build_student, labname, name, container.user, force_build)
+                cmd = '%s %s %s %s %s %s' % (build_student, labname, name, container.user, force_build, LABS_DIR)
             elif os.path.isfile(build_instructor):
                 cmd = '%s %s %s %s %s' % (build_instructor, labname, name, container.user, force_build)
             else:
@@ -622,7 +626,7 @@ def FileModLater(ts, fname):
     else:
         return False
 
-def CheckBuild(labname, image_name, container_name, name, role, is_redo):
+def CheckBuild(labname, image_name, container_name, name, role, is_redo, container_bin):
     '''
     Determine if a container image needs to be rebuilt.
     '''
@@ -681,8 +685,7 @@ def CheckBuild(labname, image_name, container_name, name, role, is_redo):
                        break
 
     if not retval:
-        all_bin = './bin' 
-        all_bin_files = os.listdir(all_bin)
+        all_bin_files = os.listdir(container_bin)
         for f in all_bin_files:
             f_path = os.path.join(all_bin, f)
             if FileModLater(ts, f_path):
@@ -700,15 +703,6 @@ def CheckBuild(labname, image_name, container_name, name, role, is_redo):
                retval = True
                break
         logger.DEBUG('is instructor')
-        if not retval:  
-            inst_bin = './bin'
-            inst_bin_files = os.listdir(inst_bin)
-            for f in inst_bin_files:
-                f_path = os.path.join(inst_bin, f)
-                if FileModLater(ts, f_path):
-                   logger.WARNING('%s is later, will build' % f_path)
-                   retval = True
-                   break
     return retval
 
 def dumb():

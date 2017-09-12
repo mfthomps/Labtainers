@@ -42,7 +42,7 @@ def main():
         usage()
 
     for labname in labnamelist:
-        labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname)
+        labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
         labutils.logger.INFO("Begin logging regresstest.py for %s lab" % labname)
         labutils.logger.DEBUG("Current name is (%s)" % labname)
         fulllabname = os.path.join(labutils.LABS_ROOT, labname)
