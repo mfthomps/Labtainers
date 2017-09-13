@@ -36,8 +36,8 @@ def main():
 	dir_path = dir_path[:dir_path.index("scripts/labtainer-student")]	
 	path = dir_path + "labs/"
 	dirs = os.listdir(path)
-	for loc in dirs:
-                description = loc
+	for loc in sorted(dirs):
+                description = '  '+loc
 		aboutFile = path + loc + "/config/about.txt"
 		if(os.path.isfile(aboutFile)):
                     description += ' - '
