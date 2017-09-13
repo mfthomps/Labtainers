@@ -1,5 +1,5 @@
 #!/bin/bash
-$here=`pwd`
+ln -s trunk/scripts/labtainer-student
 cd trunk/setup_scripts
 found_distrib=`cat /etc/*-release | grep "^DISTRIB_ID" | awk -F "=" '{print $2}'`
 if [[ -z "$1" ]]; then
@@ -33,4 +33,3 @@ case "$distrib" in
         fi
         exit 1
 esac
-
