@@ -1,4 +1,13 @@
-When a student container is first started Docer Exec is used
+The framework has not yet been adapted to use Linux package managers.
+Currently, scripts are run from a workspace directory and python
+paths are managed relatively between scripts.  
+
+Student scripts, e.g., start.py, run from the trunk/scripts/labtainer-student directory.
+That directory also contains the labutils.py, which contains most of the framework
+functions.
+
+
+When a student container is first started "docker exec" is used
 to run parameterize.sh on the container.
 
 That script also invokes hookBash.sh, which adds the bash
