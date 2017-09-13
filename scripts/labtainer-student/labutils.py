@@ -446,6 +446,8 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test, quie
                     logger.DEBUG("xterm spawn: %s" % spawn_command)
                     #print spawn_command
                     os.system(spawn_command)
+                    # race condition, gnome may beat xterm to the startup.sh script
+                    time.sleep(1)
         # If the number of terminal is zero -- do not spawn
         if num_terminal != 0:
             for x in range(num_terminal):
@@ -460,9 +462,9 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test, quie
                 else:
                     cmd = 'bash -l' 
                 #spawn_command = "gnome-terminal %s -x docker exec -it %s bash -l &" % (terminal_location, mycontainer_name)
-                logger.DEBUG("gnome spawn: %s" % spawn_command)
                 spawn_command = 'gnome-terminal %s -x docker exec -it %s %s &' % (terminal_location, 
                    mycontainer_name, cmd)
+                logger.DEBUG("gnome spawn: %s" % spawn_command)
                 #print spawn_command
                 os.system(spawn_command)
                 
