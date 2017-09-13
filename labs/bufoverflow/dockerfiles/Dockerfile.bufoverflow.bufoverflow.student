@@ -14,9 +14,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 USER ubuntu
 ENV HOME /home/ubuntu
 ADD $labdir/$lab.tar.gz $HOME
-RUN echo "cd" >> $HOME/.profile
-RUN echo "source $HOME/.local/bin/startup.sh" >> $HOME/.profile
-RUN echo "" > $HOME/.bash_logout
 RUN echo "# This secret file is generated when container is created" >> $HOME/.secret
 RUN echo "# The user secret string below will be replaced with a keyed hash" >> $HOME/.secret
 RUN echo "My Ubuntu secret string is: UBUNTU_SECRET" >> $HOME/.secret
