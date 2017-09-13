@@ -1,4 +1,5 @@
 #!/bin/bash
+read -p "This script will reboot the system when done, press enter to continue"
 ln -s trunk/scripts/labtainer-student
 cd trunk/setup_scripts
 found_distrib=`cat /etc/*-release | grep "^DISTRIB_ID" | awk -F "=" '{print $2}'`
@@ -7,22 +8,23 @@ if [[ -z "$1" ]]; then
 else
     distrib=$1
 fi
+RESULT=0
 case "$distrib" in
     Ubuntu)
         echo is ubuntu
-        ./install-docker-ubuntu.sh
+        RESULT=$(./install-docker-ubuntu.sh)
         ;;
     Debian)
         echo is debian
-        ./install-docker-debian.sh
+        RESULT=$(./install-docker-debian.sh)
         ;;
     Fedora)
         echo is fedora
-        ./install-docker-fedora.sh
+        RESULT=$(./install-docker-fedora.sh)
         ;;
     Centos)
         echo is centos
-        ./install-docker-centos.sh
+        RESULT=$(./install-docker-centos.sh)
         ;;
     *)
         if [[ -z "$1" ]]; then
@@ -33,3 +35,10 @@ case "$distrib" in
         fi
         exit 1
 esac
+if [[ "$RESULT"==0 ]]; then
+    /usr/bin/newgrp docker <<EONG
+    /usr/bin/newgrp $USER <<EONG
+    docker pull mfthomps/labtainer.base
+EONG
+    sudo reboot
+fi

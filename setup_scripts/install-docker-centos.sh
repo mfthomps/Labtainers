@@ -11,7 +11,6 @@ END
 #
 # Install Docker on a CentOS system, along with other packages required by Labtainers
 #
-read -p "This script will reboot the system when done, press enter to continue"
 
 #needed packages for install
 sudo yum makecache fast
@@ -68,9 +67,9 @@ if [ -z "$pipcheck" ]; then
 fi
 
 if [ $packagefail = "true" ]; then
-    exit
+    exit 1
 fi
 
-sudo reboot
+exit 0
 
 #Notes: The “-y” after each install means that the user doesn’t need to press “y” in between each package download. The install script is based on this page: https://docs.docker.com/engine/installation/linux/docker-ce/centos/

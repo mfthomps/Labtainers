@@ -11,7 +11,6 @@ END
 #
 # Install Docker on an Ubuntu system, along with other packages required by Labtainers
 #
-read -p "This script will reboot the system when done, press enter to continue"
 
 #---needed packages for install
 sudo apt-get update
@@ -93,9 +92,9 @@ sudo resolvconf -u
 
 if [ $packagefail = "true" ]; then
     echo "If you manually install packages to correct the problem, be sure to reboot the system before trying to use Labtainers."
-    exit
+    exit 1
 fi
 
-sudo reboot
+exit 0
 
 #Notes: The “-y” after each install means that the user doesn’t need to press “y” in between each package download. The install script is based on this page: https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/
