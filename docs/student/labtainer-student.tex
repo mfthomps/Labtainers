@@ -48,12 +48,13 @@ All labs are run from the same Labtainer workspace directory:
     ./start.py <labname>
 \end{verbatim}
 \noindent where \textit{labname} is the name of the lab to run.  Leaving this out will 
-display a list of available labs.  The very first time you start a Labtainer lab, it will take a while to download
-a baseline Docker image.  Subsequent labs will start much faster.
+display a list of available labs.  
 
-Follow the instructions that appear in one of the resulting virtual terminals.  Please
-note that some of the initial lab instructions repeat the steps you've already taken, and you need
-not repeat those.  While running the lab, if you require more virtual terminals, use:
+Most labs create one or more virtual terminals, one of which may be titled "INSTRUCTIONS".
+Please note that some of the initial lab instructions repeat the steps you've already taken, and you need
+not perform those again.  Some labs direct you to a PDF version of a lab manual, which you can open in a browser.
+
+While running the lab, if you require more virtual terminals, use:
 \begin{verbatim}
     ./moreterm.py <labname> <container>
 \end{verbatim}
@@ -65,6 +66,12 @@ with the attached computer, (which is actually a Docker container designed to ap
 like a separate computer).  A single computer
 may have multiple virtual terminals attached to it.  Each computer is independent, and 
 may use networks to interact with other Labtainer computers within the lab.  
+
+Many labs automatically gather results of your work, which you will provide to your instructor.
+Note that, unless otherwise directed, exploration and experimentation you perform either before
+or after performing the expected activity will not diminish or dilute your results.  And you typically
+do not have to take actions to collect or record your results.  This occurs automatically as noted in the 
+next section.  
 
 \subsection{Stopping Labtainers}
 When you are finished, or wish to stop working, type:
@@ -98,7 +105,7 @@ instructor.  Do not modify any files beneath the .local directory.  Otherwise, y
 those containers as Linux systems, and explore them.
 
 Please note that while running some programs in the Labtainer computers, passwords provided to
-applications such as "ssh" are not supressed.  This is a side effect of the Labtainer
+applications such as "ssh" are not suppressed.  This is a side effect of the Labtainer
 support for automated assessment.  
 
 
