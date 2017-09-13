@@ -11,66 +11,67 @@
 \section {Introduction}
 This manual is intended for use by students performing labs with Labtainers.
 Labtainers assume you have a Linux system, e.g., a virtual machine.  Refer to
-in Appendix A for installation of Virtual Box and a Linux system.
-Note that any Linux system can be used as long as it supports Dockers.
+Appendix A for installation of VirtualBox and a Linux system.
+Note that any Linux system can be used as long as it supports Docker.
+
+Labtainers provide a consistent execution environment for performing
+laboratory exercises, and can simulate the execution of several different
+computers interconnected via virtual networks.   
 
 \subsection{Obtaining Labtainers and installing Docker}
-The Labtainers environment is distributed as a tarball from:
+The Labtainer framework is distributed as a tarball from:
 \url{https://my.nps.edu/web/cisr/labtainers}
-Untar this file in your Linux system.
-
-Install Docker by running one of the install-docker scripts, depending on your Linux
-distribution:
+Untar this file into a permanent directory on your Linux system,
+e.g., ~/home.  From the directory into which you untarred the
+tarball:
 \begin{verbatim}
-    ./labtainer/trunk/setup_scripts/install-docker-ubuntu.sh
-    ./labtainer/trunk/setup_scripts/install-docker-fedora.sh
-    ./labtainer/trunk/setup_scripts/install-docker-debian.sh
-    ./labtainer/trunk/setup_scripts/install-docker-centos.sh
+   cd labtainer
+   ./install-labtainer.sh
 \end{verbatim}
-If you have a different Linux distribution, find instructions for installing Docker-ce at
-\url{https://docs.docker.com/engine/installation/}
 
-If you already have Docker installed, or installed Docker for a different distribution,
-make sure you also have python, and
-the python \textit{netaddr} module installed.  Be sure you have at least version 17.06.0-ce of Docker.
-If you have Docker installed on Ubuntu, you
-may need to run:
-\begin{verbatim}
-    ./labtainer/trunk/setup_scripts/fixresolv.sh
-\end{verbatim}
-\noindent Also note that older Linux distributions, e.g., Ubuntu 14.* lack the
+This script will install the latest version of Docker and packages required
+by the Labtainer framework.  It will cause your Linux host to reboot when it
+completes.
+Note that older Linux distributions, e.g., Ubuntu 14.* lack the
 \textit{realpath} package, which should be installed prior to using Labtainers.
+
+After the Linux host reboots, open a terminal to your Linux host and
+change directory to wherever you untarred the tarball.
 
 \section{Performing a Lab}
 All labs are run from the same Labtainer workspace directory:
 \begin{verbatim}
-    cd labtainer/trunk/scripts/labtainer-student
+    cd labtainer/labtainer-student
 \end{verbatim}
 \noindent Then run the lab:
 \begin{verbatim}
     ./start.py <labname>
-       where <labname> is the name of the lab to run.  Leaving this out will 
-       display a list of available labs.
 \end{verbatim}
-
-The first time any given lab is run, it may take a short while to build the Docker images 
-required for the lab.  Subsequent runs will start much faster.
+\noindent where \textit{labname} is the name of the lab to run.  Leaving this out will 
+display a list of available labs.  The very first time you start a Labtainer lab, it will take a while to download
+a baseline Docker image.  Subsequent labs will start much faster.
 
 Follow the instructions that appear in one of the resulting virtual terminals.  Please
 note that some of the initial lab instructions repeat the steps you've already taken, and you need
 not repeat those.  While running the lab, if you require more virtual terminals, use:
 \begin{verbatim}
     ./moreterm.py <labname> <container>
-    where <container> is the host name of the component on which to attach a terminal.  
-    It can be omitted for labs having a single component.
 \end{verbatim}
+\noindent where \textit{container} is the host name of the component on which to attach a terminal.  
+It can be omitted for labs having a single component.
 
 The virtual terminals for most labs present bash shells via which you can interact
 with the attached computer, (which is actually a Docker container designed to appear
 like a separate computer).  A single computer
 may have multiple virtual terminals attached to it.  Each computer is independent, and 
-may use networks to interact with other computers within the lab.  
+may use networks to interact with other Labtainer computers within the lab.  
 
+\subsection{Stopping Labtainers}
+When you are finished, or wish to stop working, type:
+\begin{verbatim}
+    ./stop.py <labname>
+\end{verbatim}
+\noindent The stop.py command will display the directory containing a zip file that should be provided to your instructor.
 \subsection{Networking}
 In addition to network properties defined for the lab,
 each component \texttt{/etc/host} file includes a "my\_host entry" that names
@@ -100,12 +101,6 @@ Please note that while running some programs in the Labtainer computers, passwor
 applications such as "ssh" are not supressed.  This is a side effect of the Labtainer
 support for automated assessment.  
 
-\subsection{Stopping Labtainers}
-When you are finished, or wish to stop working, type:
-\begin{verbatim}
-    ./stop.py <labname>
-\end{verbatim}
-The stop.py command will display the directory containing a zip file that should be provided to your instructor.
 
 \appendix 
 \section {Appendix A: Installing Virtual Box and Ubuntu}
@@ -113,7 +108,7 @@ The stop.py command will display the directory containing a zip file that should
 \appendix 
 \section {Appendix B: Labtainer Command Summary}
 \label{sec:appendixB}
-The following labtainer commands are available from the \texttt{labtainer/trunk/scripts/labtainer-student}
+The following labtainer commands are available from the \texttt{labtainer/labtainer-student}
 directory:
 \begin{itemize}
 \item \texttt{./start.py <lab> --}
@@ -126,7 +121,7 @@ previous data from the named lab.
 \end{itemize}
 
 Most labs display lab instructions in one of the windows that appears after the lab starts.  If those instructions
-stop displaying, e.g., because "q" is pressed in that window, then type the following in that window:
+stop displaying, e.g., because "q" is pressed in that window, then type the following in a virtual terminal:
 \begin{verbatim}
     less instructions.txt
 \end{verbatim}
