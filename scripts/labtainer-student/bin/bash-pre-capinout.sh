@@ -25,6 +25,10 @@ treatlocal(){
 }
 ignorelocal(){
    local cmd_path=$1
+   if [[ $cmd_path == *&* ]]; then
+       # do not track background processes
+       return 1
+   fi
    local TAS=$HOME/.local/bin/ignorelocal
    if [ -f $TAS ]
    then
@@ -67,6 +71,12 @@ preexec() {
    if [[ "$1" == "exit" ]]; then
        return 0
    fi
+   amp="&"
+   if [[ $1 == *"$amp"* ]]; then
+       # do not track background processes
+       return 0
+   fi
+
    IFS='|' read -ra commandarray <<< "$1"
    #echo "command array: $commandarray"
    IFS=' '
