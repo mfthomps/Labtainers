@@ -602,10 +602,17 @@ Entries within the results.config file each have the following format:
                               are ignored.
                 CONTAINS   -- The value of nametag will be set to true if the file 
                               contains the string represented in field_id.
+                SEARCH     -- The value nametag will be set to the search resulting
+                              from the given field_id, which is treated as an
+                              expression having the syntax of pythons parse.search function.
+                              E.g., "frame.number=={:d}" would yeild the frame number.
+                              
             field_id -- An integer identifying the nth occurance of the field type.
                         Alternately may be "LAST" for the last occurance of the 
                         field type, or "ALL" for the entire line (which causes the 
-                        field type to be ignored).  If field_type is "CONTAINS", the 
+                        field type to be ignored).  Or if field_type is SEARCH, the
+                        field_id is treated as the search expression. 
+                        If field_type is "CONTAINS", the 
                         remainder of the line is treated as a string to be 
                         searched for.
             line_type - Identifies how the line is to be identified, values include:
@@ -616,7 +623,7 @@ Entries within the results.config file each have the following format:
                 STARTSWITH     --  the line_id will be a string.  This names the 
                                    first occurrence of a line that starts with 
                                    this string. 
-                CONTAINS       --  The line_id will be a string.  This names the 
+                HAVESTRING      --  The line_id will be a string.  This names the 
                                    first occurrence of a line that contains the 
                                    string.
                 NEXT_STARTSWITH -- the line_id will be a string.  This names the 
