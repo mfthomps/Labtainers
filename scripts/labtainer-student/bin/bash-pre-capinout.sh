@@ -25,10 +25,6 @@ treatlocal(){
 }
 ignorelocal(){
    local cmd_path=$1
-   if [[ $cmd_path == *&* ]]; then
-       # do not track background processes
-       return 1
-   fi
    local TAS=$HOME/.local/bin/ignorelocal
    if [ -f $TAS ]
    then
