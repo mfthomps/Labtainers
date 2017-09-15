@@ -2,16 +2,9 @@ Title: PCAP Analysis Lab Exercise
 
 1. Background
 
-This Labtainer exercise illustrates parameterization support
-including a specific PCAP file for each student.
-
-A previously captured packets using tcpdump is stored as a PCAP file
-in the home directory. The traffic packets are the transmission captured
-between a client-server using telnet.
-
-Students performing this exercise will transfer the parameterized PCAP file
-and analyze the PCAP file to identify the time when the attempted 'break-in',
-i.e., incorrect password is submitted.
+This lab introduces analysis of PCAP files using the
+Tshark tool.  You will analyze an existing PCAP, looking
+for a specific invalid login attempt.
 
 2. Performing the lab
 The lab is started from the Labtainer working 
@@ -21,8 +14,8 @@ From there, issue the command:
     ./start.py pcapanalysis
 
 The resulting virtual terminals include a display of
-these instructions, a terminal connected to a client, and a
-terminal connected to a server.
+these instructions and a terminal connected to a 
+computer that contains the PCAP of interest.
 
 To navigate this instruction, the arrow keys along with 
 with the Space/Home/End/Page-Up/Page-Down keys are usable.
@@ -36,21 +29,22 @@ To exit navigation of this instruction, type 'q'.
        man tshark
 
     b. Sample tshark command to display specific fields:
-       tshark -T fields -e frame.number -e frame.time -e telnet.data -r tcpdump.telnet.pcap
+       tshark -T fields -e frame.number -e frame.time -e telnet.data -r telnet.pcap
 
-       Above command, show the fields: frame.number, frame.time and telnet.data
 
-3.2. Identify the 'breakin' packet 
+3.2. Display the single packet containing the invalid "admin" password
 
-Identify the time when the attempted 'breakin', i.e., incorrect password is submitted.
+    Locate the single frame which contains the password provided when the user
+    attempted to login as the "admin" user. 
 
-Submit the packet/frame number and the date and time when the attempted 'breakin' to instructor.
+    Use tshark to display just this frame by using the "-Y frame.number==N" 
+    option, where "N" is the frame number.
 
 4. Stop the Labtainer
 
 When the lab is completed, or you'd like to stop working for a while, run
 
-    ./stop.py telnetlab
+    ./stop.py pcapanalysis
 
 from the host Labtainer working directory.  You can always restart the
 Labtainer to continue your work.  When the Labtainer is stopped, a

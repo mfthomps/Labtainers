@@ -1,0 +1,19 @@
+This lab illustrates a technique for parameterizing PCAP files by altering 
+frame numbers associated with packets of interest.  This is acheived by
+by using editcap to trim a random quanity of packets from the start of 
+the student's PCAP file.
+
+The lab requires the student to use tshark to analyze a PCAP file that was 
+created using tcpdump to capture a telnet session.
+The original PCAP file was constructed with a buffer of superfluous packets at
+its beginning.  The fixlocal script invokes editcap to truncate the start of the 
+PCAP file, passing the START_FRAME value which is parameterized to a random value.
+
+To complete the lab, the student is directed to use a "frame.number==" filter to 
+view a specific packet of interest, i.e., the packet containing an invalid password attempt.
+
+On the grading side, the adjustframe.py script is invoked in the goals.config to adjust
+original frame number to match the student's file.
+
+The lab also parameterizes the timestamps within the PCAP file, though those are
+not refrenced by grading.
