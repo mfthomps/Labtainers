@@ -25,7 +25,8 @@ Your boss wants you to prepare for a meeting on a project you have not
 worked on for months. You have a summary file on the "friedshrimp" 
 server that you previously accessed via ssh. You cannot remember the 
 IP address of friedshrimp, and you forgot which port the IT staff 
-assigned for SSH on that server. You do know that your password is the 
+assigned for SSH on that server, though you think it is between
+2000 and 3000. You do know that your password is the 
 usual one used in these labs. Use nmap to find the IP address and port number
 used by the SSH service. Then review the content of "friedshrimp.txt" file
 from an SSH session.
