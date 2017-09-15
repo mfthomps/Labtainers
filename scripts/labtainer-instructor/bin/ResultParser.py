@@ -22,6 +22,7 @@ import re
 import sys
 import time
 import MyUtil
+from parse import *
 
 UBUNTUHOME = "/home/ubuntu/"
 logfilelist = []
@@ -82,7 +83,7 @@ def findLineIndex(values):
     return None
 
 def ValidateConfigfile(studentlabdir, container_list, labidname, each_key, each_value):
-    valid_field_types = ['TOKEN', 'PARENS', 'QUOTES', 'SLASH', 'LINE_COUNT', 'CONTAINS']
+    valid_field_types = ['TOKEN', 'PARENS', 'QUOTES', 'SLASH', 'LINE_COUNT', 'CONTAINS', 'SEARCH']
     if not MyUtil.CheckAlphaDashUnder(each_key):
         sys.stderr.write("ERROR: Not allowed characters in results.config's key (%s)\n" % each_key)
         sys.exit(1)
@@ -165,8 +166,18 @@ def ValidateConfigfile(studentlabdir, container_list, labidname, each_key, each_
     #    sys.stderr.write("ERROR: results.config uses not stdin or sdout\n")
     #    sys.exit(1)
 
+    # Validate <field_type> - if exists (i.e., line_at == 3)
+    #                       - because <field_type> is optional
+    field_type = None
+    if line_at == 3:
+        field_type = values[1].strip()
+        if field_type not in valid_field_types:
+            sys.stderr.write("ERROR: results.config line (%s)\n" % each_value)
+            sys.stderr.write("ERROR: results.config invalid field_type\n")
+            sys.exit(1)
+
     # If line_type1 (line_at != 1) - verify token id
-    if line_at != 1:
+    if field_type != 'SEARCH' and line_at != 1:
         token_index = 1
         if line_at == 3:
             token_index = 2
@@ -179,14 +190,6 @@ def ValidateConfigfile(studentlabdir, container_list, labidname, each_key, each_
             sys.stderr.write('Expected integer following LINE type, got %s in %s' % (values[line_at+1], each_value))
             exit(1)
 
-    # Validate <field_type> - if exists (i.e., line_at == 3)
-    #                       - because <field_type> is optional
-    if line_at == 3:
-        field_type = values[1].strip()
-        if field_type not in valid_field_types:
-            sys.stderr.write("ERROR: results.config line (%s)\n" % each_value)
-            sys.stderr.write("ERROR: results.config invalid field_type\n")
-            sys.exit(1)
 
     return 0
 
@@ -220,10 +223,18 @@ def getToken(linerequested, field_type, token_id):
                     linetokens[linetokenidx] = item
                     linetokenidx = linetokenidx + 1
                 numlinetokens = len(linetokens)
+            elif field_type == 'SEARCH':
+                search_results = search(token_id, linerequested)
+                if search_results is not None:
+                    token = str(search_results[0])
+                else: 
+                    token = None
             else:
                 # field_type == "TOKEN"
                 linetokens = linerequested.split()
                 numlinetokens = len(linetokens)
+
+
             if token_id == 'ALL':
                 token = linerequested.strip()
             elif token_id == 'LAST':
@@ -231,7 +242,7 @@ def getToken(linerequested, field_type, token_id):
                     token = linetokens[numlinetokens-1]
                 else:
                     token = None
-            else:
+            elif field_type != 'SEARCH':
                 #print linetokens
                 # make sure tokenno <= numlinetokens
                 tokenno = int(token_id)
@@ -400,6 +411,7 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
                     #print('tag string is %s for eachkey %s' % (tagstring, each_key))
                     return True
                 else:
+                    # this is deprecated, HAVSTRING should be used
                     found_lookupstring = False
                     for currentline in targetlines:
                         if found_lookupstring == False:
