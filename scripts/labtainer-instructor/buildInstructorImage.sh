@@ -19,13 +19,15 @@ lab=$1
 user_name=$3
 fource_build="False"
 #------------------------------------V
-if [ "$#" -eq 4 ]; then
+if [ "$#" -eq 5 ]; then
     imagename=$2
     labimage=$lab.$imagename.instructor
     force_build=$4 
+    LAB_TOP=$5 
 else
-    echo "Usage: buildImage.sh <labname> <imagename> <user_name> <force_build>"
+    echo "Usage: buildInstructorImage.sh <labname> <imagename> <user_name> <force_build> <LAB_TOP>"
     echo "   <force_build> is either true or false"
+    echo "   <LAB_TOP> is a path to the trunk/labs directory"
     exit
 fi
 
@@ -33,13 +35,12 @@ fi
 
 echo "Labname is $lab with image name $imagename"
 
-LAB_TOP=`realpath ../../labs`
 LAB_DIR=$LAB_TOP/$lab
 if [ ! -d $LAB_DIR ]; then
     echo "$LAB_DIR not found as a lab directory"
     exit
 fi
-LABIMAGE_DIR=`realpath ../../labs/$lab/$imagename/`
+LABIMAGE_DIR=$LAB_TOP/$lab/$imagename/
 if [ ! -d $LABIMAGE_DIR ]; then
     echo "$LABIMAGE_DIR not found"
     exit
