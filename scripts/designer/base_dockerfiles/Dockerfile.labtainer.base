@@ -19,8 +19,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     vim \
     zip \
     hexedit \
-    rsyslog
+    rsyslog \
+    python-pip
 
+RUN sudo pip install --upgrade pip
+RUN sudo pip install setuptools
+RUN sudo pip install parse
 ADD system/etc/sudoers /etc/sudoers
 ADD system/etc/rc.local /etc/rc.local
 ADD system/bin/funbuffer /usr/bin/
