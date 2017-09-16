@@ -692,7 +692,7 @@ def CheckBuild(labname, image_name, container_name, name, role, is_redo, contain
     if not retval:
         all_bin_files = os.listdir(container_bin)
         for f in all_bin_files:
-            f_path = os.path.join(all_bin, f)
+            f_path = os.path.join(container_bin, f)
             if FileModLater(ts, f_path):
                logger.WARNING('%s is later, will build' % f_path)
                retval = True

@@ -9,7 +9,7 @@ United States Code Section 105.   This software is in the public
 domain and is not subject to copyright. 
 END
 
-# Usage: buildImage.sh <labname> <imagename> <user_name> <force_build>
+# Usage: buildImage.sh <labname> <imagename> <user_name> <force_build> <lab_top>
 #        <force_build> is either true or false
 
 lab=$1
@@ -63,13 +63,13 @@ else
     rm -rf $TMP_DIR
     mkdir $TMP_DIR
     mkdir $TMP_DIR/.local
-    cp -r $LAB_DIR/config $TMP_DIR/.local/ 2>>/dev/null
-    cp  -r bin/ $TMP_DIR/.local/  2>>/dev/null
-    cp  $LAB_DIR/bin/* $TMP_DIR/.local/bin 2>>/dev/null
+    cp -pr $LAB_DIR/config $TMP_DIR/.local/ 2>>/dev/null
+    cp -pr bin/ $TMP_DIR/.local/  2>>/dev/null
+    cp -p $LAB_DIR/bin/* $TMP_DIR/.local/bin 2>>/dev/null
     chmod a+x $TMP_DIR/.local/bin/* 2>>/dev/null
-    cp  $LABIMAGE_DIR/_bin/* $TMP_DIR/.local/bin 2>>/dev/null
+    cp -p $LABIMAGE_DIR/_bin/* $TMP_DIR/.local/bin 2>>/dev/null
     chmod a+x $TMP_DIR/.local/bin/*
-    cp -r $LABIMAGE_DIR/. $TMP_DIR 2>>/dev/null
+    cp -pr $LABIMAGE_DIR/. $TMP_DIR 2>>/dev/null
     # ugly!
     rm -fr $TMP_DIR/_bin
     rm -fr $TMP_DIR/_system
@@ -82,7 +82,7 @@ else
     else
         echo nothing at $LABIMAGE_DIR/_system
         mkdir $LABIMAGE_DIR/_system
-        cd $LABIMAGE_DIR/_system
+        cd -p $LABIMAGE_DIR/_system
         tar --atime-preserve -zcvf $SYS_TAR .
     fi
 fi
