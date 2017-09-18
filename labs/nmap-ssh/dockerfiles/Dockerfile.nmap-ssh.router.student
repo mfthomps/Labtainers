@@ -3,12 +3,19 @@ MAINTAINER jkhosali@nps.edu
 ARG lab
 ARG labdir
 ARG imagedir
+ARG user_name
 ADD $labdir/sys_$lab.tar.gz /
+ENV DEBIAN_FRONTEND noninteractive
+RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
+RUN apt-get update && apt-get install -y --no-install-recommends tshark
 
-USER ubuntu
-ENV HOME /home/ubuntu
+RUN useradd -ms /bin/bash $user_name
+RUN echo "$user_name:$user_name" | chpasswd
+RUN chown -R $user_name:$user_name /home/$user_name
+RUN adduser $user_name sudo
+
+ENV HOME /home/$user_name
 ADD $labdir/$lab.tar.gz $HOME
-RUN echo "cd" >> $HOME/.profile
-RUN echo "source $HOME/.local/bin/startup.sh" >> $HOME/.profile
-RUN echo "" > $HOME/.bash_logout
+RUN chown -R $user_name:$user_name /home/$user_name
+USER $user_name
 ENTRYPOINT sudo /sbin/faux_init && bash

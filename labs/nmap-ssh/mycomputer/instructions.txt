@@ -4,42 +4,59 @@ Title: Nmap Lab Exercise
 
 1. Background
 
-This Labtainer exercise explores Nmap.
+This Labtainer exercise uses nmap and skills exercised in
+previous Labtainer labs to identify and exploit a weakness
+in a system
+
+You are performing ad-hoc security testing for client who
+believes that their internal ssh server is relatively secure, but
+would like you to confir it.  Your goal is to attempt to remotely
+access that ssh server and disclose the content of a selected
+file.
 
 2. Performing the lab
 
-The lab is started from the Labtainer working directory on your Docker-enabled host, e.g., a Linux VM.
-From there, issue the command:
+The lab is started from the Labtainer working directory on your
+Docker-enabled host, e.g., a Linux VM.  From there, issue the
+command:
 
-	./start.py nmaplab
+	./start.py nmap-ssh
 
-The resulting virtual terminals wil include a display of these instructions, and bash shell. Nmap is pre-installed on the container.
+The resulting virtual terminals will include a display of these
+instructions, and bash shell on a computer called "MyComptuter".
+Nmap is pre-installed on that computer.  You will also have a
+virtual terminal connected to a "router", and a bash shell there.
+You have been told that the router sits between  the
+organization's client workstations and the servers.
 
-To navigate this instruction, the arrow keys along with the Space/Home/End/Page Up/Page Down keys are usable. To exit navigation of this instruction, type 'q'.
+To navigate this instruction, the arrow keys along with the
+Space/Home/End/Page Up/Page Down keys are usable. To exit
+navigation of this instruction, type 'q'.
 
 3. Tasks
 
+You have been told the target ssh server IP address is
+172.25.0.2, and the ssh port number frequently changes within the
+range of 2000-3000 
 
-Task 1: In the mycomputer terminal window, type "ifconfig" to view the IP following the "inet addr:" label. Use the nmap command and interpreter -sP to scan the hosts on your network. Observe the IP addresses in the output.
+Your goal is to succesffuly ssh into the "ubuntu" account on the
+ssh server.
 
-Task 2: Using the IP addresses, scan the hosts on your network for open ports with the nmap command.
-
-The number of ports scanned can be changed using the interpreter -p followed by either a single number (i.e. nmap -p 12), a range of numbers (i.e. 12-100), or a dash (-p-) to scan all ports. You can detect the OS and services running on the server and client using another nmap interpreter:
-
-	sudo nmap -A <ip>
-
-Task 3: Locate the randomized ssh port, and log on to the ssh server using the randomized port number (ssh -p <port number> <ip>) and the password "ubuntu." After logging on, display the secretfile.txt.
-
-Task 4: Install Wireshark on your host computer using the command:
-
-	sudo apt-get install wireshark
-
-Once installed, use the command sudo wireshark to open the Wireshark application. Capture the packets on the network whose name begins with br-. Monitor the traffic between the client and server, sniff the password, and login using that password. Finally, display the filetoview.txt file.
+Hints:  
+    nmap is installed on mycomputer.
+    tshark and tcpdump are installed on the router
+    What other password-protected network services are being used
+    on the network, an by which user?
 
 4. Stop the Labtainer
 
-When the lab is completed, or you'd like to stop working for a while, run
+When the lab is completed, or you'd like to stop working for a
+while, run
 
-	./stop.py nmaplab
+	./stop.py nmap-ssh
 
-from the host Labtainer working directory. You can always restart the Labtainer to continue your work. When the Labtainer is stopped, a zip file is created and copied to a location displayed by the stop.py command. When the lab is completed, send that zip file to the instructor.
+from the host Labtainer working directory. You can always restart
+the Labtainer to continue your work. When the Labtainer is
+stopped, a zip file is created and copied to a location displayed
+by the stop.py command. When the lab is completed, send that zip
+file to the instructor.

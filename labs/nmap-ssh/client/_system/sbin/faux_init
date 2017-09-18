@@ -6,5 +6,6 @@
 #
 /usr/sbin/rsyslogd -n &
 /etc/init.d/telnet-bot-serv.sh start
+/etc/init.d/web-bot.sh start
 service rc.local start
 

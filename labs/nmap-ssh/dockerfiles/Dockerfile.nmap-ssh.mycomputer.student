@@ -1,17 +1,22 @@
-FROM mfthomps/labtainer.base
-#FROM mfthomps/labtainer.network
+#FROM mfthomps/labtainer.base
+FROM mfthomps/labtainer.network
 ARG lab
 ARG labdir
 ARG imagedir
+ARG user_name
 
 RUN apt-get update && apt-get install -y --no-install-recommends nmap
 RUN apt-get update && apt-get install -y --no-install-recommends telnet
 
 ADD $labdir/sys_$lab.tar.gz /
-USER ubuntu
-ENV HOME /home/ubuntu
+RUN useradd -ms /bin/bash $user_name
+RUN echo "$user_name:$user_name" | chpasswd
+RUN chown -R $user_name:$user_name /home/$user_name
+RUN adduser $user_name sudo
+
+ENV HOME /home/$user_name
+
 ADD $labdir/$lab.tar.gz $HOME
-RUN echo "cd" >> $HOME/.profile
-RUN echo "source $HOME/.local/bin/startup.sh" >> $HOME/.profile
-RUN echo "" > $HOME/.bash_logout
+RUN chown -R $user_name:$user_name /home/$user_name
+USER $user_name
 ENTRYPOINT sudo /sbin/faux_init && bash
