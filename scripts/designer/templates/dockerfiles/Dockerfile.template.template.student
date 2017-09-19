@@ -17,10 +17,14 @@ FROM mfthomps/labtainer.base
 #  lab is the fully qualified image name, e.g., mylab.some_container.student
 #  labdir is the name of the lab, e.g., mylab 
 #  imagedir is the name of the container
+#  user_name is the USER from the start.config, if other than ubuntu,
+#            then that user must be added in this dockerfile
+#            before the USER command
 #
 ARG lab
 ARG labdir
 ARG imagedir
+ARG user_name
 #
 # Install the system files found in the _system directory
 #
@@ -29,8 +33,8 @@ ADD $labdir/sys_$lab.tar.gz /
 #  **** Perform all root operations, e.g.,           ****
 #  **** "apt-get install" prior to the USER command. ****
 #
-USER ubuntu
-ENV HOME /home/ubuntu
+USER $user_name
+ENV HOME /home/$user_name
 #
 # Install files in the user home directory
 #
