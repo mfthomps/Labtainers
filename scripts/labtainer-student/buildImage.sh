@@ -13,18 +13,21 @@ END
 #        <force_build> is either true or false
 
 lab=$1
+imagename=$2
+labimage=$lab.$imagename.student
 user_name=$3
-fource_build="False"
+force_build=$4 
+LAB_TOP=$5 
 #------------------------------------V
-if [ "$#" -eq 5 ]; then
-    imagename=$2
-    labimage=$lab.$imagename.student
-    force_build=$4 
-    LAB_TOP=$5 
+if [ "$#" -eq 6 ]; then
+    registry=$6 
+elif [ "$#" -eq 5 ]; then
+    registry=mfthomps
 else
-    echo "Usage: buildImage.sh <labname> <imagename> <user_name> <force_build> <LAB_TOP>"
+    echo "Usage: buildImage.sh <labname> <imagename> <user_name> <force_build> <LAB_TOP> [registry]"
     echo "   <force_build> is either true or false"
     echo "   <LAB_TOP> is a path to the trunk/labs directory"
+    echo "   registry is an optional name of an alternate docker hub registry"
     exit
 fi
 
@@ -43,7 +46,7 @@ if [ ! -d $LABIMAGE_DIR ]; then
     exit
 fi
 #------------------------------------V
-imagecheck=$(docker search mfthomps/$labimage | grep mfthomps/$labimage)
+imagecheck=$(docker search $registry/$labimage | grep $registry/$labimage)
 
 if [ ! -z "$imagecheck" ] && [ $force_build = "False" ]; then
     #create tmp folder
@@ -51,7 +54,7 @@ if [ ! -z "$imagecheck" ] && [ $force_build = "False" ]; then
     	mkdir $LAB_DIR/dockerfiles/tmp
     fi
     #create tmp file
-    echo "FROM mfthomps/$labimage" > $LAB_DIR/dockerfiles/tmp/Dockerfile.$labimage.tmp 
+    echo "FROM $registry/$labimage" > $LAB_DIR/dockerfiles/tmp/Dockerfile.$labimage.tmp 
 else
     echo "Please wait while the lab is built"
     sleep 3

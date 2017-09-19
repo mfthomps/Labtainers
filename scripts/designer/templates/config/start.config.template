@@ -11,13 +11,18 @@
 
 GLOBAL_SETTINGS
         # GRADE_CONTAINER - container where instructor will perform grading
+        # Change the default to the name of one of your containers, otherwise 
+        # a container will be picked for you.
 	GRADE_CONTAINER default
 
-        # HOST_HOME_XFER - directory to transfer artifact to/from containers
+        # HOST_HOME_XFER - directory to transfer artifact to/from containers, relative to the user's HOME
 	HOST_HOME_XFER seed_dir/
 
 	# LAB_MASTER_SEED - this is the master seed string specific to this laboratory
 	LAB_MASTER_SEED this_will_be_replaced
+
+        # Alternate Registry -- NPS Labtainers are managed at dockerhub under mfthomps.  
+        # REGISTRY_ID your_registry
 
 # SUBNETS.  Here is where you define subnets that will be available to the containers.
 # Each subnet is assiged a name, a mask and gateway, as in the following example:

@@ -593,15 +593,18 @@ def StartLab(labname, role, is_regress_test=None, force_build=False, is_redo=Fal
             logger.DEBUG("Command was (%s)" % cmd)
             if len(output[1]) > 0:
                 logger.DEBUG("Error from command = '%s'" % str(output[1]))
+        registry = "mfthomps"
+        if start_config.registry is not None:
+            registry = start_config.registry
         if force_build or CheckBuild(labname, mycontainer_image_name, mycontainer_name, name, role, is_redo, container_bin):
             if os.path.isfile(build_student):
-                cmd = '%s %s %s %s %s %s' % (build_student, labname, name, container.user, force_build, LABS_DIR)
+                cmd = '%s %s %s %s %s %s %s' % (build_student, labname, name, container.user, True, LABS_DIR, registry)
             elif os.path.isfile(build_instructor):
-                cmd = '%s %s %s %s %s' % (build_instructor, labname, name, container.user, force_build)
+                cmd = '%s %s %s %s %s %s' % (build_instructor, labname, name, container.user, True, registry)
             else:
                 logger.ERROR("no image rebuild script\n")
                 exit(1)
-                 
+            logger.DEBUG('Will build image, force_build was %s, cmd is: %s' % (force_build, cmd))
             if os.system(cmd) != 0:
                 logger.ERROR("build of image failed\n")
                 exit(1)
@@ -693,9 +696,11 @@ def CheckBuild(labname, image_name, container_name, name, role, is_redo, contain
     if not retval:
         param_file = os.path.join(lab_path, 'config', 'parameter.config')
         if os.path.isfile(param_file):
-            with open(param_file) as param_fh:
+            if FileModLater(ts, param_file):
+              with open(param_file) as param_fh:
                 for line in param_fh:
                     if container_name in line: 
+                        logger.WARNING('%s is later and %s mentioned in it, will build' % (param_file, container_name))
                         retval = True
                         break
 
