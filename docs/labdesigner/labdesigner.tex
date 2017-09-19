@@ -306,6 +306,8 @@ the home directory.  For students, this is where the zip files of their results 
 where zip files should be gathered for assessment.
 \item LAB\_MASTER\_SEED [seed] -- The master seed string for this lab.  It is combined with the student email
 address to create an instance seed that controls parameterization of individual student labs.
+\item REGISTRY [registry] -- The id of the Docker Hub registry that is to contain the lab images.
+See \ref{publish} for details on the use of this keyword.
 \end{itemize}
 
 \item NETWORK [network name] -- One of these sections is require for each network within the lab.  In addition to
@@ -790,6 +792,22 @@ address.  Additionally, those baseline images include a \textit{togglegw.sh} scr
 can use to toggle the default gateway between one that leads to the host, and one defined for the lab.
 This allows students to add packages on components having lab-specific default gateways.
 
+\section{Building and Publishing Labs} \label{publishing}
+Typically, when a Labtainer is started, the container's associated Docker images are pulled from
+the Docker Hub if they are not already local on the Linux host.  When building and editing labs,
+the designer desires to run images reflecting recent changes that have been made.  The framework
+includes logic to identify dependencies within containers whose image content has changed, 
+and it will rebuild those images, (using the Docker build command).  The framework will only 
+rebuld those images that have changed.  The designer can force the rebuild of all images within
+a lab by appending the "-f" switch to the end of the "redo.py" command.
+
+If you build a new Labtainer lab, the container images will not be on the Dcker Hub unless you put
+them there.  In such a case, each student's computer will rebuild your lab when they go to run it.
+While this is fully functional, the build time may distract from performance of the lab.  If you
+create your own public repository on the Docker Hub (https://hub.docker.com/), you can populate that
+with your lab(s) by setting the "REGSITRY\_ID" value in the start.config file for the lab(s). You
+would then use the distrib/publish.py script to build, tag and push your lab to your registry.
+ 
 \section{Limitations}
 The labtainers framework limits labs to the Linux execution environment.
 However, a lab designer could prescribe the inclusion of a separate
