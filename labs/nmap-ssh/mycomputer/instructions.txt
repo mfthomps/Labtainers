@@ -37,16 +37,19 @@ navigation of this instruction, type 'q'.
 
 You have been told the target ssh server IP address is
 172.25.0.2, and the ssh port number frequently changes within the
-range of 2000-3000 
+range of 2000-3000.  You have been given an account, "analysis" 
+on a client computer and on the router.
 
-Your goal is to succesffuly ssh into the "ubuntu" account on the
-ssh server.
+    client computers <===>[ Router ]<===> servers
+
+Your goal is to successfully ssh from mycomputer into the "ubuntu" 
+account on the ssh server.
 
 Hints:  
     nmap is installed on mycomputer.
     tshark and tcpdump are installed on the router
     What other password-protected network services are being used
-    on the network, an by which user?
+    on the network, and by which user?
 
 4. Stop the Labtainer
 

@@ -25,7 +25,7 @@ while True:
     logging.debug(output)
     time.sleep(1)
 
-    cmd='wget http://172.25.0.2/link1.html'
+    cmd='wget http://172.25.0.1/link1.html'
     child = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     error_string = child.stderr.read().strip()
     output = child.stdout.read().strip()
