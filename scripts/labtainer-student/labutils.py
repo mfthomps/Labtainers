@@ -615,17 +615,17 @@ def StartLab(labname, role, is_regress_test=None, force_build=False, is_redo=Fal
 def FileModLater(ts, fname):
     ''' is the given file later than the timestamp (which is in UTC)? '''
     df_time = os.path.getmtime(fname)
-    logger.DEBUG('df ts %s' % df_time)
+    #logger.DEBUG('df ts %s' % df_time)
 
     df_string = datetime.datetime.fromtimestamp(df_time)
-    logger.DEBUG('df_local time is %s' % df_string)
+    #logger.DEBUG('df_local time is %s' % df_string)
 
     df_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
     parts = df_utc_string.split('.')
     df_ts = time.mktime(time.strptime(parts[0], "%Y-%m-%d %H:%M:%S"))
 
-    logger.DEBUG('df_utc time is %s' % df_utc_string)
-    logger.DEBUG('df_utc ts is %s given ts is %s' % (df_ts, ts))
+    #logger.DEBUG('df_utc time is %s' % df_utc_string)
+    #logger.DEBUG('df_utc ts is %s given ts is %s' % (df_ts, ts))
     if df_ts > ts:
         return True
     else:
@@ -688,6 +688,16 @@ def CheckBuild(labname, image_name, container_name, name, role, is_redo, contain
                        logger.WARNING('%s is later, will build' % f_path)
                        retval = True
                        break
+
+
+    if not retval:
+        param_file = os.path.join(lab_path, 'config', 'parameter.config')
+        if os.path.isfile(param_file):
+            with open(param_file) as param_fh:
+                for line in param_fh:
+                    if container_name in line: 
+                        retval = True
+                        break
 
     if not retval:
         all_bin_files = os.listdir(container_bin)
