@@ -333,6 +333,7 @@ script.  The script should be placed in container \_bin directory, i.e.,
 in the container home directory will be displayed.
 \item USER [user name] -- The user name whose account will be accessed via the virtual terminals. If
 the user is not "ubuntu", then the Dockerfile must include an entry to add the user to the container.
+(See the nmap-ssh lab mycomputer dockerfile as an example).
 \item network name [ip address] -- Network address assignments for each network (defined via a NETWORK section), 
 that is to be connected to this container.  A separate line should be entered for each network.
 \end{itemize}
@@ -360,7 +361,7 @@ All files and directories in the lab container directory will be copied to the s
 directory except for the \_bin and \_system directories.
 Each initial Dockerfile from the templates include this line:
 \begin{verbatim}
-    ADD $labdir/$lab.tar.gz /home/ubuntu
+    ADD $labdir/$lab.tar.gz $HOME
 \end{verbatim}
 to accomplish the copying. The Dockerfile should not include any other ADD commands
 to copy files to the HOME directory.
