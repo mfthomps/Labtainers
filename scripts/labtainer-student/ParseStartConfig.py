@@ -142,7 +142,7 @@ class ParseStartConfig():
     def validate(self):
         """ Checks to make sure we have all the info we need from the user."""
         if self.caller != "student" and self.caller != "instructor":
-            self.logger.ERROR("Unexpected caller of ParseStartConfig module!\n")
+            self.logger.ERROR("Unexpected caller of ParseStartConfig module %s\n" % self.caller)
             exit(1)
 
         if not self.host_home_xfer:
