@@ -93,6 +93,7 @@ dfile=Dockerfile.$labimage
 if [ ! -z "$imagecheck" ] && [ $force_build = "False" ]; then 
     docker build --pull -f $LAB_DIR/dockerfiles/tmp/$dfile.tmp -t $labimage .
 else
+    echo "cmd: docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename --build-arg user_name=$user_name --pull -f $LAB_DIR/dockerfiles/$dfile -t $labimage ."
     docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename --build-arg user_name=$user_name --pull -f $LAB_DIR/dockerfiles/$dfile -t $labimage .
 fi
 #---------------------------------^
