@@ -471,15 +471,16 @@ is followed by one of the following operations:
    seed.
 
      where: <filename> - the file name (file must exist) where <symbol> is 
-                         to be replaced.  The file name is prefixed with a 
-                         container name and the "=" sign.  This may be a 
-                         list of files, delimited by semicolons 
+                         to be replaced.  The file name is prefixed 
+                         with a container name and a ":", (the container 
+                         name is optional for single-container labs).  
+                         This may be a list of files, delimited by semicolons. 
            <symbol> - the string to be replaced
            <LowerBound> and <UpperBound> specifies the lower and upper bound
                                        to be used by random generator
    example:
 
-     some_parameter_id : RAND_REPLACE: mylab.client.student=/home/ubuntu/stack.c 
+     some_parameter_id : RAND_REPLACE: client:/home/ubuntu/stack.c 
          : BUFFER_SIZE : 200 : 2000
      (all one line) will randomly replace the token string "BUFFER_SIZE" found in
      file stack.c on the mylab.client.student container with a number ranging from 
@@ -489,15 +490,19 @@ is followed by one of the following operations:
    Create or overwrite a file with a hash of a given string and the lab 
    instance seed.
      where: <filename> - the file name that is to contain the resulting hash.
-                         The file name is prefixed with a 
-                         container name and the "=" sign.  This may be a 
-                         list of files, delimited by semicolons 
+                         The file name is prefixed with a container name 
+                         and a ":", (the container name is optional for 
+                         single-container labs).  
+                         This may be a list of files, delimited by semicolons 
+                         The file name is is optionall, (in cases of a single
+                         container).  This may be a 
+                         list of files, delimited by semicolons.
             <string> -   the input to a MD5 hash operation (after concatenation 
                          with the lab instance seed)
                        
                    
    example:
-     some_parameter_id : HASH_CREATE : mylab.client.student=/home/ubuntu/myseed 
+     some_parameter_id : HASH_CREATE : client:/home/ubuntu/myseed 
         : bufferoverflowinstance
    A file named /home/ubuntu/myseed will be created (if it does not exist), 
    containing an MD5 hash of the lab instance seed concatentated with the 
@@ -507,14 +512,15 @@ is followed by one of the following operations:
    Replace a symbol in a named file with a MD5 hash of a given string 
    concatenated with the lab instance seed.
      where: <filename> - the file name (file must exist) where <symbol> is 
-                         to be replaced.  The file name is prefixed with a 
-                         container name and the "=" sign.  This may be a 
-                         list of files, delimited by semicolons 
+                         to be replaced.  The file name is prefixed 
+                         with a container name and a ":", (the container 
+                         name is optional for single-container labs).  
+                         This may be a list of files, delimited by semicolons. 
             <symbol> - a string that will be replaced by the hash
             <string> - a string contatenated with the lab instance seed and hashed
 
      example:
-       some_parameter_id HASH_REPLACE : mylab.client.student=/root/.secret : 
+       some_parameter_id HASH_REPLACE : client:/root/.secret : 
            ROOT_SECRET : myrootfile
      The string "ROOT_SECRET" in file /root/.secret will be replaced with an MD5 hash
      of the concatenation of the lab instance seed and "myrootfile".
@@ -550,6 +556,7 @@ names appear in the \textit{treataslocal} file at
 \begin{verbatim}
     $LABTAINER_DIR/labs/[labname]/[container name]/_bin/treataslocal
 \end{verbatim}
+\noindent System utilties should include their full path, e.g., "/usr/bin/nmap".
 Non-system programs can be excluded from stdin/stdout capturing by including their names in
 a "ignorelocal" file in that same directory.
 

@@ -25,11 +25,13 @@ import GenReport
 import Grader
 import GoalsParser
 import ResultParser
+import InstructorLogging
 
 UBUNTUHOME="/home/ubuntu"
-
+logger = InstructorLogging.InstructorLogging("instructor.log")
 def store_student_parameter(gradesjson, email_labname, student_parameter):
     #print('store_student_parameter email_labname %s student_parameter %s' % (email_labname, student_parameter))
+    logger.DEBUG('store_student_parameter email_labname %s student_parameter %s' % (email_labname, student_parameter))
     if email_labname not in gradesjson:
         gradesjson[email_labname] = {}
         gradesjson[email_labname]['parameter'] = copy.deepcopy(student_parameter)
@@ -38,6 +40,7 @@ def store_student_parameter(gradesjson, email_labname, student_parameter):
         if gradesjson[email_labname]['parameter'] != {}:
             # Already have that student's parameter stored
             print("instructor.py store_student_parameter: duplicate email_labname %s student_parameter %s" % (email_labname, student_parameter))
+            logger.ERROR("instructor.py store_student_parameter: duplicate email_labname %s student_parameter %s" % (email_labname, student_parameter))
             exit(1)
         else:
             gradesjson[email_labname]['parameter'] = copy.deepcopy(student_parameter)
@@ -64,6 +67,7 @@ def main():
         sys.stderr.write("Usage: Instructor.py\n")
         return 1
 
+    logger.INFO("Begin logging instructor.py")
     instructorjsonfname = '%s/.local/instr_config/%s' % (UBUNTUHOME, "instructorlab.json")
     instructorconfigjson = open(instructorjsonfname, "r")
     instructorconfig = json.load(instructorconfigjson)
@@ -73,6 +77,7 @@ def main():
     lab_name_dir = '/home/ubuntu/.local/.labname'
     if not os.path.isfile(lab_name_dir):
         print('ERROR: no file at %s, perhaps running instructor script on wrong containers?')
+        logger.ERROR('no file at %s, perhaps running instructor script on wrong containers?')
         exit(1)
 
     with open(lab_name_dir) as fh:
@@ -141,10 +146,12 @@ def main():
             return 1
         student_id = email_labname.rsplit('.', 1)[0]
         #print "student_id is %s" % student_id
+        logger.DEBUG("student_id is %s" % student_id)
         if email_labname not in student_list:
             student_list[email_labname] = []
         student_list[email_labname].append(containername) 
         #print('append container %s for student %s' % (containername, email_labname))
+        logger.DEBUG('append container %s for student %s' % (containername, email_labname))
         OutputName = '%s/%s' % (TMPDIR, ZipFileName)
         LabDirName = '%s%s' % (InstructorHomeDir, email_labname)
         DestDirName = '%s%s' % (InstructorHomeDir, DestinationDirName)
@@ -182,7 +189,8 @@ def main():
         # Call ResultParser script to parse students' result
         LabDirName = '%s%s' % (InstructorHomeDir, email_labname)
         #print('call ResultParser for %s %s' % (email_labname, student_list[email_labname]))
-        ResultParser.ParseStdinStdout(LabDirName, student_list[email_labname], InstDirName, LabIDName)
+        logger.DEBUG('call ResultParser for %s %s' % (email_labname, student_list[email_labname]))
+        ResultParser.ParseStdinStdout(LabDirName, student_list[email_labname], InstDirName, LabIDName, logger)
 
         # Add student's parameter
         store_student_parameter(gradesjson, email_labname, student_parameter)

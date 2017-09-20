@@ -33,6 +33,7 @@ stdoutfnameslist = []
 timestamplist = {}
 line_types = ['CONTAINS', 'LINE', 'STARTSWITH', 'NEXT_STARTSWITH', 'HAVESTRING', 'LINE_COUNT']
 just_field_type = ['LINE_COUNT']
+logger = None
 
 def GetExecProgramList(containername, studentlabdir, container_list, targetfile):
     # This will return a list of executable program name matching
@@ -82,7 +83,10 @@ def findLineIndex(values):
 
     return None
 
-def ValidateConfigfile(studentlabdir, container_list, labidname, each_key, each_value):
+def ValidateConfigfile(studentlabdir, container_list, labidname, each_key, each_value, logger):
+    '''
+    Misleading name, this function populates a set of global structures used in processign the results
+    '''
     valid_field_types = ['TOKEN', 'PARENS', 'QUOTES', 'SLASH', 'LINE_COUNT', 'CONTAINS', 'SEARCH']
     if not MyUtil.CheckAlphaDashUnder(each_key):
         sys.stderr.write("ERROR: Not allowed characters in results.config's key (%s)\n" % each_key)
@@ -100,13 +104,14 @@ def ValidateConfigfile(studentlabdir, container_list, labidname, each_key, each_
     values = [x.strip() for x in each_value.split(' : ')]
     #print values
     numvalues = len(values)
-    #print "numvalues is (%d)" % numvalues
+    logger.DEBUG("each_value is %s -- numvalues is (%d)" % (each_value, numvalues))
     if numvalues < 3 and values[1] not in just_field_type:
         sys.stderr.write("ERROR: results.config contains unexpected value (%s) format\n" % each_value)
         sys.exit(1)
     line_at = findLineIndex(values)
     if line_at is None:
         sys.stderr.write('No line_type in %s\n' % each_value)
+        logger.ERROR('No line_type in %s\n' % each_value)
         exit(1)
     num_splits = line_at+1
     #print "line_at is (%d) and num_splits is (%d)" % (line_at, num_splits)
@@ -120,6 +125,9 @@ def ValidateConfigfile(studentlabdir, container_list, labidname, each_key, each_
     if ':' in newprogname_type:
         cfgcontainername, progname_type = newprogname_type.split(':', 1)
     else:
+        if len(container_list) > 1:
+            logger.ERROR('No container name found in multi container lab entry: %s' % newprogname_type)
+            exit(1)
         cfgcontainername = ""
         progname_type = newprogname_type
     # Construct proper containername from cfgcontainername
@@ -132,9 +140,11 @@ def ValidateConfigfile(studentlabdir, container_list, labidname, each_key, each_
         if containername not in containernamelist:
             containernamelist.append(containername)
 
+    logger.DEBUG('Start to populate exec_program_list, progname_type is %s' % progname_type)
     # No longer restricted to stdin/stdout filenames anymore
     if ('stdin' not in progname_type) and ('stdout' not in progname_type):
         # Not stdin/stdout - add the full name
+        logger.DEBUG('Not a STDIN or STDOUT: %s ' % progname_type)
         if progname_type not in logfilelist:
             logfilelist.append(progname_type)
     else:
@@ -143,15 +153,17 @@ def ValidateConfigfile(studentlabdir, container_list, labidname, each_key, each_
         if exec_program == "*":
             exec_program_list = GetExecProgramList(containername, studentlabdir, container_list, targetfile)
             #print "exec_program_list is %s" % exec_program_list
+            logger.DEBUG("wildcard, exec_program_list is %s" % exec_program_list)
         else:
             exec_program_list.append(exec_program)
+            logger.DEBUG('exec_program %s, append to list' % exec_program)
         if containername != "":
             if containername not in container_exec_proglist:
                 container_exec_proglist[containername] = []
             for cur_exec_program in exec_program_list:
                 if cur_exec_program not in container_exec_proglist[containername]:
                     container_exec_proglist[containername].append(cur_exec_program)
-            #print container_exec_proglist[containername]
+            logger.DEBUG('proglist is %s' %  str(container_exec_proglist[containername]))
         else:
             if "CURRENT" not in container_exec_proglist:
                 container_exec_proglist["CURRENT"] = []
@@ -254,10 +266,11 @@ def getToken(linerequested, field_type, token_id):
                     token = linetokens[tokenno-1]
         return token
 
-def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_list, timestamppart):
+def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_list, timestamppart, logger):
     retval = True
     targetlines = None
     #print('line is %s' % line)
+    logger.DEBUG('line is %s' % line)
     (each_key, each_value) = line.split('=', 1)
     each_key = each_key.strip()
 
@@ -472,7 +485,7 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
 
 
 def ParseConfigForFile(studentlabdir, labidname, configfilelines, 
-                       outputjsonfname, container_list, timestamppart, end_time):
+                       outputjsonfname, container_list, timestamppart, end_time, logger):
     '''
     Invoked for each timestamp to parse results for that timestamp.
     Each config file line is assessed against each results file that corresponds
@@ -486,7 +499,7 @@ def ParseConfigForFile(studentlabdir, labidname, configfilelines,
     for line in configfilelines:
         linestrip = line.rstrip()
         if linestrip is not None and not linestrip.startswith('#') and len(line.strip())>0:
-            got_one = got_one | handleConfigFileLine(labidname, linestrip, nametags, studentlabdir, container_list, timestamppart)
+            got_one = got_one | handleConfigFileLine(labidname, linestrip, nametags, studentlabdir, container_list, timestamppart, logger)
 
     if end_time is not None:
         program_end_time = end_time
@@ -512,8 +525,8 @@ def ParseConfigForFile(studentlabdir, labidname, configfilelines,
         jsonoutput.write('\n')
         jsonoutput.close()
 
-def ParseStdinStdout(studentlabdir, container_list, instructordir, labidname):
-
+def ParseStdinStdout(studentlabdir, container_list, instructordir, labidname, logger_in):
+    logger = logger_in
     ''' process all results files (ignore name of function) for a student.  These
         are distrbuted amongst multiple containers, per container_list.
     '''
@@ -523,6 +536,7 @@ def ParseStdinStdout(studentlabdir, container_list, instructordir, labidname):
     configfile.close()
     jsonoutputfilename = labidname
     #print("ParseStdinStdout: jsonoutputfilename is (%s) studentlabdir %s" % (jsonoutputfilename, studentlabdir))
+    logger.DEBUG("ParseStdinStdout: jsonoutputfilename is (%s) studentlabdir %s" % (jsonoutputfilename, studentlabdir))
   
     timestamplist.clear()
 
@@ -540,7 +554,7 @@ def ParseStdinStdout(studentlabdir, container_list, instructordir, labidname):
                 #print "Current linestrip is (%s)" % linestrip
                 (each_key, each_value) = linestrip.split('=', 1)
                 each_key = each_key.strip()
-                ValidateConfigfile(studentlabdir, container_list, labidname, each_key, each_value)
+                ValidateConfigfile(studentlabdir, container_list, labidname, each_key, each_value, logger)
         #else:
         #    print "Skipping empty linestrip is (%s)" % linestrip
 
@@ -549,6 +563,7 @@ def ParseStdinStdout(studentlabdir, container_list, instructordir, labidname):
     #print "logfilelist is: "
     #print logfilelist
     OUTPUTRESULTHOME = '%s/%s' % (studentlabdir, ".local/result/")
+    logger.DEBUG('Done with validate, outputresult to %s' % OUTPUTRESULTHOME)
 
     if not os.path.exists(OUTPUTRESULTHOME):
         os.makedirs(OUTPUTRESULTHOME)
@@ -558,6 +573,7 @@ def ParseStdinStdout(studentlabdir, container_list, instructordir, labidname):
     '''
     for mycontainername in container_list:
         RESULTHOME = '%s/%s/%s' % (studentlabdir, mycontainername, ".local/result/")
+        logger.DEBUG('check results for %s' % RESULTHOME)
         if not os.path.exists(RESULTHOME):
             ''' expected, some containers don't have local results '''
             #print('result directory %s does not exist' % RESULTHOME)
@@ -569,6 +585,7 @@ def ParseStdinStdout(studentlabdir, container_list, instructordir, labidname):
         for exec_prog in container_exec_proglist[mycontainername]:
             stdinfiles = '%s%s.%s.' % (RESULTHOME, exec_prog, "stdin")
             stdoutfiles = '%s%s.%s.' % (RESULTHOME, exec_prog, "stdout")
+            logger.DEBUG('stdin %s stdout %s' % (stdinfiles, stdoutfiles))
             #print stdinfiles
             #print stdoutfiles
             globstdinfnames = glob.glob('%s*' % stdinfiles)
@@ -610,11 +627,12 @@ def ParseStdinStdout(studentlabdir, container_list, instructordir, labidname):
         end_time = targetmtime_string.strftime("%Y%m%d%H%M%S")
         outputjsonfname = '%s%s.%s' % (OUTPUTRESULTHOME, jsonoutputfilename, timestamppart)
         #print "ParseStdinStdout (1): Outputjsonfname is (%s)" % outputjsonfname
+        logger.DEBUG("ParseStdinStdout (1): Outputjsonfname is (%s)" % outputjsonfname)
         ParseConfigForFile(studentlabdir, labidname, configfilelines, outputjsonfname, 
-                           container_list, timestamppart, end_time)
+                           container_list, timestamppart, end_time, logger)
     ''' process files without timestamps '''
     outputjsonfname = '%s%s' % (OUTPUTRESULTHOME, jsonoutputfilename)
-    ParseConfigForFile(studentlabdir, labidname, configfilelines, outputjsonfname, container_list, None, None)
+    ParseConfigForFile(studentlabdir, labidname, configfilelines, outputjsonfname, container_list, None, None, logger)
 
 
 

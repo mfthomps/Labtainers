@@ -22,7 +22,7 @@ GLOBAL_SETTINGS
 	LAB_MASTER_SEED this_will_be_replaced
 
         # Alternate Registry -- NPS Labtainers are managed at dockerhub under mfthomps.  
-        # REGISTRY_ID your_registry
+        # REGISTRY your_registry
 
 # SUBNETS.  Here is where you define subnets that will be available to the containers.
 # Each subnet is assiged a name, a mask and gateway, as in the following example:

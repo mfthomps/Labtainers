@@ -6,7 +6,6 @@ Student scripts, e.g., start.py, run from the trunk/scripts/labtainer-student di
 That directory also contains the labutils.py, which contains most of the framework
 functions.
 
-
 When a student container is first started "docker exec" is used
 to run parameterize.sh on the container.
 
@@ -20,4 +19,5 @@ The startup.sh uses a lock to control which
 terminal displays the instructions or grading.  In practice, this is done by
 an xterm that explicitly runs the startup.sh directly, and thus
 the startup.sh invoked by profile.sh typically never does anything.
+
 

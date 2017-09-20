@@ -19,6 +19,7 @@ import struct
 import threading
 import LabtainerLogging
 import shlex
+import stat
 ''' logger is defined in whatever script that invokes the labutils '''
 global logger
 '''
@@ -596,11 +597,11 @@ def StartLab(labname, role, is_regress_test=None, force_build=False, is_redo=Fal
         registry = "mfthomps"
         if start_config.registry is not None:
             registry = start_config.registry
-        if force_build or CheckBuild(labname, mycontainer_image_name, mycontainer_name, name, role, is_redo, container_bin):
+        if force_build or CheckBuild(labname, mycontainer_image_name, mycontainer_name, name, role, is_redo, container_bin, start_config.grade_container):
             if os.path.isfile(build_student):
                 cmd = '%s %s %s %s %s %s %s' % (build_student, labname, name, container.user, True, LABS_DIR, registry)
             elif os.path.isfile(build_instructor):
-                cmd = '%s %s %s %s %s %s' % (build_instructor, labname, name, container.user, True, registry)
+                cmd = '%s %s %s %s %s %s %s' % (build_instructor, labname, name, container.user, True, LABS_DIR, registry)
             else:
                 logger.ERROR("no image rebuild script\n")
                 exit(1)
@@ -634,10 +635,13 @@ def FileModLater(ts, fname):
     else:
         return False
 
-def CheckBuild(labname, image_name, container_name, name, role, is_redo, container_bin):
+def CheckBuild(labname, image_name, container_name, name, role, is_redo, container_bin,
+                 grade_container):
     '''
     Determine if a container image needs to be rebuilt.
     '''
+
+    should_be_exec = ['rc.local', 'fixlocal.sh']
     retval = False
     logger.DEBUG('check build for container %s image %s' % (container_name, image_name))
     cmd = "docker inspect -f '{{.Created}}' --type image %s" % image_name
@@ -687,6 +691,11 @@ def CheckBuild(labname, image_name, container_name, name, role, is_redo, contain
                 for f in files:
                    f_path = os.path.join(folder, f)
                    logger.DEBUG('check %s' % f_path)
+                   if f in should_be_exec:
+                       f_stat = os.stat(f_path)
+                       if not f_stat.st_mode & stat.S_IXUSR:
+                           response = raw_input("WARNING: not executable: %s\npress enter" % f_path)
+
                    if FileModLater(ts, f_path):
                        logger.WARNING('%s is later, will build' % f_path)
                        retval = True
@@ -714,14 +723,15 @@ def CheckBuild(labname, image_name, container_name, name, role, is_redo, contain
                break
 
     if not retval and role == 'instructor':
-        inst_cfg = os.path.join(lab_path,'instr_config')
-        inst_cfg_files = os.listdir(inst_cfg)
-        for f in inst_cfg_files:
-            f_path = os.path.join(inst_cfg, f)
-            if FileModLater(ts, f_path):
-               logger.WARNING('%s is later, will build' % f_path)
-               retval = True
-               break
+        if container_name == grade_container:
+            inst_cfg = os.path.join(lab_path,'instr_config')
+            inst_cfg_files = os.listdir(inst_cfg)
+            for f in inst_cfg_files:
+                f_path = os.path.join(inst_cfg, f)
+                if FileModLater(ts, f_path):
+                   logger.WARNING('%s is later, will build' % f_path)
+                   retval = True
+                   break
         logger.DEBUG('is instructor')
     return retval
 

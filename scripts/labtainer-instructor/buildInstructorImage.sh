@@ -34,7 +34,7 @@ else
     exit
 fi
 
-
+echo "LAB_TOP is $LAB_TOP"
 echo "Labname is $lab with image name $imagename"
 
 LAB_DIR=$LAB_TOP/$lab
