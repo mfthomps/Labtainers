@@ -780,6 +780,16 @@ with the framework.
          Note that values derived from the parameters.config file are assigned the same values as
          were assigned when the lab was parameterized for the student.
 
+\subsection{Example Simple Parameterization and Grading}
+The simplest, though by no means robust, strategy for ensuring students
+have turned in their own work, (vice getting a zip file from a friend and simply
+changing the name of the file), is to watermark some file on one of the containers.
+An example of this technique is seen in the "iptables" lab.  Specifically, the
+student\_watermark entry in results.config, the own\_work entry in goals.config,
+the DIGESTFILE entry in the config/params.config and finally, the filetodigest.txt
+file on the server.  (Our to-do list includes building this feature into all labs
+so that designer need not separately add it.)
+
 \section{Networking}
 Most networking is simply a matter of defining networks and assigning them to containers
 as described in \ref{start.config}.  
