@@ -245,7 +245,7 @@ def ValidateParameterConfig(container_user, lab_instance_seed, param_id, each_ke
         #print "HASH_REPLACE"
         CheckHashReplaceEntry(container_user, lab_instance_seed, param_id, each_value)
     else:
-        sys.stderr.write("ERROR: Invalid operator %s\n" % each_key)
+        sys.stderr.write("ERROR: ParseParameter.py, ValidateParameterConfig, Invalid operator %s\n" % each_key)
         sys.exit(1)
     return 0
 
@@ -377,7 +377,7 @@ def ParseParameterConfig(container_user, lab_instance_seed, configfilename):
         if linestrip:
             if not linestrip.startswith('#'):
                 #print "Current linestrip is (%s)" % linestrip
-                (param_id, each_key, each_value) = linestrip.split(' : ', 2)
+                (param_id, each_key, each_value) = linestrip.split(': ', 2)
                 each_key = each_key.strip()
                 param_id = param_id.strip()
                 ValidateParameterConfig(container_user, lab_instance_seed, param_id, each_key, each_value)
