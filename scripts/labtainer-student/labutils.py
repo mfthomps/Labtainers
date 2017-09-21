@@ -396,7 +396,7 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test, quie
         print '\n\n'
         command = 'less %s' % read_first
         less = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
-        sed_cmd = 'sed s+LAB_MANUAL+%s+' %  manual
+        sed_cmd = "sed -e s+LAB_MANUAL+%s+ -e s+LAB_DOCS+%s+" %  (manual, doc_dir)
         sed = subprocess.Popen(sed_cmd.split(), stdin=less.stdout)
         less.stdout.close()
         output = sed.communicate()[0]
@@ -702,6 +702,8 @@ def CheckBuild(labname, image_name, container_name, name, role, is_redo, contain
         else:
             ''' look at all files in container '''
             for folder, subs, files in os.walk(container_dir):
+                if os.path.basename(folder) == 'docs':
+                    continue
                 for f in files:
                    f_path = os.path.join(folder, f)
                    logger.DEBUG('check %s' % f_path)
