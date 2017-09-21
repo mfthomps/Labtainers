@@ -28,7 +28,7 @@ import ResultParser
 import InstructorLogging
 
 UBUNTUHOME="/home/ubuntu"
-logger = InstructorLogging.InstructorLogging("instructor.log")
+logger = InstructorLogging.InstructorLogging("/tmp/instructor.log")
 def store_student_parameter(gradesjson, email_labname, student_parameter):
     #print('store_student_parameter email_labname %s student_parameter %s' % (email_labname, student_parameter))
     logger.DEBUG('store_student_parameter email_labname %s student_parameter %s' % (email_labname, student_parameter))
@@ -63,9 +63,6 @@ def store_student_grades(gradesjson, email_labname, grades):
 # Arguments: None
 def main():
     #print "Running Instructor.py"
-    if len(sys.argv) != 1:
-        sys.stderr.write("Usage: Instructor.py\n")
-        return 1
 
     logger.INFO("Begin logging instructor.py")
     instructorjsonfname = '%s/.local/instr_config/%s' % (UBUNTUHOME, "instructorlab.json")
@@ -74,14 +71,18 @@ def main():
     instructorconfigjson.close()
 
     StudentHomeDir = '/home/ubuntu'
-    lab_name_dir = '/home/ubuntu/.local/.labname'
-    if not os.path.isfile(lab_name_dir):
-        print('ERROR: no file at %s, perhaps running instructor script on wrong containers?')
-        logger.ERROR('no file at %s, perhaps running instructor script on wrong containers?')
-        exit(1)
 
-    with open(lab_name_dir) as fh:
-        LabIDName = fh.read().strip()
+    if len(sys.argv) == 1:
+        lab_name_dir = '/home/ubuntu/.local/.labname'
+        if not os.path.isfile(lab_name_dir):
+            print('ERROR: no file at %s, perhaps running instructor script on wrong containers?')
+            logger.ERROR('no file at %s, perhaps running instructor script on wrong containers?')
+            exit(1)
+
+        with open(lab_name_dir) as fh:
+            LabIDName = fh.read().strip()
+    else:
+        LabIDName = sys.argv[1]
 
     InstructorName = instructorconfig['instructorname']
     InstructorHomeDir = instructorconfig['instructorhomedir']
