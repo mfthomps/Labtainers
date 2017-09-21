@@ -121,6 +121,7 @@ def ValidateConfigfile(studentlabdir, container_list, labidname, each_key, each_
 
     # get optional container name and determine if it is 'stdin' or 'stdout'
     newprogname_type = values[0].strip()
+    logger.DEBUG('newprogname_type is %s' % newprogname_type)
     # <cfgcontainername>:<exec_program>.<type>
     if ':' in newprogname_type:
         cfgcontainername, progname_type = newprogname_type.split(':', 1)
@@ -128,7 +129,11 @@ def ValidateConfigfile(studentlabdir, container_list, labidname, each_key, each_
         if len(container_list) > 1:
             logger.ERROR('No container name found in multi container lab entry: %s' % newprogname_type)
             exit(1)
-        cfgcontainername = ""
+        if newprogname_type.endswith('stdin') or newprogname_type.endswith('stdout'):
+            cfgcontainername = container_list[0].split('.')[1]
+            #print('assigned to %s' % cfgcontainername)
+        else:
+            cfgcontainername = ""
         progname_type = newprogname_type
     # Construct proper containername from cfgcontainername
     if cfgcontainername == "":
@@ -145,6 +150,7 @@ def ValidateConfigfile(studentlabdir, container_list, labidname, each_key, each_
     if ('stdin' not in progname_type) and ('stdout' not in progname_type):
         # Not stdin/stdout - add the full name
         logger.DEBUG('Not a STDIN or STDOUT: %s ' % progname_type)
+        print('Not a STDIN or STDOUT: %s ' % progname_type)
         if progname_type not in logfilelist:
             logfilelist.append(progname_type)
     else:
@@ -156,8 +162,9 @@ def ValidateConfigfile(studentlabdir, container_list, labidname, each_key, each_
             logger.DEBUG("wildcard, exec_program_list is %s" % exec_program_list)
         else:
             exec_program_list.append(exec_program)
-            logger.DEBUG('exec_program %s, append to list' % exec_program)
+            logger.DEBUG('exec_program %s, append to list, container is %s' % (exec_program, containername))
         if containername != "":
+            #print('containername is %s' % containername)
             if containername not in container_exec_proglist:
                 container_exec_proglist[containername] = []
             for cur_exec_program in exec_program_list:
@@ -576,10 +583,11 @@ def ParseStdinStdout(studentlabdir, container_list, instructordir, labidname, lo
         logger.DEBUG('check results for %s' % RESULTHOME)
         if not os.path.exists(RESULTHOME):
             ''' expected, some containers don't have local results '''
-            #print('result directory %s does not exist' % RESULTHOME)
+            print('result directory %s does not exist' % RESULTHOME)
             pass
             
         if mycontainername not in container_exec_proglist:
+            print('%s not in proglist %s' % (mycontainername, str(container_exec_proglist)))
             continue
 
         for exec_prog in container_exec_proglist[mycontainername]:
