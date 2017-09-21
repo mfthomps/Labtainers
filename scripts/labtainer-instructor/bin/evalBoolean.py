@@ -92,8 +92,8 @@ def formatted_bool_eval(token_lst, empty_res=empty_res):
     if not token_lst:
         return empty_res
 
-    print('formatted_bool_eval len is %d' % len(token_lst))
-    print(str(token_lst))
+    #print('formatted_bool_eval len is %d' % len(token_lst))
+    #print(str(token_lst))
     if len(token_lst) == 1:
         return token_lst[0]
 
@@ -103,7 +103,6 @@ def formatted_bool_eval(token_lst, empty_res=empty_res):
         return bool_eval(token_lst)
 
     token_lst[l_paren:r_paren + 1] = [bool_eval(token_lst[l_paren+1:r_paren])]
-    print('here')
     return formatted_bool_eval(token_lst, bool_eval)
 
 
@@ -116,7 +115,6 @@ def nested_bool_eval(s):
         where LEFT and RIGHT are either:
                 True or False or '(' [1] ')' (subexpression in parentheses)
     """
-    print(' in nested')
     return formatted_bool_eval(create_token_lst(s))
 
 def evaluate_boolean_expression(s, the_dict):
@@ -125,7 +123,6 @@ def evaluate_boolean_expression(s, the_dict):
     if left != right:
         print 'ERROR unbalanced parens'
         exit(1)
-    print('evaluate %s' % s) 
     for item in the_dict:
         if item in s:
             value = '%r' % the_dict[item]
