@@ -1,6 +1,7 @@
 PLC LAB -- Read this first
 
-The lab manual for this lab is at: LAB_MANUAL
+The lab manual for this lab is at: 
+LAB_MANUAL
 
 Read the "Background" section of the manual before 
 proceeding with the lab.  

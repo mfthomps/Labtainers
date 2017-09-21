@@ -1,7 +1,7 @@
-Format String Lab -- Read this first
+One Way Hash Lab -- Read this first
 
 The primary lab manual for this lab is at: 
-LAB_DOCS/Format_String.pdf
+LAB_DOCS/Crypto_Hash.pdf
 
 The instructions that appear after you start the lab will reference that 
 manual.

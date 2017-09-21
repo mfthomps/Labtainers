@@ -1,4 +1,5 @@
 PLC Forensics LAB -- Read this first
 
-The lab manual for this lab is at: LAB_MANUAL
+The lab manual for this lab is at: 
+LAB_MANUAL
 
