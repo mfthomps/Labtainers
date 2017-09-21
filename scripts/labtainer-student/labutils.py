@@ -276,11 +276,11 @@ def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_
 
     username = getpass.getuser()
     if not is_regress_test == None:
-        xfer_dir = labtainer_config.testsets_root
+        xfer_dir = os.path.join(labtainer_config.testsets_root, labname)
 	xfer_dir += "/" + is_regress_test
         zip_filelist = glob.glob('%s/*.zip' % xfer_dir)
     else:
-        xfer_dir = labtainer_config.host_home_xfer
+        xfer_dir = os.path.join(labtainer_config.host_home_xfer, labname)
         zip_filelist = glob.glob('/home/%s/%s/*.zip' % (username, xfer_dir))
     logger.DEBUG("filenames is (%s)" % zip_filelist)
     # Copy zip files from 'Shared' folder to 'home/$CONTAINER_USER'
@@ -315,6 +315,9 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test, quie
         mycontainer_image_name = container.image_name
         container_user         = container.user
         container_hostname         = container.hostname
+
+        if is_regress_test and mycontainer_name != start_config.grade_container:
+            continue
 
         haveContainer = IsContainerCreated(mycontainer_name)
         logger.DEBUG("DoStart IsContainerCreated result (%s)" % haveContainer)
@@ -368,6 +371,7 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test, quie
             Copy to container named start_config.grade_container
             '''
             if mycontainer_name == start_config.grade_container:
+                logger.DEBUG('do CopyStudentArtifacts for %s, labname: %s regress: %s' % (mycontainer_name, labname, is_regress_test))
                 copy_result = CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_user, is_regress_test)
                 if copy_result == FAILURE:
                     logger.ERROR("Failed to copy students' artifacts to container %s!\n" % mycontainer_name)
@@ -498,7 +502,7 @@ def CreateHostHomeXfer(host_xfer_dir):
 
 # CopyChownGradesFile
 def CopyChownGradesFile(mycwd, start_config, labtainer_config, container_name, container_image, container_user, ignore_stop_error):
-    host_home_xfer = labtainer_config.host_home_xfer
+    host_home_xfer = os.path.join(labtainer_config.host_home_xfer, start_config.labname)
     lab_master_seed = start_config.lab_master_seed
     labname = start_config.labname
 
@@ -573,8 +577,8 @@ def StartLab(labname, role, is_regress_test=None, force_build=False, is_redo=Fal
     start_config_path = os.path.join(config_path,"start.config")
    
     start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, logger)
-    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(LABTAINER_CONFIG, labname, logger)
-    host_home_xfer = labtainer_config.host_home_xfer
+    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(LABTAINER_CONFIG, logger)
+    host_home_xfer = os.path.join(labtainer_config.host_home_xfer, labname)
 
     build_student = './buildImage.sh'
     build_instructor = './buildInstructorImage.sh'
@@ -585,6 +589,10 @@ def StartLab(labname, role, is_regress_test=None, force_build=False, is_redo=Fal
     for name, container in start_config.containers.items():
         mycontainer_name       = container.full_name
         mycontainer_image_name = container.image_name
+       
+        if is_regress_test is not None and mycontainer_name != start_config.grade_container:
+            continue
+
         if is_redo:
             # If it is a redo then always remove any previous container
             # If it is not a redo, i.e., start.py then DO NOT remove existing container
@@ -747,7 +755,7 @@ def RedoLab(labname, role, is_regress_test=None, force_build=False, quiet_build=
     logger.DEBUG("ParseStartConfig for %s" % labname)
     # Pass 'True' to ignore_stop_error (i.e., ignore certain error encountered during StopLab
     #                                         since it might not even be an error)
-    StopLab(labname, role, True)
+    StopLab(labname, role, True, is_regress_test)
     is_redo = True
     StartLab(labname, role, is_regress_test, force_build, is_redo=is_redo, quiet_build=quiet_build)
 
@@ -811,16 +819,19 @@ def GatherOtherArtifacts(labname, name, container_name, container_user, ignore_s
                         
 
 # RunInstructorCreateGradeFile
-def RunInstructorCreateGradeFile(container_name, container_user):
+def RunInstructorCreateGradeFile(container_name, container_user, labname):
     # Run 'instructor.py' - This will create '<labname>.grades.txt' 
-    logger.DEBUG("About to call instructor.py")
-    cmd_path = '/home/%s/.local/bin/instructor.py' % container_user
+    logger.DEBUG("About to call instructor.py container_name: %s container_user: %s" % (container_name, container_user))
+    cmd_path = '/home/%s/.local/bin/instructor.py' % (container_user)
     command=['docker', 'exec', '-i',  container_name, cmd_path]
     logger.DEBUG('cmd: %s' % str(command))
     child = subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     error_string = child.stderr.read().strip()
     if len(error_string) > 0:
-        logger.ERROR("Container %s fail on executing instructor.py \n" % (container_name))
+        logger.ERROR("Container %s fail on executing instructor.py: %s \n" % (container_name, error_string))
+    output_string = child.stdout.read().strip()
+    if len(output_string) > 0:
+        logger.DEBUG("result from container %s executing instructor.py: %s \n" % (container_name, output_string))
 
 def RegressTest(labname, role, standard, isFirstRun=False):
     username = getpass.getuser()
@@ -829,15 +840,15 @@ def RegressTest(labname, role, standard, isFirstRun=False):
     logger.DEBUG("current working directory for %s" % mycwd)
     logger.DEBUG("current user's home directory for %s" % myhomedir)
     logger.DEBUG("ParseStartConfig for %s" % labname)
-    lab_path          = os.path.join(LABS_ROOT,labname)
+    lab_path          = os.path.join(LABS_ROOT, labname)
     is_valid_lab(lab_path)
     config_path       = os.path.join(lab_path,"config") 
     start_config_path = os.path.join(config_path,"start.config")
     start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, logger)
 
-    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(LABTAINER_CONFIG, labname, logger)
-    regresstest_lab_path = ("%s/%s" % (labtainer_config.testsets_root, standard))
-    host_home_xfer = labtainer_config.host_home_xfer
+    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(LABTAINER_CONFIG, logger)
+    regresstest_lab_path = os.path.join(labtainer_config.testsets_root, labname, standard)
+    host_home_xfer = os.path.join(labtainer_config.host_home_xfer, labname)
     logger.DEBUG("Host Xfer directory for labname %s is %s" % (labname, host_home_xfer))
     logger.DEBUG("Regression Test path for labname %s is %s" % (labname, regresstest_lab_path))
 
@@ -857,16 +868,19 @@ def RegressTest(labname, role, standard, isFirstRun=False):
         container_user         = container.user
 
         if mycontainer_name == start_config.grade_container:
-            RunInstructorCreateGradeFile(start_config.grade_container, container_user)
+            logger.DEBUG('about to RunInstructorCreateDradeFile for container %s' % start_config.grade_container)
+            RunInstructorCreateGradeFile(start_config.grade_container, container_user, labname)
 
     # Pass 'False' to ignore_stop_error (i.e., do not ignore error)
-    StopLab(labname, role, False)
+    result_xfer = StopLab(labname, role, False, is_regress_test)
+    logger.DEBUG('result_xfer is %s' % result_xfer)
 
     # Give the container some time to copy the result out -- just in case
     time.sleep(3)
 
     CompareResult = False
     # GradesGold and Grades must exist
+    logger.DEBUG('compare %s to %s' % (GradesGold, Grades))
     if not os.path.exists(GradesGold):
         logger.ERROR("GradesGold %s file does not exist!" % GradesGold)
     elif not os.path.exists(Grades):
@@ -881,7 +895,7 @@ def CreateCopyChownZip(mycwd, start_config, labtainer_config, container_name, co
     Zip up the student home directory and copy it to the Linux host home directory
     '''
     logger.DEBUG('in CreateCopyChownZip')
-    host_home_xfer  = labtainer_config.host_home_xfer
+    host_home_xfer  = os.path.join(labtainer_config.host_home_xfer, start_config.labname)
     lab_master_seed = start_config.lab_master_seed
 
     # Run 'Student.py' - This will create zip file of the result
@@ -1038,9 +1052,9 @@ def DoStopOne(start_config, labtainer_config, mycwd, labname, role, name, contai
 
         results.append(retval)
 
-def DoStop(start_config, labtainer_config, mycwd, labname, role, ignore_stop_error):
+def DoStop(start_config, labtainer_config, mycwd, labname, role, ignore_stop_error, is_regress_test=None):
     retval = True
-    host_home_xfer  = labtainer_config.host_home_xfer
+    host_home_xfer  = os.path.join(labtainer_config.host_home_xfer, labname)
     lab_master_seed = start_config.lab_master_seed
     logger.DEBUG("DoStop Multiple Containers and/or multi-home networking")
 
@@ -1051,6 +1065,11 @@ def DoStop(start_config, labtainer_config, mycwd, labname, role, ignore_stop_err
     threads = []
     results = []
     for name, container in start_config.containers.items():
+        mycontainer_name = '%s.%s.%s' % (labname, container.name, role)
+        if is_regress_test and mycontainer_name != start_config.grade_container:
+            print('compare %s to %s' % (mycontainer_name, start_config.grade_container))
+            continue
+
         #DoStopOne(start_config, labtainer_config, mycwd, labname, role, name, container, ZipFileList)
         t = threading.Thread(target=DoStopOne, args=(start_config, labtainer_config, mycwd, labname, 
               role, name, container, ZipFileList, ignore_stop_error, results))
@@ -1102,7 +1121,7 @@ def DoStop(start_config, labtainer_config, mycwd, labname, role, ignore_stop_err
 # ignore_stop_error - set to 'False' : do not ignore error
 # ignore_stop_error - set to 'True' : ignore certain error encountered since it might not even be an error
 #                                     such as error encountered when trying to stop non-existent container
-def StopLab(labname, role, ignore_stop_error):
+def StopLab(labname, role, ignore_stop_error, is_regress_test=None):
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
     logger.DEBUG("current working directory for %s" % mycwd)
@@ -1114,16 +1133,17 @@ def StopLab(labname, role, ignore_stop_error):
     start_config_path = os.path.join(config_path,"start.config")
    
     start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, logger)
-    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(LABTAINER_CONFIG, labname, logger)
-    host_home_xfer = labtainer_config.host_home_xfer
+    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(LABTAINER_CONFIG, logger)
+    host_home_xfer = os.path.join(labtainer_config.host_home_xfer, labname)
 
     # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
     host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
     CreateHostHomeXfer(host_xfer_dir)
 
-    if DoStop(start_config, labtainer_config, mycwd, labname, role, ignore_stop_error):
+    if DoStop(start_config, labtainer_config, mycwd, labname, role, ignore_stop_error, is_regress_test):
         # Inform user where results are stored
         print "Results stored in directory: %s" % host_xfer_dir
+    return host_xfer_dir
 
 def DoMoreterm(labname, role, container, num_terminal):
     mycwd = os.getcwd()
@@ -1167,8 +1187,8 @@ def DoTransfer(labname, role, container, filename, direction):
     start_config_path = os.path.join(config_path,"start.config")
 
     start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, logger)
-    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(LABTAINER_CONFIG, labname, logger)
-    host_home_xfer = labtainer_config.host_home_xfer
+    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(LABTAINER_CONFIG, logger)
+    host_home_xfer = os.path.join(labtainer_config.host_home_xfer, labname)
     logger.DEBUG('num terms is %d' % start_config.containers[container].terminals)
     host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
 

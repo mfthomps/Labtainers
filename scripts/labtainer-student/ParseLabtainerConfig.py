@@ -15,8 +15,7 @@ import sys
 import LabtainerLogging
 
 class ParseLabtainerConfig():
-    def __init__(self, fname, labname, logger):
-        self.labname = labname
+    def __init__(self, fname, logger):
         self.host_home_xfer= "" # HOST_HOME_XFER - directory to transfer artifact to/from containers
         self.testsets_root= None # TESTSETS_ROOT - regression test root
         self.file_log_level= "" # FILE_LOG_LEVEL - level to log to file
@@ -89,8 +88,6 @@ class ParseLabtainerConfig():
         """Combines info provided by user with what we already know about the
            lab to get the final settings we want."""
         # fixing up global parameters
-        self.host_home_xfer = os.path.join(self.host_home_xfer,self.labname)
-        self.testsets_root = os.path.join(os.path.abspath(self.testsets_root), self.labname)
         valid_log_levels = {"debug", "info", "warning", "error"}
         if self.file_log_level not in valid_log_levels:
             self.mylog("Invalid file_log_level (%s) in labtainer.config!\n" % self.file_log_level)

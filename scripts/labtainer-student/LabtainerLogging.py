@@ -24,7 +24,7 @@ class LabtainerLogging():
         #print "labname is (%s)" % labname
         logname = "labtainer.%s" % labname
 
-        labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config, labname, None)
+        labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config, None)
         file_log_level = labtainer_config.file_log_level
         console_log_level = labtainer_config.console_log_level
 
