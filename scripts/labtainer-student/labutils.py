@@ -515,6 +515,12 @@ def CopyChownGradesFile(mycwd, start_config, labtainer_config, container_name, c
     result = subprocess.call(command, shell=True)
     logger.DEBUG("Result of subprocess.Popen exec cp %s.grades.txt file is %s" % (labname, result))
     if result == FAILURE:
+        # try grabbing instructor.log
+        command = "docker cp %s:/tmp/instructor.log /tmp/instructor.log" % (container_name)
+        result = subprocess.call(command, shell=True)
+        logger.DEBUG("Result of subprocess.Popen exec cp instructor.log file is %s" % (result))
+
+
         StopMyContainer(mycwd, start_config, container_name, ignore_stop_error)
         if ignore_stop_error:
             logger.DEBUG("Container %s fail on executing cp %s.grades.txt file!\n" % (container_name, labname))
@@ -713,11 +719,14 @@ def CheckBuild(labname, image_name, container_name, name, role, is_redo, contain
     if not retval:
         param_file = os.path.join(lab_path, 'config', 'parameter.config')
         if os.path.isfile(param_file):
-            if FileModLater(ts, param_file):
+            ppath = 'bin/ParameterParser.py'
+            if role == 'instructor':
+                ppath = '../labtainer-student/%s' % ppath
+            if FileModLater(ts, param_file) or FileModLater(ts, ppath):
               with open(param_file) as param_fh:
                 for line in param_fh:
-                    if container_name in line: 
-                        logger.WARNING('%s is later and %s mentioned in it, will build' % (param_file, container_name))
+                    if container_name in line or (role == 'instructor' and not line.startswith('#')): 
+                        logger.WARNING('%s (or the script) is later and %s mentioned in it, will build' % (param_file, container_name))
                         retval = True
                         break
 
@@ -741,6 +750,8 @@ def CheckBuild(labname, image_name, container_name, name, role, is_redo, contain
                    retval = True
                    break
         logger.DEBUG('is instructor')
+
+        
     return retval
 
 def dumb():
