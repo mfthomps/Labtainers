@@ -13,10 +13,12 @@ case "$distrib" in
     Ubuntu)
         echo is ubuntu
         ./install-docker-ubuntu.sh
+        RESULT=$?
         ;;
     Debian)
         echo is debian
         ./install-docker-debian.sh
+        RESULT=$?
         ;;
     Fedora)
         echo is fedora
@@ -25,6 +27,7 @@ case "$distrib" in
     Centos)
         echo is centos
         ./install-docker-centos.sh
+        RESULT=$?
         ;;
     *)
         if [[ -z "$1" ]]; then
@@ -35,7 +38,6 @@ case "$distrib" in
         fi
         exit 1
 esac
-RESULT=$?
 if [[ "$RESULT"==0 ]]; then
     /usr/bin/newgrp docker <<EONG
     /usr/bin/newgrp $USER <<EONG
