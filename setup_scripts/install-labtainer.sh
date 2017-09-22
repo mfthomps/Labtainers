@@ -38,7 +38,7 @@ case "$distrib" in
         fi
         exit 1
 esac
-if [[ "$RESULT"==0 ]]; then
+if [[ "$RESULT" -eq 0 ]]; then
     /usr/bin/newgrp docker <<EONG
     /usr/bin/newgrp $USER <<EONG
     docker pull mfthomps/labtainer.base

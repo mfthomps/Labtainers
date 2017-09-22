@@ -15,6 +15,11 @@ END
 #---needed packages for install
 sudo apt-get update
 sudo apt-get -y install apt-transport-https ca-certificates curl software-properties-common 
+RESULT=$?
+if [ $RESULT -ne 0 ];then
+    echo "problem fetching packages, exit"
+    exit 1
+fi
 
 #---adds docker’s official GPG key
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - 
