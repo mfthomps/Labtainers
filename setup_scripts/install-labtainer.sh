@@ -12,19 +12,19 @@ RESULT=0
 case "$distrib" in
     Ubuntu)
         echo is ubuntu
-        RESULT=$(./install-docker-ubuntu.sh)
+        ./install-docker-ubuntu.sh
         ;;
     Debian)
         echo is debian
-        RESULT=$(./install-docker-debian.sh)
+        ./install-docker-debian.sh
         ;;
     Fedora)
         echo is fedora
-        RESULT=$(./install-docker-fedora.sh)
+        ./install-docker-fedora.sh
         ;;
     Centos)
         echo is centos
-        RESULT=$(./install-docker-centos.sh)
+        ./install-docker-centos.sh
         ;;
     *)
         if [[ -z "$1" ]]; then
@@ -35,10 +35,13 @@ case "$distrib" in
         fi
         exit 1
 esac
+RESULT=$?
 if [[ "$RESULT"==0 ]]; then
     /usr/bin/newgrp docker <<EONG
     /usr/bin/newgrp $USER <<EONG
     docker pull mfthomps/labtainer.base
 EONG
     sudo reboot
+else
+    echo "There was a problem with the installation."
 fi
