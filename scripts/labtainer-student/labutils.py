@@ -613,9 +613,9 @@ def StartLab(labname, role, is_regress_test=None, force_build=False, is_redo=Fal
             registry = start_config.registry
         if force_build or CheckBuild(labname, mycontainer_image_name, mycontainer_name, name, role, is_redo, container_bin, start_config.grade_container):
             if os.path.isfile(build_student):
-                cmd = '%s %s %s %s %s %s %s' % (build_student, labname, name, container.user, True, LABS_DIR, registry)
+                cmd = '%s %s %s %s %s %s %s' % (build_student, labname, name, container.user, force_build, LABS_DIR, registry)
             elif os.path.isfile(build_instructor):
-                cmd = '%s %s %s %s %s %s %s' % (build_instructor, labname, name, container.user, True, LABS_DIR, registry)
+                cmd = '%s %s %s %s %s %s %s' % (build_instructor, labname, name, container.user, force_build, LABS_DIR, registry)
             else:
                 logger.ERROR("no image rebuild script\n")
                 exit(1)
