@@ -85,7 +85,7 @@ def StartMyContainer(mycontainer_name):
     if IsContainerRunning(mycontainer_name):
         logger.ERROR("Container %s is already running!\n" % (mycontainer_name))
         sys.exit(1)
-    command = "docker start %s  2> /dev/null" % mycontainer_name
+    command = "docker start %s  > /dev/null" % mycontainer_name
     logger.DEBUG("Command to execute is (%s)" % command)
     ps = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
