@@ -355,11 +355,13 @@ def DoRebuildLab(labname, role, is_regress_test=None, force_build=False, quiet_s
             logger.DEBUG("Error from command = '%s'" % str(output[1]))
         force_this_build = force_build
         if not force_this_build:
-            image_exists = ImageExists(mycontainer_image_name, mycontainer_name)
+            image_exists, result = ImageExists(mycontainer_image_name, mycontainer_name)
             if not image_exists:
                 force_this_build = True
         if force_this_build or CheckBuild(labname, mycontainer_image_name, mycontainer_name, name, role, True, container_bin, start_config.grade_container):
             print('Will call buidImage to build %s' % mycontainer_name)
+            logger.DEBUG("Will rebuild %s, Image exists: %s force_this_build: %s" % (mycontainer_name, 
+                image_exists, force_this_build))
             if os.path.isfile(build_student):
                 cmd = '%s %s %s %s %s %s' % (build_student, labname, name, container.user, True, LABS_DIR)
             elif os.path.isfile(build_instructor):
