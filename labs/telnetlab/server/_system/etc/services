@@ -27,7 +27,7 @@ chargen		19/udp		ttytst source
 ftp-data	20/tcp
 ftp		21/tcp
 fsp		21/udp		fspd
-ssh		PORT_NO/tcp				# SSH Remote Login Protocol
+ssh		22/tcp				# SSH Remote Login Protocol
 ssh		22/udp
 telnet		23/tcp
 smtp		25/tcp		mail
