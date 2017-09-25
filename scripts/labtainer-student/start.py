@@ -49,14 +49,14 @@ def main():
                 sys.stderr.write(description)
         sys.exit(1)
     
-    quiet_build = False
+    quiet_start = False
     if len(sys.argv) == 3 and sys.argv[2] == '-q':
-        quiet_build = True
+        quiet_start = True
     
     labname = sys.argv[1]
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
     labutils.logger.INFO("Begin logging start.py for %s lab" % labname)
-    labutils.StartLab(labname, "student", quiet_build=quiet_build)
+    labutils.StartLab(labname, "student", quiet_start=quiet_start)
 
     return 0
 

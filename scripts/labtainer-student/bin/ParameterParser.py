@@ -124,7 +124,7 @@ def CheckHashCreateEntry(container_user, lab_instance_seed, param_id, each_value
         try:
             strlen = int(entryline[2].strip())
         except:      
-            sys.stderr.write("ERROR: RAND_CREATE (%s) improper format\n" % each_value)
+            sys.stderr.write("ERROR: HASH_CREATE (%s) improper format\n" % each_value)
             sys.stderr.write("ERROR: expected int for length, got %s \n" % entryline[2])
             return
 
@@ -180,14 +180,14 @@ def CheckHashReplaceEntry(container_user, lab_instance_seed, param_id, each_valu
     #print entryline
     numentry = len(entryline)
     if numentry != 3 and numentry != 4:
-        sys.stderr.write("ERROR: RAND_REPLACE (%s) improper format\n" % each_value)
-        sys.stderr.write("ERROR: HASH_CREATE : <filename> : <string> [: length]\n")
+        sys.stderr.write("ERROR: HASH_REPLACE (%s) improper format\n" % each_value)
+        sys.stderr.write("ERROR: HASH_REPLACE : <filename> : <string> [: length]\n")
     strlen = 32
     if numentry == 4:
         try:
             strlen = int(entryline[3].strip())
         except:      
-            sys.stderr.write("ERROR: RAND_CREATE (%s) improper format\n" % each_value)
+            sys.stderr.write("ERROR: HASH_REPLACE (%s) improper format\n" % each_value)
             sys.stderr.write("ERROR: expected int for length, got %s \n" % entryline[3])
             return
     myfilename_field = entryline[0].strip()

@@ -212,7 +212,7 @@ def putLastEmail(email):
     with open(EMAIL_TMP, 'w') as fh:
             fh.write(email)
 
-def ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname, student_email, quiet_build):
+def ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname, student_email, quiet_start):
     if student_email is not None:
         user_email = student_email
     else:
@@ -225,8 +225,8 @@ def ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname, 
             if prev_email is not None:
                 eprompt = eprompt+" [%s]" % prev_email
 
-	    #checks if quiet_build is true
-            if quiet_build and prev_email is not None:
+	    #checks if quiet_start is true
+            if quiet_start and prev_email is not None:
                 user_email = prev_email
             else:
                 user_email = raw_input(eprompt)
@@ -303,7 +303,89 @@ def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_
             logger.ERROR("Failed to set labname in container %s!\n" % mycontainer_name)
             sys.exit(1)
 
-def DoStart(start_config, labtainer_config, labname, role, is_regress_test, quiet_build):
+def ImageExists(image_name, container_name):
+    retval = True
+    logger.DEBUG('check existence of container %s image %s' % (container_name, image_name))
+    cmd = "docker inspect -f '{{.Created}}' --type image %s" % image_name
+    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if len(output[1].strip()) > 0:
+        logger.DEBUG('No image: error returned %s, return false' % output[1])
+        return False, None
+    result = output[0].strip()
+    logger.DEBUG('result is %s' % result)
+    if 'Error:' in result or len(result.strip()) == 0:
+        if 'Error:' in result:
+            logger.DEBUG("Command was (%s)" % cmd)
+            logger.DEBUG("Error from command = '%s'" % result)
+        return False, result
+    return True, result
+
+def RebuildLab(labname, role, is_regress_test=None, force_build=False, quiet_start=False):
+    # Pass 'True' to ignore_stop_error (i.e., ignore certain error encountered during StopLab
+    #                                         since it might not even be an error)
+    StopLab(labname, role, True)
+    logger.DEBUG('Back from StopLab')
+    DoRebuildLab(labname, role, is_regress_test, force_build, quiet_start=quiet_start)
+
+def DoRebuildLab(labname, role, is_regress_test=None, force_build=False, quiet_start=False):
+    lab_path          = os.path.join(LABS_ROOT,labname)
+    is_valid_lab(lab_path)
+    config_path       = os.path.join(lab_path,"config") 
+    start_config_path = os.path.join(config_path,"start.config")
+   
+    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, logger)
+    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(LABTAINER_CONFIG, logger)
+    host_home_xfer = labtainer_config.host_home_xfer
+
+    build_student = './buildImage.sh'
+    build_instructor = './buildInstructorImage.sh'
+    LABS_DIR = os.path.abspath('../../labs')
+    didfix = False
+    ''' hackey assumption about running from labtainers-student or labtainers-instructor '''
+    container_bin = './bin'
+    for name, container in start_config.containers.items():
+        mycontainer_name       = container.full_name
+        mycontainer_image_name = container.image_name
+        cmd = 'docker rm %s' % mycontainer_name
+        ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        output = ps.communicate()
+        logger.DEBUG("Command was (%s)" % cmd)
+        if len(output[1]) > 0:
+            logger.DEBUG("Error from command = '%s'" % str(output[1]))
+        force_this_build = force_build
+        if not force_this_build:
+            image_exists = ImageExists(mycontainer_image_name, mycontainer_name)
+            if not image_exists:
+                force_this_build = True
+        if force_this_build or CheckBuild(labname, mycontainer_image_name, mycontainer_name, name, role, True, container_bin, start_config.grade_container):
+            print('Will call buidImage to build %s' % mycontainer_name)
+            if os.path.isfile(build_student):
+                cmd = '%s %s %s %s %s %s' % (build_student, labname, name, container.user, True, LABS_DIR)
+            elif os.path.isfile(build_instructor):
+                cmd = '%s %s %s %s %s' % (build_instructor, labname, name, container.user, True, LABS_DIR)
+            else:
+                logger.ERROR("no image rebuild script\n")
+                exit(1)
+                 
+            ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            output = ps.communicate()
+            if len(output[1].strip()) > 0:
+                logger.DEBUG('build error returned %s, return false' % output[1])
+            result = output[0].strip()
+            logger.DEBUG(result)
+            #if os.system(cmd) != 0:
+            #    logger.ERROR("build of image failed\n")
+            #    logger.DEBUG('cmd was %s' % cmd)
+            #    exit(1)
+
+    # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
+    myhomedir = os.environ['HOME']
+    host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
+    CreateHostHomeXfer(host_xfer_dir)
+
+    DoStart(start_config, labtainer_config, labname, role, is_regress_test, quiet_start)
+def DoStart(start_config, labtainer_config, labname, role, is_regress_test, quiet_start):
     lab_master_seed = start_config.lab_master_seed
     logger.DEBUG("DoStart Multiple Containers and/or multi-home networking")
 
@@ -379,11 +461,11 @@ def DoStart(start_config, labtainer_config, labname, role, is_regress_test, quie
 
     	# If the container is just created, then use the previous user's e-mail
         # then parameterize the container
-    	elif quiet_build and need_seeds and role == 'student':
-            student_email = ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname, student_email, quiet_build)
+    	elif quiet_start and need_seeds and role == 'student':
+            student_email = ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname, student_email, quiet_start)
         
         elif need_seeds and role == 'student':
-            student_email = ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname, student_email, quiet_build)
+            student_email = ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname, student_email, quiet_start)
     #
     #  If a read_first.txt file exists in the lab's config directory, less it before the student continues.
     #
@@ -571,7 +653,7 @@ def CopyChownGradesFile(mycwd, start_config, labtainer_config, container_name, c
         sys.exit(1)
     '''
 
-def StartLab(labname, role, is_regress_test=None, force_build=False, is_redo=False, quiet_build=False):
+def StartLab(labname, role, is_regress_test=None, force_build=False, is_redo=False, quiet_start=False):
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
     logger.DEBUG("current working directory for %s" % mycwd)
@@ -595,10 +677,6 @@ def StartLab(labname, role, is_regress_test=None, force_build=False, is_redo=Fal
     for name, container in start_config.containers.items():
         mycontainer_name       = container.full_name
         mycontainer_image_name = container.image_name
-       
-        if is_regress_test is not None and mycontainer_name != start_config.grade_container:
-            continue
-
         if is_redo:
             # If it is a redo then always remove any previous container
             # If it is not a redo, i.e., start.py then DO NOT remove existing container
@@ -608,18 +686,16 @@ def StartLab(labname, role, is_regress_test=None, force_build=False, is_redo=Fal
             logger.DEBUG("Command was (%s)" % cmd)
             if len(output[1]) > 0:
                 logger.DEBUG("Error from command = '%s'" % str(output[1]))
-        registry = "mfthomps"
-        if start_config.registry is not None:
-            registry = start_config.registry
-        if force_build or CheckBuild(labname, mycontainer_image_name, mycontainer_name, name, role, is_redo, container_bin, start_config.grade_container):
+        image_exists, result = ImageExists(mycontainer_image_name, mycontainer_name)
+        if not image_exists:
             if os.path.isfile(build_student):
-                cmd = '%s %s %s %s %s %s %s' % (build_student, labname, name, container.user, force_build, LABS_DIR, registry)
+                cmd = '%s %s %s %s %s %s' % (build_student, labname, name, container.user, False, LABS_DIR)
             elif os.path.isfile(build_instructor):
-                cmd = '%s %s %s %s %s %s %s' % (build_instructor, labname, name, container.user, force_build, LABS_DIR, registry)
+                cmd = '%s %s %s %s %s' % (build_instructor, labname, name, container.user, False, LABS_DIR)
             else:
                 logger.ERROR("no image rebuild script\n")
                 exit(1)
-            logger.DEBUG('Will build image, force_build was %s, cmd is: %s' % (force_build, cmd))
+                    
             if os.system(cmd) != 0:
                 logger.ERROR("build of image failed\n")
                 exit(1)
@@ -628,7 +704,7 @@ def StartLab(labname, role, is_regress_test=None, force_build=False, is_redo=Fal
     host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
     CreateHostHomeXfer(host_xfer_dir)
 
-    DoStart(start_config, labtainer_config, labname, role, is_regress_test, quiet_build)
+    DoStart(start_config, labtainer_config, labname, role, is_regress_test, quiet_start)
 
 def FileModLater(ts, fname):
     ''' is the given file later than the timestamp (which is in UTC)? '''
@@ -657,24 +733,17 @@ def CheckBuild(labname, image_name, container_name, name, role, is_redo, contain
 
     should_be_exec = ['rc.local', 'fixlocal.sh']
     retval = False
-    logger.DEBUG('check build for container %s image %s' % (container_name, image_name))
-    cmd = "docker inspect -f '{{.Created}}' --type image %s" % image_name
-    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    output = ps.communicate()
-    if len(output[1].strip()) > 0:
-        logger.DEBUG('No image: error returned %s, do build' % output[1])
-        return True
-    else:
-        if not is_redo:
-            logger.DEBUG('Container %s image %s exist, not a redo, just return (no need to check build)' % (container_name, image_name))
-            return False
-    result = output[0].strip()
-    logger.DEBUG('result is %s' % result)
-    if 'Error:' in result or len(result.strip()) == 0:
-        if 'Error:' in result:
-            logger.DEBUG("Command was (%s)" % cmd)
-            logger.DEBUG("Error from command = '%s'" % result)
-        return True
+
+    retval, result = ImageExists(image_name, container_name)
+    if retval and not is_redo:
+        logger.DEBUG('Container %s image %s exists, not a redo, just return (no need to check build)' % (container_name, image_name))
+        return False
+    elif not retval:
+        if result is None:
+            logger.DEBUG('No image, do rebuild');
+        else:
+            logger.DEBUG('Image query error %s' % result)
+        return True 
     parts = result.strip().split('.')
     time_string = parts[0]
     logger.DEBUG('image time string %s' % time_string)
@@ -760,7 +829,7 @@ def dumb():
     pass
     '''
     '''
-def RedoLab(labname, role, is_regress_test=None, force_build=False, quiet_build=False):
+def RedoLab(labname, role, is_regress_test=None, force_build=False, quiet_start=False):
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
     logger.DEBUG("current working directory for %s" % mycwd)
@@ -770,7 +839,7 @@ def RedoLab(labname, role, is_regress_test=None, force_build=False, quiet_build=
     #                                         since it might not even be an error)
     StopLab(labname, role, True, is_regress_test)
     is_redo = True
-    StartLab(labname, role, is_regress_test, force_build, is_redo=is_redo, quiet_build=quiet_build)
+    StartLab(labname, role, is_regress_test, force_build, is_redo=is_redo, quiet_start=quiet_start)
 
 def GatherOtherArtifacts(labname, name, container_name, container_user, ignore_stop_error):
     '''
