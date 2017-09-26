@@ -17,6 +17,10 @@ domain and is not subject to copyright.
 
 import sys
 import os
+instructor_cwd = os.getcwd()
+student_cwd = instructor_cwd.replace('labtainer-instructor', 'labtainer-student')
+# Append Student CWD to sys.path
+sys.path.append(student_cwd)
 import labutils
 import logging
 import LabtainerLogging
