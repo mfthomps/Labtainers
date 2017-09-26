@@ -326,9 +326,15 @@ def RebuildLab(labname, role, is_regress_test=None, force_build=False, quiet_sta
     #                                         since it might not even be an error)
     StopLab(labname, role, True)
     logger.DEBUG('Back from StopLab')
-    DoRebuildLab(labname, role, is_regress_test, force_build, quiet_start=quiet_start)
+    DoRebuildLab(labname, role, is_regress_test, force_build)
+    # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
+    myhomedir = os.environ['HOME']
+    host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
+    CreateHostHomeXfer(host_xfer_dir)
 
-def DoRebuildLab(labname, role, is_regress_test=None, force_build=False, quiet_start=False):
+    DoStart(start_config, labtainer_config, labname, role, is_regress_test, quiet_start)
+
+def DoRebuildLab(labname, role, is_regress_test=None, force_build=False):
     lab_path          = os.path.join(LABS_ROOT,labname)
     is_valid_lab(lab_path)
     config_path       = os.path.join(lab_path,"config") 
@@ -380,13 +386,9 @@ def DoRebuildLab(labname, role, is_regress_test=None, force_build=False, quiet_s
             #    logger.ERROR("build of image failed\n")
             #    logger.DEBUG('cmd was %s' % cmd)
             #    exit(1)
+    return start_config.registry
 
-    # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
-    myhomedir = os.environ['HOME']
-    host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
-    CreateHostHomeXfer(host_xfer_dir)
 
-    DoStart(start_config, labtainer_config, labname, role, is_regress_test, quiet_start)
 def DoStart(start_config, labtainer_config, labname, role, is_regress_test, quiet_start):
     lab_master_seed = start_config.lab_master_seed
     logger.DEBUG("DoStart Multiple Containers and/or multi-home networking")
@@ -736,11 +738,11 @@ def CheckBuild(labname, image_name, container_name, name, role, is_redo, contain
     should_be_exec = ['rc.local', 'fixlocal.sh']
     retval = False
 
-    retval, result = ImageExists(image_name, container_name)
-    if retval and not is_redo:
+    image_exists, result = ImageExists(image_name, container_name)
+    if image_exists and not is_redo:
         logger.DEBUG('Container %s image %s exists, not a redo, just return (no need to check build)' % (container_name, image_name))
         return False
-    elif not retval:
+    elif not image_exists:
         if result is None:
             logger.DEBUG('No image, do rebuild');
         else:
@@ -824,7 +826,7 @@ def CheckBuild(labname, image_name, container_name, name, role, is_redo, contain
                    break
         logger.DEBUG('is instructor')
 
-        
+    logger.DEBUG('returning retaval of %s' % str(retval))    
     return retval
 
 def dumb():
