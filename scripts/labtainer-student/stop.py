@@ -18,6 +18,7 @@ domain and is not subject to copyright.
 #
 
 import sys
+import os
 import labutils
 import logging
 import LabtainerLogging
@@ -34,7 +35,8 @@ def main():
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
     labutils.logger.INFO("Begin logging stop.py for %s lab" % labname)
     # Pass 'False' to ignore_stop_error (i.e., do not ignore error)
-    labutils.StopLab(labname, "student", False)
+    lab_path = os.path.join(os.path.abspath('../../labs'), labname)
+    labutils.StopLab(lab_path, "student", False)
 
     return 0
 

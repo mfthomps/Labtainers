@@ -56,7 +56,9 @@ def main():
     labname = sys.argv[1]
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
     labutils.logger.INFO("Begin logging start.py for %s lab" % labname)
-    labutils.StartLab(labname, "student", quiet_start=quiet_start)
+    lab_path = os.path.join(os.path.abspath('../../labs'), labname)
+    print('lab_path is %s' % lab_path)
+    labutils.StartLab(lab_path, "student", quiet_start=quiet_start)
 
     return 0
 

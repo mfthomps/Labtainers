@@ -31,11 +31,12 @@ def usage():
 
 # Usage: regresstest.py
 # Arguments: None
+LABS_ROOT = os.path.abspath('../../labs')
 def main():
     labnamelist = []
     num_args = len(sys.argv)
     if num_args == 1:
-        labnamelist = os.listdir(labutils.LABS_ROOT)
+        labnamelist = os.listdir(LABS_ROOT)
     elif num_args == 2:
         labnamelist.append(sys.argv[1])
     else:
@@ -45,7 +46,7 @@ def main():
         labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
         labutils.logger.INFO("Begin logging regresstest.py for %s lab" % labname)
         labutils.logger.DEBUG("Current name is (%s)" % labname)
-        fulllabname = os.path.join(labutils.LABS_ROOT, labname)
+        fulllabname = os.path.join(LABS_ROOT, labname)
         if labname == "etc" or labname == "bin":
             labutils.logger.DEBUG("skipping etc or bin")
             continue
@@ -71,8 +72,9 @@ def main():
 	    for items in crude_standards:
 		if "." not in items:
 		    standards.append(items)
+            lab_path = os.path.join(LABS_ROOT, labname)
 	    for standard in standards:
-            	RegressTestResult = labutils.RegressTest(labname, "instructor", standard, isFirstRun=isFirstRun)	
+            	RegressTestResult = labutils.RegressTest(lab_path, "instructor", standard, isFirstRun=isFirstRun)	
 		isFirstRun = False
             	if RegressTestResult == False:
                 # False means grades.txt.GOLD != grades.txt, output error then break

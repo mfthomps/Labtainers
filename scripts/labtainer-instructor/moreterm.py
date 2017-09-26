@@ -75,7 +75,8 @@ def main():
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
     labutils.logger.INFO("Begin logging moreterm.py for %s lab" % labname)
     labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
-    labutils.DoMoreterm(labname, "instructor", container, requested_term)
+    lab_path = os.path.join(os.path.abspath('../../labs'), labname)
+    labutils.DoMoreterm(lab_path, "instructor", container, requested_term)
 
     return 0
 

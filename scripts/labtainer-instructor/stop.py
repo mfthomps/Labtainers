@@ -45,7 +45,8 @@ def main():
     labutils.logger.INFO("Begin logging stop.py for %s lab" % labname)
     labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
     # Pass 'False' to ignore_stop_error (i.e., do not ignore error)
-    labutils.StopLab(labname, "instructor", False)
+    lab_path = os.path.join(os.path.abspath('../../labs'), labname)
+    labutils.StopLab(lab_path, "instructor", False)
 
     return 0
 
