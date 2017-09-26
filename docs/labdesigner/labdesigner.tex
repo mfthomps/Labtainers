@@ -181,21 +181,21 @@ if you had not added it to your .bashrc.  Then:
 Then start the container using the:
 
 \begin{verbatim}
-    ./redo.py [labname] 
+    ./rebuild.py [labname] 
 \end{verbatim}
 command, where labname is the name of the lab you just created.  
 The very first time you run this, it may take a bit of time because it fetches the 
 base Labtainer Docker image from the Docker registry.  Subsequent builds
 should be faster because your local Docker system will cache portions of the build.  
 
-The redo.py command will remove and recreate the container
+The rebuild.py command will remove and recreate the container
 each time the script is run.  And it will rebuild the container image if any of its configuration 
 information has changed.\footnote{The build process may generate warnings in red text, some of which are expected.  
 These include an unreferenced "user" variable and the lack of apt-utils if apt-get is used to install packages in 
 Dockerfiles.}  This is often necessary when building and testing new labs, to ensure the
 new environment does not contain artifacts from previous runs.
 
-Note the "redo.py" command is not intended for use by students, they would use the "start.py" command.  
+Note the "rebuild.py" command is not intended for use by students, they would use the "start.py" command.  
 
 Stop the containers with 
 \begin{verbatim}
@@ -208,7 +208,7 @@ To test adding a "hello world" program to the new labtainer, perform the followi
 \begin{itemize}
 \item From the new lab directory window, cd \verb!$LABTAINER_DIR/labs/[labname]/[labname]!
 \item Create a "hello world" program, e.g., in python or compiled C.
-\item From the labtainer-student window, run redo.py [labname]
+\item From the labtainer-student window, run rebuild.py [labname]
 \end{itemize}
     
 You should see the new program in the container's
@@ -816,7 +816,7 @@ the designer desires to run images reflecting recent changes that have been made
 includes logic to identify dependencies within containers whose image content has changed, 
 and it will rebuild those images, (using the Docker build command).  The framework will only 
 rebuld those images that have changed.  The designer can force the rebuild of all images within
-a lab by appending the "-f" switch to the end of the "redo.py" command.
+a lab by appending the "-f" switch to the end of the "rebuild.py" command.
 
 If you build a new Labtainer lab, the container images will not be on the Dcker Hub unless you put
 them there.  In such a case, each student's computer will rebuild your lab when they go to run it.
