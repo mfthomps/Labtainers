@@ -374,9 +374,11 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False):
             image_exists, result = ImageExists(mycontainer_image_name, mycontainer_name)
             if not image_exists:
                 force_this_build = True
+        else:
+            image_exists = True
         if force_this_build or CheckBuild(lab_path, mycontainer_image_name, mycontainer_name, name, role, True, container_bin, start_config.grade_container):
             print('Will call buidImage to build %s' % mycontainer_name)
-            logger.DEBUG("Will rebuild %s, Image exists: %s force_this_build: %s" % (mycontainer_name, 
+            logger.DEBUG("Will rebuild %s, Image exists(ignore if force): %s force_this_build: %s" % (mycontainer_name, 
                 image_exists, force_this_build))
             if os.path.isfile(build_student):
                 cmd = '%s %s %s %s %s %s' % (build_student, labname, name, container.user, True, LABS_DIR)
@@ -385,7 +387,7 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False):
             else:
                 logger.ERROR("no image rebuild script\n")
                 exit(1)
-                 
+            logger.DEBUG('cmd is %s' % cmd)     
             ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             output = ps.communicate()
             if len(output[1].strip()) > 0:
