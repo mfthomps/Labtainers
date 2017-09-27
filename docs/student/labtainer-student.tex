@@ -93,6 +93,13 @@ can use to toggle the default gateway between one that leads to the host, and on
 This allows students to add packages on components having lab-specific default gateways.
 Use of the \textit{togglegw.sh} script is not necessary to reach the Linux host, (e.g., to scp files).
 
+\subsection{Installing and Using Labtainer Behind a Proxy}
+If you are behind a proxy, e.g., in a corporate environment, it is assumed
+that you have configured your Linux package management configuration to reflect
+the proxy, e.g., the /etc/atp/apt.conf or /etc/dnf.conf files.  Additionally,
+you will need to configure your Docker service as described at:
+https://docs.docker.com/engine/admin/systemd/#httphttps-proxy
+
 \subsection{Limitations}
 The Labtainer "computers" are individual Docker containers that are interconnected via virtual
 networks.  These containers each share the Linux kernel of your host.  Thus, a change
