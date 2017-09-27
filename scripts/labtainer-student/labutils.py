@@ -573,7 +573,7 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, qui
                 else:
                     cmd = 'bash -l' 
                 #spawn_command = "gnome-terminal %s -x docker exec -it %s bash -l &" % (terminal_location, mycontainer_name)
-                spawn_command = 'gnome-terminal %s -x docker exec -it %s %s &' % (terminal_location, 
+                spawn_command = 'gnome-terminal %s -- docker exec -it %s %s &' % (terminal_location, 
                    mycontainer_name, cmd)
                 logger.DEBUG("gnome spawn: %s" % spawn_command)
                 #print spawn_command
@@ -1275,7 +1275,7 @@ def DoMoreterm(lab_path, role, container, num_terminal):
             print("No terminals supported for this component")
 	    sys.exit(1)
 	else:
-            spawn_command = "gnome-terminal -x docker exec -it %s bash -l &" % 	mycontainer_name
+            spawn_command = "gnome-terminal -- docker exec -it %s bash -l &" % 	mycontainer_name
 	    logger.DEBUG("spawn_command is (%s)" % spawn_command)
 	    os.system(spawn_command)
 
