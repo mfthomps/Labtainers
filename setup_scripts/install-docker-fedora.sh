@@ -29,6 +29,7 @@ sudo dnf -y install python-pip
 sudo pip install --upgrade pip
 sudo pip install netaddr
 sudo dnf install -y openssh-server 
+sudo dnf install -y xterm
 
 #starts and enables docker
 sudo systemctl start docker
