@@ -4,6 +4,10 @@ ln -s trunk/scripts/labtainer-student
 cd trunk/setup_scripts
 found_distrib=`cat /etc/*-release | grep "^DISTRIB_ID" | awk -F "=" '{print $2}'`
 if [[ -z "$1" ]]; then
+    if [[ -z "$found_distrib" ]]; then
+        # fedora gotta be different
+        found_distrib=`cat /etc/*-release | grep "^NAME" | awk -F "=" '{print $2}'`
+    fi 
     distrib=$found_distrib
 else
     distrib=$1
