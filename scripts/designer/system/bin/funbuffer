@@ -17,14 +17,14 @@ if {[string compare [lindex $argv 0] "-p"] == 0} {
 	eof {
 	    # flush remaining output from child
 	    expect -timeout 1 -re .+
-            send_user "here\n"
+            #send_user "here\n"
 	    return
 	}
     }
     set result [wait]
     if { [llength $result] > 4 } {
        #send_user "wait returned $result\n" 
-       send_user "program exit, [lindex $result 6]\n" 
+       #send_user "program exit, [lindex $result 6]\n" 
     }
 } else {
     set stty_init "-opost"
