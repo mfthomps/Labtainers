@@ -51,7 +51,7 @@ if [[ "$full" == *"$append_sym"* ]]; then
     if [ $result == 0 ]; then
         full=${COMMAND_ARRAY[0]}
         append_file=${COMMAND_ARRAY[2]}
-        echo "append file $append_file"
+        #echo "append file $append_file"
         IFS=' '
     fi
 elif [[ "$full" == *"$redirect_sym"* ]]; then
