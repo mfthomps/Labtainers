@@ -94,8 +94,8 @@ This allows students to add packages on components having lab-specific default g
 Use of the \textit{togglegw.sh} script is not necessary to reach the Linux host, (e.g., to scp files).
 
 \subsection{Installing and Using Labtainer Behind a Proxy}
-If you are behind a proxy, e.g., in a corporate environment, it is assumed
-that you have configured your Linux package management configuration to reflect
+If you are behind a proxy, e.g., in a corporate environment, Labatiner installation
+requires that you have configured your Linux package management configuration to reflect
 the proxy, e.g., the /etc/atp/apt.conf or /etc/dnf.conf files.  Additionally,
 you will need to configure your Docker service as described at:
 \url{https://docs.docker.com/engine/admin/systemd/#httphttps-proxy}
@@ -103,6 +103,8 @@ And set the HTTP\_PROXY environment variable to your proxy, e.g.,
 \begin{verbatim}
 HTTP_PROXY=http://myproxy:3128
 \end{verbatim}
+If you wish to use apt-get from within a container to add new software to a container, you
+must first modify the container's /etc/apt/apt.conf file to reflect your proxy.
 
 \subsection{Limitations}
 The Labtainer "computers" are individual Docker containers that are interconnected via virtual
