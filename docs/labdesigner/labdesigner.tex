@@ -824,6 +824,17 @@ While this is fully functional, the build time may distract from performance of 
 create your own public repository on the Docker Hub (https://hub.docker.com/), you can populate that
 with your lab(s) by setting the "REGSITRY\_ID" value in the start.config file for the lab(s). You
 would then use the distrib/publish.py script to build, tag and push your lab to your registry.
+
+\section{Ubuntu Package Sources}
+Labtainer images built on Ubuntu use apt-get to install packages.  Some enterprise environments have 
+difficulty reaching selected Ubuntu software source mirrors.  A Docker image build will use the default 
+Ubuntu package sources, which may differ from those in your host /etc/apt/sources.list file.  You
+can force the Labtainer to use your host sources.list by including
+\begin{verbatim}
+COPY $labdir/dockerfiles/tmp/sources.list /etc/apt/
+\end{verbatim}
+\noindent in your Dockerfile prior to the installation of packages.  The Labatainer labs from NPS 
+generally have sources.list entries that reflect what was working at NPS at the time of the build.
  
 \section{Limitations}
 The labtainers framework limits labs to the Linux execution environment.
