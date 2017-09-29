@@ -107,10 +107,21 @@ if [ ! -f $full_dfile ]; then
 fi
 
 #--------------------------------V
+if [[ -f /etc/apt/sources.list  ]]; then
+    cat /etc/apt/sources.list | awk '!/https/' > $LAB_DIR/dockerfiles/tmp/sources.list
+fi
 if [ ! -z "$imagecheck" ] && [ $force_build = "False" ]; then 
-    docker build --pull -f $LAB_DIR/dockerfiles/tmp/$dfile.tmp -t $labimage .
+    docker build --pull -f $LAB_DIR/dockerfiles/tmp/$dfile.tmp \
+                 --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY \
+                 --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY \
+                 --build-arg NO_PROXY=$NO_PROXY  --build-arg no_proxy=$NO_PROXY \
+                 -t $labimage .
 else
-    docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename --build-arg user_name=$user_name --pull -f $full_dfile -t $labimage .
+    docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename --build-arg user_name=$user_name \
+                 --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY \
+                 --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY \
+                 --build-arg NO_PROXY=$NO_PROXY  --build-arg no_proxy=$NO_PROXY \
+                 --pull -f $full_dfile -t $labimage .
 fi
 #--------------------------------^
 echo "removing temporary $dfile, reference original in $LAB_DIR/dockerfiles/$dfile"
