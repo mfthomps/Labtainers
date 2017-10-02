@@ -20,6 +20,7 @@ class ParseLabtainerConfig():
         self.testsets_root= None # TESTSETS_ROOT - regression test root
         self.file_log_level= "" # FILE_LOG_LEVEL - level to log to file
         self.console_log_level= "" # CONSOLE_LOG_LEVEL - level to log to console
+        self.apt_source='archive.ubuntu.com'
         if logger != None:
             self.logger = logger
         else:
