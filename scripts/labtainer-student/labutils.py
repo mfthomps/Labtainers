@@ -381,9 +381,9 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False):
             logger.DEBUG("Will rebuild %s, Image exists(ignore if force): %s force_this_build: %s" % (mycontainer_name, 
                 image_exists, force_this_build))
             if os.path.isfile(build_student):
-                cmd = '%s %s %s %s %s %s' % (build_student, labname, name, container.user, True, LABS_DIR)
+                cmd = '%s %s %s %s %s %s %s' % (build_student, labname, name, container.user, True, LABS_DIR, labtainer_config.apt_source)
             elif os.path.isfile(build_instructor):
-                cmd = '%s %s %s %s %s %s' % (build_instructor, labname, name, container.user, True, LABS_DIR)
+                cmd = '%s %s %s %s %s %s %s' % (build_instructor, labname, name, container.user, True, LABS_DIR, labtainer_config.apt_source)
             else:
                 logger.ERROR("no image rebuild script\n")
                 exit(1)
