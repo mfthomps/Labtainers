@@ -1,5 +1,4 @@
 FROM mfthomps/labtainer.base
-MAINTAINER jkhosali@nps.edu
 ARG lab
 ARG labdir
 ARG imagedir

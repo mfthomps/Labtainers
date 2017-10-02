@@ -3,11 +3,13 @@ MAINTAINER jkhosali@nps.edu
 ARG lab
 ARG labdir
 ARG imagedir
+ARG apt_source
 
 RUN echo "# This secret file is generated when container is created" >> /root/.secret
 RUN echo "# The root secret string below will be replaced with a keyed hash" >> /root/.secret
 RUN echo "My ROOT secret string is: ROOT_SECRET" >> /root/.secret
 ADD $labdir/sys_$lab.tar.gz /
+RUN sed -i s/archive.ubuntu.com/$apt_source/ /etc/apt/sources.list
 RUN apt-get update && apt-get install -y --no-install-recommends \
 	zsh
 
