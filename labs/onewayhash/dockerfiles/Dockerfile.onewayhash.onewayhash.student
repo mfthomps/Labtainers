@@ -3,8 +3,9 @@ MAINTAINER jkhosali@nps.edu
 ARG lab
 ARG labdir
 ARG imagedir
+ARG apt_source
 ADD $labdir/sys_$lab.tar.gz /
-COPY $labdir/dockerfiles/tmp/sources.list /etc/apt/
+RUN sed -i s/archive.ubuntu.com/$apt_source/ /etc/apt/sources.list
 RUN apt-get update && apt-get install -y --no-install-recommends \
     openssl \
     openssh-client
