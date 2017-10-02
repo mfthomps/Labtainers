@@ -13,7 +13,9 @@ FROM mfthomps/labtainer.network
 ARG lab
 ARG labdir
 ARG imagedir
+ARG apt_source
 ADD $labdir/sys_$lab.tar.gz /
+RUN sed -i s/archive.ubuntu.com/$apt_source/ /etc/apt/sources.list
 RUN apt-get update && apt-get install -y --no-install-recommends \
     telnetd
 USER ubuntu

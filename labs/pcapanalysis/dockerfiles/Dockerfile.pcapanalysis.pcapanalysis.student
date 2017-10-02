@@ -2,6 +2,9 @@ FROM mfthomps/labtainer.network
 ARG lab
 ARG labdir
 ARG imagedir
+ARG apt_source
+RUN sed -i s/archive.ubuntu.com/$apt_source/ /etc/apt/sources.list
+
 
 #
 # Example of installing xinetd to manage inetd type system services

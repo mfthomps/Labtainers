@@ -3,6 +3,8 @@ FROM mfthomps/labtainer.base
 ARG lab
 ARG labdir
 ARG imagedir
+ARG apt_source
+RUN sed -i s/archive.ubuntu.com/$apt_source/ /etc/apt/sources.list
 
 RUN apt-get update && apt-get install -y --no-install-recommends nmap
 RUN apt-get update && apt-get install -y --no-install-recommends telnet
