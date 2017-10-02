@@ -828,13 +828,13 @@ would then use the distrib/publish.py script to build, tag and push your lab to 
 \section{Ubuntu Package Sources}
 Labtainer images built on Ubuntu use apt-get to install packages.  Some enterprise environments have 
 difficulty reaching selected Ubuntu software source mirrors.  A Docker image build will use the default 
-Ubuntu package sources, which may differ from those in your host /etc/apt/sources.list file.  You
-can force the Labtainer to use your host sources.list by including
+Ubuntu package sources, "archive.ubuntu.com".  This hostname can be overridden via the 
+trunk/config/labtainer.config file apt\_source entry, and having the following in your dockerfile:
 \begin{verbatim}
-COPY $labdir/dockerfiles/tmp/sources.list /etc/apt/
+RUN sed -i s/archive.ubuntu.com/$apt_source/ /etc/apt/sources.list
 \end{verbatim}
-\noindent in your Dockerfile prior to the installation of packages.  The Labatainer labs from NPS 
-generally have sources.list entries that reflect what was working at NPS at the time of the build.
+\noindent prior to the installation of packages.  The Labatainer labs from NPS 
+generally have sources.list entries that reflect sources that were working from NPS at the time of the build.
  
 \section{Limitations}
 The labtainers framework limits labs to the Linux execution environment.
