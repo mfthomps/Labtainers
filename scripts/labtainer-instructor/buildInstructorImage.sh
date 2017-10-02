@@ -21,15 +21,17 @@ labimage=$lab.$imagename.instructor
 user_name=$3
 force_build=$4 
 LAB_TOP=$5 
+APT_SOURCE=$6 
 
-if [ "$#" -eq 6 ]; then
-    registry=$6 
-elif [ "$#" -eq 5 ]; then
+if [ "$#" -eq 7 ]; then
+    registry=$7 
+elif [ "$#" -eq 6 ]; then
     registry=mfthomps
 else
     echo "Usage: buildImage.sh <labname> <imagename> <user_name> <force_build> <LAB_TOP> [registry]"
     echo "   <force_build> is either true or false"
     echo "   <LAB_TOP> is a path to the trunk/labs directory"
+    echo "   <apt_source> is the host to use in apt/sources.list"
     echo "   registry is an optional name of an alternate docker hub registry"
     exit
 fi
@@ -117,7 +119,8 @@ if [ ! -z "$imagecheck" ] && [ $force_build = "False" ]; then
                  --build-arg NO_PROXY=$NO_PROXY  --build-arg no_proxy=$NO_PROXY \
                  -t $labimage .
 else
-    docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename --build-arg user_name=$user_name \
+    docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename \
+                 --build-arg user_name=$user_name --build-arg apt_source=$APT_SOURCE \
                  --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY \
                  --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY \
                  --build-arg NO_PROXY=$NO_PROXY  --build-arg no_proxy=$NO_PROXY \
