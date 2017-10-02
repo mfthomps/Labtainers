@@ -4,6 +4,8 @@ ARG lab
 ARG labdir
 ARG imagedir
 ARG user_name
+ARG apt_source
+RUN sed -i s/archive.ubuntu.com/$apt_source/ /etc/apt/sources.list
 ADD $labdir/sys_$lab.tar.gz /
 ENV DEBIAN_FRONTEND noninteractive
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections

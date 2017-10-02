@@ -2,12 +2,15 @@ FROM mfthomps/labtainer.network
 ARG lab
 ARG labdir
 ARG imagedir
+ARG apt_source
 
 #
 # Example of installing xinetd to manage inetd type system services
 # And, installation of rsyslog to cause system logging local to the
 # container.
 #
+RUN sed -i s/archive.ubuntu.com/$apt_source/ /etc/apt/sources.list
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     telnetd 
 
