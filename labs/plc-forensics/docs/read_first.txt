@@ -1,5 +1,5 @@
 PLC Forensics LAB -- Read this first
 
 The lab manual for this lab is at: 
-LAB_MANUAL
-
+   file://LAB_MANUAL
+Right click on the linke and select "Open link".
