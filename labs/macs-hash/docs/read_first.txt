@@ -1,0 +1,6 @@
+The lab manual is at 
+LAB_DOCS/macs-hash.pdf
+The report template at
+LAB_DOCS/mac-hash-template.docx
+And the spreadsheet is at
+LAB_DOCS/Collide1.xlsx

@@ -3,7 +3,8 @@ Title: GDB Lesson
 
 1. Background
 
-These lab instructions relate to the use of the program GDB.
+This lab provides a simple introduction to the use
+of the gdb utility to debug a C program.
 
 2. Performing the lab
 The lab is started from the Labtainer working 
@@ -26,14 +27,13 @@ Perform the tasks described:
 a) List the the files in the directory. Use the 'vi' command to
 examine "sampleMath.c". After looking the program over (and without
 editing it) contemplate what the result of the program will be. Once you
-have doen this type ":wq" in the 'vi' editor to leave it. Next, type the
+have done this type ":wq" in the 'vi' editor to leave it. Next, type the
 'gcc' comand into the shell as follows:
-	gcc -g sampleMath.c -o sampleMath.x
+	gcc -g sampleMath.c -o sampleMath
 
 b) This will compile "sampleMath.c" and create an executable of the program
-called "sampleMath.x". The ".x" at the end of the program is not
-required, but makes it more noticable as a program. to run the program type 
-"./sampleMath.x". Note the error it throws. Rather than looking at the C program
+called "sampleMath".  To run the program type 
+"./sampleMath". Note the error it throws. Rather than looking at the C program
 alone, the program GDB will help us analyse what is throwing an exception. Type
 "gbd sampleMath.x" into the command line.
 
