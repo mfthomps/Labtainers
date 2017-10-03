@@ -109,9 +109,6 @@ if [ ! -f $full_dfile ]; then
 fi
 
 #--------------------------------V
-if [[ -f /etc/apt/sources.list  ]]; then
-    cat /etc/apt/sources.list | awk '!/https/' > $LAB_DIR/dockerfiles/tmp/sources.list
-fi
 if [ ! -z "$imagecheck" ] && [ $force_build = "False" ]; then 
     docker build --pull -f $LAB_DIR/dockerfiles/tmp/$dfile.tmp \
                  --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY \
