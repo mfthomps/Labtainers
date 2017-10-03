@@ -714,9 +714,11 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
         image_exists, result = ImageExists(mycontainer_image_name, mycontainer_name)
         if not image_exists:
             if os.path.isfile(build_student):
-                cmd = '%s %s %s %s %s %s' % (build_student, labname, name, container.user, False, LABS_DIR)
+                cmd = '%s %s %s %s %s %s %s' % (build_student, labname, name, container.user, False, 
+                                                  LABS_DIR, labtainer_config.apt_source)
             elif os.path.isfile(build_instructor):
-                cmd = '%s %s %s %s %s' % (build_instructor, labname, name, container.user, False, LABS_DIR)
+                cmd = '%s %s %s %s %s %s %s' % (build_instructor, labname, name, container.user, False, 
+                                                  LABS_DIR, labtainer_config.apt_source)
             else:
                 logger.ERROR("no image rebuild script\n")
                 exit(1)
