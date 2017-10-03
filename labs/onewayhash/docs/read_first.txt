@@ -1,7 +1,7 @@
 One Way Hash Lab -- Read this first
 
 The primary lab manual for this lab is at: 
-LAB_DOCS/Crypto_Hash.pdf
-
+   file://LAB_DOCS/Crypto_Hash.pdf
+Right click on the link and select "Open link".
 The instructions that appear after you start the lab will reference that 
 manual.
