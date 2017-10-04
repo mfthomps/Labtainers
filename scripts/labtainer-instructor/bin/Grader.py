@@ -22,6 +22,8 @@ import subprocess
 import ast
 import string
 import evalBoolean
+import InstructorLogging
+
 
 UBUNTUHOME="/home/ubuntu/"
 default_timestamp = 'default-NONE'
@@ -111,10 +113,10 @@ def add_goals_id_ts(goalid, goalts, goalvalue, goals_id_ts, goals_ts_id):
         if goalts in goals_id_ts[goalid]:
             if goalts != default_timestamp:
                 # Already have that goal with that goalid and that timestamp
-                print("Grader.py add_goals_id_ts(1): duplicate goalid <%s> timestamp <%s>" % (goalid, goalts))
+                print("Grader.py add_goals_id_ts(1): duplicate goalid <%s> timestamp <%s> exit" % (goalid, goalts))
                 exit(1)
             else:
-                print("Grader.py add_goals_id_ts(1): duplicate goalid <%s> timestamp <%s>" % (goalid, goalts))
+                print("Grader.py add_goals_id_ts(1): duplicate goalid <%s> timestamp <%s>, return" % (goalid, goalts))
                 return
         else:
             goals_id_ts[goalid][goalts] = goalvalue
@@ -349,7 +351,7 @@ def processMatchAcross(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
         #print "processMatchAcross failed"
         add_goals_id_ts(goalid, fulltimestamp, False, goals_id_ts, goals_ts_id)
 
-def processMatchAny(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
+def processMatchAny(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id, logger):
     #print "Inside processMatchAny"
     found = False
     goalid = eachgoal['goalid']
@@ -409,15 +411,49 @@ def processMatchAny(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
             found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
             add_goals_id_ts(goalid, fulltimestamp, found, goals_id_ts, goals_ts_id)
         else:
+            if answertagstring not in jsonoutput:
+                logger.ERROR('%s not in jsonoutput %s' % (answertagstring, str(jsonoutput)))
+                sys.exit(1)
             answertagresult = jsonoutput[answertagstring]
             current_answer = answertagresult.strip()
             #print "Correct answer is (%s) result (%s)" % (current_answer, resulttagresult)
             found = compare_result_answer(resulttagresult, current_answer, eachgoal['goaloperator'])
             add_goals_id_ts(goalid, fulltimestamp, found, goals_id_ts, goals_ts_id)
  
-    # All file processed
-    #print goals_id_ts
-    #print goals_ts_id
+def processCount(outjsonfnames, eachgoal, grades, logger):
+    print "Inside processCount"
+    count = 0
+    goalid = eachgoal['goalid']
+    #print goalid
+    jsonanswertag = eachgoal['answertag']
+    #print jsonanswertag
+    resulttag = eachgoal['resulttag']
+ 
+    # for processMatchAny - Process all files regardless of match found or not found
+    for outputjsonfile in outjsonfnames:
+        print "processCount: outputjsonfile is (%s)" % outputjsonfile
+        #print "processMatchAny Output json %s" % outputjsonfile
+        # Use rsplit to get the timestamppart
+        if outputjsonfile.endswith("student"):
+            filenamepart = outputjsonfile
+            timestamppart = "default"
+        else:
+            (filenamepart, timestamppart) = outputjsonfile.rsplit('.', 1)
+        jsonoutput = getJsonOut(outputjsonfile)
+
+        if jsonoutput == {}:
+            # empty - skip
+            continue
+
+        try:
+            resulttagresult = jsonoutput[resulttag]
+        except KeyError:
+            #print('processMatchAny: %s not found in file %s' % (resulttag, outputjsonfile))
+            continue
+        if resulttagresult != 'NONE':        
+            count += 1
+    #print 'count is %d' % count
+    grades[goalid] = count
 
 def processExecute(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
     #print "Inside processExecute"
@@ -613,7 +649,7 @@ def processBoolean(eachgoal, goals_id_ts, goals_ts_id):
         add_goals_id_ts(goalid, default_timestamp, False, goals_id_ts, goals_ts_id)
 
 # Process Lab Exercise
-def processLabExercise(studentlabdir, labidname, grades, goals, goals_id_ts, goals_ts_id):
+def processLabExercise(studentlabdir, labidname, grades, goals, goals_id_ts, goals_ts_id, logger):
     #print('processLabExercise studentlabdir %s ' % (studentlabdir))
     #print "Goals JSON config is"
     #print goals
@@ -644,7 +680,7 @@ def processLabExercise(studentlabdir, labidname, grades, goals, goals_id_ts, goa
         #print('goal is %s type %s' % (eachgoal['goalid'], eachgoal['goaltype']))
 
         if eachgoal['goaltype'] == "matchany":
-            processMatchAny(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id)
+            processMatchAny(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id, logger)
         elif eachgoal['goaltype'] == "matchlast":
             processMatchLast(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id)
         elif eachgoal['goaltype'] == "matchacross":
@@ -658,6 +694,8 @@ def processLabExercise(studentlabdir, labidname, grades, goals, goals_id_ts, goa
             processTemporal(eachgoal, goals_id_ts, goals_ts_id)
         elif eachgoal['goaltype'] == "count_greater":
             processCountGreater(eachgoal, goals_id_ts, goals_ts_id)
+        elif eachgoal['goaltype'] == "count":
+            processCount(outjsonfnames, eachgoal, grades, logger)
         elif eachgoal['goaltype'].startswith('is_'):
             processTrueFalse(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id)
         else:
@@ -677,6 +715,9 @@ def processLabExercise(studentlabdir, labidname, grades, goals, goals_id_ts, goa
     # Now generate the grades - based on goalid
     for eachgoal in goals:
         goalid = eachgoal['goalid']
+        if goalid in grades:
+            # already there, must be calculated value
+            continue
         #print "goalid is (%s)" % goalid
         current_goals_result = False
         for current_goals, timestamp in goals_id_ts.iteritems():
@@ -702,11 +743,12 @@ def processLabExercise(studentlabdir, labidname, grades, goals, goals_id_ts, goa
     return 0
 
 # Usage: ProcessStudentLab <studentlabdir> <labidname>
+#   return a dictionary of grades for this student.
 # Arguments:
 #     <studentlabdir> - directory containing the student lab work
 #                    extracted from zip file (done in instructor.py)
 #     <labidname> - labidname should represent filename of output json file
-def ProcessStudentLab(studentlabdir, labidname):
+def ProcessStudentLab(studentlabdir, labidname, logger):
     # Goals
     goals_id_ts = {}
     goals_ts_id = {}
@@ -723,7 +765,8 @@ def ProcessStudentLab(studentlabdir, labidname):
     #print "Goals JSON config is"
     #print goals
 
-    processLabExercise(studentlabdir, labidname, grades, goals, goals_id_ts, goals_ts_id)
+    processLabExercise(studentlabdir, labidname, grades, goals, goals_id_ts, goals_ts_id, logger)
+    
     return grades
 
 # Usage: Grader.py <studentlabdir> <labidname>
@@ -741,7 +784,8 @@ def main():
     labidname = sys.argv[2]
     #print "Inside main, about to call ProcessStudentLab "
 
-    ProcessStudentLab(studentlabdir, labidname)
+    logger = InstructorLogging.InstructorLogging("/tmp/instructor.log")
+    ProcessStudentLab(studentlabdir, labidname, logger)
 
 if __name__ == '__main__':
     sys.exit(main())

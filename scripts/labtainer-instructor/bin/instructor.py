@@ -185,7 +185,7 @@ def main():
         ''' note odd hack, labinstance seed is stored on container, so need to fine one, use first '''
         DestinationDirName = '%s/%s' % (email_labname, student_list[email_labname][0])
         DestDirName = '%s%s' % (InstructorHomeDir, DestinationDirName)
-        student_parameter = GoalsParser.ParseGoals(DestDirName)
+        student_parameter = GoalsParser.ParseGoals(DestDirName, logger)
 
         # Call ResultParser script to parse students' result
         LabDirName = '%s%s' % (InstructorHomeDir, email_labname)
@@ -199,7 +199,7 @@ def main():
     ''' assess the results and generate simple report '''
     for email_labname in student_list:
         LabDirName = '%s%s' % (InstructorHomeDir, email_labname)
-        grades = Grader.ProcessStudentLab(LabDirName, LabIDName)
+        grades = Grader.ProcessStudentLab(LabDirName, LabIDName, logger)
         student_id = email_labname.rsplit('.', 1)[0]
         LabIDStudentName = '%s : %s : ' % (LabIDName, student_id)
 
