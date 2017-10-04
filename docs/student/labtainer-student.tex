@@ -10,8 +10,10 @@
 
 \section {Introduction}
 This manual is intended for use by students performing labs with Labtainers.
-Labtainers assume you have a Linux system, e.g., a virtual machine.  Refer to
-Appendix A for installation of VirtualBox and a Linux system.
+Labtainers assume you have a Linux system, e.g., a virtual machine.  If you
+do not have a Linux sysetm, refer to
+Appendix A and B for installation of VirtualBox and a Linux system on either
+a Mac or a Windows computer.
 Note that any Linux system can be used as long as it supports Docker.
 
 Labtainers provide a consistent execution environment for performing
@@ -21,8 +23,14 @@ computers interconnected via virtual networks.
 \subsection{Obtaining Labtainers and installing Docker}
 The Labtainer framework is distributed as a tarball from:
 \url{https://my.nps.edu/web/cisr/labtainers}
-Untar this file into a permanent directory on your Linux system,
-e.g., \verb ~/home.  From the directory into which you untarred the
+Click the link named: "Download the Labtainer framework, and untar the resulting file into 
+a permanent directory on your Linux system, e.g., into \verb ~/home.  For example, if you downloaded the file
+from a browser on your Linux system:
+\begin{verbatim}
+   cd
+   tar -xf ~/Downloads/labtainer.tar
+\end{verbatim}
+From the directory into which you untarred the
 tarball:
 \begin{verbatim}
    cd labtainer
@@ -121,13 +129,19 @@ Please note that while running some programs in the Labtainer computers, passwor
 applications such as "ssh" are not suppressed.  This is a side effect of the Labtainer
 support for automated assessment.  
 
+Pasting multiple commands into a labtainer terminal may result in the not all of the
+commands being executed.
+
 
 \appendix 
-\section {Appendix A: Installing Virtual Box and Ubuntu}
-\includepdf[pages=-]{InstallingVB-Linux.pdf}
+\section {Appendix A: Installing Virtual Box and Ubuntu on a Mac}
+\includepdf[pages=-]{InstallingVB-LinuxMac.pdf}
 \appendix 
-\section {Appendix B: Labtainer Command Summary}
-\label{sec:appendixB}
+\section {Appendix B: Installing Virtual Box and Ubuntu on Windows}
+\includepdf[pages=-]{InstallingVB-LinuxWin.pdf}
+\appendix 
+\section {Appendix C: Labtainer Command Summary}
+\label{sec:appendixC}
 The following labtainer commands are available from the \texttt{labtainer/labtainer-student}
 directory:
 \begin{itemize}
