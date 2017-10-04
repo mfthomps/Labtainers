@@ -31,7 +31,7 @@ ARG apt_source
 #
 RUN sed -i s/archive.ubuntu.com/$apt_source/ /etc/apt/sources.list
 
-RUN apt-get update && apt-get install -y --no-install-recommends dav-text lynx
+RUN apt-get update && apt-get install -y --no-install-recommends nano lynx
 ADD $labdir/sys_$lab.tar.gz /
 #
 #  **** Perform all root operations, e.g.,           ****
