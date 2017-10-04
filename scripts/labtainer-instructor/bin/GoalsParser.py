@@ -311,7 +311,7 @@ def ParseGoals(studentdir):
                         #print('parsegoals type is %s result %s' % (goal_type, resulttag))
                         nametags.append(MyGoal(each_key, goal_type, resulttag=resulttag))
                     else:
-                        print('ERROR: could not parse goals.config line %s' % s)
+                        print('ERROR: could not parse goals.config line %s' % linestrip)
                         exit(1)
        
                     #print "goal_type boolean"
