@@ -421,7 +421,7 @@ def processMatchAny(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id, logger):
             add_goals_id_ts(goalid, fulltimestamp, found, goals_id_ts, goals_ts_id)
  
 def processCount(outjsonfnames, eachgoal, grades, logger):
-    print "Inside processCount"
+    #print "Inside processCount"
     count = 0
     goalid = eachgoal['goalid']
     #print goalid
@@ -431,7 +431,7 @@ def processCount(outjsonfnames, eachgoal, grades, logger):
  
     # for processMatchAny - Process all files regardless of match found or not found
     for outputjsonfile in outjsonfnames:
-        print "processCount: outputjsonfile is (%s)" % outputjsonfile
+        #print "processCount: outputjsonfile is (%s)" % outputjsonfile
         #print "processMatchAny Output json %s" % outputjsonfile
         # Use rsplit to get the timestamppart
         if outputjsonfile.endswith("student"):
@@ -563,16 +563,16 @@ def processTrueFalse(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
         found = compare_result_answer(resulttagresult, None, eachgoal['goaltype'])
         add_goals_id_ts(goalid, fulltimestamp, found, goals_id_ts, goals_ts_id)
  
-def countTrue(goal_list, current_goals):
-    the_list = goal_list[goal_list.find("(")+1:goal_list.find(")")]
-    the_goals = the_list.strip().split(',')
-    the_goals = [x.strip() for x in the_goals]
+def countTrue(the_goals, current_goals):
+    #print('current goals %s' % str(current_goals))
     count = 0
     for item in current_goals:
         item = item.strip()
         if item in the_goals:
             if current_goals[item]:
                 count += 1
+                #print('item %s true count now %d' % (item, count))
+                the_goals.remove(item)
     return count
     
 def processCountGreater(eachgoal, goals_id_ts, goals_ts_id):
@@ -588,11 +588,16 @@ def processCountGreater(eachgoal, goals_id_ts, goals_ts_id):
     goalid = eachgoal['goalid']
     #print('countGreater, value %d list %s' % (value, subgoal_list))
     true_count = 0
+    the_list = subgoal_list[subgoal_list.find("(")+1:subgoal_list.find(")")]
+    the_goals = the_list.strip().split(',')
+    the_goals = [x.strip() for x in the_goals]
     for timestamppart, current_goals in goals_ts_id.iteritems():
-        true_count += countTrue(subgoal_list, current_goals)
+        true_count += countTrue(the_goals, current_goals)
+        #print('true_count now %d' % true_count)
     is_greater = False
     if true_count > value:
         is_greater = True
+    #print('true_count is %d' % true_count)
     #print('countGreater result is %r' % is_greater)
     add_goals_id_ts(goalid, default_timestamp, is_greater, goals_id_ts, goals_ts_id)
     
