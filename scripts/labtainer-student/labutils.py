@@ -139,7 +139,6 @@ def CreateSingleContainer(mycontainer_name, mycontainer_image_name, hostname, my
         docker0_IPAddr = getDocker0IPAddr()
         logger.DEBUG("getDockerIPAddr result (%s)" % docker0_IPAddr)
         if mysubnet_name:
-            #createsinglecommand = "docker create -t --dns %s --network=%s --ip=%s --privileged --add-host my_host:%s --name=%s --hostname %s %s bash" % (dns, mysubnet_name, mysubnet_ip, docker0_IPAddr, mycontainer_name, hostname, mycontainer_image_name)
             createsinglecommand = "docker create -t --network=%s --ip=%s --privileged --add-host my_host:%s --name=%s --hostname %s %s bash" % (mysubnet_name, mysubnet_ip, docker0_IPAddr, mycontainer_name, hostname, mycontainer_image_name)
         else:
             createsinglecommand = "docker create -t --privileged --add-host my_host:%s --name=%s --hostname %s %s bash" % (docker0_IPAddr, 
@@ -524,7 +523,7 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, qui
             if mycontainer_name == start_config.grade_container:
                 # hack use startup.sh instead of instructor.py because some profiles already run startup...
                 cmd =  'sh -c "cd /home/%s && .local/bin/startup.sh"' % (container.user)
-                terminal_location = terminalCounter(terminal_count)
+                terminal_location = terminalWideCounter(terminal_count)
                 terminal_count += 1
                 # note hack to change --geometry to -geometry
                 spawn_command = "xterm %s -title GOAL_RESULTS -fa 'Monospace' -fs 11 -e docker exec -it %s %s  &" % (terminal_location[1:], 
@@ -586,7 +585,12 @@ def terminalCounter(terminal_count):
     x_coordinate = 100 + ( 50 * terminal_count )
     y_coordinate = 75 + ( 50 * terminal_count)
     terminal_location = "--geometry 75x25+%d+%d" % (x_coordinate, y_coordinate)
-    
+    return terminal_location
+
+def terminalWideCounter(terminal_count):
+    x_coordinate = 100 + ( 50 * terminal_count )
+    y_coordinate = 75 + ( 50 * terminal_count)
+    terminal_location = "--geometry 150x25+%d+%d" % (x_coordinate, y_coordinate)
     return terminal_location
 
 # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
