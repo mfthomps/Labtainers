@@ -584,7 +584,7 @@ token in that line.
 Entries within the results.config file each have the following format:
 
 \begin{verbatim}
-  <nametag> = <file_id> : <field_type> : <field_id> : <line_type> : <line_id>
+  <nametag> = <file_id> : <field_type> : <field_id> [: <line_type> : <line_id>]
       where:
             nametag -- The symbolic name of the result, which will be referenced in 
                        the goals configuration file.  It must be alphanumeric, 
@@ -612,10 +612,15 @@ Entries within the results.config file each have the following format:
                               are ignored.
                 CONTAINS   -- The value of nametag will be set to true if the file 
                               contains the string represented in field_id.
+                PARAM      -- The value of the nametag will be set to nth parameter
+                              (starting at 1, named by the field_id), provided in the 
+                              program invocation.  
+                              
                 SEARCH     -- The value nametag will be set to the search resulting
                               from the given field_id, which is treated as an
-                              expression having the syntax of pythons parse.search function.
-                              E.g., "frame.number=={:d}" would yeild the frame number.
+                              expression having the syntax of pythons parse.search 
+                              function.  E.g., "frame.number=={:d}" would 
+                              yield the frame number.
                               
             field_id -- An integer identifying the nth occurance of the field type.
                         Alternately may be "LAST" for the last occurance of the 
@@ -624,7 +629,9 @@ Entries within the results.config file each have the following format:
                         field_id is treated as the search expression. 
                         If field_type is "CONTAINS", the 
                         remainder of the line is treated as a string to be 
-                        searched for.
+                        searched for.  If field_type is "PARAM", the field_id is
+                        the 1-based index of the parameter whose value is to be 
+                        assigned, and no other fields should be present.
             line_type - Identifies how the line is to be identified, values include:
                 LINE           --  The line_id will be an integer line number 
                                    (starting at one).  Use of this to identify 
@@ -679,7 +686,7 @@ with the framework.
 
 \begin{verbatim}
 <goal_id> = <type> : [<operator> : <resulttag> : <answertag> | <boolean_expression> 
-            | goal1 : goal2 | <resulttag> | count_greater : value : subgoal_list ]
+            | goal1 : goal2 | <resulttag> | value : subgoal_list]
   Where: 
     <goal_id> - An identifer for the goal. It must be alphanumeric 
                 (underscores permitted).
@@ -693,11 +700,13 @@ with the framework.
                       
          'matchlast'   - only results from the latest timestamped set are 
                          evaluated.
-         'matchacross' - The answertag must name a result, and that result 
-                         must occur in a timestamped set that differs from 
-                         the set in which the resulttag occurs.  Note: 
-                         'matchacross' cannot be used within the boolean  
-                         expression defined below.
+         'matchacross' - The resulttag and answertag name results.  The 
+                         operator is applied against values in different 
+                         timestamped sets.  For example, a "string_diff" 
+                         operator would require the named results to have 
+                         at least two distinct values in different 
+                         timestamped sets.  Note: 'matchacross' cannot 
+                         be used within the boolean expression defined below.
          'is_true'     - The goal is true if the value of the resulttag is 
                          true, e.g., from a "CONTAINS" field type in the 
                          results.config
@@ -734,6 +743,8 @@ with the framework.
                          value or the symbolic name in the parameters.config file 
                          Note: the answertag cannot be a symbolic name from 
                          results.config 
+         'count'       - The goal value is assigned the quanity of occurances of 
+                         the given resulttag.  These types have no other fields.
  
 <operator> - the following operators evaluate to TRUE as described below:
    'string_equal' -  The strings derived from <answertag> and <resulttag>
