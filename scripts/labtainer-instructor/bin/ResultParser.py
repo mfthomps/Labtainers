@@ -212,7 +212,7 @@ def ValidateConfigfile(studentlabdir, container_list, labidname, each_key, each_
 
     return 0
 
-def getToken(linerequested, field_type, token_id):
+def getToken(linerequested, field_type, token_id, logger):
         #print "Line requested is (%s)" % linerequested
         if linerequested == "NONE":
             token = "NONE"
@@ -243,6 +243,7 @@ def getToken(linerequested, field_type, token_id):
                     linetokenidx = linetokenidx + 1
                 numlinetokens = len(linetokens)
             elif field_type == 'SEARCH':
+                logger.DEBUG('is search')
                 search_results = search(token_id, linerequested)
                 if search_results is not None:
                     token = str(search_results[0])
@@ -291,6 +292,7 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
     # NOTE: Split using ' : ' - i.e., "space colon space"
     values = [x.strip() for x in each_value.split(' : ', num_splits)]
     newtargetfile = values[0].strip()
+    logger.DEBUG('line_at is %d newtargetvalue = %s, values: %s' % (line_at, newtargetfile, str(values)))
     #print('newtargetfile is %s' % newtargetfile)
     # <cfgcontainername>:<exec_program>.<type>
     containername = None
@@ -309,9 +311,11 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
     if targetfile.startswith('/'):
         targetfile = os.path.join(result_home, targetfile[1:])
     #print('targetfile is %s containername is %s' % (targetfile, containername))
-
+    logger.DEBUG('targetfile is %s, containername is %s' % (targetfile, containername))
     if containername is not None and containername not in container_list:
         print "Config line (%s) containername %s not in container list (%s), skipping..." % (line, containername, str(container_list))
+        logger.DEBUG("Config line (%s) containername %s not in container list (%s), skipping..." % (line, 
+              containername, str(container_list)))
         # set nametags - value pair to NONE
         #nametags[mycontainername][each_key] = "NONE"
         nametags[each_key] = "NONE"
@@ -336,7 +340,7 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
     elif command not in just_field_type:
         # command = 'STARTSWITH': or 'HAVESTRING'
         lookupstring = values[line_at+1].strip()
-
+    logger.DEBUG('field_type %s, token_id %s' % (field_type, token_id))
     targetfname_list = []
     if targetfile.startswith('*'):
         # Handle 'asterisk' -- 
@@ -381,6 +385,7 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
             # If file does not exist, treat as can't find token
             token = "NONE"
             #sys.stderr.write("ERROR: No %s file does not exist\n" % current_targetfname)
+            logger.DEBUG("ERROR: No %s file does not exist\n" % current_targetfname)
             #sys.exit(1)
             nametags[each_key] = token
             return False
@@ -475,8 +480,8 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
                 print('ERROR: unknown command %s' % command)
                 exit(1)
 
-            token = getToken(linerequested, field_type, token_id)
-
+            token = getToken(linerequested, field_type, token_id, logger)
+            logger.DEBUG('field_type %s, token_id %s, got token %s' % (field_type, token_id, token))
 
         #print token
         if token == "NONE":
