@@ -19,6 +19,7 @@ import sys
 fifteenequal = "="*15
 twentyequal = "="*20
 goalprintformat = ' %15s |'
+goalprintformat_int = ' %15d |'
 emailprintformat = '%20s |'
 
 def ValidateLabGrades(labgrades):
@@ -90,10 +91,13 @@ def PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline):
                         continue
                     #print "goalid is (%s)" % goalid
                     #print "goalresult is (%s)" % goalresult
-                    if goalresult:
-                        curline = curline + goalprintformat % 'Y'
-                    else:
-                        curline = curline + goalprintformat % ''
+                    if type(goalresult) is bool:
+                        if goalresult:
+                            curline = curline + goalprintformat % 'Y'
+                        else:
+                            curline = curline + goalprintformat % ''
+                    elif type(goalresult) is int:
+                        curline = curline + goalprintformat_int % goalresult 
         gradestxtouput.write(curline + "\n")
 
     gradestxtouput.close()
