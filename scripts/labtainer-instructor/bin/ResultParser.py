@@ -31,7 +31,7 @@ containernamelist = []
 stdinfnameslist = []
 stdoutfnameslist = []
 timestamplist = {}
-line_types = ['CONTAINS', 'LINE', 'STARTSWITH', 'NEXT_STARTSWITH', 'HAVESTRING', 'LINE_COUNT']
+line_types = ['CONTAINS', 'LINE', 'STARTSWITH', 'NEXT_STARTSWITH', 'HAVESTRING', 'LINE_COUNT', 'PARAM']
 just_field_type = ['LINE_COUNT']
 logger = None
 
@@ -87,7 +87,7 @@ def ValidateConfigfile(studentlabdir, container_list, labidname, each_key, each_
     '''
     Misleading name, this function populates a set of global structures used in processign the results
     '''
-    valid_field_types = ['TOKEN', 'PARENS', 'QUOTES', 'SLASH', 'LINE_COUNT', 'CONTAINS', 'SEARCH']
+    valid_field_types = ['TOKEN', 'PARENS', 'QUOTES', 'SLASH', 'LINE_COUNT', 'CONTAINS', 'SEARCH', 'PARAM']
     if not MyUtil.CheckAlphaDashUnder(each_key):
         sys.stderr.write("ERROR: Not allowed characters in results.config's key (%s)\n" % each_key)
         sys.exit(1)
@@ -334,13 +334,16 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
     token_index = 1
     if line_at == 3:
         token_index = 2
-    token_id = values[token_index].strip()
+    if command == 'PARAM':
+        token_id = values[2].strip()
+    else:
+        token_id = values[token_index].strip()
     if command == 'LINE':
         lineno = int(values[line_at+1].strip())
     elif command not in just_field_type:
         # command = 'STARTSWITH': or 'HAVESTRING'
         lookupstring = values[line_at+1].strip()
-    logger.DEBUG('field_type %s, token_id %s' % (field_type, token_id))
+    logger.DEBUG('command %s, field_type %s, token_id %s' % (command, field_type, token_id))
     targetfname_list = []
     if targetfile.startswith('*'):
         # Handle 'asterisk' -- 
@@ -420,7 +423,23 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
                 nametags[each_key] = tagstring
                 #print('tag string is %s for eachkey %s' % (tagstring, each_key))
                 return True
-
+            elif command == 'PARAM':
+                if 'PROGRAM_ARGUMENTS' in targetlines[0]:
+                    s = targetlines[0]
+                    param_str = s[s.find("(")+1:s.find(")")]
+                    params = param_str.split()
+                    try:
+                        index = int(token_id) 
+                    except:
+                        logger.ERROR('could not parse int from %s' % token_id)
+                        sys.exit(1)
+                    try:
+                        tagstring = params[index-1]
+                    except:
+                        logger.ERROR('did not find parameter %d in %s' % (index-1, param_str))
+                        sys.exit(1)
+                    nametags[each_key] = tagstring
+                    return True
             elif command == 'CONTAINS':
                 if token_id == 'CONTAINS':
                     ''' search entire file, vice searching for line '''
@@ -462,6 +481,7 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
                             break
                 # If not found - set to NONE
                 if found_lookupstring == False:
+                    logger.DEBUG('*** No line starts with %s ***' % (lookupstring))
                     linerequested = "NONE"
             elif command == 'NEXT_STARTSWITH':
                 found_lookupstring = False
@@ -475,6 +495,7 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
                     prev_line = currentline
                 # If not found - set to NONE
                 if found_lookupstring == False:
+                    logger.DEBUG('*** No next line starts with %s ***' % (lookupstring))
                     linerequested = "NONE"
             else:
                 print('ERROR: unknown command %s' % command)

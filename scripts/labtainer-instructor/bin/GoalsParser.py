@@ -188,14 +188,14 @@ def ValidateTag(parameter_list, studentdir, goal_type, inputtag, allowed_special
             sys.stderr.write("       tag must be:(%s), got %s\n" % (','.join(answer_tokens), inputtag))
             sys.exit(1)
         if not MyUtil.CheckAlphaDashUnder(finaltag):
-            sys.stderr.write("ERROR: Not allowed characters in goals.config's tag (%s)\n" % inputtag)
+            sys.stderr.write("ERROR: Invalid characters in goals.config's tag (%s)\n" % inputtag)
             sys.exit(1)
 
         returntag = getTagValue(parameter_list, target, finaltag)
     else:
         #print "tag is %s" % inputtag
         if not MyUtil.CheckAlphaDashUnder(inputtag):
-            sys.stderr.write("ERROR: Not allowed characters in goals.config's tag (%s)\n" % inputtag)
+            sys.stderr.write("ERROR: Invalid characters in goals.config's tag (%s)\n" % inputtag)
             sys.exit(1)
         returntag = 'result.%s' % inputtag
 
@@ -211,7 +211,7 @@ def GetLabInstanceSeed(studentdir):
         exit(1)
     return student_lab_instance_seed
 
-def ParseGoals(studentdir):
+def ParseGoals(studentdir, logger):
     nametags = []
     configfilename = '%s/.local/instr_config/%s' % (UBUNTUHOME, "goals.config")
     configfile = open(configfilename)
@@ -234,10 +234,12 @@ def ParseGoals(studentdir):
                 #print each_key
                 #print each_value
                 if not MyUtil.CheckAlphaDashUnder(each_key):
-                    sys.stderr.write("ERROR: Not allowed characters in goals.config's key (%s)\n" % each_key)
+                    sys.stderr.write("ERROR: Invalid characters in goals.config's key (%s)\n" % each_key)
+                    logger.ERROR("ERROR: Invalid characters in goals.config's key (%s)\n" % each_key)
                     sys.exit(1)
                 if len(each_key) > 15:
                     print("WARNING: goal (%s) is more than 15 characters long\n" % each_key)
+                    logger.DEBUG("WARNING: goal (%s) is more than 15 characters long\n" % each_key)
 
                 values = []
                 # expecting - either:
@@ -246,8 +248,10 @@ def ParseGoals(studentdir):
                 # <type> : <string>
                 values = each_value.split(" : ")
                 numvalues = len(values)
+                logger.DEBUG('numvalues is %d  values are: %s' % (numvalues, str(values)))
                 if not (numvalues == 4 or numvalues == 3 or numvalues == 2):
                     sys.stderr.write("ERROR: goals.config contains unexpected value (%s) format\n" % each_value)
+                    logger.ERROR("ERROR: goals.config contains unexpected value (%s) format\n" % each_value)
                     sys.exit(1)
                 if numvalues == 4:
                     ''' <type> : <operator> : <resulttag> : <answertag> '''
@@ -296,7 +300,7 @@ def ParseGoals(studentdir):
                         subgoal_list = values[2].strip()
                         nametags.append(MyGoal(each_key, goal_type, answertag=answertag, boolean_string=subgoal_list))
                     else:
-                        print('ERROR: could not parse goals.config line %s' % each_value)
+                        logger.ERROR('ERROR: could not parse goals.config line %s' % each_value)
                         exit(1)
                     #print "goal_type non-boolean"
                     #print nametags[each_key].goal_dict()
@@ -310,8 +314,14 @@ def ParseGoals(studentdir):
                         resulttag = values[1].strip()
                         #print('parsegoals type is %s result %s' % (goal_type, resulttag))
                         nametags.append(MyGoal(each_key, goal_type, resulttag=resulttag))
+                    elif goal_type == 'count':
+                        resulttag = values[1].strip()
+                        nametags.append(MyGoal(each_key, goal_type, resulttag=resulttag))
+                    elif goal_type == 'count_greater':
+                        logger.ERROR('missing count_greater value in %s ?' % linestrip)
+                        exit(1)
                     else:
-                        print('ERROR: could not parse goals.config line %s' % linestrip)
+                        logger.ERROR('ERROR: could not parse goals.config line %s' % linestrip)
                         exit(1)
        
                     #print "goal_type boolean"
