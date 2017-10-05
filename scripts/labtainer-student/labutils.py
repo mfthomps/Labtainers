@@ -1207,11 +1207,34 @@ def DoStop(start_config, labtainer_config, mycwd, lab_path, role, ignore_stop_er
         base_filename = os.path.basename(ZipFileList[0])
         baseZipFilename = base_filename.split('=')[0]
 
+        xfer_dir = "/home/%s/%s" % (username, host_home_xfer)
+
+        # Create docs.zip in xfer_dir if COLLECT_DOCS is "yes"
+        if start_config.collect_docs == "yes":
+            docs_zip_file = "%s/docs.zip" % xfer_dir
+            logger.DEBUG("Zipping docs directory to %s" % docs_zip_file)
+
+            docs_path = '%s/docs' % lab_path
+            docs_zip_filelist = glob.glob('%s/*' % docs_path)
+            logger.DEBUG(docs_zip_filelist)
+
+            # docs.zip file
+            docs_zipoutput = zipfile.ZipFile(docs_zip_file, "w")
+            # Go to the docs_path
+            os.chdir(docs_path)
+            for docs_fname in docs_zip_filelist:
+                docs_basefname = os.path.basename(docs_fname)
+                docs_zipoutput.write(docs_basefname, compress_type=zipfile.ZIP_DEFLATED)
+                # Note: DO NOT remove after the file is zipped
+            docs_zipoutput.close()
+
+            # Add docs.zip into the ZipFileList
+            ZipFileList.append(docs_zip_file)
+
         # Combine all the zip files
         logger.DEBUG("ZipFileList is ")
         logger.DEBUG(ZipFileList)
         logger.DEBUG("baseZipFilename is (%s)" % baseZipFilename)
-        xfer_dir = "/home/%s/%s" % (username, host_home_xfer)
         combinedZipFilename = "%s/%s.zip" % (xfer_dir, baseZipFilename)
         logger.DEBUG("The combined zip filename is %s" % combinedZipFilename)
         zipoutput = zipfile.ZipFile(combinedZipFilename, "w")
