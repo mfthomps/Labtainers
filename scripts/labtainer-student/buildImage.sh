@@ -48,9 +48,11 @@ if [ ! -d $LABIMAGE_DIR ]; then
     exit
 fi
 #------------------------------------V
-imagecheck=$(docker search $registry/$labimage | grep $registry/$labimage)
-
-if [ ! -z "$imagecheck" ] && [ $force_build = "False" ]; then
+echo docker pull $registry/$labimage
+docker pull $registry/$labimage
+result=$?
+if [ "$result" == "0" ] && [ $force_build = "False" ]; then
+    imagecheck="YES"
     #create tmp folder
     if [ ! -d "$LAB_DIR/dockerfiles/tmp" ]; then
     	mkdir $LAB_DIR/dockerfiles/tmp
@@ -95,9 +97,7 @@ fi
 cd $LAB_TOP
 dfile=Dockerfile.$labimage
 #---------------------------------V
-#if [[ -f /etc/apt/sources.list  ]]; then
-#    cat /etc/apt/sources.list | awk '!/https/' > $LAB_DIR/dockerfiles/tmp/sources.list
-#fi
+
 if [ ! -z "$imagecheck" ] && [ $force_build = "False" ]; then 
     docker build --pull -f $LAB_DIR/dockerfiles/tmp/$dfile.tmp \
                  --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY \
