@@ -38,6 +38,23 @@ domain and is not subject to copyright.
 SUCCESS=0
 FAILURE=1
 
+# Create a directory path based on input path
+# Note: Do not create if the input path already exists as a directory
+#       If input path is a file, remove the file then create directory
+def createDirectoryPath(input_path):
+    # if it exist as a directory, do not delete (only delete if it is a file)
+    if os.path.exists(input_path):
+        # exists but is not a directory
+        if not os.path.isdir(input_path):
+            # remove file then create directory
+            os.remove(input_path)
+            os.makedirs(input_path)
+        #else:
+        #    logger.DEBUG("input_path directory (%s) exists" % input_path)
+    else:
+        # does not exists, create directory
+        os.makedirs(input_path)
+
 def is_valid_lab(lab_path):
     # Lab path must exist and must be a directory
     if os.path.exists(lab_path) and os.path.isdir(lab_path):
@@ -253,6 +270,79 @@ def ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname, 
         logger.ERROR("Failed to parameterize lab container %s!\n" % mycontainer_name)
         sys.exit(1)
     return user_email
+
+# Do InstDocsToHostDir - extract students' docs.zip if exist
+def InstDocsToHostDir(start_config, labtainer_config, lab_path, role, is_regress_test, quiet_start):
+    labname = start_config.labname
+    xfer_dir = os.path.join(labtainer_config.host_home_xfer, labname)
+    username = getpass.getuser()
+    host_home_xfer = '/home/%s/%s' % (username, xfer_dir)
+    logger.DEBUG("path to work with is (%s)" % host_home_xfer)
+    logger.DEBUG("labname is (%s)" % labname)
+    docsdir_created = False
+    docsdir_path = '%s/docs' % host_home_xfer
+
+    # create temporary directory
+    tmpdir = '%s/.tmpdir' % host_home_xfer
+    createDirectoryPath(tmpdir)
+
+    split_string = '.%s.zip' % labname
+
+    zip_filelist = glob.glob('%s/*.zip' % host_home_xfer)
+    logger.DEBUG("filenames is (%s)" % zip_filelist)
+    tmpdocszip = '%s/docs.zip' % tmpdir
+    # Process each zip file in host_home_xfer
+    for fname in zip_filelist:
+        ZipFileName = os.path.basename(fname)
+        # Note: at this point the ZipFileName should not have the 'containername' yet
+        #       the format should be <student_email>.<labname>.zip
+        logger.DEBUG("ZipFileName is (%s)" % ZipFileName)
+
+        # Try unpacking the zip file into temporary directory to check if docs.zip exist
+        zipoutput = zipfile.ZipFile(fname, "r")
+        ''' retain dates of student files '''
+        for zi in zipoutput.infolist():
+            zipoutput.extract(zi, tmpdir)
+            date_time = time.mktime(zi.date_time + (0, 0, -1))
+            dest = os.path.join(tmpdir, zi.filename)
+            os.utime(dest, (date_time, date_time))
+        zipoutput.close()
+
+        # If docs.zip exist
+        if os.path.exists(tmpdocszip):
+            # Time to create docs directory if it hasn't been created
+            if not docsdir_created:
+                docsdir_created = True
+                createDirectoryPath(docsdir_path)
+
+            # Note: at this point the ZipFileName should not have the 'containername' yet
+            #       the format should be <student_email>.<labname>.zip
+            splitlist = ZipFileName.split(split_string)
+            student_email = splitlist[0]
+            student_emaildir = '%s/%s' % (docsdir_path, student_email)
+            logger.DEBUG("student_email is (%s)" % student_email)
+            logger.DEBUG("student_emaildir is (%s)" % student_emaildir)
+
+            # Create student's e-mail directory (if it does not exist)
+            createDirectoryPath(student_emaildir)
+            # Unpacking the docs.zip file into student's e-mail directory
+            zipoutput = zipfile.ZipFile(tmpdocszip, "r")
+            ''' retain dates of student files '''
+            for zi in zipoutput.infolist():
+                zipoutput.extract(zi, student_emaildir)
+                date_time = time.mktime(zi.date_time + (0, 0, -1))
+                dest = os.path.join(student_emaildir, zi.filename)
+                os.utime(dest, (date_time, date_time))
+            zipoutput.close()
+
+        # remove and re-create temporary directory for the students' zip file
+        shutil.rmtree(tmpdir, ignore_errors=True)
+        os.makedirs(tmpdir)
+
+    # Finally done for all students' zip file in the host_home_xfer directory
+    # Final removal of temporary directory
+    shutil.rmtree(tmpdir, ignore_errors=True)
+
 
 # Copy Students' Artifacts from host to instructor's lab container
 def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_user, is_regress_test):
@@ -470,6 +560,8 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, qui
                 sys.exit(1)
 
         if role == 'instructor':
+            # Do InstDocsToHostDir - extract students' docs.zip if exist
+            InstDocsToHostDir(start_config, labtainer_config, lab_path, role, is_regress_test, quiet_start)
             '''
             Copy students' artifacts only to the container where 'Instructor.py' is
             to be run - where <labname>.grades.txt will later reside also (i.e., don't copy to all containers)
