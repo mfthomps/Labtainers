@@ -424,20 +424,29 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
                 #print('tag string is %s for eachkey %s' % (tagstring, each_key))
                 return True
             elif command == 'PARAM':
+                fname = os.path.basename(current_targetfname).rsplit('.',1)[0] 
+                if fname.endswith('stdin'):
+                    program_name = current_targetfname.rsplit('.', 1)[0]
+                else:
+                    logger.ERROR('PARAM only valid for stdin files: %s' % current_targetfname)
+                    sys.exit(1) 
                 if 'PROGRAM_ARGUMENTS' in targetlines[0]:
-                    s = targetlines[0]
-                    param_str = s[s.find("(")+1:s.find(")")]
-                    params = param_str.split()
                     try:
                         index = int(token_id) 
                     except:
                         logger.ERROR('could not parse int from %s' % token_id)
                         sys.exit(1)
-                    try:
-                        tagstring = params[index-1]
-                    except:
-                        logger.ERROR('did not find parameter %d in %s' % (index-1, param_str))
-                        sys.exit(1)
+                    if index == 0:
+                        tagstring = program_name
+                    else:
+                        s = targetlines[0]
+                        param_str = s[s.find("(")+1:s.find(")")]
+                        params = param_str.split()
+                        try:
+                            tagstring = params[index-1]
+                        except:
+                            logger.ERROR('did not find parameter %d in %s' % (index-1, param_str))
+                            sys.exit(1)
                     nametags[each_key] = tagstring
                     return True
             elif command == 'CONTAINS':
