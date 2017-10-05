@@ -30,6 +30,9 @@ class ParseStartConfig():
         self.grade_container = None # GRADE_CONTAINER - this is where the instructor performs the grading
         self.registry = None
         self.logger = logger
+        # COLLECT_DOCS - this optional setting indicates whether to collect lab's docs directory or not
+        # default to NO (i.e., do not collect)
+        self.collect_docs = None
 
         if not os.path.exists(fname):
             self.logger.ERROR("Config file %s does not exists!\n" % fname)
@@ -146,6 +149,15 @@ class ParseStartConfig():
             self.logger.ERROR("Unexpected caller of ParseStartConfig module %s\n" % self.caller)
             exit(1)
 
+        if not self.collect_docs:
+            # COLLECT_DOCS - this optional setting indicates whether to collect lab's docs directory or not
+            # default to NO (i.e., do not collect)
+            self.collect_docs = "no"
+        else:
+            if self.collect_docs != "yes" and self.collect_docs != "no":
+                self.logger.ERROR("Unexpected collect_docs value in ParseStartConfig module : %s\n" % self.collect_docs)
+                exit(1)
+        
         if not self.host_home_xfer:
             self.logger.ERROR("Missing host_home_xfer in start.config!\n")
             exit(1)
