@@ -6,4 +6,5 @@ And the spreadsheet is at
    file://LAB_DOCS/Collide1.xlsx
 
 You may open those files by right clicking
-and selected "Open link".
+and select "Open Link".
+
