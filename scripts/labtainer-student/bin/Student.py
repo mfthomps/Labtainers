@@ -63,12 +63,19 @@ def main():
     # Create temp zip file and zip everything under StudentHomeDir
     zipoutput = zipfile.ZipFile(TempOutputName, "w")
     udir = "/home/"+user_name
+    skip_list = []
+    skip_file = os.path.join(udir,'.local','config', 'home_tar.list')
+    if os.path.isfile(skip_file):
+        with open(skip_file) as fh:
+            for line in fh:
+                skip_list.append(line.strip())
     for rootdir, subdirs, files in os.walk(StudentHomeDir):
         newdir = rootdir.replace(udir, ".")
         for file in files:
             savefname = os.path.join(newdir, file)
             #print "savefname is %s" % savefname
-            zipoutput.write(savefname, compress_type=zipfile.ZIP_DEFLATED)
+            if savefname[2:] not in skip_list:
+                zipoutput.write(savefname, compress_type=zipfile.ZIP_DEFLATED)
     zipoutput.close()
    
     os.chmod(TempOutputName, 0666)
