@@ -8,7 +8,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     tcpdump \
     update-inetd \
-    xinetd
+    xinetd \
+    netcat-openbsd
 
 # step around app armor or whatever
 RUN sudo mv /usr/sbin/tcpdump /usr/bin/tcpdump
