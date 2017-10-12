@@ -86,6 +86,8 @@ else
     # ugly!
     rm -fr $TMP_DIR/_bin
     rm -fr $TMP_DIR/_system
+    rm -fr $TMP_DIR/home_tar
+    rm -fr $TMP_DIR/sys_tar
     cp $LAB_DIR/instr_config/* $TMP_DIR/.local/instr_config/ 2>>/dev/null
     cp $LAB_DIR/config/* $TMP_DIR/.local/config/ 2>>/dev/null
     cp config/* $TMP_DIR/.local/instr_config/ 2>>/dev/null
