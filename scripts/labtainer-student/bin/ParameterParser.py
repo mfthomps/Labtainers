@@ -21,11 +21,46 @@ import os
 import random
 import sys
 
+watermarkcreatelist = {}
 randreplacelist = {}
 hashcreatelist = {}
 hashreplacelist = {}
 paramlist = {}
 global container_name
+
+def WatermarkCreate(container_user, lab_instance_seed):
+    the_watermark_string = "LABTAINER_WATERMARK1"
+    # Create hash per the_watermark_string (note: there is only one watermark file for now)
+    string_to_be_hashed = '%s:%s' % (lab_instance_seed, the_watermark_string)
+    mymd5 = md5.new()
+    mymd5.update(string_to_be_hashed)
+    mymd5_hex_string = mymd5.hexdigest()
+    #print mymd5_hex_string
+
+    # Assume only one watermark file with filename /home/<container_user>/.local/.watermark
+    myfilename = '/home/%s/.local/.watermark' % container_user
+
+    # If file does not exist, create an empty file
+    if not os.path.exists(myfilename):
+        outfile = open(myfilename, 'w')
+        outfile.write('')
+        outfile.close()
+
+    # Only one watermark file for now
+    watermarkcreatelist[myfilename] = []
+    watermarkcreatelist[myfilename].append('%s' % mymd5_hex_string)
+
+    #print "Perform_WATERMARK_CREATE"
+    for (listfilename, createlist) in watermarkcreatelist.items():
+        filename = listfilename
+        #print "Current Filename is %s" % filename
+        #print "Watermark Create list is "
+        #print createlist
+        # open the file - write
+        outfile = open(filename, 'w')
+        for the_string in createlist:
+            outfile.write('%s\n' % the_string)
+        outfile.close()
 
 def CheckRandReplaceEntry(container_user, lab_instance_seed, param_id, each_value):
     # RAND_REPLACE : <filename> : <token> : <LowerBound> : <UpperBound>
@@ -372,6 +407,13 @@ def ParseParameterConfig(container_user, lab_instance_seed, configfilename):
     configfilelines = configfile.readlines()
     configfile.close()
   
+    #print "container_user is (%s)" % container_user
+    # If container_user is empty, then no need to create Watermark
+    # it must be an instructor container
+    if container_user != "":
+        #print "WATERMARK_CREATE"
+        WatermarkCreate(container_user, lab_instance_seed)
+
     for line in configfilelines:
         linestrip = line.rstrip()
         if linestrip:
