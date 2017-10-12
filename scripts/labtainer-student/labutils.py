@@ -1019,11 +1019,15 @@ def GatherOtherArtifacts(lab_path, name, container_name, container_user, ignore_
                         
 
 # RunInstructorCreateGradeFile
-def RunInstructorCreateGradeFile(container_name, container_user, labname):
+def RunInstructorCreateGradeFile(container_name, container_user, labname, is_regress_test):
     # Run 'instructor.py' - This will create '<labname>.grades.txt' 
     logger.DEBUG("About to call instructor.py container_name: %s container_user: %s" % (container_name, container_user))
     cmd_path = '/home/%s/.local/bin/instructor.py' % (container_user)
-    command=['docker', 'exec', '-i',  container_name, cmd_path]
+    if is_regress_test:
+        regression_testing = "True"
+    else:
+        regression_testing = "False"
+    command=['docker', 'exec', '-i',  container_name, cmd_path, regression_testing]
     logger.DEBUG('cmd: %s' % str(command))
     child = subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     error_string = child.stderr.read().strip()
@@ -1068,7 +1072,7 @@ def RegressTest(lab_path, role, standard, isFirstRun=False):
 
         if mycontainer_name == start_config.grade_container:
             logger.DEBUG('about to RunInstructorCreateDradeFile for container %s' % start_config.grade_container)
-            RunInstructorCreateGradeFile(start_config.grade_container, container_user, labname)
+            RunInstructorCreateGradeFile(start_config.grade_container, container_user, labname, is_regress_test)
 
     # Pass 'False' to ignore_stop_error (i.e., do not ignore error)
     result_xfer = StopLab(lab_path, role, False, is_regress_test)
