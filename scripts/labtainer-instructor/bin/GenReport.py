@@ -21,6 +21,23 @@ twentyequal = "="*20
 goalprintformat = ' %15s |'
 goalprintformat_int = ' %15d |'
 emailprintformat = '%20s |'
+cheateremailprintformat = ' %20s '
+
+# Check to make sure E-mail is OK and watermark matches
+def Check_Email_Watermark_OK(keyvalue):
+    check_result = True
+    if keyvalue['firstlevelzip'] != {}:
+        #print "Value of firstlevelzip is (%s)" % keyvalue['firstlevelzip']
+        check_result = False
+    elif keyvalue['secondlevelzip'] != {}:
+        #print "Value of secondlevelzip is (%s)" % keyvalue['secondlevelzip']
+        check_result = False
+    else:
+        if keyvalue['expectedwatermark'] != keyvalue['actualwatermark']:
+            #print "Watermark mismatch"
+            #print "expected (%s) vs actual (%s)" % (keyvalue['expectedwatermark'], keyvalue['actualwatermark'])
+            check_result = False
+    return check_result
 
 def ValidateLabGrades(labgrades):
     storedlabname = ""
@@ -39,6 +56,10 @@ def ValidateLabGrades(labgrades):
 
         currentgoalsline = ''
         currentbarline = ''
+
+        # Skip the one with failed_checks on Check_Email_Watermark_OK()
+        if not Check_Email_Watermark_OK(keyvalue):
+            continue
 
         #print "keyvalue is (%s)" % keyvalue
         for key, value in keyvalue.iteritems():
@@ -66,13 +87,49 @@ def ValidateLabGrades(labgrades):
 
     return storedlabname, storedgoalsline, storedbarline
 
-def PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline):
+def ReportCheater(gradestxtoutput, watermark_source, email, keyvalue, found_cheater):
+    cheaterheaderline = emailprintformat % 'Student' + " Source"
+    barline = emailprintformat % twentyequal + twentyequal
+    # Note: found_cheater is also used to print the 'Cheater' Header only once
+    if not found_cheater:
+        gradestxtoutput.write("\n\n" + cheaterheaderline + "\n" + barline + "\n")
+    curline = emailprintformat % email[:20]
 
-    gradestxtouput = open(gradestxtfile, "w")
+    if keyvalue['firstlevelzip'] != {}:
+        cheater_source = keyvalue['firstlevelzip']
+        source_email, labname = cheater_source.rsplit('.', 1)
+        sourceline = cheateremailprintformat % source_email[:20]
+        curline = curline + sourceline
+        gradestxtoutput.write(curline + "\n")
+    elif keyvalue['secondlevelzip'] != {}:
+        cheater_source = keyvalue['secondlevelzip']
+        source_email = cheater_source
+        sourceline = cheateremailprintformat % source_email[:20]
+        curline = curline + sourceline
+        gradestxtoutput.write(curline + "\n")
+    #print keyvalue['expectedwatermark']
+    #print keyvalue['actualwatermark']
+    elif keyvalue['expectedwatermark'] != keyvalue['actualwatermark']: 
+        found_source_email = "Unknown"
+        for source_email, source_watermark in watermark_source.iteritems():
+            #print source_email
+            #print source_watermark
+            if keyvalue['actualwatermark'] == source_watermark:
+                found_source_email = source_email
+                break
+        sourceline = cheateremailprintformat % found_source_email[:20]
+        curline = curline + sourceline
+        gradestxtoutput.write(curline + "\n")
+    else:
+        gradestxtoutput.write("\n")
+
+def PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, is_regress_test):
+
+    gradestxtoutput = open(gradestxtfile, "w")
     headerline = emailprintformat % 'Student' + goalsline
     barline = emailprintformat % twentyequal + barline
-    gradestxtouput.write("Labname %s" % labname)
-    gradestxtouput.write("\n\n" + headerline + "\n" + barline + "\n")
+    gradestxtoutput.write("Labname %s" % labname)
+    gradestxtoutput.write("\n\n" + headerline + "\n" + barline + "\n")
 
     for emaillabname, keyvalue in labgrades.iteritems():
         email, labname = emaillabname.rsplit('.', 1)
@@ -98,15 +155,43 @@ def PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline):
                             curline = curline + goalprintformat % ''
                     elif type(goalresult) is int:
                         curline = curline + goalprintformat_int % goalresult 
-        gradestxtouput.write(curline + "\n")
+        gradestxtoutput.write(curline + "\n")
 
-    gradestxtouput.close()
+    if not is_regress_test:
+        # Create 'Source' watermark
+        watermark_source = {}
+        for emaillabname, keyvalue in labgrades.iteritems():
+            email, labname = emaillabname.rsplit('.', 1)
+            # Do not use 'cheater' as source
+            if keyvalue['firstlevelzip'] == {} and keyvalue['secondlevelzip'] == {}:
+                if keyvalue['expectedwatermark'] != {}:
+                    if email not in watermark_source:
+                        watermark_source[email] = {}
+                    watermark_source[email] = keyvalue['expectedwatermark']
 
-# Usage: CreateReport <gradesjsonfile> <gradestxtfile>
+        #print watermark_source
+
+        # Report 'cheaters'
+        found_cheater = False
+        for emaillabname, keyvalue in labgrades.iteritems():
+            email, labname = emaillabname.rsplit('.', 1)
+
+            # Report the one with failed_checks on Check_Email_Watermark_OK()
+            if not Check_Email_Watermark_OK(keyvalue):
+                # There is at least one 'cheater' -- report them
+                ReportCheater(gradestxtoutput, watermark_source, email, keyvalue, found_cheater)
+                # Note: found_cheater is also used to print the 'Cheater' Header only once
+                found_cheater = True
+
+    gradestxtoutput.close()
+
+# Usage: CreateReport <gradesjsonfile> <gradestxtfile> <is_regress_test>
 # Arguments:
 #     <gradesjsonfile> - This is the input file <labname>.grades.json
 #     <gradestxtfile> - This is the output file <labname>.grades.txt
-def CreateReport(gradesjsonfile, gradestxtfile):
+#     <is_regress_test> - Whether this is regression testing or not
+#                         Note: no watermark checks during regression testing
+def CreateReport(gradesjsonfile, gradestxtfile, is_regress_test):
     if not os.path.exists(gradesjsonfile):
         sys.stderr.write("ERROR: missing grades.json file (%s)\n" % gradesjsonfile)
         sys.exit(1)
@@ -119,7 +204,7 @@ def CreateReport(gradesjsonfile, gradestxtfile):
 
     labname, goalsline, barline = ValidateLabGrades(labgrades)
 
-    PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline)
+    PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, is_regress_test)
 
 
 # Usage: GenReport.py <gradesjsonfile> <gradestxtfile>
@@ -134,7 +219,8 @@ def main():
 
     gradesjsonfile = sys.argv[1]
     gradestxtfile = sys.argv[2]
-    CreateReport(gradesjsonfile, gradestxtfile)
+    is_regress_test = False
+    CreateReport(gradesjsonfile, gradestxtfile, is_regress_test)
 
 if __name__ == '__main__':
     sys.exit(main())
