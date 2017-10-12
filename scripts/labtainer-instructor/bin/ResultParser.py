@@ -150,7 +150,6 @@ def ValidateConfigfile(studentlabdir, container_list, labidname, each_key, each_
     if ('stdin' not in progname_type) and ('stdout' not in progname_type):
         # Not stdin/stdout - add the full name
         logger.DEBUG('Not a STDIN or STDOUT: %s ' % progname_type)
-        print('Not a STDIN or STDOUT: %s ' % progname_type)
         if progname_type not in logfilelist:
             logfilelist.append(progname_type)
     else:
@@ -594,7 +593,11 @@ def ParseStdinStdout(studentlabdir, container_list, instructordir, labidname, lo
         if linestrip:
             if not linestrip.startswith('#'):
                 #print "Current linestrip is (%s)" % linestrip
-                (each_key, each_value) = linestrip.split('=', 1)
+                try:
+                    (each_key, each_value) = linestrip.split('=', 1)
+                except:
+                     logger.ERROR('missing "=" character in %s' % linestrip)
+                     exit(1)
                 each_key = each_key.strip()
                 ValidateConfigfile(studentlabdir, container_list, labidname, each_key, each_value, logger)
         #else:
@@ -618,11 +621,11 @@ def ParseStdinStdout(studentlabdir, container_list, instructordir, labidname, lo
         logger.DEBUG('check results for %s' % RESULTHOME)
         if not os.path.exists(RESULTHOME):
             ''' expected, some containers don't have local results '''
-            print('result directory %s does not exist' % RESULTHOME)
+            logger.DEBUG('result directory %s does not exist' % RESULTHOME)
             pass
             
         if mycontainername not in container_exec_proglist:
-            print('%s not in proglist %s' % (mycontainername, str(container_exec_proglist)))
+            logger.DEBUG('%s not in proglist %s' % (mycontainername, str(container_exec_proglist)))
             continue
 
         for exec_prog in container_exec_proglist[mycontainername]:

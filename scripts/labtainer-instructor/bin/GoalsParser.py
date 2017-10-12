@@ -233,7 +233,11 @@ def ParseGoals(studentdir, logger):
         if linestrip:
             if not linestrip.startswith('#'):
                 #print "Current linestrip is (%s)" % linestrip
-                (each_key, each_value) = linestrip.split('=', 1)
+                try:
+                    (each_key, each_value) = linestrip.split('=', 1)
+                except:
+                     logger.ERROR('goal lacks "=" character, %s' % linestrip)
+                     exit(1)
                 each_key = each_key.strip()
                 #print each_key
                 #print each_value
