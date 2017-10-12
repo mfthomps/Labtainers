@@ -24,7 +24,7 @@ import time
 import MyUtil
 from parse import *
 
-UBUNTUHOME = "/home/ubuntu/"
+MYHOME = os.getcwd()
 logfilelist = []
 container_exec_proglist = {}
 containernamelist = []
@@ -572,7 +572,7 @@ def ParseStdinStdout(studentlabdir, container_list, instructordir, labidname, lo
     ''' process all results files (ignore name of function) for a student.  These
         are distrbuted amongst multiple containers, per container_list.
     '''
-    configfilename = '%s/.local/instr_config/%s' % (UBUNTUHOME, "results.config")
+    configfilename = os.path.join(MYHOME,'.local','instr_config', 'results.config')
     configfile = open(configfilename)
     configfilelines = configfile.readlines()
     configfile.close()
