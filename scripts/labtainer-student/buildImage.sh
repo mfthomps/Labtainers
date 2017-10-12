@@ -84,6 +84,8 @@ else
     # ugly!
     rm -fr $TMP_DIR/_bin
     rm -fr $TMP_DIR/_system
+    rm -fr $TMP_DIR/home_tar
+    rm -fr $TMP_DIR/sys_tar
     mkdir $TMP_DIR/.local/result
     cd $TMP_DIR
     tar --atime-preserve -zcvf $LAB_TAR .
