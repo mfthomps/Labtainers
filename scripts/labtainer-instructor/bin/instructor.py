@@ -27,7 +27,7 @@ import GoalsParser
 import ResultParser
 import InstructorLogging
 
-UBUNTUHOME="/home/ubuntu"
+MYHOME=os.getcwd()
 logger = InstructorLogging.InstructorLogging("/tmp/instructor.log")
 def store_student_parameter(gradesjson, email_labname, student_parameter):
     #print('store_student_parameter email_labname %s student_parameter %s' % (email_labname, student_parameter))
@@ -65,15 +65,9 @@ def main():
     #print "Running Instructor.py"
 
     logger.INFO("Begin logging instructor.py")
-    instructorjsonfname = '%s/.local/instr_config/%s' % (UBUNTUHOME, "instructorlab.json")
-    instructorconfigjson = open(instructorjsonfname, "r")
-    instructorconfig = json.load(instructorconfigjson)
-    instructorconfigjson.close()
-
-    StudentHomeDir = '/home/ubuntu'
 
     if len(sys.argv) == 1:
-        lab_name_dir = '/home/ubuntu/.local/.labname'
+        lab_name_dir = os.path.join(MYHOME,'.local','.labname')
         if not os.path.isfile(lab_name_dir):
             print('ERROR: no file at %s, perhaps running instructor script on wrong containers?')
             logger.ERROR('no file at %s, perhaps running instructor script on wrong containers?')
@@ -84,10 +78,8 @@ def main():
     else:
         LabIDName = sys.argv[1]
 
-    InstructorName = instructorconfig['instructorname']
-    InstructorHomeDir = instructorconfig['instructorhomedir']
-    InstructorBaseDir = instructorconfig['instructorbasedir']
-    GraderScript = instructorconfig['graderscript']
+    # is this used?  
+    InstructorBaseDir = os.path.join(MYHOME, '.local', 'base')
 
     ''' dictionary of container lists keyed by student email_labname '''
     student_list = {}
@@ -109,12 +101,12 @@ def main():
     
     ''' unzip everything ''' 
     ''' First level unzip '''
-    zip_files = glob.glob(InstructorHomeDir+'/*.zip')
+    zip_files = glob.glob(MYHOME+'/*.zip')
     first_level_zip = []
     for zfile in zip_files:
         ZipFileName = os.path.basename(zfile)
         first_level_zip.append(ZipFileName)
-        OutputName = '%s%s' % (InstructorHomeDir, ZipFileName)
+        OutputName = os.path.join(MYHOME, ZipFileName)
         zipoutput = zipfile.ZipFile(OutputName, "r")
         ''' retain dates of student files '''
         for zi in zipoutput.infolist():
@@ -154,9 +146,9 @@ def main():
         #print('append container %s for student %s' % (containername, email_labname))
         logger.DEBUG('append container %s for student %s' % (containername, email_labname))
         OutputName = '%s/%s' % (TMPDIR, ZipFileName)
-        LabDirName = '%s%s' % (InstructorHomeDir, email_labname)
-        DestDirName = '%s%s' % (InstructorHomeDir, DestinationDirName)
-        InstDirName = '%s%s' % (InstructorBaseDir, DestinationDirName)
+        LabDirName = os.path.join(MYHOME, email_labname)
+        DestDirName = os.path.join(MYHOME, DestinationDirName)
+        InstDirName = os.path.join(InstructorBaseDir, DestinationDirName)
 
         #print "Student Lab list : "
         #print studentslablist
@@ -184,11 +176,11 @@ def main():
         # Call GoalsParser script to parse 'goals'
         ''' note odd hack, labinstance seed is stored on container, so need to fine one, use first '''
         DestinationDirName = '%s/%s' % (email_labname, student_list[email_labname][0])
-        DestDirName = '%s%s' % (InstructorHomeDir, DestinationDirName)
+        DestDirName =os.path.join(MYHOME, DestinationDirName)
         student_parameter = GoalsParser.ParseGoals(DestDirName, logger)
 
         # Call ResultParser script to parse students' result
-        LabDirName = '%s%s' % (InstructorHomeDir, email_labname)
+        LabDirName = os.path.join(MYHOME, email_labname)
         #print('call ResultParser for %s %s' % (email_labname, student_list[email_labname]))
         logger.DEBUG('call ResultParser for %s %s' % (email_labname, student_list[email_labname]))
         ResultParser.ParseStdinStdout(LabDirName, student_list[email_labname], InstDirName, LabIDName, logger)
@@ -198,7 +190,7 @@ def main():
 
     ''' assess the results and generate simple report '''
     for email_labname in student_list:
-        LabDirName = '%s%s' % (InstructorHomeDir, email_labname)
+        LabDirName = os.path.join(MYHOME, email_labname)
         grades = Grader.ProcessStudentLab(LabDirName, LabIDName, logger)
         student_id = email_labname.rsplit('.', 1)[0]
         LabIDStudentName = '%s : %s : ' % (LabIDName, student_id)
@@ -210,7 +202,7 @@ def main():
     #print gradesjson
 
     # Output <labname>.grades.json
-    gradesjsonname = '%s/%s.%s' % (UBUNTUHOME, LabIDName, "grades.json")
+    gradesjsonname = os.path.join(MYHOME, "%s.grades.json" % LabIDName)
     gradesjsonoutput = open(gradesjsonname, "w")
     try:
         jsondumpsoutput = json.dumps(gradesjson, indent=4)
@@ -223,7 +215,7 @@ def main():
     gradesjsonoutput.close()
 
     # Output <labname>.grades.txt
-    gradestxtname = '%s/%s.%s' % (UBUNTUHOME, LabIDName, "grades.txt")
+    gradestxtname = os.path.join(MYHOME, "%s.grades.txt" % LabIDName)
     GenReport.CreateReport(gradesjsonname, gradestxtname)
 
     # Inform user where the 'grades.txt' are created
