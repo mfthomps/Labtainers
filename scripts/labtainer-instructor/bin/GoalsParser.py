@@ -22,7 +22,7 @@ import sys
 import MyUtil
 import ParameterParser
 
-UBUNTUHOME = "/home/ubuntu/"
+MYHOME = os.getcwd()
 answer_tokens=['result', 'parameter', 'parameter_ascii']
 class MyGoal(object):
     """ Goal - goalid, goaltype, goaloperator, answertag, resulttag, boolean_string, goal1tag, goal2tag """
@@ -166,36 +166,40 @@ def generateSpecialTagValue(studentdir, target, finaltag):
 
     return returnTagValue
 
-def ValidateTag(parameter_list, studentdir, goal_type, inputtag, allowed_special_answer):
+def ValidateTag(parameter_list, studentdir, goal_type, inputtag, allowed_special_answer, logger):
     # if allowed_special_answer is true, then allow 'answer=<string>'
     # UNLESS if the goal_type is matchacross
     returntag = ""
     if '=' in inputtag:
         if not allowed_special_answer:
             sys.stderr.write("ERROR: goals.config only answertag is allowed answer=<string>, resulttag (%s) is not\n" % inputtag)
+            logger.ERROR("goals.config only answertag is allowed answer=<string>, resulttag (%s) is not\n" % inputtag)
             sys.exit(1)
         if goal_type == "matchacross":
             sys.stderr.write("ERROR: goals.config answer=<string> and goal_type==matchacross is not allowed\n")
+            logger.ERROR("goals.config answer=<string> and goal_type==matchacross is not allowed\n")
             sys.exit(1)
         (target, finaltag) = inputtag.split('=')
         returntag = getTagValue(parameter_list, target, finaltag)
-
+ 
+    elif inputtag.startswith('(') and inputtag.endswith(')'):
+        returntag = 'result.%s' % inputtag
     elif '.' in inputtag:
         #print "tag %s contains '.'" % inputtag
         (target, finaltag) = inputtag.split('.')
         if not target in answer_tokens:
-            sys.stderr.write("ERROR: goals.config tag=<string> then\n")
-            sys.stderr.write("       tag must be:(%s), got %s\n" % (','.join(answer_tokens), inputtag))
+            logger.ERROR("ERROR: goals.config tag=<string> then\n")
+            logger.ERROR("       tag must be:(%s), got %s\n" % (','.join(answer_tokens), inputtag))
             sys.exit(1)
         if not MyUtil.CheckAlphaDashUnder(finaltag):
-            sys.stderr.write("ERROR: Invalid characters in goals.config's tag (%s)\n" % inputtag)
+            logger.ERROR("Invalid characters in goals.config's tag (%s)\n" % inputtag)
             sys.exit(1)
 
         returntag = getTagValue(parameter_list, target, finaltag)
     else:
         #print "tag is %s" % inputtag
         if not MyUtil.CheckAlphaDashUnder(inputtag):
-            sys.stderr.write("ERROR: Invalid characters in goals.config's tag (%s)\n" % inputtag)
+            logger.ERROR("Invalid characters in goals.config's tag (%s)\n" % inputtag)
             sys.exit(1)
         returntag = 'result.%s' % inputtag
 
@@ -213,13 +217,13 @@ def GetLabInstanceSeed(studentdir):
 
 def ParseGoals(studentdir, logger):
     nametags = []
-    configfilename = '%s/.local/instr_config/%s' % (UBUNTUHOME, "goals.config")
+    configfilename = os.path.join(MYHOME,'.local','instr_config', 'goals.config')
     configfile = open(configfilename)
     configfilelines = configfile.readlines()
     configfile.close()
     lab_instance_seed = GetLabInstanceSeed(studentdir)
     container_user = ""
-    param_filename = os.path.join(UBUNTUHOME, '.local', 'config',
+    param_filename = os.path.join(MYHOME, '.local', 'config',
           'parameter.config')
     parameter_list = {}
     parameter_list = ParameterParser.ParseParameterConfig(container_user, lab_instance_seed, param_filename)
@@ -234,8 +238,7 @@ def ParseGoals(studentdir, logger):
                 #print each_key
                 #print each_value
                 if not MyUtil.CheckAlphaDashUnder(each_key):
-                    sys.stderr.write("ERROR: Invalid characters in goals.config's key (%s)\n" % each_key)
-                    logger.ERROR("ERROR: Invalid characters in goals.config's key (%s)\n" % each_key)
+                    logger.ERROR("Invalid characters in goals.config's key (%s)\n" % each_key)
                     sys.exit(1)
                 if len(each_key) > 15:
                     print("WARNING: goal (%s) is more than 15 characters long\n" % each_key)
@@ -260,11 +263,14 @@ def ParseGoals(studentdir, logger):
                     resulttag = values[2].strip()
                     answertag = values[3].strip()
                     # Allowed 'answer=<string>' for answertag only
-                    valid_answertag = ValidateTag(parameter_list, studentdir, goal_type, answertag, True)
-                    valid_resulttag = ValidateTag(parameter_list, studentdir, goal_type, resulttag, False)
+                    valid_answertag = ValidateTag(parameter_list, studentdir, goal_type, answertag, True,
+                       logger)
+                    valid_resulttag = ValidateTag(parameter_list, studentdir, goal_type, resulttag, False,
+                       logger)
                     if not (goal_type == "matchany" or
                         goal_type == "matchlast" or
                         goal_type == "matchacross" or
+                        goal_type == "count" or
                         goal_type == "execute"):
                         sys.stderr.write("ERROR: goals.config contains unrecognized type (1) (%s)\n" % goal_type)
                         sys.exit(1)
@@ -281,7 +287,7 @@ def ParseGoals(studentdir, logger):
                             sys.exit(1)
                     else:
                         # Make sure the file to be executed exist
-                        execfile = '%s/.local/bin/%s' % (UBUNTUHOME, goal_operator)
+                        execfile = os.path.join(MYHOME, '.local', 'bin', goal_operator)
                         if not (os.path.exists(execfile) and os.path.isfile(execfile)):
                             sys.stderr.write("ERROR: goals.config contains execute goals with missing exec file (%s)\n" % goal_operator)
                             sys.exit(1)

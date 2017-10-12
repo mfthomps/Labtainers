@@ -51,9 +51,11 @@ if [ ! -d $LABIMAGE_DIR ]; then
 fi
 
 #-----------------------------------V
-imagecheck=$(docker search $registry/$labimage | grep $registry/$labimage)
-
-if [ ! -z "$imagecheck" ] && [ $force_build = "False" ]; then
+echo docker pull $registry/$labimage
+docker pull $registry/$labimage
+result=$?
+if [ "$result" == "0" ] && [ $force_build = "False" ]; then
+    imagecheck="YES"
     #create tmp folder
     if [ ! -d "$LAB_DIR/dockerfiles/tmp" ]; then
     	mkdir $LAB_DIR/dockerfiles/tmp
@@ -63,6 +65,7 @@ if [ ! -z "$imagecheck" ] && [ $force_build = "False" ]; then
 else
     ORIG_PWD=`pwd`
     echo $ORIG_PWD
+    ../labtainer-student/checkTars.sh $LAB_DIR
     LAB_TAR=$LAB_DIR/$labimage.tar.gz
     SYS_TAR=$LAB_DIR/sys_$labimage.tar.gz
     TMP_DIR=/tmp/$labimage

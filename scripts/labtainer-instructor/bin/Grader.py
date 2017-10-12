@@ -10,7 +10,7 @@ domain and is not subject to copyright.
 '''
 
 # Grader.py
-# Description: Read instructorlab.json and grade the student lab work
+# Description: Grade the student lab work
 
 import collections
 import filecmp
@@ -22,10 +22,10 @@ import subprocess
 import ast
 import string
 import evalBoolean
+import evalExpress
 import InstructorLogging
 
 
-UBUNTUHOME="/home/ubuntu/"
 default_timestamp = 'default-NONE'
 def compare_time_during(goal1timestamp, goal2timestamp):
     goal1start, goal1end = goal1timestamp.split('-')
@@ -351,16 +351,39 @@ def processMatchAcross(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
         #print "processMatchAcross failed"
         add_goals_id_ts(goalid, fulltimestamp, False, goals_id_ts, goals_ts_id)
 
+def handle_expression(resulttag, json_output, logger):
+    result = 'NONE'
+    if resulttag.startswith('(') and resulttag.endswith(')'):
+        express = resulttag[resulttag.find("(")+1:resulttag.find(")")]
+        for tag in json_output:
+            logger.DEBUG('is tag %s in express %s' % (tag, express))
+            if tag in express:
+                if json_output[tag] != 'NONE':
+                    express = express.replace(tag, json_output[tag])
+                else:
+                    return 'NONE'
+        try:
+            logger.DEBUG('try eval of <%s>' % express)
+            result = evalExpress.eval_expr(express)
+        except:
+            logger.ERROR('could not evaluation %s, which became %s' % (resulttag, express))
+            sys.exit(1)
+    else:
+        logger.ERROR('handleExpress called with %s, expected expression in parens' % resulttag)
+    return result
+
+        
 def processMatchAny(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id, logger):
     #print "Inside processMatchAny"
+    logger.DEBUG("Inside processMatchAny")
     found = False
     goalid = eachgoal['goalid']
     #print goalid
     jsonanswertag = eachgoal['answertag']
-    #print jsonanswertag
+    logger.DEBUG('jsonanswertag %s' % jsonanswertag)
     jsonresulttag = eachgoal['resulttag']
     (resulttagtarget, resulttag) = jsonresulttag.split('.')
-    #print jsonresulttag
+    logger.DEBUG('jsonresulttag %s' % jsonresulttag)
     # Handle special case 'answer=<string>'
     one_answer = False
     if '=' in jsonanswertag:
@@ -377,7 +400,7 @@ def processMatchAny(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id, logger):
 
     # for processMatchAny - Process all files regardless of match found or not found
     for outputjsonfile in outjsonfnames:
-        #print "processMatchAny: outputjsonfile is (%s)" % outputjsonfile
+        logger.DEBUG("processMatchAny: outputjsonfile is (%s)" % outputjsonfile)
         #print "processMatchAny Output json %s" % outputjsonfile
         # Use rsplit to get the timestamppart
         if outputjsonfile.endswith("student"):
@@ -393,21 +416,25 @@ def processMatchAny(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id, logger):
             # empty - skip
             continue
 
-        try:
-            resulttagresult = jsonoutput[resulttag]
-        except KeyError:
-            #print('processMatchAny: %s not found in file %s' % (resulttag, outputjsonfile))
-            continue
+        if resulttag.startswith('('):
+            resulttagresult = str(handle_expression(resulttag, jsonoutput, logger))
+            logger.DEBUG('from handle_expression, got %s' % resulttagresult)
+        else:
+            try:
+                resulttagresult = jsonoutput[resulttag]
+            except KeyError:
+                logger.DEBUG('%s not found in file %s' % (resulttag, outputjsonfile))
+                continue
         
         #print resulttagresult
         try:
             timestampend = jsonoutput['PROGRAM_ENDTIME']
         except KeyError:
-            print('processMatchAny: PROGRAM_ENDTIME not found in file %s' % outputjsonfile)
+            logger.ERROR('processMatchAny: PROGRAM_ENDTIME not found in file %s' % outputjsonfile)
             exit(1)
         fulltimestamp = '%s-%s' % (timestamppart, timestampend)
         if one_answer:
-            #print "Correct answer is (%s) result (%s)" % (current_onlyanswer, resulttagresult)
+            logger.DEBUG("Correct answer is (%s) result (%s)" % (current_onlyanswer, resulttagresult))
             found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
             add_goals_id_ts(goalid, fulltimestamp, found, goals_id_ts, goals_ts_id)
         else:
@@ -416,7 +443,7 @@ def processMatchAny(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id, logger):
                 sys.exit(1)
             answertagresult = jsonoutput[answertagstring]
             current_answer = answertagresult.strip()
-            #print "Correct answer is (%s) result (%s)" % (current_answer, resulttagresult)
+            logger.DEBUG("Correct answer is (%s) result (%s)" % (current_answer, resulttagresult))
             found = compare_result_answer(resulttagresult, current_answer, eachgoal['goaloperator'])
             add_goals_id_ts(goalid, fulltimestamp, found, goals_id_ts, goals_ts_id)
  
@@ -428,11 +455,11 @@ def processCount(outjsonfnames, eachgoal, grades, logger):
     jsonanswertag = eachgoal['answertag']
     #print jsonanswertag
     resulttag = eachgoal['resulttag']
+    if resulttag.startswith('result.'):
+       resulttag = resulttag[len('result.'):]
  
-    # for processMatchAny - Process all files regardless of match found or not found
     for outputjsonfile in outjsonfnames:
         #print "processCount: outputjsonfile is (%s)" % outputjsonfile
-        #print "processMatchAny Output json %s" % outputjsonfile
         # Use rsplit to get the timestamppart
         if outputjsonfile.endswith("student"):
             filenamepart = outputjsonfile
@@ -448,10 +475,42 @@ def processCount(outjsonfnames, eachgoal, grades, logger):
         try:
             resulttagresult = jsonoutput[resulttag]
         except KeyError:
-            #print('processMatchAny: %s not found in file %s' % (resulttag, outputjsonfile))
+            #print('processCount: %s not found in file %s' % (resulttag, outputjsonfile))
             continue
         if resulttagresult != 'NONE':        
-            count += 1
+            if 'goaloperator' in eachgoal and len(eachgoal['goaloperator']) > 0:
+                jsonanswertag = eachgoal['answertag']
+                #print jsonanswertag
+                jsonresulttag = eachgoal['resulttag']
+                print 'tag is %s' %  jsonresulttag
+                #(resulttagtarget, resulttag) = jsonresulttag.split('.')
+                #print jsonresulttag
+                # Handle special case 'answer=<string>'
+                one_answer = False
+                if '=' in jsonanswertag:
+                    (answertag, onlyanswer) = jsonanswertag.split('=')
+                    current_onlyanswer = onlyanswer.strip()
+                    # Change to one_answer = True
+                    one_answer = True
+                    #print "Current onlyanswer is (%s)" % current_onlyanswer
+                else:
+                    (use_target, answertagstring) = jsonanswertag.split('.')
+                    #print use_target
+                    #print answertagstring
+                if one_answer:
+                    #print "Correct answer is (%s) result (%s)" % (current_onlyanswer, resulttagresult)
+                    found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
+                else:
+                    if answertagstring not in jsonoutput:
+                        logger.ERROR('%s not in jsonoutput %s' % (answertagstring, str(jsonoutput)))
+                        sys.exit(1)
+                    answertagresult = jsonoutput[answertagstring]
+                    current_answer = answertagresult.strip()
+                    found = compare_result_answer(resulttagresult, current_answer, eachgoal['goaloperator'])
+                if found:
+                    count += 1
+            else:
+                count += 1
     #print 'count is %d' % count
     grades[goalid] = count
 
