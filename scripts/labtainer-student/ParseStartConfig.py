@@ -154,7 +154,7 @@ class ParseStartConfig():
             # default to NO (i.e., do not collect)
             self.collect_docs = "no"
         else:
-            if self.collect_docs != "yes" and self.collect_docs != "no":
+            if self.collect_docs.lower() != "yes" and self.collect_docs.lower() != "no":
                 self.logger.ERROR("Unexpected collect_docs value in ParseStartConfig module : %s\n" % self.collect_docs)
                 exit(1)
         
