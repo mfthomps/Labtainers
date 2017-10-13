@@ -696,20 +696,20 @@ def processTemporal(eachgoal, goals_id_ts, goals_ts_id):
     #print('processTemporal %s' % goalid)
     add_goals_id_ts(goalid, default_timestamp, evalTimeResult, goals_id_ts, goals_ts_id)
 
-def processBoolean(eachgoal, goals_id_ts, goals_ts_id):
+def processBoolean(eachgoal, goals_id_ts, goals_ts_id, logger):
     t_string = eachgoal['boolean_string']
     evalBooleanResult = None
     goalid = eachgoal['goalid']
     # Process all goals_ts_id dictionary
     for timestamppart, current_goals in goals_ts_id.iteritems():
         if timestamppart != default_timestamp:
-            #print('eval %s against %s tspart %s' % (t_string, str(current_goals), timestamppart))
-            evalBooleanResult = evalBoolean.evaluate_boolean_expression(t_string, current_goals)
+            logger.DEBUG('eval %s against %s tspart %s' % (t_string, str(current_goals), timestamppart))
+            evalBooleanResult = evalBoolean.evaluate_boolean_expression(t_string, current_goals, logger)
             if evalBooleanResult is not None:
                 add_goals_id_ts(goalid, timestamppart, evalBooleanResult, goals_id_ts, goals_ts_id)
     # if evalBooleanResult is None - means not found
     if evalBooleanResult is None:
-        #print('processBoolean is None, goalid %s goal_id_ts %s' % (goalid, goals_id_ts))
+        logger.DEBUG('processBoolean is None, goalid %s goal_id_ts %s' % (goalid, goals_id_ts))
         add_goals_id_ts(goalid, default_timestamp, False, goals_id_ts, goals_ts_id)
 
 # Process Lab Exercise
@@ -752,7 +752,7 @@ def processLabExercise(studentlabdir, labidname, grades, goals, goals_id_ts, goa
         elif eachgoal['goaltype'] == "execute":
             processExecute(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id)
         elif eachgoal['goaltype'] == "boolean":
-            processBoolean(eachgoal, goals_id_ts, goals_ts_id)
+            processBoolean(eachgoal, goals_id_ts, goals_ts_id, logger)
         elif eachgoal['goaltype'] == "time_before" or \
              eachgoal['goaltype'] == "time_during":
             processTemporal(eachgoal, goals_id_ts, goals_ts_id)
