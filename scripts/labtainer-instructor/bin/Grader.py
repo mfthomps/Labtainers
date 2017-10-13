@@ -140,7 +140,10 @@ def getJsonOut(outputjsonfile):
         old = jsonoutput[key]
         new = ast.literal_eval(old)
         if new is not None:
-            new_filtered = filter(lambda x: x in string.printable, new)
+            if type(new) is str:
+                new_filtered = filter(lambda x: x in string.printable, new)
+            else:
+                new_filtered = new
         else:
             new_filtered = "NONE"
         jsonoutput[key] = new_filtered
@@ -151,6 +154,9 @@ def getJsonOut(outputjsonfile):
 def compare_result_answer(current_result, current_answer, operator):
     found = False
     result_int = None
+    # current_result may be an int, so turn to string first so
+    # we can change it back!
+    current_result = str(current_result)
     if "integer" in operator:
         try:
             if current_result.startswith('0x'):
@@ -446,6 +452,41 @@ def processMatchAny(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id, logger):
             logger.DEBUG("Correct answer is (%s) result (%s)" % (current_answer, resulttagresult))
             found = compare_result_answer(resulttagresult, current_answer, eachgoal['goaloperator'])
             add_goals_id_ts(goalid, fulltimestamp, found, goals_id_ts, goals_ts_id)
+
+def processValue(outjsonfnames, eachgoal, grades, logger):
+    ''' assign the grade the most recent non-NONE result '''
+    goalid = eachgoal['goalid']
+    #print goalid
+    jsonanswertag = eachgoal['answertag']
+    #print jsonanswertag
+    resulttag = eachgoal['resulttag']
+    if resulttag.startswith('result.'):
+       resulttag = resulttag[len('result.'):]
+
+    value = 'NONE' 
+    for outputjsonfile in outjsonfnames:
+        #print "processCount: outputjsonfile is (%s)" % outputjsonfile
+        # Use rsplit to get the timestamppart
+        if outputjsonfile.endswith("student"):
+            filenamepart = outputjsonfile
+            timestamppart = "default"
+        else:
+            (filenamepart, timestamppart) = outputjsonfile.rsplit('.', 1)
+        jsonoutput = getJsonOut(outputjsonfile)
+
+        if jsonoutput == {}:
+            # empty - skip
+            continue
+
+        try:
+            resulttagresult = jsonoutput[resulttag]
+        except KeyError:
+            #print('processCount: %s not found in file %s' % (resulttag, outputjsonfile))
+            continue
+        if resulttagresult != 'NONE':        
+            value = resulttagresult
+    #print 'count is %d' % count
+    grades[goalid] = value
  
 def processCount(outjsonfnames, eachgoal, grades, logger):
     #print "Inside processCount"
@@ -760,6 +801,8 @@ def processLabExercise(studentlabdir, labidname, grades, goals, goals_id_ts, goa
             processCountGreater(eachgoal, goals_id_ts, goals_ts_id)
         elif eachgoal['goaltype'] == "count":
             processCount(outjsonfnames, eachgoal, grades, logger)
+        elif eachgoal['goaltype'] == "value":
+            processValue(outjsonfnames, eachgoal, grades, logger)
         elif eachgoal['goaltype'].startswith('is_'):
             processTrueFalse(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id)
         else:
