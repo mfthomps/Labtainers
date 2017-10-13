@@ -56,6 +56,9 @@ treatlocal(){
        local_output=""
        # Get the list of commands from treataslocal
        while read cmdlocal; do
+           if [[ $cmdlocal == \#* ]]; then
+               continue
+           fi
            read -r -a cmd_array <<< "$cmdlocal"
            the_command=${cmd_array[0]}
            #echo "the command $the_command"
