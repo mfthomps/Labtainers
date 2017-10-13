@@ -308,6 +308,8 @@ where zip files should be gathered for assessment.
 address to create an instance seed that controls parameterization of individual student labs.
 \item REGISTRY [registry] -- The id of the Docker Hub registry that is to contain the lab images.
 See \ref{publishing} for details on the use of this keyword.
+\item COLLECT\_DOCS [yes | no] -- Optional directive to collect lab/docs content as part of student artifacts.
+These are then available to the instructor in the labtainer\_xfer directory.  Also see \ref{instructions}.
 \end{itemize}
 
 \item NETWORK [network name] -- One of these sections is require for each network within the lab.  In addition to
@@ -408,7 +410,7 @@ which will then fork services, e.g., the sshd, per the /etc/xinet.d/ configurati
 can be extended (or replaced) as needed by the lab.  The example telnetlab illustrates the use of this script
 to provide network services.
 
-\subsection {Instructions for Students}
+\subsection {Instructions for Students} \label{instructions}
 Lab instructions for students can be displayed in a virtual terminal by placing an
 "instructions.txt" file within the home directory of one of the containers.  Refer to existing
 labs for conventions.  Additionally, textual message can be displayed to the student before any 
@@ -418,8 +420,15 @@ of the lab virtual terminals are created.  Any text within the
 \end{verbatim}
 \noindent file will be displayed on the Linux host in the terminal in which the student
 starts the lab.  Any "LAB\_MANUAL" string in that file will be replaced with the full path
-to a [labname].pdf file within that same docs directory.  One intended use is to prompt the
+to a [labname].pdf file within that same docs directory.  And "LAB\_DOCS" is replaced by the
+path to the lab docs directory.  One intended use is to prompt the
 student to open a PDF lab manual and perhaps read parts of it prior to continuing with the lab.
+Another intended use is to display the path to a reporting template that a student is to use
+for answering lab-specific questions and note taking.  If the name of the symbols are prefaced
+by "file://", then the paths will display as links that can be opened via a right click.
+If the start.config file includes "COLLECT\_DOCS YES", the content of the lab/docs directory will be
+included with the student artifacts and available extracted into the intstrutor's labtainer\_xfer/[lab]
+directory.
 
 \subsection {Running programs in Virtual Terminals}
 The "XTERM" section in the 
@@ -547,6 +556,8 @@ The parameter\_id fields may be referenced during the automated grading function
 This section describes how to configure a lab for automated assessment of student work.
 Note the framework does not require that labs include automated assessment, e.g., the
 "results" of a lab may consist entirely of a written report submitted by the student.
+Support for automated collection of written reports is described in \ref{instructions}
+and the use of COLLECT\_DOCS in the start.config file.
 
 The goal of automated assessment is to provide instructors with some confidence that 
 students performed the lab, and to give instructors insight into which parts
@@ -559,18 +570,44 @@ may have done in the course of the lab.
 The framework's automated assessment functions generally assume the student will interact with one or
 more programs or system utilities.  Each time the student invokes a selected program or utility, the 
 framework captures copies of standard input and standard output, (stdin and stdout) into timestamped file sets.
-This is transparent to the student.  These timestamped file sets, and everything else relative to
+This is transparent to the student.  (Also see the discussion of the "treataslocal" file for capturing
+program output other than stdout.)  These timestamped file sets, and everything else relative to
 the student's home directory, are automatically packaged when the student completes the lab.
 These packages of artifacts are then transferred to the instructor, (e.g., via email or a CLE), and 
 ingested into the instructor's system where lab assessment occurs.
 
 The stdin and stdout for all non-system programs is captured, e.g., the results of an "ls" command
-are not captured.  The stdin and stdout of selected system programs will be captured if the program
-names appear in the \textit{treataslocal} file at
+are not captured.  The stdin and stdout of system programs will be captured if the program
+names appear at the beginning of a line in the \textit{treataslocal} file at
 \begin{verbatim}
     $LABTAINER_DIR/labs/[labname]/[container name]/_bin/treataslocal
 \end{verbatim}
 \noindent System utilties should include their full path, e.g., "/usr/bin/nmap".
+
+The treataslocal file program identifiers can include optional output file identifiers that
+cause timestamped copies of specified files to be made whenever the program is invoked.  
+If program file output from local programs is to be captured in timestamp files (in addition
+to the stdout and stdin), simply include those program names in the treataslocal file.
+These identifiers are of the form:
+\begin{verbatim}
+    delim_type:delim_value
+        where delim_type is one of:
+            starts -- the output file name is derived from the 
+            substring following the given delim_value within the 
+            command line typed by the student.  For example, 
+            "dd starts:of=" for a "dd in=myfs.img of=newfile" 
+            would yield an output file name of "newfile".
+     
+            follows -- the output file name is the command line 
+            token following the given delim_value.  For example, 
+            "myprogram follows:myprogram" for a command line of
+            "myprogram outfile" would yield "outfile" as the output 
+             file name.
+
+            file -- the delim_value is the output file name
+\end{verbatim}
+\noindent The resulting timestamped files are located with the stdin and stdout files in .local/result
+
 Non-system programs can be excluded from stdin/stdout capturing by including their names in
 a "ignorelocal" file in that same directory.
 
