@@ -182,29 +182,24 @@ def main():
 
     # Default to is_regress_test to False
     is_regress_test = False
-    if len(sys.argv) == 2:
-        lab_name_dir = os.path.join(MYHOME,'.local','.labname')
-        if not os.path.isfile(lab_name_dir):
-            print('ERROR: no file at %s, perhaps running instructor script on wrong containers?')
-            logger.ERROR('no file at %s, perhaps running instructor script on wrong containers?')
-            exit(1)
+    lab_name_dir = os.path.join(MYHOME,'.local','.labname')
+    if not os.path.isfile(lab_name_dir):
+        logger.ERROR('no file at %s, perhaps running instructor script on wrong containers?')
+        exit(1)
 
-        with open(lab_name_dir) as fh:
-            LabIDName = fh.read().strip()
+    with open(lab_name_dir) as fh:
+        LabIDName = fh.read().strip()
+    regress_test_argument=None
+    if len(sys.argv) > 1:
         regress_test_argument = str(sys.argv[1]).upper()
-    else:
-        print('Usage: instructor.py <is_regress_test>')
-        logger.ERROR('Usage: instructor.py <is_regress_test>')
-        exit(1)
 
-    if regress_test_argument == "TRUE":
-        is_regress_test = True
-    elif regress_test_argument == "FALSE":
-        is_regress_test = False
-    else:
-        print('Usage: instructor.py "True|False"')
-        logger.ERROR('Usage: instructor.py "True|False"')
-        exit(1)
+        if regress_test_argument == "TRUE":
+            is_regress_test = True
+        elif regress_test_argument == "FALSE":
+            is_regress_test = False
+        else:
+            logger.ERROR('Usage: instructor.py "[True|False]"')
+            exit(1)
 
     # is this used?  
     InstructorBaseDir = os.path.join(MYHOME, '.local', 'base')
@@ -243,6 +238,8 @@ def main():
         ''' retain dates of student files '''
         for zi in zipoutput.infolist():
             zname = zi.filename
+            if zname == 'docs.zip':
+                continue
             second_email_labname, second_containername = zname.rsplit('=', 1)
             # Mismatch e-mail name at first level
             if orig_email_labname != second_email_labname:
