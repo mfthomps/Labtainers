@@ -26,7 +26,7 @@ GLOBAL_SETTINGS
 
         # Uncomment the following to cause the content of the lab/docs directory
         # to be collected and included in the student artifacts.
-        # COLLECT_DOCS=YES
+        # COLLECT_DOCS YES
 
 # SUBNETS.  Here is where you define subnets that will be available to the containers.
 # Each subnet is assiged a name, a mask and gateway, as in the following example:
