@@ -31,7 +31,8 @@ containernamelist = []
 stdinfnameslist = []
 stdoutfnameslist = []
 timestamplist = {}
-line_types = ['CONTAINS', 'LINE', 'STARTSWITH', 'NEXT_STARTSWITH', 'HAVESTRING', 'LINE_COUNT', 'PARAM']
+line_types = ['CONTAINS', 'LINE', 'STARTSWITH', 'NEXT_STARTSWITH', 'HAVESTRING', 
+              'LINE_COUNT', 'PARAM', 'STRING_COUNT']
 just_field_type = ['LINE_COUNT']
 logger = None
 
@@ -87,7 +88,8 @@ def ValidateConfigfile(studentlabdir, container_list, labidname, each_key, each_
     '''
     Misleading name, this function populates a set of global structures used in processign the results
     '''
-    valid_field_types = ['TOKEN', 'PARENS', 'QUOTES', 'SLASH', 'LINE_COUNT', 'CONTAINS', 'SEARCH', 'PARAM']
+    valid_field_types = ['TOKEN', 'PARENS', 'QUOTES', 'SLASH', 'LINE_COUNT', 'CONTAINS', 
+                         'SEARCH', 'PARAM', 'STRING_COUNT']
     if not MyUtil.CheckAlphaDashUnder(each_key):
         sys.stderr.write("ERROR: Not allowed characters in results.config's key (%s)\n" % each_key)
         sys.exit(1)
@@ -387,8 +389,7 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
         if not os.path.exists(current_targetfname):
             # If file does not exist, treat as can't find token
             token = "NONE"
-            #sys.stderr.write("ERROR: No %s file does not exist\n" % current_targetfname)
-            logger.DEBUG("ERROR: No %s file does not exist\n" % current_targetfname)
+            logger.DEBUG("No %s file does not exist\n" % current_targetfname)
             #sys.exit(1)
             nametags[each_key] = token
             return False
@@ -419,9 +420,7 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
                 if found_lookupstring == False:
                     linerequested = "NONE"
             elif command == 'LINE_COUNT':
-                tagstring = str(targetfilelen)
-                nametags[each_key] = tagstring
-                #print('tag string is %s for eachkey %s' % (tagstring, each_key))
+                nametags[each_key] = targetfilelen
                 return True
             elif command == 'PARAM':
                 fname = os.path.basename(current_targetfname).rsplit('.',1)[0] 
@@ -477,6 +476,18 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
                     if found_lookupstring == False:
                         linerequested = "NONE"
 
+            elif command == 'STRING_COUNT':
+                ''' search entire file, vice searching for line '''
+                remain = line.split(command,1)[1]
+                remain = remain.split(':', 1)[1].strip()
+                count=0
+                for currentline in targetlines:
+                    #print('look for <%s> in %s' % (remain, currentline))
+                    if remain in currentline:
+                        count += 1
+                nametags[each_key] = count
+                #print('tag string is %s for eachkey %s' % (tagstring, each_key))
+                return True
 
             elif command == 'STARTSWITH':
                 #print('is startswith')
