@@ -40,6 +40,7 @@ redirect_sym=">"
 append_sym=">>"
 full=$1
 counter=$2
+timestamp=$3
 #echo $full
 #
 # Look for redirect, and remove from command
@@ -114,7 +115,6 @@ fi
 #echo "PROGRAM_ARGUMENTS is ($PROGRAM_ARGUMENTS)"
 #echo "Program to execute is $EXECPROG"
 #echo "basename of $EXECPROG is $PROGNAME"
-timestamp=$(date +"%Y%m%d%H%M%S")
 stdinfile="$HOME/.local/result/$PROGNAME.stdin.$timestamp"
 stdoutfile="$HOME/.local/result/$PROGNAME.stdout.$timestamp"
 
