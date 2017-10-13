@@ -10,7 +10,7 @@ domain and is not subject to copyright.
 END
 
 # remove exited containers:
-docker ps --filter status=dead --filter status=exited -aq | xargs -r docker rm -v
+docker ps --filter status=dead -aq | xargs -r docker rm -v
     
 # remove unused images:
 docker images --no-trunc | grep '<none>' | awk '{ print $3 }' | xargs -r docker rmi
