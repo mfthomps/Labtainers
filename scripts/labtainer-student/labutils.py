@@ -1236,6 +1236,7 @@ def DoStopOne(start_config, labtainer_config, mycwd, lab_path, role, name, conta
                 # kill bash login scripts so history is gathered.  TBD better cleanup
                 command = 'docker exec %s sudo /sbin/shutdown_container 2>/dev/null' % (mycontainer_name)
                 os.system(command)
+                time.sleep(1)
                 GatherOtherArtifacts(lab_path, name, mycontainer_name, container_user, ignore_stop_error)
                 # Before stopping a container, run 'Student.py'
                 # This will create zip file of the result
