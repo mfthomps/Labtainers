@@ -275,6 +275,7 @@ def ParseGoals(studentdir, logger):
                         goal_type == "matchlast" or
                         goal_type == "matchacross" or
                         goal_type == "count" or
+                        goal_type == "value" or
                         goal_type == "execute"):
                         sys.stderr.write("ERROR: goals.config contains unrecognized type (1) (%s)\n" % goal_type)
                         sys.exit(1)
@@ -324,7 +325,7 @@ def ParseGoals(studentdir, logger):
                         resulttag = values[1].strip()
                         #print('parsegoals type is %s result %s' % (goal_type, resulttag))
                         nametags.append(MyGoal(each_key, goal_type, resulttag=resulttag))
-                    elif goal_type == 'count':
+                    elif goal_type == 'count' or goal_type == 'value':
                         resulttag = values[1].strip()
                         nametags.append(MyGoal(each_key, goal_type, resulttag=resulttag))
                     elif goal_type == 'count_greater':
