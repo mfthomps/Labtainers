@@ -1307,7 +1307,7 @@ def DoStop(start_config, labtainer_config, mycwd, lab_path, role, ignore_stop_er
         xfer_dir = "/home/%s/%s" % (username, host_home_xfer)
 
         # Create docs.zip in xfer_dir if COLLECT_DOCS is "yes"
-        if start_config.collect_docs == "yes":
+        if start_config.collect_docs.lower() == "yes":
             docs_zip_file = "%s/docs.zip" % xfer_dir
             logger.DEBUG("Zipping docs directory to %s" % docs_zip_file)
 
