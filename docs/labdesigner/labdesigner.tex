@@ -309,7 +309,7 @@ address to create an instance seed that controls parameterization of individual 
 \item REGISTRY [registry] -- The id of the Docker Hub registry that is to contain the lab images.
 See \ref{publishing} for details on the use of this keyword.
 \item COLLECT\_DOCS [yes/no] -- Optional directive to collect lab/docs content as part of student artifacts.
-These are then available to the instructor in the labtainer\_xfer directory.  Also see \ref{instructions}.
+These are then available to the instructor in the labtainer\_xfer/[lab]/docs directory.  Also see \ref{instructions}.
 \end{itemize}
 
 \item NETWORK [network name] -- One of these sections is require for each network within the lab.  In addition to
@@ -427,8 +427,8 @@ Another intended use is to display the path to a reporting template that a stude
 for answering lab-specific questions and note taking.  If the name of the symbols are prefaced
 by "file://", then the paths will display as links that can be opened via a right click.
 If the start.config file includes "COLLECT\_DOCS YES", the content of the lab/docs directory will be
-included with the student artifacts and available extracted into the intstrutor's labtainer\_xfer/[lab]
-directory.
+included with the student artifacts and available extracted into the intstrutor's 
+labtainer\_xfer/[lab]/docs directory.
 
 \subsection {Running programs in Virtual Terminals}
 The "XTERM" section in the 
@@ -654,24 +654,26 @@ Entries within the results.config file each have the following format:
                    i.e., *.stdin is for all stdin artifacts and *.stdout is for all 
                    stdout artifacts.
             field_type - Optional, defaults to "TOKEN", possible values include:
-                TOKEN      -- Treat the line as space-delimited tokens
-                PARENS     -- The desired value is contained in parenthesis
-                QUOTES     -- The desired value is contained in parenthesis
-                SLASH      -- The desired value is contained within slashes, 
-                              e.g., /foo/
-                LINE_COUNT -- The quantity of lines in the file. Remaining fields 
-                              are ignored.
-                CONTAINS   -- The value of nametag will be set to true if the file 
-                              contains the string represented in field_id.
-                PARAM      -- The value of the nametag will be set to nth parameter
-                              (0 is the program name), provided in the 
-                              program invocation.  
-                              
-                SEARCH     -- The value nametag will be set to the search resulting
-                              from the given field_id, which is treated as an
-                              expression having the syntax of pythons parse.search 
-                              function.  E.g., "frame.number=={:d}" would 
-                              yield the frame number.
+               TOKEN      -- Treat the line as space-delimited tokens
+               PARENS     -- The desired value is contained in parenthesis
+               QUOTES     -- The desired value is contained in parenthesis
+               SLASH      -- The desired value is contained within slashes, 
+                             e.g., /foo/
+               LINE_COUNT -- The quantity of lines in the file. Remaining fields 
+                             are ignored.
+               CONTAINS   -- The value of nametag will be set to true if the file 
+                             contains the string represented in field_id.
+               STRING_COUNT--The value of nametag will be set to the quantity of
+                             occurances of the string represented in field_id.
+               PARAM      -- The value of the nametag will be set to nth parameter
+                             (0 is the program name), provided in the 
+                             program invocation.  
+                             
+               SEARCH     -- The value nametag will be set to the search resulting
+                             from the given field_id, which is treated as an
+                             expression having the syntax of pythons parse.search 
+                             function.  E.g., "frame.number=={:d}" would 
+                             yield the frame number.
                               
             field_id -- An integer identifying the nth occurance of the field type.
                         Alternately may be "LAST" for the last occurance of the 
@@ -799,6 +801,8 @@ with the framework.
                          the given resulttag.  Otherwise the goal value is assigned the
                          quantity of occurances that satisfy the given operator and
                          arguments.
+         'value'       - The goal value is assigned the given resulttag value from
+                         the most recent timestamped file that satisfies the resulttag.
  
 <operator> - the following operators evaluate to TRUE as described below:
    'string_equal' -  The strings derived from <answertag> and <resulttag>
@@ -846,15 +850,13 @@ with the framework.
          Note that values derived from the parameters.config file are assigned the same values as
          were assigned when the lab was parameterized for the student.
 
-\subsection{Example Simple Parameterization and Grading}
+\subsection{Simple Parameterization for Checking Own-work}
 The simplest, though by no means robust, strategy for ensuring students
 have turned in their own work, (vice getting a zip file from a friend and simply
-changing the name of the file), is to watermark some file on one of the containers.
-An example of this technique is seen in the "iptables" lab.  Specifically, the
-student\_watermark entry in results.config, the own\_work entry in goals.config,
-the DIGESTFILE entry in the config/params.config and finally, the filetodigest.txt
-file on the server.  (Our to-do list includes building this feature into all labs
-so that designer need not separately add it.)
+changing the name of the file), is to individualize some file on one of the containers,
+and then check that file and the archive file names during grading.  The framework does
+this automatically and reports on any student archive that does not seem to have
+originated from a Labtainer initiated with that student's email address"
 
 \section{Networking}
 Most networking is simply a matter of defining networks and assigning them to containers
