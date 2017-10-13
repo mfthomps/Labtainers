@@ -93,7 +93,7 @@ def ValidateConfigfile(studentlabdir, container_list, labidname, each_key, each_
         sys.exit(1)
     values = []
     # expecting:
-    # . - [ stdin | stdout ] : [<field_type>] : <field_id> :  <line_type1> : <line_id>
+    # . - [ stdin | stdout | prgout ] : [<field_type>] : <field_id> :  <line_type1> : <line_id>
     #    field_type = (a valid_field_type defined above)
     #    field_value is a numeric identifying the nth field of the given type
     #    line_type1 = LINE | STARTSWITH | NEXT_STARTSWITH | HAVESTRING
@@ -129,7 +129,8 @@ def ValidateConfigfile(studentlabdir, container_list, labidname, each_key, each_
         if len(container_list) > 1:
             logger.ERROR('No container name found in multi container lab entry: %s' % newprogname_type)
             exit(1)
-        if newprogname_type.endswith('stdin') or newprogname_type.endswith('stdout'):
+        if newprogname_type.endswith('stdin') or newprogname_type.endswith('stdout') \
+             or newprogname_type.endswith('prgout'):
             cfgcontainername = container_list[0].split('.')[1]
             #print('assigned to %s' % cfgcontainername)
         else:
@@ -147,7 +148,7 @@ def ValidateConfigfile(studentlabdir, container_list, labidname, each_key, each_
 
     logger.DEBUG('Start to populate exec_program_list, progname_type is %s' % progname_type)
     # No longer restricted to stdin/stdout filenames anymore
-    if ('stdin' not in progname_type) and ('stdout' not in progname_type):
+    if ('stdin' not in progname_type) and ('stdout' not in progname_type) and ('prgout' not in progname_type):
         # Not stdin/stdout - add the full name
         logger.DEBUG('Not a STDIN or STDOUT: %s ' % progname_type)
         if progname_type not in logfilelist:
@@ -631,6 +632,7 @@ def ParseStdinStdout(studentlabdir, container_list, instructordir, labidname, lo
         for exec_prog in container_exec_proglist[mycontainername]:
             stdinfiles = '%s%s.%s.' % (RESULTHOME, exec_prog, "stdin")
             stdoutfiles = '%s%s.%s.' % (RESULTHOME, exec_prog, "stdout")
+            prgoutfiles = '%s%s.%s.' % (RESULTHOME, exec_prog, "prgout")
             logger.DEBUG('stdin %s stdout %s' % (stdinfiles, stdoutfiles))
             #print stdinfiles
             #print stdoutfiles
@@ -648,11 +650,16 @@ def ParseStdinStdout(studentlabdir, container_list, instructordir, labidname, lo
                 for stdoutfnames in globstdoutfnames:
                     #print stdoutfnames
                     stdoutfnameslist.append(stdoutfnames)
+            globprgoutfnames = glob.glob('%s*' % prgoutfiles)
+            if globprgoutfnames != []:
+                for prgoutfnames in globprgoutfnames:
+                    stdoutfnameslist.append(prgoutfnames)
 
         for stdoutfname in stdoutfnameslist:
+            # the only purpose of this is to establish the timestamp dictionary
+            # only stdout is looked at.
             #print('for stdout %s' % stdoutfname)
             for exec_prog in container_exec_proglist[mycontainername]:
-                stdinfiles = '%s%s.%s.' % (RESULTHOME, exec_prog, "stdin")
                 stdoutfiles = '%s%s.%s.' % (RESULTHOME, exec_prog, "stdout")
                 if stdoutfiles in stdoutfname:
                     #print "match"
