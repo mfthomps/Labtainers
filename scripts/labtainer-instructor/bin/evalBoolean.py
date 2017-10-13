@@ -117,7 +117,7 @@ def nested_bool_eval(s):
     """
     return formatted_bool_eval(create_token_lst(s))
 
-def evaluate_boolean_expression(s, the_dict):
+def evaluate_boolean_expression(s, the_dict, logger):
     left = s.count('(')
     right = s.count(')')
     if left != right:
@@ -133,7 +133,7 @@ def evaluate_boolean_expression(s, the_dict):
     for t in tokens:
         remains = remains.replace(t,'')
     if len(remains.strip()) > 0:
-        #print('ERROR: boolean expression %s, unknown token(s): %s' % (s, remains))
+        logger.DEBUG('ERROR: boolean expression %s, unknown token(s): %s' % (s, remains))
         return None
     
     return nested_bool_eval(s) 
