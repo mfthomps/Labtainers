@@ -23,11 +23,12 @@ RUN apt-get install -y --no-install-recommends wireshark tshark
 
 ADD $labdir/sys_$lab.tar.gz /
 
-USER ubuntu
-ENV HOME /home/ubuntu
+RUN useradd -ms /bin/bash $user_name
+RUN echo "$user_name:$user_name" | chpasswd
+RUN adduser $user_name sudo
+USER $user_name
+ENV HOME /home/$user_name
 ADD $labdir/$lab.tar.gz $HOME
-RUN chown -R ubuntu:ubuntu /home/ubuntu
-
 #
 # the faux_init script starts the rsyslog daemon & the xinetd
 #
