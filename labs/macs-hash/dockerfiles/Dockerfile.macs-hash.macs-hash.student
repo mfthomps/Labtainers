@@ -37,6 +37,9 @@ ADD $labdir/sys_$lab.tar.gz /
 #  **** Perform all root operations, e.g.,           ****
 #  **** "apt-get install" prior to the USER command. ****
 #
+RUN useradd -ms /bin/bash $user_name
+RUN echo "$user_name:$user_name" | chpasswd
+RUN adduser $user_name sudo
 USER $user_name
 ENV HOME /home/$user_name
 #

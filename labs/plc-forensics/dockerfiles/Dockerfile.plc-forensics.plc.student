@@ -23,10 +23,9 @@ RUN echo "$user_name:$user_name" | chpasswd
 RUN chown -R $user_name:$user_name /home/$user_name
 RUN adduser $user_name sudo
 
+USER $user_name
 ENV HOME /home/$user_name
 ADD $labdir/$lab.tar.gz $HOME
-RUN chown -R $user_name:$user_name /home/$user_name
-USER $user_name
 
 #
 # the faux_init script starts the rsyslog daemon & the xinetd
