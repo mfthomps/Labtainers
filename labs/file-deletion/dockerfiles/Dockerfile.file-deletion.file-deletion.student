@@ -32,8 +32,6 @@ ARG apt_source
 #
 ADD $labdir/sys_$lab.tar.gz /
 #
-# Uncomment 3 lines if user other than ubuntu defined in start.config
-# and the chown after the tar adds
 RUN useradd -ms /bin/bash $user_name
 RUN echo "$user_name:$user_name" | chpasswd
 RUN adduser $user_name sudo
@@ -49,7 +47,6 @@ ENV HOME /home/$user_name
 # Install files in the user home directory
 #
 ADD $labdir/$lab.tar.gz $HOME
-#RUN sudo chown -R $user_name:$user_name /home/$user_name
 #
 #  The first thing that executes on the container.
 #
