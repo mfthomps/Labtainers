@@ -3,6 +3,7 @@ MAINTAINER jkhosali@nps.edu
 ARG lab
 ARG labdir
 ARG imagedir
+ARG user_name
 ARG apt_source
 
 RUN echo "# This secret file is generated when container is created" >> /root/.secret
@@ -12,9 +13,11 @@ ADD $labdir/sys_$lab.tar.gz /
 RUN sed -i s/archive.ubuntu.com/$apt_source/ /etc/apt/sources.list
 RUN apt-get update && apt-get install -y --no-install-recommends \
 	zsh
-
-USER ubuntu
-ENV HOME /home/ubuntu
+RUN useradd -ms /bin/bash $user_name
+RUN echo "$user_name:$user_name" | chpasswd
+RUN adduser $user_name sudo
+USER $user_name
+ENV HOME /home/$user_name
 ADD $labdir/$lab.tar.gz $HOME
 RUN echo "# This secret file is generated when container is created" >> $HOME/.secret
 RUN echo "# The user secret string below will be replaced with a keyed hash" >> $HOME/.secret

@@ -5,20 +5,17 @@ ARG labdir
 ARG imagedir
 ARG user_name
 ARG apt_source
-RUN sed -i s/archive.ubuntu.com/$apt_source/ /etc/apt/sources.list
 
-RUN apt-get update && apt-get install -y --no-install-recommends nmap
-RUN apt-get update && apt-get install -y --no-install-recommends telnet
+RUN apt-get update && apt-get install -y --no-install-recommends nmap telnet
 
 ADD $labdir/sys_$lab.tar.gz /
+
 RUN useradd -ms /bin/bash $user_name
 RUN echo "$user_name:$user_name" | chpasswd
 RUN chown -R $user_name:$user_name /home/$user_name
 RUN adduser $user_name sudo
 
-ENV HOME /home/$user_name
-
-ADD $labdir/$lab.tar.gz $HOME
-RUN chown -R $user_name:$user_name /home/$user_name
 USER $user_name
+ENV HOME /home/$user_name
+ADD $labdir/$lab.tar.gz $HOME
 ENTRYPOINT sudo /sbin/faux_init && bash
