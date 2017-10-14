@@ -5,7 +5,6 @@ ARG labdir
 ARG imagedir
 ARG user_name
 ARG apt_source
-RUN sed -i s/archive.ubuntu.com/$apt_source/ /etc/apt/sources.list
 ADD $labdir/sys_$lab.tar.gz /
 ENV DEBIAN_FRONTEND noninteractive
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
@@ -16,8 +15,7 @@ RUN echo "$user_name:$user_name" | chpasswd
 RUN chown -R $user_name:$user_name /home/$user_name
 RUN adduser $user_name sudo
 
+USER $user_name
 ENV HOME /home/$user_name
 ADD $labdir/$lab.tar.gz $HOME
-RUN chown -R $user_name:$user_name /home/$user_name
-USER $user_name
 ENTRYPOINT sudo /sbin/faux_init && bash
