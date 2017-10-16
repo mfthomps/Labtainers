@@ -1273,7 +1273,7 @@ def DoStop(start_config, labtainer_config, mycwd, lab_path, role, ignore_stop_er
     for name, container in start_config.containers.items():
         mycontainer_name = '%s.%s.%s' % (labname, container.name, role)
         if is_regress_test and mycontainer_name != start_config.grade_container:
-            print('compare %s to %s' % (mycontainer_name, start_config.grade_container))
+            #print('compare %s to %s' % (mycontainer_name, start_config.grade_container))
             continue
 
         #DoStopOne(start_config, labtainer_config, mycwd, labname, role, name, container, ZipFileList)
