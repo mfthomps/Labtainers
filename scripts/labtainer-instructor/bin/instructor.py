@@ -28,7 +28,7 @@ import GoalsParser
 import ResultParser
 import InstructorLogging
 
-MYHOME=os.getcwd()
+MYHOME=os.getenv('HOME')
 logger = InstructorLogging.InstructorLogging("/tmp/instructor.log")
 
 def store_student_watermark(gradesjson, email_labname, actual_watermark, expected_watermark):
@@ -182,9 +182,10 @@ def main():
 
     # Default to is_regress_test to False
     is_regress_test = False
+    logger.DEBUG('MYHOME is %s' % MYHOME)
     lab_name_dir = os.path.join(MYHOME,'.local','.labname')
     if not os.path.isfile(lab_name_dir):
-        logger.ERROR('no file at %s, perhaps running instructor script on wrong containers?')
+        logger.ERROR('no file at %s, perhaps running instructor script on wrong containers?' % lab_name_dir)
         exit(1)
 
     with open(lab_name_dir) as fh:
