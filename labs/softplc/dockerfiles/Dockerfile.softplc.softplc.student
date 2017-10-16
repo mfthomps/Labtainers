@@ -14,6 +14,7 @@ ARG lab
 ARG labdir
 ARG imagedir
 ARG user_name
+ADD $labdir/$imagedir/sys_tar/sys.tar /
 ADD $labdir/sys_$lab.tar.gz /
 
 # Need nodejs to start OpenPLC server
