@@ -24,7 +24,7 @@ import time
 import MyUtil
 from parse import *
 
-MYHOME = os.getcwd()
+MYHOME = os.getenv('HOME')
 logfilelist = []
 container_exec_proglist = {}
 containernamelist = []
