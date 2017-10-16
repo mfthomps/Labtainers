@@ -28,7 +28,7 @@ for f in $tar_list; do
                     touch $tar_name
                 else
                     if [[ $f == "home_tar" ]]; then
-                        tar czvf $tar_name * > ../../config/home_tar.list
+                        tar czf $tar_name * > ../../config/home_tar.list
                     else
                         tar czf $tar_name *
                     fi
@@ -42,7 +42,7 @@ for f in $tar_list; do
                     echo "replace tar"
                     rm $tar_name 2> /dev/null
                     if [[ $f == "home_tar" ]]; then
-                        tar czvf $tar_name * >> ../../config/home_tar.list
+                        tar czf $tar_name * >> ../../config/home_tar.list
                     else
                         tar czf $tar_name *
                     fi
