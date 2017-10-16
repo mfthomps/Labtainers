@@ -46,7 +46,7 @@ ENV HOME /home/$user_name
 # Install files in the user home directory
 #
 ADD $labdir/$lab.tar.gz $HOME
-ADD $labdir/home_tar/home.tar $HOME
+ADD $labdir/$imagedir/home_tar/home.tar $HOME
 
 RUN sudo chown -R $user_name:$user_name /home/$user_name
 #
