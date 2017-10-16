@@ -369,7 +369,7 @@ Each initial Dockerfile from the templates include this line:
 \end{verbatim}
 to accomplish the copying. Except as noted below, Dockerfile should not include any other ADD commands
 to copy files to the HOME directory.
-\subsubsection{Large or numerous files in the home directory}
+\subsubsection{Large or numerous files in the home directory} \label{large files}
 If there are large sized, or a high quantity of files that are to be placed relative to a 
 container home directory, those should be placed into a "home\_tar" directory at:
 \begin{verbatim}
@@ -888,7 +888,7 @@ address.  Additionally, those baseline images include a \textit{togglegw.sh} scr
 can use to toggle the default gateway between one that leads to the host, and one defined for the lab.
 This allows students to add packages on components having lab-specific default gateways.
 
-\section{Building and Publishing Labs} \label{publishing}
+\section{Building, Maintaining and Publishing Labs} \label{publishing}
 Typically, when a Labtainer is started, the container's associated Docker images are pulled from
 the Docker Hub if they are not already local on the Linux host.  When building and editing labs,
 the designer desires to run images reflecting recent changes that have been made.  The framework
@@ -897,12 +897,24 @@ and it will rebuild those images, (using the Docker build command).  The framewo
 rebuld those images that have changed.  The designer can force the rebuild of all images within
 a lab by appending the "-f" switch to the end of the "rebuild.py" command.
 
-If you build a new Labtainer lab, the container images will not be on the Dcker Hub unless you put
-them there.  In such a case, each student's computer will rebuild your lab when they go to run it.
+If you build a new Labtainer lab, the container images will not be on the Docker Hub unless you put
+them there.  If they are not on the hub, each student's computer will rebuild your lab when they go to run it.
 While this is fully functional, the build time may distract from performance of the lab.  If you
 create your own public repository on the Docker Hub (https://hub.docker.com/), you can populate that
 with your lab(s) by setting the "REGSITRY\_ID" value in the start.config file for the lab(s). You
 would then use the distrib/publish.py script to build, tag and push your lab to your registry.
+
+The distrib/mkdist.sh script is used by NPS to create the distribution tar file.  This script relies on
+an internal NPS subversion repository as the source to the Labtainer scripts and labs.  The distrib/publish.py
+script is used to rebuild and publish all of the Labtainer labs managed by NPS.
+
+\subsection{Reuse of large file sets}
+The use of "sys\_tar" desribed in \ref{large files} facilitates sharing of common
+baselines of large or numerous files.  New labs should use symbolic links to
+existing sys\_tar/sys.tar files.  The framework will replace these  symbolic links
+with the actual tar files, (to satisfy Docker), whenever a lab is built.  However, when
+maintained in svn, the designer should ensure the file is a symbolic link.  This will
+avoid duplication of the files when a new distribution is created.
 
 \section{Ubuntu Package Sources}
 Labtainer images built on Ubuntu use apt-get to install packages.  Some enterprise environments have 
