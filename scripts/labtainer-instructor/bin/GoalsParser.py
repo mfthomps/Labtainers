@@ -22,7 +22,7 @@ import sys
 import MyUtil
 import ParameterParser
 
-MYHOME = os.getcwd()
+MYHOME = os.getenv('HOME')
 answer_tokens=['result', 'parameter', 'parameter_ascii']
 class MyGoal(object):
     """ Goal - goalid, goaltype, goaloperator, answertag, resulttag, boolean_string, goal1tag, goal2tag """
