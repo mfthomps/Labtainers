@@ -373,16 +373,16 @@ to copy files to the HOME directory.
 If there are large sized, or a high quantity of files that are to be placed relative to a 
 container home directory, those should be placed into a "home\_tar" directory at:
 \begin{verbatim}
-    $LABTAINER_DIR/labs/[labname]/[container_name]/home_tar
+    $LABTAINER_DIR/labs/[labname]/[container_name]/home_tar/
 \end{verbatim}
-\noindent and the Dockerfile should include an ADD command that names "home\_tar/home.tar".
-Use of this technique prevents these files from being collected as student artifacts, which
+\noindent Use of this technique prevents these files from being collected as student artifacts, which
 otherwise include copies of everything relative to the home directory.  This
-can save considerable time and space, e.g., on the instructor's computer who must collect
+can save considerable time and space, e.g., on the instructor's computer that must collect
 all student artifacts.
 The individual files should exist in the home\_tar directory, and the framework automatically
 creates the tar file for transfer to the Docker image, (and will do so if an existing tar file
 is older than any file in the directory).
+
 
 \subsection{Lab-specific system files}
 All files in the
@@ -396,8 +396,19 @@ The initial Dockerfile from the templates include this line:
 \begin{verbatim}
     ADD \$labdir/sys_\$lab.tar.gz /
 \end{verbatim}
-to accomplish the copying. The Dockerfile should not include any other ADD commands
-to copy system files.
+\noindent to accomplish the copying. 
+If a lab contains a large quantity of system files, or large files, those
+can be placed into the directory named:
+\begin{verbatim}
+    $LABTAINER_DIR/labs/[labname]/[container name]/sys_tar
+\end{verbatim}
+either as individual files, or in a "sys.tar" archive.  In the former case,
+the framework will automatically create the sys.tar file.  This technique 
+can save time in building lab images becauase the files do not need to be 
+archived for each build.  
+
+In general, files modified and maintained by the designer should go into the
+\_system directory while static system files should go into the sys\_tar directory.
 
 \subsection {System services}
 The Dockerfile "ENTRYPOINT" command can be used to start a system service.  The general Docker 
