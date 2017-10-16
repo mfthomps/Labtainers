@@ -35,7 +35,7 @@ for f in $tar_list; do
                 fi
             else
                 # has a tar file
-                f_list=$(ls -lt)
+                f_list=$(ls -t)
                 f_array=($f_list)
                 len=${#f_array[@]}
                 if [[ $len -gt 1 ]] && [[ $tar_name -ot ${f_array[1]} ]] ; then
@@ -46,6 +46,11 @@ for f in $tar_list; do
                     else
                         tar czf $tar_name *
                     fi
+                elif [[ $len -eq 1 ]] && [[ -h $f_list ]]; then
+                    # just this tar, and is a sym link, copy actual file
+                    echo just this tar, and is a sym link, copy actual file
+                    cp $f_list tmp.tar
+                    mv tmp.tar $f_list
                 else
                     echo tar is newer
                 fi
