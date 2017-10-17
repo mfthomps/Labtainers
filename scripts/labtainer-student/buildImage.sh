@@ -42,11 +42,6 @@ if [ ! -d $LAB_DIR ]; then
     echo "$LAB_DIR not found as a lab directory"
     exit
 fi
-LABIMAGE_DIR=$LAB_TOP/$lab/$imagename/
-if [ ! -d $LABIMAGE_DIR ]; then
-    echo "$LABIMAGE_DIR not found"
-    exit
-fi
 #------------------------------------V
 echo docker pull $registry/$labimage
 docker pull $registry/$labimage
@@ -59,6 +54,11 @@ if [ "$result" == "0" ] && [ $force_build = "False" ]; then
 else
     echo "Please wait while the lab is built"
     sleep 3
+    LABIMAGE_DIR=$LAB_TOP/$lab/$imagename/
+    if [ ! -d $LABIMAGE_DIR ]; then
+        echo "$LABIMAGE_DIR not found"
+        exit
+    fi
     ORIG_PWD=`pwd`
     echo $ORIG_PWD
     # make sure home_tar exists, even if empty
