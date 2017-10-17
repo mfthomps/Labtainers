@@ -44,11 +44,6 @@ if [ ! -d $LAB_DIR ]; then
     echo "$LAB_DIR not found as a lab directory"
     exit
 fi
-LABIMAGE_DIR=$LAB_TOP/$lab/$imagename/
-if [ ! -d $LABIMAGE_DIR ]; then
-    echo "$LABIMAGE_DIR not found"
-    exit
-fi
 
 #-----------------------------------V
 echo docker pull $registry/$labimage
@@ -56,13 +51,15 @@ docker pull $registry/$labimage
 result=$?
 if [ "$result" == "0" ] && [ $force_build = "False" ]; then
     imagecheck="YES"
-    #create tmp folder
-    if [ ! -d "$LAB_DIR/dockerfiles/tmp" ]; then
-    	mkdir $LAB_DIR/dockerfiles/tmp
-    fi
+    mkdir -p $LAB_DIR/dockerfiles/tmp
     #create tmp file
     echo "FROM $registry/$labimage" > $LAB_DIR/dockerfiles/tmp/Dockerfile.$labimage.tmp
 else
+    LABIMAGE_DIR=$LAB_TOP/$lab/$imagename/
+    if [ ! -d $LABIMAGE_DIR ]; then
+        echo "$LABIMAGE_DIR not found"
+        exit
+    fi
     ORIG_PWD=`pwd`
     echo $ORIG_PWD
     ../labtainer-student/checkTars.sh $LAB_DIR
