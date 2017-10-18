@@ -10,15 +10,6 @@ domain and is not subject to copyright.
 END
 # parameterize.sh
 #
-# Usage: parameterize.sh <LAB_INSTANCE_SEED>
-# Arguments:
-#     <LAB_INSTANCE_SEED> -- laboratory instance seed
-# 
-# Description:
-# 1. Call ParameterParser.py (passing $LAB_INSTANCE_SEED)
-# 2. If file .local/bin/fixlocal.sh exist, run it
-
-#echo "Parameterizing laboratory"
 
 # Configuration variables
 LAB_SEEDFILE="$HOME/.local/.seed"
@@ -34,10 +25,11 @@ mkdir "$LOCKDIR" >/dev/null 2>&1
 #echo "number of argument is $#"
 #echo "argument is $@"
 
-if [ $# -ne 5 ]
+if [ $# -ne 6 ]
 then
     echo "Usage: parameterize.sh <CONTAINER_USER> <LAB_INSTANCE_SEED> <USER_EMAIL> <LAB_NAME> <CONTAINER_NAME>"
     echo "       <CONTAINER_USER> -- username of the container"
+    echo "       <CONTAINER_PASSWORD> -- password for username of the container"
     echo "       <LAB_INSTANCE_SEED> -- laboratory instance seed"
     echo "       <USER_EMAIL> -- user's e-mail"
     echo "       <LAB_NAME> -- name of the lab"
@@ -46,10 +38,11 @@ then
 fi
 
 CONTAINER_USER=$1
-LAB_INSTANCE_SEED=$2
-USER_EMAIL=$3
-LAB_NAME=$4
-CONTAINER_NAME=$5
+CONTAINER_PASSWORD=$2
+LAB_INSTANCE_SEED=$3
+USER_EMAIL=$4
+LAB_NAME=$5
+CONTAINER_NAME=$6
 
 # Laboratory instance seed is always stored in $LAB_SEEDFILE
 echo "$LAB_INSTANCE_SEED" > $LAB_SEEDFILE
@@ -59,9 +52,9 @@ echo "$LAB_NAME" > $LAB_NAMEFILE
 echo "" > $WATERMARK_NAMEFILE
 
 # call ParameterParser.py (passing $LAB_INSTANCE_SEED)
-sudo $HOME/.local/bin/ParameterParser.py $CONTAINER_USER $LAB_INSTANCE_SEED $CONTAINER_NAME $LAB_PARAMCONFIGFILE
+echo $CONTAINER_PASSWORD | sudo -S $HOME/.local/bin/ParameterParser.py $CONTAINER_USER $LAB_INSTANCE_SEED $CONTAINER_NAME $LAB_PARAMCONFIGFILE
 
-# If file $HOME/.local/bin/fixlocal.sh exist, run it
+# If file $HOME/.local/bin/fixlocal.sh exists, run it
 if [ -f $HOME/.local/bin/fixlocal.sh ]
 then
     $HOME/.local/bin/fixlocal.sh 2>>/tmp/fixlocal.output
