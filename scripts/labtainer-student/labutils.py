@@ -91,12 +91,16 @@ def ParameterizeMyContainer(mycontainer_name, container_user, container_password
         container_password = container_user
     command=['docker', 'exec', '-i',  mycontainer_name, cmd_path, container_user, container_password, lab_instance_seed, user_email, labname, mycontainer_name ]
     logger.DEBUG("About to call parameterize.sh with : %s" % str(command))
+    
     child = subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     error_string = child.stderr.read().strip()
     if len(error_string) > 0:
-        logger.ERROR('ParameterizeMyContainer %s' % error_string)
-        logger.ERROR('command was %s' % command)
-        retval = False
+        if not error_string.startswith('[sudo]'):
+            logger.ERROR('ParameterizeMyContainer %s' % error_string)
+            retval = False
+    out_string = child.stderr.read().strip()
+    if len(out_string) > 0:
+        logger.DEBUG('ParameterizeMyContainer %s' % out_string)
     return retval
 
 # Start my_container_name container
@@ -685,7 +689,7 @@ def terminalCounter(terminal_count):
 def terminalWideCounter(terminal_count):
     x_coordinate = 100 + ( 50 * terminal_count )
     y_coordinate = 75 + ( 50 * terminal_count)
-    terminal_location = "--geometry 150x25+%d+%d" % (x_coordinate, y_coordinate)
+    terminal_location = "--geometry 180x25+%d+%d" % (x_coordinate, y_coordinate)
     return terminal_location
 
 # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
