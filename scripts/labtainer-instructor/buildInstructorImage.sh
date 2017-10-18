@@ -60,7 +60,7 @@ else
     fi
     ORIG_PWD=`pwd`
     echo $ORIG_PWD
-    ../labtainer-student/checkTars.sh $LAB_DIR
+    ../labtainer-student/checkTars.sh $LAB_DIR $imagename
     LAB_TAR=$LAB_DIR/$labimage.tar.gz
     SYS_TAR=$LAB_DIR/sys_$labimage.tar.gz
     TMP_DIR=/tmp/$labimage
