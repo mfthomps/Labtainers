@@ -1107,7 +1107,7 @@ def CreateCopyChownZip(mycwd, start_config, labtainer_config, container_name, co
     # Run 'Student.py' - This will create zip file of the result
     logger.DEBUG("About to call Student.py")
     cmd_path = '/home/%s/.local/bin/Student.py' % (container_user)
-    command=['docker', 'exec', '-i',  container_name, '/usr/bin/sudo', cmd_path, container_user]
+    command=['docker', 'exec', '-i',  container_name, '/usr/bin/sudo', cmd_path, container_user, container_image]
     logger.DEBUG('cmd: %s' % str(command))
     child = subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     error_string = child.stderr.read().strip()
