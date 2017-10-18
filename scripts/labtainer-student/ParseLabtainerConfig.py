@@ -86,8 +86,8 @@ class ParseLabtainerConfig():
             exit(1)
         
     def finalize(self):
-        """Combines info provided by user with what we already know about the
-           lab to get the final settings we want."""
+        """
+           Set log levels. """
         # fixing up global parameters
         valid_log_levels = {"debug", "info", "warning", "error"}
         if self.file_log_level not in valid_log_levels:
