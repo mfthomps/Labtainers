@@ -48,6 +48,7 @@ class ParseStartConfig():
             self.terminals  = 1
             self.xterm      = None
             self.user       = "user"
+            self.password       = ""
             self.hostname       = ""
             self.image_name = ""
             self.full_name  = ""
@@ -115,7 +116,7 @@ class ParseStartConfig():
                 keyval = linestrip.split(None,1)    
                 key = keyval[0].lower()
                 if len(keyval) > 1:
-                    if key == "user" or key == "xterm":
+                    if key == "user" or key == "xterm" or key == "password":
                         # DO NOT change case for 'user' or 'xterm'
                         val = keyval[1]
                     else:
@@ -202,6 +203,8 @@ class ParseStartConfig():
                self.containers[name].image_name = image 
             if self.containers[name].hostname == "":
                self.containers[name].hostname = name
+            if self.containers[name].password == "":
+               self.containers[name].password = self.containers[name].user
 
     def show_current_settings(self):
         bar = "="*80

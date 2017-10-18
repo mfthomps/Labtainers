@@ -9,23 +9,24 @@ United States Code Section 105.   This software is in the public
 domain and is not subject to copyright. 
 END
 
-# Usage: buildImage.sh <labname> <imagename> <user_name> <force_build> <lab_top>
+# Usage: buildImage.sh <labname> <imagename> <user_name> <user_password> <force_build> <lab_top>
 #        <force_build> is either true or false
 
 lab=$1
 imagename=$2
 labimage=$lab.$imagename.student
 user_name=$3
-force_build=$4 
-LAB_TOP=$5 
-APT_SOURCE=$6 
+user_password=$4
+force_build=$5 
+LAB_TOP=$6 
+APT_SOURCE=$7 
 #------------------------------------V
-if [ "$#" -eq 7 ]; then
+if [ "$#" -eq 8 ]; then
     registry=$7 
-elif [ "$#" -eq 6 ]; then
+elif [ "$#" -eq 7 ]; then
     registry=mfthomps
 else
-    echo "Usage: buildImage.sh <labname> <imagename> <user_name> <force_build> <LAB_TOP> <apt_source> [registry]"
+    echo "Usage: buildImage.sh <labname> <imagename> <user_name> <user_password> <force_build> <LAB_TOP> <apt_source> [registry]"
     echo "   <force_build> is either true or false"
     echo "   <LAB_TOP> is a path to the trunk/labs directory"
     echo "   <apt_source> is the host to use in apt/sources.list"
@@ -108,9 +109,14 @@ if [ ! -z "$imagecheck" ] && [ $force_build = "False" ]; then
                  --build-arg NO_PROXY=$NO_PROXY  --build-arg no_proxy=$NO_PROXY \
               -t $labimage .
 else
-    echo "cmd: docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename --build-arg user_name=$user_name --pull -f $LAB_DIR/dockerfiles/$dfile -t $labimage ."
+    echo docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename \
+                 --build-arg user_name=$user_name --build-arg password=$user_password --build-arg apt_source=$APT_SOURCE \
+                 --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY \
+                 --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY \
+                 --build-arg NO_PROXY=$NO_PROXY  --build-arg no_proxy=$NO_PROXY \
+               --pull -f $LAB_DIR/dockerfiles/$dfile -t $labimage .
     docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename \
-                 --build-arg user_name=$user_name --build-arg apt_source=$APT_SOURCE \
+                 --build-arg user_name=$user_name --build-arg password=$user_password --build-arg apt_source=$APT_SOURCE \
                  --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY \
                  --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY \
                  --build-arg NO_PROXY=$NO_PROXY  --build-arg no_proxy=$NO_PROXY \
