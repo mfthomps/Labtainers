@@ -25,6 +25,7 @@ ARG lab
 ARG labdir
 ARG imagedir
 ARG user_name
+ARG password
 ARG apt_source
 #
 # Install the system files found in the _system directory
@@ -33,7 +34,7 @@ ADD $labdir/$imagedir/sys_tar/sys.tar /
 ADD $labdir/sys_$lab.tar.gz /
 #
 RUN useradd -ms /bin/bash $user_name
-RUN echo "$user_name:$user_name" | chpasswd
+RUN echo "$user_name:$password" | chpasswd
 RUN adduser $user_name sudo
 
 #
@@ -46,6 +47,8 @@ ENV HOME /home/$user_name
 # Install files in the user home directory
 #
 ADD $labdir/$imagedir/home_tar/home.tar $HOME
+# remove after docker fixes problem with empty tars
+RUN rm -f $HOME/home.tar
 ADD $labdir/$lab.tar.gz $HOME
 #
 #  The first thing that executes on the container.
