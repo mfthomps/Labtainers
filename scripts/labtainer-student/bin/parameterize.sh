@@ -51,6 +51,16 @@ echo "$USER_EMAIL" > $USER_EMAILFILE
 echo "$LAB_NAME" > $LAB_NAMEFILE
 echo "" > $WATERMARK_NAMEFILE
 
+# fix ownship of system file from _system directory.  Docker!
+while read f;do
+    fname=${f:1}
+    echo $CONTAINER_PASSWORD | sudo -S chown root:root $fname
+done < $HOME/.local/sys_manifest.list
+if [[ -f /etc/sudoers.new ]]; then
+    # Docker!
+    echo $CONTAINER_PASSWORD | sudo -S mv /etc/sudoers.new /etc/sudoers
+fi
+
 # call ParameterParser.py (passing $LAB_INSTANCE_SEED)
 echo $CONTAINER_PASSWORD | sudo -S $HOME/.local/bin/ParameterParser.py $CONTAINER_USER $LAB_INSTANCE_SEED $CONTAINER_NAME $LAB_PARAMCONFIGFILE
 
