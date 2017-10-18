@@ -84,11 +84,13 @@ def getDocker0IPAddr():
     return get_ip_address('docker0')
 
 # Parameterize my_container_name container
-def ParameterizeMyContainer(mycontainer_name, container_user, lab_instance_seed, user_email, labname):
+def ParameterizeMyContainer(mycontainer_name, container_user, container_password, lab_instance_seed, user_email, labname):
     retval = True
-    logger.DEBUG("About to call parameterize.sh with LAB_INSTANCE_SEED = (%s)" % lab_instance_seed)
     cmd_path = '/home/%s/.local/bin/parameterize.sh' % (container_user)
-    command=['docker', 'exec', '-i',  mycontainer_name, cmd_path, container_user, lab_instance_seed, user_email, labname, mycontainer_name ]
+    if container_password == "":
+        container_password = container_user
+    command=['docker', 'exec', '-i',  mycontainer_name, cmd_path, container_user, container_password, lab_instance_seed, user_email, labname, mycontainer_name ]
+    logger.DEBUG("About to call parameterize.sh with : %s" % str(command))
     child = subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     error_string = child.stderr.read().strip()
     if len(error_string) > 0:
@@ -229,7 +231,7 @@ def putLastEmail(email):
     with open(EMAIL_TMP, 'w') as fh:
             fh.write(email)
 
-def ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname, student_email, quiet_start):
+def ParamForStudent(lab_master_seed, mycontainer_name, container_user, container_password, labname, student_email, quiet_start):
     if student_email is not None:
         user_email = student_email
     else:
@@ -265,7 +267,7 @@ def ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname, 
     mymd5_hex_string = mymd5.hexdigest()
     logger.DEBUG(mymd5_hex_string)
 
-    if not ParameterizeMyContainer(mycontainer_name, container_user, mymd5_hex_string,
+    if not ParameterizeMyContainer(mycontainer_name, container_user, container_password, mymd5_hex_string,
                                                           user_email, labname):
         logger.ERROR("Failed to parameterize lab container %s!\n" % mycontainer_name)
         sys.exit(1)
@@ -470,9 +472,9 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False):
             logger.DEBUG("Will rebuild %s, Image exists(ignore if force): %s force_this_build: %s" % (mycontainer_name, 
                 image_exists, force_this_build))
             if os.path.isfile(build_student):
-                cmd = '%s %s %s %s %s %s %s' % (build_student, labname, name, container.user, True, LABS_DIR, labtainer_config.apt_source)
+                cmd = '%s %s %s %s %s %s %s %s' % (build_student, labname, name, container.user, container.password, True, LABS_DIR, labtainer_config.apt_source)
             elif os.path.isfile(build_instructor):
-                cmd = '%s %s %s %s %s %s %s' % (build_instructor, labname, name, container.user, True, LABS_DIR, labtainer_config.apt_source)
+                cmd = '%s %s %s %s %s %s %s %s' % (build_instructor, labname, name, container.user, container.password, True, LABS_DIR, labtainer_config.apt_source)
             else:
                 logger.ERROR("no image rebuild script\n")
                 exit(1)
@@ -509,6 +511,7 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, qui
         mycontainer_name       = container.full_name
         mycontainer_image_name = container.image_name
         container_user         = container.user
+        container_password         = container.password
         container_hostname         = container.hostname
 
         if is_regress_test and mycontainer_name != start_config.grade_container:
@@ -577,10 +580,10 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, qui
     	# If the container is just created, then use the previous user's e-mail
         # then parameterize the container
     	elif quiet_start and need_seeds and role == 'student':
-            student_email = ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname, student_email, quiet_start)
+            student_email = ParamForStudent(lab_master_seed, mycontainer_name, container_user, container_password, labname, student_email, quiet_start)
         
         elif need_seeds and role == 'student':
-            student_email = ParamForStudent(lab_master_seed, mycontainer_name, container_user, labname, student_email, quiet_start)
+            student_email = ParamForStudent(lab_master_seed, mycontainer_name, container_user, container_password, labname, student_email, quiet_start)
     #
     #  If a read_first.txt file exists in the lab's config directory, less it before the student continues.
     #
@@ -810,10 +813,10 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
         image_exists, result = ImageExists(mycontainer_image_name, mycontainer_name)
         if not image_exists:
             if os.path.isfile(build_student):
-                cmd = '%s %s %s %s %s %s %s' % (build_student, labname, name, container.user, False, 
+                cmd = '%s %s %s %s %s %s %s %s' % (build_student, labname, name, container.user, container.password, False, 
                                                   LABS_DIR, labtainer_config.apt_source)
             elif os.path.isfile(build_instructor):
-                cmd = '%s %s %s %s %s %s %s' % (build_instructor, labname, name, container.user, False, 
+                cmd = '%s %s %s %s %s %s %s %s' % (build_instructor, labname, name, container.user, container.password, False, 
                                                   LABS_DIR, labtainer_config.apt_source)
             else:
                 logger.ERROR("no image rebuild script\n")
