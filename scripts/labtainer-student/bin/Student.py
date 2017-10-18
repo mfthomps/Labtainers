@@ -27,10 +27,11 @@ import zipfile
 #     None
 def main():
     #print "Running Student.py"
-    if len(sys.argv) != 2:
-        sys.stderr.write("Usage: Student.py <username>\n")
+    if len(sys.argv) != 3:
+        sys.stderr.write("Usage: Student.py <username> <image_name>\n")
         return 1
     user_name = sys.argv[1]
+    container_image = sys.argv[2].split('.')[1]
     StudentHomeDir = os.path.join('/home',user_name)
     HomeLocal= os.path.join(StudentHomeDir, '.local')
     os.chdir(StudentHomeDir)
@@ -64,7 +65,8 @@ def main():
     zipoutput = zipfile.ZipFile(TempOutputName, "w")
     udir = "/home/"+user_name
     skip_list = []
-    skip_file = os.path.join(udir,'.local','config', 'home_tar.list')
+    manifest = '%s-home_tar.list' % container_image
+    skip_file = os.path.join(udir,'.local','config', manifest)
     if os.path.isfile(skip_file):
         with open(skip_file) as fh:
             for line in fh:
