@@ -85,17 +85,19 @@ else
     rm -fr $TMP_DIR/home_tar
     rm -fr $TMP_DIR/sys_tar
     mkdir $TMP_DIR/.local/result
-    cd $TMP_DIR
-    tar --atime-preserve -zcvf $LAB_TAR .
     if [ -d $LABIMAGE_DIR/_system ]; then
         cd $LABIMAGE_DIR/_system
-        tar --atime-preserve -zcvf $SYS_TAR .
+        tar --atime-preserve -zcvf $SYS_TAR . > $TMP_DIR/.local/sys_manifest.list
     else
         echo nothing at $LABIMAGE_DIR/_system
+        # make empty tar
         mkdir $LABIMAGE_DIR/_system
         cd -p $LABIMAGE_DIR/_system
         tar --atime-preserve -zcvf $SYS_TAR .
     fi
+    # do after sys so we get manifest
+    cd $TMP_DIR
+    tar --atime-preserve -zcvf $LAB_TAR .
 fi
 #---------------------------------------------------------------^
 cd $LAB_TOP
