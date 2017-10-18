@@ -38,7 +38,7 @@ for f in $tar_list; do
                 f_list=$(ls -t)
                 f_array=($f_list)
                 len=${#f_array[@]}
-                if [[ $len -gt 1 ]] && [[ $tar_name -ot ${f_array[1]} ]] ; then
+                if [[ $len -gt 1 ]] && [[ $tar_name != ${f_array[0]} ]] ; then
                     echo "replace tar"
                     rm $tar_name 2> /dev/null
                     if [[ $f == "home_tar" ]]; then
