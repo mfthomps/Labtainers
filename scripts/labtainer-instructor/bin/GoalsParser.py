@@ -22,7 +22,7 @@ import sys
 import MyUtil
 import ParameterParser
 
-MYHOME = os.getenv('HOME')
+MYHOME = ""
 answer_tokens=['result', 'parameter', 'parameter_ascii']
 class MyGoal(object):
     """ Goal - goalid, goaltype, goaloperator, answertag, resulttag, boolean_string, goal1tag, goal2tag """
@@ -215,7 +215,8 @@ def GetLabInstanceSeed(studentdir):
         exit(1)
     return student_lab_instance_seed
 
-def ParseGoals(studentdir, logger):
+def ParseGoals(homedir, studentdir, logger):
+    MYHOME = homedir
     nametags = []
     configfilename = os.path.join(MYHOME,'.local','instr_config', 'goals.config')
     configfile = open(configfilename)
@@ -369,21 +370,4 @@ def ParseGoals(studentdir, logger):
     jsonoutput.close()
 
     return parameter_list
-
-# Usage: GoalsParser.py <studentdir>
-# Arguments:
-#     <studentdir> - directory containing the student lab work
-#                    extracted from zip file (done in instructor.py)
-def main():
-    #print "Running GoalsParser.py"
-    if len(sys.argv) != 2:
-        sys.stderr.write("Usage: GoalsParser.py <studentdir>\n")
-        sys.exit(1)
-
-    studentdir = sys.argv[1]
-    ParseGoals(studentdir)
-    return 0
-
-if __name__ == '__main__':
-    sys.exit(main())
 

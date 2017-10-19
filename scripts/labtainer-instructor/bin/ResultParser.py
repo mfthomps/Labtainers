@@ -22,9 +22,9 @@ import re
 import sys
 import time
 import MyUtil
-from parse import *
+#from parse import *
 
-MYHOME = os.getenv('HOME')
+MYHOME = ""
 logfilelist = []
 container_exec_proglist = {}
 containernamelist = []
@@ -35,6 +35,7 @@ line_types = ['CONTAINS', 'LINE', 'STARTSWITH', 'NEXT_STARTSWITH', 'HAVESTRING',
               'LINE_COUNT', 'PARAM', 'STRING_COUNT']
 just_field_type = ['LINE_COUNT']
 logger = None
+resultidlist = []
 
 def GetExecProgramList(containername, studentlabdir, container_list, targetfile):
     # This will return a list of executable program name matching
@@ -84,7 +85,7 @@ def findLineIndex(values):
 
     return None
 
-def ValidateConfigfile(studentlabdir, container_list, labidname, each_key, each_value, logger):
+def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname, each_key, each_value, logger):
     '''
     Misleading name, this function populates a set of global structures used in processign the results
     '''
@@ -158,7 +159,8 @@ def ValidateConfigfile(studentlabdir, container_list, labidname, each_key, each_
     else:
         (exec_program, targetfile) = progname_type.rsplit('.', 1)
         exec_program_list = []
-        if exec_program == "*":
+        # Can only parse for wildcard if it is actual parsing - not validation
+        if exec_program == "*" and actual_parsing:
             exec_program_list = GetExecProgramList(containername, studentlabdir, container_list, targetfile)
             #print "exec_program_list is %s" % exec_program_list
             logger.DEBUG("wildcard, exec_program_list is %s" % exec_program_list)
@@ -578,27 +580,13 @@ def ParseConfigForFile(studentlabdir, labidname, configfilelines,
         jsonoutput.write('\n')
         jsonoutput.close()
 
-def ParseStdinStdout(studentlabdir, container_list, instructordir, labidname, logger_in):
+def ParseValidateResultConfig(actual_parsing, homedir, studentlabdir, container_list, labidname, logger_in):
+    MYHOME = homedir
     logger = logger_in
-    ''' process all results files (ignore name of function) for a student.  These
-        are distrbuted amongst multiple containers, per container_list.
-    '''
     configfilename = os.path.join(MYHOME,'.local','instr_config', 'results.config')
     configfile = open(configfilename)
     configfilelines = configfile.readlines()
     configfile.close()
-    jsonoutputfilename = labidname
-    #print("ParseStdinStdout: jsonoutputfilename is (%s) studentlabdir %s" % (jsonoutputfilename, studentlabdir))
-    logger.DEBUG("ParseStdinStdout: jsonoutputfilename is (%s) studentlabdir %s" % (jsonoutputfilename, studentlabdir))
-  
-    timestamplist.clear()
-
-    del logfilelist[:]
-    #del exec_proglist[:]
-    del containernamelist[:]
-    del stdinfnameslist[:]
-    del stdoutfnameslist[:]
-
 
     for line in configfilelines:
         linestrip = line.rstrip()
@@ -611,9 +599,35 @@ def ParseStdinStdout(studentlabdir, container_list, instructordir, labidname, lo
                      logger.ERROR('missing "=" character in %s' % linestrip)
                      exit(1)
                 each_key = each_key.strip()
-                ValidateConfigfile(studentlabdir, container_list, labidname, each_key, each_value, logger)
+                ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname, each_key, each_value, logger)
+                if each_key not in resultidlist:
+                    resultidlist.append(each_key)
         #else:
         #    print "Skipping empty linestrip is (%s)" % linestrip
+
+    return configfilelines, resultidlist
+
+def ParseStdinStdout(homedir, studentlabdir, container_list, instructordir, labidname, logger_in):
+    MYHOME = homedir
+    logger = logger_in
+    actual_parsing = True
+    # Parse and Validate Results configuration file
+    configfilelines, resultlist = ParseValidateResultConfig(actual_parsing, homedir, studentlabdir, container_list, labidname, logger_in)
+
+    ''' process all results files (ignore name of function) for a student.  These
+        are distrbuted amongst multiple containers, per container_list.
+    '''
+    jsonoutputfilename = labidname
+    #print("ParseStdinStdout: jsonoutputfilename is (%s) studentlabdir %s" % (jsonoutputfilename, studentlabdir))
+    logger.DEBUG("ParseStdinStdout: jsonoutputfilename is (%s) studentlabdir %s" % (jsonoutputfilename, studentlabdir))
+  
+    timestamplist.clear()
+
+    del logfilelist[:]
+    #del exec_proglist[:]
+    del containernamelist[:]
+    del stdinfnameslist[:]
+    del stdoutfnameslist[:]
 
     #print "exec_proglist is: "
     #print exec_proglist
@@ -698,29 +712,4 @@ def ParseStdinStdout(studentlabdir, container_list, instructordir, labidname, lo
     outputjsonfname = '%s%s' % (OUTPUTRESULTHOME, jsonoutputfilename)
     ParseConfigForFile(studentlabdir, labidname, configfilelines, outputjsonfname, container_list, None, None, logger)
 
-
-
-# Usage: ResultParser.py <studentlabdir> <mycontainername> <instructordir> <labidname>
-# Arguments:
-#     <studentlabdir> - directory containing the student lab work
-#                    extracted from zip file (done in Instructor.py)
-#     <mycontainername> - name of the container
-#     <instructordir> - directory containing instructor's solution
-#                       for corresponding student
-#     <labidname> - name of the lab
-def main():
-    #print "Running ResultParser.py"
-    if len(sys.argv) != 5:
-        sys.stderr.write("Usage: ResultParser.py <studentlabdir> <mycontainername> <instructordir> <labidname>\n")
-        sys.exit(1)
-
-    studentlabdir = sys.argv[1]
-    mycontainername = sys.argv[2]
-    instructordir = sys.argv[3]
-    labidname = sys.argv[4]
-    ParseStdinStdout(studentlabdir, mycontainername, instructordir, labidname)
-    return 0
-
-if __name__ == '__main__':
-    sys.exit(main())
 
