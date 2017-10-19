@@ -323,13 +323,13 @@ def main():
         ''' note odd hack, labinstance seed is stored on container, so need to fine one, use first '''
         DestinationDirName = '%s/%s' % (email_labname, student_list[email_labname][0])
         DestDirName =os.path.join(MYHOME, DestinationDirName)
-        student_parameter = GoalsParser.ParseGoals(DestDirName, logger)
+        student_parameter = GoalsParser.ParseGoals(MYHOME, DestDirName, logger)
 
         # Call ResultParser script to parse students' result
         LabDirName = os.path.join(MYHOME, email_labname)
         #print('call ResultParser for %s %s' % (email_labname, student_list[email_labname]))
         logger.DEBUG('call ResultParser for %s %s' % (email_labname, student_list[email_labname]))
-        ResultParser.ParseStdinStdout(LabDirName, student_list[email_labname], InstDirName, LabIDName, logger)
+        ResultParser.ParseStdinStdout(MYHOME, LabDirName, student_list[email_labname], InstDirName, LabIDName, logger)
 
         # Add student's parameter
         store_student_parameter(gradesjson, email_labname, student_parameter)
