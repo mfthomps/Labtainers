@@ -11,15 +11,18 @@ domain and is not subject to copyright.
 # Add preexec hooks to the bash shell to capture stdin & stdout
 #
 END
+if [[ -f $HOME/.profile ]]; then
+    target=$HOME/.profile
+elif [[ -f $HOME/.bash_profile ]]; then
+    target=$HOME/.bash_profile
+else
+    echo "no profile, use .profile anyway?"
+    target=$HOME/.profile
+fi
 if grep --quiet bash-pre-capinout.sh $HOME/.profile; then
     echo "already hooked"
 else
-    echo "source $HOME/.local/bin/bash-preexec.sh" >> $HOME/.profile
-    echo "source $HOME/.local/bin/bash-pre-capinout.sh" >> $HOME/.profile
-    echo "cd" >> $HOME/.profile
-    echo "source $HOME/.local/bin/startup.sh" >> $HOME/.profile
-    echo "trap \"source $HOME/.bash_logout\" SIGTERM SIGKILL" >> $HOME/.profile
-
-    echo "history -a" >> $HOME/.bash_logout
+    echo "hook not enabled, fix this"
+    cat $HOME/.local/bin/profile-add >> $target
 fi
 
