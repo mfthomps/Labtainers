@@ -1,0 +1,10 @@
+id | grep root >>/dev/null
+result=$?
+if [[ $result -ne 0 ]]; then
+   source $HOME/.local/bin/bash-preexec.sh
+   source $HOME/.local/bin/bash-pre-capinout.sh
+fi
+cd
+source $HOME/.local/bin/startup.sh
+trap "source $HOME/.bash_logout" SIGTERM SIGKILL
+history -a
