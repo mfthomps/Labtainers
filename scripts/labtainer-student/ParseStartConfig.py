@@ -53,6 +53,7 @@ class ParseStartConfig():
             self.image_name = ""
             self.full_name  = ""
             self.container_nets = {} #dictionary of name and ip addr 
+            self.script = "bash"
             self.logger = logger
 
         def add_net(self, name, ipaddr):
@@ -205,6 +206,8 @@ class ParseStartConfig():
                self.containers[name].hostname = name
             if self.containers[name].password == "":
                self.containers[name].password = self.containers[name].user
+            if self.containers[name].script == "none":
+               self.containers[name].script = "";
 
     def show_current_settings(self):
         bar = "="*80
