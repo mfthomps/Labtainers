@@ -91,7 +91,7 @@ def ParameterizeMyContainer(mycontainer_name, container_user, container_password
         container_password = container_user
     command=['docker', 'exec', '-i',  mycontainer_name, cmd_path, container_user, container_password, lab_instance_seed, user_email, labname, mycontainer_name ]
     logger.DEBUG("About to call parameterize.sh with : %s" % str(command))
-    
+    #return retval 
     child = subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     error_string = child.stderr.read().strip()
     if len(error_string) > 0:
@@ -146,26 +146,27 @@ def DisconnectNetworkFromContainer(mycontainer_name, mysubnet_name):
     logger.DEBUG("Result of subprocess.call DisconnectNetworkFromContainer is %s" % result)
     return result
 
-def CreateSingleContainer(mycontainer_name, mycontainer_image_name, hostname, mysubnet_name=None, mysubnet_ip=None):
+def CreateSingleContainer(container, mysubnet_name=None, mysubnet_ip=None):
     logger.DEBUG("Create Single Container")
     retval = True
-    cmd = "docker inspect -f '{{.Created}}' --type image %s" % mycontainer_image_name
+    cmd = "docker inspect -f '{{.Created}}' --type image %s" % container.image_name
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     #s = " --dns "
     #dns = s.join(GetDNS())
     if len(output[1]) > 0:
         logger.DEBUG("Command was (%s)" % cmd)
-        logger.ERROR("CreateSingleContainer image %s does not exist!" % mycontainer_image_name)
+        logger.ERROR("CreateSingleContainer image %s does not exist!" % container.image_name)
         retval = False
     else:
         docker0_IPAddr = getDocker0IPAddr()
         logger.DEBUG("getDockerIPAddr result (%s)" % docker0_IPAddr)
+        volume='-v /sys/fs/cgroup:/sys/fs/cgroup:ro'
         if mysubnet_name:
-            createsinglecommand = "docker create -t --network=%s --ip=%s --privileged --add-host my_host:%s --name=%s --hostname %s %s bash" % (mysubnet_name, mysubnet_ip, docker0_IPAddr, mycontainer_name, hostname, mycontainer_image_name)
+            createsinglecommand = "docker create -t --network=%s --ip=%s --privileged --add-host my_host:%s --name=%s --hostname %s %s %s %s" % (mysubnet_name, mysubnet_ip, docker0_IPAddr, container.full_name, container.hostname, volume, container.image_name, container.script)
         else:
-            createsinglecommand = "docker create -t --privileged --add-host my_host:%s --name=%s --hostname %s %s bash" % (docker0_IPAddr, 
-               mycontainer_name, hostname, mycontainer_image_name)
+            createsinglecommand = "docker create -t --privileged --add-host my_host:%s --name=%s --hostname %s %s %s %s" % (docker0_IPAddr, 
+               container.full_name, container.hostname, volume, container.image_name, container.script)
         logger.DEBUG("Command to execute is (%s)" % createsinglecommand)
         ps = subprocess.Popen(createsinglecommand, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         output = ps.communicate()
@@ -533,11 +534,10 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, qui
             # Use CreateSingleContainer()
             containerCreated = False
             if len(container.container_nets) == 0:
-                containerCreated = CreateSingleContainer(mycontainer_name, mycontainer_image_name, container_hostname)
+                containerCreated = CreateSingleContainer(container)
             else:
                 mysubnet_name, mysubnet_ip = container.container_nets.popitem()
-                containerCreated = CreateSingleContainer(mycontainer_name, mycontainer_image_name, container_hostname,
-                                                         mysubnet_name, mysubnet_ip)
+                containerCreated = CreateSingleContainer(container, mysubnet_name, mysubnet_ip)
                 
             logger.DEBUG("CreateSingleContainer result (%s)" % containerCreated)
             if not containerCreated:
