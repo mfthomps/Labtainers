@@ -1,0 +1,15 @@
+FROM centos/systemd
+LABEL description="This is base Docker image for Labtainer CENTOS images"
+#
+# Labtainer base image for CENTOS builds
+ENV LANG en_US.UTF-8  
+ENV LANGUAGE en_US:en  
+ENV LC_ALL en_US.UTF-8  
+RUN sed -i '/tsflags=nodocs/d' /etc/yum.conf
+RUN yum install -y sudo rsyslog which less openssh-clients man man-pages nano gdb file net-tools python hexedit \
+    wget tcpdump nc xinetd
+RUN systemctl enable rsyslog
+ADD system/etc/sudoers /etc/sudoers
+ADD system/bin/funbuffer-8.5 /usr/bin/funbuffer
+
+#
