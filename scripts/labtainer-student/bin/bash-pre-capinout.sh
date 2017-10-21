@@ -145,6 +145,10 @@ preexec() {
        else
           cmd_path=`which ${cmd_line_array[0]}`
        fi
+       if [[ $cmd_path == alias* ]]; then
+           IFS=$'\n' read -rd '' -a y <<<"$cmd_path"
+           cmd_path=$(echo ${y[1]} | xargs)
+       fi
        # do we want to run checklocal on this command, though it is not otherwise tracked?
        forcecheck $cmd_path
        result=$?
