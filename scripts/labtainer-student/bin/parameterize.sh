@@ -67,7 +67,7 @@ echo $CONTAINER_PASSWORD | sudo -S $HOME/.local/bin/ParameterParser.py $CONTAINE
 # If file $HOME/.local/bin/fixlocal.sh exists, run it
 if [ -f $HOME/.local/bin/fixlocal.sh ]
 then
-    $HOME/.local/bin/fixlocal.sh 2>>/tmp/fixlocal.output
+    $HOME/.local/bin/fixlocal.sh $CONTAINER_PASSWORD 2>>/tmp/fixlocal.output
 fi
 $HOME/.local/bin/hookBash.sh 2>>/tmp/hookBash.output
 rmdir $LOCKDIR
