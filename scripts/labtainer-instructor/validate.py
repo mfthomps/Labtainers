@@ -34,6 +34,7 @@ sys.path.append(student_cwd)
 sys.path.append(student_bin)
 sys.path.append(instructor_bin)
 
+import evalExpress
 import labutils
 import logging
 import GoalsParser
@@ -45,7 +46,180 @@ import ResultParser
 # TEMPORARY PATH - to copy 'config' and 'instr_config' to validate
 TEMPDIR="/tmp/vallabtainers"
 
-def validate_goals_answer_result(parameter_list, resultidlist, goals):
+executefilelist = []
+
+boolean_tokens = ['(',')','and_not', 'AND_NOT', 'or_not', 'OR_NOT', 'not','NOT','and','AND','or','OR','True','False']
+
+
+def validate_parameter_result(parameter_list, resultidlist, goals, inputtag):
+    validate_ok = True
+    use_target = ""
+    if "." in inputtag:
+        (use_target, inputtagstring) = inputtag.split('.')
+    if use_target == "":
+        use_target = "result"
+        inputtagstring = inputtag
+    if use_target == "parameter" or use_target == "parameter_ascii":
+        if inputtagstring not in parameter_list:
+            validate_ok = False
+    elif use_target == "result":
+        if inputtagstring not in resultidlist:
+            # handle expression here
+            if inputtagstring.startswith('(') and inputtagstring.endswith(')'):
+                express = inputtagstring[inputtagstring.find("(")+1:inputtagstring.find(")")]
+                for tag in resultidlist:
+                    labutils.logger.DEBUG('is tag %s in express %s' % (tag, express))
+                    if tag in express:
+                        # Replace each occurence of tag with 2
+                        express = express.replace(tag, "2")
+                try:
+                    labutils.logger.DEBUG('try eval of <%s>' % express)
+                    result = evalExpress.eval_expr(express)
+                except:
+                    labutils.logger.ERROR('could not evaluation %s, which became %s' % (inputtagstring, express))
+                    validate_ok = False
+            else:
+                labutils.logger.ERROR('ERROR: expected expression in parens' % inputtagstring)
+                validate_ok = False
+    else:
+        validate_ok = False
+    return validate_ok
+
+def check_count(parameter_list, resultidlist, goals, jsongoalid, jsonresulttag):
+    found_error = False
+    # Make sure the resulttag is valid - no special case for resulttag
+    validate_resulttag_ok = validate_parameter_result(parameter_list, resultidlist, goals, jsonresulttag)
+    if not validate_resulttag_ok:
+        labutils.logger.ERROR("ERROR: Goals goalid (%s) has invalid resulttag (%s)" % (jsongoalid, jsonresulttag))
+
+    if not validate_resulttag_ok:
+        found_error = True
+    return found_error
+
+def check_countgreater(parameter_list, resultidlist, goals, jsongoalid, jsonanswertag, boolean_string):
+    found_error = False
+    try:
+        value = int(jsonanswertag)
+    except:
+        labutils.logger.ERROR("ERROR: Goals goalid (%s) has invalid int (%s)" % (jsongoalid, jsonanswertag))
+    # boolean_string must start with '(' and end with ')'
+    # and contains comma separated goals
+    validate_ok = True
+    if boolean_string.startswith('(') and boolean_string.endswith(')'):
+        express = boolean_string[boolean_string.find("(")+1:boolean_string.find(")")]
+        for tag in express.split(','):
+            goaltag = tag.strip()
+            # goaltag must be in goals otherwise it is an error
+            found_goaltag_in_goals = False
+            for eachgoal in goals:
+                if goaltag == eachgoal['goalid']:
+                    found_goaltag_in_goals = True
+                    break
+            if found_goaltag_in_goals:
+                continue
+            else:
+                labutils.logger.ERROR('invalid goal %s in %s' % (goaltag, boolean_string))
+                validate_ok = False
+                break
+    else:
+        labutils.logger.ERROR('ERROR: expected goals %s in parens' % boolean_string)
+        validate_ok = False
+    if not validate_ok:
+        found_error = True
+    return found_error
+
+def check_temporal(parameter_list, resultidlist, goals, jsongoalid, goal1tag, goal2tag):
+    found_error = False
+    goal1tag_ok = True
+    goal2tag_ok = True
+    if goal1tag not in goals:
+        goal1tag_ok = False
+        labutils.logger.ERROR("ERROR: Goals goalid (%s) has invalid goal1tag (%s)" % (jsongoalid, goal1tag))
+    if goal2tag not in goals:
+        goal2tag_ok = False
+        labutils.logger.ERROR("ERROR: Goals goalid (%s) has invalid goal2tag (%s)" % (jsongoalid, goal2tag))
+    if not (goal1tag_ok and goal2tag_ok):
+        found_error = True
+    return found_error
+
+def check_boolean(parameter_list, resultidlist, goals, jsongoalid, boolean_string):
+    found_error = False
+    # Make it easier to tokenize later
+    boolean_string = boolean_string.replace('(', ' ( ')
+    boolean_string = boolean_string.replace(')', ' ) ').strip()
+    # boolean_string must start with '(' and end with ')'
+    # must be token separated goals
+    validate_ok = True
+    if boolean_string.startswith('(') and boolean_string.endswith(')'):
+        for tag in boolean_string.split():
+            goaltag = tag.strip()
+            # if goaltag is valid boolean operator, skip
+            if goaltag in boolean_tokens:
+                continue
+            # goaltag must be in goals otherwise it is an error
+            found_goaltag_in_goals = False
+            for eachgoal in goals:
+                if goaltag == eachgoal['goalid']:
+                    found_goaltag_in_goals = True
+                    break
+            if found_goaltag_in_goals:
+                continue
+            else:
+                labutils.logger.ERROR('invalid goal %s in %s' % (goaltag, boolean_string))
+                validate_ok = False
+                break
+    else:
+        labutils.logger.ERROR('ERROR: expected goals %s in parens' % boolean_string)
+        validate_ok = False
+    if not validate_ok:
+        found_error = True
+
+def check_execute(parameter_list, resultidlist, goals, jsongoalid, executefilepath, jsonanswertag, jsonresulttag):
+    found_error = False
+    executefile = os.path.basename(executefilepath)
+    if executefile not in executefilelist:
+        executefile_ok = False
+
+    # Make sure the answertag is valid - not expecting special case 'answer=<string>'
+    validate_answertag_ok = validate_parameter_result(parameter_list, resultidlist, goals, jsonanswertag)
+    if not validate_answertag_ok:
+        labutils.logger.ERROR("ERROR: Goals goalid (%s) has invalid answertag (%s)" % (jsongoalid, jsonanswertag))
+
+    # Make sure the resulttag is valid - no special case for resulttag
+    validate_resulttag_ok = validate_parameter_result(parameter_list, resultidlist, goals, jsonresulttag)
+    if not validate_resulttag_ok:
+        labutils.logger.ERROR("ERROR: Goals goalid (%s) has invalid resulttag (%s)" % (jsongoalid, jsonresulttag))
+
+    if not (execute_file_ok and validate_answertag_ok and validate_resulttag_ok):
+        found_error = True
+       
+    return found_error
+
+def check_matches(parameter_list, resultidlist, goals, jsongoalid, jsonanswertag, jsonresulttag):
+    found_error = False
+    validate_answertag_ok = True
+    # Make sure the answertag is valid
+    # Handle special case 'answer=<string>'
+    if '=' in jsonanswertag:
+        # skip it
+        validate_answertag_ok = True
+    else:
+        validate_answertag_ok = validate_parameter_result(parameter_list, resultidlist, goals, jsonanswertag)
+    if not validate_answertag_ok:
+        labutils.logger.ERROR("ERROR: Goals goalid (%s) has invalid answertag (%s)" % (jsongoalid, jsonanswertag))
+
+    validate_resulttag_ok = True
+    # Make sure the resulttag is valid - no special case for resulttag
+    validate_resulttag_ok = validate_parameter_result(parameter_list, resultidlist, goals, jsonresulttag)
+    if not validate_resulttag_ok:
+        labutils.logger.ERROR("ERROR: Goals goalid (%s) has invalid resulttag (%s)" % (jsongoalid, jsonresulttag))
+
+    if not (validate_answertag_ok and validate_resulttag_ok):
+        found_error = True
+
+    return found_error
+
+def validate_goals(parameter_list, resultidlist, goals):
     #labutils.logger.DEBUG("Result ID list is ")
     #labutils.logger.DEBUG(resultidlist)
     #labutils.logger.DEBUG("Parameter list is ")
@@ -55,52 +229,53 @@ def validate_goals_answer_result(parameter_list, resultidlist, goals):
     for eachgoal in goals:
         #labutils.logger.DEBUG("Current goal is ")
         #labutils.logger.DEBUG(eachgoal)
-        #labutils.logger.DEBUG("    goalid is (%s)" % eachgoal['goalid'])
-        #labutils.logger.DEBUG("    goaltype is (%s)" % eachgoal['goaltype'])
-        #labutils.logger.DEBUG("    answertag is (%s)" % eachgoal['answertag'])
-        #labutils.logger.DEBUG("    resulttag is (%s)" % eachgoal['resulttag'])
+        labutils.logger.DEBUG("    goalid is (%s)" % eachgoal['goalid'])
+        labutils.logger.DEBUG("    goaltype is (%s)" % eachgoal['goaltype'])
+        labutils.logger.DEBUG("    answertag is (%s)" % eachgoal['answertag'])
+        labutils.logger.DEBUG("    resulttag is (%s)" % eachgoal['resulttag'])
         jsongoalid = eachgoal['goalid']
-        jsonanswertag = eachgoal['answertag']
-        jsonresulttag = eachgoal['resulttag']
+        jsongoaltype = eachgoal['goaltype']
 
-        validate_answertag_ok = True
-        # Make sure the answertag is valid
-        # Handle special case 'answer=<string>'
-        if '=' in jsonanswertag:
-            # skip it
-            validate_answertag_ok = True
+        found_error = False
+        if (jsongoaltype == "matchany" or
+            jsongoaltype == "matchlast" or
+            jsongoaltype  == "matchacross"):
+            jsonanswertag = eachgoal['answertag']
+            jsonresulttag = eachgoal['resulttag']
+            found_error = check_matches(parameter_list, resultidlist, goals, jsongoalid, jsonanswertag, jsonresulttag)
+        elif jsongoaltype == "execute":
+            executefilepath = eachgoal['goaloperator']
+            jsonanswertag = eachgoal['answertag']
+            jsonresulttag = eachgoal['resulttag']
+            found_error = check_execute(parameter_list, resultidlist, goals, jsongoalid, executefilepath, jsonanswertag, jsonresulttag)
+        elif jsongoaltype == "boolean":
+            boolean_string = eachgoal['boolean_string']
+            found_error = check_boolean(parameter_list, resultidlist, goals, jsongoalid, boolean_string)
+        elif jsongoaltype == "time_before" or jsongoaltype == "time_during":
+            goal1tag = eachgoal['goal1tag']
+            goal2tag = eachgoal['goal2tag']
+            found_error = check_temporal(parameter_list, resultidlist, goals, jsongoalid, goal1tag, goal2tag)
+        elif jsongoaltype == "count_greater":
+            boolean_string = eachgoal['boolean_string']
+            jsonanswertag = eachgoal['answertag']
+            found_error = check_countgreater(parameter_list, resultidlist, goals, jsongoalid, jsonanswertag, boolean_string)
+        elif jsongoaltype == "count" or jsongoaltype == "value":
+            jsonresulttag = eachgoal['resulttag']
+            found_error = check_count(parameter_list, resultidlist, goals, jsongoalid, jsonresulttag)
+        elif jsongoaltype.startswith('is_'):
+            jsonresulttag = eachgoal['resulttag']
+            validate_resulttag_ok = validate_parameter_result(parameter_list, resultidlist, goals, jsonresulttag)
+            if not validate_resulttag_ok:
+                found_error = True
+                labutils.logger.ERROR("ERROR: Goals goalid (%s) has invalid resulttag (%s)" % (jsongoalid, jsonresulttag))
         else:
-            (use_target, answertagstring) = jsonanswertag.split('.')
-            if use_target == "param":
-                if answertagstring not in parameter_list:
-                    validate_answertag_ok = False
-            elif use_target == "result":
-                if answertagstring not in resultidlist:
-                    validate_answertag_ok = False
-            else:
-                validate_answertag_ok = False
+            sys.stdout.write("Error: Invalid goal type!\n")
+            sys.exit(1)
 
-        validate_resulttag_ok = True
-        # Make sure the resulttag is valid - no special case for resulttag
-        (use_target, resulttagstring) = jsonresulttag.split('.')
-        if use_target == "param":
-            if resulttagstring not in parameter_list:
-                validate_resulttag_ok = False
-        elif use_target == "result":
-            if resulttagstring not in resultidlist:
-                validate_resulttag_ok = False
-        else:
-            validate_resulttag_ok = False
-
-        if not validate_answertag_ok:
-            #sys.stderr.write("ERROR: Goals with goalid (%s) has invalid answertag (%s)\n" % (jsongoalid, jsonanswertag))
-            labutils.logger.ERROR("ERROR: Goals with goalid (%s) has invalid answertag (%s)" % (jsongoalid, jsonanswertag))
-        if not validate_resulttag_ok:
-            #sys.stderr.write("ERROR: Goals with goalid (%s) has invalid resulttag (%s)\n" % (jsongoalid, jsonresulttag))
-            labutils.logger.ERROR("ERROR: Goals with goalid (%s) has invalid resulttag (%s)" % (jsongoalid, jsonresulttag))
-        if not (validate_answertag_ok and validate_resulttag_ok):
-            # Found an error
+        # Found an error - break for loop
+        if found_error:
             break
+
 
 def setup_to_validate(lab_path, labname):
     # Create TEMPDIR - remove if it exists
@@ -155,6 +330,17 @@ def setup_to_validate(lab_path, labname):
     shutil.copytree(LAB_CONFIG, TEMP_LAB_CONFIG)
     shutil.copytree(LAB_INSTRCONFIG, TEMP_LAB_INSTRCONFIG)
 
+    # Get a list of any executable in '_bin' directory
+    # except fixlocal.sh, treataslocal, startup.sh
+    binfilelist = glob.glob("%s/*/_bin/*" % TEMPLOCAL)
+    for binfilepath in binfilelist:
+        binfilename = os.path.basename(binfilepath)
+        if not (binfilename == "fixlocal.sh" or 
+                binfilename == "treataslocal" or
+                binfilename == "startup.sh"):
+            if binfilename not in executefilelist:
+                executefilelist.append(binfilename)
+
     email_labname = "%s.%s" % (user_email.replace("@","_at_"), labname)
 
     return lab_instance_seed, start_config.grade_container, email_labname
@@ -191,13 +377,15 @@ def main():
     lab_path = os.path.join(os.path.abspath('../../labs'), labname)
     labutils.is_valid_lab(lab_path)
 
+    container_list = []
     lab_instance_seed, grade_container, email_labname = setup_to_validate(lab_path, labname)
     labutils.logger.DEBUG("grade_container %s" % grade_container)
+    container_list.append(grade_container)
  
     LabDirName = os.path.join(TEMPDIR, email_labname)
     # Just validating - not actual parsing
     actual_parsing = False
-    configfilelines, resultidlist = ResultParser.ParseValidateResultConfig(actual_parsing, TEMPDIR, LabDirName, grade_container, labname, labutils.logger)
+    configfilelines, resultidlist = ResultParser.ParseValidateResultConfig(actual_parsing, TEMPDIR, LabDirName, container_list, labname, labutils.logger)
 
     parameter_list = GoalsParser.ParseGoals(TEMPDIR, TEMPDIR, labutils.logger)
     # GoalsParser created goals.json in parent directory
@@ -209,7 +397,7 @@ def main():
     labutils.logger.DEBUG("Goals JSON config is")
     labutils.logger.DEBUG(goals)
 
-    validate_goals_answer_result(parameter_list, resultidlist, goals)
+    validate_goals(parameter_list, resultidlist, goals)
     return 0
 
 if __name__ == '__main__':
