@@ -985,8 +985,8 @@ def GatherOtherArtifacts(lab_path, name, container_name, container_user, ignore_
             if '=' not in line:
                 logger.WARNING('no = in line %s' % line)
                 continue
-            after_equals = line.split('=', 1)[1]
-            fname = after_equals.split(' : ')[0]
+            after_equals = line.split('=', 1)[1].strip()
+            fname = after_equals.split(' : ')[0].strip()
             is_mine = False
             if ':' in fname:
                 f_container, fname = fname.split(':')
@@ -997,7 +997,7 @@ def GatherOtherArtifacts(lab_path, name, container_name, container_user, ignore_
             else: 
                 is_mine = True
             if is_mine:
-                logger.DEBUG(' is mine %s' % fname )
+                logger.DEBUG('file on this container to copy <%s>' % fname )
                 if fname.startswith('/') and fname not in did_file:
                     ''' copy from abs path to ~/.local/result ''' 
                
@@ -1007,11 +1007,11 @@ def GatherOtherArtifacts(lab_path, name, container_name, container_user, ignore_
                     error = child.stderr.read().strip()
                     if len(error) > 0:
                         if ignore_stop_error:
-                            logger.DEBUG('ERROR: %s' % error)
+                            logger.DEBUG('error from docker: %s' % error)
                             logger.DEBUG('command was %s' % command)
                         else:
-                            logger.ERROR('ERROR: %s' % error)
-                            logger.ERROR('command was %s' % command)
+                            logger.DEBUG('error from docker: %s' % error)
+                            logger.DEBUG('command was %s' % command)
                     did_file.append(fname)
                     command='docker exec %s sudo chmod a+r -R /home/%s/.local/result' % (container_name, container_user)
                     child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -1129,7 +1129,10 @@ def CreateCopyChownZip(mycwd, start_config, labtainer_config, container_name, co
 
     tmp_dir=os.path.join('/tmp/labtainers', container_name)
     shutil.rmtree(tmp_dir, ignore_errors=True)
-    os.makedirs(tmp_dir)
+    try:
+        os.makedirs(tmp_dir)
+    except:
+        logger.ERROR("did not expect to find dir %s" % tmp_dir)
     source_dir = os.path.join('/home', container_user, '.local', 'zip')
     cont_source = '%s:%s' % (container_name, source_dir)
     logger.DEBUG('will copy from %s ' % source_dir)
