@@ -22,3 +22,6 @@ if [ -f $instructions ]; then
        cat $instructions | less
    fi
 fi
+if [ -f .local/bin/student_startup.sh ]; then
+    source .local/bin/student_startup.sh
+fi

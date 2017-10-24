@@ -115,8 +115,8 @@ fi
 #echo "PROGRAM_ARGUMENTS is ($PROGRAM_ARGUMENTS)"
 #echo "Program to execute is $EXECPROG"
 #echo "basename of $EXECPROG is $PROGNAME"
-stdinfile="$HOME/.local/result/$PROGNAME.stdin.$timestamp"
-stdoutfile="$HOME/.local/result/$PROGNAME.stdout.$timestamp"
+stdinfile="$PRECMD_HOME/.local/result/$PROGNAME.stdin.$timestamp"
+stdoutfile="$PRECMD_HOME/.local/result/$PROGNAME.stdout.$timestamp"
 
 # Store programs arguments into stdinfile
 echo "PROGRAM_ARGUMENTS is ($PROGRAM_ARGUMENTS)" >> $stdinfile
@@ -124,12 +124,12 @@ echo "PROGRAM_ARGUMENTS is ($PROGRAM_ARGUMENTS)" >> $stdinfile
 #echo "stdinfile is $stdinfile"
 #echo "stdoutfile is $stdoutfile"
 
-# If file $HOME/.local/bin/checklocal.sh exist, run it
-if [ -f $HOME/.local/bin/checklocal.sh ]
+# If file $PRECMD_HOME/.local/bin/checklocal.sh exist, run it
+if [ -f $PRECMD_HOME/.local/bin/checklocal.sh ]
 then
-    checklocaloutfile="$HOME/.local/result/checklocal.stdout.$timestamp"
-    checklocalinfile="$HOME/.local/result/checklocal.stdin.$timestamp"
-    $HOME/.local/bin/checklocal.sh > $checklocaloutfile
+    checklocaloutfile="$PRECMD_HOME/.local/result/checklocal.stdout.$timestamp"
+    checklocalinfile="$PRECMD_HOME/.local/result/checklocal.stdin.$timestamp"
+    $PRECMD_HOME/.local/bin/checklocal.sh > $checklocaloutfile
     # For now, there is nothing (i.e., no stdin) for checklocal
     echo "" >> $checklocalinfile
 fi
