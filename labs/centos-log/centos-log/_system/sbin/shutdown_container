@@ -1,4 +1,0 @@
-#!/bin/bash
-PLIST=$(ps aux | grep '[b]ash -l' | awk '{print $2}')
-kill $PLIST
-kill -9 1
