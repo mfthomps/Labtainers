@@ -22,7 +22,7 @@ import re
 import sys
 import time
 import MyUtil
-#from parse import *
+from parse import *
 
 MYHOME = ""
 logfilelist = []
