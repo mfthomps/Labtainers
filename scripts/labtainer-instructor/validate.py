@@ -229,10 +229,10 @@ def validate_goals(parameter_list, resultidlist, goals):
     for eachgoal in goals:
         #labutils.logger.DEBUG("Current goal is ")
         #labutils.logger.DEBUG(eachgoal)
-        labutils.logger.DEBUG("    goalid is (%s)" % eachgoal['goalid'])
-        labutils.logger.DEBUG("    goaltype is (%s)" % eachgoal['goaltype'])
-        labutils.logger.DEBUG("    answertag is (%s)" % eachgoal['answertag'])
-        labutils.logger.DEBUG("    resulttag is (%s)" % eachgoal['resulttag'])
+        #labutils.logger.DEBUG("    goalid is (%s)" % eachgoal['goalid'])
+        #labutils.logger.DEBUG("    goaltype is (%s)" % eachgoal['goaltype'])
+        #labutils.logger.DEBUG("    answertag is (%s)" % eachgoal['answertag'])
+        #labutils.logger.DEBUG("    resulttag is (%s)" % eachgoal['resulttag'])
         jsongoalid = eachgoal['goalid']
         jsongoaltype = eachgoal['goaltype']
 
