@@ -40,7 +40,7 @@ sudo systemctl enable docker
 #additional packages needed for labtainers
 sudo apt-get -y install python-pip 
 sudo pip install --upgrade pip 
-sudo pip install netaddr 
+sudo pip install netaddr parse
 sudo apt-get -y install openssh-server
 
 #---Checking if packages have been installed. If not, the system will not reboot and allow the user to investigate.
@@ -67,6 +67,14 @@ pipcheck=$(pip list 2> /dev/null | grep -F netaddr)
 #echo $pipcheck
 if [ -z "$pipcheck" ]; then
     echo "ERROR: 'netaddr' package did not install properly. Please check the terminal output for any errors related to the pacakge installation. Make sure 'python-pip' is installed and then try running this command: 'sudo -H pip install netaddr' "
+    packagefail="true"
+    #echo $packagefail
+fi
+
+pipcheck=$(pip list 2> /dev/null | grep -F parse)
+#echo $pipcheck
+if [ -z "$pipcheck" ]; then
+    echo "ERROR: 'parse' package did not install properly. Please check the terminal output for any errors related to the package installation. Make sure 'python-pip' is installed and then try running this command: 'sudo -H pip install parse' "
     packagefail="true"
     #echo $packagefail
 fi

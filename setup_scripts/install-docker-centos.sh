@@ -27,7 +27,7 @@ sudo yum install -y docker-ce
 sudo yum --enablerepo=extras -y install epel-release
 sudo yum install -y python-pip
 sudo pip install --upgrade pip
-sudo pip install netaddr
+sudo pip install netaddr parse
 sudo yum install -y openssh-server 
 
 #starts and enables docker
@@ -62,6 +62,14 @@ pipcheck=$(pip list 2> /dev/null | grep -F netaddr)
 #echo $pipcheck
 if [ -z "$pipcheck" ]; then
     echo "ERROR: 'netaddr' package did not install properly. Please check the terminal output for any errors related to the pacakge installation. Make sure 'python-pip' is installed and then try running this command: 'sudo -H pip install netaddr' "
+    packagefail="true"
+    #echo $packagefail
+fi
+
+pipcheck=$(pip list 2> /dev/null | grep -F parse)
+#echo $pipcheck
+if [ -z "$pipcheck" ]; then
+    echo "ERROR: 'parse' package did not install properly. Please check the terminal output for any errors related to the package installation. Make sure 'python-pip' is installed and then try running this command: 'sudo -H pip install parse' "
     packagefail="true"
     #echo $packagefail
 fi
