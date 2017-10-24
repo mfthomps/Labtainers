@@ -352,7 +352,7 @@ def InstDocsToHostDir(start_config, labtainer_config, lab_path, role, is_regress
 
 
 # Copy Students' Artifacts from host to instructor's lab container
-def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_user, is_regress_test):
+def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_user, container_password, is_regress_test):
     # Set the lab name 
     command = 'docker exec %s script -q -c "echo %s > /home/%s/.local/.labname" /dev/null' % (mycontainer_name, labname, container_user)
     logger.DEBUG("Command to execute is (%s)" % command)
@@ -392,7 +392,10 @@ def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_
         if result == FAILURE:
             logger.ERROR("Failed to set labname in container %s!\n" % mycontainer_name)
             sys.exit(1)
-        command = 'docker exec %s sudo chown %s:%s /home/%s/%s' % (mycontainer_name, container_user, container_user, container_user, base_fname)
+        #command = 'docker exec %s echo "%s\n" | sudo -S chown %s:%s /home/%s/%s' % (mycontainer_name, container_password, 
+        #             container_user, container_user, container_user, base_fname)
+        command = 'docker exec %s chown %s:%s /home/%s/%s' % (mycontainer_name, 
+                     container_user, container_user, container_user, base_fname)
         logger.DEBUG("Command to execute is (%s)" % command)
         result = subprocess.call(command, shell=True)
         logger.DEBUG("Result of subprocess.call CopyStudentArtifacts copy zipfile (%s) is %s" % (fname, result))
@@ -576,7 +579,7 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, qui
             '''
             if mycontainer_name == start_config.grade_container:
                 logger.DEBUG('do CopyStudentArtifacts for %s, labname: %s regress: %s' % (mycontainer_name, labname, is_regress_test))
-                copy_result = CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_user, is_regress_test)
+                copy_result = CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_user, container_password, is_regress_test)
                 if copy_result == FAILURE:
                     logger.ERROR("Failed to copy students' artifacts to container %s!\n" % mycontainer_name)
                     sys.exit(1)
@@ -967,7 +970,26 @@ def RedoLab(lab_path, role, is_regress_test=None, force_build=False, quiet_start
     is_redo = True
     StartLab(lab_path, role, is_regress_test, force_build, is_redo=is_redo, quiet_start=quiet_start)
 
-def GatherOtherArtifacts(lab_path, name, container_name, container_user, ignore_stop_error):
+def CheckShutdown(lab_path, name, container_name, container_user, ignore_stop_error):
+    ''' NOT USED at the moment '''
+    done = False
+    count = 0
+    while not done:
+        command='docker cp %s:/tmp/.shutdown_done /tmp/' % (container_name)
+        logger.DEBUG(command)
+        child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        error = child.stderr.read().strip()
+        if len(error) > 0:
+           logger.DEBUG("response from docker cp %s" % error)
+           time.sleep(1)
+        else:
+           logger.DEBUG("must have found the shutdown_done file")
+           done = True
+        count += 1
+        if count > 5:
+           done = True
+
+def GatherOtherArtifacts(lab_path, name, container_name, container_user, container_password, ignore_stop_error):
     '''
     Parse the results.config file looking for files named by absolute paths,
     and copy those into the .local/result directory, maintaining the original
@@ -1001,7 +1023,9 @@ def GatherOtherArtifacts(lab_path, name, container_name, container_user, ignore_
                 if fname.startswith('/') and fname not in did_file:
                     ''' copy from abs path to ~/.local/result ''' 
                
-                    command='docker exec %s sudo cp --parents %s /home/%s/.local/result' % (container_name, fname, container_user)
+                    #command='docker exec %s echo "%s\n" | sudo -S cp --parents %s /home/%s/.local/result' % (container_name, 
+                    #    container_password, fname, container_user)
+                    command='docker exec %s sudo  cp --parents %s /home/%s/.local/result' % (container_name, fname, container_user)
                     logger.DEBUG(command)
                     child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                     error = child.stderr.read().strip()
@@ -1013,6 +1037,7 @@ def GatherOtherArtifacts(lab_path, name, container_name, container_user, ignore_
                             logger.DEBUG('error from docker: %s' % error)
                             logger.DEBUG('command was %s' % command)
                     did_file.append(fname)
+                    #command='docker exec %s echo "%s\n" | sudo -S chmod a+r -R /home/%s/.local/result' % (container_name, container_password, container_user)
                     command='docker exec %s sudo chmod a+r -R /home/%s/.local/result' % (container_name, container_user)
                     child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                     error = child.stderr.read().strip()
@@ -1100,7 +1125,7 @@ def RegressTest(lab_path, role, standard, isFirstRun=False):
     return CompareResult
 
 
-def CreateCopyChownZip(mycwd, start_config, labtainer_config, container_name, container_image, container_user, ignore_stop_error):
+def CreateCopyChownZip(mycwd, start_config, labtainer_config, container_name, container_image, container_user, container_password, ignore_stop_error):
     '''
     Zip up the student home directory and copy it to the Linux host home directory
     '''
@@ -1111,6 +1136,7 @@ def CreateCopyChownZip(mycwd, start_config, labtainer_config, container_name, co
     # Run 'Student.py' - This will create zip file of the result
     logger.DEBUG("About to call Student.py")
     cmd_path = '/home/%s/.local/bin/Student.py' % (container_user)
+    #command=['docker', 'exec', '-i',  container_name, 'echo "%s\n" |' % container_password, '/usr/bin/sudo', cmd_path, container_user, container_image]
     command=['docker', 'exec', '-i',  container_name, '/usr/bin/sudo', cmd_path, container_user, container_image]
     logger.DEBUG('cmd: %s' % str(command))
     child = subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -1220,6 +1246,7 @@ def DoStopOne(start_config, labtainer_config, mycwd, lab_path, role, name, conta
         retval = True
         mycontainer_name  = container.full_name
         container_user    = container.user
+        container_password    = container.password
         mycontainer_image = container.image_name
         haveContainer     = IsContainerCreated(mycontainer_name)
         logger.DEBUG("IsContainerCreated result (%s)" % haveContainer)
@@ -1243,19 +1270,16 @@ def DoStopOne(start_config, labtainer_config, mycwd, lab_path, role, name, conta
                 if mycontainer_name == start_config.grade_container:
                     CopyChownGradesFile(mycwd, start_config, labtainer_config, mycontainer_name, mycontainer_image, container_user, ignore_stop_error)
             else:
-                # kill bash login scripts so history is gathered.  TBD better cleanup
-                command = 'docker exec %s sudo /sbin/shutdown_container 2>/dev/null' % (mycontainer_name)
-                os.system(command)
-                time.sleep(1)
-                GatherOtherArtifacts(lab_path, name, mycontainer_name, container_user, ignore_stop_error)
+                GatherOtherArtifacts(lab_path, name, mycontainer_name, container_user, container_password, ignore_stop_error)
                 # Before stopping a container, run 'Student.py'
                 # This will create zip file of the result
     
-                baseZipFilename, currentContainerZipFilename = CreateCopyChownZip(mycwd, start_config, labtainer_config, mycontainer_name, mycontainer_image, container_user, ignore_stop_error)
+                baseZipFilename, currentContainerZipFilename = CreateCopyChownZip(mycwd, start_config, labtainer_config, mycontainer_name, mycontainer_image, container_user, container_password, ignore_stop_error)
                 if baseZipFilename is not None:
                     ZipFileList.append(currentContainerZipFilename)
                 logger.DEBUG("baseZipFilename is (%s)" % baseZipFilename)
 
+            #command = 'docker exec %s echo "%s\n" | sudo -S rmdir /tmp/.mylockdir 2>/dev/null' % (mycontainer_name, container_password)
             command = 'docker exec %s sudo rmdir /tmp/.mylockdir 2>/dev/null' % (mycontainer_name)
             os.system(command)
 
