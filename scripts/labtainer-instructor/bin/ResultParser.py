@@ -69,7 +69,7 @@ def GetExecProgramList(containername, studentlabdir, container_list, targetfile)
     return myexec_proglist
 
 
-def ValidateTokenId(each_value, token_id):
+def ValidateTokenId(each_value, token_id, logger):
     if token_id != 'ALL' and token_id != 'LAST':
         try:
             int(token_id)
@@ -85,7 +85,7 @@ def findLineIndex(values):
 
     return None
 
-def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname, each_key, each_value):
+def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname, each_key, each_value, logger):
     '''
     Misleading name, this function populates a set of global structures used in processign the results
     '''
@@ -198,7 +198,7 @@ def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname,
         token_index = 1
         if line_at == 3:
             token_index = 2
-        ValidateTokenId(each_value, values[token_index])
+        ValidateTokenId(each_value, values[token_index], logger)
 
     if values[line_at] == 'LINE':
         try:
@@ -210,7 +210,7 @@ def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname,
 
     return 0
 
-def getToken(linerequested, field_type, token_id):
+def getToken(linerequested, field_type, token_id, logger):
         #print "Line requested is (%s)" % linerequested
         if linerequested == "NONE":
             token = "NONE"
@@ -272,7 +272,7 @@ def getToken(linerequested, field_type, token_id):
                     token = linetokens[tokenno-1]
         return token
 
-def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_list, timestamppart):
+def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_list, timestamppart, logger):
     retval = True
     targetlines = None
     #print('line is %s' % line)
@@ -516,7 +516,7 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
                 logger.ERROR('unknown command %s' % command)
                 sys.exit(1)
 
-            token = getToken(linerequested, field_type, token_id)
+            token = getToken(linerequested, field_type, token_id, logger)
             logger.DEBUG('field_type %s, token_id %s, got token %s' % (field_type, token_id, token))
 
         #print token
@@ -533,7 +533,7 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
 
 
 def ParseConfigForFile(studentlabdir, labidname, configfilelines, 
-                       outputjsonfname, container_list, timestamppart, end_time):
+                       outputjsonfname, container_list, timestamppart, end_time, logger):
     '''
     Invoked for each timestamp to parse results for that timestamp.
     Each config file line is assessed against each results file that corresponds
@@ -547,7 +547,7 @@ def ParseConfigForFile(studentlabdir, labidname, configfilelines,
     for line in configfilelines:
         linestrip = line.rstrip()
         if linestrip is not None and not linestrip.startswith('#') and len(line.strip())>0:
-            got_one = got_one | handleConfigFileLine(labidname, linestrip, nametags, studentlabdir, container_list, timestamppart)
+            got_one = got_one | handleConfigFileLine(labidname, linestrip, nametags, studentlabdir, container_list, timestamppart, logger)
 
     if end_time is not None:
         program_end_time = end_time
@@ -593,7 +593,7 @@ def ParseValidateResultConfig(actual_parsing, homedir, studentlabdir, container_
                      logger.ERROR('missing "=" character in %s' % linestrip)
                      sys.exit(1)
                 each_key = each_key.strip()
-                ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname, each_key, each_value)
+                ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname, each_key, each_value, logger)
                 if each_key not in resultidlist:
                     resultidlist.append(each_key)
         #else:
@@ -698,9 +698,9 @@ def ParseStdinStdout(homedir, studentlabdir, container_list, instructordir, labi
         outputjsonfname = '%s%s.%s' % (OUTPUTRESULTHOME, jsonoutputfilename, timestamppart)
         logger.DEBUG("ParseStdinStdout (1): Outputjsonfname is (%s)" % outputjsonfname)
         ParseConfigForFile(studentlabdir, labidname, configfilelines, outputjsonfname, 
-                           container_list, timestamppart, end_time)
+                           container_list, timestamppart, end_time, logger)
     ''' process files without timestamps '''
     outputjsonfname = '%s%s' % (OUTPUTRESULTHOME, jsonoutputfilename)
-    ParseConfigForFile(studentlabdir, labidname, configfilelines, outputjsonfname, container_list, None, None)
+    ParseConfigForFile(studentlabdir, labidname, configfilelines, outputjsonfname, container_list, None, None, logger)
 
 

@@ -51,7 +51,7 @@ class MyGoal(object):
         self.goal1tag = goal1tag
         self.goal2tag = goal2tag
 
-def getRandom(bounds, type):
+def getRandom(bounds, type, logger):
     # Converts lowerbound and upperbound as integer - and pass to
     # random.randint(a,b)
     # Starts with assuming will use integer (instead of hexadecimal)
@@ -98,7 +98,7 @@ def getRandom(bounds, type):
         random_str = '%s' % int(random_int)
     return random_str
 
-def getTagValue(parameter_list, target, finaltag):
+def getTagValue(parameter_list, target, finaltag, logger):
     if target == "answer":
         returnTagValue = 'answer=%s' % finaltag
     else:
@@ -121,7 +121,7 @@ def getTagValue(parameter_list, target, finaltag):
             returnTagValue = '%s.%s' % (target, finaltag)
     return returnTagValue
 
-def generateSpecialTagValue(studentdir, target, finaltag):
+def generateSpecialTagValue(studentdir, target, finaltag, logger):
     STUDENT_LAB_INSTANCE_SEED = '%s/%s' % (studentdir, ".local/.seed")
     student_lab_instance_seedfile = open(STUDENT_LAB_INSTANCE_SEED, 'r')
     student_lab_instance_seed = student_lab_instance_seedfile.read().strip()
@@ -139,7 +139,7 @@ def generateSpecialTagValue(studentdir, target, finaltag):
         if len(bounds) != 2:
             logger.ERROR("asciirandom expecting <LowerBound>-<UpperBound>\n")
             sys.exit(1)
-        randomstring = getRandom(bounds, "asciirandom")
+        randomstring = getRandom(bounds, "asciirandom", logger)
         returnTagValue = 'answer=%s' % randomstring
     elif target == "hexrandom":
         # finaltag consists of <lowerbound>-<upperbound>
@@ -147,7 +147,7 @@ def generateSpecialTagValue(studentdir, target, finaltag):
         if len(bounds) != 2:
             logger.ERROR("hexrandom expecting <LowerBound>-<UpperBound>\n")
             sys.exit(1)
-        randomstring = getRandom(bounds, "hexrandom")
+        randomstring = getRandom(bounds, "hexrandom", logger)
         returnTagValue = 'answer=%s' % randomstring
     elif target == "intrandom":
         # finaltag consists of <lowerbound>-<upperbound>
@@ -155,7 +155,7 @@ def generateSpecialTagValue(studentdir, target, finaltag):
         if len(bounds) != 2:
             logger.ERROR("intrandom expecting <LowerBound>-<UpperBound>\n")
             sys.exit(1)
-        randomstring = getRandom(bounds, "intrandom")
+        randomstring = getRandom(bounds, "intrandom", logger)
         returnTagValue = 'answer=%s' % randomstring
     elif target == "hash":
         # finaltag is the secretstring
@@ -168,19 +168,19 @@ def generateSpecialTagValue(studentdir, target, finaltag):
 
     return returnTagValue
 
-def ValidateTag(parameter_list, studentdir, goal_type, inputtag, allowed_special_answer):
+def ValidateTag(parameter_list, studentdir, goal_type, inputtag, allowed_special_answer, logger):
     # if allowed_special_answer is true, then allow 'answer=<string>'
     # UNLESS if the goal_type is matchacross
     returntag = ""
     if '=' in inputtag:
         if not allowed_special_answer:
-            logger.ERROR("goals.config only answertag is allowed answer=<string>, resulttag (%s) is not\n" % inputtag)
+            logger.ERROR("goals.config only answertag is allowed answer=<string>, resulttag (%s) is not" % inputtag)
             sys.exit(1)
         if goal_type == "matchacross":
-            logger.ERROR("goals.config answer=<string> and goal_type==matchacross is not allowed\n")
+            logger.ERROR("goals.config answer=<string> and goal_type==matchacross is not allowed")
             sys.exit(1)
         (target, finaltag) = inputtag.split('=')
-        returntag = getTagValue(parameter_list, target, finaltag)
+        returntag = getTagValue(parameter_list, target, finaltag, logger)
  
     elif inputtag.startswith('(') and inputtag.endswith(')'):
         returntag = 'result.%s' % inputtag
@@ -188,24 +188,23 @@ def ValidateTag(parameter_list, studentdir, goal_type, inputtag, allowed_special
         logger.DEBUG("tag %s contains '.'" % inputtag)
         (target, finaltag) = inputtag.split('.')
         if not target in answer_tokens:
-            logger.ERROR("goals.config tag=<string> then\n")
-            logger.ERROR("     tag must be:(%s), got %s\n" % (','.join(answer_tokens), inputtag))
+            logger.ERROR("goals.config tag=<string> then tag must be:(%s), got %s" % (','.join(answer_tokens), inputtag))
             sys.exit(1)
         if not MyUtil.CheckAlphaDashUnder(finaltag):
-            logger.ERROR("Invalid characters in goals.config's tag (%s)\n" % inputtag)
+            logger.ERROR("Invalid characters in goals.config's tag (%s)" % inputtag)
             sys.exit(1)
 
-        returntag = getTagValue(parameter_list, target, finaltag)
+        returntag = getTagValue(parameter_list, target, finaltag, logger)
     else:
         logger.DEBUG("tag is %s" % inputtag)
         if not MyUtil.CheckAlphaDashUnder(inputtag):
-            logger.ERROR("Invalid characters in goals.config's tag (%s)\n" % inputtag)
+            logger.ERROR("Invalid characters in goals.config's tag (%s)" % inputtag)
             sys.exit(1)
         returntag = 'result.%s' % inputtag
 
     return returntag
 
-def GetLabInstanceSeed(studentdir):
+def GetLabInstanceSeed(studentdir, logger):
     seed_dir = os.path.join(studentdir, ".local",".seed")
     student_lab_instance_seed = None
     with open(seed_dir) as fh:
@@ -223,7 +222,7 @@ def ParseGoals(homedir, studentdir, logger_in):
     configfile = open(configfilename)
     configfilelines = configfile.readlines()
     configfile.close()
-    lab_instance_seed = GetLabInstanceSeed(studentdir)
+    lab_instance_seed = GetLabInstanceSeed(studentdir, logger)
     container_user = ""
     param_filename = os.path.join(MYHOME, '.local', 'config',
           'parameter.config')
@@ -242,7 +241,7 @@ def ParseGoals(homedir, studentdir, logger_in):
                      sys.exit(1)
                 each_key = each_key.strip()
                 if not MyUtil.CheckAlphaDashUnder(each_key):
-                    logger.ERROR("Invalid characters in goals.config's key (%s)\n" % each_key)
+                    logger.ERROR("Invalid characters in goals.config's key (%s)" % each_key)
                     sys.exit(1)
                 if len(each_key) > 15:
                     logger.DEBUG("goal (%s) is more than 15 characters long\n" % each_key)
@@ -256,7 +255,7 @@ def ParseGoals(homedir, studentdir, logger_in):
                 numvalues = len(values)
                 logger.DEBUG('numvalues is %d  values are: %s' % (numvalues, str(values)))
                 if not (numvalues == 4 or numvalues == 3 or numvalues == 2):
-                    logger.ERROR("goals.config contains unexpected value (%s) format\n" % each_value)
+                    logger.ERROR("goals.config contains unexpected value (%s) format" % each_value)
                     sys.exit(1)
                 if numvalues == 4:
                     ''' <type> : <operator> : <resulttag> : <answertag> '''
@@ -265,15 +264,15 @@ def ParseGoals(homedir, studentdir, logger_in):
                     resulttag = values[2].strip()
                     answertag = values[3].strip()
                     # Allowed 'answer=<string>' for answertag only
-                    valid_answertag = ValidateTag(parameter_list, studentdir, goal_type, answertag, True)
-                    valid_resulttag = ValidateTag(parameter_list, studentdir, goal_type, resulttag, False)
+                    valid_answertag = ValidateTag(parameter_list, studentdir, goal_type, answertag, True, logger)
+                    valid_resulttag = ValidateTag(parameter_list, studentdir, goal_type, resulttag, False, logger)
                     if not (goal_type == "matchany" or
                         goal_type == "matchlast" or
                         goal_type == "matchacross" or
                         goal_type == "count" or
                         goal_type == "value" or
                         goal_type == "execute"):
-                        logger.ERROR("goals.config contains unrecognized type (1) (%s)\n" % goal_type)
+                        logger.ERROR("goals.config contains unrecognized type (1) (%s)" % goal_type)
                         sys.exit(1)
                     if not (goal_type == "execute"):
                         # If goal_type is not 'execute' then check the goal_operator
@@ -284,13 +283,13 @@ def ParseGoals(homedir, studentdir, logger_in):
                             goal_operator == "integer_equal" or
                             goal_operator == "integer_greater" or
                             goal_operator == "integer_lessthan"):
-                            logger.ERROR("goals.config contains unrecognized operator (%s)\n" % goal_operator)
+                            logger.ERROR("goals.config contains unrecognized operator (%s)" % goal_operator)
                             sys.exit(1)
                     else:
                         # Make sure the file to be executed exist
                         execfile = os.path.join(MYHOME, '.local', 'bin', goal_operator)
                         if not (os.path.exists(execfile) and os.path.isfile(execfile)):
-                            logger.ERROR("goals.config contains execute goals with missing exec file (%s)\n" % goal_operator)
+                            logger.ERROR("goals.config contains execute goals with missing exec file (%s)" % goal_operator)
                             sys.exit(1)
                     nametags.append(MyGoal(each_key, goal_type, goaloperator=goal_operator, answertag=valid_answertag, resulttag=valid_resulttag))
                     #print "goal_type non-boolean"
