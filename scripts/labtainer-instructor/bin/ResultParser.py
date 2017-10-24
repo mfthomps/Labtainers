@@ -74,8 +74,8 @@ def ValidateTokenId(each_value, token_id):
         try:
             int(token_id)
         except ValueError:
-            sys.stderr.write("ERROR: results.config line (%s)\n" % each_value)
-            sys.stderr.write("ERROR: results.config has invalid token_id\n")
+            logger.ERROR("results.config line (%s)\n" % each_value)
+            logger.ERROR("results.config has invalid token_id\n")
             sys.exit(1)
 
 def findLineIndex(values):
@@ -85,14 +85,14 @@ def findLineIndex(values):
 
     return None
 
-def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname, each_key, each_value, logger):
+def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname, each_key, each_value):
     '''
     Misleading name, this function populates a set of global structures used in processign the results
     '''
     valid_field_types = ['TOKEN', 'PARENS', 'QUOTES', 'SLASH', 'LINE_COUNT', 'CONTAINS', 
                          'SEARCH', 'PARAM', 'STRING_COUNT']
     if not MyUtil.CheckAlphaDashUnder(each_key):
-        sys.stderr.write("ERROR: Not allowed characters in results.config's key (%s)\n" % each_key)
+        logger.ERROR("Not allowed characters in results.config's key (%s)\n" % each_key)
         sys.exit(1)
     values = []
     # expecting:
@@ -109,13 +109,12 @@ def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname,
     numvalues = len(values)
     logger.DEBUG("each_value is %s -- numvalues is (%d)" % (each_value, numvalues))
     if numvalues < 3 and values[1] not in just_field_type:
-        sys.stderr.write("ERROR: results.config contains unexpected value (%s) format\n" % each_value)
+        logger.ERROR("results.config contains unexpected value (%s) format\n" % each_value)
         sys.exit(1)
     line_at = findLineIndex(values)
     if line_at is None:
-        sys.stderr.write('No line_type in %s\n' % each_value)
         logger.ERROR('No line_type in %s\n' % each_value)
-        exit(1)
+        sys.exit(1)
     num_splits = line_at+1
     #print "line_at is (%d) and num_splits is (%d)" % (line_at, num_splits)
      
@@ -131,7 +130,7 @@ def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname,
     else:
         if len(container_list) > 1:
             logger.ERROR('No container name found in multi container lab entry: %s' % newprogname_type)
-            exit(1)
+            sys.exit(1)
         if newprogname_type.endswith('stdin') or newprogname_type.endswith('stdout') \
              or newprogname_type.endswith('prgout'):
             cfgcontainername = container_list[0].split('.')[1]
@@ -162,7 +161,6 @@ def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname,
         # Can only parse for wildcard if it is actual parsing - not validation
         if exec_program == "*" and actual_parsing:
             exec_program_list = GetExecProgramList(containername, studentlabdir, container_list, targetfile)
-            #print "exec_program_list is %s" % exec_program_list
             logger.DEBUG("wildcard, exec_program_list is %s" % exec_program_list)
         else:
             exec_program_list.append(exec_program)
@@ -185,18 +183,14 @@ def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname,
 
         #print container_exec_proglist
 
-    #    sys.stderr.write("ERROR: results.config line (%s)\n" % each_value)
-    #    sys.stderr.write("ERROR: results.config uses not stdin or sdout\n")
-    #    sys.exit(1)
-
     # Validate <field_type> - if exists (i.e., line_at == 3)
     #                       - because <field_type> is optional
     field_type = None
     if line_at == 3:
         field_type = values[1].strip()
         if field_type not in valid_field_types:
-            sys.stderr.write("ERROR: results.config line (%s)\n" % each_value)
-            sys.stderr.write("ERROR: results.config invalid field_type\n")
+            logger.ERROR("results.config line (%s)\n" % each_value)
+            logger.ERROR("results.config invalid field_type\n")
             sys.exit(1)
 
     # If line_type1 (line_at != 1) - verify token id
@@ -210,13 +204,13 @@ def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname,
         try:
             int(values[line_at+1])
         except:
-            sys.stderr.write('Expected integer following LINE type, got %s in %s' % (values[line_at+1], each_value))
-            exit(1)
+            logger.ERROR('Expected integer following LINE type, got %s in %s' % (values[line_at+1], each_value))
+            sys.exit(1)
 
 
     return 0
 
-def getToken(linerequested, field_type, token_id, logger):
+def getToken(linerequested, field_type, token_id):
         #print "Line requested is (%s)" % linerequested
         if linerequested == "NONE":
             token = "NONE"
@@ -278,7 +272,7 @@ def getToken(linerequested, field_type, token_id, logger):
                     token = linetokens[tokenno-1]
         return token
 
-def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_list, timestamppart, logger):
+def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_list, timestamppart):
     retval = True
     targetlines = None
     #print('line is %s' % line)
@@ -392,7 +386,6 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
             # If file does not exist, treat as can't find token
             token = "NONE"
             logger.DEBUG("No %s file does not exist\n" % current_targetfname)
-            #sys.exit(1)
             nametags[each_key] = token
             return False
         else:
@@ -520,10 +513,10 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
                     logger.DEBUG('*** No next line starts with %s ***' % (lookupstring))
                     linerequested = "NONE"
             else:
-                print('ERROR: unknown command %s' % command)
-                exit(1)
+                logger.ERROR('unknown command %s' % command)
+                sys.exit(1)
 
-            token = getToken(linerequested, field_type, token_id, logger)
+            token = getToken(linerequested, field_type, token_id)
             logger.DEBUG('field_type %s, token_id %s, got token %s' % (field_type, token_id, token))
 
         #print token
@@ -540,7 +533,7 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
 
 
 def ParseConfigForFile(studentlabdir, labidname, configfilelines, 
-                       outputjsonfname, container_list, timestamppart, end_time, logger):
+                       outputjsonfname, container_list, timestamppart, end_time):
     '''
     Invoked for each timestamp to parse results for that timestamp.
     Each config file line is assessed against each results file that corresponds
@@ -554,7 +547,7 @@ def ParseConfigForFile(studentlabdir, labidname, configfilelines,
     for line in configfilelines:
         linestrip = line.rstrip()
         if linestrip is not None and not linestrip.startswith('#') and len(line.strip())>0:
-            got_one = got_one | handleConfigFileLine(labidname, linestrip, nametags, studentlabdir, container_list, timestamppart, logger)
+            got_one = got_one | handleConfigFileLine(labidname, linestrip, nametags, studentlabdir, container_list, timestamppart)
 
     if end_time is not None:
         program_end_time = end_time
@@ -580,6 +573,7 @@ def ParseConfigForFile(studentlabdir, labidname, configfilelines,
         jsonoutput.write('\n')
         jsonoutput.close()
 
+# Note this can be called directly also
 def ParseValidateResultConfig(actual_parsing, homedir, studentlabdir, container_list, labidname, logger_in):
     MYHOME = homedir
     logger = logger_in
@@ -597,9 +591,9 @@ def ParseValidateResultConfig(actual_parsing, homedir, studentlabdir, container_
                     (each_key, each_value) = linestrip.split('=', 1)
                 except:
                      logger.ERROR('missing "=" character in %s' % linestrip)
-                     exit(1)
+                     sys.exit(1)
                 each_key = each_key.strip()
-                ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname, each_key, each_value, logger)
+                ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname, each_key, each_value)
                 if each_key not in resultidlist:
                     resultidlist.append(each_key)
         #else:
@@ -659,8 +653,6 @@ def ParseStdinStdout(homedir, studentlabdir, container_list, instructordir, labi
             stdoutfiles = '%s%s.%s.' % (RESULTHOME, exec_prog, "stdout")
             prgoutfiles = '%s%s.%s.' % (RESULTHOME, exec_prog, "prgout")
             logger.DEBUG('stdin %s stdout %s' % (stdinfiles, stdoutfiles))
-            #print stdinfiles
-            #print stdoutfiles
             globstdinfnames = glob.glob('%s*' % stdinfiles)
             if globstdinfnames != []:
                 #print "globstdinfname list is "
@@ -704,12 +696,11 @@ def ParseStdinStdout(homedir, studentlabdir, container_list, instructordir, labi
         targetmtime_string = datetime.datetime.fromtimestamp(timestamplist[timestamppart])
         end_time = targetmtime_string.strftime("%Y%m%d%H%M%S")
         outputjsonfname = '%s%s.%s' % (OUTPUTRESULTHOME, jsonoutputfilename, timestamppart)
-        #print "ParseStdinStdout (1): Outputjsonfname is (%s)" % outputjsonfname
         logger.DEBUG("ParseStdinStdout (1): Outputjsonfname is (%s)" % outputjsonfname)
         ParseConfigForFile(studentlabdir, labidname, configfilelines, outputjsonfname, 
-                           container_list, timestamppart, end_time, logger)
+                           container_list, timestamppart, end_time)
     ''' process files without timestamps '''
     outputjsonfname = '%s%s' % (OUTPUTRESULTHOME, jsonoutputfilename)
-    ParseConfigForFile(studentlabdir, labidname, configfilelines, outputjsonfname, container_list, None, None, logger)
+    ParseConfigForFile(studentlabdir, labidname, configfilelines, outputjsonfname, container_list, None, None)
 
 

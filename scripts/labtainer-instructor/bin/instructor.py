@@ -32,7 +32,6 @@ MYHOME=os.getenv('HOME')
 logger = InstructorLogging.InstructorLogging("/tmp/instructor.log")
 
 def store_student_watermark(gradesjson, email_labname, actual_watermark, expected_watermark):
-    #print('store_student_watermal email_labname %s actual %s expected %s' % (email_labname, actual_watermark, expected_watermark))
     logger.DEBUG('store_student_watermal email_labname %s actual %s expected %s' % (email_labname, actual_watermark, expected_watermark))
     if email_labname not in gradesjson:
         gradesjson[email_labname] = {}
@@ -49,7 +48,6 @@ def store_student_watermark(gradesjson, email_labname, actual_watermark, expecte
         gradesjson[email_labname]['expectedwatermark'] = expected_watermark
 
 def store_student_firstlevelzip(gradesjson, email_labname, first_zip_name):
-    #print('store_student_firstlevelzip email_labname %s first_zip_name %s' % (email_labname, first_zip_name))
     logger.DEBUG('store_student_firstlevelzip email_labname %s first_zip_name %s' % (email_labname, first_zip_name))
     if email_labname not in gradesjson:
         gradesjson[email_labname] = {}
@@ -64,7 +62,6 @@ def store_student_firstlevelzip(gradesjson, email_labname, first_zip_name):
         gradesjson[email_labname]['firstlevelzip'] = first_zip_name
 
 def store_student_secondlevelzip(gradesjson, email_labname, second_zip_name):
-    #print('store_student_secondlevelzip email_labname %s second_zip_name %s' % (email_labname, second_zip_name))
     logger.DEBUG('store_student_secondlevelzip email_labname %s second_zip_name %s' % (email_labname, second_zip_name))
     if email_labname not in gradesjson:
         gradesjson[email_labname] = {}
@@ -79,7 +76,6 @@ def store_student_secondlevelzip(gradesjson, email_labname, second_zip_name):
         gradesjson[email_labname]['secondlevelzip'] = second_zip_name
 
 def store_student_parameter(gradesjson, email_labname, student_parameter):
-    #print('store_student_parameter email_labname %s student_parameter %s' % (email_labname, student_parameter))
     logger.DEBUG('store_student_parameter email_labname %s student_parameter %s' % (email_labname, student_parameter))
     if email_labname not in gradesjson:
         gradesjson[email_labname] = {}
@@ -92,14 +88,13 @@ def store_student_parameter(gradesjson, email_labname, student_parameter):
     else:
         if gradesjson[email_labname]['parameter'] != {}:
             # Already have that student's parameter stored
-            print("instructor.py store_student_parameter: duplicate email_labname %s student_parameter %s" % (email_labname, student_parameter))
             logger.ERROR("instructor.py store_student_parameter: duplicate email_labname %s student_parameter %s" % (email_labname, student_parameter))
-            exit(1)
+            sys.exit(1)
         else:
             gradesjson[email_labname]['parameter'] = copy.deepcopy(student_parameter)
 
 def store_student_grades(gradesjson, email_labname, grades):
-    #print('store_student_grades email_labname %s grades %s' % (email_labname, grades))
+    logger.DEBUG('store_student_grades email_labname %s grades %s' % (email_labname, grades))
     if email_labname not in gradesjson:
         gradesjson[email_labname] = {}
         gradesjson[email_labname]['parameter'] = {}
@@ -111,8 +106,8 @@ def store_student_grades(gradesjson, email_labname, grades):
     else:
         if gradesjson[email_labname]['grades'] != {}:
             # Already have that student's grades stored
-            print("instructor.py store_student_grades: duplicate email_labname %s grades %s" % (email_labname, grades))
-            exit(1)
+            logger.ERROR("instructor.py store_student_grades: duplicate email_labname %s grades %s" % (email_labname, grades))
+            sys.exit(1)
         else:
             gradesjson[email_labname]['grades'] = copy.deepcopy(grades)
 
@@ -142,7 +137,7 @@ def Check_SecondLevel_EmailWatermark_OK(gradesjson, email_labname, student_id, z
 
     # Student ID obtained from ZipFileName must match the one from E-mail file
     if student_id != student_id_from_file:
-        #print "ERROR: mismatch student_id is (%s) student_id_from_file is (%s)" % (student_id, student_id_from_file)
+        #print "mismatch student_id is (%s) student_id_from_file is (%s)" % (student_id, student_id_from_file)
         store_student_secondlevelzip(gradesjson, email_labname, student_id_from_file)
         check_result = False
 
@@ -163,7 +158,7 @@ def Check_SecondLevel_EmailWatermark_OK(gradesjson, email_labname, student_id, z
 
         # Watermark must match
         if actual_watermark != expected_watermark:
-            #print "ERROR: mismatch actual is (%s) expected is (%s)" % (actual_watermark, expected_watermark)
+            #print "mismatch actual is (%s) expected is (%s)" % (actual_watermark, expected_watermark)
             check_result = False
         # Store the actual and expected watermark regardless
         # So that when generating report, we can figure out the 'source' 
@@ -186,7 +181,7 @@ def main():
     lab_name_dir = os.path.join(MYHOME,'.local','.labname')
     if not os.path.isfile(lab_name_dir):
         logger.ERROR('no file at %s, perhaps running instructor script on wrong containers?' % lab_name_dir)
-        exit(1)
+        sys.exit(1)
 
     with open(lab_name_dir) as fh:
         LabIDName = fh.read().strip()
@@ -274,7 +269,7 @@ def main():
             #print email_labname
         else:
             # Old format - no containername
-            sys.stderr.write("ERROR: Instructor.py old format (no containername) no longer supported!\n")
+            logger.ERROR("Instructor.py old format (no containername) no longer supported!\n")
             return 1
         student_id = email_labname.rsplit('.', 1)[0]
         #print "student_id is %s" % student_id
