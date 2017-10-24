@@ -19,10 +19,12 @@ else
     echo "no profile, use .profile anyway?"
     target=$HOME/.profile
 fi
-if grep --quiet bash-pre-capinout.sh $HOME/.profile; then
-    echo "already hooked"
+if grep --quiet startup.sh $target/.profile; then
+    echo "already hooked" >>/dev/null
 else
-    echo "hook not enabled, fix this"
+    #echo "hook not enabled, fix this"
     cat $HOME/.local/bin/profile-add >> $target
+    cat $HOME/.local/bin/bashrc-add  |  sed 's@PRECMD_HOME_REPLACE_ME@'"$HOME"'@' >> $HOME/.bashrc
+    cat $HOME/.local/bin/bashrc-add  |  sed 's@PRECMD_HOME_REPLACE_ME@'"$HOME"'@' >> /root/.bashrc
 fi
 
