@@ -51,6 +51,12 @@ CONTAINER default
         # Here is where you would identify networks connected to the container, 
         # and assign addresses as in the following example:
         # DMZ_LINK 172.25.0.2
+        #
+        # Script name passed to the Docker start command.  This defaults to bash, which is used
+        # by most Ubuntu-based labtainers.  The CENTOS containers should pass a value of "NONE"
+        # because they will start with the /usr/sbin/init.
+        #
+        # SCRIPT NONE
 
 
 
