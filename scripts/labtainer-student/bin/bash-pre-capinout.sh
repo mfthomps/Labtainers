@@ -50,7 +50,7 @@ getlocaloutput(){
 }
 treatlocal(){
    local cmd_path=$1
-   local TAS=$HOME/.local/bin/treataslocal
+   local TAS=$PRECMD_HOME/.local/bin/treataslocal
    if [ -f $TAS ]
    then
        local_output=""
@@ -79,7 +79,7 @@ treatlocal(){
 }
 ignorelocal(){
    local cmd_path=$1
-   local TAS=$HOME/.local/bin/ignorelocal
+   local TAS=$PRECMD_HOME/.local/bin/ignorelocal
    if [ -f $TAS ]
    then
        # Get the list of commands from ignorelocal
@@ -95,7 +95,7 @@ ignorelocal(){
 }
 forcecheck(){
    local cmd_path=$1
-   local TAS=$HOME/.local/bin/forcecheck
+   local TAS=$PRECMD_HOME/.local/bin/forcecheck
    if [ -f $TAS ]
    then
        # Get the list of commands from forcecheck
@@ -118,6 +118,7 @@ forcecheck(){
 #
 preexec() {
    #echo "just typed $1";
+   history -a
    timestamp=$(date +"%Y%m%d%H%M%S")
    if [[ "$1" == "exit" ]]; then
        return 0
@@ -141,9 +142,9 @@ preexec() {
        counter=$[$counter +1]
        cmd_line_array=($command)
        if [ ${cmd_line_array[0]} == "sudo" ]; then
-          cmd_path=`which ${cmd_line_array[1]}`
+          cmd_path=`which ${cmd_line_array[1]} 2>/dev/null`
        else
-          cmd_path=`which ${cmd_line_array[0]}`
+          cmd_path=`which ${cmd_line_array[0]} 2>/dev/null`
        fi
        if [[ $cmd_path == alias* ]]; then
            IFS=$'\n' read -rd '' -a y <<<"$cmd_path"
@@ -153,11 +154,11 @@ preexec() {
        forcecheck $cmd_path
        result=$?
        if [ $result == 1 ]; then
-          if [ -f $HOME/.local/bin/checklocal.sh ]
+          if [ -f $PRECMD_HOME/.local/bin/checklocal.sh ]
           then
-              checklocaloutfile="$HOME/.local/result/checklocal.stdout.$timestamp"
-              checklocalinfile="$HOME/.local/result/checklocal.stdin.$timestamp"
-              $HOME/.local/bin/checklocal.sh > $checklocaloutfile 2>/dev/null
+              checklocaloutfile="$PRECMD_HOME/.local/result/checklocal.stdout.$timestamp"
+              checklocalinfile="$PRECMD_HOME/.local/result/checklocal.stdin.$timestamp"
+              $PRECMD_HOME/.local/bin/checklocal.sh > $checklocaloutfile 2>/dev/null
               # For now, there is nothing (i.e., no stdin) for checklocal
               echo "" >> $checklocalinfile
           fi
@@ -173,7 +174,7 @@ preexec() {
                # we are to timestamp a program output file 
                #echo "local output is $local_output"
                just_command=$(basename $cmd_path)
-               cp $local_output $HOME/.local/result/$just_command.prgout.$timestamp
+               cp $local_output $PRECMD_HOME/.local/result/$just_command.prgout.$timestamp
            fi
            return 1
        fi
