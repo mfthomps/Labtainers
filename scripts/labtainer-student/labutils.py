@@ -998,6 +998,8 @@ def GatherOtherArtifacts(lab_path, name, container_name, container_user, contain
     config_path       = os.path.join(lab_path,"instr_config") 
     results_config_path = os.path.join(config_path,"results.config")
     did_file = []
+    CopyAbsToResult(container_name, '/root/.bash_history', container_user, ignore_stop_error) 
+    did_file.append('/root/.bash_history')
     with open (results_config_path) as fh:
         for line in fh:
             ''' container:filename is between "=" and first " : " '''
@@ -1022,33 +1024,36 @@ def GatherOtherArtifacts(lab_path, name, container_name, container_user, contain
                 logger.DEBUG('file on this container to copy <%s>' % fname )
                 if fname.startswith('/') and fname not in did_file:
                     ''' copy from abs path to ~/.local/result ''' 
-               
-                    #command='docker exec %s echo "%s\n" | sudo -S cp --parents %s /home/%s/.local/result' % (container_name, 
-                    #    container_password, fname, container_user)
-                    command='docker exec %s sudo  cp --parents %s /home/%s/.local/result' % (container_name, fname, container_user)
-                    logger.DEBUG(command)
-                    child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                    error = child.stderr.read().strip()
-                    if len(error) > 0:
-                        if ignore_stop_error:
-                            logger.DEBUG('error from docker: %s' % error)
-                            logger.DEBUG('command was %s' % command)
-                        else:
-                            logger.DEBUG('error from docker: %s' % error)
-                            logger.DEBUG('command was %s' % command)
+                    CopyAbsToResult(container_name, fname, container_user, ignore_stop_error) 
                     did_file.append(fname)
-                    #command='docker exec %s echo "%s\n" | sudo -S chmod a+r -R /home/%s/.local/result' % (container_name, container_password, container_user)
-                    command='docker exec %s sudo chmod a+r -R /home/%s/.local/result' % (container_name, container_user)
-                    child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                    error = child.stderr.read().strip()
-                    if len(error) > 0:
-                        if ignore_stop_error:
-                            logger.DEBUG('chmod ERROR: %s' % error)
-                            logger.DEBUG('command was %s' % command)
-                        else:
-                            logger.ERROR('chmod ERROR: %s' % error)
-                            logger.ERROR('command was %s' % command)
                         
+def CopyAbsToResult(container_name, fname, container_user, ignore_stop_error):
+    ''' copy from abs path to ~/.local/result '''
+
+    #command='docker exec %s echo "%s\n" | sudo -S cp --parents %s /home/%s/.local/result' % (container_name, 
+    #    container_password, fname, container_user)
+    command='docker exec %s sudo  cp --parents %s /home/%s/.local/result' % (container_name, fname, container_user)
+    logger.DEBUG(command)
+    child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    error = child.stderr.read().strip()
+    if len(error) > 0:
+        if ignore_stop_error:
+            logger.DEBUG('error from docker: %s' % error)
+            logger.DEBUG('command was %s' % command)
+        else:
+            logger.DEBUG('error from docker: %s' % error)
+            logger.DEBUG('command was %s' % command)
+    #command='docker exec %s echo "%s\n" | sudo -S chmod a+r -R /home/%s/.local/result' % (container_name, container_password, container_user)
+    command='docker exec %s sudo chmod a+r -R /home/%s/.local/result' % (container_name, container_user)
+    child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    error = child.stderr.read().strip()
+    if len(error) > 0:
+        if ignore_stop_error:
+            logger.DEBUG('chmod ERROR: %s' % error)
+            logger.DEBUG('command was %s' % command)
+        else:
+            logger.ERROR('chmod ERROR: %s' % error)
+            logger.ERROR('command was %s' % command)
 
 # RunInstructorCreateGradeFile
 def RunInstructorCreateGradeFile(container_name, container_user, labname, is_regress_test):
