@@ -30,6 +30,7 @@ fsp		21/udp		fspd
 ssh		22/tcp				# SSH Remote Login Protocol
 ssh		22/udp
 telnet		23/tcp
+telnetx		2023/tcp
 smtp		25/tcp		mail
 time		37/tcp		timserver
 time		37/udp		timserver
