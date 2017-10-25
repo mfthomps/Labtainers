@@ -62,7 +62,10 @@ treatlocal(){
            read -r -a cmd_array <<< "$cmdlocal"
            the_command=${cmd_array[0]}
            #echo "the command $the_command"
-           if [[ "$cmd_path" == "$the_command" ]]; then
+           base_cmd=$(basename $cmd_path)
+           base_treat=$(basename $the_command)
+           if [[ "$base_cmd" == "$base_treat" ]]; then
+
                if [[ ${#cmd_array[@]} == "2" ]];then
                   the_param=${cmd_array[1]}
                   #echo "the_param is $the_param"
