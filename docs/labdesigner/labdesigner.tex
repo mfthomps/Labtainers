@@ -335,11 +335,14 @@ script.  The script should be placed in container \_bin directory, i.e.,
 \end{verbatim}
 \noindent If the title is "INSTRUCTIONS", no script is necessary and the instructions.txt file
 in the container home directory will be displayed.
-\item USER [user name] -- The user name whose account will be accessed via the virtual terminals. If
-the user is not "ubuntu", then the Dockerfile must include an entry to add the user to the container.
-(See the nmap-ssh lab mycomputer dockerfile as an example).
+\item USER [user name] -- The user name whose account will be accessed via the virtual terminals. 
+This defaults to "ubuntu."
+\item PASSWORD [password] -- The password for the user name whose account will be accessed via the virtual terminals. 
+This defaults to the user name defined above.
 \item network name [ip address] -- Network address assignments for each network (defined via a NETWORK section), 
 that is to be connected to this container.  A separate line should be entered for each network.
+\item SCRIPT [script] -- Optional script to provide to the Docker create command, defaults to "bash".  This must be set to
+"NONE" for CENTOS-based labs (and likely fedora[test that]).
 \end{itemize}
 \end{itemize}
   
@@ -420,6 +423,16 @@ appear in /var/log), and runs rc.local.  The network configuration of the baseli
 which will then fork services, e.g., the sshd, per the /etc/xinet.d/ configuration files.  The faux\_init script
 can be extended (or replaced) as needed by the lab.  The example telnetlab illustrates the use of this script
 to provide network services.
+
+The CENTOS-based Labtainer labs, exemplified by centos-log, do not use the \textit{faux\_init}, rather they
+use a Docker image built to run systemd and the /usr/sbin/init process.  The Dockerfile template includes
+commented options for CENTOS.  The config/start.config file must also include the 
+\begin{verbatim}
+    SCRIPT NONE
+\end{verbatim}
+\noindent line.  The centos-log also provides an example of forcing the student to login using the traditional
+login program, controlled by its bin/student\_startup.sh script.   
+
 
 \subsection {Instructions for Students} \label{instructions}
 Lab instructions for students can be displayed in a virtual terminal by placing an
@@ -593,7 +606,8 @@ names appear at the beginning of a line in the \textit{treataslocal} file at
 \begin{verbatim}
     $LABTAINER_DIR/labs/[labname]/[container name]/_bin/treataslocal
 \end{verbatim}
-\noindent System utilties should include their full path, e.g., "/usr/bin/nmap".
+\noindent The basename of the treataslocal entries are compared to the basename of each command.
+In other words, if the treataslocal entry is: "/usr/bin/nmap", the path leading to nmap is ignored.
 
 The treataslocal file program identifiers can include optional output file identifiers that
 cause timestamped copies of specified files to be made whenever the program is invoked.  
@@ -722,6 +736,11 @@ e.g., using the sysctl command to effect ASLR. A \textit{checklocal.sh} script i
 is intended to contain whatever commands are necessary to record the 
 state of the system at the time a program was invoked.  The stdout of
 the checklocal.sh script is recorded at the beginning of the stdout artifact. 
+As another example, consider the file-deletion lab \textit{checklocal.sh} script.
+It mounts a directory, lists its content, and unmounts it.  This all occurs 
+transparently to the student, and, in this example, help confirm a specific file
+was in fact deleted at the time of issuing a command to recover deleted content from
+the volume.
 
 \subsection{Assessing the student results}
 Results of student lab activity are assigned symbolic names by the results.config file
@@ -935,6 +954,22 @@ trunk/scripts/labdesigner/base_dockerfiles/Dockerfile.labtainer.base
 \end{verbatim}
 Similar Dockerfile entries in new or existing labs can provide alternate locale settings.
 
+\section{Suggestions for Developers}
+The result and goals configuration files can be revised and tested within a
+running instructor container.  This saves time because you do not need to rebuild
+the container for each iteration of the development of configuration files.  However,
+be sure to scp the configuration files from the container to your host Linux system.
+
+Most result and goal assessment can occur once you have generated a suitable sample of
+expected student artifacts.  In other words, adding new goal does not typically require
+that you go back and re-perform student actions.  Exceptions to this are:
+
+\begin{enumerate}
+\item Adding new system commands to a "treataslocal" file;
+\item Identifying new system files to be parsed as results.  For example, results in a log
+file will not be collected unless that log file has been named in the results.config file.
+\end{enumerate}
+
 \section{Limitations}
 The labtainers framework limits labs to the Linux execution environment.
 However, a lab designer could prescribe the inclusion of a separate
@@ -943,13 +978,15 @@ VM that hosts the Docker containers.  Future work would be necessary to include
 artifacts from the Windows system within the framework's automated assessment
 and parameterization.
 
-The process tree of the initial Linux process will
+Within the Ubuntu-based labs, the process tree of the initial Linux process will
 not look like a typical Linux system \textit{init} process.  Within containers that have no
 services, the initial process, i.e., process ID 1, will be a bash shell.
 Containers having services and logging will have an initial process that is
 the script that launches the services, e.g., the \textit{faux\_init} script.  However,
 other process tree's will appear as they
 do in Linux system, and this includes inetd services.
+
+The CENTOS-based labs have the true /usr/sbin/init process and systemd structure.
 
 Inquisitive students will see evidence of artifact collection.  Home directories
 on containers includes a \texttt{.local} directory that includes Labtainer scripts that manage
