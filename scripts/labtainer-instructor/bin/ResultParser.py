@@ -75,7 +75,7 @@ def ValidateTokenId(each_value, token_id, logger):
             int(token_id)
         except ValueError:
             logger.ERROR("results.config line (%s)\n" % each_value)
-            logger.ERROR("results.config has invalid token_id\n")
+            logger.ERROR("results.config has invalid token_id")
             sys.exit(1)
 
 def findLineIndex(values):
@@ -92,7 +92,7 @@ def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname,
     valid_field_types = ['TOKEN', 'PARENS', 'QUOTES', 'SLASH', 'LINE_COUNT', 'CONTAINS', 
                          'SEARCH', 'PARAM', 'STRING_COUNT']
     if not MyUtil.CheckAlphaDashUnder(each_key):
-        logger.ERROR("Not allowed characters in results.config's key (%s)\n" % each_key)
+        logger.ERROR("Not allowed characters in results.config's key (%s)" % each_key)
         sys.exit(1)
     values = []
     # expecting:
@@ -109,11 +109,11 @@ def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname,
     numvalues = len(values)
     logger.DEBUG("each_value is %s -- numvalues is (%d)" % (each_value, numvalues))
     if numvalues < 3 and values[1] not in just_field_type:
-        logger.ERROR("results.config contains unexpected value (%s) format\n" % each_value)
+        logger.ERROR("results.config contains unexpected value (%s) format" % each_value)
         sys.exit(1)
     line_at = findLineIndex(values)
     if line_at is None:
-        logger.ERROR('No line_type in %s\n' % each_value)
+        logger.ERROR('No line_type in %s' % each_value)
         sys.exit(1)
     num_splits = line_at+1
     #print "line_at is (%d) and num_splits is (%d)" % (line_at, num_splits)
@@ -190,7 +190,7 @@ def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname,
         field_type = values[1].strip()
         if field_type not in valid_field_types:
             logger.ERROR("results.config line (%s)\n" % each_value)
-            logger.ERROR("results.config invalid field_type\n")
+            logger.ERROR("results.config invalid field_type")
             sys.exit(1)
 
     # If line_type1 (line_at != 1) - verify token id
