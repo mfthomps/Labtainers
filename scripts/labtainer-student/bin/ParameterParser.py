@@ -31,7 +31,7 @@ global container_name
 
 logger = ParameterizeLogging.ParameterizeLogging("/tmp/parameterize.log")
 
-def WatermarkCreate(container_user, lab_instance_seed):
+def WatermarkCreate(container_user, lab_instance_seed, logger):
     the_watermark_string = "LABTAINER_WATERMARK1"
     # Create hash per the_watermark_string (note: there is only one watermark file for now)
     string_to_be_hashed = '%s:%s' % (lab_instance_seed, the_watermark_string)
@@ -65,7 +65,7 @@ def WatermarkCreate(container_user, lab_instance_seed):
             outfile.write('%s\n' % the_string)
         outfile.close()
 
-def CheckRandReplaceEntry(container_user, lab_instance_seed, param_id, each_value):
+def CheckRandReplaceEntry(container_user, lab_instance_seed, param_id, each_value, logger):
     # RAND_REPLACE : <filename> : <token> : <LowerBound> : <UpperBound>
     #print "Checking RAND_REPLACE entry"
     entryline = each_value.split(': ')
@@ -146,7 +146,7 @@ def CheckRandReplaceEntry(container_user, lab_instance_seed, param_id, each_valu
     paramlist[param_id] = random_str
 
 
-def CheckHashCreateEntry(container_user, lab_instance_seed, param_id, each_value):
+def CheckHashCreateEntry(container_user, lab_instance_seed, param_id, each_value, logger):
     # HASH_CREATE : <filename> : <string>
     #print "Checking HASH_CREATE entry"
     entryline = each_value.split(': ')
@@ -211,7 +211,7 @@ def CheckHashCreateEntry(container_user, lab_instance_seed, param_id, each_value
             hashcreatelist[myfilename].append('%s' % mymd5_hex_string)
     paramlist[param_id] = mymd5_hex_string
 
-def CheckHashReplaceEntry(container_user, lab_instance_seed, param_id, each_value):
+def CheckHashReplaceEntry(container_user, lab_instance_seed, param_id, each_value, logger):
     # HASH_REPLACE : <filename> : <token> : <string>
     #print "Checking HASH_REPLACE entry"
     entryline = each_value.split(': ')
@@ -273,23 +273,23 @@ def CheckHashReplaceEntry(container_user, lab_instance_seed, param_id, each_valu
     paramlist[param_id] = mymd5_hex_string
 
 
-def ValidateParameterConfig(container_user, lab_instance_seed, param_id, each_key, each_value):
+def ValidateParameterConfig(container_user, lab_instance_seed, param_id, each_key, each_value, logger):
     if each_key == "RAND_REPLACE":
         #print "RAND_REPLACE"
-        CheckRandReplaceEntry(container_user, lab_instance_seed, param_id, each_value)
+        CheckRandReplaceEntry(container_user, lab_instance_seed, param_id, each_value, logger)
     elif each_key == "HASH_CREATE":
         #print "HASH_CREATE"
-        CheckHashCreateEntry(container_user, lab_instance_seed, param_id, each_value)
+        CheckHashCreateEntry(container_user, lab_instance_seed, param_id, each_value, logger)
     elif each_key == "HASH_REPLACE":
         #print "HASH_REPLACE"
-        CheckHashReplaceEntry(container_user, lab_instance_seed, param_id, each_value)
+        CheckHashReplaceEntry(container_user, lab_instance_seed, param_id, each_value, logger)
     else:
         logger.ERROR("ParseParameter.py, ValidateParameterConfig, Invalid operator %s" % each_key)
         sys.exit(1)
     return 0
 
 # Perform RAND_REPLACE
-def Perform_RAND_REPLACE(lab_instance_seed):
+def Perform_RAND_REPLACE(lab_instance_seed, logger):
     global container_name
     # At this point randreplacelist should have been populated
     # and files have been confirmed to exist
@@ -327,7 +327,7 @@ def Perform_RAND_REPLACE(lab_instance_seed):
         
 
 # Perform HASH_CREATE
-def Perform_HASH_CREATE(lab_instance_seed):
+def Perform_HASH_CREATE(lab_instance_seed, logger):
     global container_name
     # At this point hashcreatelist should have been populated
     # and files have been confirmed to exist or created
@@ -354,7 +354,7 @@ def Perform_HASH_CREATE(lab_instance_seed):
         outfile.close()
 
 # Perform HASH_REPLACE
-def Perform_HASH_REPLACE(lab_instance_seed):
+def Perform_HASH_REPLACE(lab_instance_seed, logger):
     global container_name
     # At this point hashreplacelist should have been populated
     # and files have been confirmed to exist
@@ -396,19 +396,20 @@ def Perform_HASH_REPLACE(lab_instance_seed):
         with open(filename, 'w') as outfile:
             outfile.write(content)
 
-def DoReplace(container_user, lab_instance_seed):
+def DoReplace(container_user, lab_instance_seed, logger):
     # Do create Watermark here - instructor container does not call this
     #print "WATERMARK_CREATE"
-    WatermarkCreate(container_user, lab_instance_seed)
+    WatermarkCreate(container_user, lab_instance_seed, logger)
 
     # Perform RAND_REPLACE
-    Perform_RAND_REPLACE(lab_instance_seed)
+    Perform_RAND_REPLACE(lab_instance_seed, logger)
     # Perform HASH_CREATE
-    Perform_HASH_CREATE(lab_instance_seed)
+    Perform_HASH_CREATE(lab_instance_seed, logger)
     # Perform HASH_REPLACE
-    Perform_HASH_REPLACE(lab_instance_seed)
+    Perform_HASH_REPLACE(lab_instance_seed, logger)
 
-def ParseParameterConfig(container_user, lab_instance_seed, configfilename):
+def ParseParameterConfig(container_user, lab_instance_seed, configfilename, logger_in):
+    logger = logger_in
     # Seed random with lab seed
     random.seed(lab_instance_seed)
     configfile = open(configfilename)
@@ -423,7 +424,7 @@ def ParseParameterConfig(container_user, lab_instance_seed, configfilename):
                 (param_id, each_key, each_value) = linestrip.split(': ', 2)
                 each_key = each_key.strip()
                 param_id = param_id.strip()
-                ValidateParameterConfig(container_user, lab_instance_seed, param_id, each_key, each_value)
+                ValidateParameterConfig(container_user, lab_instance_seed, param_id, each_key, each_value, logger)
         #else:
         #    print "Skipping empty linestrip is (%s)" % linestrip
     return paramlist
@@ -458,8 +459,8 @@ def main():
     else:
         configfilename = '/home/%s/.local/config/%s' % (container_user, "parameter.config")
 
-    ParseParameterConfig(container_user, lab_instance_seed, configfilename)
-    DoReplace(container_user, lab_instance_seed)
+    ParseParameterConfig(container_user, lab_instance_seed, configfilename, logger)
+    DoReplace(container_user, lab_instance_seed, logger)
     return 0
 
 if __name__ == '__main__':
