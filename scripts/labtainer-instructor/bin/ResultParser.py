@@ -32,7 +32,7 @@ stdinfnameslist = []
 stdoutfnameslist = []
 timestamplist = {}
 line_types = ['CONTAINS', 'LINE', 'STARTSWITH', 'NEXT_STARTSWITH', 'HAVESTRING', 
-              'LINE_COUNT', 'PARAM', 'STRING_COUNT']
+              'LINE_COUNT', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT']
 just_field_type = ['LINE_COUNT']
 logger = None
 resultidlist = []
@@ -90,7 +90,7 @@ def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname,
     Misleading name, this function populates a set of global structures used in processign the results
     '''
     valid_field_types = ['TOKEN', 'PARENS', 'QUOTES', 'SLASH', 'LINE_COUNT', 'CONTAINS', 
-                         'SEARCH', 'PARAM', 'STRING_COUNT']
+                         'SEARCH', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT']
     if not MyUtil.CheckAlphaDashUnder(each_key):
         logger.ERROR("Not allowed characters in results.config's key (%s)" % each_key)
         sys.exit(1)
@@ -272,6 +272,19 @@ def getToken(linerequested, field_type, token_id, logger):
                     token = linetokens[tokenno-1]
         return token
 
+def lineHasCommand(line, look_for):
+    retval = 0
+    if not look_for.startswith('time ') and line.startswith('time'):
+        line = line[5:].strip()
+    commands = line.split(';')
+    for c in commands:
+        c = c.strip()
+        if c.startswith('('):
+            c = c[1:]
+        if c.startswith(look_for):
+            retval += 1
+    return retval
+        
 def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_list, timestamppart, logger):
     retval = True
     targetlines = None
@@ -480,6 +493,18 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
                     #print('look for <%s> in %s' % (remain, currentline))
                     if remain in currentline:
                         count += 1
+                nametags[each_key] = count
+                #print('tag string is %s for eachkey %s' % (tagstring, each_key))
+                return True
+
+            elif command == 'COMMAND_COUNT':
+                ''' intended for bash_history files, look for occurances of what look like commands '''
+                remain = line.split(command,1)[1]
+                look_for = remain.split(':', 1)[1].strip()
+                count=0
+                for currentline in targetlines:
+                    occurances = lineHasCommand(currentline.strip(), look_for)
+                    count += occurances
                 nametags[each_key] = count
                 #print('tag string is %s for eachkey %s' % (tagstring, each_key))
                 return True
