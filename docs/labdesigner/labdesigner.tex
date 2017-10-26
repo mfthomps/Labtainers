@@ -83,9 +83,15 @@ which supports Dockers, and it must have Dockers installed.
 In addition to installing Dockers on their Linux host, the student must
 obtain and expand a tarball, which contains the Labtainer workspace utilities.
 (This tarball may someday be replaced by standard Linux distribution packages,
-e.g., Debian and/or RPM packages.)  Students initiate any and all labs from a
-single workspace directory on the Linux host.
+e.g., Debian and/or RPM packages.)  
 
+It is suggested that the student's Linux host be a virtual machine that is
+not used for purposes requiring trust.  Software programs contained in cybersecurity lab
+exercises are not, in general, trusted.  And while Docker containers provide namespace
+isolation between the containers and the Linux host, the containers run as privileged.
+
+Students initiate any and all labs from a
+single workspace directory on the Linux host.
 To perform a specific Labtainer exercise, the student runs a \textit{start.py} command from
 the Labtainer workspace, naming the lab exercise.  This results in one or more
 containers starting up along with corresponding virtual terminals via which the 
