@@ -4,6 +4,7 @@ ARG labdir
 ARG imagedir
 ARG apt_source
 ARG user_name
+ARG password
 ADD $labdir/sys_$lab.tar.gz /
 RUN apt-get update && apt-get install -y --no-install-recommends \
     openssl \
@@ -12,7 +13,7 @@ RUN apt-get install -y \
     hexedit
 
 RUN useradd -ms /bin/bash $user_name
-RUN echo "$user_name:$user_name" | chpasswd
+RUN echo "$user_name:$password" | chpasswd
 RUN adduser $user_name sudo
 USER $user_name
 ENV HOME /home/$user_name
