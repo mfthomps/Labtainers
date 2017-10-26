@@ -392,7 +392,11 @@ def Perform_HASH_REPLACE(lab_instance_seed):
         with open(filename, 'w') as outfile:
             outfile.write(content)
 
-def DoReplace(lab_instance_seed):
+def DoReplace(container_user, lab_instance_seed):
+    # Do create Watermark here - instructor container does not call this
+    #print "WATERMARK_CREATE"
+    WatermarkCreate(container_user, lab_instance_seed)
+
     # Perform RAND_REPLACE
     Perform_RAND_REPLACE(lab_instance_seed)
     # Perform HASH_CREATE
@@ -407,13 +411,6 @@ def ParseParameterConfig(container_user, lab_instance_seed, configfilename):
     configfilelines = configfile.readlines()
     configfile.close()
   
-    #print "container_user is (%s)" % container_user
-    # If container_user is empty, then no need to create Watermark
-    # it must be an instructor container
-    if container_user != "":
-        #print "WATERMARK_CREATE"
-        WatermarkCreate(container_user, lab_instance_seed)
-
     for line in configfilelines:
         linestrip = line.rstrip()
         if linestrip:
@@ -458,7 +455,7 @@ def main():
         configfilename = '/home/%s/.local/config/%s' % (container_user, "parameter.config")
 
     ParseParameterConfig(container_user, lab_instance_seed, configfilename)
-    DoReplace(lab_instance_seed)
+    DoReplace(container_user, lab_instance_seed)
     return 0
 
 if __name__ == '__main__':
