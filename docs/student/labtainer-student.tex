@@ -121,6 +121,11 @@ networks.  These containers each share the Linux kernel of your host.  Thus, a c
 to the kernel configuration on one computer, (e.g., enabling ASLR), will be visible on
 other containers, as well as your host.
 
+It is suggested that the student's Linux host be a virtual machine that is
+not used for purposes requiring trust.  Software programs contained in cybersecurity lab
+exercises are not, in general, trusted.  And while Docker containers provide namespace
+isolation between the containers and the Linux host, the containers run as privileged.
+
 The computers each include a ".local" directory beneath the HOME directory.  This is used
 by the Labtainer framework and includes results that get packaged up for forwarding to the
 instructor.  Do not modify any files beneath the .local directory.  Otherwise, you can treat
