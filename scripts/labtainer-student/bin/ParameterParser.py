@@ -20,6 +20,7 @@ import md5
 import os
 import random
 import sys
+import ParameterizeLogging
 
 watermarkcreatelist = {}
 randreplacelist = {}
@@ -28,6 +29,8 @@ hashreplacelist = {}
 paramlist = {}
 global container_name
 
+logger = ParameterizeLogging.ParameterizeLogging("/tmp/parameterize.log")
+
 def WatermarkCreate(container_user, lab_instance_seed):
     the_watermark_string = "LABTAINER_WATERMARK1"
     # Create hash per the_watermark_string (note: there is only one watermark file for now)
@@ -35,7 +38,7 @@ def WatermarkCreate(container_user, lab_instance_seed):
     mymd5 = md5.new()
     mymd5.update(string_to_be_hashed)
     mymd5_hex_string = mymd5.hexdigest()
-    #print mymd5_hex_string
+    #logger.DEBUG(mymd5_hex_string)
 
     # Assume only one watermark file with filename /home/<container_user>/.local/.watermark
     myfilename = '/home/%s/.local/.watermark' % container_user
@@ -50,10 +53,10 @@ def WatermarkCreate(container_user, lab_instance_seed):
     watermarkcreatelist[myfilename] = []
     watermarkcreatelist[myfilename].append('%s' % mymd5_hex_string)
 
-    #print "Perform_WATERMARK_CREATE"
+    #logger.DEBUG("Perform_WATERMARK_CREATE")
     for (listfilename, createlist) in watermarkcreatelist.items():
         filename = listfilename
-        #print "Current Filename is %s" % filename
+        #logger.DEBUG("Current Filename is %s" % filename)
         #print "Watermark Create list is "
         #print createlist
         # open the file - write
@@ -69,8 +72,8 @@ def CheckRandReplaceEntry(container_user, lab_instance_seed, param_id, each_valu
     #print entryline
     numentry = len(entryline)
     if numentry != 4:
-        sys.stderr.write("ERROR: RAND_REPLACE (%s) improper format\n" % each_value)
-        sys.stderr.write("ERROR: RAND_REPLACE : <filename> : <token> : <LowerBound> : <UpperBound>\n")
+        logger.ERROR("RAND_REPLACE (%s) improper format" % each_value)
+        logger.ERROR("RAND_REPLACE : <filename> : <token> : <LowerBound> : <UpperBound>")
         sys.exit(1)
     myfilename_field = entryline[0].strip()
     token = entryline[1].strip()
@@ -92,8 +95,8 @@ def CheckRandReplaceEntry(container_user, lab_instance_seed, param_id, each_valu
         if use_integer == True:
             # Inconsistent format of lowerbound (integer format)
             # vs upperbound (hexadecimal format)
-            sys.stderr.write("ERROR: RAND_REPLACE (%s) inconsistent lowerbound/upperbound format\n" % each_value)
-            sys.stderr.write("ERROR: RAND_REPLACE : <filename> : <token> : <LowerBound> : <UpperBound>\n")
+            logger.ERROR("RAND_REPLACE (%s) inconsistent lowerbound/upperbound format" % each_value)
+            logger.ERROR("RAND_REPLACE : <filename> : <token> : <LowerBound> : <UpperBound>")
             sys.exit(1)
         use_integer = False
         upperbound_int = int(upperboundstr, 16)
@@ -102,8 +105,8 @@ def CheckRandReplaceEntry(container_user, lab_instance_seed, param_id, each_valu
     #print "lowerbound is (%d)" % lowerbound_int
     #print "upperbound is (%d)" % upperbound_int
     if lowerbound_int > upperbound_int:
-        sys.stderr.write("ERROR: RAND_REPLACE (%s) inconsistent lowerbound/upperbound format\n" % each_value)
-        sys.stderr.write("ERROR: RAND_REPLACE : <filename> : <token> : <LowerBound> : <UpperBound>\n")
+        logger.ERROR("RAND_REPLACE (%s) inconsistent lowerbound/upperbound format" % each_value)
+        logger.ERROR("RAND_REPLACE : <filename> : <token> : <LowerBound> : <UpperBound>")
         sys.exit(1)
     random_int = random.randint(lowerbound_int, upperbound_int)
     #print "random value is (%d)" % random_int
@@ -150,7 +153,7 @@ def CheckHashCreateEntry(container_user, lab_instance_seed, param_id, each_value
     #print entryline
     numentry = len(entryline)
     if numentry != 2 and numentry != 3:
-        sys.stderr.write("ERROR: HASH_CREATE : <filename> : <string> [: length]\n")
+        logger.ERROR("HASH_CREATE : <filename> : <string> [: length]")
         return
     myfilename_field = entryline[0].strip()
     the_string = entryline[1].strip()
@@ -159,8 +162,8 @@ def CheckHashCreateEntry(container_user, lab_instance_seed, param_id, each_value
         try:
             strlen = int(entryline[2].strip())
         except:      
-            sys.stderr.write("ERROR: HASH_CREATE (%s) improper format\n" % each_value)
-            sys.stderr.write("ERROR: expected int for length, got %s \n" % entryline[2])
+            logger.ERROR("HASH_CREATE (%s) improper format" % each_value)
+            logger.ERROR("expected int for length, got %s" % entryline[2])
             return
 
     # Create hash per the_string
@@ -215,15 +218,16 @@ def CheckHashReplaceEntry(container_user, lab_instance_seed, param_id, each_valu
     #print entryline
     numentry = len(entryline)
     if numentry != 3 and numentry != 4:
-        sys.stderr.write("ERROR: HASH_REPLACE (%s) improper format\n" % each_value)
-        sys.stderr.write("ERROR: HASH_REPLACE : <filename> : <string> [: length]\n")
+        logger.ERROR("HASH_REPLACE (%s) improper format" % each_value)
+        logger.ERROR("HASH_REPLACE : <filename> : <string> [: length]")
+        return
     strlen = 32
     if numentry == 4:
         try:
             strlen = int(entryline[3].strip())
         except:      
-            sys.stderr.write("ERROR: HASH_REPLACE (%s) improper format\n" % each_value)
-            sys.stderr.write("ERROR: expected int for length, got %s \n" % entryline[3])
+            logger.ERROR("HASH_REPLACE (%s) improper format" % each_value)
+            logger.ERROR("expected int for length, got %s" % entryline[3])
             return
     myfilename_field = entryline[0].strip()
     token = entryline[1].strip()
@@ -280,7 +284,7 @@ def ValidateParameterConfig(container_user, lab_instance_seed, param_id, each_ke
         #print "HASH_REPLACE"
         CheckHashReplaceEntry(container_user, lab_instance_seed, param_id, each_value)
     else:
-        sys.stderr.write("ERROR: ParseParameter.py, ValidateParameterConfig, Invalid operator %s\n" % each_key)
+        logger.ERROR("ParseParameter.py, ValidateParameterConfig, Invalid operator %s" % each_key)
         sys.exit(1)
     return 0
 
@@ -304,7 +308,7 @@ def Perform_RAND_REPLACE(lab_instance_seed):
             filename = listfilename
         #print "Current Filename is %s" % filename
         if not os.path.exists(filename):
-            sys.stderr.write("ERROR: Perform_RAND_REPLACE: File %s does not exist\n" % filename)
+            logger.ERROR("Perform_RAND_REPLACE: File %s does not exist" % filename)
             sys.exit(1)
         #else:
         #    print "File (%s) exist\n" % filename
@@ -375,7 +379,7 @@ def Perform_HASH_REPLACE(lab_instance_seed):
             filename = listfilename
         #print "Current Filename is %s" % filename
         if not os.path.exists(filename):
-            sys.stderr.write("ERROR: Perform_HASH_REPLACE: File %s does not exist\n" % filename)
+            logger.ERROR("Perform_HASH_REPLACE: File %s does not exist" % filename)
             sys.exit(1)
         #else:
         #    print "File (%s) exist\n" % filename
@@ -438,7 +442,7 @@ def main():
     #print "Running ParameterParser.py"
     numargs = len(sys.argv)
     if not (numargs == 4 or numargs == 5):
-        sys.stderr.write("Usage: ParameterParser.py <container_user> <lab_instance_seed> <container_name> [<config_file>]\n")
+        logger.ERROR("ParameterParser.py <container_user> <lab_instance_seed> <container_name> [<config_file>]")
         sys.exit(1)
 
     container_user = sys.argv[1]
@@ -446,7 +450,7 @@ def main():
     try:
         container_name = sys.argv[3].split('.')[1]
     except:
-        sys.stderr.write('Could not parse container name from %s' % sys.argv[3])
+        logger.ERROR('Could not parse container name from %s' % sys.argv[3])
         sys.exit(1)
         
     if numargs == 5:
