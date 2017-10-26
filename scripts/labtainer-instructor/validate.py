@@ -79,7 +79,7 @@ def validate_parameter_result(parameter_list, resultidlist, goals, inputtag):
                     labutils.logger.ERROR('could not evaluation %s, which became %s' % (inputtagstring, express))
                     validate_ok = False
             else:
-                labutils.logger.ERROR('ERROR: expected expression in parens' % inputtagstring)
+                labutils.logger.ERROR('invalid resulttag %s' % inputtagstring)
                 validate_ok = False
     else:
         validate_ok = False
