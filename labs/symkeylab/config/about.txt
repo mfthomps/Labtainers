@@ -1,1 +1,1 @@
-Exploration of Symmetric Key Encryption Modes
+Exploration of symmetric key encryption modes.
