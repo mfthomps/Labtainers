@@ -13,6 +13,7 @@ import logging
 import os
 import sys
 import LabtainerLogging
+import traceback
 
 class ParseLabtainerConfig():
     def __init__(self, fname, logger):
@@ -28,13 +29,19 @@ class ParseLabtainerConfig():
         if not os.path.exists(fname):
             self.mylog("Config file %s does not exists!\n" % fname)
             sys.exit(1)
-
+        self.mylogdebug('using config file %s' % fname)
         self.get_configs(fname)
         self.finalize()
         self.validate()
 
+    def mylogdebug(self, message):
+        if self.logger != None:
+            self.logger.DEBUG(message)
+            
     def mylog(self, message):
         if self.logger != None:
+            traceback.print_exc()
+            traceback.print_stack()
             self.logger.ERROR(message)
         else:
             sys.stderr.write(message)
