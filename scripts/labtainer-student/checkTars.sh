@@ -29,7 +29,7 @@ for f in $tar_list; do
                 echo "no $tar_name, make one"
                 f_list=$(ls)
                 if [[ -z $f_list ]];then
-                    touch $tar_name
+                     tar cvf $tar_name --files-from /dev/null
                 else
                     if [[ $f == "home_tar" ]]; then
                         tar czf $tar_name * > $manifest
