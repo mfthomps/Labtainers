@@ -193,6 +193,21 @@ def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname,
             logger.ERROR("results.config invalid field_type")
             sys.exit(1)
 
+    # Sanity check for 'PARAM' type
+    if values[line_at] == 'PARAM':
+        logger.DEBUG("progname_type is (%s)" % progname_type)
+        if not progname_type.endswith('stdin'):
+            logger.ERROR("results.config line (%s)\n" % each_value)
+            logger.ERROR("PARAM field_type on non stdin file")
+            sys.exit(1)
+        paramtoken_id = values[2].strip()
+        try:
+            paramindex = int(paramtoken_id) 
+        except:
+            logger.ERROR("results.config line (%s)\n" % each_value)
+            logger.ERROR('PARAM field_type could not parse int from %s' % paramtoken_id)
+            sys.exit(1)
+
     # If line_type1 (line_at != 1) - verify token id
     if field_type != 'SEARCH' and line_at != 1:
         token_index = 1
@@ -435,12 +450,17 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
                 if fname.endswith('stdin'):
                     program_name = current_targetfname.rsplit('.', 1)[0]
                 else:
-                    logger.ERROR('PARAM only valid for stdin files: %s' % current_targetfname)
-                    sys.exit(1) 
+                    # Config file 'PARAM' has been validated against stdin
+                    # Treat this as can't find token
+                    logger.DEBUG('PARAM only valid for stdin files: %s' % current_targetfname)
+                    nametags[each_key] = "NONE"
+                    return False
                 if 'PROGRAM_ARGUMENTS' in targetlines[0]:
                     try:
                         index = int(token_id) 
                     except:
+                        # Config file 'PARAM' has been validated, should not be failing here
+                        # If it does, then should really exit
                         logger.ERROR('could not parse int from %s' % token_id)
                         sys.exit(1)
                     if index == 0:
@@ -452,8 +472,11 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
                         try:
                             tagstring = params[index-1]
                         except:
-                            logger.ERROR('did not find parameter %d in %s' % (index-1, param_str))
-                            sys.exit(1)
+                            # Couldn't find the corresponding parameter
+                            # Treat this as can't find token
+                            logger.DEBUG('did not find parameter %d in %s' % (index-1, param_str))
+                            nametags[each_key] = "NONE"
+                            return False
                     nametags[each_key] = tagstring
                     return True
             elif command == 'CONTAINS':
@@ -538,6 +561,8 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
                     logger.DEBUG('*** No next line starts with %s ***' % (lookupstring))
                     linerequested = "NONE"
             else:
+                # config file should have been validated
+                # - if still unknown command, then should exit
                 logger.ERROR('unknown command %s' % command)
                 sys.exit(1)
 
