@@ -1,1 +1,1 @@
-System log basic usage and configuration.
+System log basic usage and configuration on an Ubuntu system.
