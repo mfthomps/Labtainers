@@ -26,7 +26,9 @@ import logging
 import LabtainerLogging
 
 def usage():
-    sys.stderr.write("Usage: regresstest.py <labname>\n")
+    sys.stderr.write("Usage: regresstest.py [<labname> | -a <labname>]\n")
+    sys.stderr.write("       <labname> : regression test on <labname> only\n")
+    sys.stderr.write("       -a <labname> : continue running regression test from <labname>\n")
     sys.exit(1)
 
 # Usage: regresstest.py
@@ -35,14 +37,40 @@ LABS_ROOT = os.path.abspath('../../labs')
 def main():
     labnamelist = []
     num_args = len(sys.argv)
+    choplist = False
     if num_args == 1:
         labnamelist = os.listdir(LABS_ROOT)
     elif num_args == 2:
         labnamelist.append(sys.argv[1])
+    elif num_args == 3:
+        dash_a = sys.argv[1]
+        if dash_a != "-a":
+            usage()
+        labnamelist = os.listdir(LABS_ROOT)
+        labnamestart = sys.argv[2]
+        if labnamestart not in labnamelist:
+            sys.stderr.write("Using non-existent <labname> with -a option!\n")
+            usage()
+        choplist = True
     else:
         usage()
 
-    for labname in labnamelist:
+    finallabnamelist = []
+    if choplist:
+        startfound = False
+        for labname in sorted(labnamelist):
+            if not startfound:
+                if labname == labnamestart:
+                    finallabnamelist.append(labname)
+                    startfound = True
+                else:
+                    continue
+            else:
+                finallabnamelist.append(labname)
+    else:
+        finallabnamelist = labnamelist
+
+    for labname in sorted(finallabnamelist):
         labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
         labutils.logger.INFO("Begin logging regresstest.py for %s lab" % labname)
         labutils.logger.DEBUG("Current name is (%s)" % labname)
