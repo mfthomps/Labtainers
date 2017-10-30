@@ -53,7 +53,7 @@ All labs are run from the same Labtainer workspace directory:
 \end{verbatim}
 \noindent Then run the lab:
 \begin{verbatim}
-    ./start.py <labname>
+    start.py <labname>
 \end{verbatim}
 \noindent where \textit{labname} is the name of the lab to run.  Leaving this out will 
 display a list of available labs.  
@@ -65,7 +65,7 @@ be done by right clicking on the displayed path, or you can open the file in a b
 
 While running the lab, if you require more virtual terminals, use:
 \begin{verbatim}
-    ./moreterm.py <labname> <container>
+    moreterm.py <labname> <container>
 \end{verbatim}
 \noindent where \textit{container} is the host name of the component on which to attach a terminal.  
 It can be omitted for labs having a single component.
@@ -85,7 +85,7 @@ next section.
 \subsection{Stopping Labtainers}
 When you are finished, or wish to stop working, type:
 \begin{verbatim}
-    ./stop.py <labname>
+    stop.py <labname>
 \end{verbatim}
 \noindent The stop.py command will display the directory containing a zip file that should be provided to your instructor.
 \subsection{Networking}
@@ -151,18 +151,18 @@ commands being executed.
 The following labtainer commands are available from the \texttt{labtainer/labtainer-student}
 directory:
 \begin{itemize}
-\item \texttt{./start.py <lab> --}
+\item \texttt{start.py <lab> --}
 Start the named lab.  If no name is given, a list of available labs will be displayed.
-\item \texttt{./stop.py <lab> --} Stop the named lab.
-\item \texttt{./moreterm.py <lab> <container> --} create a new virtual terminal for the container.
-\item \texttt{./redo.py <lab> --}
+\item \texttt{stop.py <lab> --} Stop the named lab.
+\item \texttt{moreterm.py <lab> <container> --} create a new virtual terminal for the container.
+\item \texttt{redo.py <lab> --}
 Delete any previous containers associated with this lab and start it fresh.  \textbf{Warning}: this will lose any
 previous data from the named lab.
 \end{itemize}
 
 Most labs display lab instructions in one of the windows that appears after the lab starts.  If those instructions
 stop displaying, e.g., because "q" is pressed in that window, then type the following in a virtual terminal (e.g.,
-in a new terminal created using the ./moreterm.py script:
+in a new terminal created using the moreterm.py script:
 \begin{verbatim}
     less instructions.txt
 \end{verbatim}
