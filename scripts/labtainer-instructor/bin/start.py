@@ -9,52 +9,62 @@ United States Code Section 105.   This software is in the public
 domain and is not subject to copyright. 
 '''
 
-# Filename: unpause.py
+# Filename: start.py
 # Description:
-# This is the script to be run by the instructor to unpause container(s).
+# This is the start script to be run by the instructor.
 # Note:
 # 1. It needs 'start.config' file, where
 #    <labname> is given as a parameter to the script.
 #
 
+import getpass
 import glob
 import json
 import md5
 import os
-import re
-import subprocess
 import sys
-import time
-import zipfile
-from netaddr import *
 
 instructor_cwd = os.getcwd()
 student_cwd = instructor_cwd.replace('labtainer-instructor', 'labtainer-student')
 # Append Student CWD to sys.path
-sys.path.append(student_cwd)
+sys.path.append(student_cwd+"/bin")
 
 import ParseStartConfig
 import labutils
 import logging
 import LabtainerLogging
 
-LABS_ROOT = os.path.abspath("../../labs/")
-
-# Usage: unpause.py <labname>
+# Usage: start.py <labname>
 # Arguments:
 #    <labname> - the lab to start
 def main():
-    num_args = len(sys.argv)
-    if num_args < 2:
-        sys.stderr.write("Usage: unpause.py <labname>\n")
+    if len(sys.argv) < 2 or len(sys.argv) > 3:
+        sys.stderr.write("Usage: start.py <labname> [-q]\n")
+        sys.stderr.write("   -q will load the lab using a predetermined email.\n")
+#	tell user list of lesson/folder names in "/labtainer/trunk/labs/"
+	sys.stderr.write("List of available labs:\n\n")
+	dir_path = os.path.dirname(os.path.realpath(__file__))
+	dir_path = dir_path[:dir_path.index("scripts/labtainer-instructor")]	
+	path = dir_path + "labs/"
+	dirs = os.listdir(path)
+	for loc in sorted(dirs):
+                description = '  '+loc
+		aboutFile = path + loc + "/config/about.txt"
+		if(os.path.isfile(aboutFile)):
+                    description += ' - '
+		    with open(aboutFile) as fh:
+		        for line in fh:
+                            description += line
+                else:
+                    description += "\n"
+                sys.stderr.write(description)
         sys.exit(1)
-
     labname = sys.argv[1]
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
-    labutils.logger.INFO("Begin logging unpause.py for %s lab" % labname)
+    labutils.logger.INFO("Begin logging start.py for %s lab" % labname)
     labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
     lab_path = os.path.join(os.path.abspath('../../labs'), labname)
-    labutils.DoPauseorUnPause(lab_path, "instructor", "unpause")
+    labutils.StartLab(lab_path, "instructor")
 
     return 0
 
