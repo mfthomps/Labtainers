@@ -5,3 +5,17 @@ tar xf labtainer/labtainer.tar
 docker pull mfthomps/labtainer.base
 docker pull mfthomps/labtainer.network
 docker pull mfthomps/labtainer.centos
+#
+# ensure labtainer paths in .bashrc
+#
+target=~/.bashrc
+grep ":./bin:" $target >>/dev/null
+result=$?
+if [[ result -ne 0 ]];then
+   echo not in bashrc
+   cat <<EOT >>$target
+   if [[ ":$PATH:" != *":./bin:"* ]]; then 
+       export PATH="${PATH}:./bin"
+   fi
+EOT
+fi
