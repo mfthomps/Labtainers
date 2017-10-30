@@ -43,7 +43,7 @@ Student instructions for using Labtainers are in the \underline{Labtainer Studen
 listed via the start.py script:
 \begin{verbatim}
     cd labtainer/trunk/scripts/labtainer-instructor
-    ./start.py
+    start.py
 \end{verbatim}
 
 \subsection{Assessing a Lab}
@@ -58,7 +58,7 @@ All labs are assessed from the same Labtainer instructor workspace:
 \end{verbatim}
 \noindent Start the lab containers to initiate automated assessment of a lab:
 \begin{verbatim}
-    ./start.py <labname>
+    start.py <labname>
 \end{verbatim}
 
 One of the resulting virtual terminals, titled "GOAL\_RESULTS" will display the assessment results.
@@ -75,13 +75,13 @@ home directory content.  And container-specific artifacts are found in:
 
 \noindent While running the lab, if you require more virtual terminals, use:
 \begin{verbatim}
-    ./moreterm.py <labname> <container>
+    moreterm.py <labname> <container>
 \end{verbatim}
 \noindent Where \textit{container} is the host name of the computer (container) to which to attach the terminal.
 
 \noindent When you are finished, or wish to stop working, type:
 \begin{verbatim}
-    ./stop.py <labname>
+    stop.py <labname>
 \end{verbatim}
 The stop.py command will terminate the containers.  This is recommended to avoid network
 name conflicts when assessing other labs.

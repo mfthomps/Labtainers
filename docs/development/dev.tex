@@ -16,8 +16,14 @@ into the .profile.
 The startup.sh scripts differ between instructor and student.  The latter
 displays instructions.txt.  The former runs grading.
 The startup.sh uses a lock to control which
-terminal displays the instructions or grading.  In practice, this is done by
+terminal displays the instructions or grading.  In practice instruction
+display and the running of the instructor.py script is done by
 an xterm that explicitly runs the startup.sh directly, and thus
 the startup.sh invoked by profile.sh typically never does anything.
+HOWEVER... the startup.sh invoked by student will source a student_startup.sh if present.
 
+
+
+Regression testing of grading functions is performed by labtainer-instructor/regress.py.
+Expected results are stored in the labtainer/testsets directory.
 

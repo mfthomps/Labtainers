@@ -11,7 +11,7 @@ This Labtainer exercise explores Nmap.
 The lab is started from the Labtainer working directory on your Docker-enabled host, e.g., a Linux VM.
 From there, issue the command:
 
-	./start.py nmaplab
+	start.py nmaplab
 
 The resulting virtual terminals wil include a display of these instructions, and bash shell. Nmap is pre-installed on the container.
 
@@ -39,6 +39,6 @@ Once installed, use the command sudo wireshark to open the Wireshark application
 
 When the lab is completed, or you'd like to stop working for a while, run
 
-	./stop.py nmaplab
+	stop.py nmaplab
 
 from the host Labtainer working directory. You can always restart the Labtainer to continue your work. When the Labtainer is stopped, a zip file is created and copied to a location displayed by the stop.py command. When the lab is completed, send that zip file to the instructor.

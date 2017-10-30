@@ -18,7 +18,7 @@ The lab is started from the Labtainer working
 directory on your Docker-enabled host, e.g., a Linux VM.
 From there, issue the command:
 
-    ./start.py bufoverflow
+    start.py bufoverflow
 
 The resulting virtual terminals will include a display of
 these instructions, and a bash shell.  The programs
@@ -51,7 +51,7 @@ d) Explore the remaining tasks in Buffer_Overflow.pdf
 
 When the lab is completed, or you'd like to stop working for a while, run
 
-    ./stop.py bufoverflow
+    stop.py bufoverflow
 
 from the host Labtainer working directory.  You can always restart the
 Labtainer to continue your work.  When the Labtainer is stopped, a
