@@ -9,44 +9,52 @@ United States Code Section 105.   This software is in the public
 domain and is not subject to copyright. 
 '''
 
-# Filename: stop.py
+# Filename: unpause.py
 # Description:
-# This is the stop script to be run by the instructor.
+# This is the script to be run by the instructor to unpause container(s).
 # Note:
 # 1. It needs 'start.config' file, where
 #    <labname> is given as a parameter to the script.
 #
 
-import getpass
+import glob
+import json
+import md5
+import os
 import re
 import subprocess
-import zipfile
-
 import sys
-import os
+import time
+import zipfile
+from netaddr import *
+
 instructor_cwd = os.getcwd()
 student_cwd = instructor_cwd.replace('labtainer-instructor', 'labtainer-student')
 # Append Student CWD to sys.path
-sys.path.append(student_cwd)
+sys.path.append(student_cwd+"/bin")
+
+import ParseStartConfig
 import labutils
 import logging
 import LabtainerLogging
 
-# Usage: stop.py <labname>
+LABS_ROOT = os.path.abspath("../../labs/")
+
+# Usage: unpause.py <labname>
 # Arguments:
-#    <labname> - the lab to stop
+#    <labname> - the lab to start
 def main():
-    if len(sys.argv) != 2:
-        sys.stderr.write("Usage: stop.py <labname>\n")
+    num_args = len(sys.argv)
+    if num_args < 2:
+        sys.stderr.write("Usage: unpause.py <labname>\n")
         sys.exit(1)
-    
+
     labname = sys.argv[1]
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
-    labutils.logger.INFO("Begin logging stop.py for %s lab" % labname)
+    labutils.logger.INFO("Begin logging unpause.py for %s lab" % labname)
     labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
-    # Pass 'False' to ignore_stop_error (i.e., do not ignore error)
     lab_path = os.path.join(os.path.abspath('../../labs'), labname)
-    labutils.StopLab(lab_path, "instructor", False)
+    labutils.DoPauseorUnPause(lab_path, "instructor", "unpause")
 
     return 0
 

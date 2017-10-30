@@ -65,7 +65,7 @@ else
     # make sure home_tar exists, even if empty
     mkdir -p $LABIMAGE_DIR/home_tar
     mkdir -p $LABIMAGE_DIR/sys_tar
-    ./checkTars.sh $LABIMAGE_DIR $imagename
+    bin/checkTars.sh $LABIMAGE_DIR $imagename
     LAB_TAR=$LAB_DIR/$labimage.tar.gz
     SYS_TAR=$LAB_DIR/sys_$labimage.tar.gz
     TMP_DIR=/tmp/$labimage
@@ -73,7 +73,7 @@ else
     mkdir $TMP_DIR
     mkdir $TMP_DIR/.local
     cp -pr $LAB_DIR/config $TMP_DIR/.local/ 2>>/dev/null
-    cp -pr bin/ $TMP_DIR/.local/  2>>/dev/null
+    cp -pr lab_bin/ $TMP_DIR/.local/bin  2>>/dev/null
     cp -p $LAB_DIR/bin/* $TMP_DIR/.local/bin 2>>/dev/null
     chmod a+x $TMP_DIR/.local/bin/* 2>>/dev/null
     cp -p $LABIMAGE_DIR/_bin/* $TMP_DIR/.local/bin 2>>/dev/null
