@@ -19,7 +19,7 @@ The lab is started from the Labtainer working
 directory on your Docker-enabled host, e.g., a Linux VM.
 From there, issue the command:
 
-    ./start.py formatstring
+    start.py formatstring
 
 The resulting virtual terminals will include a display of
 these instructions, and a bash shell.  The vuln_prog.c 
@@ -57,7 +57,7 @@ h) Cause the secret[1] value to be displayed by the printf function.
 
 When the lab is completed, or you'd like to stop working for a while, run
 
-    ./stop.py formatstring
+    stop.py formatstring
 
 from the host Labtainer working directory.  You can always restart the
 Labtainer to continue your work.  When the Labtainer is stopped, a

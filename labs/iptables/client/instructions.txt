@@ -18,7 +18,7 @@ The lab is started from the Labtainer working
 directory on your Linux host, e.g., a Linux VM.
 From there, issue the command:
 
-    ./start.py iptables
+    start.py iptables
 
 The resulting virtual terminals will include a display of
 these instructions, and bash shells on two components:
@@ -46,7 +46,7 @@ the only ports that are open.
 
 When the lab is completed, or you'd like to stop working for a while, run
 
-    ./stop.py iptables
+    stop.py iptables
 
 from the host Labtainer working directory.  You can always restart the
 Labtainer to continue your work.  When the Labtainer is stopped, a
