@@ -453,8 +453,8 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False):
     labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_dir, logger)
     host_home_xfer = labtainer_config.host_home_xfer
 
-    build_student = './buildImage.sh'
-    build_instructor = './buildInstructorImage.sh'
+    build_student = 'bin/buildImage.sh'
+    build_instructor = 'bin/buildInstructorImage.sh'
     LABS_DIR = os.path.abspath('../../labs')
     didfix = False
     ''' hackey assumption about running from labtainers-student or labtainers-instructor '''
@@ -922,7 +922,7 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
     if not retval:
         param_file = os.path.join(lab_path, 'config', 'parameter.config')
         if os.path.isfile(param_file):
-            ppath = 'bin/ParameterParser.py'
+            ppath = 'lab_bin/ParameterParser.py'
             if role == 'instructor':
                 ppath = '../labtainer-student/%s' % ppath
             if FileModLater(ts, param_file) or FileModLater(ts, ppath):
