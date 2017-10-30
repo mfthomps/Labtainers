@@ -9,40 +9,44 @@ United States Code Section 105.   This software is in the public
 domain and is not subject to copyright. 
 '''
 
-# Filename: redo.py
+# Filename: stop.py
 # Description:
-# For lab development testing workflow.  This will stop containers of a lab, create or update lab images
-# and start the containers.
+# This is the stop script to be run by the instructor.
+# Note:
+# 1. It needs 'start.config' file, where
+#    <labname> is given as a parameter to the script.
 #
+
+import getpass
+import re
+import subprocess
+import zipfile
 
 import sys
 import os
 instructor_cwd = os.getcwd()
 student_cwd = instructor_cwd.replace('labtainer-instructor', 'labtainer-student')
 # Append Student CWD to sys.path
-sys.path.append(student_cwd)
+sys.path.append(student_cwd+"/bin")
 import labutils
 import logging
 import LabtainerLogging
 
-# Usage: redo.py <labname> [-f]
+# Usage: stop.py <labname>
 # Arguments:
-#    <labname> - the lab to stop, delete and start
-#    [-f] will force a rebuild
+#    <labname> - the lab to stop
 def main():
-    if len(sys.argv) < 2 or len(sys.argv)>3:
-        sys.stderr.write("Usage: redo.py <labname> [-f]\n")
-        sys.stderr.write("   -f will force a rebuild.\n")
+    if len(sys.argv) != 2:
+        sys.stderr.write("Usage: stop.py <labname>\n")
         sys.exit(1)
-    force_build = False
-    if len(sys.argv) == 3 and sys.argv[2] == '-f':
-        force_build = True 
+    
     labname = sys.argv[1]
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
-    labutils.logger.INFO("Begin logging redo.py for %s lab" % labname)
+    labutils.logger.INFO("Begin logging stop.py for %s lab" % labname)
     labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
+    # Pass 'False' to ignore_stop_error (i.e., do not ignore error)
     lab_path = os.path.join(os.path.abspath('../../labs'), labname)
-    labutils.RedoLab(lab_path, "instructor", force_build=force_build)
+    labutils.StopLab(lab_path, "instructor", False)
 
     return 0
 

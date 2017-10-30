@@ -26,11 +26,11 @@ import sys
 import shutil
 
 instructor_cwd = os.getcwd()
-instructor_bin = os.path.join(instructor_cwd, 'bin')
+instructor_bin = os.path.join(instructor_cwd, 'assess_bin')
 student_cwd = instructor_cwd.replace('labtainer-instructor', 'labtainer-student')
-student_bin = os.path.join(student_cwd, 'bin')
+student_bin = os.path.join(student_cwd, 'lab_bin')
 # Append Student CWD to sys.path
-sys.path.append(student_cwd)
+sys.path.append(student_cwd+"/bin")
 sys.path.append(student_bin)
 sys.path.append(instructor_bin)
 

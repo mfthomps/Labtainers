@@ -20,7 +20,7 @@ import os
 instructor_cwd = os.getcwd()
 student_cwd = instructor_cwd.replace('labtainer-instructor', 'labtainer-student')
 # Append Student CWD to sys.path
-sys.path.append(student_cwd)
+sys.path.append(student_cwd+"/bin")
 import labutils
 import logging
 import LabtainerLogging
