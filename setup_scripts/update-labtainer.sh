@@ -12,7 +12,6 @@ target=~/.bashrc
 grep ":./bin:" $target >>/dev/null
 result=$?
 if [[ result -ne 0 ]];then
-   echo not in bashrc
    cat <<EOT >>$target
    if [[ ":$PATH:" != *":./bin:"* ]]; then 
        export PATH="${PATH}:./bin"
