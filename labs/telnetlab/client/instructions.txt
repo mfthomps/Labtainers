@@ -12,7 +12,7 @@ The lab is started from the Labtainer working
 directory on your Docker-enabled host, e.g., a Linux VM.
 From there, issue the command:
 
-    ./start.py telnetlab
+    start.py telnetlab
 
 The resulting virtual terminals include a display of
 these instructions, a terminal connected to a client, and a
@@ -66,7 +66,7 @@ Observe the tcpdump output, and note there is no readable plain text.
 
 When the lab is completed, or you'd like to stop working for a while, run
 
-    ./stop.py telnetlab
+    stop.py telnetlab
 
 from the host Labtainer working directory.  You can always restart the
 Labtainer to continue your work.  When the Labtainer is stopped, a

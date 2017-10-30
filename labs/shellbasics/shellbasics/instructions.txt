@@ -10,7 +10,7 @@ The lab is started from the Labtainer working
 directory on your Docker-enabled host, e.g., a Linux VM.
 From there, issue the command:
 
-    ./start.py shellbasics
+    start.py shellbasics
 
 The resulting virtual terminals will include a display of
 these instructions, and a bash shell. 
@@ -74,7 +74,7 @@ differently displays the contents: 'more' , 'less'. Finally, type 'rm' before th
 
 When the lab is completed, or you'd like to stop working for a while, run
 
-    ./stop.py shellbasics
+    stop.py shellbasics
 
 from the host Labtainer working directory.  You can always restart the
 Labtainer to continue your work.  When the Labtainer is stopped, a

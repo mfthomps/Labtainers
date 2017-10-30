@@ -11,7 +11,7 @@ The lab is started from the Labtainer working
 directory on your Docker-enabled host, e.g., a Linux VM.
 From there, issue the command:
 
-    ./start.py pcapanalysis
+    start.py pcapanalysis
 
 The resulting virtual terminals include a display of
 these instructions and a terminal connected to a 
@@ -44,7 +44,7 @@ To exit navigation of this instruction, type 'q'.
 
 When the lab is completed, or you'd like to stop working for a while, run
 
-    ./stop.py pcapanalysis
+    stop.py pcapanalysis
 
 from the host Labtainer working directory.  You can always restart the
 Labtainer to continue your work.  When the Labtainer is stopped, a
