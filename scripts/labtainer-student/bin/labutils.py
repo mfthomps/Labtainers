@@ -799,8 +799,8 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
     labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_dir, logger)
     host_home_xfer = os.path.join(labtainer_config.host_home_xfer, labname)
 
-    build_student = './buildImage.sh'
-    build_instructor = './buildInstructorImage.sh'
+    build_student = 'bin/buildImage.sh'
+    build_instructor = 'bin/buildInstructorImage.sh'
     LABS_DIR = os.path.abspath('../../labs')
     didfix = False
     ''' hackey assumption about running from labtainers-student or labtainers-instructor '''
