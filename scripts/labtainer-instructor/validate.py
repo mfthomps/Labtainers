@@ -289,7 +289,7 @@ def validate_goals(parameter_list, resultidlist, goals):
             break
 
 
-def setup_to_validate(lab_path, labname):
+def setup_to_validate(lab_path, labname, logger):
     # Create TEMPDIR - remove if it exists
     if os.path.exists(TEMPDIR):
         shutil.rmtree(TEMPDIR)
@@ -302,6 +302,14 @@ def setup_to_validate(lab_path, labname):
     start_config_path = os.path.join(config_path,"start.config")
     start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, "instructor", labutils.logger)
    
+    # Warns if xterm has no instruction.txt file
+    for container_name, container in start_config.containers.items():
+        if container.xterm is not None:
+            # instruction.txt file path
+            instruction_path = "%s/%s/instructions.txt" % (lab_path, container_name)
+            if not (os.path.exists(instruction_path) and os.path.isfile(instruction_path)):
+                logger.WARNING("container %s instruction_path file %s not found" % (container_name, instruction_path))
+
     lab_master_seed = start_config.lab_master_seed
     # Create hash using LAB_MASTER_SEED concatenated with user's e-mail
     # LAB_MASTER_SEED is per laboratory - specified in start.config
@@ -391,13 +399,9 @@ def ValidateTreataslocal(labname, lab_path, resultidlist, logger):
         if os.system(command) == 0:
             # Test against corresponding container's treataslocal file (loop through to check)
             treataslocal_path = "%s/%s/_bin/treataslocal" % (lab_path, container_name)
-            if not os.path.exists(treataslocal_path):
-                logger.ERROR("treataslocal path %s not found" % treataslocal_path)
+            if not (os.path.exists(treataslocal_path) and os.path.isfile(treataslocal_path)):
+                logger.ERROR("treataslocal file %s not found" % treataslocal_path)
                 sys.exit(1)
-            else:
-                if not os.path.isfile(treataslocal_path):
-                     logger.ERROR("treataslocal path %s is not a file" % treataslocal_path)
-                     sys.exit(1)
             with open(treataslocal_path) as fh:
                  execlist_from_file = [os.path.basename(line.strip()) for line in fh]
             if not execprog in execlist_from_file:
@@ -439,7 +443,7 @@ def main():
     labutils.is_valid_lab(lab_path)
 
     container_list = []
-    lab_instance_seed, grade_container, email_labname = setup_to_validate(lab_path, labname)
+    lab_instance_seed, grade_container, email_labname = setup_to_validate(lab_path, labname, labutils.logger)
     labutils.logger.DEBUG("grade_container %s" % grade_container)
     container_list.append(grade_container)
  
@@ -458,8 +462,8 @@ def main():
     goalsjson = open(goalsjsonfname, "r")
     goals = json.load(goalsjson)
     goalsjson.close()
-    labutils.logger.DEBUG("Goals JSON config is")
-    labutils.logger.DEBUG(goals)
+    #labutils.logger.DEBUG("Goals JSON config is")
+    #labutils.logger.DEBUG(goals)
 
     validate_goals(parameter_list, resultidlist, goals)
     return 0
