@@ -7,7 +7,6 @@ target=~/.bashrc
 grep ":./bin:" $target >>/dev/null
 result=$?
 if [[ result -ne 0 ]];then
-   echo not in bashrc
    cat <<EOT >>$target
    if [[ ":\$PATH:" != *":./bin:"* ]]; then 
        export PATH="\${PATH}:./bin"
@@ -16,6 +15,7 @@ EOT
 fi
 
 ln -s trunk/scripts/labtainer-student
+ln -s trunk/scripts/labtainer-instructor
 cd trunk/setup_scripts
 found_distrib=`cat /etc/*-release | grep "^DISTRIB_ID" | awk -F "=" '{print $2}'`
 if [[ -z "$1" ]]; then
