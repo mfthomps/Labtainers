@@ -1,5 +1,20 @@
 #!/bin/bash
 read -p "This script will reboot the system when done, press enter to continue"
+#
+# ensure labtainer paths in .bashrc
+#
+target=~/.bashrc
+grep ":./bin:" $target >>/dev/null
+result=$?
+if [[ result -ne 0 ]];then
+   echo not in bashrc
+   cat <<EOT >>$target
+   if [[ ":$PATH:" != *":./bin:"* ]]; then 
+       export PATH="${PATH}:./bin"
+   fi
+EOT
+fi
+
 ln -s trunk/scripts/labtainer-student
 cd trunk/setup_scripts
 found_distrib=`cat /etc/*-release | grep "^DISTRIB_ID" | awk -F "=" '{print $2}'`
