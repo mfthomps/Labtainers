@@ -46,6 +46,8 @@ if [[ "$RESULT" -eq 0 ]]; then
     /usr/bin/newgrp docker <<EONG
     /usr/bin/newgrp $USER <<EONG
     docker pull mfthomps/labtainer.base
+    docker pull mfthomps/labtainer.network
+    docker pull mfthomps/labtainer.centos
 EONG
     sudo reboot
 else
