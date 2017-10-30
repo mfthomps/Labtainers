@@ -132,10 +132,22 @@ def check_temporal(parameter_list, resultidlist, goals, jsongoalid, goal1tag, go
     found_error = False
     goal1tag_ok = True
     goal2tag_ok = True
-    if goal1tag not in goals:
+    # goal1tag must be in goals otherwise it is an error
+    found_goaltag_in_goals = False
+    for eachgoal in goals:
+        if goal1tag == eachgoal['goalid']:
+            found_goaltag_in_goals = True
+            break
+    if not found_goaltag_in_goals:
         goal1tag_ok = False
         labutils.logger.ERROR("ERROR: Goals goalid (%s) has invalid goal1tag (%s)" % (jsongoalid, goal1tag))
-    if goal2tag not in goals:
+    # goal2tag must be in goals otherwise it is an error
+    found_goaltag_in_goals = False
+    for eachgoal in goals:
+        if goal2tag == eachgoal['goalid']:
+            found_goaltag_in_goals = True
+            break
+    if not found_goaltag_in_goals:
         goal2tag_ok = False
         labutils.logger.ERROR("ERROR: Goals goalid (%s) has invalid goal2tag (%s)" % (jsongoalid, goal2tag))
     if not (goal1tag_ok and goal2tag_ok):
@@ -345,6 +357,55 @@ def setup_to_validate(lab_path, labname):
 
     return lab_instance_seed, start_config.grade_container, email_labname
 
+# Validate resultidlist for 'system' in 'treataslocal'
+def ValidateTreataslocal(labname, lab_path, resultidlist, logger):
+    checklist = []
+    for key, progname_type in resultidlist.iteritems():
+        if ':' in progname_type:
+            container_name, newprogname_type = progname_type.split(':')
+        else:
+            container_name = labname
+            newprogname_type = progname_type
+        if newprogname_type.startswith('*'):
+            # start with wildcard, skip
+            continue
+        if newprogname_type.endswith('stdin') or newprogname_type.endswith('stdout'):
+            execprog, type = newprogname_type.split('.')
+            if execprog == "checklocal":
+                # skip checklocal
+                continue
+        else:
+            # skipping non stdin/stdout
+            continue
+
+        if execprog in checklist:
+            # already checked before, skip
+            continue
+
+        # Test for execprog using which locally
+        command = "which %s > /dev/null" % execprog
+
+        checklist.append(execprog)
+
+        # If os.system(command) is zero, i.e., success then
+        if os.system(command) == 0:
+            # Test against corresponding container's treataslocal file (loop through to check)
+            treataslocal_path = "%s/%s/_bin/treataslocal" % (lab_path, container_name)
+            if not os.path.exists(treataslocal_path):
+                logger.ERROR("treataslocal path %s not found" % treataslocal_path)
+                sys.exit(1)
+            else:
+                if not os.path.isfile(treataslocal_path):
+                     logger.ERROR("treataslocal path %s is not a file" % treataslocal_path)
+                     sys.exit(1)
+            with open(treataslocal_path) as fh:
+                 execlist_from_file = [os.path.basename(line.strip()) for line in fh]
+            if not execprog in execlist_from_file:
+                 logger.ERROR("treataslocal path %s in treataslocal" % treataslocal_path)
+                 logger.ERROR("result id (%s) has exec program %s not found in treataslocal" % (key, execprog))
+                 sys.exit(1)
+
+
 # Usage: validate.py <labname>
 # Arguments:
 #    <labname> - the lab to validate
@@ -386,6 +447,9 @@ def main():
     # Just validating - not actual parsing
     actual_parsing = False
     configfilelines, resultidlist = ResultParser.ParseValidateResultConfig(actual_parsing, TEMPDIR, LabDirName, container_list, labname, labutils.logger)
+
+    # Validate resultidlist for 'system' in 'treataslocal'
+    ValidateTreataslocal(labname, lab_path, resultidlist, labutils.logger)
 
     parameter_list = GoalsParser.ParseGoals(TEMPDIR, TEMPDIR, labutils.logger)
     # GoalsParser created goals.json in parent directory
