@@ -36,7 +36,7 @@ The lab is started from the Labtainer working
 directory on your Docker-enabled host, e.g., a Linux VM.
 From there, issue the command:
 
-    ./start.py vpnlab
+    start.py vpnlab
 
 The resulting virtual terminals include a display of
 these instructions, a terminal connected to a client,
@@ -73,7 +73,7 @@ Observe the network traffic in tcpdump.
 
 When the lab is completed, or you'd like to stop working for a while, run
 
-    ./stop.py httplab
+    stop.py httplab
 
 from the host Labtainer working directory.  You can always restart the
 Labtainer to continue your work.  When the Labtainer is stopped, a
