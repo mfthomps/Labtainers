@@ -35,7 +35,7 @@ line_types = ['CONTAINS', 'LINE', 'STARTSWITH', 'NEXT_STARTSWITH', 'HAVESTRING',
               'LINE_COUNT', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT']
 just_field_type = ['LINE_COUNT']
 logger = None
-resultidlist = []
+resultidlist = {}
 
 def GetExecProgramList(containername, studentlabdir, container_list, targetfile):
     # This will return a list of executable program name matching
@@ -222,8 +222,7 @@ def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname,
             logger.ERROR('Expected integer following LINE type, got %s in %s' % (values[line_at+1], each_value))
             sys.exit(1)
 
-
-    return 0
+    return newprogname_type
 
 def getToken(linerequested, field_type, token_id, logger):
         #print "Line requested is (%s)" % linerequested
@@ -643,9 +642,9 @@ def ParseValidateResultConfig(actual_parsing, homedir, studentlabdir, container_
                      logger.ERROR('missing "=" character in %s' % linestrip)
                      sys.exit(1)
                 each_key = each_key.strip()
-                ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname, each_key, each_value, logger)
+                progname_type = ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname, each_key, each_value, logger)
                 if each_key not in resultidlist:
-                    resultidlist.append(each_key)
+                    resultidlist[each_key] = progname_type
         #else:
         #    print "Skipping empty linestrip is (%s)" % linestrip
 
