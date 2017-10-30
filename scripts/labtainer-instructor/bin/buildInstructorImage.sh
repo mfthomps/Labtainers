@@ -72,9 +72,10 @@ else
     mkdir $TMP_DIR/.local/instr_config
     mkdir $TMP_DIR/.local/config
 
-    cp -r bin $TMP_DIR/.local/
+    cp -r assess_bin $TMP_DIR/.local/bin
     cp  $LAB_DIR/bin/* $TMP_DIR/.local/bin 2>>/dev/null
-    cp ../labtainer-student/bin/ParameterParser.py $TMP_DIR/.local/bin/
+    cp ../labtainer-student/lab_bin/ParameterParser.py $TMP_DIR/.local/bin/
+    cp ../labtainer-student/lab_bin/ParameterizeLogging.py $TMP_DIR/.local/bin/
     cp  $LABIMAGE_DIR/_bin/* $TMP_DIR/.local/bin 2>>/dev/null
     chmod a+x $TMP_DIR/.local/bin/*
     cp -r $LABIMAGE_DIR/. $TMP_DIR 2>>/dev/null
