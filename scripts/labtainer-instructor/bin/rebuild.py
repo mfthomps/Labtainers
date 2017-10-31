@@ -24,6 +24,7 @@ sys.path.append(student_cwd+"/bin")
 import labutils
 import logging
 import LabtainerLogging
+import validate
 
 # Usage: redo.py <labname> [-f]
 # Arguments:
@@ -58,6 +59,7 @@ def main():
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
     labutils.logger.INFO("Begin logging Rebuild.py for %s lab" % labname)
     lab_path = os.path.join(os.path.abspath('../../labs'), labname)
+    validate.DoValidate(lab_path, labname, labutils.logger)
     labutils.RebuildLab(lab_path, "instructor", force_build=force_build, quiet_start=quiet_start)
 
     return 0
