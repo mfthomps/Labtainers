@@ -409,63 +409,47 @@ def ValidateTreataslocal(labname, lab_path, resultidlist, logger):
                  logger.ERROR("result id (%s) has exec program %s not found in treataslocal" % (key, execprog))
                  sys.exit(1)
 
-
-# Usage: validate.py <labname>
-# Arguments:
-#    <labname> - the lab to validate
-def main():
-    if len(sys.argv) < 2 or len(sys.argv) > 3:
-        sys.stderr.write("Usage: validate.py <labname> [-q]\n")
-        sys.stderr.write("   -q will load the lab using a predetermined email.\n")
-#	tell user list of lesson/folder names in "/labtainer/trunk/labs/"
-	sys.stderr.write("List of available labs:\n\n")
-	dir_path = os.path.dirname(os.path.realpath(__file__))
-	dir_path = dir_path[:dir_path.index("scripts/labtainer-instructor")]	
-	path = dir_path + "labs/"
-	dirs = os.listdir(path)
-	for loc in sorted(dirs):
-                description = '  '+loc
-		aboutFile = path + loc + "/config/about.txt"
-		if(os.path.isfile(aboutFile)):
-                    description += ' - '
-		    with open(aboutFile) as fh:
-		        for line in fh:
-                            description += line
-                else:
-                    description += "\n"
-                sys.stderr.write(description)
-        sys.exit(1)
-    labname = sys.argv[1]
-    labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
-    labutils.logger.INFO("Begin logging validate.py for %s lab" % labname)
-    labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
-    lab_path = os.path.join(os.path.abspath('../../labs'), labname)
+def DoValidate(lab_path, labname, logger):
     labutils.is_valid_lab(lab_path)
 
     container_list = []
-    lab_instance_seed, grade_container, email_labname = setup_to_validate(lab_path, labname, labutils.logger)
-    labutils.logger.DEBUG("grade_container %s" % grade_container)
+    lab_instance_seed, grade_container, email_labname = setup_to_validate(lab_path, labname, logger)
+    logger.DEBUG("grade_container %s" % grade_container)
     container_list.append(grade_container)
  
     LabDirName = os.path.join(TEMPDIR, email_labname)
     # Just validating - not actual parsing
     actual_parsing = False
-    configfilelines, resultidlist = ResultParser.ParseValidateResultConfig(actual_parsing, TEMPDIR, LabDirName, container_list, labname, labutils.logger)
+    configfilelines, resultidlist = ResultParser.ParseValidateResultConfig(actual_parsing, TEMPDIR, LabDirName, container_list, labname, logger)
 
     # Validate resultidlist for 'system' in 'treataslocal'
-    ValidateTreataslocal(labname, lab_path, resultidlist, labutils.logger)
+    ValidateTreataslocal(labname, lab_path, resultidlist, logger)
 
-    parameter_list = GoalsParser.ParseGoals(TEMPDIR, TEMPDIR, labutils.logger)
+    parameter_list = GoalsParser.ParseGoals(TEMPDIR, TEMPDIR, logger)
     # GoalsParser created goals.json in parent directory
     parent_dir = os.path.dirname(TEMPDIR)
     goalsjsonfname = os.path.join(parent_dir, '.local','result','goals.json')
     goalsjson = open(goalsjsonfname, "r")
     goals = json.load(goalsjson)
     goalsjson.close()
-    #labutils.logger.DEBUG("Goals JSON config is")
-    #labutils.logger.DEBUG(goals)
+    #logger.DEBUG("Goals JSON config is")
+    #logger.DEBUG(goals)
 
     validate_goals(parameter_list, resultidlist, goals)
+
+# Usage: validate.py <labname>
+# Arguments:
+#    <labname> - the lab to validate
+def main():
+    if len(sys.argv) != 2:
+        print('validate <lab>')
+        exit(0)
+    labname = sys.argv[1]
+    labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
+    labutils.logger.INFO("Begin logging validate.py for %s lab" % labname)
+    labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
+    lab_path = os.path.join(os.path.abspath('../../labs'), labname)
+    DoValidate(lab_path, labname, labutils.logger)
     return 0
 
 if __name__ == '__main__':
