@@ -59,7 +59,9 @@ def main():
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
     labutils.logger.INFO("Begin logging Rebuild.py for %s lab" % labname)
     lab_path = os.path.join(os.path.abspath('../../labs'), labname)
-    validate.DoValidate(lab_path, labname, labutils.logger)
+    validatetestsets = False
+    validatetestsets_path = ""
+    validate.DoValidate(lab_path, labname, validatetestsets, validatetestsets_path, labutils.logger)
     labutils.RebuildLab(lab_path, "instructor", force_build=force_build, quiet_start=quiet_start)
 
     return 0
