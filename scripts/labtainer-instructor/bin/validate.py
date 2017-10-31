@@ -289,7 +289,7 @@ def validate_goals(parameter_list, resultidlist, goals):
             break
 
 
-def setup_to_validate(lab_path, labname, validatetest, validatetest_path, logger):
+def setup_to_validate(lab_path, labname, validatetestsets, validatetestsets_path, logger):
     # Create TEMPDIR - remove if it exists
     if os.path.exists(TEMPDIR):
         shutil.rmtree(TEMPDIR)
@@ -349,11 +349,11 @@ def setup_to_validate(lab_path, labname, validatetest, validatetest_path, logger
     TEMP_LAB_INSTRCONFIG = os.path.join(TEMPLOCAL, "instr_config")
     shutil.copytree(LAB_CONFIG, TEMP_LAB_CONFIG)
     shutil.copytree(LAB_INSTRCONFIG, TEMP_LAB_INSTRCONFIG)
-    # If we are doing validatetest - replace the three config files
-    if validatetest:
-        parameterconfig_path = os.path.join(validatetest_path, "parameter.config")
-        resultsconfig_path = os.path.join(validatetest_path, "results.config")
-        goalsconfig_path = os.path.join(validatetest_path, "goals.config")
+    # If we are doing validatetestsets - replace the three config files
+    if validatetestsets:
+        parameterconfig_path = os.path.join(validatetestsets_path, "parameter.config")
+        resultsconfig_path = os.path.join(validatetestsets_path, "results.config")
+        goalsconfig_path = os.path.join(validatetestsets_path, "goals.config")
         target_parameterconfig_path = os.path.join(TEMP_LAB_CONFIG, "parameter.config")
         target_resultsconfig_path = os.path.join(TEMP_LAB_INSTRCONFIG, "results.config")
         target_goalsconfig_path = os.path.join(TEMP_LAB_INSTRCONFIG, "goals.config")
@@ -420,11 +420,11 @@ def ValidateTreataslocal(labname, lab_path, resultidlist, logger):
                  logger.ERROR("result id (%s) has exec program %s not found in treataslocal" % (key, execprog))
                  sys.exit(1)
 
-def DoValidate(lab_path, labname, validatetest, validatetest_path, logger):
+def DoValidate(lab_path, labname, validatetestsets, validatetestsets_path, logger):
     labutils.is_valid_lab(lab_path)
 
     container_list = []
-    lab_instance_seed, grade_container, email_labname = setup_to_validate(lab_path, labname, validatetest, validatetest_path, logger)
+    lab_instance_seed, grade_container, email_labname = setup_to_validate(lab_path, labname, validatetestsets, validatetestsets_path, logger)
     logger.DEBUG("grade_container %s" % grade_container)
     container_list.append(grade_container)
  
@@ -448,29 +448,29 @@ def DoValidate(lab_path, labname, validatetest, validatetest_path, logger):
 
     validate_goals(parameter_list, resultidlist, goals)
 
-# Usage: validate.py <labname> | -c <validatetestname>
-#    -c <validatetestname> to run validate.py against <validatetestname>
+# Usage: validate.py <labname> | -c <validatetestsetsname>
+#    -c <validatetestsetsname> to run validate.py against <validatetestsetsname>
 def main():
     num_args = len(sys.argv)
     if num_args < 2 or num_args > 3:
-        sys.stderr.write("Usage: validate.py <labname> | -c <validatetestname>\n")
-        sys.stderr.write("   -c <validatetestname> to run validate.py against <validatetestname>.\n")
+        sys.stderr.write("Usage: validate.py <labname> | -c <validatetestsetsname>\n")
+        sys.stderr.write("   -c <validatetestsetsname> to run validate.py against <validatetestsetsname>.\n")
         sys.exit(1)
-    validatetest = False
-    validatetest_path = ""
+    validatetestsets = False
+    validatetestsets_path = ""
     if num_args == 2:
         labname = sys.argv[1]
-        validatetestname = "NONE"
+        validatetestsetsname = "NONE"
     else:
-        validatetest = True
-        validatetestname = sys.argv[2]
+        validatetestsets = True
+        validatetestsetsname = sys.argv[2]
         dir_path = os.path.dirname(os.path.realpath(__file__))
         dir_path = dir_path[:dir_path.index("trunk/scripts")]
-        validatetest_path = os.path.join(dir_path, "testsets", "validate", validatetestname)
-        print "current path is (%s)" % validatetest_path
-        labname_path = os.path.join(validatetest_path, "labname")
+        validatetestsets_path = os.path.join(dir_path, "testsets", "validate", validatetestsetsname)
+        print "current path is (%s)" % validatetestsets_path
+        labname_path = os.path.join(validatetestsets_path, "labname")
         if not (os.path.exists(labname_path) and os.path.isfile(labname_path)):
-            sys.stderr.write("labname file for %s does not exists!\n" % validatetestname)
+            sys.stderr.write("labname file for %s does not exists!\n" % validatetestsetsname)
             sys.exit(1)
         else:
             with open(labname_path) as fh:
@@ -480,7 +480,7 @@ def main():
     labutils.logger.INFO("Begin logging validate.py for %s lab" % labname)
     labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
     lab_path = os.path.join(os.path.abspath('../../labs'), labname)
-    DoValidate(lab_path, labname, validatetest, validatetest_path, labutils.logger)
+    DoValidate(lab_path, labname, validatetestsets, validatetestsets_path, labutils.logger)
     return 0
 
 if __name__ == '__main__':
