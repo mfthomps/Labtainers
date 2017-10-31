@@ -289,7 +289,7 @@ def validate_goals(parameter_list, resultidlist, goals):
             break
 
 
-def setup_to_validate(lab_path, labname, logger):
+def setup_to_validate(lab_path, labname, validatetest, validatetest_path, logger):
     # Create TEMPDIR - remove if it exists
     if os.path.exists(TEMPDIR):
         shutil.rmtree(TEMPDIR)
@@ -349,6 +349,17 @@ def setup_to_validate(lab_path, labname, logger):
     TEMP_LAB_INSTRCONFIG = os.path.join(TEMPLOCAL, "instr_config")
     shutil.copytree(LAB_CONFIG, TEMP_LAB_CONFIG)
     shutil.copytree(LAB_INSTRCONFIG, TEMP_LAB_INSTRCONFIG)
+    # If we are doing validatetest - replace the three config files
+    if validatetest:
+        parameterconfig_path = os.path.join(validatetest_path, "parameter.config")
+        resultsconfig_path = os.path.join(validatetest_path, "results.config")
+        goalsconfig_path = os.path.join(validatetest_path, "goals.config")
+        target_parameterconfig_path = os.path.join(TEMP_LAB_CONFIG, "parameter.config")
+        target_resultsconfig_path = os.path.join(TEMP_LAB_INSTRCONFIG, "results.config")
+        target_goalsconfig_path = os.path.join(TEMP_LAB_INSTRCONFIG, "goals.config")
+        shutil.copy(parameterconfig_path, target_parameterconfig_path)
+        shutil.copy(resultsconfig_path, target_resultsconfig_path)
+        shutil.copy(goalsconfig_path, target_goalsconfig_path)
 
     # Get a list of any executable in '_bin' directory
     # except fixlocal.sh, treataslocal, startup.sh
@@ -378,7 +389,7 @@ def ValidateTreataslocal(labname, lab_path, resultidlist, logger):
             # start with wildcard, skip
             continue
         if newprogname_type.endswith('stdin') or newprogname_type.endswith('stdout'):
-            execprog, type = newprogname_type.split('.')
+            execprog, type = newprogname_type.rsplit('.', 1)
             if execprog == "checklocal":
                 # skip checklocal
                 continue
@@ -409,11 +420,11 @@ def ValidateTreataslocal(labname, lab_path, resultidlist, logger):
                  logger.ERROR("result id (%s) has exec program %s not found in treataslocal" % (key, execprog))
                  sys.exit(1)
 
-def DoValidate(lab_path, labname, logger):
+def DoValidate(lab_path, labname, validatetest, validatetest_path, logger):
     labutils.is_valid_lab(lab_path)
 
     container_list = []
-    lab_instance_seed, grade_container, email_labname = setup_to_validate(lab_path, labname, logger)
+    lab_instance_seed, grade_container, email_labname = setup_to_validate(lab_path, labname, validatetest, validatetest_path, logger)
     logger.DEBUG("grade_container %s" % grade_container)
     container_list.append(grade_container)
  
@@ -437,21 +448,40 @@ def DoValidate(lab_path, labname, logger):
 
     validate_goals(parameter_list, resultidlist, goals)
 
-# Usage: validate.py <labname>
-# Arguments:
-#    <labname> - the lab to validate
+# Usage: validate.py <labname> | -c <validatetestname>
+#    -c <validatetestname> to run validate.py against <validatetestname>
 def main():
-    if len(sys.argv) != 2:
-        print('validate <lab>')
-        exit(0)
-    labname = sys.argv[1]
+    num_args = len(sys.argv)
+    if num_args < 2 or num_args > 3:
+        sys.stderr.write("Usage: validate.py <labname> | -c <validatetestname>\n")
+        sys.stderr.write("   -c <validatetestname> to run validate.py against <validatetestname>.\n")
+        sys.exit(1)
+    validatetest = False
+    validatetest_path = ""
+    if num_args == 2:
+        labname = sys.argv[1]
+        validatetestname = "NONE"
+    else:
+        validatetest = True
+        validatetestname = sys.argv[2]
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        dir_path = dir_path[:dir_path.index("trunk/scripts")]
+        validatetest_path = os.path.join(dir_path, "testsets", "validate", validatetestname)
+        print "current path is (%s)" % validatetest_path
+        labname_path = os.path.join(validatetest_path, "labname")
+        if not (os.path.exists(labname_path) and os.path.isfile(labname_path)):
+            sys.stderr.write("labname file for %s does not exists!\n" % validatetestname)
+            sys.exit(1)
+        else:
+            with open(labname_path) as fh:
+                labname = fh.read().strip()
+        
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
     labutils.logger.INFO("Begin logging validate.py for %s lab" % labname)
     labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
     lab_path = os.path.join(os.path.abspath('../../labs'), labname)
-    DoValidate(lab_path, labname, labutils.logger)
+    DoValidate(lab_path, labname, validatetest, validatetest_path, labutils.logger)
     return 0
 
 if __name__ == '__main__':
     sys.exit(main())
-
