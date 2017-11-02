@@ -62,8 +62,8 @@ treatlocal(){
            read -r -a cmd_array <<< "$cmdlocal"
            the_command=${cmd_array[0]}
            #echo "the command $the_command"
-           base_cmd=$(basename $cmd_path)
-           base_treat=$(basename $the_command)
+           base_cmd=$(basename "$cmd_path")
+           base_treat=$(basename "$the_command")
            if [[ "$base_cmd" == "$base_treat" ]]; then
 
                if [[ ${#cmd_array[@]} == "2" ]];then
@@ -176,7 +176,7 @@ preexec() {
            if [[ ! -z "$local_output" ]]; then
                # we are to timestamp a program output file 
                #echo "local output is $local_output"
-               just_command=$(basename $cmd_path)
+               just_command=$(basename "$cmd_path")
                cp $local_output $PRECMD_HOME/.local/result/$just_command.prgout.$timestamp
            fi
            return 1
