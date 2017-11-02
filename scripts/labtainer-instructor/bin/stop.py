@@ -54,7 +54,7 @@ def main():
                 labutils.logger.ERROR("No lab named %s in currently running labs!" % labname)
                 sys.exit(1)
         else:
-            labutils.logger.ERROR("No running labs in student's role")
+            labutils.logger.ERROR("No running labs in instructor's role")
             sys.exit(1)
     else:
         labutils.logger.ERROR("No running labs at all")
