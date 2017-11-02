@@ -38,15 +38,16 @@ import LabtainerLogging
 # Arguments:
 #    <labname> - the lab to start
 def main():
-    if len(sys.argv) < 2 or len(sys.argv) > 3:
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    dir_path = dir_path[:dir_path.index("scripts/labtainer-instructor")]	
+    path = dir_path + "labs/"
+    dirs = os.listdir(path)
+    num_args = len(sys.argv)
+    if num_args < 2 or num_args > 3:
         sys.stderr.write("Usage: start.py <labname> [-q]\n")
         sys.stderr.write("   -q will load the lab using a predetermined email.\n")
 #	tell user list of lesson/folder names in "/labtainer/trunk/labs/"
 	sys.stderr.write("List of available labs:\n\n")
-	dir_path = os.path.dirname(os.path.realpath(__file__))
-	dir_path = dir_path[:dir_path.index("scripts/labtainer-instructor")]	
-	path = dir_path + "labs/"
-	dirs = os.listdir(path)
 	for loc in sorted(dirs):
                 description = '  '+loc
 		aboutFile = path + loc + "/config/about.txt"
@@ -60,6 +61,9 @@ def main():
                 sys.stderr.write(description)
         sys.exit(1)
     labname = sys.argv[1]
+    if num_args == 2 and labname not in dirs:
+        sys.stderr.write("ERROR: Lab named %s was not found!\n" % labname)
+        sys.exit(1)
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
     labutils.logger.INFO("Begin logging start.py for %s lab" % labname)
     labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
