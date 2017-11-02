@@ -403,6 +403,36 @@ def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_
             logger.ERROR("Failed to set labname in container %s!\n" % mycontainer_name)
             sys.exit(1)
 
+def GetRunningContainersList():
+    retval = True
+    cmd = "docker container ls --format {{.Names}}"
+    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if len(output[1].strip()) > 0:
+        logger.DEBUG('No running containers: error returned %s, return false' % output[1])
+        return False, None
+    result = output[0].strip()
+    logger.DEBUG('result is %s' % result)
+    if 'Error:' in result or len(result.strip()) == 0:
+        if 'Error:' in result:
+            logger.DEBUG("Command was (%s)" % cmd)
+            logger.DEBUG("Error from command = '%s'" % result)
+        return False, result
+    containers_list = result.split('\n')
+    return True, containers_list
+
+def GetRunningLabNames(containers_list, role):
+    labnameslist = []
+    found_lab_role = False
+    for each_container in containers_list:
+        if each_container.endswith(role):
+            splitstring = each_container.split('.')
+            labname = splitstring[0]
+            found_lab_role = True
+            if labname not in labnameslist:
+                labnameslist.append(labname)
+    return found_lab_role, labnameslist
+
 def ImageExists(image_name, container_name):
     retval = True
     logger.DEBUG('check existence of container %s image %s' % (container_name, image_name))

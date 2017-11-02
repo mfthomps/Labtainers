@@ -36,6 +36,19 @@ def main():
     labutils.logger.INFO("Begin logging stop.py for %s lab" % labname)
     # Pass 'False' to ignore_stop_error (i.e., do not ignore error)
     lab_path = os.path.join(os.path.abspath('../../labs'), labname)
+    has_running_containers, running_containers_list = labutils.GetRunningContainersList()
+    if has_running_containers:
+        has_lab_role, labnamelist = labutils.GetRunningLabNames(running_containers_list, "student")
+        if has_lab_role:
+            if labname not in labnamelist:
+                labutils.logger.ERROR("No lab named %s in currently running labs!" % labname)
+                sys.exit(1)
+        else:
+            labutils.logger.ERROR("No running labs in student's role")
+            sys.exit(1)
+    else:
+        labutils.logger.ERROR("No running labs at all")
+        sys.exit(1)
     labutils.StopLab(lab_path, "student", False)
 
     return 0
