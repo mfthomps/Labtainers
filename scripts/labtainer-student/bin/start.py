@@ -28,16 +28,17 @@ import pydoc
 #    <labname> - the lab to start
 #    [-q] will load the lab using a previously supplied email.
 def main():
-    if len(sys.argv) < 2 or len(sys.argv) > 3:
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    dir_path = dir_path[:dir_path.index("scripts/labtainer-student")]	
+    path = dir_path + "labs/"
+    dirs = os.listdir(path)
+    num_args = len(sys.argv)
+    if num_args < 2 or num_args > 3:
         description = ''
         description += "Usage: start.py <labname> [-q]\n"
         description +="   -q will load the lab using a previously supplied email.\n"
 #	tell user list of lesson/folder names in "/labtainer/trunk/labs/"
 	description+="List of available labs:\n\n"
-	dir_path = os.path.dirname(os.path.realpath(__file__))
-	dir_path = dir_path[:dir_path.index("scripts/labtainer-student")]	
-	path = dir_path + "labs/"
-	dirs = os.listdir(path)
 	for loc in sorted(dirs):
                 description = description+'\n  '+loc
 		aboutFile = path + loc + "/config/about.txt"
@@ -52,11 +53,15 @@ def main():
         pydoc.pager(description)
         sys.exit(1)
     
+    labname = sys.argv[1]
+    if num_args == 2 and labname not in dirs:
+        sys.stderr.write("ERROR: Lab named %s was not found!\n" % labname)
+        sys.exit(1)
+
     quiet_start = False
-    if len(sys.argv) == 3 and sys.argv[2] == '-q':
+    if num_args == 3 and sys.argv[2] == '-q':
         quiet_start = True
     
-    labname = sys.argv[1]
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
     labutils.logger.INFO("Begin logging start.py for %s lab" % labname)
     lab_path = os.path.join(os.path.abspath('../../labs'), labname)
