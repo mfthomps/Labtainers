@@ -1,0 +1,19 @@
+This is patch folder for exist SEED VM 12.04. 
+	author: Kailiang  kying@syr.edu
+
+You have two ways to patch the SEED VM 12.04  
+
+1) automatic approach: 
+------------------------
+
+chmod a+x bootstrap.sh
+./bootstrap.sh
+type seed password "dees" 
+
+
+2) manual approach: 
+------------------------
+
+In case the automatic approach does not work for you.  Please take a look 
+at the SQL Injection Attack Lab description Appendix secton.  
+It contains detail step how to setup the SQL injection lab environment manually. 
