@@ -1,0 +1,49 @@
+label{
+	display: inline-block;
+	float: center;
+	clear: center;
+	width: 200px;
+	text-align: right;
+}
+input {
+	display: inline-block;
+	float: center;
+	margin: 7;
+}
+body {
+	margin: 10;
+	padding: 10;
+	background: #F4FDE5
+}
+button {
+	size:30px;
+	margin:10;
+}
+table {
+	border-collapse: collapse;
+	width: 100%;
+}
+th,td{
+	text-align: left;
+	padding: 8px;
+}
+tr:nth-child(even){background-color: #C0C0C0}
+.wrapper {
+	text-align: center;
+}
+.wrapperL {
+	text-align: left;
+	margin-top: 20;
+}
+.wrapperR {
+	text-align: right;
+}
+.buttonHolder{
+	text-align: center;
+}
+.green {
+	text-align: center;
+   	height: 300 px;
+	clear: both;
+	position: bottom;
+}
