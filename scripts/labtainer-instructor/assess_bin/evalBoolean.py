@@ -123,7 +123,12 @@ def evaluate_boolean_expression(s, the_dict, logger):
     if left != right:
         print 'ERROR unbalanced parens'
         exit(1)
-    for item in the_dict:
+    replacelist = []
+    for key, value in the_dict.items():
+        if key not in replacelist:
+            replacelist.append(key)
+    sorted_replacelist = sorted(replacelist, key=len, reverse=True)
+    for item in sorted_replacelist:
         if item in s:
             value = '%r' % the_dict[item]
             s = s.replace(item, value)
