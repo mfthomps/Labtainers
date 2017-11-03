@@ -159,15 +159,27 @@ def CreateSingleContainer(container, mysubnet_name=None, mysubnet_ip=None):
         logger.ERROR("CreateSingleContainer image %s does not exist!" % container.image_name)
         retval = False
     else:
+
         docker0_IPAddr = getDocker0IPAddr()
         logger.DEBUG("getDockerIPAddr result (%s)" % docker0_IPAddr)
-        volume='-v /sys/fs/cgroup:/sys/fs/cgroup:ro'
+        volume=''
+        if container.script == 'NONE':
+            ''' a systemd container, centos or ubuntu? '''
+            if IsUbuntuSystemd(container.image_name):
+                volume='--security-opt seccomp=confined --tmpfs /run --tmpfs /run/lock -v /sys/fs/cgroup:/sys/fs/cgroup:ro'
+            else:
+                volume='-v /sys/fs/cgroup:/sys/fs/cgroup:ro'
+        elif container.x11.lower() == 'yes':
+            #volume = '-e DISPLAY -v /tmp/.Xll-unix:/tmp/.X11-unix --net=host -v$HOME/.Xauthority:/home/developer/.Xauthority'
+            volume = '--env="DISPLAY"  --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw"'
+             
         if mysubnet_name:
             createsinglecommand = "docker create -t --network=%s --ip=%s --privileged --add-host my_host:%s --name=%s --hostname %s %s %s %s" % (mysubnet_name, mysubnet_ip, docker0_IPAddr, container.full_name, container.hostname, volume, container.image_name, container.script)
         else:
             createsinglecommand = "docker create -t --privileged --add-host my_host:%s --name=%s --hostname %s %s %s %s" % (docker0_IPAddr, 
                container.full_name, container.hostname, volume, container.image_name, container.script)
-        logger.DEBUG("Command to execute is (%s)" % createsinglecommand)
+        logger.DEBUG("Command to execute was (%s)" % createsinglecommand)
+
         ps = subprocess.Popen(createsinglecommand, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         output = ps.communicate()
         if len(output[1]) > 0:
