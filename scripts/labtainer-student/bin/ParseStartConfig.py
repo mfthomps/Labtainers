@@ -54,6 +54,7 @@ class ParseStartConfig():
             self.full_name  = ""
             self.container_nets = {} #dictionary of name and ip addr 
             self.script = "bash"
+            self.x11 = "no"
             self.logger = logger
 
         def add_net(self, name, ipaddr):
