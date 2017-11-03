@@ -1,0 +1,9 @@
+FROM mfthomps/labtainer.centos
+LABEL description="This is base Docker image for Labtainer CENTOS-hosted LAMP images"
+#
+RUN wget http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm
+RUN rpm -ivh mysql-community-release-el7-5.noarch.rpm
+RUN yum -y update
+RUN yum install -y httpd mysql-server php php-mcrypt php-mysql
+RUN systemctl enable httpd.service
+#
