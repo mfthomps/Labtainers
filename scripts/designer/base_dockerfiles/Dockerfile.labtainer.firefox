@@ -1,0 +1,3 @@
+FROM mfthomps/labtainer.base
+LABEL description="This is base Docker image for Labtainer browsers"
+RUN apt-get update && apt-get install -y firefox && rm -rf /var/cache/apt/
