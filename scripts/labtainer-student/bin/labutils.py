@@ -172,12 +172,16 @@ def CreateSingleContainer(container, mysubnet_name=None, mysubnet_ip=None):
         elif container.x11.lower() == 'yes':
             #volume = '-e DISPLAY -v /tmp/.Xll-unix:/tmp/.X11-unix --net=host -v$HOME/.Xauthority:/home/developer/.Xauthority'
             volume = '--env="DISPLAY"  --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw"'
-             
+        add_hosts = ''     
+        for item in container.add_hosts:
+            ip, host = item.split(':')
+            add_this = '--add-host %s ' % item
+            add_hosts += add_this
         if mysubnet_name:
-            createsinglecommand = "docker create -t --network=%s --ip=%s --privileged --add-host my_host:%s --name=%s --hostname %s %s %s %s" % (mysubnet_name, mysubnet_ip, docker0_IPAddr, container.full_name, container.hostname, volume, container.image_name, container.script)
+            createsinglecommand = "docker create -t --network=%s --ip=%s --privileged --add-host my_host:%s %s --name=%s --hostname %s %s %s %s" % (mysubnet_name, mysubnet_ip, docker0_IPAddr, add_hosts,  container.full_name, container.hostname, volume, container.image_name, container.script)
         else:
-            createsinglecommand = "docker create -t --privileged --add-host my_host:%s --name=%s --hostname %s %s %s %s" % (docker0_IPAddr, 
-               container.full_name, container.hostname, volume, container.image_name, container.script)
+            createsinglecommand = "docker create -t --privileged --add-host my_host:%s %s --name=%s --hostname %s %s %s %s " % (docker0_IPAddr, add_hosts, 
+               container.full_name, container.hostname, volume, container.image_name, add_hosts, container.script)
         logger.DEBUG("Command to execute was (%s)" % createsinglecommand)
 
         ps = subprocess.Popen(createsinglecommand, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
