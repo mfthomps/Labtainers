@@ -55,6 +55,7 @@ class ParseStartConfig():
             self.container_nets = {} #dictionary of name and ip addr 
             self.script = "bash"
             self.x11 = "no"
+            self.add_hosts = []
             self.logger = logger
 
         def add_net(self, name, ipaddr):
@@ -137,6 +138,8 @@ class ParseStartConfig():
                 elif key == "container":
                     self.add_if_new(val, self.containers, self.Container(val, self.logger))
                     active = self.containers[val]
+                elif key == 'add-host':
+                    active.add_hosts.append(val)
                 elif hasattr(active, key):
                     setattr(active, key, val) 
                 else:
