@@ -1123,6 +1123,62 @@ def RunInstructorCreateGradeFile(container_name, container_user, labname, is_reg
     if len(output_string) > 0:
         logger.DEBUG("result from container %s executing instructor.py: %s \n" % (container_name, output_string))
 
+def WatermarkTest(lab_path, role, standard, isFirstRun=False):
+    labname = os.path.basename(lab_path)
+    username = getpass.getuser()
+    mycwd = os.getcwd()
+    myhomedir = os.environ['HOME']
+    logger.DEBUG("ParseStartConfig for %s" % labname)
+    is_valid_lab(lab_path)
+    config_path       = os.path.join(lab_path,"config") 
+    start_config_path = os.path.join(config_path,"start.config")
+    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, logger)
+
+    labtainer_config_dir = os.path.join(os.path.dirname(os.path.dirname(lab_path)), 'config', 'labtainer.config')
+    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_dir, logger)
+    watermarktest_lab_path = os.path.join(labtainer_config.watermark_root, labname, standard)
+    host_home_xfer = os.path.join(labtainer_config.host_home_xfer, labname)
+    logger.DEBUG("Host Xfer directory for labname %s is %s" % (labname, host_home_xfer))
+    logger.DEBUG("Watermark Test path for labname %s is %s" % (labname, watermarktest_lab_path))
+
+    GradesGold = "%s/%s.grades.txt" % (watermarktest_lab_path, labname)
+    Grades = "/home/%s/%s/%s.grades.txt" % (username, host_home_xfer, labname)
+    logger.DEBUG("GradesGold is %s - Grades is %s" % (GradesGold, Grades))
+
+    is_regress_test = None
+    if isFirstRun:   
+	RedoLab(lab_path, role, is_regress_test)
+    else: 
+	StartLab(lab_path, role, is_regress_test, is_redo=True)
+
+    for name, container in start_config.containers.items():
+        mycontainer_name       = container.full_name
+        mycontainer_image_name = container.image_name
+        container_user         = container.user
+
+        if mycontainer_name == start_config.grade_container:
+            logger.DEBUG('about to RunInstructorCreateDradeFile for container %s' % start_config.grade_container)
+            RunInstructorCreateGradeFile(start_config.grade_container, container_user, labname, is_regress_test)
+
+    # Pass 'False' to ignore_stop_error (i.e., do not ignore error)
+    result_xfer = StopLab(lab_path, role, False, is_regress_test)
+    logger.DEBUG('result_xfer is %s' % result_xfer)
+
+    # Give the container some time to copy the result out -- just in case
+    time.sleep(3)
+
+    CompareResult = False
+    # GradesGold and Grades must exist
+    logger.DEBUG('compare %s to %s' % (GradesGold, Grades))
+    if not os.path.exists(GradesGold):
+        logger.ERROR("GradesGold %s file does not exist!" % GradesGold)
+    elif not os.path.exists(Grades):
+        logger.ERROR("Grades %s file does not exist!" % Grades)
+    else:
+        CompareResult = filecmp.cmp(GradesGold, Grades)
+    return CompareResult
+
+
 def RegressTest(lab_path, role, standard, isFirstRun=False):
     labname = os.path.basename(lab_path)
     username = getpass.getuser()
