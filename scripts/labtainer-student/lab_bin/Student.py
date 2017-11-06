@@ -77,7 +77,11 @@ def main():
             savefname = os.path.join(newdir, file)
             #print "savefname is %s" % savefname
             if savefname[2:] not in skip_list:
-                zipoutput.write(savefname, compress_type=zipfile.ZIP_DEFLATED)
+                try:
+                    zipoutput.write(savefname, compress_type=zipfile.ZIP_DEFLATED)
+                except:
+                    # do not die if ephemeral files go away
+                    pass
     zipoutput.close()
    
     os.chmod(TempOutputName, 0666)
