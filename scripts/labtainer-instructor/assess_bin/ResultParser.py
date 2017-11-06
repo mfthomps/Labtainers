@@ -108,9 +108,13 @@ def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname,
     #print values
     numvalues = len(values)
     logger.DEBUG("each_value is %s -- numvalues is (%d)" % (each_value, numvalues))
-    if numvalues < 3 and values[1] not in just_field_type:
-        logger.ERROR("results.config contains unexpected value (%s) format" % each_value)
+    if numvalues < 2:
+        logger.ERROR("found no ':' delimiter in %s" % each_value)
         sys.exit(1)
+    if numvalues < 3 and values[1] not in just_field_type:
+        logger.ERROR("results.config expected %s to be one of these: %s.  Perhaps there is a missing ':'? \nOffending line: (%s) " % (values[1], str(just_field_type), each_value))
+        sys.exit(1)
+
     line_at = findLineIndex(values)
     if line_at is None:
         logger.ERROR('No line_type in %s' % each_value)
