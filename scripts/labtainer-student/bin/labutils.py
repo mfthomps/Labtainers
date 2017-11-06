@@ -181,7 +181,7 @@ def CreateSingleContainer(container, mysubnet_name=None, mysubnet_ip=None):
             createsinglecommand = "docker create -t --network=%s --ip=%s --privileged --add-host my_host:%s %s --name=%s --hostname %s %s %s %s" % (mysubnet_name, mysubnet_ip, docker0_IPAddr, add_hosts,  container.full_name, container.hostname, volume, container.image_name, container.script)
         else:
             createsinglecommand = "docker create -t --privileged --add-host my_host:%s %s --name=%s --hostname %s %s %s %s " % (docker0_IPAddr, add_hosts, 
-               container.full_name, container.hostname, volume, container.image_name, add_hosts, container.script)
+               container.full_name, container.hostname, volume, container.image_name, container.script)
         logger.DEBUG("Command to execute was (%s)" % createsinglecommand)
 
         ps = subprocess.Popen(createsinglecommand, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
