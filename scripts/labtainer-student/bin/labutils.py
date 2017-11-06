@@ -504,7 +504,7 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False):
     LABS_DIR = os.path.abspath('../../labs')
     didfix = False
     ''' hackey assumption about running from labtainers-student or labtainers-instructor '''
-    if role == 'intructor':
+    if role == 'instructor':
         container_bin = './assess_bin'
     else:
         container_bin = './lab_bin'
