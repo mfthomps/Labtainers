@@ -7,7 +7,16 @@
 #  not not permit nopassword, then use:
 #  echo $1 | sudo -S the-command
 #
-mysql -u root -e "SET PASSWORD FOR 'root'@'localhost' = PASSWORD('seedubuntu')"
+while [ 1 ]; do
+    mysql -u root -e "SET PASSWORD FOR 'root'@'localhost' = PASSWORD('seedubuntu')"
+    result=$?
+    if [[ $result == 0 ]]; then
+        break
+    else
+        echo no server, sleep
+        sleep 1
+    fi
+done
 mysql -u root -pseedubuntu -e "CREATE DATABASE if not exists Users; "
 mysql -u root -pseedubuntu Users < $HOME/Users.sql
 
