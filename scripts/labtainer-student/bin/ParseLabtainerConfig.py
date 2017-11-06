@@ -19,6 +19,7 @@ class ParseLabtainerConfig():
     def __init__(self, fname, logger):
         self.host_home_xfer= "" # HOST_HOME_XFER - directory to transfer artifact to/from containers
         self.testsets_root= None # TESTSETS_ROOT - regression test root
+        self.watermark_root= None # WATERMARK_ROOT - watermark test root
         self.file_log_level= "" # FILE_LOG_LEVEL - level to log to file
         self.console_log_level= "" # CONSOLE_LOG_LEVEL - level to log to console
         self.apt_source='archive.ubuntu.com'
@@ -84,6 +85,9 @@ class ParseLabtainerConfig():
             exit(1)
         if not self.testsets_root:
             self.mylog("Missing testsets_root in labtainer.config!\n")
+            exit(1)
+        if not self.watermark_root:
+            self.mylog("Missing watermark_root in labtainer.config!\n")
             exit(1)
         if not self.file_log_level:
             self.mylog("Missing file_log_level in labtainer.config!\n")
