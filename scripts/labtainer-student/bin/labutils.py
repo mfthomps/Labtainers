@@ -506,7 +506,7 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False):
     ''' hackey assumption about running from labtainers-student or labtainers-instructor '''
     if role == 'intructor':
         container_bin = './assess_bin'
-    else
+    else:
         container_bin = './lab_bin'
     for name, container in start_config.containers.items():
         mycontainer_name       = container.full_name
