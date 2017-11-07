@@ -71,9 +71,6 @@ what appear to be multiple components and networks.  Students see and interact w
 environments, primarily via bash shell commands. In general, the Labtainer
 framework implementation is not visible to the student, and the Linux
 environment as seen by the student is not augmented to support the framework.
-The Linux execution environments presented by Docker containers do not readily
-include GUIs.  As a result, Labtainer should not be used for exercises requiring
-GUIs.
 
 Labtainers are intended for use on individual student computers.
 The computer utilized by a student must include the Linux operating system, e.g.,
@@ -349,6 +346,10 @@ This defaults to the user name defined above.
 that is to be connected to this container.  A separate line should be entered for each network.
 \item SCRIPT [script] -- Optional script to provide to the Docker create command, defaults to "bash".  This must be set to
 "NONE" for CENTOS-based labs (and likely fedora[test that]).
+\item ADD-HOST [host:ip] -- Optional addition to the /etc/host file, a container may have multipled ADD-HOST entries.
+\item X11 [YES/NO] -- Optional, defaults to NO.  If YES, the container mounts the TCP socked used by the hosts X11 server,
+enabling the container to run applications with GUIs, e.g., browsers or wireshark.  See sql-inject as an example.
+
 \end{itemize}
 \end{itemize}
   
@@ -479,11 +480,8 @@ and reside at:
 \end{verbatim}
 
 \subsection{Automatic copying files from containers to the host}
-Some labs require the use of tools that are not available within containers. For example,
-Wireshark cannot run in a container because it requires a GUI.  In such cases, the
-student can be directed to run the tool from the host, however Labtainers does not support
-automated assessment of the results.  However, the files accessed by such tools can be
-parameterized by Labtainers, and then copied to the host.  Such files are identified within
+This feature no longer has an intended use. 
+Files are identified within
 \begin{verbatim}
     $LABTAINER_DIR/labs/[labname]/config/files_to_host.config
 \end{verbatim}
