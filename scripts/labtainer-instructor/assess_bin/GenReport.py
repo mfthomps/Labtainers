@@ -123,7 +123,7 @@ def ReportCheater(gradestxtoutput, watermark_source, email, keyvalue, found_chea
     else:
         gradestxtoutput.write("\n")
 
-def PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, is_regress_test):
+def PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, watermark_test):
 
     gradestxtoutput = open(gradestxtfile, "w")
     headerline = emailprintformat % 'Student' + goalsline
@@ -157,7 +157,7 @@ def PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, is_
                         curline = curline + goalprintformat_int % goalresult 
         gradestxtoutput.write(curline + "\n")
 
-    if not is_regress_test:
+    if watermark_test:
         # Create 'Source' watermark
         watermark_source = {}
         for emaillabname, keyvalue in labgrades.iteritems():
@@ -185,13 +185,12 @@ def PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, is_
 
     gradestxtoutput.close()
 
-# Usage: CreateReport <gradesjsonfile> <gradestxtfile> <is_regress_test>
+# Usage: CreateReport <gradesjsonfile> <gradestxtfile> <watermark_test>
 # Arguments:
 #     <gradesjsonfile> - This is the input file <labname>.grades.json
 #     <gradestxtfile> - This is the output file <labname>.grades.txt
-#     <is_regress_test> - Whether this is regression testing or not
-#                         Note: no watermark checks during regression testing
-def CreateReport(gradesjsonfile, gradestxtfile, is_regress_test):
+#     <watermark_test> - Whether to do watermark checks or not
+def CreateReport(gradesjsonfile, gradestxtfile, watermark_test):
     if not os.path.exists(gradesjsonfile):
         sys.stderr.write("ERROR: missing grades.json file (%s)\n" % gradesjsonfile)
         sys.exit(1)
@@ -204,7 +203,7 @@ def CreateReport(gradesjsonfile, gradestxtfile, is_regress_test):
 
     labname, goalsline, barline = ValidateLabGrades(labgrades)
 
-    PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, is_regress_test)
+    PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, watermark_test)
 
 
 # Usage: GenReport.py <gradesjsonfile> <gradestxtfile>
@@ -219,8 +218,8 @@ def main():
 
     gradesjsonfile = sys.argv[1]
     gradestxtfile = sys.argv[2]
-    is_regress_test = False
-    CreateReport(gradesjsonfile, gradestxtfile, is_regress_test)
+    watermark_test = True
+    CreateReport(gradesjsonfile, gradestxtfile, watermark_test)
 
 if __name__ == '__main__':
     sys.exit(main())
