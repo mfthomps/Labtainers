@@ -55,8 +55,11 @@ CONTAINER default
         # Script name passed to the Docker start command.  This defaults to bash, which is used
         # by most Ubuntu-based labtainers.  The CENTOS containers should pass a value of "NONE"
         # because they will start with the /usr/sbin/init.
-        #
         # SCRIPT NONE
-
-
+        #
+        # Host names to add to /etc/hosts, may be multiple
+        # ADD-HOST host:ip
+        #
+        # Mount Linux host X11 server socket for use by GUI-app in container. 
+        # X11 YES
 
