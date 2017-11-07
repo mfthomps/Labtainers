@@ -388,8 +388,10 @@ def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_
         sys.exit(1)
 
     username = getpass.getuser()
+    # Make sure check for is_regress_test first
     if not is_regress_test == None:
         xfer_dir = ""
+        # then check if it is watermark test required
         if is_watermark_test:
             xfer_dir = os.path.join(labtainer_config.watermark_root, labname)
         else:
@@ -490,7 +492,7 @@ def RebuildLab(lab_path, role, is_regress_test=None, force_build=False, quiet_st
     myhomedir = os.environ['HOME']
     host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
     CreateHostHomeXfer(host_xfer_dir)
-    is_watermark_test = False
+    is_watermark_test = True
     DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start)
 
 def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False):
@@ -837,7 +839,7 @@ def CopyChownGradesFile(mycwd, start_config, labtainer_config, container_name, c
         sys.exit(1)
     '''
 
-def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=False, is_watermark_test=False, quiet_start=False):
+def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=False, is_watermark_test=True, quiet_start=False):
     labname = os.path.basename(lab_path)
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
@@ -1015,7 +1017,7 @@ def dumb():
     pass
     '''
     '''
-def RedoLab(lab_path, role, is_regress_test=None, force_build=False, is_watermark_test=False, quiet_start=False):
+def RedoLab(lab_path, role, is_regress_test=None, force_build=False, is_watermark_test=True, quiet_start=False):
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
     # Pass 'True' to ignore_stop_error (i.e., ignore certain error encountered during StopLab
@@ -1128,6 +1130,7 @@ def RunInstructorCreateGradeFile(container_name, container_user, labname, is_wat
     if len(output_string) > 0:
         logger.DEBUG("result from container %s executing instructor.py: %s \n" % (container_name, output_string))
 
+# WatermarkTest is a 'special' case of Regression Testing (i.e., include watermark testing)
 def WatermarkTest(lab_path, role, standard, isFirstRun=False):
     labname = os.path.basename(lab_path)
     username = getpass.getuser()
@@ -1210,9 +1213,9 @@ def RegressTest(lab_path, role, standard, isFirstRun=False):
     is_regress_test = standard
     is_watermark_test = False
     if isFirstRun:   
-	RedoLab(lab_path, role, is_regress_test)
+	RedoLab(lab_path, role, is_regress_test, is_watermark_test=is_watermark_test)
     else: 
-	StartLab(lab_path, role, is_regress_test, is_redo=True)
+	StartLab(lab_path, role, is_regress_test, is_watermark_test=is_watermark_test, is_redo=True)
 
     for name, container in start_config.containers.items():
         mycontainer_name       = container.full_name
