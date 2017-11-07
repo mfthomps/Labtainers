@@ -168,15 +168,14 @@ def Check_SecondLevel_EmailWatermark_OK(gradesjson, email_labname, student_id, z
 
 # Usage: Instructor.py
 # Arguments:
-#   is_regress_test - whether this is run during regression testing or not
-#                     Note: no watermark checks during regression testing
+#   watermark_test - whether to do watermark checks or not
 def main():
     #print "Running Instructor.py"
 
     logger.INFO("Begin logging instructor.py")
 
-    # Default to is_regress_test to False
-    is_regress_test = False
+    # Default to watermark_test to True
+    watermark_test = True
     logger.DEBUG('MYHOME is %s' % MYHOME)
     lab_name_dir = os.path.join(MYHOME,'.local','.labname')
     if not os.path.isfile(lab_name_dir):
@@ -185,14 +184,14 @@ def main():
 
     with open(lab_name_dir) as fh:
         LabIDName = fh.read().strip()
-    regress_test_argument=None
+    watermark_test_argument=None
     if len(sys.argv) > 1:
-        regress_test_argument = str(sys.argv[1]).upper()
+        watermark_test_argument = str(sys.argv[1]).upper()
 
-        if regress_test_argument == "TRUE":
-            is_regress_test = True
-        elif regress_test_argument == "FALSE":
-            is_regress_test = False
+        if watermark_test_argument == "TRUE":
+            watermark_test = True
+        elif watermark_test_argument == "FALSE":
+            watermark_test = False
         else:
             logger.ERROR('Usage: instructor.py "[True|False]"')
             exit(1)
@@ -288,8 +287,8 @@ def main():
 
         zipoutput = zipfile.ZipFile(OutputName, "r")
 
-        # Do Watermark checks only if it is not regression testing
-        if not is_regress_test:
+        # Do Watermark checks only if watermark_test is True
+        if watermark_test:
             # If e-mail mismatch, do not further extract the zip file
             if not Check_SecondLevel_EmailWatermark_OK(gradesjson, email_labname, student_id, zipoutput):
                 # continue with next one
@@ -357,7 +356,7 @@ def main():
 
     # Output <labname>.grades.txt
     gradestxtname = os.path.join(MYHOME, "%s.grades.txt" % LabIDName)
-    GenReport.CreateReport(gradesjsonname, gradestxtname, is_regress_test)
+    GenReport.CreateReport(gradesjsonname, gradestxtname, watermark_test)
 
     # Inform user where the 'grades.txt' are created
     print "Grades are stored in '%s'" % gradestxtname
