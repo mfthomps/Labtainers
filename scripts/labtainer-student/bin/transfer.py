@@ -49,12 +49,10 @@ def main():
     container = None
     requested_direction = "TOHOST"
     if num_args < 3:
-        print "HERE1"
         usage()
     elif num_args == 3:
         container = sys.argv[1]
     elif num_args == 4:
-        print "HERE2"
         # Assume the third argument is 'TOHOST|TOCONTAINER'
         requested_direction = sys.argv[3]
         if requested_direction == "TOHOST":
@@ -67,20 +65,16 @@ def main():
             # and requested_direction defaults to 'TOHOST'
             container = sys.argv[3]
     elif num_args == 5:
-        print "HERE3"
         requested_direction = sys.argv[4]
         if requested_direction == "TOHOST":
             container = sys.argv[3]
         elif requested_direction == "TOCONTAINER":
             container = sys.argv[3]
         else:
-            print "HERE4"
             usage()
     else:
-        print "HERE5"
         usage()
 
-    print "HERE6"
     labname = sys.argv[1]
     filename = sys.argv[2]
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
