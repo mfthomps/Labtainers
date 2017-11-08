@@ -528,7 +528,7 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False):
         output = ps.communicate()
         #logger.DEBUG("Command was (%s)" % cmd)
         if len(output[1]) > 0:
-            logger.DEBUG("Error from command %s was  '%s'" % str(cmd, output[1]))
+            logger.DEBUG("Error from command %s was  '%s'" % (cmd, output[1]))
         force_this_build = force_build
         if not force_this_build:
             image_exists, result, new_image_name = ImageExists(mycontainer_image_name, mycontainer_name, container.registry)
