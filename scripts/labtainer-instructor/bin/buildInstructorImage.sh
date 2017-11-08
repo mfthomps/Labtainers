@@ -49,9 +49,6 @@ docker pull $registry/$labimage
 result=$?
 if [ "$result" == "0" ] && [ $force_build = "False" ]; then
     imagecheck="YES"
-    mkdir -p $LAB_DIR/dockerfiles/tmp
-    #create tmp file
-    echo "FROM $registry/$labimage" > $LAB_DIR/dockerfiles/tmp/Dockerfile.$labimage.tmp
 else
     LABIMAGE_DIR=$LAB_TOP/$lab/$imagename/
     if [ ! -d $LABIMAGE_DIR ]; then
