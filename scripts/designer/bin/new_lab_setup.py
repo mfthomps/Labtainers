@@ -119,6 +119,43 @@ def handle_clone_lab(tdir, newlabname):
         # Rename dockerfiles as new labname dockerfiles
         os.rename(name, newname)
 
+    # Handle a single container lab cloning
+    # Open start.config with append
+    count_container_lines = 0
+    start_config_filename = os.path.join(newlabpath, 'config', 'start.config')
+    start_config_file = open(start_config_filename, 'r')
+    start_config_filelines = start_config_file.readlines()
+    for line in start_config_filelines:
+        if line.startswith('CONTAINER'):
+            count_container_lines = count_container_lines + 1
+    #print "Number of lines that starts with 'CONTAINER' is (%d)" % count_container_lines
+    if count_container_lines == 0:
+        print "Can't have a no container lab!"
+        sys.exit(1)
+    if count_container_lines == 1:
+        oldcontainerpath = os.path.join(newlabpath, oldlabname)
+        newcontainerpath = os.path.join(newlabpath, newlabname)
+        # Move the single old container as new container as the new labname container
+        os.rename(oldcontainerpath, newcontainerpath)
+
+        # Also rename dockerfile again (this should take care of the container name portion)
+        newlabname_olddockerfilename = os.path.join(newlabpath, 'dockerfiles')
+        newlabname_olddockerfiles = glob.glob('%s/*' % newlabname_olddockerfilename)
+        for name in newlabname_olddockerfiles:
+            newname = name.replace(oldlabname, newlabname)
+            #print "name is (%s) newname is (%s)" % (name, newname)
+            # Rename dockerfiles as new labname dockerfiles
+            os.rename(name, newname)
+
+        # Read start.config, replace 'oldlabname' as 'newlabname' into start.config
+        start_config_file = open(start_config_filename, 'r')
+        config_filelines = start_config_file.readlines()
+        start_config_file.close()
+        start_config_file = open(start_config_filename, 'w')
+        for line in config_filelines:
+            newline = line.replace(oldlabname, newlabname)
+            start_config_file.write(newline)
+
 def handle_replace_container(tdir, oldcontainer, newcontainer):
     # This assumes directories 'config', 'dockerfiles' and 'instr_config'
     # have been properly populated
