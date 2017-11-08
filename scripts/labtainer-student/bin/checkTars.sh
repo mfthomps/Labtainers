@@ -28,14 +28,14 @@ for f in $tar_list; do
             echo "look for tar_name $tar_name"
             if [[ ! -f $tar_name ]]; then
                 echo "no $tar_name, make one"
-                f_list=$(ls -a)
+                f_list=$(ls -A -1)
                 if [[ -z $f_list ]];then
                      tar cvf $tar_name --files-from /dev/null
                 else
                     if [[ $f == "home_tar" ]]; then
-                        tar czf $tar_name . > $manifest
+                        tar czf $tar_name `ls -A -1` > $manifest
                     else
-                        tar czf $tar_name .
+                        tar czf $tar_name `ls -A -1`
                     fi
                 fi
             else
@@ -47,9 +47,9 @@ for f in $tar_list; do
                     echo "replace tar"
                     rm $tar_name 2> /dev/null
                     if [[ $f == "home_tar" ]]; then
-                        tar czf $tar_name . > $manifest
+                        tar czf $tar_name `ls -A -1`  > $manifest
                     else
-                        tar czf $tar_name .
+                        tar czf $tar_name `ls -A -1` 
                     fi
                 elif [[ $len -eq 1 ]]; then
                     if [[ $f == "home_tar" ]]; then
