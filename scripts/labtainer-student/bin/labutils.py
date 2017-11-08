@@ -149,14 +149,9 @@ def DisconnectNetworkFromContainer(mycontainer_name, mysubnet_name):
 def CreateSingleContainer(container, mysubnet_name=None, mysubnet_ip=None):
     logger.DEBUG("Create Single Container")
     retval = True
-    cmd = "docker inspect -f '{{.Created}}' --type image %s" % container.image_name
-    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    output = ps.communicate()
-    #s = " --dns "
-    #dns = s.join(GetDNS())
-    if len(output[1]) > 0:
-        logger.DEBUG("Command was (%s)" % cmd)
-        logger.ERROR("CreateSingleContainer image %s does not exist!" % container.image_name)
+    image_exists, result, new_image_name = ImageExists(container.image_name, container.full_name, container.registry)
+    if not image_exists:
+        logger.ERROR('Could not find image for %s' % container.image_name)
         retval = False
     else:
 
@@ -178,10 +173,10 @@ def CreateSingleContainer(container, mysubnet_name=None, mysubnet_ip=None):
             add_this = '--add-host %s ' % item
             add_hosts += add_this
         if mysubnet_name:
-            createsinglecommand = "docker create -t --network=%s --ip=%s --privileged --add-host my_host:%s %s --name=%s --hostname %s %s %s %s" % (mysubnet_name, mysubnet_ip, docker0_IPAddr, add_hosts,  container.full_name, container.hostname, volume, container.image_name, container.script)
+            createsinglecommand = "docker create -t --network=%s --ip=%s --privileged --add-host my_host:%s %s --name=%s --hostname %s %s %s %s" % (mysubnet_name, mysubnet_ip, docker0_IPAddr, add_hosts,  container.full_name, container.hostname, volume, new_image_name, container.script)
         else:
             createsinglecommand = "docker create -t --privileged --add-host my_host:%s %s --name=%s --hostname %s %s %s %s " % (docker0_IPAddr, add_hosts, 
-               container.full_name, container.hostname, volume, container.image_name, container.script)
+               container.full_name, container.hostname, volume, new_image_name, container.script)
         logger.DEBUG("Command to execute was (%s)" % createsinglecommand)
 
         ps = subprocess.Popen(createsinglecommand, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
@@ -455,23 +450,31 @@ def GetRunningLabNames(containers_list, role):
                 labnameslist.append(labname)
     return found_lab_role, labnameslist
 
-def ImageExists(image_name, container_name):
+def ImageExists(image_name, container_name, registry):
     retval = True
-    logger.DEBUG('check existence of container %s image %s' % (container_name, image_name))
+    #logger.DEBUG('check existence of container %s image %s registry %s' % (container_name, image_name, registry))
     cmd = "docker inspect -f '{{.Created}}' --type image %s" % image_name
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[1].strip()) > 0:
-        logger.DEBUG('No image: error returned %s, return false' % output[1])
-        return False, None
+        if registry is not None:
+            with_registry = '%s/%s' % (registry, image_name)
+            return ImageExists(with_registry, container_name, None)
+        else:
+            logger.DEBUG('No image: error returned %s, return false' % output[1])
+            return False, None, None
     result = output[0].strip()
-    logger.DEBUG('result is %s' % result)
+    #logger.DEBUG('result is %s' % result)
     if 'Error:' in result or len(result.strip()) == 0:
-        if 'Error:' in result:
-            logger.DEBUG("Command was (%s)" % cmd)
-            logger.DEBUG("Error from command = '%s'" % result)
-        return False, result
-    return True, result
+        if registry is not None:
+            with_registry = '%s/%s' % (image_name, registry)
+            return ImageExists(with_registry, container_name, None)
+        else:
+            if 'Error:' in result:
+                logger.DEBUG("Command was (%s)" % cmd)
+                logger.DEBUG("Error from command = '%s'" % result)
+            return False, result, image_name
+    return True, result, image_name
 
 def RebuildLab(lab_path, role, is_regress_test=None, force_build=False, quiet_start=False):
     # Pass 'True' to ignore_stop_error (i.e., ignore certain error encountered during StopLab
@@ -496,6 +499,7 @@ def RebuildLab(lab_path, role, is_regress_test=None, force_build=False, quiet_st
     DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start)
 
 def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False):
+    retval = set()
     labname = os.path.basename(lab_path)
     is_valid_lab(lab_path)
     config_path       = os.path.join(lab_path,"config") 
@@ -518,20 +522,26 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False):
     for name, container in start_config.containers.items():
         mycontainer_name       = container.full_name
         mycontainer_image_name = container.image_name
+        retval.add(container.registry)
         cmd = 'docker rm %s' % mycontainer_name
         ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         output = ps.communicate()
-        logger.DEBUG("Command was (%s)" % cmd)
+        #logger.DEBUG("Command was (%s)" % cmd)
         if len(output[1]) > 0:
-            logger.DEBUG("Error from command = '%s'" % str(output[1]))
+            logger.DEBUG("Error from command %s was  '%s'" % str(cmd, output[1]))
         force_this_build = force_build
         if not force_this_build:
-            image_exists, result = ImageExists(mycontainer_image_name, mycontainer_name)
+            image_exists, result, new_image_name = ImageExists(mycontainer_image_name, mycontainer_name, container.registry)
             if not image_exists:
-                force_this_build = True
+                cmd = 'docker pull %s/%s' % (container.registry, mycontainer_image_name)
+                ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+                output = ps.communicate()
+                if len(output[1]) > 0:
+                   logger.DEBUG("Command was (%s), result %s" % (cmd, output[1]))
+                   force_this_build = True
         else:
             image_exists = True
-        if force_this_build or CheckBuild(lab_path, mycontainer_image_name, mycontainer_name, name, role, True, container_bin, start_config.grade_container):
+        if force_this_build or CheckBuild(lab_path, mycontainer_image_name, mycontainer_name, name, role, True, container_bin, start_config, container.registry):
             print('Will call buildImage to build %s' % mycontainer_name)
             logger.DEBUG("Will rebuild %s, Image exists(ignore if force): %s force_this_build: %s" % (mycontainer_name, 
                 image_exists, force_this_build))
@@ -560,7 +570,7 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False):
             #    logger.ERROR("build of image failed\n")
             #    logger.DEBUG('cmd was %s' % cmd)
             #    exit(1)
-    return start_config.registry
+    return retval
 
 
 def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start):
@@ -873,7 +883,7 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
             logger.DEBUG("Command was (%s)" % cmd)
             if len(output[1]) > 0:
                 logger.DEBUG("Error from command = '%s'" % str(output[1]))
-        image_exists, result = ImageExists(mycontainer_image_name, mycontainer_name)
+        image_exists, result, dumb = ImageExists(mycontainer_image_name, mycontainer_name, container.registry)
         if not image_exists:
             if os.path.isfile(build_student):
                 cmd = '%s %s %s %s %s %s %s %s' % (build_student, labname, name, container.user, container.password, False, 
@@ -896,14 +906,50 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
     DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start)
 
 def FileModLater(ts, fname):
+    df_utc_string = None
+    child = subprocess.Popen(['svn', 'status', fname], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    while True:
+        line = child.stdout.readline()
+        if line != '':
+            #logger.DEBUG(line)
+            if line.startswith('M'):
+                df_time = os.path.getmtime(fname)
+                df_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
+                break
+        else:
+            break
+    if df_utc_string is None:
+        child = subprocess.Popen(['svn', 'info', fname], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        error_string = child.stderr.read().strip()
+        if len(error_string) > 0:
+            #logger.DEBUG("not in svn? %s" % fname)
+            if fname.endswith('.tar'):
+                size = os.path.getsize(fname)
+                if size == 10240:
+                    # hacky special case for empty tar files.  ug.
+                    return False
+            df_time = os.path.getmtime(fname)
+            df_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
+        else:
+            while True:
+                line = child.stdout.readline()
+                if line != '':
+                    #logger.DEBUG(line)
+                    if line.startswith('Last Changed Date:'):
+                        parts = line.split()
+                        df_utc_string = parts[3]+' '+parts[4]
+                        #logger.DEBUG('changed date from svn %s for %s df_utc_string is %s' % (line, fname, df_utc_string))
+                        break
+                else:
+                    break
+            if df_utc_string is None:
+                # must be an add
+                df_time = os.path.getmtime(fname)
+                df_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
+
     ''' is the given file later than the timestamp (which is in UTC)? '''
-    df_time = os.path.getmtime(fname)
     #logger.DEBUG('df ts %s' % df_time)
 
-    df_string = datetime.datetime.fromtimestamp(df_time)
-    #logger.DEBUG('df_local time is %s' % df_string)
-
-    df_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
     parts = df_utc_string.split('.')
     df_ts = time.mktime(time.strptime(parts[0], "%Y-%m-%d %H:%M:%S"))
 
@@ -915,15 +961,16 @@ def FileModLater(ts, fname):
         return False
 
 def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, container_bin,
-                 grade_container):
+                 start_config, container_registry):
     '''
     Determine if a container image needs to be rebuilt.
     '''
+    
     labname = os.path.basename(lab_path)
     should_be_exec = ['rc.local', 'fixlocal.sh']
     retval = False
 
-    image_exists, result = ImageExists(image_name, container_name)
+    image_exists, result, dumb = ImageExists(image_name, container_name, container_registry)
     if image_exists and not is_redo:
         logger.DEBUG('Container %s image %s exists, not a redo, just return (no need to check build)' % (container_name, image_name))
         return False
@@ -939,8 +986,7 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
 
     ''' ts is the timestamp of the image '''
     ts = time.mktime(time.strptime(time_string, "%Y-%m-%dT%H:%M:%S"))
-    logger.DEBUG('image ts %s' % ts)
-
+    logger.DEBUG('image ts %s  %s' % (ts, time_string))
     ''' look at dockerfiles '''
     df_name = 'Dockerfile.%s' % container_name
     df = os.path.join(lab_path, 'dockerfiles', df_name)
@@ -963,7 +1009,7 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
                     continue
                 for f in files:
                    f_path = os.path.join(folder, f)
-                   logger.DEBUG('check %s' % f_path)
+                   #logger.DEBUG('check %s' % f_path)
                    if f in should_be_exec:
                        f_stat = os.stat(f_path)
                        if not f_stat.st_mode & stat.S_IXUSR:
@@ -999,7 +1045,7 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
                break
 
     if not retval and role == 'instructor':
-        if container_name == grade_container:
+        if container_name == start_config.grade_container:
             inst_cfg = os.path.join(lab_path,'instr_config')
             inst_cfg_files = os.listdir(inst_cfg)
             for f in inst_cfg_files:
@@ -1162,7 +1208,6 @@ def WatermarkTest(lab_path, role, standard, isFirstRun=False):
 
     for name, container in start_config.containers.items():
         mycontainer_name       = container.full_name
-        mycontainer_image_name = container.image_name
         container_user         = container.user
 
         if mycontainer_name == start_config.grade_container:
@@ -1219,7 +1264,6 @@ def RegressTest(lab_path, role, standard, isFirstRun=False):
 
     for name, container in start_config.containers.items():
         mycontainer_name       = container.full_name
-        mycontainer_image_name = container.image_name
         container_user         = container.user
 
         if mycontainer_name == start_config.grade_container:
