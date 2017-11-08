@@ -317,16 +317,13 @@ def check_valid_lab(current_dir):
 
 def usage():
     sys.stderr.write("Usage: new_lab_setup.py [ -h | -a <container> | -r <oldcontainer> <newcontainer> | -c <newlabname> ]\n")
-    sys.stderr.write("Arguments:\n")
+    sys.stderr.write("If no arguments are given, populates the current directory with copies of Labtainer templates.")
+    sys.stderr.write("Otherwise, if arguments are given:\n")
     sys.stderr.write("   -h : Display usage\n")
     sys.stderr.write("   -a <container> : add a new container to the existing lab\n")
     sys.stderr.write("                    (Must be run from existing lab directory)\n")
-    sys.stderr.write("   -r <oldcontainer> <newcontainer> : change a container name and update as necessary\n")
+    sys.stderr.write("   -r <oldcontainer> <newcontainer> : rename a container and its associated files.\n")
     sys.stderr.write("   -c <newlabname> : clone the current lab into a new lab with the given name\n")
-    sys.stderr.write("   No arguments : do the following:\n")
-    sys.stderr.write("                  1. check as a valid lab directory\n")
-    sys.stderr.write("                  1.a. If it is already a valid lab directory, print that message and usage\n")
-    sys.stderr.write("                  1.b. If it is not (i.e., empty), then copy from template\n")
     sys.exit(1)
 
 
