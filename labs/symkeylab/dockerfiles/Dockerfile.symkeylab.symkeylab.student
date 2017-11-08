@@ -32,10 +32,7 @@ ARG apt_source
 RUN sed -i s/archive.ubuntu.com/$apt_source/ /etc/apt/sources.list
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    openssl \
-    openssh-client
-RUN apt-get install -y \
-    nano hexedit ghex leafpad
+    openssl nano hexedit 
 ADD $labdir/sys_$lab.tar.gz /
 #
 #  **** Perform all root operations, e.g.,           ****
