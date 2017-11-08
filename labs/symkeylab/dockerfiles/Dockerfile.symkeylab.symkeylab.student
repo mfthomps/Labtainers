@@ -35,7 +35,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     openssl \
     openssh-client
 RUN apt-get install -y \
-    nano lynx hexedit
+    nano hexedit ghex leafpad
 ADD $labdir/sys_$lab.tar.gz /
 #
 #  **** Perform all root operations, e.g.,           ****
