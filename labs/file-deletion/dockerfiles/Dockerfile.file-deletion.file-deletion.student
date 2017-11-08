@@ -11,7 +11,7 @@
 # The labtainer.network image adds the following packages:
 #   openssl openssh-server openvpn wget tcpdump  update-inetd  xinetd
 #
-FROM mfthomps/labtainer.base_test
+FROM mfthomps/labtainer.base
 #FROM mfthomps/labtainer.network
 #
 #  lab is the fully qualified image name, e.g., mylab.some_container.student
