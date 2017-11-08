@@ -21,9 +21,6 @@ GLOBAL_SETTINGS
 	# LAB_MASTER_SEED - this is the master seed string specific to this laboratory
 	LAB_MASTER_SEED this_will_be_replaced
 
-        # Alternate Registry -- NPS Labtainers are managed at dockerhub under mfthomps.  
-        # REGISTRY your_registry
-
         # Uncomment the following to cause the content of the lab/docs directory
         # to be collected and included in the student artifacts.
         # COLLECT_DOCS YES
@@ -62,4 +59,8 @@ CONTAINER default
         #
         # Mount Linux host X11 server socket for use by GUI-app in container. 
         # X11 YES
+        #
+        # Alternate Registry -- NPS Labtainers are managed at dockerhub under mfthomps.  
+        # REGISTRY your_registry
+
 
