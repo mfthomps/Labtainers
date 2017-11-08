@@ -12,7 +12,8 @@ echo "lab dir is $LAB_DIR"
 here=`pwd`
 tar_list=$(ls $LAB_DIR)
 manifest_name="$IMAGE_NAME"-home_tar.list
-manifest=../../config/$manifest_name
+#manifest=../../config/$manifest_name
+manifest=$LAB_DIR/../config/$manifest_name
 echo "manifest is $manifest"
 #echo $tar_list
 for f in $tar_list; do
@@ -27,28 +28,28 @@ for f in $tar_list; do
             echo "look for tar_name $tar_name"
             if [[ ! -f $tar_name ]]; then
                 echo "no $tar_name, make one"
-                f_list=$(ls)
+                f_list=$(ls -a)
                 if [[ -z $f_list ]];then
                      tar cvf $tar_name --files-from /dev/null
                 else
                     if [[ $f == "home_tar" ]]; then
-                        tar czf $tar_name * > $manifest
+                        tar czf $tar_name . > $manifest
                     else
-                        tar czf $tar_name *
+                        tar czf $tar_name .
                     fi
                 fi
             else
                 # has a tar file
-                f_list=$(ls -t)
+                f_list=$(ls -at)
                 f_array=($f_list)
                 len=${#f_array[@]}
                 if [[ $len -gt 1 ]] && [[ $tar_name != ${f_array[0]} ]] ; then
                     echo "replace tar"
                     rm $tar_name 2> /dev/null
                     if [[ $f == "home_tar" ]]; then
-                        tar czf $tar_name * > $manifest
+                        tar czf $tar_name . > $manifest
                     else
-                        tar czf $tar_name *
+                        tar czf $tar_name .
                     fi
                 elif [[ $len -eq 1 ]]; then
                     if [[ $f == "home_tar" ]]; then
