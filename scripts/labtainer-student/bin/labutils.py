@@ -287,6 +287,7 @@ def ParamForStudent(lab_master_seed, mycontainer_name, container_user, container
                                                           user_email, labname):
         logger.ERROR("Failed to parameterize lab container %s!\n" % mycontainer_name)
         sys.exit(1)
+    logger.DEBUG('back from ParameterizeMyContainer')
     return user_email
 
 # Do InstDocsToHostDir - extract students' docs.zip if exist
@@ -554,10 +555,15 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False):
                 exit(1)
             logger.DEBUG('cmd is %s' % cmd)     
             ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            fatal_error = False
             while True:
                 line = ps.stdout.readline()
                 if line != '':
-                    logger.DEBUG(line)
+                    if 'Error in docker build result 1' in line:
+                        logger.ERROR(line)
+                        fatal_error = True
+                    else:
+                        logger.DEBUG(line)
                 else:
                     break
             while True:
@@ -566,6 +572,8 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False):
                     logger.DEBUG(line)
                 else:
                     break
+            if fatal_error:
+                exit(1)
             #if os.system(cmd) != 0:
             #    logger.ERROR("build of image failed\n")
             #    logger.DEBUG('cmd was %s' % cmd)
@@ -925,7 +933,7 @@ def FileModLater(ts, fname):
             #logger.DEBUG("not in svn? %s" % fname)
             if fname.endswith('.tar'):
                 size = os.path.getsize(fname)
-                if size == 10240:
+                if size == 10240 or size == 110:
                     # hacky special case for empty tar files.  ug.
                     return False
             df_time = os.path.getmtime(fname)
@@ -960,6 +968,29 @@ def FileModLater(ts, fname):
     else:
         return False
 
+def BaseImageTime(dockerfile):
+    image_name = None
+    retval = 0
+    with open(dockerfile) as fh:
+        for line in fh:
+            if line.strip().startswith('FROM'):
+                parts = line.strip().split()
+                image_name = parts[1]
+                break
+    if image_name is None:
+        logger.ERROR('no base image found in %s' % dockerfile)
+        exit(1)
+    image_exists, result, dumb = ImageExists(image_name, 'some base', None)
+    if image_exists:
+        parts = result.strip().split('.')
+        time_string = parts[0]
+        logger.DEBUG('base image time string %s' % time_string)
+        retval = time.mktime(time.strptime(time_string, "%Y-%m-%dT%H:%M:%S"))
+    else:
+        logger.DEBUG('base image %s not found, assume not updated' % image_name)
+    return retval, image_name
+ 
+                
 def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, container_bin,
                  start_config, container_registry):
     '''
@@ -992,6 +1023,12 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
     df = os.path.join(lab_path, 'dockerfiles', df_name)
     if not os.path.isfile(df):
          df = df.replace('instructor', 'student')
+
+    ''' get ts of base image '''
+    ts_base, bname = BaseImageTime(df)
+    if ts_base > ts:
+        logger.WARNING('Base image %s changed, will build' % bname)
+        retval = True
     if FileModLater(ts, df):
         logger.WARNING('dockerfile changed, will build')
         retval = True
@@ -1007,9 +1044,13 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
             for folder, subs, files in os.walk(container_dir):
                 if os.path.basename(folder) == 'docs':
                     continue
+                if 'sys_tar' in folder:
+                    continue
+                if 'home_tar' in folder:
+                    continue
                 for f in files:
                    f_path = os.path.join(folder, f)
-                   #logger.DEBUG('check %s' % f_path)
+                   logger.DEBUG('check %s' % f_path)
                    if f in should_be_exec:
                        f_stat = os.stat(f_path)
                        if not f_stat.st_mode & stat.S_IXUSR:
