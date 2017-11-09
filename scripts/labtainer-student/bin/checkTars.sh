@@ -40,7 +40,7 @@ for f in $tar_list; do
                 fi
             else
                 # has a tar file
-                f_list=$(ls -at)
+                f_list=$(ls -At -1)
                 f_array=($f_list)
                 len=${#f_array[@]}
                 if [[ $len -gt 1 ]] && [[ $tar_name != ${f_array[0]} ]] ; then
