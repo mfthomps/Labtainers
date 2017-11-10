@@ -1044,11 +1044,11 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
             for folder, subs, files in os.walk(container_dir):
                 if os.path.basename(folder) == 'docs':
                     continue
-                if 'sys_tar' in folder:
-                    continue
-                if 'home_tar' in folder:
-                    continue
                 for f in files:
+                   if 'sys_tar' in folder and not f.endswith('.tar'):
+                        continue
+                   if 'home_tar' in folder and not f.endswith('.tar'):
+                        continue
                    f_path = os.path.join(folder, f)
                    logger.DEBUG('check %s' % f_path)
                    if f in should_be_exec:
