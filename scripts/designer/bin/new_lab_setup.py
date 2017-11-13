@@ -27,7 +27,6 @@ tdir=None
 def handle_add_container(tdir, newcontainer):
     # This assumes directories 'config', 'dockerfiles' and 'instr_config'
     # have been properly populated
-    print("Handle -a %s" % newcontainer)
     if newcontainer != newcontainer.lower():
         print('New container name is (%s)' % newcontainer)
         print('New container names must be all lower case')
@@ -61,7 +60,6 @@ def handle_add_container(tdir, newcontainer):
         print('Configuration file start.config does not exist!')
         sys.exit(1)
 
-    print('start.config exists!')
     # Open start.config with append
     start_config_file = open(start_config_filename, 'a')
     config_template_file = os.path.join(tdir, 'config', 'start.config.template')
@@ -87,7 +85,6 @@ def handle_add_container(tdir, newcontainer):
     shutil.copy(dockerfile_template, newcontainer_dockerfile)
 
 def handle_clone_lab(tdir, newlabname):
-    #print("Handle -c %s" % newlabname)
     if newlabname != newlabname.lower():
         print('New lab name is (%s)' % newlabname)
         print('New lab names must be all lower case')
@@ -176,7 +173,6 @@ def handle_clone_lab(tdir, newlabname):
 def handle_replace_container(tdir, oldcontainer, newcontainer):
     # This assumes directories 'config', 'dockerfiles' and 'instr_config'
     # have been properly populated
-    print("Handle -r %s %s" % (oldcontainer, newcontainer))
     if newcontainer != newcontainer.lower():
         print('New container name is (%s)' % newcontainer)
         print('New container names must be all lower case')
@@ -254,7 +250,6 @@ def copy_from_template(tdir):
                 print('error copying %s to %s, expected %s to be empty' % (source, here, here))
                 exit(1)
         else:        
-            print('copying %s' %  source)
             try:
                 shutil.copytree(os.path.join(tdir, source), os.path.join(here, source)) 
             except:
@@ -376,6 +371,7 @@ def main():
             usage()
         else:
             copy_from_template(tdir)
+            print("Copy template to new lab.")
     elif num_arg == 2:
         help_option = sys.argv[1]
         #print("help_option is (%s)" % help_option)
@@ -384,22 +380,22 @@ def main():
     elif num_arg == 3:
         option = sys.argv[1]
         if is_valid and option == "-a":
-            #print("Handle -a <container>")
             newcontainer = sys.argv[2]
             handle_add_container(tdir, newcontainer)
+            print("Added new container %s." % newcontainer)
         elif is_valid and option == "-c":
-            #print("Handle -c <newlabname>")
             newlabname = sys.argv[2]
             handle_clone_lab(tdir, newlabname)
+            print("Lab %s cloned." % newlabname)
         else:
             usage()
     elif num_arg == 4:
         option = sys.argv[1]
         if is_valid and option == "-r":
-            #print("Handle -r <oldcontainer> <newcontainer>")
             oldcontainer = sys.argv[2]
             newcontainer = sys.argv[3]
             handle_replace_container(tdir, oldcontainer, newcontainer)
+            print("Container %s renamed to %s." % (oldcontainer, newcontainer))
         else:
             usage()
     else:
