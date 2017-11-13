@@ -11,7 +11,7 @@
 # The labtainer.network image adds the following packages:
 #   openssl openssh-server openvpn wget tcpdump  update-inetd  xinetd
 #
-FROM mfthomps/labtainer.firefox
+FROM mfthomps/labtainer.java
 #FROM mfthomps/labtainer.network
 #FROM mfthomps/labtainer.centos
 #
@@ -39,7 +39,6 @@ RUN echo "$user_name:$password" | chpasswd
 RUN adduser $user_name sudo
 # replace above with below for centos/fedora
 #RUN usermod $user_name -a -G wheel
-RUN apt-get install -y default-jdk
 
 #
 #  **** Perform all root operations, e.g.,           ****
