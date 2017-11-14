@@ -261,6 +261,10 @@ are stopped.
 If a lab is to include only one container, you can
 skip ahead to the subsection titled Lab-specific files in the student's home directory.
 
+Creating new containers for a lab, and changing the name of an existing container
+can be performed automaticall using the "new\_lab\_setup.py" script.  Use "-h" to see
+the options.  Much of the discussion immediatly below describes things are are
+automated by that script.
 You must assign a name to each container within the new lab.  Each new lab
 starts with a single container, whose name matches the lab name.  You are free
 to change that name. The names of containers should reflect their role in the lab,
@@ -290,6 +294,14 @@ alternate image having additional networking packges (e.g., tcpdump, xinetd, ssh
 \begin{verbatim}
 FROM mfthomps/labtainer.network
 \end{verbatim}
+\noindent Other alternate images include:
+\begin{itemize}
+\item labtainer.centos -- A CentOS server with systemd and the true "init" initial process.
+\item labtainer.lamp -- A CentOS server with Apache, Mysql and PHP, (the LAMP stack)
+\item labtainer.firefox -- An Ubuntu container with the Firefox browser.
+\item labtainer.java -- An Ubuntu container with the Firefox browser and the open JDK.
+\end{itemize}
+
 
 Next, you must also describe your containers within the \textit{start.config} file as described below.
 
@@ -348,7 +360,8 @@ that is to be connected to this container.  A separate line should be entered fo
 "NONE" for CENTOS-based labs (and likely fedora[test that]).
 \item ADD-HOST [host:ip] -- Optional addition to the /etc/host file, a container may have multipled ADD-HOST entries.
 \item X11 [YES/NO] -- Optional, defaults to NO.  If YES, the container mounts the TCP socked used by the hosts X11 server,
-enabling the container to run applications with GUIs, e.g., browsers or wireshark.  See sql-inject as an example.
+enabling the container to run applications with GUIs, e.g., browsers or wireshark.  See sql-inject as an example.  See the
+Notes section at the end of this manual for tips on using Firefox and Wireshark.
 
 \end{itemize}
 \end{itemize}
@@ -1002,4 +1015,23 @@ All of the containers share the Linux kernel with the Linux host.  Changes to
 kernel configuration settings, e.g., enabling ASLR, will be visible across all
 of the containers.
 
+\section{Notes} \label{Notes}
+\subsection{Firefox}
+See the sql-inject lab client/home\_tar for an example firefox .mozillia directory.  
+Create a symbolic link to that to avoid firefox starting with its welcome pages and
+privacy statements.
+The labtainer.firefox image includes a customized /usr/bin/firefox that starts the
+browswer in a new instance so it does share existing browsers.
+\subsection{Wireshark}
+Wireshark will not run as root in Labtainer containers.  It should be configured to not
+require root to collect network packets:
+\begin{verbatim}
+In short, put this before the apt-get that installs wireshark:
+    RUN echo 'wireshark-common        wireshark-common/install-setuid boolean true' | debconf-set-selections
+And this right after the apt-get that installs wireshark:
+    RUN chmod a+x /usr/bin/dumpcap
+
+and then after the existing "RUN adduser $user_name sudo":
+    RUN adduser $user_name wireshark
+\end{verbatim}
 \end{document}
