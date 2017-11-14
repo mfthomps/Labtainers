@@ -8,7 +8,8 @@
 # The labtainer.network image adds the following packages:
 #   openssl openssh-server openvpn wget tcpdump  update-inetd  xinetd
 #
-FROM mfthomps/labtainer.base
+FROM mfthomps/labtainer.firefox
+#FROM mfthomps/labtainer.base
 #FROM mfthomps/labtainer.network
 ARG lab
 ARG labdir
