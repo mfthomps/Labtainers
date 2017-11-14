@@ -52,8 +52,21 @@ echo "$LAB_NAME" > $LAB_NAMEFILE
 echo "" > $WATERMARK_NAMEFILE
 
 # fix ownship of system file from _system directory.  Docker!
+#previous_match_string=""
 while read f;do
     fname=${f:1}
+    IFS='/' read -r -a mystring <<< "$fname"
+    if [[ ${mystring[1]} == var ]]; then
+        continue
+    fi
+    # chmod on a lot of files, even recursively, takes forever on a container
+    #if [[ ${mystring[1]} == var ]] && [[ ${#mystring[@]} -eq 4 ]]; then
+    #    previous_match_string=("${mystring[@]}")
+    #else
+    #    if [[ ${mystring[1]} == var ]] && [[ ${mystring[2]} == ${previous_match_string[2]} ]] && [[ ${mystring[3]} == ${previous_match_string[3]} ]]; then
+    #        continue
+    #    fi
+    #fi
     echo $CONTAINER_PASSWORD | sudo -S chown root:root $fname
 done < $HOME/.local/sys_manifest.list
 if [[ -f /etc/sudoers.new ]]; then
