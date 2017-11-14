@@ -1079,6 +1079,8 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
     if not retval:
         all_bin_files = os.listdir(container_bin)
         for f in all_bin_files:
+            if f.endswith('.swp'):
+                continue
             f_path = os.path.join(container_bin, f)
             if FileModLater(ts, f_path):
                logger.WARNING('%s is later, will build' % f_path)
@@ -1090,6 +1092,8 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
             inst_cfg = os.path.join(lab_path,'instr_config')
             inst_cfg_files = os.listdir(inst_cfg)
             for f in inst_cfg_files:
+                if f.endswith('.swp'):
+                    continue
                 f_path = os.path.join(inst_cfg, f)
                 if FileModLater(ts, f_path):
                    logger.WARNING('%s is later, will build' % f_path)
