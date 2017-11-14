@@ -1,11 +1,6 @@
 FROM ubuntu:xenial
 LABEL description="This is base Docker image for Parameterized labs"
 ARG lab
-# Set the locale
-RUN locale-gen en_US.UTF-8  
-ENV LANG en_US.UTF-8  
-ENV LANGUAGE en_US:en  
-ENV LC_ALL en_US.UTF-8  
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     expect \
@@ -25,8 +20,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     zip \
     hexedit \
     rsyslog \
+    ghex \
+    leafpad \
+    locales \
     python-pip
 
+# Set the locale
+RUN locale-gen en_US.UTF-8  
+ENV LANG en_US.UTF-8  
+ENV LANGUAGE en_US:en  
+ENV LC_ALL en_US.UTF-8  
 RUN sudo pip install --upgrade pip
 RUN sudo pip install setuptools
 RUN sudo pip install parse
