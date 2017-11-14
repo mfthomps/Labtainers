@@ -1,3 +1,7 @@
 FROM mfthomps/labtainer.base
 LABEL description="This is base Docker image for Labtainer browsers"
-RUN apt-get update && apt-get install -y firefox && rm -rf /var/cache/apt/
+RUN apt-get update && apt-get install -y libcanberra-gtk3-module firefox && rm -rf /var/cache/apt/
+# modified to create new instance
+ADD system/bin/firefox /usr/bin/
+RUN systemd-machine-id-setup
+
