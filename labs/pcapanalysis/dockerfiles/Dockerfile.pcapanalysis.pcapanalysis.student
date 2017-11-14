@@ -15,14 +15,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     telnetd
 ENV DEBIAN_FRONTEND noninteractive
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
+RUN echo 'wireshark-common        wireshark-common/install-setuid boolean true' | debconf-set-selections
 # Need wireshark to get 'editcap'
 RUN apt-get install -y --no-install-recommends wireshark tshark
-
+RUN chmod a+x /usr/bin/dumpcap
 ADD $labdir/sys_$lab.tar.gz /
 
 RUN useradd -ms /bin/bash $user_name
 RUN echo "$user_name:$user_name" | chpasswd
 RUN adduser $user_name sudo
+RUN adduser $user_name wireshark
 
 USER $user_name
 ENV HOME /home/$user_name
