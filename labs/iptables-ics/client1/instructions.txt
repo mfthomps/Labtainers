@@ -1,0 +1,62 @@
+Title: Using iptables To Control ICS Traffic 
+
+1. Background
+
+This Labtainer exercise illustrates the use of iptables
+to limit network access to a PLC. This control is enforced by 
+a component serving as a firewall.
+
+You will configure the firewall within this topology:
+
+  Client 1 <----> firewall <-----> PLC 
+                    ^
+                    | 
+                    |
+  Client 2 <--------*
+
+The firewall only allows the following traffic:
+
+* Client 1 can only access the PLC via SSH and HTTP.
+* Client 2 can only access the PLC via MODBUS TCP.
+
+2. Performing the lab
+The lab is started from the Labtainer working 
+directory on your Linux host, e.g., a Linux VM.
+From there, issue the command:
+
+    ./start.py iptables
+
+The resulting virtual terminals will include a display of
+these instructions, and bash shells on three components:
+two client computers and a "firewall".
+
+To navigate this instruction, the arrow keys along with 
+with the Space/Home/End/Page-Up/Page-Down keys are usable.
+To exit navigation of this instruction, type 'q'.
+
+3. Tasks
+
+The iptables utility is installed on the "firewall" component.
+Use it to prevent the firewall from forwarding any traffic
+to the PLC other than SSH and HTTP sessions from Client 1, 
+and MODBUS TCP sessions from Client 2.
+
+Demonstrate that you have achieved this by running this command
+on Client 1:
+
+    nmap 172.25.0.3
+
+The resulting display should indicate that SSH, HTTP, and MODBUS TCP are
+the only ports that are open.
+
+4. Stop the Labtainer
+
+When the lab is completed, or you'd like to stop working for a while, run
+
+    ./stop.py iptables
+
+from the host Labtainer working directory.  You can always restart the
+Labtainer to continue your work.  When the Labtainer is stopped, a
+zip file is created and copied to a location displayed by the stop.py
+command.  When the lab is completed, send that zip file to the instructor.
+
