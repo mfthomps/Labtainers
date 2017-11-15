@@ -24,6 +24,50 @@ import sys
 LABTAINER_DIR=None
 tdir=None
 
+def handle_delete_container(tdir, deletecontainer):
+    # This assumes directories 'config', 'dockerfiles' and 'instr_config'
+    # have been properly populated
+    if deletecontainer != deletecontainer.lower():
+        print('Container to be deleted (%s) must be all lower case' % deletecontainer)
+        sys.exit(1)
+    elif ' ' in deletecontainer:
+        print('Container to be deleted (%s) cannot contain spaces' % deletecontainer)
+        sys.exit(1)
+    here = os.getcwd()
+    labname = os.path.basename(here)
+    # Try to remove the container directory
+    try:
+        shutil.rmtree(os.path.join(here, deletecontainer))
+    except Exception as e:
+        print(e)
+        sys.exit(1)
+
+    # Make sure start.config exist already
+    start_config_filename = 'config/start.config'
+    if not os.path.exists(start_config_filename):
+        print('Configuration file start.config does not exist!')
+        sys.exit(1)
+
+    # Read start.config
+    start_config_file = open(start_config_filename, 'r')
+    orig_start_configlines = start_config_file.readlines()
+    start_config_file.close()
+    # Write back start.config - minus the <deletecontainer>
+    start_config_file = open(start_config_filename, 'w')
+    deletecontainer_line_found = False
+    for line in orig_start_configlines:
+        if line.startswith('CONTAINER'):
+            if deletecontainer in line:
+                deletecontainer_line_found = True
+            else:
+                # found the next 'container' - restart copying
+                # by setting deletecontainer_line_found to False
+                if deletecontainer_line_found:
+                    deletecontainer_line_found = False
+        if not deletecontainer_line_found:
+            start_config_file.write(line)
+    start_config_file.close()
+
 def handle_add_container(tdir, newcontainer):
     # This assumes directories 'config', 'dockerfiles' and 'instr_config'
     # have been properly populated
@@ -328,21 +372,25 @@ def check_valid_lab(current_dir):
     return is_valid
 
 def usage():
-    sys.stderr.write("Usage: new_lab_setup.py [ -h | -a <container> | -r <oldcontainer> <newcontainer> | -c <newlabname> ]\n")
+    sys.stderr.write("Usage: new_lab_setup.py [ -h | -a <container> | -d <container> | -r <oldcontainer> <newcontainer> | -c <newlabname> ]\n")
     sys.stderr.write("If no arguments are given, populates the current directory with copies of Labtainer templates.")
     sys.stderr.write("Otherwise, if arguments are given:\n")
     sys.stderr.write("   -h : Display usage\n")
     sys.stderr.write("   -a <container> : add a new container to the existing lab\n")
+    sys.stderr.write("                    (Must be run from existing lab directory)\n")
+    sys.stderr.write("   -d <container> : delete an existing container in a lab\n")
     sys.stderr.write("                    (Must be run from existing lab directory)\n")
     sys.stderr.write("   -r <oldcontainer> <newcontainer> : rename a container and its associated files.\n")
     sys.stderr.write("   -c <newlabname> : clone the current lab into a new lab with the given name\n")
     sys.exit(1)
 
 
-# Usage: new_lab_setup.py [ -h | -a <container> | -r <oldcontainer> <newcontainer> | -c <newlabname> ]
+# Usage: new_lab_setup.py [ -h | -a <container> | -d <container> | -r <oldcontainer> <newcontainer> | -c <newlabname> ]
 # Arguments:
 #    -h : Display usage
 #    -a <container> : add a new container to the existing lab
+#                     (Must be run from existing lab directory)
+#    -d <container> : delete an existing container in a lab
 #                     (Must be run from existing lab directory)
 #    -c <newlabname> : clone the current lab into a new lab with the given name
 #    -r <oldcontainer> <newcontainer> : change a container name and update as necessary
@@ -392,6 +440,10 @@ def main():
             newlabname = sys.argv[2]
             handle_clone_lab(tdir, newlabname)
             print("Lab %s cloned." % newlabname)
+        elif is_valid and option == "-d":
+            deletecontainer = sys.argv[2]
+            handle_delete_container(tdir, deletecontainer)
+            print("Container %s deleted." % deletecontainer)
         else:
             usage()
     elif num_arg == 4:
