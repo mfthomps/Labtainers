@@ -39,18 +39,22 @@ def newest_file_in_tree(rootfolder):
         for filename in filenames),
         key=lambda fn: os.stat(fn).st_mtime)
 
-lab_dir = sys.argv[1]
+container_dir = sys.argv[1]
+if container_dir.endswith('/'):
+    container_dir = container_dir[:-1]
 image_name = sys.argv[2]
-tar_list = os.listdir(lab_dir)
+tar_list = os.listdir(container_dir)
 manifest_name = '%s-home_tar.list' % image_name
-manifest = os.path.join(os.path.dirname(lab_dir), 'config', manifest_name)
+lab_dir = os.path.dirname(container_dir)
+print('lab_dir is %s' % lab_dir)
+manifest = os.path.join(lab_dir, 'config', manifest_name)
 try:
     shutil.rmtree(tmp_loc)
 except:
     pass
 os.mkdir(tmp_loc)
 for f in tar_list:
-    full = os.path.join(lab_dir, f)
+    full = os.path.join(container_dir, f)
     if os.path.isdir(full) and f.endswith('_tar'):
         os.chdir(full)
         tmp_name = f[:-4]
