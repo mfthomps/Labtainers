@@ -99,5 +99,10 @@ for f in tar_list:
                     cmd = 'tar czf %s `ls -A -1`' % (full_tar)
                 os.system(cmd)
                 #print('did %s' % cmd)
+            else:
+                ''' tar file is the most recent.  ensure we have a manifest '''
+                if not os.path.isfile(manifest):
+                    os.chdir(full)
+                    cmd =  'tar tf %s > %s' % (tar_file, manifest) 
                  
                 
