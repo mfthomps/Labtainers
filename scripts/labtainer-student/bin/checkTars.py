@@ -101,8 +101,10 @@ for f in tar_list:
                 #print('did %s' % cmd)
             else:
                 ''' tar file is the most recent.  ensure we have a manifest '''
-                if not os.path.isfile(manifest):
+                if f == 'home_tar' and not os.path.isfile(manifest):
+                    print('tar is latest, manifest is %s' % manifest)
                     os.chdir(full)
-                    cmd =  'tar tf %s > %s' % (tar_file, manifest) 
+                    cmd =  'tar tf %s > %s' % (tar_name, manifest) 
+                    os.system(cmd)
                  
                 
