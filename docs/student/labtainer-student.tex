@@ -4,6 +4,7 @@
 \usepackage[colorlinks=true,linkcolor=blue,urlcolor=black]{hyperref}
 \usepackage{bookmark}
 \usepackage{pdfpages}
+\usepackage[autostyle, english = american]{csquotes}
 \begin{document}
 \title {Labtainer Student Guide}
 \maketitle
@@ -23,7 +24,7 @@ computers interconnected via virtual networks.
 \subsection{Obtaining Labtainers and installing Docker}
 The Labtainer framework is distributed as a tarball from:
 \url{https://my.nps.edu/web/cisr/labtainers}
-Click the link named: "Download the Labtainer framework, and untar the resulting file into 
+Click the link named: ``Download the Labtainer framework'', and untar the resulting file into 
 a permanent directory on your Linux system, e.g., into \verb ~/home.  For example, if you downloaded the file
 from a browser on your Linux system:
 \begin{verbatim}
@@ -58,7 +59,7 @@ All labs are run from the same Labtainer workspace directory:
 \noindent where \textit{labname} is the name of the lab to run.  Leaving this out will 
 display a list of available labs.  
 
-Most labs create one or more virtual terminals, one of which may be titled "INSTRUCTIONS".
+Most labs create one or more virtual terminals, one of which may be titled ``INSTRUCTIONS''.
 Please note that some of the initial lab instructions repeat the steps you've already taken, and you need
 not perform those again.  Some labs direct you to a PDF version of a lab manual, which can usually 
 be done by right clicking on the displayed path, or you can open the file in a browser.
@@ -90,7 +91,7 @@ When you are finished, or wish to stop working, type:
 \noindent The stop.py command will display the directory containing a zip file that should be provided to your instructor.
 \subsection{Networking}
 In addition to network properties defined for the lab,
-each component \texttt{/etc/host} file includes a "my\_host entry" that names
+each component \texttt{/etc/host} file includes a ``my\_host entry'' that names
 the host Linux.  Most containers will include a default gateway that
 leads to the Linux host.  This allows students to scp files to/from the container and host.
 It also allows the student to reach external networks, e.g., to fetch additional packages in
@@ -116,7 +117,7 @@ If you wish to use apt-get from within a container to add new software to a cont
 must first modify the container's /etc/apt/apt.conf file to reflect your proxy.
 
 \subsection{Limitations}
-The Labtainer "computers" are individual Docker containers that are interconnected via virtual
+The Labtainer ``computers'' are individual Docker containers that are interconnected via virtual
 networks.  These containers each share the Linux kernel of your host.  Thus, a change
 to the kernel configuration on one computer, (e.g., enabling ASLR), will be visible on
 other containers, as well as your host.
@@ -126,13 +127,13 @@ not used for purposes requiring trust.  Software programs contained in cybersecu
 exercises are not, in general, trusted.  And while Docker containers provide namespace
 isolation between the containers and the Linux host, the containers run as privileged.
 
-The computers each include a ".local" directory beneath the HOME directory.  This is used
+The computers each include a ``local'' directory beneath the HOME directory.  This is used
 by the Labtainer framework and includes results that get packaged up for forwarding to the
 instructor.  Do not modify any files beneath the .local directory.  Otherwise, you can treat
 those containers as Linux systems, and explore them.
 
 Please note that while running some programs in the Labtainer computers, passwords provided to
-applications such as "ssh" are not suppressed.  This is a side effect of the Labtainer
+applications such as ``ssh'' are not suppressed.  This is a side effect of the Labtainer
 support for automated assessment.  
 
 Pasting multiple commands into a labtainer terminal may result in the not all of the
@@ -161,7 +162,7 @@ previous data from the named lab.
 \end{itemize}
 
 Most labs display lab instructions in one of the windows that appears after the lab starts.  If those instructions
-stop displaying, e.g., because "q" is pressed in that window, then type the following in a virtual terminal (e.g.,
+stop displaying, e.g., because ``q'' is pressed in that window, then type the following in a virtual terminal (e.g.,
 in a new terminal created using the moreterm.py script:
 \begin{verbatim}
     less instructions.txt
