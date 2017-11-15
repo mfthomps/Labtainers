@@ -3,6 +3,7 @@
 \geometry{a4paper, total={170mm,257mm},left=20mm, top=20mm,}
 \usepackage[colorlinks=true,linkcolor=blue,urlcolor=black]{hyperref}
 \usepackage{bookmark}
+\usepackage[autostyle, english = american]{csquotes}
 \begin{document}
 \begin{titlepage}
 \title {Labtainer Lab Designer User Guide}
@@ -10,7 +11,7 @@
 
 \vspace{2.0in}
 This document was created by United States Government employees at 
-The Center for the Information Systems Studies and Research (CISR) at the Naval Postgraduate School NPS. 
+The Center for Cybersecurity and Cyber Operations (C3O) at the Naval Postgraduate School NPS. 
 Please note that within the United States, copyright protection is not available for any works created  
 by United States Government employees, pursuant to Title 17 United States Code Section 105.   
 This document is in the public domain and is not subject to copyright. 
@@ -20,7 +21,7 @@ This document is in the public domain and is not subject to copyright.
 \section {Introduction}
 This manual is intended for use by lab designers wanting
 to create or adapt cyber security labs to use the Docker-based lab framework known
-as "Labtainers".
+as ``Labtainers''.
 
 \subsection{Intended use}
 The Labtainer framework is designed for use with computer and network security
@@ -47,7 +48,7 @@ set of configuration files that identify expected results, thus
 relieving lab instructors from having to individually review detailed lab
 results.
 
-\item Labs may be automatically "parameterized" for each student such that
+\item Labs may be automatically ``parameterized'' for each student such that
 students cannot easily copy results from another student or from internet
 repositories.  
 \end{enumerate}
@@ -75,7 +76,7 @@ environment as seen by the student is not augmented to support the framework.
 Labtainers are intended for use on individual student computers.
 The computer utilized by a student must include the Linux operating system, e.g.,
 as a single VM.  This Linux operating system, referred to herein
-as the "host", can be any distribution and version
+as the ``host'', can be any distribution and version
 which supports Dockers, and it must have Dockers installed.  
 In addition to installing Dockers on their Linux host, the student must
 obtain and expand a tarball, which contains the Labtainer workspace utilities.
@@ -150,7 +151,7 @@ Set the LABTAINER\_DIR environment variable to the top of the svn repo, e.g.,
 It is suggested that you add the LABTAINER\_DIR definition in your .bashrc.
 
 Labtainer exercises each have their own
-directory under the "labs" directory in the project repository.
+directory under the ``labs'' directory in the project repository.
 The first step in creating a new lab within the framework is to create
 a directory for the lab and then cd to it.  The directory name will be the named
 used by students when starting the lab.  It must be all lower case and not contain spaces.
@@ -160,7 +161,7 @@ used by students when starting the lab.  It must be all lower case and not conta
     cd <new lab name>
 \end{verbatim}
 
-After the new lab directory is created, run the "new\_lab\_setup.sh" script.
+After the new lab directory is created, run the ``new\_lab\_setup.sh'' script.
 \begin{verbatim}
     $LABTAINER_DIR/scripts/designer/bin/new_lab_setup.py
 \end{verbatim}
@@ -194,11 +195,11 @@ should be faster because your local Docker system will cache portions of the bui
 The rebuild.py command will remove and recreate the container
 each time the script is run.  And it will rebuild the container image if any of its configuration 
 information has changed.\footnote{The build process may generate warnings in red text, some of which are expected.  
-These include an unreferenced "user" variable and the lack of apt-utils if apt-get is used to install packages in 
+These include an unreferenced ``user'' variable and the lack of apt-utils if apt-get is used to install packages in 
 Dockerfiles.}  This is often necessary when building and testing new labs, to ensure the
 new environment does not contain artifacts from previous runs.
 
-Note the "rebuild.py" command is not intended for use by students, they would use the "start.py" command.  
+Note the ``rebuild.py'' command is not intended for use by students, they would use the ``start.py'' command.  
 
 Stop the containers with 
 \begin{verbatim}
@@ -207,10 +208,10 @@ Stop the containers with
 Note that when you stop the container, a path to saved results is displayed.
 This is the zip file that the student will forward to the instructor.
 
-To test adding a "hello world" program to the new labtainer, perform the following steps:
+To test adding a ``hello world'' program to the new labtainer, perform the following steps:
 \begin{itemize}
 \item From the new lab directory window, cd \verb!$LABTAINER_DIR/labs/[labname]/[labname]!
-\item Create a "hello world" program, e.g., in python or compiled C.
+\item Create a ``hello world'' program, e.g., in python or compiled C.
 \item From the labtainer-student window, run rebuild.py [labname]
 \end{itemize}
     
@@ -219,8 +220,8 @@ home directory.  If you run the program from the container, and then stop the co
 with stop.py, you will see the stdin and stdout results of the program within the
 saved zip file.
 
-Note how the "hello world" program was placed in \verb!$LABTAINER_DIR/labs/[labname]/[labname]!.
-The seemingly redundant "labname" directories are a naming convention in which the
+Note how the ``hello world'' program was placed in \verb!$LABTAINER_DIR/labs/[labname]/[labname]!.
+The seemingly redundant ``labname'' directories are a naming convention in which the
 second directory names one of potentially many containers.  In this simple example,
 the lab has but one container, whose name defaults to the lab name.
 
@@ -231,7 +232,7 @@ the student.
 A given lab typically requires some set of software packages, and some
 system configuration, e.g., network settings.  
 The framework captures most configuration details within a standard
-Dockerfile.  A default Labtainer-specific Dockerfiles is placed in the new lab's "dockerfiles" 
+Dockerfile.  A default Labtainer-specific Dockerfiles is placed in the new lab's ``dockerfiles'' 
 directory when the new lab is created.  We use standard Docker file syntax, which is described at 
 \url{https://docs.docker.com/engine/reference/builder/}
 
@@ -245,7 +246,7 @@ execution environment builds off of a recent Ubuntu image.
 
 A given lab can include multiple containers, each appearing as distinct
 computers connected via networks.  The execution environment seen by a
-student when interacting with one of these "computers" is therefore defined
+student when interacting with one of these ``computers'' is therefore defined
 by the configuration of the associated container.  
 
 \subsection {Container Isolation}
@@ -262,13 +263,13 @@ If a lab is to include only one container, you can
 skip ahead to the subsection titled Lab-specific files in the student's home directory.
 
 Creating new containers for a lab, and changing the name of an existing container
-can be performed automaticall using the "new\_lab\_setup.py" script.  Use "-h" to see
+can be performed automaticall using the ``new\_lab\_setup.py'' script.  Use ``h'' to see
 the options.  Much of the discussion immediatly below describes things are are
 automated by that script.
 You must assign a name to each container within the new lab.  Each new lab
 starts with a single container, whose name matches the lab name.  You are free
 to change that name. The names of containers should reflect their role in the lab,
-e.g., "client" and "server".  Once you have picked container names, you must create
+e.g., ``client'' and ``server''.  Once you have picked container names, you must create
 Dockerfiles and update the 
 \begin{verbatim}
    $LABTAINER_DIR/labs/[labname]/config/start.config file.
@@ -282,7 +283,7 @@ Dockerfiles and update the
 \begin{verbatim}
     Dockerfile.[labname].[container_name].[role]
 \end{verbatim}
-where role is either "student" or "instructor".  The framework will use the student Dockerfile to
+where role is either ``student'' or ``instructor''.  The framework will use the student Dockerfile to
 create the instructor container unless a distinct instructor file is present (e.g., if the designer
 wishes the instructor to have unique software packages.) The system automatically creates a student Dockerfile
 when a new lab is created.  You are responsible for creating (copying to) additional Dockerfiles for other containers,
@@ -296,7 +297,7 @@ FROM mfthomps/labtainer.network
 \end{verbatim}
 \noindent Other alternate images include:
 \begin{itemize}
-\item labtainer.centos -- A CentOS server with systemd and the true "init" initial process.
+\item labtainer.centos -- A CentOS server with systemd and the true ``init'' initial process.
 \item labtainer.lamp -- A CentOS server with Apache, Mysql and PHP, (the LAMP stack)
 \item labtainer.firefox -- An Ubuntu container with the Firefox browser.
 \item labtainer.java -- An Ubuntu container with the Firefox browser and the open JDK.
@@ -348,16 +349,16 @@ script.  The script should be placed in container \_bin directory, i.e.,
 \begin{verbatim}
     $LABTAINER_DIR/labs/[labname]/[container]/_bin
 \end{verbatim}
-\noindent If the title is "INSTRUCTIONS", no script is necessary and the instructions.txt file
+\noindent If the title is ``INSTRUCTIONS'', no script is necessary and the instructions.txt file
 in the container home directory will be displayed.
 \item USER [user name] -- The user name whose account will be accessed via the virtual terminals. 
-This defaults to "ubuntu."
+This defaults to ``ubuntu.''
 \item PASSWORD [password] -- The password for the user name whose account will be accessed via the virtual terminals. 
 This defaults to the user name defined above.
 \item network name [ip address] -- Network address assignments for each network (defined via a NETWORK section), 
 that is to be connected to this container.  A separate line should be entered for each network.
-\item SCRIPT [script] -- Optional script to provide to the Docker create command, defaults to "bash".  This must be set to
-"NONE" for CENTOS-based labs (and likely fedora[test that]).
+\item SCRIPT [script] -- Optional script to provide to the Docker create command, defaults to ``bash''.  This must be set to
+``NONE'' for CENTOS-based labs (and likely fedora[test that]).
 \item ADD-HOST [host:ip] -- Optional addition to the /etc/host file, a container may have multipled ADD-HOST entries.
 \item X11 [YES/NO] -- Optional, defaults to NO.  If YES, the container mounts the TCP socked used by the hosts X11 server,
 enabling the container to run applications with GUIs, e.g., browsers or wireshark.  See sql-inject as an example.  See the
@@ -394,7 +395,7 @@ to accomplish the copying. Except as noted below, Dockerfile should not include 
 to copy files to the HOME directory.
 \subsubsection{Large or numerous files in the home directory} \label{large files}
 If there are large sized, or a high quantity of files that are to be placed relative to a 
-container home directory, those should be placed into a "home\_tar" directory at:
+container home directory, those should be placed into a ``home\_tar'' directory at:
 \begin{verbatim}
     $LABTAINER_DIR/labs/[labname]/[container_name]/home_tar/
 \end{verbatim}
@@ -425,7 +426,7 @@ can be placed into the directory named:
 \begin{verbatim}
     $LABTAINER_DIR/labs/[labname]/[container name]/sys_tar
 \end{verbatim}
-either as individual files, or in a "sys.tar" archive.  In the former case,
+either as individual files, or in a ``sys.tar'' archive.  In the former case,
 the framework will automatically create the sys.tar file.  This technique 
 can save time in building lab images becauase the files do not need to be 
 archived for each build.  
@@ -434,7 +435,7 @@ In general, files modified and maintained by the designer should go into the
 \_system directory while static system files should go into the sys\_tar directory.
 
 \subsection {System services}
-The Dockerfile "ENTRYPOINT" command can be used to start a system service.  The general Docker 
+The Dockerfile ``ENTRYPOINT'' command can be used to start a system service.  The general Docker 
 model is that a single Docker container runs a single service, with logging being forwarded to 
 the host.  Labtainers disregards this model because our goal is to make a container look more like a Linux
 system rather than a conformant Docker container.  The default Labtainer Dockerfiles include an
@@ -456,26 +457,26 @@ login program, controlled by its bin/student\_startup.sh script.
 
 \subsection {Instructions for Students} \label{instructions}
 Lab instructions for students can be displayed in a virtual terminal by placing an
-"instructions.txt" file within the home directory of one of the containers.  Refer to existing
+``instructions.txt'' file within the home directory of one of the containers.  Refer to existing
 labs for conventions.  Additionally, textual message can be displayed to the student before any 
 of the lab virtual terminals are created.  Any text within the 
 \begin{verbatim}
    $LABTAINER_DIR/labs/[labname]/docs/read_first.txt
 \end{verbatim}
 \noindent file will be displayed on the Linux host in the terminal in which the student
-starts the lab.  Any "LAB\_MANUAL" string in that file will be replaced with the full path
-to a [labname].pdf file within that same docs directory.  And "LAB\_DOCS" is replaced by the
+starts the lab.  Any ``LAB\_MANUAL'' string in that file will be replaced with the full path
+to a [labname].pdf file within that same docs directory.  And ``LAB\_DOCS'' is replaced by the
 path to the lab docs directory.  One intended use is to prompt the
 student to open a PDF lab manual and perhaps read parts of it prior to continuing with the lab.
 Another intended use is to display the path to a reporting template that a student is to use
 for answering lab-specific questions and note taking.  If the name of the symbols are prefaced
-by "file://", then the paths will display as links that can be opened via a right click.
-If the start.config file includes "COLLECT\_DOCS YES", the content of the lab/docs directory will be
+by ``file://'', then the paths will display as links that can be opened via a right click.
+If the start.config file includes ``COLLECT\_DOCS YES'', the content of the lab/docs directory will be
 included with the student artifacts and available extracted into the intstrutor's 
 labtainer\_xfer/[lab]/docs directory.
 
 \subsection {Running programs in Virtual Terminals}
-The "XTERM" section in the 
+The ``XTERM'' section in the 
 \begin{verbatim}
     $LABTAINER_DIR/labs/[labname]/[container name]/_bin/
 \end{verbatim}
@@ -498,7 +499,7 @@ Files are identified within
 \begin{verbatim}
     $LABTAINER_DIR/labs/[labname]/config/files_to_host.config
 \end{verbatim}
-\noindent with a format of "container:filename".  Any named files within the home directory of
+\noindent with a format of ``container:filename''.  Any named files within the home directory of
 the named container will be copied to the host computer into a directory named by the lab, relative
 to the Labtainer working directory.
 
@@ -512,7 +513,7 @@ the symbols within those files that are to be modified.  A simple example can be
     $LABTAINER_DIR/labs/formatstring/formatstring/config/parameter.config
 \end{verbatim}
 
-That configuration file causes the string "SECRET2\_VALUE" within the file:
+That configuration file causes the string ``SECRET2\_VALUE'' within the file:
 \begin{verbatim}
      /home/ubuntu/vul_prog.c
 \end{verbatim}
@@ -596,7 +597,7 @@ The parameter\_id fields may be referenced during the automated grading function
 \section{Automated assessment of student labs}
 This section describes how to configure a lab for automated assessment of student work.
 Note the framework does not require that labs include automated assessment, e.g., the
-"results" of a lab may consist entirely of a written report submitted by the student.
+``results'' of a lab may consist entirely of a written report submitted by the student.
 Support for automated collection of written reports is described in \ref{instructions}
 and the use of COLLECT\_DOCS in the start.config file.
 
@@ -611,20 +612,20 @@ may have done in the course of the lab.
 The framework's automated assessment functions generally assume the student will interact with one or
 more programs or system utilities.  Each time the student invokes a selected program or utility, the 
 framework captures copies of standard input and standard output, (stdin and stdout) into timestamped file sets.
-This is transparent to the student.  (Also see the discussion of the "treataslocal" file for capturing
+This is transparent to the student.  (Also see the discussion of the ``treataslocal'' file for capturing
 program output other than stdout.)  These timestamped file sets, and everything else relative to
 the student's home directory, are automatically packaged when the student completes the lab.
 These packages of artifacts are then transferred to the instructor, (e.g., via email or a CLE), and 
 ingested into the instructor's system where lab assessment occurs.
 
-The stdin and stdout for all non-system programs is captured, e.g., the results of an "ls" command
+The stdin and stdout for all non-system programs is captured, e.g., the results of an ``ls'' command
 are not captured.  The stdin and stdout of system programs will be captured if the program
 names appear at the beginning of a line in the \textit{treataslocal} file at
 \begin{verbatim}
     $LABTAINER_DIR/labs/[labname]/[container name]/_bin/treataslocal
 \end{verbatim}
 \noindent The basename of the treataslocal entries are compared to the basename of each command.
-In other words, if the treataslocal entry is: "/usr/bin/nmap", the path leading to nmap is ignored.
+In other words, if the treataslocal entry is: ``usr/bin/nmap'', the path leading to nmap is ignored.
 
 The treataslocal file program identifiers can include optional output file identifiers that
 cause timestamped copies of specified files to be made whenever the program is invoked.  
@@ -651,13 +652,13 @@ These identifiers are of the form:
 \noindent The resulting timestamped files are located with the stdin and stdout files in .local/result
 
 Non-system programs can be excluded from stdin/stdout capturing by including their names in
-a "ignorelocal" file in that same directory.
+a ``ignorelocal'' file in that same directory.
 
 \{section{Identify Lab-specifc Artifacts}
-The automated assessment functions encourage labs to be organized into a set of distinct "goals".
+The automated assessment functions encourage labs to be organized into a set of distinct ``goals''.
 For each goal, the lab designer should identify specific fields within stdin and/or stdout that
-could be compared to "expected" values.  These lab-specific artifacts are identified within the
-"instr\_config/results.config file".  Artifacts are identified in terms of:
+could be compared to ``expected'' values.  These lab-specific artifacts are identified within the
+``instr\_config/results.config file''.  Artifacts are identified in terms of:
 \begin{enumerate}
 \item the program that was invoked;
 \item whether the artifact is in stdin or stdout
@@ -669,9 +670,9 @@ Each identified artifact is given a symbolic name. A named artifact is referred 
 is then referenced in the goals.config file to assess whether it is an expected value.
 
 Consider the labs/formatstring/instr\_config/results.config file.  The first non-comment line
-defines a result having the symbolic name "crashStringCanary".  This result is
-found by looking at stdout from the "vul\_prog" program, finding the first line that starts with:
-"*** stack smashing detected".  The result is assigned the value of the third space-delimited 
+defines a result having the symbolic name ``crashStringCanary''.  This result is
+found by looking at stdout from the ``vul\_prog'' program, finding the first line that starts with:
+`` stack smashing detected''.  The result is assigned the value of the third space-delimited 
 token in that line.
 
 Entries within the results.config file each have the following format:
@@ -791,29 +792,29 @@ with the framework.
     <goal_id> - An identifer for the goal. It must be alphanumeric 
                 (underscores permitted).
     <type> - must be one of the following:
-         'matchany'    - Results from all timestamped sets are evaluated.
+         matchany'    - Results from all timestamped sets are evaluated.
                          If the answertag names a result, then both that 
                          result and the resulttag must occur in the same 
                          timestamped set.  The 'matchany' goals are treated 
                          as a set of values, each timestamped based on the 
                          timestamp of the reference resulttag.
                       
-         'matchlast'   - only results from the latest timestamped set are 
+         matchlast   - only results from the latest timestamped set are 
                          evaluated.
-         'matchacross' - The resulttag and answertag name results.  The 
+         matchacross - The resulttag and answertag name results.  The 
                          operator is applied against values in different 
                          timestamped sets.  For example, a "string_diff" 
                          operator would require the named results to have 
                          at least two distinct values in different 
                          timestamped sets.  Note: 'matchacross' cannot 
                          be used within the boolean expression defined below.
-         'is_true'     - The goal is true if the value of the resulttag is 
+         is_true     - The goal is true if the value of the resulttag is 
                          true, e.g., from a "CONTAINS" field type in the 
                          results.config
-         'is_false'    - The goal is true if the value of the resulttag is 
+         is_false    - The goal is true if the value of the resulttag is 
                          not true, e.g., from a "CONTAINS" field type in the 
                          results.config
-         'boolean'     - The goal value is computed from a boolean expression 
+         boolean     - The goal value is computed from a boolean expression 
                          consisting of goal_id's and boolean operators, ("and", 
                          "or", "and_not", "or_not", and "not"), and parenthisis 
                          for precedence.  The goal_id's must be from goals defined 
@@ -822,20 +823,20 @@ with the framework.
                          of the timestamped sets of goal_ids, (see the 'matchany' 
                          discussion above).  The goal_id's cannot include any 
                          "matchacross" goals.
-         'count_greater' The goal is true if the count of true subgoals in the 
+         count_greater The goal is true if the count of true subgoals in the 
                          list exceeds the given value.  The subgoals are 
                          summed across all timestamps.  The subgoal list is 
                          comma-separated within parenthesis.
-         'time_before' - Both goal1 and goal2 must be goal_ids from previous 
+         time_before - Both goal1 and goal2 must be goal_ids from previous 
                          *matchany* goal types.  Evaluates to TRUE if any TRUE 
                          goal1 has a timestamp that is before than any TRUE goal2
-         'time_during' - Both goal1 and goal2 must be goal_ids from previous 
+         time_during - Both goal1 and goal2 must be goal_ids from previous 
                          *matchany* goal types.  Timestamps include a start and 
                          end time, reflecting when the program starts and when it 
                          terminates.  Evaluates to TRUE if any TRUE goal1 has a 
                          start timestamp within the start and end times of any 
                          TRUE goal2.
-         'execute'     - The <operator> is treated as a file name of a script to 
+         execute     - The <operator> is treated as a file name of a script to 
                          execute, with the resulttag and answertag passed to the 
                          script as arguments.  The resulttag is expected to be 
                          one of the symbolic names defined in the results.config 
@@ -843,32 +844,32 @@ with the framework.
                          value or the symbolic name in the parameters.config file 
                          Note: the answertag cannot be a symbolic name from 
                          results.config 
-         'count'       - If the remainder of the line only includes a resulttag,
+         count       - If the remainder of the line only includes a resulttag,
                          then the goal value is assigned the quanity of occurances of 
                          the given resulttag.  Otherwise the goal value is assigned the
                          quantity of occurances that satisfy the given operator and
                          arguments.
-         'value'       - The goal value is assigned the given resulttag value from
+         value       - The goal value is assigned the given resulttag value from
                          the most recent timestamped file that satisfies the resulttag.
  
 <operator> - the following operators evaluate to TRUE as described below:
-   'string_equal' -  The strings derived from <answertag> and <resulttag>
+   string_equal -  The strings derived from <answertag> and <resulttag>
                      are equal.
-   'string_diff' -   The strings derived from <answertag> and <resulttag>
+   string_diff -   The strings derived from <answertag> and <resulttag>
                      are not equal.
-   'string_start' -  The string derived from <answertag> is at the start of 
+   string_start -  The string derived from <answertag> is at the start of 
                      the string derived from <resulttag>.
            example:  answertag value = 'MySecret'
                      resulttag value = 'MySecretSauceIsSriracha'
-   'string_end' -    The string derived from <answertag> is at the end of
+   string_end -    The string derived from <answertag> is at the end of
                      the string derived from <resulttag>.
            example:  answertag value = 'Sriracha'
                      resulttag value = 'EatMoreFoodWithSriracha'
-   'integer_equal' - Integers derived from <answertag> and <resulttag>
+   integer_equal - Integers derived from <answertag> and <resulttag>
                      are equal.
-   'integer_greater' - The integer derived from <answertag> is greater than
+   integer_greater - The integer derived from <answertag> is greater than
                        that derived from <resulttag>.
-   'integer_lessthan'- The integer derived from <answertag> is less than
+   integer_lessthan- The integer derived from <answertag> is less than
                        that derived from <resulttag>
    <executable_file> - If the type is 'execute' then <operator> is a filename of 
                        an executable.
@@ -903,14 +904,14 @@ have turned in their own work, (vice getting a zip file from a friend and simply
 changing the name of the file), is to individualize some file on one of the containers,
 and then check that file and the archive file names during grading.  The framework does
 this automatically and reports on any student archive that does not seem to have
-originated from a Labtainer initiated with that student's email address"
+originated from a Labtainer initiated with that student's email address.
 
 \section{Networking}
 Most networking is simply a matter of defining networks and assigning them to containers
 as described in \ref{start.config}.  
 
 In addition to networks properties defined in the
-start.config file, each container \texttt{/etc/host} file includes a "my\_host entry" that names
+start.config file, each container \texttt{/etc/host} file includes a ``my\_host entry'' that names
 the host Linux.  By Docker default, each container includes a default gateway that
 leads to the Linux host.  This allows students to scp files to/from the container and host.
 It also allows the student to reach external networks, e.g., to fetch additional packages in
@@ -919,7 +920,7 @@ support of student exploration.
 In some instances, the lab designer will want to define a different default route for a 
 container.  Each container derived from the Labtainer network base includes a \textit{set\_default\_gw.sh}
 script that can be added to the \textit{/etc/rc.local} file to redefine the default gateway.
-This script will automatically retain a route table entry so that the student can reach the "my\_host"
+This script will automatically retain a route table entry so that the student can reach the ``my\_host''
 address.  Additionally, those baseline images include a \textit{togglegw.sh} script that the student
 can use to toggle the default gateway between one that leads to the host, and one defined for the lab.
 This allows students to add packages on components having lab-specific default gateways.
@@ -931,13 +932,13 @@ the designer desires to run images reflecting recent changes that have been made
 includes logic to identify dependencies within containers whose image content has changed, 
 and it will rebuild those images, (using the Docker build command).  The framework will only 
 rebuld those images that have changed.  The designer can force the rebuild of all images within
-a lab by appending the "-f" switch to the end of the "rebuild.py" command.
+a lab by appending the ``f'' switch to the end of the ``rebuild.py'' command.
 
 If you build a new Labtainer lab, the container images will not be on the Docker Hub unless you put
 them there.  If they are not on the hub, each student's computer will rebuild your lab when they go to run it.
 While this is fully functional, the build time may distract from performance of the lab.  If you
 create your own public repository on the Docker Hub (https://hub.docker.com/), you can populate that
-with your lab(s) by setting the "REGSITRY\_ID" value in the start.config file for the lab(s). You
+with your lab(s) by setting the ``REGSITRY\_ID'' value in the start.config file for the lab(s). You
 would then use the distrib/publish.py script to build, tag and push your lab to your registry.
 
 The distrib/mkdist.sh script is used by NPS to create the distribution tar file.  This script relies on
@@ -945,17 +946,26 @@ an internal NPS subversion repository as the source to the Labtainer scripts and
 script is used to rebuild and publish all of the Labtainer labs managed by NPS.
 
 \subsection{Reuse of large file sets}
-The use of "sys\_tar" desribed in \ref{large files} facilitates sharing of common
-baselines of large or numerous files.  New labs should use symbolic links to
-existing sys\_tar/sys.tar files.  The framework will replace these  symbolic links
-with the actual tar files, (to satisfy Docker), whenever a lab is built.  However, when
-maintained in svn, the designer should ensure the file is a symbolic link.  This will
-avoid duplication of the files when a new distribution is created.
+The use of ``sys\_tar'' desribed in \ref{large files} facilitates sharing of common
+baselines of large or numerous files.  New labs can incorporate tar files from existing
+labs through the use of ``external-manifest'' files, (see the xsite/victim/home\_tar as
+an example).   The syntax of the external-manifest is shown below, and it may contain
+multiple entries, one per line:
+\begin{verbatim}
+lab:container
+\end{verbatim}
+\noindent Where ``lab'' is the name of the lab, and ``container'' is the name of the container
+whose tar file is to be included.
+
+The framework will include content of tar archives referenced within these files
+when creating an archive for the new lab.  This allows the sys\_tar to include lab-specific files
+as well as files from other labs.  Designers should avoid addding duplicate tar files to the SVN repositotry.
+This will avoid duplication of the files when a new distribution is created.
 
 \section{Ubuntu Package Sources}
 Labtainer images built on Ubuntu use apt-get to install packages.  Some enterprise environments have 
 difficulty reaching selected Ubuntu software source mirrors.  A Docker image build will use the default 
-Ubuntu package sources, "archive.ubuntu.com".  This hostname can be overridden via the 
+Ubuntu package sources, ``archive.ubuntu.com''.  This hostname can be overridden via the 
 trunk/config/labtainer.config file apt\_source entry, and having the following in your dockerfile:
 \begin{verbatim}
 RUN sed -i s/archive.ubuntu.com/$apt_source/ /etc/apt/sources.list
@@ -982,7 +992,7 @@ expected student artifacts.  In other words, adding new goal does not typically 
 that you go back and re-perform student actions.  Exceptions to this are:
 
 \begin{enumerate}
-\item Adding new system commands to a "treataslocal" file;
+\item Adding new system commands to a ``treataslocal'' file;
 \item Identifying new system files to be parsed as results.  For example, results in a log
 file will not be collected unless that log file has been named in the results.config file.
 \end{enumerate}
