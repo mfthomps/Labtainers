@@ -59,10 +59,6 @@ else
     fi
     ORIG_PWD=`pwd`
     echo $ORIG_PWD
-    # make sure home_tar exists, even if empty
-    mkdir -p $LABIMAGE_DIR/home_tar
-    mkdir -p $LABIMAGE_DIR/sys_tar
-    bin/checkTars.py $LABIMAGE_DIR $imagename
     LAB_TAR=$LAB_DIR/$labimage.tar.gz
     SYS_TAR=$LAB_DIR/sys_$labimage.tar.gz
     TMP_DIR=/tmp/$labimage
