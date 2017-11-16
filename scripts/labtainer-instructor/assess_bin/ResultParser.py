@@ -134,7 +134,7 @@ def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname,
         cfgcontainername, progname_type = newprogname_type.split(':', 1)
     else:
         if len(container_list) > 1:
-            logger.ERROR('No container name found in multi container lab entry: %s' % newprogname_type)
+            logger.ERROR('No container name found in multi container lab entry (%s = %s)' % (each_key, each_value))
             sys.exit(1)
         if newprogname_type.endswith('stdin') or newprogname_type.endswith('stdout') \
              or newprogname_type.endswith('prgout'):
