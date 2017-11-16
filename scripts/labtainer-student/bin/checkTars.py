@@ -48,21 +48,21 @@ manifest_name = '%s-home_tar.list' % image_name
 lab_dir = os.path.dirname(container_dir)
 print('lab_dir is %s' % lab_dir)
 manifest = os.path.join(lab_dir, 'config', manifest_name)
-try:
-    shutil.rmtree(tmp_loc)
-except:
-    pass
-os.mkdir(tmp_loc)
 for f in tar_list:
     full = os.path.join(container_dir, f)
     if os.path.isdir(full) and f.endswith('_tar'):
+        try:
+            shutil.rmtree(tmp_loc)
+        except:
+            pass
+        os.mkdir(tmp_loc)
         os.chdir(full)
         tmp_name = f[:-4]
         tar_name = tmp_name+'.tar'
         #print('check for %s' % tar_name)
         if not os.path.isfile(tar_name):
             ''' no tar, make one '''
-            #print('no tar %s, make one' % tar_name)
+            print('no tar %s, make one' % tar_name)
             f_list = os.listdir('./')
             if len(f_list) == 0:
                 #print('no files, make empty')
@@ -75,8 +75,9 @@ for f in tar_list:
                     ''' external manifest, expand that '''
                     expandManifest(full, tar_name)
                 for cfile in f_list:
+                    print('cfile is %s' % cfile)
                     if cfile != external:
-                        shutil.copytree(cfile, tmp_loc)
+                        shutil.copytree(cfile, os.path.join(tmp_loc, cfile))
                 os.chdir(tmp_loc)
                 full_tar = os.path.join(full, tar_name)
                 if f == 'home_tar':
