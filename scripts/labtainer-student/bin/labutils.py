@@ -247,48 +247,20 @@ def putLastEmail(email):
     with open(EMAIL_TMP, 'w') as fh:
             fh.write(email)
 
-def ParamForStudent(lab_master_seed, mycontainer_name, container_user, container_password, labname, student_email, quiet_start):
-    if student_email is not None:
-        user_email = student_email
-    else:
-        done = False
-        while not done and student_email is None:
-            done = True
-            # Prompt user for e-mail address
-            eprompt = 'Please enter your e-mail address: '
-            prev_email = getLastEmail()
-            if prev_email is not None:
-                eprompt = eprompt+" [%s]" % prev_email
-
-	    #checks if quiet_start is true
-            if quiet_start and prev_email is not None:
-                user_email = prev_email
-            else:
-                user_email = raw_input(eprompt)
-
-            #user_email = raw_input(eprompt)
-            if len(user_email.strip()) == 0:
-                if prev_email is None:
-                    done = False
-                else:
-                    user_email = prev_email
-            else:
-                putLastEmail(user_email)
-    
+def ParamForStudent(lab_master_seed, mycontainer_name, container_user, container_password, labname, student_email):
     # Create hash using LAB_MASTER_SEED concatenated with user's e-mail
     # LAB_MASTER_SEED is per laboratory - specified in start.config
-    string_to_be_hashed = '%s:%s' % (lab_master_seed, user_email)
+    string_to_be_hashed = '%s:%s' % (lab_master_seed, student_email)
     mymd5 = md5.new()
     mymd5.update(string_to_be_hashed)
     mymd5_hex_string = mymd5.hexdigest()
     logger.DEBUG(mymd5_hex_string)
 
     if not ParameterizeMyContainer(mycontainer_name, container_user, container_password, mymd5_hex_string,
-                                                          user_email, labname):
+                                                          student_email, labname):
         logger.ERROR("Failed to parameterize lab container %s!\n" % mycontainer_name)
         sys.exit(1)
     logger.DEBUG('back from ParameterizeMyContainer')
-    return user_email
 
 # Do InstDocsToHostDir - extract students' docs.zip if exist
 def InstDocsToHostDir(start_config, labtainer_config, lab_path, role, quiet_start):
@@ -580,24 +552,13 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False):
             #    exit(1)
     return retval
 
-
-def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start):
-    labname = os.path.basename(lab_path)
-    lab_master_seed = start_config.lab_master_seed
-    logger.DEBUG("DoStart Multiple Containers and/or multi-home networking")
-
-    # Create SUBNETS
-    CreateSubnets(start_config.subnets)
-    student_email = None
-    for name, container in start_config.containers.items():
+def DoStartOne(labname, name, container, start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, student_email, quiet_start, results):
+        retval = True
         mycontainer_name       = container.full_name
         mycontainer_image_name = container.image_name
         container_user         = container.user
         container_password         = container.password
         container_hostname         = container.hostname
-
-        if is_regress_test and mycontainer_name != start_config.grade_container:
-            continue
 
         haveContainer = IsContainerCreated(mycontainer_name)
         logger.DEBUG("DoStart IsContainerCreated result (%s)" % haveContainer)
@@ -619,7 +580,8 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
             logger.DEBUG("CreateSingleContainer result (%s)" % containerCreated)
             if not containerCreated:
                 logger.ERROR("CreateSingleContaier fails to create container %s!\n" % mycontainer_name)
-                sys.exit(1)
+                results.append(False)
+                return
 
             # Give the container some time -- just in case
             time.sleep(3)
@@ -633,7 +595,8 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
         # IsContainerCreated returned False if container does not exists
         if not haveContainer:
             logger.ERROR("Container %s still not created!\n" % mycontainer_name)
-            sys.exit(1)
+            results.append(False)
+            return
         else:
             for mysubnet_name, mysubnet_ip in container.container_nets.items():
                 connectNetworkResult = ConnectNetworkToContainer(mycontainer_name, mysubnet_name, mysubnet_ip)
@@ -641,7 +604,8 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
             # Start the container
             if not StartMyContainer(mycontainer_name):
                 logger.ERROR("Container %s failed to start!\n" % mycontainer_name)
-                sys.exit(1)
+                results.append(False)
+                return
 
         if role == 'instructor':
             # Do InstDocsToHostDir - extract students' docs.zip if exist
@@ -656,15 +620,75 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
                 copy_result = CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_user, container_password, is_regress_test, is_watermark_test)
                 if copy_result == FAILURE:
                     logger.ERROR("Failed to copy students' artifacts to container %s!\n" % mycontainer_name)
-                    sys.exit(1)
+                    results.append(False)
+                    return
 
     	# If the container is just created, then use the previous user's e-mail
         # then parameterize the container
     	elif quiet_start and need_seeds and role == 'student':
-            student_email = ParamForStudent(lab_master_seed, mycontainer_name, container_user, container_password, labname, student_email, quiet_start)
+            ParamForStudent(start_config.lab_master_seed, mycontainer_name, container_user, container_password, labname, student_email)
         
         elif need_seeds and role == 'student':
-            student_email = ParamForStudent(lab_master_seed, mycontainer_name, container_user, container_password, labname, student_email, quiet_start)
+            ParamForStudent(start_config.lab_master_seed, mycontainer_name, container_user, 
+                                             container_password, labname, student_email)
+
+        results.append(retval)
+
+def GetUserEmail(quiet_start):
+    user_email = None
+    while user_email is None:
+        done = True
+        # Prompt user for e-mail address
+        eprompt = 'Please enter your e-mail address: '
+        prev_email = getLastEmail()
+        if prev_email is not None:
+            eprompt = eprompt+" [%s]" % prev_email
+
+	    #checks if quiet_start is true
+        if quiet_start and prev_email is not None:
+            user_email = prev_email
+        else:
+            user_email = raw_input(eprompt)
+
+        #user_email = raw_input(eprompt)
+        if len(user_email.strip()) == 0:
+            if prev_email is None:
+                done = False
+            else:
+                user_email = prev_email
+        else:
+            putLastEmail(user_email)
+    return user_email
+
+def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start):
+    labname = os.path.basename(lab_path)
+    logger.DEBUG("DoStart Multiple Containers and/or multi-home networking")
+
+    # Create SUBNETS
+    CreateSubnets(start_config.subnets)
+    student_email = GetUserEmail(quiet_start)
+    threads = []
+    results = []
+    for name, container in start_config.containers.items():
+        if is_regress_test and container.full_name != start_config.grade_container:
+            continue
+        #DoStartOne(name, container, start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start, results)
+        t = threading.Thread(target=DoStartOne, args=(labname, name, container, start_config, labtainer_config, lab_path, 
+              role, is_regress_test, is_watermark_test, student_email, quiet_start, results))
+        threads.append(t)
+        t.setName(name)
+        t.start()
+    logger.DEBUG('started all')
+    for t in threads:
+        t.join()
+        logger.DEBUG('joined %s' % t.getName())
+
+    if False in results:
+        logger.ERROR('DoStartOne has at least one failure!')
+        sys.exit(1)
+
+      
+
     #
     #  If a read_first.txt file exists in the lab's config directory, less it before the student continues.
     #
@@ -709,7 +733,7 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
                 os.system(spawn_command)
             num_terminal = 1
         else:
-            CopyFilesToHost(lab_path, container.name, mycontainer_name, container_user)
+            CopyFilesToHost(lab_path, container.name, mycontainer_name, container.user)
         if container.xterm is not None:
                 parts = container.xterm.split()
                 title = parts[0]
@@ -789,7 +813,6 @@ def CreateHostHomeXfer(host_xfer_dir):
 # CopyChownGradesFile
 def CopyChownGradesFile(mycwd, start_config, labtainer_config, container_name, container_image, container_user, ignore_stop_error):
     host_home_xfer = os.path.join(labtainer_config.host_home_xfer, start_config.labname)
-    lab_master_seed = start_config.lab_master_seed
     labname = start_config.labname
 
     username = getpass.getuser()
@@ -1340,7 +1363,6 @@ def CreateCopyChownZip(mycwd, start_config, labtainer_config, container_name, co
     '''
     logger.DEBUG('in CreateCopyChownZip')
     host_home_xfer  = os.path.join(labtainer_config.host_home_xfer, start_config.labname)
-    lab_master_seed = start_config.lab_master_seed
 
     # Run 'Student.py' - This will create zip file of the result
     logger.DEBUG("About to call Student.py")
@@ -1504,7 +1526,6 @@ def DoStop(start_config, labtainer_config, mycwd, lab_path, role, ignore_stop_er
     retval = True
     labname = os.path.basename(lab_path)
     host_home_xfer  = os.path.join(labtainer_config.host_home_xfer, labname)
-    lab_master_seed = start_config.lab_master_seed
     logger.DEBUG("DoStop Multiple Containers and/or multi-home networking")
 
     username = getpass.getuser()
