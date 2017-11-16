@@ -374,7 +374,13 @@ def setup_to_validate(lab_path, labname, validatetestsets, validatetestsets_path
 
     email_labname = "%s.%s" % (user_email.replace("@","_at_"), labname)
 
-    return lab_instance_seed, start_config.grade_container, email_labname
+    container_list = []
+    container_list.append(start_config.grade_container)
+    for name, container in start_config.containers.items():
+        if container.full_name not in container_list:
+            container_list.append(container.full_name)
+
+    return lab_instance_seed, container_list, email_labname
 
 # Validate resultidlist for 'system' in 'treataslocal'
 def ValidateTreataslocal(labname, lab_path, resultidlist, logger):
@@ -423,10 +429,8 @@ def ValidateTreataslocal(labname, lab_path, resultidlist, logger):
 def DoValidate(lab_path, labname, validatetestsets, validatetestsets_path, logger):
     labutils.is_valid_lab(lab_path)
 
-    container_list = []
-    lab_instance_seed, grade_container, email_labname = setup_to_validate(lab_path, labname, validatetestsets, validatetestsets_path, logger)
-    logger.DEBUG("grade_container %s" % grade_container)
-    container_list.append(grade_container)
+    lab_instance_seed, container_list, email_labname = setup_to_validate(lab_path, labname, validatetestsets, validatetestsets_path, logger)
+    logger.DEBUG("container_list (%s)" % container_list)
  
     LabDirName = os.path.join(TEMPDIR, email_labname)
     # Just validating - not actual parsing
