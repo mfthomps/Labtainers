@@ -62,6 +62,7 @@ if [[ "$RESULT" -eq 0 ]]; then
     /usr/bin/newgrp $USER <<EONG
     source ./pull-all.sh
 EONG
+    ./getinfo.py
     sudo reboot
 else
     echo "There was a problem with the installation."
