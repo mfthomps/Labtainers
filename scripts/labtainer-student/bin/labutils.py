@@ -21,6 +21,7 @@ import LabtainerLogging
 import shlex
 import stat
 import traceback
+import CheckTars
 ''' logger is defined in whatever script that invokes the labutils '''
 global logger
 '''
@@ -109,7 +110,7 @@ def StartMyContainer(mycontainer_name):
     if IsContainerRunning(mycontainer_name):
         logger.ERROR("Container %s is already running!\n" % (mycontainer_name))
         sys.exit(1)
-    command = "docker start %s  > /dev/null" % mycontainer_name
+    command = "docker start %s" % mycontainer_name
     logger.DEBUG("Command to execute is (%s)" % command)
     ps = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
@@ -117,6 +118,8 @@ def StartMyContainer(mycontainer_name):
         logger.ERROR('StartMyContainer %s' % output[1])
         logger.ERROR('command was %s' % command)
         retval = False
+    if len(output[0]) > 0:
+        logger.DEBUG(output[0])
     return retval
 
 # Check to see if my_container_name container has been created or not
@@ -1013,6 +1016,12 @@ def BaseImageTime(dockerfile):
         logger.DEBUG('base image %s not found, assume not updated' % image_name)
     return retval, image_name
  
+def newest_file_in_tree(rootfolder):
+    return max(
+        (os.path.join(dirname, filename)
+        for dirname, dirnames, filenames in os.walk(rootfolder)
+        for filename in filenames),
+        key=lambda fn: os.stat(fn).st_mtime)
                 
 def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, container_bin,
                  start_config, container_registry):
@@ -1020,6 +1029,16 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
     Determine if a container image needs to be rebuilt.
     '''
     
+    container_dir = os.path.join(lab_path, name)
+    try:
+        os.mkdir(os.path.join(container_dir, 'home_tar'))
+    except:
+        pass
+    try:
+        os.mkdir(os.path.join(container_dir, 'sys_tar'))
+    except:
+        pass
+    CheckTars.CheckTars(container_dir, name, logger)
     labname = os.path.basename(lab_path)
     should_be_exec = ['rc.local', 'fixlocal.sh']
     retval = False
@@ -1057,33 +1076,28 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
         retval = True
     else:
         ''' look for new/deleted files in the container '''
-        container_dir = os.path.join(lab_path, name)
         logger.DEBUG('container dir %s' % container_dir)
         if FileModLater(ts, container_dir):
            logger.WARNING('%s is later, will build' % container_dir)
            retval = True
         else:
             ''' look at all files in container '''
-            for folder, subs, files in os.walk(container_dir):
-                if os.path.basename(folder) == 'docs':
-                    continue
-                for f in files:
-                   if 'sys_tar' in folder and not f.endswith('.tar'):
-                        continue
-                   if 'home_tar' in folder and not f.endswith('.tar'):
-                        continue
-                   f_path = os.path.join(folder, f)
-                   logger.DEBUG('check %s' % f_path)
-                   if f in should_be_exec:
-                       f_stat = os.stat(f_path)
-                       if not f_stat.st_mode & stat.S_IXUSR:
-                           response = raw_input("WARNING: not executable: %s\npress enter" % f_path)
-
-                   if FileModLater(ts, f_path):
-                       logger.WARNING('%s is later, will build' % f_path)
-                       retval = True
-                       break
-
+            flist = os.listdir(container_dir)
+            for f in flist:
+                check_file = None
+                if f == 'sys_tar':
+                    check_file = os.path.join(container_dir, f, 'sys.tar')
+                elif f == 'home_tar':
+                    check_file = os.path.join(container_dir, f, 'home.tar')
+                elif os.path.isdir(f):
+                    check_file = newest_file_in_tree(os.path.join(container_dir, f))
+                else:
+                    check_file = os.path.join(container_dir, f)
+                logger.DEBUG('check file %s' % check_file)
+                if FileModLater(ts, check_file):
+                    logger.WARNING('%s is later, will build' % check_file)
+                    retval = True
+                    break
 
     if not retval:
         param_file = os.path.join(lab_path, 'config', 'parameter.config')
