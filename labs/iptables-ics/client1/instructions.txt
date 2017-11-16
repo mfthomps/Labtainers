@@ -8,16 +8,18 @@ a component serving as a firewall.
 
 You will configure the firewall within this topology:
 
-  Client 1 <----> firewall <-----> PLC 
-                    ^
-                    | 
-                    |
-  Client 2 <--------*
+  Client 1 <--->|
+                |
+                |
+                |<---> firewall <-----> PLC
+                |
+                |
+  Client 2 <--->|
 
 The firewall only allows the following traffic:
 
 * Client 1 can only access the PLC via SSH and HTTP.
-* Client 2 can only access the PLC via MODBUS TCP.
+* Client 2 can only access the PLC via MODBUS TCP and HTTP.
 
 2. Performing the lab
 The lab is started from the Labtainer working 
@@ -39,15 +41,21 @@ To exit navigation of this instruction, type 'q'.
 The iptables utility is installed on the "firewall" component.
 Use it to prevent the firewall from forwarding any traffic
 to the PLC other than SSH and HTTP sessions from Client 1, 
-and MODBUS TCP sessions from Client 2.
+and MODBUS TCP and HTTP sessions from Client 2.
 
-Demonstrate that you have achieved this by running this command
-on Client 1:
+The Wireshark utility is also installed on the firewall. 
+Use it to help debug the firewall rules.
 
-    nmap 172.25.0.3
+On Client1 and Client2, use the SSH utility, a browser (Firefox 
+or lynx), and the mbtcp-simple.py program to demonstrate that 
+the firewall only allows the following traffic:
 
-The resulting display should indicate that SSH, HTTP, and MODBUS TCP are
-the only ports that are open.
+a.  Client 1 can only access the PLC via SSH and HTTP 
+(with port 8080 only).
+
+b.  Client 2 can only access the PLC via MODBUS TCP and HTTP 
+(with ports 8080 and 80).
+
 
 4. Stop the Labtainer
 
