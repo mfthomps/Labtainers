@@ -18,10 +18,11 @@ ARG user_name
 ARG password 
 ARG apt_source
 
+ADD $labdir/$imagedir/sys_tar/sys.tar /
 ADD $labdir/sys_$lab.tar.gz /
 
 RUN sed -i s/archive.ubuntu.com/$apt_source/ /etc/apt/sources.list
-RUN apt-get update && apt-get install -y --no-install-recommends telnet wget nmap lynx 
+RUN apt-get update && apt-get install -y --no-install-recommends telnet wget nmap lynx
 
 # Need pyModbusTCP to run the Modbus test program
 RUN pip install pyModbusTCP
@@ -32,5 +33,10 @@ RUN adduser $user_name sudo
 
 USER $user_name
 ENV HOME /home/$user_name
+
+ADD $labdir/$imagedir/home_tar/home.tar $HOME
+# remove after docker fixes problem with empty tars
+RUN rm -f $HOME/home.tar
+
 ADD $labdir/$lab.tar.gz $HOME
 ENTRYPOINT sudo /sbin/faux_init && bash

@@ -10,6 +10,10 @@
 # the command line modbus client mbtget can also be useful
 # mbtget is here: https://github.com/sourceperl/mbtget
 
+# This code was adapted from the example code for pyModbusTCP 
+# (https://github.com/sourceperl/pyModbusTCP)
+# Specifically, write_bit.py and read_register.py
+
 from pyModbusTCP.client import ModbusClient
 import time
 
