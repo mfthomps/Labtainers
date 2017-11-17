@@ -1035,6 +1035,10 @@ browswer in a new instance so it does share existing browsers.
 \subsection{Wireshark}
 Wireshark will not run as root in Labtainer containers.  It should be configured to not
 require root to collect network packets:
+\subsection{Elgg}
+The xsite/vuln-site/myelgg.sql file needs to be loaded for elgg to run.  First edit it to
+change xsslabelgg.com to your site name (two changes).  Copy the sys\_tar/var/www/xsslabelgg.com/elgg
+to your new lab.  Note the elgg/views/default/output files have been modified to permit cross site scripting.
 \begin{verbatim}
 In short, put this before the apt-get that installs wireshark:
     RUN echo 'wireshark-common        wireshark-common/install-setuid boolean true' | debconf-set-selections
