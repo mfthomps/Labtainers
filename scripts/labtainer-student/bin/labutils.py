@@ -517,6 +517,16 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False):
                    force_this_build = True
         else:
             image_exists = True
+        container_dir = os.path.join(lab_path, name)
+        try:
+            os.mkdir(os.path.join(container_dir, 'home_tar'))
+        except:
+            pass
+        try:
+            os.mkdir(os.path.join(container_dir, 'sys_tar'))
+        except:
+            pass
+        CheckTars.CheckTars(container_dir, name, logger)
         if force_this_build or CheckBuild(lab_path, mycontainer_image_name, mycontainer_name, name, role, True, container_bin, start_config, container.registry):
             print('Will call buildImage to build %s' % mycontainer_name)
             logger.DEBUG("Will rebuild %s, Image exists(ignore if force): %s force_this_build: %s" % (mycontainer_name, 
@@ -1030,15 +1040,6 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
     '''
     
     container_dir = os.path.join(lab_path, name)
-    try:
-        os.mkdir(os.path.join(container_dir, 'home_tar'))
-    except:
-        pass
-    try:
-        os.mkdir(os.path.join(container_dir, 'sys_tar'))
-    except:
-        pass
-    CheckTars.CheckTars(container_dir, name, logger)
     labname = os.path.basename(lab_path)
     should_be_exec = ['rc.local', 'fixlocal.sh']
     retval = False
