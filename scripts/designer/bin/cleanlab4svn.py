@@ -30,7 +30,7 @@ def DoWork(current_dir):
     # This script will remove the following:
     # 1. Any tarball '*.tar.gz' in the lab directory, i.e., <lab>/*.tar.gz files
     tarball_list = glob.glob('%s/*.tar.gz' % current_dir)
-    print "tarball_list is (%s)" % tarball_list
+    #print "tarball_list is (%s)" % tarball_list
     for name in tarball_list:
         #print "current name is %s" % name
         try:
@@ -41,7 +41,7 @@ def DoWork(current_dir):
 
     # 2. Any tar list file, i.e., <lab>/config/*_tar.list files
     tarlist_list = glob.glob('%s/config/*_tar.list' % current_dir)
-    print "tarlist_list is (%s)" % tarlist_list
+    #print "tarlist_list is (%s)" % tarlist_list
     for name in tarlist_list:
         #print "current name is %s" % name
         try:
@@ -52,8 +52,18 @@ def DoWork(current_dir):
 
     # 3. Any empty tar file, i.e., <lab>/<containers>/*tar/*.tar files
     tarfile_list = glob.glob('%s/*/*tar/*.tar' % current_dir)
-    print "tarfile_list is (%s)" % tarfile_list
+    #print "tarfile_list is (%s)" % tarfile_list
     for name in tarfile_list:
+        external_manifest_file = os.path.join(os.path.dirname(name), "external-manifest")
+        #print "External manifest file is (%s)" % external_manifest_file
+        # If "external-manifest" file exist, just remove the tar file
+        if os.path.exists(external_manifest_file):
+            try:
+                os.remove(name)
+            except:
+                print("File external-manifest exists, but fails to remove tar file (%s)" % name)
+                sys.exit(1)
+            continue
         #print "current name is %s" % name
         if not os.path.isfile(name):
             print("File (%s) has tar but is not a file" % name)
