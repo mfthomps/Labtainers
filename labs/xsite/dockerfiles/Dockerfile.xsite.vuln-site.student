@@ -33,7 +33,6 @@ ARG apt_source
 #
 ADD $labdir/$imagedir/sys_tar/sys.tar /
 ADD $labdir/sys_$lab.tar.gz /
-RUN yum install -y php-xml php-gd php-mbstring
 #
 RUN useradd -ms /bin/bash $user_name
 RUN echo "$user_name:$password" | chpasswd
