@@ -46,7 +46,7 @@ def CheckTars(container_dir, image_name, logger):
     tar_list = os.listdir(container_dir)
     manifest_name = '%s-home_tar.list' % image_name
     lab_dir = os.path.dirname(container_dir)
-    logger.DEBUG('lab_dir is %s' % lab_dir)
+    logger.DEBUG('container_dir is %s' % container_dir)
     manifest = os.path.join(lab_dir, 'config', manifest_name)
     for f in tar_list:
         full = os.path.join(container_dir, f)
@@ -93,6 +93,11 @@ def CheckTars(container_dir, image_name, logger):
                 logger.DEBUG('newest is %s' % newest)
                 if not newest.endswith(tar_name):
                     os.remove(tar_name)
+                    flist = os.listdir('./')
+                    for f in flist:
+                        if f == 'external-manifest': 
+                            continue
+                        shutil.copytree(f , os.path.join(tmp_loc,f))
                     ''' something is newer, need to update tar '''
                     if os.path.isfile(os.path.join('./', external)):
                         expandManifest(full, tar_name)
@@ -103,14 +108,15 @@ def CheckTars(container_dir, image_name, logger):
                     else:
                         cmd = 'tar czf %s `ls -A -1`' % (full_tar)
                     os.system(cmd)
+                    logger.DEBUG(cmd)
                     #print('did %s' % cmd)
                 else:
                     ''' tar file is the most recent.  ensure we have a manifest '''
                     if f == 'home_tar' and not os.path.isfile(manifest):
-                        print('tar is latest, manifest is %s' % manifest)
                         os.chdir(full)
                         cmd =  'tar tf %s > %s' % (tar_name, manifest) 
                         os.system(cmd)
+                        logger.DEBUG(cmd)
     os.chdir(here)
                      
 def __main__():                    
