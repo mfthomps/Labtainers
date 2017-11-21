@@ -204,14 +204,8 @@ def check_execute(parameter_list, resultidlist, goals, jsongoalid, executefilepa
     if not validate_answertag_ok:
         labutils.logger.ERROR("ERROR: Goals goalid (%s) has invalid answertag (%s)" % (jsongoalid, jsonanswertag))
 
-    # Make sure the resulttag is valid
-    # Handle special case 'answer=<string>'
-    validate_resulttag_ok = True
-    if '=' in jsonresulttag:
-        # skip it
-        validate_resulttag_ok = True
-    else:
-        validate_resulttag_ok = validate_parameter_result(parameter_list, resultidlist, goals, jsonresulttag)
+    # Make sure the resulttag is valid - resulttag can't have 'answer=<string>'
+    validate_resulttag_ok = validate_parameter_result(parameter_list, resultidlist, goals, jsonresulttag)
     if not validate_resulttag_ok:
         labutils.logger.ERROR("ERROR: Goals goalid (%s) has invalid resulttag (%s)" % (jsongoalid, jsonresulttag))
 
