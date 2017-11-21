@@ -679,12 +679,16 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
 
     # Create SUBNETS
     CreateSubnets(start_config.subnets)
-    student_email = GetUserEmail(quiet_start)
+    student_email = None
     threads = []
     results = []
     for name, container in start_config.containers.items():
         if is_regress_test and container.full_name != start_config.grade_container:
             continue
+        # If container has not been created
+        if not IsContainerCreated(container.full_name):
+            if student_email == None:
+                student_email = GetUserEmail(quiet_start)
         #DoStartOne(name, container, start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start, results)
         t = threading.Thread(target=DoStartOne, args=(labname, name, container, start_config, labtainer_config, lab_path, 
               role, is_regress_test, is_watermark_test, student_email, quiet_start, results))
