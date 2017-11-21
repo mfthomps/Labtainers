@@ -79,7 +79,7 @@ def validate_parameter_result(parameter_list, resultidlist, goals, inputtag):
                     labutils.logger.ERROR('could not evaluation %s, which became %s' % (inputtagstring, express))
                     validate_ok = False
             else:
-                labutils.logger.ERROR('invalid resulttag %s' % inputtagstring)
+                labutils.logger.ERROR('invalid tag %s' % inputtagstring)
                 validate_ok = False
     else:
         validate_ok = False
@@ -189,20 +189,33 @@ def check_boolean(parameter_list, resultidlist, goals, jsongoalid, boolean_strin
 def check_execute(parameter_list, resultidlist, goals, jsongoalid, executefilepath, jsonanswertag, jsonresulttag):
     found_error = False
     executefile = os.path.basename(executefilepath)
+    executefile_ok = True
     if executefile not in executefilelist:
         executefile_ok = False
 
-    # Make sure the answertag is valid - not expecting special case 'answer=<string>'
-    validate_answertag_ok = validate_parameter_result(parameter_list, resultidlist, goals, jsonanswertag)
+    validate_answertag_ok = True
+    # Make sure the answertag is valid
+    # Handle special case 'answer=<string>'
+    if '=' in jsonanswertag:
+        # skip it
+        validate_answertag_ok = True
+    else:
+        validate_answertag_ok = validate_parameter_result(parameter_list, resultidlist, goals, jsonanswertag)
     if not validate_answertag_ok:
         labutils.logger.ERROR("ERROR: Goals goalid (%s) has invalid answertag (%s)" % (jsongoalid, jsonanswertag))
 
-    # Make sure the resulttag is valid - no special case for resulttag
-    validate_resulttag_ok = validate_parameter_result(parameter_list, resultidlist, goals, jsonresulttag)
+    # Make sure the resulttag is valid
+    # Handle special case 'answer=<string>'
+    validate_resulttag_ok = True
+    if '=' in jsonresulttag:
+        # skip it
+        validate_resulttag_ok = True
+    else:
+        validate_resulttag_ok = validate_parameter_result(parameter_list, resultidlist, goals, jsonresulttag)
     if not validate_resulttag_ok:
         labutils.logger.ERROR("ERROR: Goals goalid (%s) has invalid resulttag (%s)" % (jsongoalid, jsonresulttag))
 
-    if not (execute_file_ok and validate_answertag_ok and validate_resulttag_ok):
+    if not (executefile_ok and validate_answertag_ok and validate_resulttag_ok):
         found_error = True
        
     return found_error
@@ -294,7 +307,9 @@ def setup_to_validate(lab_path, labname, validatetestsets, validatetestsets_path
     if os.path.exists(TEMPDIR):
         shutil.rmtree(TEMPDIR)
     TEMPLOCAL = os.path.join(TEMPDIR, ".local")
+    TEMPLOCALBIN = os.path.join(TEMPDIR, ".local", "bin")
     os.makedirs(TEMPLOCAL)
+    os.makedirs(TEMPLOCALBIN)
 
     # Pick arbitrary e-mail
     user_email = "validate%s@dummy.org" % labname
@@ -363,7 +378,7 @@ def setup_to_validate(lab_path, labname, validatetestsets, validatetestsets_path
 
     # Get a list of any executable in '_bin' directory
     # except fixlocal.sh, treataslocal, startup.sh
-    binfilelist = glob.glob("%s/*/_bin/*" % TEMPLOCAL)
+    binfilelist = glob.glob("%s/*/_bin/*" % lab_path)
     for binfilepath in binfilelist:
         binfilename = os.path.basename(binfilepath)
         if not (binfilename == "fixlocal.sh" or 
@@ -371,6 +386,7 @@ def setup_to_validate(lab_path, labname, validatetestsets, validatetestsets_path
                 binfilename == "startup.sh"):
             if binfilename not in executefilelist:
                 executefilelist.append(binfilename)
+                shutil.copy(binfilepath, TEMPLOCALBIN)
 
     email_labname = "%s.%s" % (user_email.replace("@","_at_"), labname)
 
