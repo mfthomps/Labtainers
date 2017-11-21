@@ -63,8 +63,8 @@ def is_valid_lab(lab_path):
         logger.DEBUG("lab_path directory (%s) exists" % lab_path)
     else:
         logger.ERROR("Invalid lab! lab_path directory (%s) does not exist!" % lab_path)
-        traceback.print_exc()
-        traceback.print_stack()
+        #traceback.print_exc()
+        #traceback.print_stack()
         sys.exit(1)
 
 def get_ip_address(ifname):
