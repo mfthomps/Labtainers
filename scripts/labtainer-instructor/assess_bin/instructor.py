@@ -310,6 +310,10 @@ def main():
 
         zipoutput.close()
 
+    pregrade_script = os.path.join(MYHOME,'.local','instr_config', 'pregrade.sh')
+    do_pregrade = False
+    if os.path.isfile(pregrade_script):
+        do_pregrade = True
     ''' create per-student goals.json and process results for each student '''
     for email_labname in student_list:
         # GoalsParser is now tied per student - do this after unzipping file
@@ -317,6 +321,11 @@ def main():
         ''' note odd hack, labinstance seed is stored on container, so need to fine one, use first '''
         DestinationDirName = '%s/%s' % (email_labname, student_list[email_labname][0])
         DestDirName =os.path.join(MYHOME, DestinationDirName)
+       
+        if do_pregrade:
+            cmd = '%s %s %s' % (pregrade_script, MYHOME, DestinationDirName)
+            logger.DEBUG('invoke pregrade script %s' % cmd)
+            os.system(cmd) 
         student_parameter = GoalsParser.ParseGoals(MYHOME, DestDirName, logger)
 
         # Call ResultParser script to parse students' result
