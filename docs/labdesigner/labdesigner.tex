@@ -476,10 +476,18 @@ included with the student artifacts and available extracted into the intstrutor'
 labtainer\_xfer/[lab]/docs directory.
 
 \subsection {Running programs in Virtual Terminals}
-The ``XTERM'' section in the 
+Programs can be started automatically within virtual terminals in two manners.
+The first is the ``XTERM'' directive in the container section in the start.config file
+described in \ref{start.config}.  That is intended for programs whose results are displayed
+within the virtual terminal.  The second method is intended for user authentiation and
+for starting GUI based programs
+that will use the Linux host Xserver.  If a file exists at:
 \begin{verbatim}
-    $LABTAINER_DIR/labs/[labname]/[container name]/_bin/
+    $LABTAINER_DIR/labs/[labname]/[container name]/_bin/student_start.sh
 \end{verbatim}
+it will be executed from each virtual terminal created for the container.
+See the sql-inject lab and the centos-log lab examples.
+
 
 \subsection{Final lab environment fixup}
 The initial environment encountered by the student is further refined using
@@ -609,6 +617,10 @@ ad-hock exploration by students.  Therefore, lab designer should consider ways t
 evidence that steps of a lab were performed rather than trying to identify everything a student
 may have done in the course of the lab.
 
+Automated assessment is achieved by first generating artifact files. Then, artifacts
+within those files are identified, and the values of those artifacts are compared to expected values.
+\subsection{Artifacts files}
+\subsubsection{Capturing stdin and stdout}
 The framework's automated assessment functions generally assume the student will interact with one or
 more programs or system utilities.  Each time the student invokes a selected program or utility, the 
 framework captures copies of standard input and standard output, (stdin and stdout) into timestamped file sets.
@@ -616,7 +628,8 @@ This is transparent to the student.  (Also see the discussion of the ``treataslo
 program output other than stdout.)  These timestamped file sets, and everything else relative to
 the student's home directory, are automatically packaged when the student completes the lab.
 These packages of artifacts are then transferred to the instructor, (e.g., via email or a CLE), and 
-ingested into the instructor's system where lab assessment occurs.
+ingested into the instructor's system where lab assessment occurs. Timestamped stdin and stdout files
+are captured in \texttt{\$HOME/.local/result}
 
 The stdin and stdout for all non-system programs is captured, e.g., the results of an ``ls'' command
 are not captured.  The stdin and stdout of system programs will be captured if the program
@@ -625,15 +638,21 @@ names appear at the beginning of a line in the \textit{treataslocal} file at
     $LABTAINER_DIR/labs/[labname]/[container name]/_bin/treataslocal
 \end{verbatim}
 \noindent The basename of the treataslocal entries are compared to the basename of each command.
-In other words, if the treataslocal entry is: ``usr/bin/nmap'', the path leading to nmap is ignored.
+In other words, if the treataslocal entry is: \texttt{usr/bin/nmap}, the path leading to nmap is ignored.
 
-The treataslocal file program identifiers can include optional output file identifiers that
+Non-system programs can be excluded from stdin/stdout capturing by including their names in
+a ``ignorelocal'' file in that same directory.
+
+\subsubsection{Capturing program file output}
+Sometimes program file output is of interest to automated assessment, e.g., the program
+may not have useful stdout.
+The treataslocal entries can include optional output file identifiers that
 cause timestamped copies of specified files to be made whenever the program is invoked.  
 If program file output from local programs is to be captured in timestamp files (in addition
 to the stdout and stdin), simply include those program names in the treataslocal file.
 These identifiers are of the form:
 \begin{verbatim}
-    delim_type:delim_value
+program    delim_type:delim_value
         where delim_type is one of:
             starts -- the output file name is derived from the 
             substring following the given delim_value within the 
@@ -650,15 +669,30 @@ These identifiers are of the form:
             file -- the delim_value is the output file name
 \end{verbatim}
 \noindent The resulting timestamped files are located with the stdin and stdout files in .local/result
+\subsubsection{Bash History}
+The framework collects all student bash history into the \texttt{\$HOME/.bash\_history}.  This file is
+available for reference as an artifact file.
 
-Non-system programs can be excluded from stdin/stdout capturing by including their names in
-a ``ignorelocal'' file in that same directory.
+\subsubsection{Capturing information about the environment}
+Some labs require the student to alter system configuration settings,
+e.g., using the sysctl command to effect ASLR. A \textit{checklocal.sh} script in:
+\begin{verbatim}
+    $LABTAINER_DIR/labs/[labname]/[container name]/_bin
+\end{verbatim}
+is intended to contain whatever commands are necessary to record the 
+state of the system at the time a program was invoked.  The stdout of
+the checklocal.sh script is recorded at the beginning of the stdout artifact. 
+As another example, consider the file-deletion lab \textit{checklocal.sh} script.
+It mounts a directory, lists its content, and unmounts it.  This all occurs 
+transparently to the student, and, in this example, help confirm a specific file
+was in fact deleted at the time of issuing a command to recover deleted content from
+the volume.
 
-\{section{Identify Lab-specifc Artifacts}
+\subsection{Identify lab-specifc artifacts}
 The automated assessment functions encourage labs to be organized into a set of distinct ``goals''.
-For each goal, the lab designer should identify specific fields within stdin and/or stdout that
+For each goal, the lab designer should identify specific fields within artifact files that
 could be compared to ``expected'' values.  These lab-specific artifacts are identified within the
-``instr\_config/results.config file''.  Artifacts are identified in terms of:
+\texttt{instr\_config/results.config file}.  Artifacts are identified in terms of:
 \begin{enumerate}
 \item the program that was invoked;
 \item whether the artifact is in stdin or stdout
@@ -745,20 +779,15 @@ Entries within the results.config file each have the following format:
             line_id - See line_type above.
 \end{verbatim}
 
-\subsection{Capturing information about the environment}
-Some labs require the student to alter system configuration settings,
-e.g., using the sysctl command to effect ASLR. A \textit{checklocal.sh} script in:
+
+\subsubsection{Converting artifact file format}
+Some artifact file formats are not easily referenced by results.config directives.
+For example, a browser history file in the .sqlite format is binary.  Such files
+can be processed into a more convenient form through use of a script at:
 \begin{verbatim}
-    $LABTAINER_DIR/labs/[labname]/[container name]/_bin
+   $LABTAINER_DIR/labs/[lab]/instr_config/pregrade.sh
 \end{verbatim}
-is intended to contain whatever commands are necessary to record the 
-state of the system at the time a program was invoked.  The stdout of
-the checklocal.sh script is recorded at the beginning of the stdout artifact. 
-As another example, consider the file-deletion lab \textit{checklocal.sh} script.
-It mounts a directory, lists its content, and unmounts it.  This all occurs 
-transparently to the student, and, in this example, help confirm a specific file
-was in fact deleted at the time of issuing a command to recover deleted content from
-the volume.
+\noindent An example of this conversion can be seen in the webtrack lab.
 
 \subsection{Assessing the student results}
 Results of student lab activity are assigned symbolic names by the results.config file
