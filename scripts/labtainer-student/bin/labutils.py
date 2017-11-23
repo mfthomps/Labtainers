@@ -801,7 +801,7 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
 def terminalCounter(terminal_count):
     x_coordinate = 100 + ( 50 * terminal_count )
     y_coordinate = 75 + ( 50 * terminal_count)
-    terminal_location = "--geometry 75x25+%d+%d" % (x_coordinate, y_coordinate)
+    terminal_location = "--geometry 100x25+%d+%d" % (x_coordinate, y_coordinate)
     return terminal_location
 
 def terminalWideCounter(terminal_count):
