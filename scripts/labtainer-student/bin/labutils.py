@@ -687,7 +687,7 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
             continue
         # If container has not been created
         if not IsContainerCreated(container.full_name):
-            if student_email == None:
+            if student_email == None and role == 'student':
                 student_email = GetUserEmail(quiet_start)
         #DoStartOne(name, container, start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start, results)
         t = threading.Thread(target=DoStartOne, args=(labname, name, container, start_config, labtainer_config, lab_path, 
