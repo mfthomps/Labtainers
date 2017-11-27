@@ -1,5 +1,4 @@
 /usr/sbin/rsyslogd -n &
 service rc.local start
-service xinetd restart 
 
 
