@@ -738,6 +738,7 @@ Entries within the results.config file each have the following format:
                              e.g., /foo/
                LINE_COUNT -- The quantity of lines in the file. Remaining fields 
                              are ignored.
+               CHECKSUM   -- The value of nametag will be set to the checksum of the file.
                CONTAINS   -- The value of nametag will be set to true if the file 
                              contains the string represented in field_id.
                STRING_COUNT--The value of nametag will be set to the quantity of
@@ -762,6 +763,7 @@ Entries within the results.config file each have the following format:
                         searched for.  If field_type is "PARAM", the field_id is
                         the 1-based index of the parameter whose value is to be 
                         assigned, and no other fields should be present.
+                        If field_type is "CHECKSUM", no other field is required.
             line_type - Identifies how the line is to be identified, values include:
                 LINE           --  The line_id will be an integer line number 
                                    (starting at one).  Use of this to identify 
