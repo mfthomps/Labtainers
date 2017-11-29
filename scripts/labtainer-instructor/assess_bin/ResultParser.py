@@ -17,6 +17,7 @@ domain and is not subject to copyright.
 import datetime
 import json
 import glob
+import md5
 import os
 import re
 import sys
@@ -31,9 +32,9 @@ containernamelist = []
 stdinfnameslist = []
 stdoutfnameslist = []
 timestamplist = {}
-line_types = ['CONTAINS', 'LINE', 'STARTSWITH', 'NEXT_STARTSWITH', 'HAVESTRING', 
+line_types = ['CHECKSUM', 'CONTAINS', 'LINE', 'STARTSWITH', 'NEXT_STARTSWITH', 'HAVESTRING', 
               'LINE_COUNT', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT']
-just_field_type = ['LINE_COUNT']
+just_field_type = ['CHECKSUM', 'LINE_COUNT']
 logger = None
 resultidlist = {}
 
@@ -89,7 +90,7 @@ def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname,
     '''
     Misleading name, this function populates a set of global structures used in processign the results
     '''
-    valid_field_types = ['TOKEN', 'PARENS', 'QUOTES', 'SLASH', 'LINE_COUNT', 'CONTAINS', 
+    valid_field_types = ['TOKEN', 'PARENS', 'QUOTES', 'SLASH', 'LINE_COUNT', 'CHECKSUM', 'CONTAINS', 
                          'SEARCH', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT']
     if not MyUtil.CheckAlphaDashUnder(each_key):
         logger.ERROR("Not allowed characters in results.config's key (%s)" % each_key)
@@ -102,6 +103,7 @@ def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname,
     #    line_type1 = LINE | STARTSWITH | NEXT_STARTSWITH | HAVESTRING
     #    line_id is a number if the type is LINE, or a string if the type is STARTSWITH/HAVESTRING
     #    line_id is a string if the type is CONTAINS
+    #    exception case is field_type CHECKSUM - no other (field_id, line_type or line_id) required
 
     # NOTE: Split using ' : ' - i.e., "space colon space"
     values = [x.strip() for x in each_value.split(' : ')]
@@ -366,6 +368,8 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
         token_index = 2
     if command == 'PARAM':
         token_id = values[2].strip()
+    elif command == 'CHECKSUM':
+        token_id = "NONE"
     else:
         token_id = values[token_index].strip()
     if command == 'LINE':
@@ -483,6 +487,15 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
                             return False
                     nametags[each_key] = tagstring
                     return True
+            elif command == 'CHECKSUM':
+                ''' Create a checksum of the targetfile '''
+                mymd5 = md5.new()
+                targetlinestring = "".join(targetlines)
+                mymd5.update(targetlinestring)
+                tagstring = mymd5.hexdigest()
+                nametags[each_key] = tagstring
+                #print('tag string is %s for eachkey %s' % (tagstring, each_key))
+                return True
             elif command == 'CONTAINS':
                 if token_id == 'CONTAINS':
                     ''' search entire file, vice searching for line '''
