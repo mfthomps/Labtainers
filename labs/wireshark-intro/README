@@ -1,0 +1,23 @@
+This lab illustrates a technique for parameterizing PCAP files by altering 
+time associated with packets captured. This is achived by using editcap
+to add a random number of seconds to the start time of the student's PCAP file.
+The parameterized the timestamps within the PCAP file are referenced for grading implicitly
+(checksum will not match if student copy the saved frame packet from another student).
+
+The lab requires the student to use wireshark to analyze a PCAP file that was 
+created using tcpdump to capture a telnet session.
+The original PCAP file was constructed with a buffer of superfluous packets at
+its beginning. The student will learn how to use wireshark to analyze packet
+by looking for a specific telnet packet where the 'john-password' is passed in the clear.
+The student will save that specific frame/packet as invalidpassword.pcap file.
+
+The student is considered to have completed the lab successfully if the correct packet
+is captured.
+
+On the grading side, the pregrade.sh script is used to extract the correct frame/packet
+and save as expected answer.
+
+To evaluate the student's task is completed or not, the checksum is computed for
+the student's saved packet against the expected answer. The goal is achieved is both
+checksums are the same.
+
