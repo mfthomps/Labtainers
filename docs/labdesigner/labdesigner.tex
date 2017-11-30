@@ -963,7 +963,7 @@ the designer desires to run images reflecting recent changes that have been made
 includes logic to identify dependencies within containers whose image content has changed, 
 and it will rebuild those images, (using the Docker build command).  The framework will only 
 rebuld those images that have changed.  The designer can force the rebuild of all images within
-a lab by appending the ``f'' switch to the end of the ``rebuild.py'' command.
+a lab by appending the ``-f'' switch to the end of the ``rebuild.py'' command.
 
 If you build a new Labtainer lab, the container images will not be on the Docker Hub unless you put
 them there.  If they are not on the hub, each student's computer will rebuild your lab when they go to run it.
@@ -972,9 +972,14 @@ create your own public repository on the Docker Hub (https://hub.docker.com/), y
 with your lab(s) by setting the ``REGSITRY\_ID'' value in the start.config file for the lab(s). You
 would then use the distrib/publish.py script to build, tag and push your lab to your registry.
 
+\subsection{NPS Development Operations}
+Labs must be checked into the Subversion repository in order to be distributed.  After creating and testing
+the lab, use the scripts/designer/bin/cleanlab4svn.py script to remove temporary files that do not belong in 
+svn.  Use the publish.py script (described above) to publish the lab containers.
 The distrib/mkdist.sh script is used by NPS to create the distribution tar file.  This script relies on
-an internal NPS subversion repository as the source to the Labtainer scripts and labs.  The distrib/publish.py
-script is used to rebuild and publish all of the Labtainer labs managed by NPS.
+an internal NPS subversion repository as the source to the Labtainer scripts and labs.  Use the mk-devel-distrib.py script
+to publish the developer configuration of the tar file.  The distrib/publish.py script is used to rebuild and 
+publish all of the Labtainer labs managed by NPS.
 
 \subsection{Reuse of large file sets}
 The use of ``sys\_tar'' desribed in \ref{large files} facilitates sharing of common
@@ -1066,10 +1071,6 @@ browswer in a new instance so it does share existing browsers.
 \subsection{Wireshark}
 Wireshark will not run as root in Labtainer containers.  It should be configured to not
 require root to collect network packets:
-\subsection{Elgg}
-The xsite/vuln-site/myelgg.sql file needs to be loaded for elgg to run.  First edit it to
-change xsslabelgg.com to your site name (two changes).  Copy the sys\_tar/var/www/xsslabelgg.com/elgg
-to your new lab.  Note the elgg/views/default/output files have been modified to permit cross site scripting.
 \begin{verbatim}
 In short, put this before the apt-get that installs wireshark:
     RUN echo 'wireshark-common        wireshark-common/install-setuid boolean true' | debconf-set-selections
@@ -1079,4 +1080,8 @@ And this right after the apt-get that installs wireshark:
 and then after the existing "RUN adduser $user_name sudo":
     RUN adduser $user_name wireshark
 \end{verbatim}
+\subsection{Elgg}
+The xsite/vuln-site/myelgg.sql file needs to be loaded for elgg to run.  First edit it to
+change xsslabelgg.com to your site name (two changes).  Copy the sys\_tar/var/www/xsslabelgg.com/elgg
+to your new lab.  Note the elgg/views/default/output files have been modified to permit cross site scripting.
 \end{document}
