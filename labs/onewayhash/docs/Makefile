@@ -1,4 +1,4 @@
-onewayhash.pdf: Crypto_Hash.tex
+onewayhash.pdf: Crypto_Hash.tex header.tex
 	latex Crypto_Hash
 	pdflatex -jobname=onewayhash Crypto_Hash
 	pdflatex -jobname=onewayhash Crypto_Hash
