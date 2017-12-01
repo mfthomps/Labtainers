@@ -1,4 +1,4 @@
-formatstring.pdf: Format_String.tex
+formatstring.pdf: Format_String.tex header.tex
 	latex Format_String
 	pdflatex -jobname=formatstring Format_String
 	pdflatex -jobname=formatstring Format_String

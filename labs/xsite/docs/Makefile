@@ -1,4 +1,4 @@
-xsite.pdf: Web_XSS_Elgg.tex Web_Environment_PartI_Elgg.tex
+xsite.pdf: Web_XSS_Elgg.tex Web_Environment_PartI_Elgg.tex header.tex
 	latex Web_XSS_Elgg
 	pdflatex -jobname=xsite Web_XSS_Elgg
 	pdflatex -jobname=xsite Web_XSS_Elgg
