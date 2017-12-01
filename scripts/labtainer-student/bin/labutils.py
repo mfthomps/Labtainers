@@ -955,6 +955,7 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
 
 def FileModLater(ts, fname):
     df_utc_string = None
+    # start with check of svn status
     child = subprocess.Popen(['svn', 'status', fname], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     while True:
         line = child.stdout.readline()
@@ -967,18 +968,26 @@ def FileModLater(ts, fname):
         else:
             break
     if df_utc_string is None:
+        # try svn info.  stderr implies not in svn
         child = subprocess.Popen(['svn', 'info', fname], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         error_string = child.stderr.read().strip()
         if len(error_string) > 0:
+            # assume not in svn
             #logger.DEBUG("not in svn? %s" % fname)
             if fname.endswith('.tar'):
                 size = os.path.getsize(fname)
                 if size == 10240 or size == 110:
                     # hacky special case for empty tar files.  ug.
                     return False
-            df_time = os.path.getmtime(fname)
+            if os.path.isfile(fname):
+                df_time = os.path.getmtime(fname)
+            else:
+                check_file = newest_file_in_tree(fname)
+                logger.DEBUG('latest found is %s' % check_file)
+                df_time = os.path.getmtime(check_file)
             df_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
         else:
+            # in svn, look for changed date
             while True:
                 line = child.stdout.readline()
                 if line != '':
@@ -992,7 +1001,13 @@ def FileModLater(ts, fname):
                     break
             if df_utc_string is None:
                 # must be an add
-                df_time = os.path.getmtime(fname)
+                logger.DEBUG('%s must be an add' % fname)
+                if os.path.isfile(fname):
+                    df_time = os.path.getmtime(fname)
+                else:
+                    check_file = newest_file_in_tree(fname)
+                    logger.DEBUG('latest found is %s' % check_file)
+                    df_time = os.path.getmtime(check_file)
                 df_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
 
     ''' is the given file later than the timestamp (which is in UTC)? '''
