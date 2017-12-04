@@ -21,6 +21,7 @@ import tarfile
 # 1. Any tarball '*.tar.gz' in the lab directory, i.e., <lab>/*.tar.gz files
 # 2. Any tar list file, i.e., <lab>/config/*_tar.list files
 # 3. Any empty tar file, i.e., <lab>/<containers>/*tar/*.tar files
+# 4. Any pdf file in docs directory, i.e., <lab>/docs/*.pdf files
 # Note:
 # 1. This script checks to make sure LABTAINER_DIR is defined
 #
@@ -76,6 +77,17 @@ def DoWork(current_dir):
             except:
                 print("Fails to remove tar file (%s)" % name)
                 sys.exit(1)
+
+    # 4. Any pdf file in docs directory, i.e., <lab>/docs/*.pdf files
+    pdflist = glob.glob('%s/docs/*.pdf' % current_dir)
+    #print "pdflist is (%s)" % pdflist
+    for name in pdflist:
+        #print "current name is %s" % name
+        try:
+            os.remove(name)
+        except:
+            print("Fails to remove PDF file (%s)" % name)
+            sys.exit(1)
 
 def check_valid_lab(current_dir):
     parent_dir = os.path.basename(os.path.dirname(current_dir))
