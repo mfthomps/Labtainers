@@ -427,8 +427,12 @@ def ValidateTreataslocal(labname, lab_path, resultidlist, logger):
             # Test against corresponding container's treataslocal file (loop through to check)
             treataslocal_path = "%s/%s/_bin/treataslocal" % (lab_path, container_name)
             if not (os.path.exists(treataslocal_path) and os.path.isfile(treataslocal_path)):
-                logger.ERROR("treataslocal file %s not found" % treataslocal_path)
-                sys.exit(1)
+                logger.WARNING("treataslocal file %s not found when validating command %s from %s %s" % (treataslocal_path, execprog, key, progname_type))
+                user_input=raw_input("Would you like to quit? (yes/no)\n")
+                user_input=user_input.strip().lower()
+                #print "user_input (%s)" % user_input
+                if user_input == "yes":
+                    sys.exit(1)
             with open(treataslocal_path) as fh:
                  execlist_from_file = [os.path.basename(line.strip()) for line in fh]
             if not execprog in execlist_from_file:
