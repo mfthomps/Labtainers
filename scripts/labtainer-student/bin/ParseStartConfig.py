@@ -71,6 +71,11 @@ class ParseStartConfig():
                 if name not in valid_networks:
                     self.logger.ERROR('Container %s cannot be added to undefined network %s\n' % (self.full_name, name))
                     exit(1)
+                if ':' in addr:
+                    addr, mac = addr.split(':',1)
+                    if not re.match("[0-9a-f]{2}([-:])[0-9a-f]{2}(\\1[0-9a-f]{2}){4}$", mac.lower()):
+                        self.logger.ERROR('bad MAC address %s in %s\n' % (mac, name))
+                        exit(1)
                 try:
                     IPAddress(addr)
                 except :
