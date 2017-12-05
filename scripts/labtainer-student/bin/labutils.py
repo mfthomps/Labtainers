@@ -135,6 +135,9 @@ def IsContainerCreated(mycontainer_name):
 
 def ConnectNetworkToContainer(mycontainer_name, mysubnet_name, mysubnet_ip):
     logger.DEBUG("Connecting more network subnet to container %s" % mycontainer_name)
+    if ':' in mysubnet_ip:
+        mysubnet_ip, mac_addr = mysubnet_ip.split(':',1)
+        mac = '--mac-address=%s' % mac_addr 
     command = "docker network connect --ip=%s %s %s 2> /dev/null" % (mysubnet_ip, mysubnet_name, mycontainer_name)
     logger.DEBUG("Command to execute is (%s)" % command)
     result = subprocess.call(command, shell=True)
@@ -176,7 +179,11 @@ def CreateSingleContainer(container, mysubnet_name=None, mysubnet_ip=None):
             add_this = '--add-host %s ' % item
             add_hosts += add_this
         if mysubnet_name:
-            createsinglecommand = "docker create -t --network=%s --ip=%s --privileged --add-host my_host:%s %s --name=%s --hostname %s %s %s %s" % (mysubnet_name, mysubnet_ip, docker0_IPAddr, add_hosts,  container.full_name, container.hostname, volume, new_image_name, container.script)
+            mac = ''
+            if ':' in mysubnet_ip:
+                mysubnet_ip, mac_addr = mysubnet_ip.split(':',1)
+                mac = '--mac-address=%s' % mac_addr 
+            createsinglecommand = "docker create -t --network=%s --ip=%s %s --privileged --add-host my_host:%s %s --name=%s --hostname %s %s %s %s" % (mysubnet_name, mysubnet_ip, mac, docker0_IPAddr, add_hosts,  container.full_name, container.hostname, volume, new_image_name, container.script)
         else:
             createsinglecommand = "docker create -t --privileged --add-host my_host:%s %s --name=%s --hostname %s %s %s %s " % (docker0_IPAddr, add_hosts, 
                container.full_name, container.hostname, volume, new_image_name, container.script)
@@ -961,7 +968,8 @@ def FileModLater(ts, fname):
         line = child.stdout.readline()
         if line != '':
             #logger.DEBUG(line)
-            if line.startswith('M'):
+            ''' think that fname is in svn.  If fname is a dir, get its date (will match that of modified file in the dir '''
+            if os.path.isdir(fname) or line.startswith('M'):
                 df_time = os.path.getmtime(fname)
                 df_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
                 break
@@ -1101,7 +1109,7 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
            logger.WARNING('%s is later, will build' % container_dir)
            retval = True
         else:
-            ''' look at all files in container '''
+            ''' look at all files/directories in container '''
             flist = os.listdir(container_dir)
             for f in flist:
                 check_file = None
