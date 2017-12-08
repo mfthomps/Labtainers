@@ -3,6 +3,7 @@
 # Filename: getinfo.py
 # Description: simple script to get Linux host resources
 
+import os
 import subprocess
 import sys
 
