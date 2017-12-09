@@ -684,6 +684,19 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
     labname = os.path.basename(lab_path)
     logger.DEBUG("DoStart Multiple Containers and/or multi-home networking")
 
+    hostSystem_script = os.path.join(lab_path, 'instr_config', 'hostSystemCheck.py')
+    # Do Host System Check if necessary (if file exists)
+    if os.path.isfile(hostSystem_script):
+        command = "%s" % hostSystem_script
+        result = subprocess.call(command, shell=True, stderr=subprocess.PIPE)
+        if result == FAILURE:
+            logger.WARNING("Host System Check indicates error encountered")
+            user_input=raw_input("Would you like to quit? (yes/no)\n")
+            user_input=user_input.strip().lower()
+            #print "user_input (%s)" % user_input
+            if user_input == "yes":
+                sys.exit(1)
+
     # Create SUBNETS
     CreateSubnets(start_config.subnets)
     student_email = None
