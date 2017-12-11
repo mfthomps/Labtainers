@@ -12,6 +12,19 @@ END
 # Install Docker on a Fedora system, along with other packages required by Labtainers
 #
 
+# Current version of Fedora that works with labtainers
+FEDORA_VERSION_WORK="25"
+
+# Get the OS release
+source /etc/os-release
+
+if [ "$VERSION_ID" != "$FEDORA_VERSION_WORK" ]
+then
+    echo "Version $VERSION_ID of Fedora does not support Docker-ce, and therefore cannot be used for Labtainers."
+    echo "The latest Fedora version that supports Docker-ce is $FEDORA_VERSION_WORK"
+    exit 1
+fi
+
 #needed packages for install
 #sudo dnf upgrade
 sudo dnf -y install dnf-plugins-core
