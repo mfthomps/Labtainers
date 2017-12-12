@@ -26,6 +26,7 @@ import GenReport
 import Grader
 import GoalsParser
 import ResultParser
+import UniqueCheck
 import InstructorLogging
 
 MYHOME=os.getenv('HOME')
@@ -110,6 +111,20 @@ def store_student_grades(gradesjson, email_labname, grades):
             sys.exit(1)
         else:
             gradesjson[email_labname]['grades'] = copy.deepcopy(grades)
+
+def store_student_unique(uniquejson, email_labname, uniquevalues):
+    logger.DEBUG('store_student_unique email_labname %s unique %s' % (email_labname, uniquevalues))
+    if email_labname not in uniquejson:
+        uniquejson[email_labname] = {}
+        uniquejson[email_labname]['unique'] = copy.deepcopy(uniquevalues)
+    else:
+        if uniquejson[email_labname]['unique'] != {}:
+            # Already have that student's unique values stored
+            logger.ERROR("instructor.py store_student_unique: duplicate email_labname %s unique %s" % (email_labname, uniquevalues))
+            sys.exit(1)
+        else:
+            uniquejson[email_labname]['unique'] = copy.deepcopy(uniquevalues)
+
 
 # Make sure second level zip file e-mail is OK
 def Check_SecondLevel_EmailWatermark_OK(gradesjson, email_labname, student_id, zipoutput):
@@ -204,6 +219,8 @@ def main():
    
     # Store grades, goals, etc
     gradesjson = {}
+    # Store Unique checks, etc
+    uniquejson = {}
 
     ''' remove zip files in /tmp/labtainer directory '''
     # /tmp/labtainer will be used to store temporary zip files
@@ -314,6 +331,10 @@ def main():
     do_pregrade = False
     if os.path.isfile(pregrade_script):
         do_pregrade = True
+    unique_check = os.path.join(MYHOME,'.local','instr_config', 'unique.config')
+    do_unique = False
+    if os.path.isfile(unique_check):
+        do_unique = True
     ''' create per-student goals.json and process results for each student '''
     for email_labname in student_list:
         # GoalsParser is now tied per student - do this after unzipping file
@@ -336,6 +357,13 @@ def main():
 
         # Add student's parameter
         store_student_parameter(gradesjson, email_labname, student_parameter)
+
+        if do_unique:
+            #print('call UniqueCheck for %s %s' % (email_labname, student_list[email_labname]))
+            logger.DEBUG('call UniqueCheck for %s %s' % (email_labname, student_list[email_labname]))
+            uniquevalues = UniqueCheck.UniqueCheck(MYHOME, LabDirName, student_list[email_labname], InstDirName, LabIDName, logger)
+            # Add student's unique check
+            store_student_unique(uniquejson, email_labname, uniquevalues)
 
     ''' assess the results and generate simple report '''
     for email_labname in student_list:
@@ -362,6 +390,20 @@ def main():
     gradesjsonoutput.write(jsondumpsoutput)
     gradesjsonoutput.write('\n')
     gradesjsonoutput.close()
+
+    if do_unique:
+        # Output <labname>.unique.json
+        uniquejsonname = os.path.join(MYHOME, "%s.unique.json" % LabIDName)
+        uniquejsonoutput = open(uniquejsonname, "w")
+        try:
+            jsondumpsoutput = json.dumps(uniquejson, indent=4)
+        except:
+            print('json dumps failed on %s' % uniquejson)
+            exit(1)
+        #print('dumping %s' % str(jsondumpsoutput))
+        uniquejsonoutput.write(jsondumpsoutput)
+        uniquejsonoutput.write('\n')
+        uniquejsonoutput.close()
 
     # Output <labname>.grades.txt
     gradestxtname = os.path.join(MYHOME, "%s.grades.txt" % LabIDName)
