@@ -45,7 +45,8 @@ def main():
     labname = sys.argv[1]
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
     labutils.logger.INFO("Begin logging unpause.py for %s lab" % labname)
-    labutils.DoPauseorUnPause(labname, "student", "unpause")
+    lab_path = os.path.join(os.path.abspath('../../labs'), labname)
+    labutils.DoPauseorUnPause(lab_path, "student", "unpause")
 
     return 0
 
