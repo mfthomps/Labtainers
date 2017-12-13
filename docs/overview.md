@@ -44,7 +44,7 @@ Docker Containers
 -----------------
 The container for each lab is built for the student when they
 first run the "start.py" script, naming the lab.  Once built, a container
-can be stopped, started and paused. 
+can be stopped or restarted.
 
 Parameterization of labs, (e.g., modifying configuration data or source code to reflect
 values specific to the student), is controlled by a "parameter.config" configuration file in each lab's
