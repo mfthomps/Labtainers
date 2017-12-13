@@ -38,11 +38,6 @@ def version_lessthan(string1, string2):
         return version_lessthanequal(string1, string2)
 
 def CheckUbuntuVersion():
-    # Check to see if sort -V is supported
-    if not isSortVsupported():
-        print "Sort -V is not supported"
-        return 1
-
     #print "1.1.1 less than 1.1.1 is %s" % version_lessthan("1.1.1", "1.1.1")
     #print "1.1.2 less than 1.1.1 is %s" % version_lessthan("1.1.2", "1.1.1")
     #print "1.1.1 less than 1.1.2 is %s" % version_lessthan("1.1.1", "1.1.2")
@@ -51,12 +46,17 @@ def CheckUbuntuVersion():
     lsb_info = lsb_release.get_lsb_information()
     lsb_info_id = lsb_info['ID']
     if (lsb_info_id == "Ubuntu"):
+        no_sort = False
+        if not isSortVsupported():
+            no_sort = True
+
         ubuntu_description = lsb_info['DESCRIPTION']
         ubuntu_desc = ubuntu_description.split()
         ubuntu_version = ubuntu_desc[1]
 
-        if ubuntu_version != required_ubuntu_version and version_lessthan(ubuntu_version, required_ubuntu_version):
-            print "Ubuntu version (%s) is less than required version (%s)" % (ubuntu_version, required_ubuntu_version)
+        if no_sort or (ubuntu_version != required_ubuntu_version and version_lessthan(ubuntu_version, required_ubuntu_version)):
+            print('Your Ubuntu version (%s) is older than %s, which is required in order to experiment with the\n')
+            print('"sysctl" setting for syn_cookies".  This will not interfere with your ability to complete the lab.')
             return 1
     return 0
 
