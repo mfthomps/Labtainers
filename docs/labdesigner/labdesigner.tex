@@ -963,8 +963,9 @@ the Docker Hub if they are not already local on the Linux host.  When building a
 the designer desires to run images reflecting recent changes that have been made.  The framework
 includes logic to identify dependencies within containers whose image content has changed, 
 and it will rebuild those images, (using the Docker build command).  The framework will only 
-rebuld those images that have changed.  The designer can force the rebuild of all images within
-a lab by appending the ``-f'' switch to the end of the ``rebuild.py'' command.
+rebuild those images that have changed.  The designer can force the rebuild of all images within
+a lab by appending the ``-f'' switch to the end of the ``rebuild.py'' command.  That switch is not
+intended for routine use because it wastes time and masks errors in our dependency logic.
 
 If you build a new Labtainer lab, the container images will not be on the Docker Hub unless you put
 them there.  If they are not on the hub, each student's computer will rebuild your lab when they go to run it.
@@ -982,8 +983,12 @@ an internal NPS subversion repository as the source to the Labtainer scripts and
 to publish the developer configuration of the tar file.  The distrib/publish.py script is used to rebuild and 
 publish all of the Labtainer labs managed by NPS.
 
+The publish.py script will only rebuild labs that have changed.  After pushing a new lab container
+image to the Docker hub, the script deletes the image from the local system.  The intent is to
+ensure that future testing of the lab is done on the authoritative copy, i.e., from the hub.
+
 \subsection{Reuse of large file sets}
-The use of ``sys\_tar'' desribed in \ref{large files} facilitates sharing of common
+The use of ``sys\_tar'' described in \ref{large files} facilitates sharing of common
 baselines of large or numerous files.  New labs can incorporate tar files from existing
 labs through the use of ``external-manifest'' files, (see the xsite/victim/home\_tar as
 an example).   The syntax of the external-manifest is shown below, and it may contain
@@ -996,7 +1001,7 @@ whose tar file is to be included.
 
 The framework will include content of tar archives referenced within these files
 when creating an archive for the new lab.  This allows the sys\_tar to include lab-specific files
-as well as files from other labs.  Designers should avoid addding duplicate tar files to the SVN repositotry.
+as well as files from other labs.  Designers should avoid adding duplicate tar files to the SVN repository.
 This will avoid duplication of the files when a new distribution is created.
 
 \section{Ubuntu Package Sources}
