@@ -4,7 +4,7 @@ import lsb_release
 import subprocess
 import sys
 
-required_ubuntu_version = "16.04.3"
+required_ubuntu_version = "16.04.2"
 
 def isSortVsupported():
     command = 'echo -e "1.1.1\n1.1.2" | sort -V'
