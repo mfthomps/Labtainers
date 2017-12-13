@@ -684,10 +684,13 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
     labname = os.path.basename(lab_path)
     logger.DEBUG("DoStart Multiple Containers and/or multi-home networking")
 
-    hostSystem_script = os.path.join(lab_path, 'instr_config', 'hostSystemCheck.py')
-    # Do Host System Check if necessary (if file exists)
-    if os.path.isfile(hostSystem_script):
-        command = "%s" % hostSystem_script
+    hostSystem_script = os.path.join(lab_path, '*/_bin', 'hostSystemCheck.py')
+    hostSystemCheckList = glob.glob('%s' % hostSystem_script)
+    logger.DEBUG("List of hostSystemCheck.py (%s)" % hostSystemCheckList)
+    # If more than one hostSystemCheck.py - pick first one
+    if hostSystemCheckList != [] and os.path.isfile(hostSystemCheckList[0]):
+        # Do Host System Check if necessary (if file exists)
+        command = "%s" % hostSystemCheckList[0]
         result = subprocess.call(command, shell=True, stderr=subprocess.PIPE)
         if result == FAILURE:
             logger.WARNING("Host System Check indicates error encountered")
