@@ -22,8 +22,21 @@ an xterm that explicitly runs the startup.sh directly, and thus
 the startup.sh invoked by profile.sh typically never does anything.
 HOWEVER... the startup.sh invoked by student will source a student_startup.sh if present.
 
-
-
 Regression testing of grading functions is performed by labtainer-instructor/regress.py.
 Expected results are stored in the labtainer/testsets directory.
 
+\section{Developer Software Prerequisits}
+\begin {itemize}
+\item Subversion
+\item Latex (texlive-full)
+\end {itemize}
+
+
+\section{Getting Labtainers from Subversion}
+svn co https://tor.ern.nps.edu/svn/proj/labtainer
+Change directory to trunk/setup-scripts and run ./build-docs.sh to build the PDF lab
+manuals so that you can reference the manuals while you test or otherwise reference
+existing labs.  (Please follow the lab manual and report discrepancies!)
+Then run ./pull-all.sh to pull all the baseline images (so that your running of 
+existing labs is more akin to what students and instructors do so we can better test that).
+is more akin t
