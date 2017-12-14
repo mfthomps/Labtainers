@@ -1021,10 +1021,19 @@ def FileModLater(ts, fname):
     child = subprocess.Popen(['svn', 'status', fname], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     while True:
         line = child.stdout.readline()
-        if line != '':
+        if line.strip() != '':
+            ''' ignore empty tar archives '''
+            if line.startswith('?'):
+                f = line.strip().split()[1]
+                if f.endswith('.tar'):
+                    size = os.path.getsize(f)
+                    if size == 10240 or size == 110:
+                        continue
+                
             #logger.DEBUG(line)
             ''' think that fname is in svn.  If fname is a dir, get its date (will match that of modified file in the dir '''
             if os.path.isdir(fname) or line.startswith('M'):
+                logger.DEBUG('svn status found something for %s' % fname)
                 df_time = os.path.getmtime(fname)
                 df_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
                 break
@@ -1163,7 +1172,7 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
         ''' look for new/deleted files in the container '''
         logger.DEBUG('container dir %s' % container_dir)
         if FileModLater(ts, container_dir):
-           logger.WARNING('%s is later, will build' % container_dir)
+           logger.WARNING('new/deleted %s is later, will build' % container_dir)
            retval = True
         else:
             ''' look at all files/directories in container '''
@@ -1180,7 +1189,7 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
                     check_file = os.path.join(container_dir, f)
                 logger.DEBUG('check file %s' % check_file)
                 if FileModLater(ts, check_file):
-                    logger.WARNING('%s is later, will build' % check_file)
+                    logger.WARNING('files in container %s is later, will build' % check_file)
                     retval = True
                     break
 
@@ -1205,7 +1214,7 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
                 continue
             f_path = os.path.join(container_bin, f)
             if FileModLater(ts, f_path):
-               logger.WARNING('%s is later, will build' % f_path)
+               logger.WARNING('container_bin %s is later, will build' % f_path)
                retval = True
                break
 
@@ -1218,7 +1227,7 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
                     continue
                 f_path = os.path.join(inst_cfg, f)
                 if FileModLater(ts, f_path):
-                   logger.WARNING('%s is later, will build' % f_path)
+                   logger.WARNING('instr_config %s is later, will build' % f_path)
                    retval = True
                    break
         logger.DEBUG('is instructor')
