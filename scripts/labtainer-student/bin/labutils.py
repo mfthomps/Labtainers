@@ -22,6 +22,8 @@ import shlex
 import stat
 import traceback
 import CheckTars
+import calendar
+from dateutil.parser import parse
 ''' logger is defined in whatever script that invokes the labutils '''
 global logger
 '''
@@ -1075,7 +1077,9 @@ def FileModLater(ts, fname):
     #logger.DEBUG('df ts %s' % df_time)
 
     parts = df_utc_string.split('.')
-    df_ts = time.mktime(time.strptime(parts[0], "%Y-%m-%d %H:%M:%S"))
+    ''' use dateutil to parse for zone, which we get from svn '''
+    x=parse(parts[0])
+    df_ts = calendar.timegm(x.timetuple())
 
     #logger.DEBUG('df_utc time is %s' % df_utc_string)
     #logger.DEBUG('df_utc ts is %s given ts is %s' % (df_ts, ts))
