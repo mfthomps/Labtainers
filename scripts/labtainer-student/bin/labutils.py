@@ -1021,8 +1021,12 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
 def FileModLater(ts, fname):
     df_utc_string = None
     # start with check of svn status
-    child = subprocess.Popen(['svn', 'status', fname], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    while True:
+    has_svn = True
+    try:
+        child = subprocess.Popen(['svn', 'status', fname], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    except:
+        has_svn = False
+    while has_svn and True:
         line = child.stdout.readline()
         if line.strip() != '':
             ''' ignore empty tar archives '''
@@ -1049,9 +1053,10 @@ def FileModLater(ts, fname):
             break
     if df_utc_string is None:
         # try svn info.  stderr implies not in svn
-        child = subprocess.Popen(['svn', 'info', fname], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        error_string = child.stderr.read().strip()
-        if len(error_string) > 0:
+        if has_svn:
+            child = subprocess.Popen(['svn', 'info', fname], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            error_string = child.stderr.read().strip()
+        if not has_svn or len(error_string) > 0:
             # assume not in svn
             logger.DEBUG("not in svn? %s" % fname)
             if fname.endswith('.tar'):
