@@ -1029,6 +1029,8 @@ def FileModLater(ts, fname):
                     size = os.path.getsize(f)
                     if size == 10240 or size == 110:
                         continue
+                elif f.endswith('_tar') and os.path.isdir(f):
+                    continue
                 
             #logger.DEBUG(line)
             ''' think that fname is in svn.  If fname is a dir, get its date (will match that of modified file in the dir '''
@@ -1045,7 +1047,7 @@ def FileModLater(ts, fname):
         error_string = child.stderr.read().strip()
         if len(error_string) > 0:
             # assume not in svn
-            #logger.DEBUG("not in svn? %s" % fname)
+            logger.DEBUG("not in svn? %s" % fname)
             if fname.endswith('.tar'):
                 size = os.path.getsize(fname)
                 if size == 10240 or size == 110:
@@ -1067,7 +1069,7 @@ def FileModLater(ts, fname):
                     if line.startswith('Last Changed Date:'):
                         parts = line.split()
                         df_utc_string = parts[3]+' '+parts[4]
-                        #logger.DEBUG('changed date from svn %s for %s df_utc_string is %s' % (line, fname, df_utc_string))
+                        logger.DEBUG('changed date from svn %s for %s df_utc_string is %s' % (line, fname, df_utc_string))
                         break
                 else:
                     break
