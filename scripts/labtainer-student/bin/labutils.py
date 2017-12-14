@@ -127,9 +127,9 @@ def StartMyContainer(mycontainer_name):
 # Check to see if my_container_name container has been created or not
 def IsContainerCreated(mycontainer_name):
     retval = True
-    command = "docker inspect -f {{.Created}} --type container %s 2> /dev/null" % mycontainer_name
+    command = "docker inspect -f {{.Created}} --type container %s" % mycontainer_name
     logger.DEBUG("Command to execute is (%s)" % command)
-    result = subprocess.call(command, shell=True, stderr=subprocess.PIPE)
+    result = subprocess.call(command, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
     if result == FAILURE:
        retval = False
     logger.DEBUG("Result of subprocess.call IsContainerCreated is %s" % result)
@@ -140,9 +140,9 @@ def ConnectNetworkToContainer(mycontainer_name, mysubnet_name, mysubnet_ip):
     if ':' in mysubnet_ip:
         mysubnet_ip, mac_addr = mysubnet_ip.split(':',1)
         mac = '--mac-address=%s' % mac_addr 
-    command = "docker network connect --ip=%s %s %s 2> /dev/null" % (mysubnet_ip, mysubnet_name, mycontainer_name)
+    command = "docker network connect --ip=%s %s %s" % (mysubnet_ip, mysubnet_name, mycontainer_name)
     logger.DEBUG("Command to execute is (%s)" % command)
-    result = subprocess.call(command, shell=True)
+    result = subprocess.call(command, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
     logger.DEBUG("Result of subprocess.call ConnectNetworkToContainer is %s" % result)
     return result
 
@@ -208,9 +208,9 @@ def CreateSubnets(subnets):
         logger.DEBUG("subnet_name is %s" % subnet_name)
         logger.DEBUG("subnet_network_mask is %s" % subnet_network_mask)
 
-        command = "docker network inspect %s 2> /dev/null" % subnet_name
+        command = "docker network inspect %s" % subnet_name
         logger.DEBUG("Command to execute is (%s)" % command)
-        inspect_result = subprocess.call(command, shell=True)
+        inspect_result = subprocess.call(command, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         logger.DEBUG("Result of subprocess.call CreateSubnets docker network inspect is %s" % inspect_result)
         if inspect_result == FAILURE:
             # Fail means does not exist - then we can create
