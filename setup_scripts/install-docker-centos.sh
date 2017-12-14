@@ -27,7 +27,7 @@ sudo yum install -y docker-ce
 sudo yum --enablerepo=extras -y install epel-release
 sudo yum install -y python-pip
 sudo pip install --upgrade pip
-sudo pip install netaddr parse
+sudo pip install netaddr parse python-dateutil
 sudo yum install -y openssh-server 
 
 #starts and enables docker

@@ -43,7 +43,7 @@ sudo usermod -aG docker $USER
 #---other packages required by Labtainers
 sudo apt-get -y install python-pip 
 sudo -H pip install --upgrade pip
-sudo -H pip install netaddr parse
+sudo -H pip install netaddr parse python-dateutil
 sudo apt-get -y install openssh-server
 
 #---Checking if packages have been installed. If not, the system will not reboot and allow the user to investigate.
