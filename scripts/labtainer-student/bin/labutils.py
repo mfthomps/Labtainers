@@ -23,7 +23,10 @@ import stat
 import traceback
 import CheckTars
 import calendar
-from dateutil.parser import parse
+try:
+    from dateutil.parser import parse
+except:
+    pass
 ''' logger is defined in whatever script that invokes the labutils '''
 global logger
 '''
