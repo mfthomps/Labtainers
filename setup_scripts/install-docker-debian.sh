@@ -40,7 +40,7 @@ sudo systemctl enable docker
 #additional packages needed for labtainers
 sudo apt-get -y install python-pip 
 sudo pip install --upgrade pip 
-sudo pip install netaddr parse
+sudo pip install netaddr parse python-dateutil
 sudo apt-get -y install openssh-server
 
 #---Checking if packages have been installed. If not, the system will not reboot and allow the user to investigate.
