@@ -40,7 +40,7 @@ sudo dnf -y install docker-ce
 #additional packages needed
 sudo dnf -y install python-pip
 sudo pip install --upgrade pip
-sudo pip install netaddr parse
+sudo pip install netaddr parse python-dateutil
 sudo dnf install -y openssh-server 
 sudo dnf install -y xterm
 
