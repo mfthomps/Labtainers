@@ -1090,4 +1090,12 @@ and then after the existing "RUN adduser $user_name sudo":
 The xsite/vuln-site/myelgg.sql file needs to be loaded for elgg to run.  First edit it to
 change xsslabelgg.com to your site name (two changes).  Copy the sys\_tar/var/www/xsslabelgg.com/elgg
 to your new lab.  Note the elgg/views/default/output files have been modified to permit cross site scripting.
+\subsection{Host OS dependencies}
+On rare occations, performance of a lab may depend on the host Linux OS.  An example is some
+kernel tuning parameters viewed and set via sysctl are not visible within containers on eariler versions
+of Ubuntu.  If your lab has such OS dependencies, you can check the OS and warn the student/instructor via a script
+named "hostSystemCheck.py" placed withe the \_bin directory of any of the lab's containers.  This script shall
+return the value '0' if dependencies are met, and '1' if dependencies are not met.  In the latter case, the 
+startup.py will prompt the use to continue or abort.  Your script should explain the situation to the student.
+An example of such a script is in the labs/tcpip/server/\_bin directory.
 \end{document}
