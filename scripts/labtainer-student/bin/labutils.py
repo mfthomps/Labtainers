@@ -680,9 +680,38 @@ def GetUserEmail(quiet_start):
             putLastEmail(user_email)
     return user_email
 
+def CheckLabContainerApps(start_config, lab_path, apps2start):
+    apps2search = ['firefox', 'wireshark']
+    has_multi_container = False
+    num_containers = len(start_config.containers.items())
+    if num_containers > 1:
+        has_multi_container = True
+
+    apps2startfilepath = os.path.join(lab_path, '*/_bin', 'student_startup.sh')
+    apps2start_list = glob.glob('%s' % apps2startfilepath)
+
+    if apps2start_list != []:
+        # Parse each student_startup.sh - get a list of apps to start
+        # Currently only search for firefox or wireshark
+        for eachfile in apps2start_list:
+            with open(eachfile) as fh:
+                for line in fh:
+                    if line.startswith('#') or len(line) == 0:
+                        continue
+                    for apps in apps2search:
+                        if apps in line:
+                            if apps not in apps2start:
+                                apps2start.append(apps)
+
+    return has_multi_container
+
 def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start):
     labname = os.path.basename(lab_path)
     logger.DEBUG("DoStart Multiple Containers and/or multi-home networking")
+
+    apps2start = []
+    has_multi_container = CheckLabContainerApps(start_config, lab_path, apps2start)
+    logger.DEBUG("Apps to start is (%s)" % apps2start)
 
     hostSystem_script = os.path.join(lab_path, '*/_bin', 'hostSystemCheck.py')
     hostSystemCheckList = glob.glob('%s' % hostSystem_script)
@@ -705,6 +734,8 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
     student_email = None
     threads = []
     results = []
+    if has_multi_container:
+        container_warning_printed = False
     for name, container in start_config.containers.items():
         if is_regress_test and container.full_name != start_config.grade_container:
             continue
@@ -713,6 +744,10 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
             if student_email == None and role == 'student':
                 student_email = GetUserEmail(quiet_start)
         #DoStartOne(name, container, start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start, results)
+        if has_multi_container and container_warning_printed == False:
+            print "Starting the lab, this may take a moment..."
+            container_warning_printed = True
+
         t = threading.Thread(target=DoStartOne, args=(labname, name, container, start_config, labtainer_config, lab_path, 
               role, is_regress_test, is_watermark_test, student_email, quiet_start, results))
         threads.append(t)
@@ -818,6 +853,8 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
                 #print spawn_command
                 os.system(spawn_command)
                 
+    if apps2start != []:
+        print "Please wait for the apps (%s) to launch" % apps2start
 
     return 0
 
