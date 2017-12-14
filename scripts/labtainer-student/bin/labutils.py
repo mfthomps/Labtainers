@@ -1029,6 +1029,9 @@ def FileModLater(ts, fname):
                     size = os.path.getsize(f)
                     if size == 10240 or size == 110:
                         continue
+                    fdir = os.path.dirname(f)
+                    if os.path.isfile(os.path.join(fdir,'external-manifest')):
+                        continue
                 elif f.endswith('_tar') and os.path.isdir(f):
                     continue
                 
@@ -1052,6 +1055,9 @@ def FileModLater(ts, fname):
                 size = os.path.getsize(fname)
                 if size == 10240 or size == 110:
                     # hacky special case for empty tar files.  ug.
+                    return False
+                fdir = os.path.dirname(fname)
+                if os.path.isfile(os.path.join(fdir,'external-manifest')):
                     return False
             if os.path.isfile(fname):
                 df_time = os.path.getmtime(fname)
