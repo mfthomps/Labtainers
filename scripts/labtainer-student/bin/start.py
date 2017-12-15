@@ -65,6 +65,11 @@ def main():
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
     labutils.logger.INFO("Begin logging start.py for %s lab" % labname)
     lab_path = os.path.join(os.path.abspath('../../labs'), labname)
+    try:
+        ''' for prepackaged VMs, do not auto update after first lab is run '''
+        os.remove('../../../.doupdate')
+    except:
+        pass
     print('lab_path is %s' % lab_path)
     labutils.StartLab(lab_path, "student", quiet_start=quiet_start)
 
