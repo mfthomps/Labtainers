@@ -205,6 +205,55 @@ def CreateReport(gradesjsonfile, gradestxtfile, watermark_test):
 
     PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, watermark_test)
 
+# Usage: UniqueReport <uniquejsonfile> <gradestxtfile>
+# Arguments:
+#     <uniquejsonfile> - This is the input file <labname>.unique.json
+#     <gradestxtfile> - This is the output file <labname>.grades.txt
+def UniqueReport(uniquejsonfile, gradestxtfile):
+    if not os.path.exists(uniquejsonfile):
+        sys.stderr.write("ERROR: missing unique.json file (%s)\n" % uniquejsonfile)
+        sys.exit(1)
+    labuniquejson = open(uniquejsonfile, "r")
+    labunique = json.load(labuniquejson)
+    labuniquejson.close()
+
+    #print "Lab Unique JSON is"
+    #print labunique
+
+    gradestxtoutput = open(gradestxtfile, "a")
+    unique_header_printed = False
+    for emaillabname, keyvalue in labunique.iteritems():
+        #print "emaillabname is (%s)" % emaillabname
+        for filename, checksum in keyvalue['unique'].iteritems():
+            #print "filename is (%s)" % filename
+            #print "checksum is (%s)" % checksum
+            filename_not_printed = True
+            print_string = ""
+            # Skip no checksum
+            if checksum == "NONE":
+                continue
+            for emaillabname2, keyvalue2 in labunique.iteritems():
+                #print "emaillabname2 is (%s)" % emaillabname2
+                if emaillabname == emaillabname2:
+                    continue
+                for filename2, checksum2 in keyvalue2['unique'].iteritems():
+                    if filename == filename2 and checksum == checksum2:
+                        email, labname = emaillabname.rsplit('.', 1)
+                        email2, labname2 = emaillabname2.rsplit('.', 1)
+                        if filename_not_printed:
+                            print_string = "File %s: %s == %s" % (filename, email, email2)
+                            filename_not_printed = False
+                        else:
+                            print_string = "%s == %s" % (print_string, email2)
+                        # Mark the corresponding checksum as NONE so that no repeat
+                        keyvalue2['unique'][filename2] = "NONE"
+            if print_string != "":
+                if unique_header_printed == False:
+                     gradestxtoutput.write("\n\nFound non-unique files:\n")
+                     unique_header_printed == True
+                gradestxtoutput.write("%s\n" % print_string)
+        
+    gradestxtoutput.close()
 
 # Usage: GenReport.py <gradesjsonfile> <gradestxtfile>
 # Arguments:
