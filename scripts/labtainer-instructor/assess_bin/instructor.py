@@ -408,6 +408,7 @@ def main():
     # Output <labname>.grades.txt
     gradestxtname = os.path.join(MYHOME, "%s.grades.txt" % LabIDName)
     GenReport.CreateReport(gradesjsonname, gradestxtname, watermark_test)
+    GenReport.UniqueReport(uniquejsonname, gradestxtname)
 
     # Inform user where the 'grades.txt' are created
     print "Grades are stored in '%s'" % gradestxtname
