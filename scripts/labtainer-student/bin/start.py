@@ -14,6 +14,7 @@ import logging
 import LabtainerLogging
 import os
 import pydoc
+import platform
 
 # Filename: start.py
 # Description:
@@ -65,11 +66,13 @@ def main():
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
     labutils.logger.INFO("Begin logging start.py for %s lab" % labname)
     lab_path = os.path.join(os.path.abspath('../../labs'), labname)
-    try:
+    update_flag='../../../.doupdate'
+    if os.path.isfile(update_flag):
         ''' for prepackaged VMs, do not auto update after first lab is run '''
-        os.remove('../../../.doupdate')
-    except:
-        pass
+        if 'ubuntu' in platform.platform():
+            cmd = '../../setup_scripts/fixresolv.sh'
+            os.system(cmd) 
+        os.remove(update_flag)
     print('lab_path is %s' % lab_path)
     labutils.StartLab(lab_path, "student", quiet_start=quiet_start)
 
