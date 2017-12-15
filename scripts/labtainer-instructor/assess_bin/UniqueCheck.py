@@ -133,8 +133,7 @@ def handleUniqueConfig(labidname, line, nametags, studentlabdir, container_list,
         logger.DEBUG("Config line (%s) containername %s not in container list (%s), skipping..." % (line, 
               containername, str(container_list)))
         # set nametags - value pair to NONE
-        #nametags[mycontainername][each_key] = "NONE"
-        nametags[each_key] = "NONE"
+        nametags[targetfile] = "NONE"
         return False
 
     command = values[line_at].strip()
@@ -157,7 +156,7 @@ def handleUniqueConfig(labidname, line, nametags, studentlabdir, container_list,
             # If file does not exist, treat as can't find token
             token = "NONE"
             logger.DEBUG("No %s file does not exist\n" % current_targetfname)
-            nametags[each_key] = token
+            nametags[targetfile] = token
             return False
         else:
             # Read in corresponding file
@@ -174,7 +173,7 @@ def handleUniqueConfig(labidname, line, nametags, studentlabdir, container_list,
                 targetlinestring = "".join(targetlines)
                 mymd5.update(targetlinestring)
                 tagstring = mymd5.hexdigest()
-                nametags[each_key] = tagstring
+                nametags[targetfile] = tagstring
                 #print('tag string is %s for eachkey %s' % (tagstring, each_key))
                 return True
             else:
