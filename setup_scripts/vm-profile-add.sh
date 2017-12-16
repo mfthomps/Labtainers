@@ -14,4 +14,6 @@ fi
 EOL
 touch /home/student/labtainer/.doupdate 
 gsettings set org.gnome.settings-daemon.plugins.power button-power 'shutdown'
-cat >>/etc
+cat >>/etc/rc.local <<EOL
+rm -f /etc/resolvconf/resolv.conf.d/head
+/home/student/labtainer/trunk/setup_scripts/fixresolv.sh
