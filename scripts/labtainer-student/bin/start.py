@@ -69,9 +69,6 @@ def main():
     update_flag='../../../.doupdate'
     if os.path.isfile(update_flag):
         ''' for prepackaged VMs, do not auto update after first lab is run '''
-        if 'ubuntu' in platform.platform().lower():
-            cmd = '../../setup_scripts/fixresolv.sh'
-            os.system(cmd) 
         os.remove(update_flag)
     print('lab_path is %s' % lab_path)
     labutils.StartLab(lab_path, "student", quiet_start=quiet_start)
