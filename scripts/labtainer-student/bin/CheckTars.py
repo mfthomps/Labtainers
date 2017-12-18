@@ -20,6 +20,10 @@ that should be part of this one.
 external = 'external-manifest'
 tmp_loc = '/tmp/check_tar'
 def expandManifest(full, tar_name):
+    ''' 
+    extract files from a tar named in an external manifest file
+    into a staging directory at tmp_loc
+    '''
     #print('expand for %s' % full)
     mf = os.path.join(full, external)
     labdir = os.path.dirname(os.path.dirname(os.path.dirname(full)))
@@ -32,6 +36,25 @@ def expandManifest(full, tar_name):
             cmd = 'tar xf %s -C %s' % (ref_tar, tmp_loc)
             os.system(cmd)
 
+def newest_referenced_tar(full, tar_name):
+    '''
+    return a path to the most recent tar file named in an external
+    manifest.
+    '''
+    retval = None
+    recent = 0
+    labdir = os.path.dirname(os.path.dirname(os.path.dirname(full)))
+    mf = os.path.join(full, external)
+    with open(mf) as fh:
+        for line in fh:
+            lab, image = line.strip().split(':')
+            ref_tar = os.path.join(labdir, lab, image, os.path.basename(full), tar_name)
+            tar_time = os.stat(ref_tar).st_mtime
+            if tar_time > recent:
+                retval = ref_tar
+                recent = tar_time
+    return retval
+    
 def newest_file_in_tree(rootfolder):
     return max(
         (os.path.join(dirname, filename)
@@ -91,14 +114,21 @@ def CheckTars(container_dir, image_name, logger):
                 os.chdir(full)
                 newest = newest_file_in_tree('./') 
                 logger.DEBUG('newest is %s' % newest)
-                if not newest.endswith(tar_name):
+                referenced_tar_newer = False 
+                if os.path.isfile(external): 
+                    latest_ref = newest_referenced_tar(full, tar_name)
+                    logger.DEBUG('has manifest, is referenced file (%s) newer than local tar?' % latest_ref)
+                    if os.stat(latest_ref).st_mtime > os.stat(tar_name).st_mtime:
+                        referenced_tar_newer = True
+                    
+                if referenced_tar_newer or not newest.endswith(tar_name):
                     os.remove(tar_name)
                     flist = os.listdir('./')
                     for f in flist:
-                        if f == 'external-manifest': 
+                        if f == external:
                             continue
                         shutil.copytree(f , os.path.join(tmp_loc,f))
-                    ''' something is newer, need to update tar '''
+                    ''' something is newer than the tar, need to update tar '''
                     if os.path.isfile(os.path.join('./', external)):
                         expandManifest(full, tar_name)
                     os.chdir(tmp_loc)

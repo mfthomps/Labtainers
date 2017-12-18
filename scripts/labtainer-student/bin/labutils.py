@@ -1065,8 +1065,9 @@ def FileModLater(ts, fname):
                     # hacky special case for empty tar files.  ug.
                     return False
                 fdir = os.path.dirname(fname)
-                if os.path.isfile(os.path.join(fdir,'external-manifest')):
-                    return False
+                # why not consider tars built from external manifest???
+                #if os.path.isfile(os.path.join(fdir,'external-manifest')):
+                #    return False
             if os.path.isfile(fname):
                 df_time = os.path.getmtime(fname)
             else:
