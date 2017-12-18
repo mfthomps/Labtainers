@@ -37,7 +37,7 @@ RUN echo "$user_name:$user_name" | chpasswd
 RUN adduser $user_name sudo
 
 #
-RUN apt-get install -y ntfs-3g
+RUN apt-get update && apt-get install -y ntfs-3g
 #  **** Perform all root operations, e.g.,           ****
 #  **** "apt-get install" prior to the USER command. ****
 #
