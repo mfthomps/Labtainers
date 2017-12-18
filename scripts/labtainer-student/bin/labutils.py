@@ -349,6 +349,16 @@ def InstDocsToHostDir(start_config, labtainer_config, lab_path, role, quiet_star
     # Final removal of temporary directory
     shutil.rmtree(tmpdir, ignore_errors=True)
 
+def CopyAssessBin(mycontainer_name, container_user):
+    flist = os.listdir('assess_bin')
+    for f in flist:
+        command = 'docker cp assess_bin/%s  %s:/home/%s/.local/bin/%s' % (f, mycontainer_name, container_user, f)
+        logger.DEBUG("Command to execute is (%s)" % command)
+        result = subprocess.call(command, shell=True)
+        logger.DEBUG("Result of subprocess.call %s" % (result))
+        if result == FAILURE:
+            logger.ERROR("Failed copy assess_bin %s!\n" % mycontainer_name)
+            sys.exit(1)
 
 # Copy Students' Artifacts from host to instructor's lab container
 def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_user, container_password, is_regress_test, is_watermark_test):
@@ -504,7 +514,8 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False):
     didfix = False
     ''' hackey assumption about running from labtainers-student or labtainers-instructor '''
     if role == 'instructor':
-        container_bin = './assess_bin'
+        ''' asses_bin is copied on each startup '''
+        container_bin = None
     else:
         container_bin = './lab_bin'
     for name, container in start_config.containers.items():
@@ -647,6 +658,7 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                     logger.ERROR("Failed to copy students' artifacts to container %s!\n" % mycontainer_name)
                     results.append(False)
                     return
+            CopyAssessBin(mycontainer_name, container_user)
 
     	# If the container is just created, then use the previous user's e-mail
         # then parameterize the container
@@ -1224,7 +1236,7 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
                         retval = True
                         break
 
-    if not retval:
+    if not retval and container_bin is not None:
         all_bin_files = os.listdir(container_bin)
         for f in all_bin_files:
             if f.endswith('.swp'):
