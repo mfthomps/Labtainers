@@ -35,7 +35,7 @@ ADD $labdir/sys_$lab.tar.gz /
 #
 RUN echo 'wireshark-common        wireshark-common/install-setuid boolean true' | debconf-set-selections
 
-RUN apt-get upate && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     telnetd vsftpd wireshark
 
 RUN chmod a+x /usr/bin/dumpcap
