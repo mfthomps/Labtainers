@@ -39,7 +39,7 @@ RUN sudo adduser $user_name sudo
 #  **** Perform all root operations, e.g.,           ****
 #  **** "apt-get install" prior to the USER command. ****
 #
-RUN apt-get install -y apache2-utils
+RUN apt-get update && apt-get install -y apache2-utils
 USER $user_name
 ENV HOME /home/$user_name
 #
