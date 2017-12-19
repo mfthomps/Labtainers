@@ -16,6 +16,13 @@ import LabtainerLogging
 import traceback
 
 class ParseLabtainerConfig():
+    '''
+    Parse the labtainer configuration file for system wide labtainer settings.
+    The use of "Global Settings" is a cut/paste artifact and should probably
+    be removed.
+    Paths within configuation values will be adjusted to their absolute paths
+    to avoid passing links to docker commands.
+    '''
     def __init__(self, fname, logger):
         self.host_home_xfer= "" # HOST_HOME_XFER - directory to transfer artifact to/from containers
         self.testsets_root= None # TESTSETS_ROOT - regression test root
@@ -32,6 +39,7 @@ class ParseLabtainerConfig():
             sys.exit(1)
         self.mylogdebug('using config file %s' % fname)
         self.get_configs(fname)
+        self.labtainer_root = os.path.dirname(os.path.dirname(os.path.dirname(fname)))
         self.finalize()
         self.validate()
 
@@ -86,9 +94,13 @@ class ParseLabtainerConfig():
         if not self.testsets_root:
             self.mylog("Missing testsets_root in labtainer.config!\n")
             exit(1)
+        else:
+            self.testsets_root = os.path.abspath(self.testsets_root)
         if not self.watermark_root:
             self.mylog("Missing watermark_root in labtainer.config!\n")
             exit(1)
+        else:
+            self.watermark_root = os.path.abspath(self.watermark_root)
         if not self.file_log_level:
             self.mylog("Missing file_log_level in labtainer.config!\n")
             exit(1)
