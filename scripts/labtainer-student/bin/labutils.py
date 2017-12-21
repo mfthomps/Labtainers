@@ -350,15 +350,21 @@ def InstDocsToHostDir(start_config, labtainer_config, lab_path, role, quiet_star
     shutil.rmtree(tmpdir, ignore_errors=True)
 
 def CopyAssessBin(mycontainer_name, container_user):
-    flist = os.listdir('assess_bin')
-    for f in flist:
-        command = 'docker cp assess_bin/%s  %s:/home/%s/.local/bin/%s' % (f, mycontainer_name, container_user, f)
-        logger.DEBUG("Command to execute is (%s)" % command)
-        result = subprocess.call(command, shell=True)
-        logger.DEBUG("Result of subprocess.call %s" % (result))
-        if result == FAILURE:
-            logger.ERROR("Failed copy assess_bin %s!\n" % mycontainer_name)
-            sys.exit(1)
+    tmp_dir='/tmp/assess_bin'
+    shutil.rmtree(tmp_dir, ignore_errors=True)
+    try:
+        os.makedirs(tmp_dir)
+    except:
+        logger.ERROR("did not expect to find dir %s" % tmp_dir)
+    shutil.copytree('assess_bin', os.path.join(tmp_dir, 'bin'))
+    
+    command = 'docker cp /tmp/assess_bin/bin  %s:/home/%s/.local/' % (mycontainer_name, container_user)
+    logger.DEBUG("Command to execute is (%s)" % command)
+    result = subprocess.call(command, shell=True)
+    logger.DEBUG("Result of subprocess.call %s" % (result))
+    if result == FAILURE:
+        logger.ERROR("Failed copy assess_bin %s!\n" % mycontainer_name)
+        sys.exit(1)
 
 # Copy Students' Artifacts from host to instructor's lab container
 def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_user, container_password, is_regress_test, is_watermark_test):
@@ -658,7 +664,7 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                     logger.ERROR("Failed to copy students' artifacts to container %s!\n" % mycontainer_name)
                     results.append(False)
                     return
-            CopyAssessBin(mycontainer_name, container_user)
+                CopyAssessBin(mycontainer_name, container_user)
 
     	# If the container is just created, then use the previous user's e-mail
         # then parameterize the container
@@ -1119,8 +1125,8 @@ def FileModLater(ts, fname):
     x=parse(parts[0])
     df_ts = calendar.timegm(x.timetuple())
 
-    #logger.DEBUG('df_utc time is %s' % df_utc_string)
-    #logger.DEBUG('df_utc ts is %s given ts is %s' % (df_ts, ts))
+    logger.DEBUG('df_utc time is %s' % df_utc_string)
+    logger.DEBUG('df_utc ts is %s given ts is %s' % (df_ts, ts))
     if df_ts > ts:
         return True
     else:
@@ -1141,9 +1147,12 @@ def BaseImageTime(dockerfile):
     image_exists, result, dumb = ImageExists(image_name, 'some base', None)
     if image_exists:
         parts = result.strip().split('.')
-        time_string = parts[0]
-        logger.DEBUG('base image time string %s' % time_string)
-        retval = time.mktime(time.strptime(time_string, "%Y-%m-%dT%H:%M:%S"))
+        #time_string = parts[0]
+        #logger.DEBUG('base image time string %s' % time_string)
+        #retval = time.mktime(time.strptime(time_string, "%Y-%m-%dT%H:%M:%S"))
+        x=parse(parts[0])
+        retval = calendar.timegm(x.timetuple())
+        logger.DEBUG('base image time string %s returning %s' % (parts[0], retval))
     else:
         logger.DEBUG('base image %s not found, assume not updated' % image_name)
     return retval, image_name
@@ -1177,12 +1186,11 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
             logger.DEBUG('Image query error %s' % result)
         return True 
     parts = result.strip().split('.')
-    time_string = parts[0]
-    logger.DEBUG('image time string %s' % time_string)
 
-    ''' ts is the timestamp of the image '''
-    ts = time.mktime(time.strptime(time_string, "%Y-%m-%dT%H:%M:%S"))
-    logger.DEBUG('image ts %s  %s' % (ts, time_string))
+    x=parse(parts[0])
+    ts = calendar.timegm(x.timetuple())
+    logger.DEBUG('image ts %s  %s' % (ts, parts[0]))
+
     ''' look at dockerfiles '''
     df_name = 'Dockerfile.%s' % container_name
     df = os.path.join(lab_path, 'dockerfiles', df_name)
