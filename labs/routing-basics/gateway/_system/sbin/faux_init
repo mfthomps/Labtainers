@@ -5,7 +5,7 @@
 #
 /usr/sbin/rsyslogd -n &
 service rc.local start
-
+/etc/init.d/dnsmasq start
 ### Uncomment the while loop below 
 ### if it is necessary to make sure parameterization has happened
 
