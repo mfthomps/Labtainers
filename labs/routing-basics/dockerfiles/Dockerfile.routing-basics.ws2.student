@@ -33,6 +33,7 @@ ARG apt_source
 #
 ADD $labdir/$imagedir/sys_tar/sys.tar /
 ADD $labdir/sys_$lab.tar.gz /
+RUN apt-get update && apt-get install -y dnsutils
 #
 RUN useradd -ms /bin/bash $user_name
 RUN echo "$user_name:$password" | chpasswd
