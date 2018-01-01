@@ -1036,7 +1036,21 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
 
     DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start)
 
+def DateIsLater(df_utc_string, ts):
+    parts = df_utc_string.split('.')
+    ''' use dateutil to parse for zone, which we get from svn '''
+    x=parse(parts[0])
+    df_ts = calendar.timegm(x.timetuple())
+
+    logger.DEBUG('df_utc time is %s' % df_utc_string)
+    logger.DEBUG('df_utc ts is %s given ts is %s' % (df_ts, ts))
+    if df_ts > ts:
+        return True
+    else:
+        return False
+
 def FileModLater(ts, fname):
+    retval = False
     df_utc_string = None
     # start with check of svn status
     has_svn = True
@@ -1059,14 +1073,22 @@ def FileModLater(ts, fname):
                         continue
                 elif f.endswith('_tar') and os.path.isdir(f):
                     continue
+                else:
+                    df_time = os.path.getmtime(f)
+                    df_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
+                    retval = DateIsLater(df_utc_string, ts)
+                    if retval:
+                        break
                 
             #logger.DEBUG(line)
             ''' think that fname is in svn.  If fname is a dir, get its date (will match that of modified file in the dir '''
             if os.path.isdir(fname) or line.startswith('M'):
-                logger.DEBUG('svn status found something for %s' % fname)
+                logger.DEBUG('svn status found something for fname %s, line %s' % (fname, line))
                 df_time = os.path.getmtime(fname)
                 df_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
-                break
+                retval = DateIsLater(df_utc_string, ts)
+                if retval:
+                    break
         else:
             break
     if df_utc_string is None:
@@ -1093,6 +1115,7 @@ def FileModLater(ts, fname):
                 logger.DEBUG('latest found is %s' % check_file)
                 df_time = os.path.getmtime(check_file)
             df_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
+            retval = DateIsLater(df_utc_string, ts)
         else:
             # in svn, look for changed date
             while True:
@@ -1102,6 +1125,7 @@ def FileModLater(ts, fname):
                     if line.startswith('Last Changed Date:'):
                         parts = line.split()
                         df_utc_string = parts[3]+' '+parts[4]
+                        retval = DateIsLater(df_utc_string, ts)
                         logger.DEBUG('changed date from svn %s for %s df_utc_string is %s' % (line, fname, df_utc_string))
                         break
                 else:
@@ -1116,21 +1140,11 @@ def FileModLater(ts, fname):
                     logger.DEBUG('latest found is %s' % check_file)
                     df_time = os.path.getmtime(check_file)
                 df_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
+                retval = DateIsLater(df_utc_string, ts)
 
     ''' is the given file later than the timestamp (which is in UTC)? '''
     #logger.DEBUG('df ts %s' % df_time)
-
-    parts = df_utc_string.split('.')
-    ''' use dateutil to parse for zone, which we get from svn '''
-    x=parse(parts[0])
-    df_ts = calendar.timegm(x.timetuple())
-
-    logger.DEBUG('df_utc time is %s' % df_utc_string)
-    logger.DEBUG('df_utc ts is %s given ts is %s' % (df_ts, ts))
-    if df_ts > ts:
-        return True
-    else:
-        return False
+    return retval
 
 def BaseImageTime(dockerfile):
     image_name = None
