@@ -28,6 +28,7 @@ ARG imagedir
 ARG user_name
 ARG password
 ARG apt_source
+RUN apt-get update && apt-get install -y bind9 dnsutils libnet-dev
 #
 # Install the system files found in the _system directory
 #
@@ -40,7 +41,6 @@ RUN adduser $user_name sudo
 # replace above with below for centos/fedora
 #RUN usermod $user_name -a -G wheel
 
-RUN apt-get update && apt-get install -y bind9 dnsutils libnet-dev
 
 #
 #  **** Perform all root operations, e.g.,           ****
