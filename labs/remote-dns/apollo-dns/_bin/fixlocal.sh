@@ -7,7 +7,10 @@
 #  not not permit nopassword, then use:
 #  echo $1 | sudo -S the-command
 #
-sudo sed -i '/directory/a  dump-file "/var/cache/bind/dump.db";\nforwarders {\n127.0.0.11;\n};\nquery-source port 33333;' /etc/bind/named.conf.options
+# adjust bind options file.  route external dns to gateway
+sudo sed -i '/directory/a  dump-file "/var/cache/bind/dump.db";\nforwarders {\n192.168.0.1;\n};\nquery-source port 33333;' /etc/bind/named.conf.options
+echo "192.168.0.1" | sudo tee /etc/resolv.conf
+
 sudo sed -i '/dnssec-validation/s/^/\/\//' /etc/bind/named.conf.options
 sudo sed -i '/dnssec-validation/a   dnssec-enable no;' /etc/bind/named.conf.options
 sudo tee -a /etc/bind/named.conf.default-zones << EOL
@@ -16,3 +19,6 @@ type master;
 file "/etc/bind/db.attacker";
 };
 EOL
+sudo chown bind:bind /var/cache/bind/*
+sleep 3
+sudo /etc/init.d/bind9 restart

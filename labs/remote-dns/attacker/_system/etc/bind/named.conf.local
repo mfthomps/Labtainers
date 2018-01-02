@@ -1,0 +1,5 @@
+zone "example.com" {
+                type master;
+                file "/etc/bind/example.com.db";
+};
+
