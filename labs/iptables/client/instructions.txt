@@ -8,7 +8,7 @@ be forwarded through a component serving as a firewall.
 
 You will configure the firewall within this topology:
 
-  client <====> router <=====> server
+  client <====> firewall <=====> server
 
 such that the client can only access ssh and http
 services on the server.
