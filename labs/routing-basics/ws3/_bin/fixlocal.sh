@@ -7,8 +7,6 @@
 #  not not permit nopassword, then use:
 #  echo $1 | sudo -S the-command
 #
-#
-echo "nameserver 203.0.113.1" | sudo tee /etc/resolv.conf
-# remove the dns route so as to not confuse student
+echo "" | sudo tee /etc/resolv.conf
 sudo route del -host 172.17.0.1
-
+sudo route delete default gw 192.168.2.101
