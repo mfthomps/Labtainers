@@ -1087,7 +1087,11 @@ def FileModLater(ts, fname):
             ''' think that fname is in svn.  If fname is a dir, get its date (will match that of modified file in the dir '''
             if os.path.isdir(fname) or line.startswith('M'):
                 logger.DEBUG('svn status found something for fname %s, line %s' % (fname, line))
-                df_time = os.path.getmtime(fname)
+                if line.startswith('M'):
+                    parent = os.path.dirname(line.split()[1])
+                    df_time = os.path.getmtime(parent)
+                else:
+                    df_time = os.path.getmtime(fname)
                 df_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
                 retval = DateIsLater(df_utc_string, ts)
                 if retval:
