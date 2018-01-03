@@ -1036,11 +1036,14 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
 
     DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start)
 
-def DateIsLater(df_utc_string, ts):
+def DateIsLater(df_utc_string, ts, local=False):
     parts = df_utc_string.split('.')
     ''' use dateutil to parse for zone, which we get from svn '''
     x=parse(parts[0])
-    df_ts = calendar.timegm(x.timetuple())
+    if local:
+        df_ts = time.mktime(x.timetuple())
+    else:
+        df_ts = calendar.timegm(x.timetuple())
 
     logger.DEBUG('df_utc time is %s' % df_utc_string)
     logger.DEBUG('df_utc ts is %s given ts is %s' % (df_ts, ts))
@@ -1124,8 +1127,8 @@ def FileModLater(ts, fname):
                     #logger.DEBUG(line)
                     if line.startswith('Last Changed Date:'):
                         parts = line.split()
-                        df_utc_string = parts[3]+' '+parts[4]
-                        retval = DateIsLater(df_utc_string, ts)
+                        df_utc_string = parts[3]+' '+parts[4] +' '+parts[5]
+                        retval = DateIsLater(df_utc_string, ts, True)
                         logger.DEBUG('changed date from svn %s for %s df_utc_string is %s' % (line, fname, df_utc_string))
                         break
                 else:
