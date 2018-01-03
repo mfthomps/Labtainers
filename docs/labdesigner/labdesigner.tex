@@ -188,16 +188,19 @@ Then start the container using the:
     rebuild.py [labname] 
 \end{verbatim}
 command, where labname is the name of the lab you just created.  
-The very first time you run this, it may take a bit of time because it fetches the 
-base Labtainer Docker image from the Docker registry.  Subsequent builds
-should be faster because your local Docker system will cache portions of the build.  
 
 The rebuild.py command will remove and recreate the container
 each time the script is run.  And it will rebuild the container image if any of its configuration 
-information has changed.\footnote{The build process may generate warnings in red text, some of which are expected.  
+information has changed.  \footnote{The build process may generate warnings in red text, some of which are expected.  
 These include an unreferenced ``user'' variable and the lack of apt-utils if apt-get is used to install packages in 
 Dockerfiles.}  This is often necessary when building and testing new labs, to ensure the
 new environment does not contain artifacts from previous runs.
+The progress of the build, and error messages can be viewed in 
+the labtainer.log file.  While developing, it is generally a good idea to tail this log in
+a separate terminal:
+\begin{verbatim}
+    tail -f labtainer.log
+\end{verbatim}
 
 Note the ``rebuild.py'' command is not intended for use by students, they would use the ``start.py'' command.  
 
@@ -356,7 +359,8 @@ This defaults to ``ubuntu.''
 \item PASSWORD [password] -- The password for the user name whose account will be accessed via the virtual terminals. 
 This defaults to the user name defined above.
 \item network name [ip address] -- Network address assignments for each network (defined via a NETWORK section), 
-that is to be connected to this container.  A separate line should be entered for each network.
+that is to be connected to this container.  A separate line should be entered for each network.  The given ip address 
+can optionally include a MAC address assignment as a suffix following a colon, e.g., "172.25.0.1:2:34:ac:19:0:2".
 \item SCRIPT [script] -- Optional script to provide to the Docker create command, defaults to ``bash''.  This must be set to
 ``NONE'' for CENTOS-based labs (and likely fedora[test that]).
 \item ADD-HOST [host:ip] -- Optional addition to the /etc/host file, a container may have multipled ADD-HOST entries.
@@ -782,14 +786,17 @@ Entries within the results.config file each have the following format:
 \end{verbatim}
 
 
-\subsubsection{Converting artifact file format}
+\subsubsection{Converting artifact file formats}
 Some artifact file formats are not easily referenced by results.config directives.
 For example, a browser history file in the .sqlite format is binary.  Such files
 can be processed into a more convenient form through use of a script at:
 \begin{verbatim}
    $LABTAINER_DIR/labs/[lab]/instr_config/pregrade.sh
 \end{verbatim}
-\noindent An example of this conversion can be seen in the webtrack lab.
+\noindent Modify or expand on the default pregrade.sh script.
+In general, the pregrade.sh script is expected to extract or convert
+data from an artifact file, and write it into a new file in the .local/results
+directory of the container.   
 
 \subsection{Assessing the student results}
 Results of student lab activity are assigned symbolic names by the results.config file
@@ -951,7 +958,7 @@ support of student exploration.
 
 In some instances, the lab designer will want to define a different default route for a 
 container.  Each container derived from the Labtainer network base includes a \textit{set\_default\_gw.sh}
-script that can be added to the \textit{/etc/rc.local} file to redefine the default gateway.
+script that can be added to the \textit{/etc/rc.local} (or \textit{fixlocal.sh}) file to redefine the default gateway.
 This script will automatically retain a route table entry so that the student can reach the ``my\_host''
 address.  Additionally, those baseline images include a \textit{togglegw.sh} script that the student
 can use to toggle the default gateway between one that leads to the host, and one defined for the lab.
