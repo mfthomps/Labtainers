@@ -27,7 +27,8 @@ as ``Labtainers''.
 The Labtainer framework is designed for use with computer and network security
 laboratory exercises targeting Linux environments, and it is built around 
 standard Linux Docker containers.  A Labtainer lab may include multiple 
-networked components, all running locally on a student's computer.
+networked components, all running locally on a student's computer, but without
+the performance degredation associated with running multiple virtual machines.
 \subsection {Benefits of Labtainers}
 
 Deploying cyber security labs using this framework
@@ -148,7 +149,7 @@ Set the LABTAINER\_DIR environment variable to the top of the svn repo, e.g.,
 \begin{verbatim}
     export LABTAINER_DIR=/home/mike/labtainer/trunk
 \end{verbatim}
-It is suggested that you add the LABTAINER\_DIR definition in your .bashrc.
+It is suggested that you add the LABTAINER\_DIR definition in your .bashrc or .profile.
 
 Labtainer exercises each have their own
 directory under the ``labs'' directory in the project repository.
@@ -956,13 +957,36 @@ leads to the Linux host.  This allows students to scp files to/from the containe
 It also allows the student to reach external networks, e.g., to fetch additional packages in
 support of student exploration.
 
-In some instances, the lab designer will want to define a different default route for a 
+In many instances, the lab designer will want to define a different default route for a 
 container.  Each container derived from the Labtainer network base includes a \textit{set\_default\_gw.sh}
 script that can be added to the \textit{/etc/rc.local} (or \textit{fixlocal.sh}) file to redefine the default gateway.
 This script will automatically retain a route table entry so that the student can reach the ``my\_host''
 address.  Additionally, those baseline images include a \textit{togglegw.sh} script that the student
 can use to toggle the default gateway between one that leads to the host, and one defined for the lab.
 This allows students to add packages on components having lab-specific default gateways.
+
+\subsection{Realistic Network Routing and DNS}
+Some labs will strive to represent realistic networking environments, 
+e.g., several networked components including gateways and DNS servers.
+To achieve that, you must override Docker, which automatically sets 
+the container's /etc/resolv.conf file to use the
+host system DNS resolution.  This is in addition to the default routes described
+above.  While convenient, these mechanisms can distract and confuse students, particularly
+when routing and DNS resolution are central to the point of the exercise, (e.g.,
+a DNS cache poisoning lab).
+
+These Docker defaults can be easily overridden to present a more realistic networking
+environment.  A worked example of such a topology can be seen in the \textit{routing-basics} lab.
+This lab includes the following properties that can be reproduced in other labs:
+\begin{itemize}
+\item Default routes to gateway components.
+\item DNS definitions in /etc/resolv.conf that name gateway components.
+\item Use of \texttt{iptables} in gateway components to implement NAT.
+\item A hidden ISP component that exchanges network traffic with the host Linux system,
+thereby allowing all visible components to include routing, DNS and iptables entries that do not
+expose virtual networking tricks.
+
+\end{itemize}
 
 \section{Building, Maintaining and Publishing Labs} \label{publishing}
 Typically, when a Labtainer is started, the container's associated Docker images are pulled from
@@ -1063,6 +1087,9 @@ other process tree's will appear as they
 do in Linux system, and this includes inetd services.
 
 The CENTOS-based labs have the true /usr/sbin/init process and systemd structure.
+
+The available Docker network drivers do not permit IP address overlap between virtual networks.
+For example, you cannot define two 192.168.1.0/24 LANs.
 
 Inquisitive students will see evidence of artifact collection.  Home directories
 on containers includes a \texttt{.local} directory that includes Labtainer scripts that manage
