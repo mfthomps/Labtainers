@@ -624,7 +624,7 @@ may have done in the course of the lab.
 
 Automated assessment is achieved by first generating artifact files. Then, artifacts
 within those files are identified, and the values of those artifacts are compared to expected values.
-\subsection{Artifacts files}
+\subsection{Artifact files}
 \subsubsection{Capturing stdin and stdout}
 The framework's automated assessment functions generally assume the student will interact with one or
 more programs or system utilities.  Each time the student invokes a selected program or utility, the 
@@ -686,12 +686,31 @@ e.g., using the sysctl command to effect ASLR. A \textit{checklocal.sh} script i
 \end{verbatim}
 is intended to contain whatever commands are necessary to record the 
 state of the system at the time a program was invoked.  The stdout of
-the checklocal.sh script is recorded at the beginning of the stdout artifact. 
+the checklocal.sh script is recorded in a timestamped \textit{checklocal.stdout}
+file.  The timestamp of this file will match the timestamp of the stdin and
+stdout artifacts associated with the command that caused checklocal.sh to run.
+The checklocal.sh is passed in the name of the program as an argument, thereby
+allowing the designer to capture different environment information for different commands.
+
 As another example, consider the file-deletion lab \textit{checklocal.sh} script.
 It mounts a directory, lists its content, and unmounts it.  This all occurs 
 transparently to the student, and, in this example, help confirm a specific file
 was in fact deleted at the time of issuing a command to recover deleted content from
 the volume.
+
+In other situations, you may wish to capture environment information when selected
+commands are executed, even though you have no interest in stdin or stdout of those
+commands.  For example, imagine you want to capture the file permissions of /usr/bin/tcpdump
+whenever that command is executed.  This can be achieved by including /usr/bin/tcpdump in a
+list within a file at:
+\begin{verbatim}
+    $LABTAINER_DIR/labs/[labname]/[container name]/_bin/forcecheck
+\end{verbatim}
+\noindent and then include \texttt{ls -l /usr/bin/tcpdump} in the checklocal.sh script.
+Note that the \textit{forcecheck} list of programs must include the full path name.
+The \textit{forcecheck} file can be used instead of a \textit{treataslocal} file entry
+for those cases where stdin and stdout are not required for goal assessment.  An example of the use of
+forcecheck can be found in the \textit{capabilities} lab.  
 
 \subsection{Identify lab-specifc artifacts}
 The automated assessment functions encourage labs to be organized into a set of distinct ``goals''.
