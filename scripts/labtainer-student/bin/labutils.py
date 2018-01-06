@@ -104,7 +104,7 @@ def ParameterizeMyContainer(mycontainer_name, container_user, container_password
         if not error_string.startswith('[sudo]'):
             logger.ERROR('ParameterizeMyContainer %s' % error_string)
             retval = False
-    out_string = child.stderr.read().strip()
+    out_string = child.stdout.read().strip()
     if len(out_string) > 0:
         logger.DEBUG('ParameterizeMyContainer %s' % out_string)
     return retval
@@ -1258,9 +1258,14 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
             if role == 'instructor':
                 ppath = '../labtainer-student/%s' % ppath
             if FileModLater(ts, param_file) or FileModLater(ts, ppath):
+              logger.DEBUG('%s is later, see if container is named' % param_file)
               with open(param_file) as param_fh:
                 for line in param_fh:
-                    if container_name in line or (role == 'instructor' and not line.startswith('#')): 
+                    if line.startswith('#'):
+                        continue
+                    parts = line.split(' : ')
+                    # look for container, or lack of any container qualifier in file name
+                    if container_name in line or role == 'instructor' or ':' not in parts[2]: 
                         logger.WARNING('%s (or the script) is later and %s mentioned in it, will build' % (param_file, container_name))
                         retval = True
                         break
