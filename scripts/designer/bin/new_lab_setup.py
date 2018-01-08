@@ -156,11 +156,17 @@ def handle_clone_lab(tdir, newlabname):
     newlabname_olddockerfilename = os.path.join(newlabpath, 'dockerfiles')
     newlabname_olddockerfiles = glob.glob('%s/*' % newlabname_olddockerfilename)
     for name in newlabname_olddockerfiles:
+        fname = os.path.basename(name)
         # Replace only the first occurence to prevent replacing the container name portion
-        newname = name.replace(oldlabname, newlabname, 1)
+        newfname = fname.replace(oldlabname, newlabname, 1)
+        newname = os.path.join(os.path.dirname(name), newfname)
         #print "name is (%s) newname is (%s)" % (name, newname)
         # Rename dockerfiles as new labname dockerfiles
-        os.rename(name, newname)
+        try:
+            os.rename(name, newname)
+        except Exception as e:
+            print('error renaming %s to %s %s' % (name, newname, str(e)))
+            exit(1)
 
     # Handle a single container lab cloning
     # Open start.config with append
