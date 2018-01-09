@@ -6,7 +6,7 @@
 // the lab, please finish the response packet and complete the task.
 //
 // Compile command:
-// gcc -lpcap udp.c -o udp
+// gcc udp.c -o udp
 //
 // 
 
