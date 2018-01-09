@@ -10,5 +10,5 @@ $TTL	604800
 			 604800 )	; Negative Cache TTL
 ;
 @	IN	NS	ns.dnslabattacker.net.
-@	IN	A	192.168.0.200
+@	IN	A	203.0.113.3
 @	IN	AAAA	::1

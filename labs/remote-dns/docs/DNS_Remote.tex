@@ -55,19 +55,15 @@ be sure to copy it back to the specified location on your Linux system.
 
 \begin{figure}[!htb]
 \centering
-\includegraphics*[viewport=50 120 750 520, width=0.9\textwidth,natwidth=621,natheight=403]{Figs/DNS_Remote_Env.pdf}
+\includegraphics*[ width=0.9\textwidth,natwidth=621,natheight=403]{Figs/remote-dns.jpg}
 \caption{The Lab Environment Setup} 
 \label{fig:environment}
 \end{figure}
 
 
-Figure~\ref{fig:environment} illustrates the setup of the lab environment. For the 
-sake of simplicity, we put the three computers on the same LAN, but 
-students are not allowed to exploit this fact in their attacks, and 
-they should treat the attacker machine as a remote machine, 
-i.e., the attacker cannot sniff victim DNS server's packets.
-In this lab description, we assume that the user machine's IP address is {\tt 192.168.0.100}, 
-the DNS Server's IP is {\tt 192.168.0.10} and the attacker machine's IP is {\tt 192.168.0.200}.
+Figure~\ref{fig:environment} illustrates the setup of the lab environment. 
+In this lab the user machine's IP address is {\tt 192.168.0.100}, 
+the DNS Server's IP is {\tt 192.168.0.10} and the attacker machine's IP is {\tt 203.0.113.3}.
 
 
 \paragraph {Note for Instructors:} 
@@ -316,8 +312,9 @@ facilitate your ability to perform the DNS cache poisoning attack.
 \item {\em Attack Machine Configuration.} 
 The attack machine uses the targeted 
 DNS server (i.e., {\tt Apollo}) as its default DNS server. 
-This is preconfigured via the {\tt /etc/resolv.conf} file, as was the case
-with the user machine.
+The attacker {\tt /etc/resolv.conf} file is configured with the external
+address of the site, exported by the gateway, i.e., 203.0.113.10.
+The gateway forwards DNS requests to this address to the {\tt Apollo} DNS server.
 
 \item {\em Source Ports.} Some DNS servers now randomize the source port number 
 in the DNS queries; this makes the attacks much more difficult. Unfortunately, 
@@ -477,7 +474,7 @@ $TTL 604800
                 2419200 ; Expire
                 604800 ) ; Negative Cache TTL;
 @		IN		NS		ns.dnslabattacker.net.
-@		IN		A		192.168.0.200
+@		IN		A		203.0.113.3
 @		IN		AAAA ::1
 \end{verbatim}
 \noindent Note, we let the attacker's machine and the malicious DNS, 
@@ -485,14 +482,14 @@ $TTL 604800
 
 If your cache poisoning attack is successful, any 
 DNS query sent to {\tt Apollo} for the hostnames 
-in {\tt example.com} will be sent to {\tt 192.168.0.200}, which is 
+in {\tt example.com} will be sent to {\tt 203.0.113.3}, which is 
 attacker's machine. 
 
 
-The DNS server on {\tt 192.168.0.200} has been configured so it answers the 
+The DNS server on {\tt 203.0.113.3} has been configured so it answers the 
 queries for the domain {\tt example.com}.  This was achieved by
 the following 
-entry in {\tt /etc/bind/named.conf.local} on {\tt 192.168.0.200}:
+entry in {\tt /etc/bind/named.conf.local} on {\tt 203.0.113.3}:
 
 \begin{verbatim}
 zone "example.com" {
