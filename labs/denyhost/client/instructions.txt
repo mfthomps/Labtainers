@@ -11,7 +11,7 @@ The lab is started from the Labtainer working
 directory on your Docker-enabled host, e.g., a Linux VM.
 From there, issue the command:
 
-    start.py sshlab
+    start.py denyhost
 
 The resulting virtual terminals include a display of
 these instructions, a terminal connected to a client,
@@ -27,17 +27,38 @@ To exit navigation of this instruction, type 'q'.
 
 3.2. Login to SSH server from the client with incorrect password
 
-     Repeat the attempts to login from client with incorrect password
-     Display the content of /etc/hosts.deny
+     The first option is to attempt incorrect password login manually
+     from the client.
 
-     After how many failed attempts does the client's IP address,
-     is added to the /etc/hosts.deny
+     A python script 'bot.py' will attempt incorrect password login
+     until the connection is closed/denied by the server.
+
+     Because the denyhosts application that runs on the server checks
+     the SSH server log file to determine failed login attempts,
+     and based on the configurable number of failed login attempts
+     for the denyhosts, the /etc/hosts.deny file will be updated
+     with the IP address of the client where the failed logins are attempted.
+
+3.3. Server /etc/hosts.deny file
+
+     Once the client's IP address is added to the /etc/hosts.deny file
+     no further login from that client (IP address) is allowed.
+
+     Update the server's /etc/hosts.deny file by removing the added client's
+     IP address. Note: may require sudo privilege to edit the file.
+
+     Once the client's IP address is removed, correct password login is
+     allowed once again. Note that failed login attempt may trigger the
+     IP address to be added back to the /etc/hosts.deny file right away
+     (because the denyhosts application looks at the previous failed attempts
+     on the SSH log file, in this case, the /var/log/auth.log until the
+     log file is rotated).
 
 4. Stop the Labtainer
 
 When the lab is completed, or you'd like to stop working for a while, run
 
-    stop.py sshlab
+    stop.py denyhost
 
 from the host Labtainer working directory.  You can always restart the
 Labtainer to continue your work.  When the Labtainer is stopped, a
