@@ -1,1 +1,1 @@
-Use of a public/private key pair to access a server via ssh.
+Explores the use of denyhosts to block failed SSH login attempts.
