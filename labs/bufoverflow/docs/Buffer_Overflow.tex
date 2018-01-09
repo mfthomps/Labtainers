@@ -118,6 +118,7 @@ int main( ) {
 }
 \end{verbatim}
 
+
 The shellcode that we use is just the assembly version of the above program.
 The following program shows you how to launch a shell by executing 
 a shellcode stored in a buffer.
@@ -153,6 +154,20 @@ int main(int argc, char **argv)
    ((void(*)( ))buf)( );
 } 
 \end{verbatim}
+\textbf{Note:} In this lab we have relaced the {\tt bin/sh} program
+with an older insecure shell that will inherit the setuid permissions
+assocated with the {\tt stack} program.  Modern shells will use the
+process real uid as their effective id, thereby making it more difficult
+to obtain root shells from setuid programs.
+However, more sophisticated shell code can run the following program to 
+turn the real user id to {\tt root}. This way, you would have a real {\tt root} process.
+\begin{verbatim}
+  void main()
+  { 
+    setuid(0);  system("/bin/sh");
+  }
+\end{verbatim}
+\noindent For this lab, we'll use the simpler shell code and and insecure /bin/sh program.
 
 Please use the following command to compile the code (don't forget the 
 {\tt execstack} option):
@@ -325,19 +340,6 @@ root). You can check this by typing the following:
   uid=(500) euid=0(root)
 \end{verbatim}
 
-Many commands will behave differently if they are executed as 
-\setuid\ {\tt root} processes, instead of just as {\tt root} processes, 
-because they 
-recognize that the real user id is not {\tt root}.  To solve this problem,
-you can run the following program to turn the real user id to
-{\tt root}. This way, you will have a real {\tt root} process, which
-is more powerful.
-\begin{verbatim}
-  void main()
-  { 
-    setuid(0);  system("/bin/sh");
-  }
-\end{verbatim}
 
 
 
