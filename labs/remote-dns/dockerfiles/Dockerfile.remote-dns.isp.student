@@ -28,7 +28,7 @@ ARG imagedir
 ARG user_name
 ARG password
 ARG apt_source
-RUN apt-get update && apt-get install -y bind9 dnsutils libnet-dev libpcap-dev
+RUN apt-get update && apt-get install -y dnsmasq iptables dnsutils
 #
 # Install the system files found in the _system directory
 #
