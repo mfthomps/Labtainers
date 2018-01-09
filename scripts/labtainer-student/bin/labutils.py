@@ -856,8 +856,8 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
                     os.system(spawn_command)
                     # race condition, gnome may beat xterm to the startup.sh script
                     time.sleep(1)
-        # If the number of terminal is zero -- do not spawn
-        if num_terminal != 0:
+        # If the number of terminal is -1 or zero -- do not spawn
+        if not (num_terminal == 0 or num_terminal == -1):
             for x in range(num_terminal):
                 #sys.stderr.write("%d \n" % terminal_count)
                 terminal_location = terminalCounter(terminal_count)
@@ -1832,7 +1832,8 @@ def DoMoreterm(lab_path, role, container, num_terminal):
         logger.ERROR("Container %s is not running!\n" % (mycontainer_name))
         sys.exit(1)
     for x in range(num_terminal):
-	if start_config.containers[container].terminals == 0:
+        # Change to allow spawning if terminal is 0 but not -1
+	if start_config.containers[container].terminals == -1:
             print("No terminals supported for this component")
 	    sys.exit(1)
 	else:
