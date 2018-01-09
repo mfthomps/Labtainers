@@ -13,5 +13,5 @@ type master;
 file "/etc/bind/example.com.db";
 };
 EOL
-echo "nameserver 192.168.0.10" | sudo tee /etc/resolv.conf
+echo "nameserver 203.0.113.10" | sudo tee /etc/resolv.conf
 

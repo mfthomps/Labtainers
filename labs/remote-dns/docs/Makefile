@@ -5,4 +5,4 @@ remote-dns.pdf: DNS_Remote.tex header.tex
 
 clean:
 	rm -fr auto
-	rm -f DNS_Remote.aux DNS_Remote.log remote-dns.pdf
+	rm -f *.aux *.log *.pdf *.out
