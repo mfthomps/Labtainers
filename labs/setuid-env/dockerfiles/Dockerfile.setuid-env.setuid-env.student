@@ -42,8 +42,6 @@ RUN adduser $user_name sudo
 
 RUN useradd -ms /bin/bash user1
 RUN echo "user1:user1" | chpasswd
-RUN useradd -ms /bin/bash bob
-RUN echo "bob:bob" | chpasswd
 
 #
 #  **** Perform all root operations, e.g.,           ****
