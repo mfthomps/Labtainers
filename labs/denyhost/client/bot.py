@@ -5,7 +5,6 @@ just keep logging in, listing a directory and logging out.
 '''
 import sys
 from subprocess import PIPE, Popen
-import time
 import logging
 
 ON_POSIX = 'posix' in sys.builtin_module_names
@@ -35,8 +34,6 @@ a student-specific value.
 '''
 LOGFILE = "/tmp/bot.log"
 logging.basicConfig(filename=LOGFILE, level=logging.DEBUG)
-logging.debug("sleeping")
-time.sleep(10)
 logging.debug("hi")
 newpwd = 'NEWPWD'
 count = 1
@@ -51,5 +48,4 @@ while True:
         print "Still permission denied, count=%s" % count
     p.wait()
     count = count + 1
-    #time.sleep(5)
 
