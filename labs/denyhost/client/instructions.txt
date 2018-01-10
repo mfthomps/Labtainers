@@ -25,6 +25,8 @@ To exit navigation of this instruction, type 'q'.
 
 3.1. Login to SSH server from the client with correct password
 
+     ssh ubuntu@172.20.0.3
+
      Note: when connecting the first time, enter 'yes' when
      prompted 'Are you sure you want to continue connecting (yes/no)?'
 
