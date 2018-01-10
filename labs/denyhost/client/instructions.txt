@@ -25,6 +25,9 @@ To exit navigation of this instruction, type 'q'.
 
 3.1. Login to SSH server from the client with correct password
 
+     Note: when connecting the first time, enter 'yes' when
+     prompted 'Are you sure you want to continue connecting (yes/no)?'
+
 3.2. Login to SSH server from the client with incorrect password
 
      The first option is to attempt incorrect password login manually
@@ -32,6 +35,9 @@ To exit navigation of this instruction, type 'q'.
 
      A python script 'bot.py' will attempt incorrect password login
      until the connection is closed/denied by the server.
+     Note: the 'bot.py' assumes at least one successful login has been
+     attempted (i.e., user has answered 'yes' to connecting to
+     host which authenticity hasn't yet been established.
 
      Because the denyhosts application that runs on the server checks
      the SSH server log file to determine failed login attempts,
