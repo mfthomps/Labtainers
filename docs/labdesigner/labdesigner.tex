@@ -1152,4 +1152,8 @@ named "hostSystemCheck.py" placed withe the \_bin directory of any of the lab's 
 return the value '0' if dependencies are met, and '1' if dependencies are not met.  In the latter case, the 
 startup.py will prompt the use to continue or abort.  Your script should explain the situation to the student.
 An example of such a script is in the labs/tcpip/server/\_bin directory.
+\subsection{Login Prompts}
+See the centos-log lab for an example of a lab that prompts users to login to the virtual terminal.
+In particular, you will need the bin/student\_startup.sh script, and the \_system/sbin/login program and the
+\_system/etc/login.defs and securetty files.
 \end{document}
