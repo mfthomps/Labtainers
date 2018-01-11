@@ -272,7 +272,7 @@ def ParseGoals(homedir, studentdir, logger_in):
                         goal_type == "count" or
                         goal_type == "value" or
                         goal_type == "execute"):
-                        logger.ERROR("goals.config contains unrecognized type (1) (%s)" % goal_type)
+                        logger.ERROR("goals.config contains unrecognized type (1) (%s) in \n%s" % (goal_type, linestrip))
                         sys.exit(1)
                     if not (goal_type == "execute"):
                         # If goal_type is not 'execute' then check the goal_operator
@@ -283,13 +283,13 @@ def ParseGoals(homedir, studentdir, logger_in):
                             goal_operator == "integer_equal" or
                             goal_operator == "integer_greater" or
                             goal_operator == "integer_lessthan"):
-                            logger.ERROR("goals.config contains unrecognized operator (%s)" % goal_operator)
+                            logger.ERROR("goals.config contains unrecognized operator (%s) in \n%s" % (goal_operator, linestrip))
                             sys.exit(1)
                     else:
                         # Make sure the file to be executed exist
                         execfile = os.path.join(MYHOME, '.local', 'bin', goal_operator)
                         if not (os.path.exists(execfile) and os.path.isfile(execfile)):
-                            logger.ERROR("goals.config contains execute goals with missing exec file (%s)" % goal_operator)
+                            logger.ERROR("goals.config contains execute goals with missing exec file (%s) in \n%s" % (goal_operator, linestrip))
                             sys.exit(1)
                     nametags.append(MyGoal(each_key, goal_type, goaloperator=goal_operator, answertag=valid_answertag, resulttag=valid_resulttag))
                     #print "goal_type non-boolean"
