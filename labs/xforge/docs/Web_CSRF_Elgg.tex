@@ -54,7 +54,7 @@ supervised lab environment. The instructor may provide the following
 background information to students at the beginning of the lab session:
 \begin{enumerate}
   \item Information on how to use Labtainers.
-  \item How to use Firefox and its {\tt LiveHTTPHeaders} Extension.
+  \item How to use Firefox and its {\tt Web Developer / Network} Tool.
   \item How to access the source code of the {\tt Elgg} web application. 
   \item Some very basic knowledge about JavaScript, HTTP, and PHP.
        
@@ -168,7 +168,7 @@ Attackers need to know the structure of such a request.
 You can observe the
 structure of the request, i.e the parameters of the request, by making
 some modifications to the profile and monitoring the request using
-\texttt{LiveHTTPHeaders}. You may see something similar to
+\texttt{Web Developer / Network} tools. You may see something similar to
 the following (unlike HTTP {\tt GET} requests, which append 
 parameters to the URL strings, the parameters of HTTP {\tt POST} requests are 
 included in the HTTP message body): 
@@ -407,7 +407,7 @@ function action_gatekeeper($action) {
 \paragraph{Task:}
 After turning on the countermeasure above, try the CSRF attack again, 
 and describe your observation. Please point out the secret tokens in the 
-HTTP request captured using {\tt LiveHTTPHeaders}. Please explain why
+HTTP request captured using {\tt Web Developer / Network} tools. Please explain why
 the attacker cannot send these secret tokens in the CSRF attack; what
 prevents them from finding out the secret tokens from the web page?   
 
@@ -415,7 +415,7 @@ prevents them from finding out the secret tokens from the web page?
 \section{Submission}
 You need to submit a detailed lab report to describe what you have
 done and what you have observed. Please provide details using
-{\tt LiveHTTPHeaders},  and/or screenshots.
+{\tt Web Developer / Network} tools,  and/or screenshots.
 You also need to provide explanation
 to the observations that are interesting or surprising.
 If you edited your lab report on a separate system, copy it back to the Linux system at the location 
