@@ -43,8 +43,8 @@ RUN echo "$user_name:$password" | chpasswd
 #RUN usermod $user_name -a -G wheel
 
 
-RUN useradd -ms /bin/bash alice
-RUN echo "alice:password4alice" | chpasswd
+RUN useradd -ms /bin/bash bob
+RUN echo "bob:password4bob" | chpasswd
 RUN useradd -ms /bin/bash harry
 RUN echo "harry:password4harry" | chpasswd
 RUN useradd -ms /bin/bash mike
