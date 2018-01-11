@@ -25,7 +25,7 @@ attacks.
 
 To demonstrate what attackers can do by exploiting XSS
 vulnerabilities, we have set up a web application named 
-{\tt Elgg} in our pre-built Ubuntu VM image.
+{\tt Elgg} in a web server within this lab.
 {\tt Elgg} is a very popular open-source web application for
 social network, and it has implemented a number of countermeasures 
 to remedy the XSS threat. To demonstrate how XSS attacks work, we 
@@ -94,7 +94,7 @@ the lab:
 \begin{enumerate}
   \item A brief overview of the tasks.
   \item How to use the virtual machine, Firefox web browser, and the
-    {\tt LiveHTTPHeaders} extension.
+    {\tt Web Developer / Network} tools.
   \item Basics of JavaScript and Ajax.
   \item How to use the C program that listens on a port. 
   \item How to write a Java program to send HTTP POST messages. 	
@@ -186,13 +186,13 @@ The attack should be launched from another virtual machine.
 To add a friend for the victim, we should first find out how a legitimate 
 user adds a friend in {\tt Elgg}.
 More specifically, we need to figure out what are sent to the server when a user 
-adds a friend. Firefox's {\tt LiveHTTPHeaders} extension can help us; it 
+adds a friend. Firefox's {\tt Web Developer / Network} tool can help us; it 
 can display the contents of any HTTP request message sent 
 from the browser. From the contents, we can identify all
-the parameters in the request. A screen shot of {\tt LiveHTTPHeaders} is given in
-Figure~\ref{fig:livehttptext}. The {\tt LiveHTTPHeaders} 
-is already installed in the pre-built \ubuntu VM image.
-
+the parameters in the request. A screen shot of sample HTTP headers is given in
+Figure~\ref{fig:livehttptext}. This header information is gathered using
+the  Firefox {\tt Web Developer / Network} tools
+in the victim's browser.
 
 Once we have understood what the HTTP request for adding friends look like, 
 we can write a Java program to send out the 
@@ -636,7 +636,7 @@ Connection: Keep-Alive
 Content-Type: text/html
 \end{Verbatim}
 }
-\caption{Screenshot of {\tt LiveHTTPHeaders} Extension} 
+\caption{Sample of HTTP Header for Adding a Friend}
 \label{fig:livehttptext}
 \end{figure}
 \end{document}
