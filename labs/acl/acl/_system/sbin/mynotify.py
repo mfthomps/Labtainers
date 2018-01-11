@@ -68,10 +68,20 @@ while True:
         showMask(event.mask)
         watch = watches[event.wd]
         logger.debug('path: %s flag: %s' % (watch.path, watch.flag))
-        ts = time.strftime('%Y%m%d%H%M%S')
+        now = time.time()
+        ts = time.strftime('%Y%m%d%H%M%S', time.localtime(now))
         checklocaloutfile = os.path.join(results, 'checklocal.stdout.%s' % ts )
         checklocalinfile = os.path.join(results, 'checklocal.stdin.%s' % ts)
-        cmd = '%s %s %s > %s 2>/dev/null' % (checklocal, watch.path, watch.flag, checklocaloutfile)
+        if not os.path.isfile(checklocaloutfile):
+            ''' no file, if from previous second, use that as hack to merge with output from command '''
+            now = now -1
+            ts = time.strftime('%Y%m%d%H%M%S', time.localtime(now))
+            tmpfile = os.path.join(results, 'checklocal.stdout.%s' % ts )
+            if os.path.isfile(tmpfile):
+                checklocaloutfile = os.path.join(results, 'checklocal.stdout.%s' % ts )
+                checklocalinfile = os.path.join(results, 'checklocal.stdin.%s' % ts)
+            
+        cmd = '%s %s %s >> %s 2>/dev/null' % (checklocal, watch.path, watch.flag, checklocaloutfile)
         logger.debug('cmd is %s' % cmd)
         os.system(cmd)
                          
