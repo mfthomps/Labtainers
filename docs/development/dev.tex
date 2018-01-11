@@ -65,4 +65,12 @@ manually tested.  The WinSCP script pushes new applicance images to the CyberCIE
 directory on the C3O web server.  (Wine and WinSCP must be installed on the Linux host that
 manages the VMs.
 
-
+\section {Race condition on checklocal.sh output}
+If an mynotify.py event causes an output from checklocal.py, that may conflict with
+concurrent output from checklocal.py resulting from some program/script running.  In 
+theory, the program/script should complete its run of checklocal before the program/script
+actually gets to access the file that triggers a mynotify watch.  So, the latter's output
+to the timestamped file is appended.  Further, the mynotify.py looks for an existing timestamped
+file, and if not found, looks for one from the previous second.  This hack is an attempt to
+keep the outputs merged.  It will fail if the access does not happen within a second of the
+program start.  See the acl lab.
