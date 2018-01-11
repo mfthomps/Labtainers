@@ -5,5 +5,10 @@ if [[ ! -z "$2" ]]; then
     else
         getfacl $1
     fi
+else
+    if [[ $1 == fun ]];then
+        echo "running fun"
+        id
+    fi
 fi
 
