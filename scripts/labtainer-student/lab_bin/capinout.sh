@@ -129,8 +129,7 @@ if [ -f $PRECMD_HOME/.local/bin/checklocal.sh ]
 then
     checklocaloutfile="$PRECMD_HOME/.local/result/checklocal.stdout.$timestamp"
     checklocalinfile="$PRECMD_HOME/.local/result/checklocal.stdin.$timestamp"
-    cmd_path=`which $PROGNAME 2>/dev/null`
-    $PRECMD_HOME/.local/bin/checklocal.sh $cmd_path > $checklocaloutfile
+    $PRECMD_HOME/.local/bin/checklocal.sh $PROGNAME > $checklocaloutfile
     # For now, there is nothing (i.e., no stdin) for checklocal
     echo "" >> $checklocalinfile
 fi
