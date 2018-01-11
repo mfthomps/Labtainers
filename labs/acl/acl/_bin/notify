@@ -1,2 +1,3 @@
 /shared_data/alice CREATE
 /shared_data/bob/bobstuff.txt ACCESS
+/shared_data/accounting.txt ACCESS
