@@ -347,6 +347,8 @@ In addition to naming the container, the following values are defined:
 \item TERMINALS [quantity] -- The number of virtual terminals to open and attach to this 
 container when a lab starts.  If missing, it defaults to 1. Terminal titles are set to the 
 bash shell prompt.
+\item TERMINAL\_GROUP [name] -- All virtual terminals within the same group are organized as
+tabs within a single virtual terminal.  Terminal group names can be arbitrary strings.
 \item XTERM [title] [script] -- The named script is execute in a virtual terminal with the
 give title.   The system will change to the user's home directory prior to executing the
 script.  The script should be placed in container \_bin directory, i.e.,
@@ -363,7 +365,7 @@ This defaults to the user name defined above.
 that is to be connected to this container.  A separate line should be entered for each network.  The given ip address 
 can optionally include a MAC address assignment as a suffix following a colon, e.g., "172.25.0.1:2:34:ac:19:0:2".
 \item SCRIPT [script] -- Optional script to provide to the Docker create command, defaults to ``bash''.  This must be set to
-``NONE'' for CENTOS-based labs (and likely fedora[test that]).
+``NONE'' for CentOS-based labs (and likely fedora[test that]).
 \item ADD-HOST [host:ip] -- Optional addition to the /etc/host file, a container may have multipled ADD-HOST entries.
 \item X11 [YES/NO] -- Optional, defaults to NO.  If YES, the container mounts the TCP socked used by the hosts X11 server,
 enabling the container to run applications with GUIs, e.g., browsers or wireshark.  See sql-inject as an example.  See the
@@ -450,9 +452,9 @@ which will then fork services, e.g., the sshd, per the /etc/xinet.d/ configurati
 can be extended (or replaced) as needed by the lab.  The example telnetlab illustrates the use of this script
 to provide network services.
 
-The CENTOS-based Labtainer labs, exemplified by centos-log, do not use the \textit{faux\_init}, rather they
+The CentOS-based Labtainer labs, exemplified by centos-log, do not use the \textit{faux\_init}, rather they
 use a Docker image built to run systemd and the /usr/sbin/init process.  The Dockerfile template includes
-commented options for CENTOS.  The config/start.config file must also include the 
+commented options for CentOS.  The config/start.config file must also include the 
 \begin{verbatim}
     SCRIPT NONE
 \end{verbatim}
@@ -712,7 +714,7 @@ The \textit{forcecheck} file can be used instead of a \textit{treataslocal} file
 for those cases where stdin and stdout are not required for goal assessment.  An example of the use of
 forcecheck can be found in the \textit{capabilities} lab.  
 
-\subsection{Identify lab-specifc artifacts}
+\subsection{Identify lab-specific artifacts}
 The automated assessment functions encourage labs to be organized into a set of distinct ``goals''.
 For each goal, the lab designer should identify specific fields within artifact files that
 could be compared to ``expected'' values.  These lab-specific artifacts are identified within the
@@ -911,6 +913,8 @@ with the framework.
                          that satisfy the given operator and arguments.
          value       - The goal value is assigned the given resulttag value from
                          the most recent timestamped file that satisfies the resulttag.
+                         NOTE: use is_true for boolen expressions within goals where
+                         you are evaluating values having a common timestamp.
  
 <operator> - the following operators evaluate to TRUE as described below:
    string_equal -  The strings derived from <answertag> and <resulttag>
@@ -1084,6 +1088,9 @@ Most result and goal assessment can occur once you have generated a suitable sam
 expected student artifacts.  In other words, adding new goal does not typically require
 that you go back and re-perform student actions.  Exceptions to this are:
 
+Use {\tt TERMINAL\_GROUPS} in the start.config file to organize terminals if you have more
+than a few.  Otherwise the student will spend time trying to find each terminal.
+
 \begin{enumerate}
 \item Adding new system commands to a ``treataslocal'' file;
 \item Identifying new system files to be parsed as results.  For example, results in a log
@@ -1106,7 +1113,7 @@ the script that launches the services, e.g., the \textit{faux\_init} script.  Ho
 other process tree's will appear as they
 do in Linux system, and this includes inetd services.
 
-The CENTOS-based labs have the true /usr/sbin/init process and systemd structure.
+The CentOS-based labs have the true /usr/sbin/init process and systemd structure.
 
 The available Docker network drivers do not permit IP address overlap between virtual networks.
 For example, you cannot define two 192.168.1.0/24 LANs.
