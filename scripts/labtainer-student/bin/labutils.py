@@ -809,6 +809,7 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
     
     # Reach here - Everything is OK - spawn terminal for each container based on num_terminal
     terminal_count = 0
+    terminal_groups = {}
     for container in start_config.containers.values():
         # Do not spawn terminal if it is regression testing
         if is_regress_test:
@@ -870,11 +871,28 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
                 else:
                     cmd = 'bash -l' 
                 #spawn_command = "gnome-terminal %s -x docker exec -it %s bash -l &" % (terminal_location, mycontainer_name)
-                spawn_command = 'gnome-terminal %s -- docker exec -it %s %s &' % (terminal_location, 
-                   mycontainer_name, cmd)
-                logger.DEBUG("gnome spawn: %s" % spawn_command)
-                #print spawn_command
-                os.system(spawn_command)
+                if container.terminal_group is not None:
+                    if container.terminal_group not in terminal_groups:
+                        terminal_groups[container.terminal_group] = []
+                    group_command = '"docker exec -it %s %s"' % (mycontainer_name, cmd)
+                    terminal_groups[container.terminal_group].append(group_command)
+                else:
+                    spawn_command = 'gnome-terminal %s -- docker exec -it %s %s &' % (terminal_location,
+                       mycontainer_name, cmd)
+                    logger.DEBUG("gnome spawn: %s" % spawn_command)
+                    #print spawn_command
+                    os.system(spawn_command)
+
+    for tg in terminal_groups:
+        tab_commands = ''
+        for command in terminal_groups[tg]:
+            tab_commands = tab_commands+' --tab -e %s' % command
+        terminal_location = terminalCounter(terminal_count)
+        terminal_count += 1
+        spawn_command = 'gnome-terminal %s %s' % (terminal_location, tab_commands)
+        logger.DEBUG("gnome spawn: %s" % spawn_command)
+        os.system(spawn_command)
+
                 
     if apps2start != []:
         print "Please wait for the apps (%s) to launch" % apps2start
