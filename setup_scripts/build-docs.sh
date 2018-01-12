@@ -27,3 +27,9 @@ for lab in $llist; do
         fi
         cd ../
 done
+cd ../docs/labdesigner
+make
+cd ../student
+make
+cd ../instructor
+make
