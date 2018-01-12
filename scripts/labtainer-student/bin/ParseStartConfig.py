@@ -55,6 +55,7 @@ class ParseStartConfig():
             self.script = "bash"
             self.x11 = "no"
             self.registry = None
+            self.terminal_group = None
             self.add_hosts = []
             self.logger = logger
 
