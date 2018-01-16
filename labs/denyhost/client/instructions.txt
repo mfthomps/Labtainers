@@ -2,65 +2,127 @@ Title: Deny Hosts Lab Exercise
 
 1. Background
 
-This Labtainer exercise explores the use of denyhosts to
-block failed SSH login attempts from a client computer to
-an SSH server.
+This Labtainer exercise explores the use of the 
+denyhosts utility on an SSH server to
+limit SSH login attempts from an IP address.
 
 2. Performing the lab
 The lab is started from the Labtainer working 
-directory on your Docker-enabled host, e.g., a Linux VM.
+directory on your Linux host, e.g., a Linux VM.
 From there, issue the command:
 
     start.py denyhost
 
 The resulting virtual terminals include a display of
 these instructions, a terminal connected to a client,
-and a terminal connected to a server.
+and a terminal connected to a SSH server.
 
 To navigate this instruction, the arrow keys along with 
 with the Space/Home/End/Page-Up/Page-Down keys are usable.
 To exit navigation of this instruction, type 'q'.
 
 3. Tasks
+Brute force attacks on SSH servers may attempt thousands of different 
+user IDs and passwords, often using automated tools, or "bots".  
+The denyhosts utility allows an administrator
+to deny access from IP addresses that are the sources of multiple
+failed login attempts.
 
-3.1. Login to SSH server from the client with correct password
+3.1. Review configuration files
+     We will consider three key files associated with the denyhosts 
+     utility.  
 
-     ssh ubuntu@172.20.0.3
+     auth.log
+     ========
+     The first is the /var/log/auth.log file, which reflects
+     the success of login attempts.  What that file using:
+         sudo tail -f /var/log/auth.log
+
+     and then ssh to 172.20.0.3 as user "hank" with password "hank21".
 
      Note: when connecting the first time, enter 'yes' when
      prompted 'Are you sure you want to continue connecting (yes/no)?'
 
-3.2. Login to SSH server from the client with incorrect password
+     Observe the event in the /var/log/auth.log
 
-     The first option is to attempt incorrect password login manually
-     from the client.
+     Then, exit and again ssh to 172.20.0.3, but this time use an
+     incorrect password.  Notice the failed login attempt event in
+     the /var/log/auth.log
 
-     A python script 'bot.py' will attempt incorrect password login
-     until the connection is closed/denied by the server.
-     Note: the 'bot.py' assumes at least one successful login has been
-     attempted (i.e., user has answered 'yes' to connecting to
-     host which authenticity hasn't yet been established.
+     The denyhosts utility observes events in the auth.log to detect
+     failed login attempts.
 
-     Because the denyhosts application that runs on the server checks
-     the SSH server log file to determine failed login attempts,
-     and based on the configurable number of failed login attempts
-     for the denyhosts, the /etc/hosts.deny file will be updated
-     with the IP address of the client where the failed logins are attempted.
+     denyhosts.config
+     ================
+     Review the content of /etc/denyhosts.config:
+         sudo less /etc/denyhosts.config
+     Note in particular the description and values for 
+     DENY_THRESHOLD_INVALID and DENY_THRESHOLD_VALID
 
-3.3. Server /etc/hosts.deny file
+     hosts.deny
+     ==========
+     This system file is used by the networking functions to block
+     connections from selected IP addresses.  An entry in this file
+     will block the connection prior to it reaching the intended service.
+     Thus, the SSH daemon will never see connection attempts from these
+     sources, thereby helping to avoid consuming system resource.
+     The denyhosts utility adds entries to this file when the quantity
+     of failed login attempts recorded in the /var/log/auth.log exceeds
+     the thresholds defined in /etc/denyhosts.config.
 
-     Once the client's IP address is added to the /etc/hosts.deny file
-     no further login from that client (IP address) is allowed.
+3.2. Lock out a valid user using the bot
+     The bot.py program in the client home directory is a crude bot
+     that attempts a brute force ssh login by iterating through simple
+     passwords based on the user ID.  For example, if given a user ID
+     of "hank", it will try: hank1, hank2, hank3... as the password.     
+     Before you start the bot, go to the server and tail the 
+     /var/log/auth.log file.  
+     On the client, make note of your IP address:
+         ifconfig
 
-     Update the server's /etc/hosts.deny file by removing the added client's
-     IP address. Note: may require sudo privilege to edit the file.
+     Then start the bot, giving a user of "hank"
+         ./bot.py hank
 
-     Once the client's IP address is removed, correct password login is
-     allowed once again. Note that failed login attempt may trigger the
-     IP address to be added back to the /etc/hosts.deny file right away
-     (because the denyhosts application looks at the previous failed attempts
-     on the SSH log file, in this case, the /var/log/auth.log until the
-     log file is rotated).
+     Based on your review of the /etc/denyhosts.config file, at what
+     point do you expect the client IP to be added to the hosts.deny
+     file?
+
+     Did the connection get denied at the point you expected?  If not
+     consider the implications of the DAEMON_SLEEP value in the 
+     denyhosts.config file.
+     
+3.3 Restore login ability of the valid user
+     View the /etc/hosts.deny file, and note the entry for your
+     IP address.  That will prevent anyone from that IP from connecting
+     to the SSH server.
+
+     What if the login failures were an honest mistake?  
+     Simply deleting the entry in /etc/hosts.deny file is generally 
+     not sufficient because deny hosts keeps other databases. 
+
+     One option is to "whitelist" the client computer by adding an 
+     entry to the /etc/hosts.allow file, e.g.,
+
+         ALL: 172.20.0.2
+
+     Add that entry and confirm you are now able to ssh from the client.
+
+3.5 Lock out an invalid user
+
+     First, change the IP address of the client so that our client is 
+     no longer in the hosts.allow whitelist.  On the client:
+
+         ifconfig eth0 172.20.0.9
+
+     Then try the bot.py again, but this time provide a different user,
+     e.g., 
+   
+         ./bot.py tony
+
+     Did the connection get rejected after a similar number of attempts
+     as when you ran the bot with the "hank" user?  Why?
+     Consider why you may want a different threshold for attempts with
+     valid user names as opposed to invalid user names.
 
 4. Stop the Labtainer
 
