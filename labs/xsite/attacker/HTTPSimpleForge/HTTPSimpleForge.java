@@ -21,16 +21,10 @@ try {
    // Add other necessary HTTP Headers yourself. Cookies should be stolen
    // using the method in task3.
    urlConn.addRequestProperty("User-agent","Sun JDK 1.6");
-   //HTTP Post Data which includes the information to be sent to the server.
-   String data = "name=...&guid=..";
-   // DoOutput flag of URL Connection should be set to true
-   // to send HTTP POST message.
-   urlConn.setDoOutput(true);
-   // OutputStreamWriter is used to write the HTTP POST data
-   // to the url connection.
-   OutputStreamWriter wr = new OutputStreamWriter(urlConn.getOutputStream());
-   wr.write(data);
-   wr.flush();
+   urlConn.setRequestMethod("GET");
+   String cookies = "<<correct_cookies>>";
+   urlConn.addRequestProperty("cookie", cookies);
+
    // HttpURLConnection a subclass of URLConnection is returned by
    // url.openConnection() since the url is an http request.
    if (urlConn instanceof HttpURLConnection) {
