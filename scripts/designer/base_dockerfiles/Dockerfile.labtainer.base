@@ -23,6 +23,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ghex \
     leafpad \
     locales \
+    nano \
     python-pip
 
 # Set the locale
@@ -33,6 +34,8 @@ ENV LC_ALL en_US.UTF-8
 RUN sudo pip install --upgrade pip
 RUN sudo pip install setuptools
 RUN sudo pip install parse
+RUN pip install inotify_simple
+RUN pip install enum
 ADD system/etc/sudoers /etc/sudoers
 ADD system/etc/rc.local /etc/rc.local
 ADD system/bin/funbuffer /usr/bin/
