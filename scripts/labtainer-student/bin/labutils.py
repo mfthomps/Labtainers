@@ -877,6 +877,7 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
                     group_command = '"docker exec -it %s %s"' % (mycontainer_name, cmd)
                     terminal_groups[container.terminal_group].append(group_command)
                 else:
+                    terminal_count += 1
                     spawn_command = 'gnome-terminal %s -- docker exec -it %s %s &' % (terminal_location,
                        mycontainer_name, cmd)
                     logger.DEBUG("gnome spawn: %s" % spawn_command)
