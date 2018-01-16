@@ -12,6 +12,8 @@ RUN yum install -y python-pip
 RUN sudo pip install --upgrade pip
 RUN sudo pip install setuptools
 RUN sudo pip install parse
+RUN pip install inotify_simple
+RUN pip install enum
 RUN systemctl enable rsyslog
 ADD system/etc/sudoers /etc/sudoers
 ADD system/bin/funbuffer-8.5 /usr/bin/funbuffer
