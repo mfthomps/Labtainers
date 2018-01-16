@@ -12,7 +12,8 @@
 #   openssl openssh-server openvpn wget tcpdump  update-inetd  xinetd
 #
 #FROM mfthomps/labtainer.base
-FROM mfthomps/labtainer.network
+#FROM mfthomps/labtainer.network
+FROM mfthomps/labtainer.lamp
 #FROM mfthomps/labtainer.centos
 #
 #  lab is the fully qualified image name, e.g., mylab.some_container.student
@@ -36,9 +37,9 @@ ADD $labdir/sys_$lab.tar.gz /
 #
 RUN useradd -ms /bin/bash $user_name
 RUN echo "$user_name:$password" | chpasswd
-RUN adduser $user_name sudo
+#RUN adduser $user_name sudo
 # replace above with below for centos/fedora
-#RUN usermod $user_name -a -G wheel
+RUN usermod $user_name -a -G wheel
 
 
 #
@@ -57,10 +58,10 @@ ADD $labdir/$lab.tar.gz $HOME
 #
 #  The first thing that executes on the container.
 #
-#USER root
-#CMD ["/usr/sbin/init"]
+USER root
+CMD ["/usr/sbin/init"]
 # replace below with two above for centos
-ENTRYPOINT sudo /sbin/faux_init && bash
+#ENTRYPOINT sudo /sbin/faux_init && bash
 #
 #  DO NOT add below this line.
 #
