@@ -106,6 +106,9 @@ failed login attempts.
          ALL: 172.20.0.2
 
      Add that entry and confirm you are now able to ssh from the client.
+     Use vim or nano to add the entry, e.g.,
+    
+         sudo nano /etc/hosts.allow 
 
 3.5 Lock out an invalid user
 
