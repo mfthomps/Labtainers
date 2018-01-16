@@ -864,7 +864,6 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
                 terminal_location = terminalCounter(terminal_count)
                 #sys.stderr.write("%s \n" % terminal_location)
                 #sys.stderr.write("%s \n" % mycontainer_name)
-                terminal_count += 1
                 if role == 'instructor':
                     # hack, instructor does not have augmented profile
                     cmd = 'sh -c "cd /home/%s && bash -l"' % container.user
@@ -873,6 +872,7 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
                 #spawn_command = "gnome-terminal %s -x docker exec -it %s bash -l &" % (terminal_location, mycontainer_name)
                 if container.terminal_group is not None:
                     if container.terminal_group not in terminal_groups:
+                        terminal_count += 1
                         terminal_groups[container.terminal_group] = []
                     group_command = '"docker exec -it %s %s"' % (mycontainer_name, cmd)
                     terminal_groups[container.terminal_group].append(group_command)
