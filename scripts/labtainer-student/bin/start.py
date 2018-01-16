@@ -70,7 +70,7 @@ def main():
     if os.path.isfile(update_flag):
         ''' for prepackaged VMs, do not auto update after first lab is run '''
         os.remove(update_flag)
-    print('lab_path is %s' % lab_path)
+    #print('lab_path is %s' % lab_path)
     labutils.StartLab(lab_path, "student", quiet_start=quiet_start)
 
     return 0
