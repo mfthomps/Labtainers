@@ -58,8 +58,9 @@ ADD $labdir/$lab.tar.gz $HOME
 #  The first thing that executes on the container.
 #
 #USER root
+#RUN systemctl enable mynotify
 #CMD ["/usr/sbin/init"]
-# replace below with two above for centos
+# replace below with three above for centos
 ENTRYPOINT sudo /sbin/faux_init && bash
 #
 #  DO NOT add below this line.
