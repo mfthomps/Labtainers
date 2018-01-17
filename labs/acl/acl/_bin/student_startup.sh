@@ -5,6 +5,7 @@
 id | grep root >>/dev/null
 result=$?
 if [[ $result -eq 0 ]]; then
+    rm -f /var/run/nologin
     #echo "is root"
     while [ 1 ]; do
         trap login SIGINT
