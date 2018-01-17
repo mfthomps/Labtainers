@@ -28,8 +28,6 @@ ARG imagedir
 ARG user_name
 ARG password
 ARG apt_source
-RUN pip install inotify_simple
-RUN pip install enum
 #
 # Install the system files found in the _system directory
 #
