@@ -125,12 +125,20 @@ that are collected by instructors.
 \section {Obtaining the Labtainer Development Kit}
 Installation of Labtainers is described in in the \textit{Labtainer Student Guide},  
 which also includes instructions for installing an Ubuntu VM (if you do not already have a Linux system),
-and the Docker package.  Our website also distributes pre-packaged VM appliances that already have
+and the Labtainer framework.  Our website also distributes pre-packaged VM appliances that already have
 Labtainers installed. Note Labtainers will work with any Linux
 distribution that supports Docker containers.  If you already have Docker installed on a Linux system, 
 reference the Student Guide for other dependencies. 
 
+The difference between the development kit and the standard Labtainer distribution is primarily
+just the lab definition files, which are withheld from the general distribution for efficiency.
+If you have a Labtainer installation, you can get the developer files by going to your
+labtainers directory, e.g., {\tt ~/labtainers} and running {\tt ./update-designer.sh}
+You may then want to logout and login again, or run a new {\tt bash} shell because that script
+sets some environment variables.
 
+It is suggested that you periodically run that update script to get the latest lab definition files,
+and to update framework software.   
 
 \section {Defining New Labs}
 \label{sec:new_labs}
