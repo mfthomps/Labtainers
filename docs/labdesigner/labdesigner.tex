@@ -110,7 +110,7 @@ the student, other than waiting for downloads to complete.
 After the student performs the lab exercise, artifacts from the container
 environments are automatically collected into a zip file that appears on
 the student's Linux host.  The student forwards this zip file to the instructor,
-e.g., via email or a learning management system.  The instructor collects student zip files into a common
+e.g., via email or a learning management system (LMS).  The instructor collects student zip files into a common
 directory on his or her own Linux host, and then issues a command that starts
 the instructor container(s) for that lab.  This results in automated assessment of student lab
 activity, (if the lab is designed for that), and creation of an environment
@@ -153,27 +153,24 @@ lab designer primarily interacts with the framework by editing configuration fil
 which affect the student's execution environment and the optional automated
 assessment of student activity.
 
-The examples in this guide assume you have defined the LABTAINER\_DIR environment variable.
-Set the LABTAINER\_DIR environment variable to the top of the svn repo, e.g.,
-\begin{verbatim}
-    export LABTAINER_DIR=/home/mike/labtainer/trunk
-\end{verbatim}
-It is suggested that you add the LABTAINER\_DIR definition in your .bashrc or .profile.
-
 Labtainer exercises each have their own
 directory under the ``labs'' directory in the project repository.
 The first step in creating a new lab within the framework is to create
-a directory for the lab and then cd to it.  The directory name will be the named
+a directory for the lab and then cd to it.  The directory name will be the name
 used by students when starting the lab.  It must be all lower case and not contain spaces.
 \begin{verbatim}
     cd $LABTAINER_DIR/labs
     mkdir <new lab name>
     cd <new lab name>
 \end{verbatim}
+\noindent Note: the {\tt \$LABTAINER\_DIR} will have been defined in your .bashrc
+file when you installed Labtainers.  It should point to the {\tt labtainers/trunk}
+directory.  You may need to start a new {\tt bash} shell to inherit the environment
+variable.
 
 After the new lab directory is created, run the ``new\_lab\_setup.sh'' script.
 \begin{verbatim}
-    $LABTAINER_DIR/scripts/designer/bin/new_lab_setup.py
+    new_lab_setup.py
 \end{verbatim}
 This will create a set of template files that you can then customize
 for the new lab.  These template files are referenced in the discussion
@@ -186,8 +183,7 @@ Once a new lab directory is created, and the new\_lab\_setup.py has been run, th
 you can test the new, (currently empty) lab.  All student labs are launched from the
 labtainer-student directory.  Lab development workflow is easiest if at least two
 terminals or tabs are used, one in the new lab directory, and one in the labtainer-student
-directory.  So, open a new tab or window and set the LABTAINER\_DIR environment variable
-if you had not added it to your .bashrc.  Then:
+directory.  So, open a new tab or window, and then:
 
 \begin{verbatim}
     cd $LABTAINER_DIR/scripts/labtainer-student
@@ -633,17 +629,24 @@ ad-hock exploration by students.  Therefore, lab designer should consider ways t
 evidence that steps of a lab were performed rather than trying to identify everything a student
 may have done in the course of the lab.
 
-Automated assessment is achieved by first generating artifact files. Then, artifacts
-within those files are identified, and the values of those artifacts are compared to expected values.
+Automated assessment is achieved by first generating artifact files while the student works. 
+Then, artifacts within those files are identified, and the values of those artifacts are compared to expected values.
 \subsection{Artifact files}
+The files from which artifacts are derived include persisent data, such as system logs and 
+{\tt .bash\_history}, as well as 
+timestamped snapshots of transitory data such as stdout of a program.  Lab designers can generate
+customized artifacts in response to student actions using scripts that automatically execute when selected
+programs or utilities are executed -- or when selected files are accessed.   The following subsections
+described how these artifacts are generated.
+
 \subsubsection{Capturing stdin and stdout}
 The framework's automated assessment functions generally assume the student will interact with one or
 more programs or system utilities.  Each time the student invokes a selected program or utility, the 
 framework captures copies of standard input and standard output, (stdin and stdout) into timestamped file sets.
-This is transparent to the student.  (Also see the discussion of the ``treataslocal'' file for capturing
+This is transparent to the student.  (Also see the following section for capturing
 program output other than stdout.)  These timestamped file sets, and everything else relative to
 the student's home directory, are automatically packaged when the student completes the lab.
-These packages of artifacts are then transferred to the instructor, (e.g., via email or a CLE), and 
+These packages of artifacts are then transferred to the instructor, (e.g., via email or a LMS), and 
 ingested into the instructor's system where lab assessment occurs. Timestamped stdin and stdout files
 are captured in \texttt{\$HOME/.local/result}
 
@@ -673,8 +676,9 @@ program    delim_type:delim_value
             starts -- the output file name is derived from the 
             substring following the given delim_value within the 
             command line typed by the student.  For example, 
-            "dd starts:of=" for a "dd in=myfs.img of=newfile" 
-            would yield an output file name of "newfile".
+            "dd starts:of=" for a command line of 
+            "dd in=myfs.img of=newfile" would yield an output 
+            file name of "newfile".
      
             follows -- the output file name is the command line 
             token following the given delim_value.  For example, 
@@ -685,9 +689,11 @@ program    delim_type:delim_value
             file -- the delim_value is the output file name
 \end{verbatim}
 \noindent The resulting timestamped files are located with the stdin and stdout files in .local/result
+
 \subsubsection{Bash History}
-The framework collects all student bash history into the \texttt{\$HOME/.bash\_history}.  This file is
-available for reference as an artifact file.
+The framework collects all student bash history into the \texttt{\$HOME/.bash\_history} and \newline
+\texttt{/root/.bash\_history} files.  These files are
+available for reference as an artifact file.  
 
 \subsubsection{Capturing information about the environment}
 \label{checklocal}
@@ -706,7 +712,7 @@ allowing the designer to capture different environment information for different
 
 As another example, consider the file-deletion lab \textit{checklocal.sh} script.
 It mounts a directory, lists its content, and unmounts it.  This all occurs 
-transparently to the student, and, in this example, help confirm a specific file
+transparently to the student, and, in this example, helps confirm a specific file
 was in fact deleted at the time of issuing a command to recover deleted content from
 the volume.
 
@@ -765,7 +771,7 @@ For each goal, the lab designer should identify specific fields within artifact 
 could be compared to ``expected'' values.  These lab-specific artifacts are identified within the
 \texttt{instr\_config/results.config file}.  Artifacts are identified in terms of:
 \begin{enumerate}
-\item the program that was invoked;
+\item the program that was invoked, (or persistent file name);
 \item whether the artifact is in stdin or stdout
 \item the line containing the artifact, and a token within that line.
 \item ad-hoc properties, such as the quantity of lines in the stdin file.
