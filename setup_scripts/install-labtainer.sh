@@ -4,12 +4,13 @@ read -p "This script will reboot the system when done, press enter to continue"
 # ensure labtainer paths in .bashrc
 #
 target=~/.bashrc
-grep ":./bin:" $target >>/dev/null
+grep ":./bin:" $target | grep PATH >>/dev/null
 result=$?
 if [[ result -ne 0 ]];then
+   here=`pwd`
    cat <<EOT >>$target
    if [[ ":\$PATH:" != *":./bin:"* ]]; then 
-       export PATH="\${PATH}:./bin"
+       export PATH="\${PATH}:./bin:$here/trunk/scripts/designer/bin"
    fi
 EOT
 fi
