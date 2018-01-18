@@ -1072,6 +1072,13 @@ def DateIsLater(df_utc_string, ts, local=False):
     else:
         return False
 
+def EmptyTar(fname):
+    size = os.path.getsize(fname)
+    if size == 10240 or size == 110:
+        return True
+    else
+        return False
+
 def FileModLater(ts, fname):
     retval = False
     df_utc_string = None
@@ -1088,8 +1095,7 @@ def FileModLater(ts, fname):
             if line.startswith('?'):
                 f = line.strip().split()[1]
                 if f.endswith('.tar'):
-                    size = os.path.getsize(f)
-                    if size == 10240 or size == 110:
+                    if EmptyTar(f):
                         continue
                     fdir = os.path.dirname(f)
                     if os.path.isfile(os.path.join(fdir,'external-manifest')):
@@ -1127,8 +1133,7 @@ def FileModLater(ts, fname):
             # assume not in svn
             logger.DEBUG("not in svn? %s" % fname)
             if fname.endswith('.tar'):
-                size = os.path.getsize(fname)
-                if size == 10240 or size == 110:
+                if EmptyTar(fname):
                     # hacky special case for empty tar files.  ug.
                     return False
                 fdir = os.path.dirname(fname)
@@ -1140,6 +1145,9 @@ def FileModLater(ts, fname):
             else:
                 check_file = newest_file_in_tree(fname)
                 logger.DEBUG('latest found is %s' % check_file)
+                if EmptyTar(check_file):
+                    # hacky special case for empty tar files.  ug.
+                    return False
                 df_time = os.path.getmtime(check_file)
             df_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
             retval = DateIsLater(df_utc_string, ts)
