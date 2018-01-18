@@ -20,6 +20,8 @@ rm -f update-designer.sh
 ln -s trunk/setup_scripts/update-designer.sh
 full=`realpath trunk/setup_scripts/update-designer.sh`
 ln -sf $full trunk/scripts/labtainer-student/bin/update-designer.sh
-wget https://my.nps.edu/documents/107523844/109121513/labtainer-developer.tar/f377285e-23b5-4cd4-a578-c879b0200fff -O labtainer-developer.tar
+if [[ -z "$LABTAINER_TESTING" ]]; then
+    wget https://my.nps.edu/documents/107523844/109121513/labtainer-developer.tar/f377285e-23b5-4cd4-a578-c879b0200fff -O labtainer-developer.tar
+fi
 cd ..
 tar xf labtainer/labtainer-developer.tar
