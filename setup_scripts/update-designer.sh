@@ -16,6 +16,16 @@ else
    echo "Please run this script from the labtainer or labtainer-student directory"
    exit
 fi
+target=~/.bashrc
+grep ":scripts/designer/bin:" $target | grep PATH >>/dev/null
+result=$?
+if [[ result -ne 0 ]];then
+   cat <<EOT >>$target
+   if [[ ":\$PATH:" != *":scripts/designer/bin:"* ]]; then 
+       export PATH="\${PATH}:$here/trunk/scripts/designer/bin"
+   fi
+EOT
+fi
 rm -f update-designer.sh
 ln -s trunk/setup_scripts/update-designer.sh
 full=`realpath trunk/setup_scripts/update-designer.sh`
