@@ -47,3 +47,11 @@ create student-only distribution whose goal is being much smaller by not includi
 files that go into containers, e.g., password cracking & sys files.  Separate problem from
 issue of instructor-only notes.
 
+Define a new results.config field_type of "ORIG_CHECKSUM", which resolves to the checksum of
+the original file as it existed right after parameterization.    
+This will be compared to a md5 computed in a checklocal.sh script?
+
+Add command completion logic to start.py, and perhaps stop.py (which would rely on settings made
+from start.py)?
+
+Consider using tabbed virtual terminals for different components?
