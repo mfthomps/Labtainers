@@ -178,6 +178,7 @@ def CreateSingleContainer(container, mysubnet_name=None, mysubnet_ip=None):
         elif container.x11.lower() == 'yes':
             #volume = '-e DISPLAY -v /tmp/.Xll-unix:/tmp/.X11-unix --net=host -v$HOME/.Xauthority:/home/developer/.Xauthority'
             volume = '--env="DISPLAY"  --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw"'
+            logger.DEBUG('container using X11')
         add_hosts = ''     
         for item in container.add_hosts:
             ip, host = item.split(':')
@@ -556,7 +557,7 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False):
         except:
             pass
         CheckTars.CheckTars(container_dir, name, logger)
-        if force_this_build or CheckBuild(lab_path, mycontainer_image_name, mycontainer_name, name, role, True, container_bin, start_config, container.registry):
+        if force_this_build or CheckBuild(lab_path, mycontainer_image_name, mycontainer_name, name, role, True, container_bin, start_config, container.registry, container.user):
             print('Will call buildImage to build %s' % mycontainer_name)
             logger.DEBUG("Will rebuild %s, Image exists(ignore if force): %s force_this_build: %s" % (mycontainer_name, 
                 image_exists, force_this_build))
@@ -1203,9 +1204,31 @@ def newest_file_in_tree(rootfolder):
         for dirname, dirnames, filenames in os.walk(rootfolder)
         for filename in filenames),
         key=lambda fn: os.stat(fn).st_mtime)
+
+def GetImageUser(image_name, container_registry):
+    user = None
+    password = None
+    cmd = 'docker history --no-trunc %s' % image_name
+    child = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output = child.communicate()
+    if len(output[1]) > 0:
+        cmd = 'docker history --no-trunc %s/%s' % (container_registry, image_name)
+        child = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output = child.communicate()
+    if len(output[0]) > 0:
+        for line in output[0].splitlines(True):
+            parts = line.split()
+            for p in parts:
+                if p.startswith('user_name='):
+                    user = p.split('=')[1]
+                elif p.startswith('password='):
+                    password = p.split('=')[1]
+            if user is not None:
+                return user, password 
+    return user, password
                 
 def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, container_bin,
-                 start_config, container_registry):
+                 start_config, container_registry, container_user):
     '''
     Determine if a container image needs to be rebuilt.
     '''
@@ -1230,7 +1253,7 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
     x=parse(parts[0])
     ts = calendar.timegm(x.timetuple())
     logger.DEBUG('image ts %s  %s' % (ts, parts[0]))
-
+   
     ''' look at dockerfiles '''
     df_name = 'Dockerfile.%s' % container_name
     df = os.path.join(lab_path, 'dockerfiles', df_name)
@@ -1313,6 +1336,11 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
                    retval = True
                    break
         logger.DEBUG('is instructor')
+    if not retval:
+        user, password = GetImageUser(image_name, container_registry)
+        if user != container_user:
+            logger.WARNING('user changed from %s to %s, will build' % (user, container_user))
+            retval = True
 
     logger.DEBUG('returning retaval of %s' % str(retval))    
     return retval
@@ -1564,9 +1592,9 @@ def CreateCopyChownZip(mycwd, start_config, labtainer_config, container_name, co
     error_string = child.stderr.read().strip()
     if len(error_string) > 0:
         if ignore_stop_error:
-            logger.DEBUG("Container %s fail on executing Student.py \n" % (container_name))
+            logger.DEBUG("Container %s fail on executing Student.py %s \n" % (container_name, error_string))
         else:
-            logger.ERROR("Container %s fail on executing Student.py \n" % (container_name))
+            logger.ERROR("Container %s fail on executing Student.py %s \n" % (container_name, error_string))
         return None, None
     
     #out_string = output[0].strip()
