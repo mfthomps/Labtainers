@@ -36,4 +36,4 @@ if [[ -z "$LABTAINER_TESTING" ]]; then
 fi
 cd ..
 tar xf labtainer/labtainer-developer.tar
-grep README labtainer/README | awk '{print "Updated to designer release from: ", $4, $5}'
+grep README labtainer/trunk/README | awk '{print "Updated to designer release of: ", $4, $5}'
