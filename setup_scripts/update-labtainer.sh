@@ -40,3 +40,4 @@ if [[ result -ne 0 ]];then
    fi
 EOT
 fi
+grep README labtainer/README | awk '{print "Updated to release from: ", $4, $5}'
