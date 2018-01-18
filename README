@@ -22,14 +22,16 @@ Quick guide to directories:
    running and testing automated assessment and viewing student
    results.
    
-   setup_scripts -- scripts for installing Dockers and fixing DNS naming.
+   setup_scripts -- scripts for installing Labtainers and Docker and updating Labtainers
    
    docs -- latex source for the labdesigner.pdf, and other documentation.
    
    config -- system-wide configuration settings (these are not the 
    lab-specific configuration settings.
 
-To created new labs you'll want to set an environment variable to this
-directory, e.g., 
+The standard Labtainers distribution does not include files required for development
+of new labs.  For those, run ./update-designer.sh from the labtainer directory.
 
- export LABTAINER_DIR=`pwd`
+The installation script and the update-designer.sh script set environment variables,
+so you may want to logout/login, or start a new bash shell before using Labtainers the
+first time.
