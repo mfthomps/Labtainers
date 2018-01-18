@@ -20,8 +20,8 @@ This document is in the public domain and is not subject to copyright.
 \newpage
 \section {Introduction}
 This manual is intended for use by lab designers wanting
-to create or adapt cyber security labs to use the Docker-based lab framework known
-as ``Labtainers''.
+to create or adapt cybersecurity labs to use the Docker
+container-based lab framework known as ``Labtainers''.
 
 \subsection{Intended use}
 The Labtainer framework is designed for use with computer and network security
@@ -31,7 +31,7 @@ networked components, all running locally on a student's computer, but without
 the performance degredation associated with running multiple virtual machines.
 \subsection {Benefits of Labtainers}
 
-Deploying cyber security labs using this framework
+Deploying cybersecurity labs using this framework
 provides three primary benefits:
 
 \begin{enumerate}
@@ -61,10 +61,10 @@ a common Linux execution environment.   These benefits can be realized
 whether or not labs are configured for automatic assessment, 
 or are parameterized for each student.
 
-Exercises that include multiple networked computers illustrate another advantage 
+Exercises that include multiple networked computers illustrate an advantage 
 of using containers over VMs, namely, containers require significantly less resources
 than do VMs.  A student laptop that struggles to run two or more VMs can readily 
-run multiple containers simultaneously. 
+run multiple containers simultaneously, as shown in this 50 second demonstration: \url{https://youtu.be/JDV6jGF3Szw} 
 
 \section {Overview of the Student Environment and Workflow}
 Labtainers support laboratory exercises designed for Linux environments,
@@ -77,10 +77,9 @@ environment as seen by the student is not augmented to support the framework.
 Labtainers are intended for use on individual student computers.
 The computer utilized by a student must include the Linux operating system, e.g.,
 as a single VM.  This Linux operating system, referred to herein
-as the ``host'', can be any distribution and version
-which supports Dockers, and it must have Dockers installed.  
-In addition to installing Dockers on their Linux host, the student must
-obtain and expand a tarball, which contains the Labtainer workspace utilities.
+as the \textit{Linux host}, can be any distribution and version
+which supports Docker.  Students download and expand a tarball, and run
+an installation script as described in the \textit{Labtainer Student Guide}
 (This tarball may someday be replaced by standard Linux distribution packages,
 e.g., Debian and/or RPM packages.)  
 
@@ -99,41 +98,43 @@ present a bash shell.  Each container appears to the student as a separate
 computer, and these computers may appear to be connected via one or more networks.  
 
 When a student starts a given exercise for the first time, the framework fetches
-Docker images from the Docker registry.  In its current implementation, a single
-base image (about 500MB) is retrieved from the Docker registry, and the remainder of the image
-is built on the student's computer, i.e., by fetching packages. This is transparent to
-the student, other than waiting for downloads and package installation. 
+Docker images from the Docker registry.  Docker manages container images as a set of
+layers, providing efficient storage and retrieval of images having common components.
+The initial Labtainer installation step pulls a few baseline images (about 1.5 GB) from 
+the public
+Docker registry, known as the \textit{Docker hub}.  Images for specific labs are pulled
+from the Docker hub by downloading only those additional layers reqiured by that lab, and
+which had not been previously pulled from the hub.  This is transparent to
+the student, other than waiting for downloads to complete.
 
 After the student performs the lab exercise, artifacts from the container
 environments are automatically collected into a zip file that appears on
 the student's Linux host.  The student forwards this zip file to the instructor,
-e.g., via email or a Learning Management System (LMS).  The instructor collects student zip files into a common
+e.g., via email or a learning management system.  The instructor collects student zip files into a common
 directory on his or her own Linux host, and then issues a command that starts
 the instructor container(s) for that lab.  This results in automated assessment of student lab
 activity, (if the lab is designed for that), and creation of an environment
 in which the instructor can review the work of each student.
 
-Many cyber security lab exercises are assessed through use of reports in which students
+Many cybersecurity lab exercises are assessed through use of reports in which students
 describe their activities and answer specific questions posed by the instructor.  Labtainers
-are intended to augment, rather than supplant this type of reporting.  The framework does not
-prescribe mechanisms for managing such reporting.  If a given lab exercise was not designed
-to support automated assessment, then zip files from the students need not be collected.  On
-the other hand, instructors may still wish to collect the zip files to manually review selected
-student activity, e.g., student-developed programs, output files, or even bash history records.  
+are intended to augment, rather than supplant this type of reporting.  The framework includes
+mechanisms for automating the collection of student lab reports into the zip files
+that are collected by instructors. 
 
 \section {Obtaining the Labtainer Development Kit}
-Installation of Labtainers is described in in the Labtainer Student Guide,  
+Installation of Labtainers is described in in the \textit{Labtainer Student Guide},  
 which also includes instructions for installing an Ubuntu VM (if you do not already have a Linux system),
-and the Docker package.  Note Labtainers will work with any Linux
-distribution that supports Dockers.  If you already have Dockers installed on a Linux system, 
+and the Docker package.  Our website also distributes pre-packaged VM appliances that already have
+Labtainers installed. Note Labtainers will work with any Linux
+distribution that supports Docker containers.  If you already have Docker installed on a Linux system, 
 reference the Student Guide for other dependencies. 
-Future releases may include a separate development kit, but for now there is a single Labtainers distribution
-that contains the entire framework.
+
 
 
 \section {Defining New Labs}
 \label{sec:new_labs}
-The most challenging and critical part of designing a new cyber security lab
+The most challenging and critical part of designing a new cybersecurity lab
 is the design of the lab itself, i.e., identifying learning objectives and
 organizing exercises to achieve those objectives.  The Labtainer framework
 does not specifically address any of that.  Rather, the framework is intended
@@ -312,7 +313,7 @@ Next, you must also describe your containers within the \textit{start.config} fi
 
 \subsection{Container definitions in start.config}
 \label{start.config}
-Most single container labs can use the automatically generated start.config file file
+Most single container labs can use the automatically generated start.config file
 without modification.  Labs consisting of multiple containers must modify the start.config 
 file.  The following describes the major sections of that configuration file.
 \begin{itemize}
@@ -681,6 +682,7 @@ The framework collects all student bash history into the \texttt{\$HOME/.bash\_h
 available for reference as an artifact file.
 
 \subsubsection{Capturing information about the environment}
+\label{checklocal}
 Some labs require the student to alter system configuration settings,
 e.g., using the sysctl command to effect ASLR. A \textit{checklocal.sh} script in:
 \begin{verbatim}
@@ -713,6 +715,41 @@ Note that the \textit{forcecheck} list of programs must include the full path na
 The \textit{forcecheck} file can be used instead of a \textit{treataslocal} file entry
 for those cases where stdin and stdout are not required for goal assessment.  An example of the use of
 forcecheck can be found in the \textit{capabilities} lab.  
+
+\subsubsection{Capturing file access events}
+\label{notify}
+File creation, reading and modification events can be recorded using a combination of
+a {\tt checklocal.sh} script and a file at:
+\begin{verbatim}
+    $LABTAINER_DIR/labs/[labname]/[container name]/_bin/notify
+\end{verbatim}
+\noindent This file will name directory or file paths and the access modes of interest, one entry
+per line, having this format:
+\begin{verbatim}
+    <file_path> <mode>
+\end{verbatim}
+\noindent
+where the {\tt file\_path} is the absolute path to the file of interest, and {\tt mode} is 
+one of the following:
+\begin{itemize}
+\item {\tt CREATE} Assumes the path is to a directory.  This will capture any file or directory
+creation within the named directory.
+\item {\tt ACCESS} will capture any read of the file named by the path.
+\item {\tt MODIFY} will capture any write to the file named by the path.
+\end{itemize}
+\noindent Each time an event occurs matching a criteria specified in the {\tt notify} file,
+the {\tt checklocal.sh} script is invoked, passing in the given path and access mode.  See
+the {\tt acl} lab for an example.
+
+The output from the {\tt checklocal.sh} script is captured in timestamped files, just as
+what those resulting from events described in Section \ref{checklocal}.  Note it is possible,
+(and often advantagous) for events resulting from program invocation, e.g., due to use of
+a {\tt forcecheck} file, to be recorded in the very same timestamped file as events resulting
+from a {\tt notify} file.  In such cases, output from the former will preceed output from the latter
+within the file.  The framework will append the {\tt notify} output to any timestamped {\tt checklocal.stdout}
+file that was created up to two seconds prior to the {\tt notify} event.  Inclusion of both outputs into
+one timestamped file allows the designer to identify events that occured as part of a single program
+invocation.  Again, see the {\tt acl} lab for an example.
 
 \subsection{Identify lab-specific artifacts}
 The automated assessment functions encourage labs to be organized into a set of distinct ``goals''.
@@ -1043,6 +1080,7 @@ image to the Docker hub, the script deletes the image from the local system.  Th
 ensure that future testing of the lab is done on the authoritative copy, i.e., from the hub.
 
 \subsection{Reuse of large file sets}
+\label{manifest}
 The use of ``sys\_tar'' described in \ref{large files} facilitates sharing of common
 baselines of large or numerous files.  New labs can incorporate tar files from existing
 labs through the use of ``external-manifest'' files, (see the xsite/victim/home\_tar as
@@ -1131,10 +1169,14 @@ of the containers.
 \section{Notes} \label{Notes}
 \subsection{Firefox}
 See the sql-inject lab client/home\_tar for an example firefox .mozillia directory.  
-Create a symbolic link to that to avoid firefox starting with its welcome pages and
-privacy statements.
+That home.tar also includes a {\tt ~/.cache/dconf} directory to avoid Firefox error
+messages.
+Use an {\tt external-manifest} file (per section~\ref{manifest}) to link to that 
+tar to avoid firefox starting with its welcome pages and privacy statements.
 The labtainer.firefox image includes a customized /usr/bin/firefox that starts the
-browswer in a new instance so it does share existing browsers.
+browswer in a new instance so it does share existing browsers. The {\tt about:config}
+was altered to disabled insecure field warnings for the labs that do not use SSL connections to web servers.
+
 \subsection{Wireshark}
 Wireshark will not run as root in Labtainer containers.  It should be configured to not
 require root to collect network packets:
@@ -1161,6 +1203,5 @@ startup.py will prompt the use to continue or abort.  Your script should explain
 An example of such a script is in the labs/tcpip/server/\_bin directory.
 \subsection{Login Prompts}
 See the centos-log lab for an example of a lab that prompts users to login to the virtual terminal.
-In particular, you will need the bin/student\_startup.sh script, and the \_system/sbin/login program and the
-\_system/etc/login.defs and securetty files.
+In particular, you will need the {\tt bin/student\_startup.sh} script, and the {\tt \_system/sbin/login} program and the {\tt \_system/etc/login.defs} and {\tt securetty} files.
 \end{document}
