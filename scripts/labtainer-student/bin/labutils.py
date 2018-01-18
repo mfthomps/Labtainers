@@ -1076,7 +1076,7 @@ def EmptyTar(fname):
     size = os.path.getsize(fname)
     if size == 10240 or size == 110:
         return True
-    else
+    else:
         return False
 
 def FileModLater(ts, fname):
