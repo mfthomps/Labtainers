@@ -430,7 +430,8 @@ def main():
             usage()
         else:
             copy_from_template(tdir)
-            print("Copy template to new lab.")
+            print('New lab created.  Use "new_lab_setup.py -h" to see')
+            print('options for adding components to the lab.')
     elif num_arg == 2:
         help_option = sys.argv[1]
         #print("help_option is (%s)" % help_option)
