@@ -12,16 +12,20 @@
 \section {Introduction}
 This manual is intended for use by students performing labs with Labtainers.
 Labtainers assume you have a Linux system, e.g., a virtual machine.  If you
-do not have a Linux sysetm, refer to
-Appendix A and B for installation of VirtualBox and a Linux system on either
-a Mac or a Windows computer.
+do not have a Linux system, our website includes pre-built virtual
+machine images at \url{https://my.nps.edu/web/c3o/virtual-machine-images}.
+Alternately, refer to Appendix A and B for installation of 
+VirtualBox and a Linux system on either a Mac or a Windows computer.
 Note that any Linux system can be used as long as it supports Docker.
 
 Labtainers provide a consistent execution environment for performing
 laboratory exercises, and can simulate the execution of several different
 computers interconnected via virtual networks.   
 
-\subsection{Obtaining Labtainers and installing Docker}
+\subsection{Obtaining and installing Labtainers}
+If you are using one of the pre-configured virtual machines from
+\url{https://my.nps.edu/web/c3o/virtual-machine-images}, you may
+skip this section.
 The Labtainer framework is distributed as a tarball from:
 \url{https://my.nps.edu/web/cisr/labtainers}
 Click the link named: ``Download the Labtainer framework'', and untar the resulting file into 
@@ -45,14 +49,16 @@ Note that older Linux distributions, e.g., Ubuntu 14.* lack the
 \textit{realpath} package, which should be installed prior to using Labtainers.
 
 After the Linux host reboots, open a terminal to your Linux host and
-change directory to wherever you untarred the tarball.
+change directory to wherever you untarred the tarball, e.g., your HOME directory.
 
 \section{Performing a Lab}
-All labs are run from the same Labtainer workspace directory:
+All labs are run from the same Labtainer workspace directory, which is typically at:
 \begin{verbatim}
-    cd labtainer/labtainer-student
+    cd ~/labtainer/labtainer-student
 \end{verbatim}
-\noindent Then run the lab:
+\noindent The prepackaged virtual machines automatically start a terminal in this directory.
+
+Then run the lab:
 \begin{verbatim}
     start.py <labname>
 \end{verbatim}
@@ -103,7 +109,7 @@ can use to toggle the default gateway between one that leads to the host, and on
 This allows students to add packages on components having lab-specific default gateways.
 Use of the \textit{togglegw.sh} script is not necessary to reach the Linux host, (e.g., to scp files).
 
-\subsection{Installing and Using Labtainer Behind a Proxy}
+\subsection{Installing and Using Labtainers Behind a Proxy}
 If you are behind a proxy, e.g., in a corporate environment, Labatiner installation
 requires that you have configured your Linux package management configuration to reflect
 the proxy, e.g., the /etc/atp/apt.conf or /etc/dnf.conf files.  Additionally,
