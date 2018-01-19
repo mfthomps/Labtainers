@@ -219,6 +219,7 @@ def handle_clone_lab(tdir, newlabname):
     shutil.copy(template_parameter_config, parameter_config)
     shutil.copy(template_results_config, results_config)
     shutil.copy(template_goals_config, goals_config)
+    return oldlabname
 
 def handle_replace_container(tdir, oldcontainer, newcontainer):
     # This assumes directories 'config', 'dockerfiles' and 'instr_config'
@@ -448,8 +449,8 @@ def main():
             print("Added new container %s." % newcontainer)
         elif is_valid and option == "-c":
             newlabname = sys.argv[2]
-            handle_clone_lab(tdir, newlabname)
-            print("Lab %s cloned." % newlabname)
+            oldlabname = handle_clone_lab(tdir, newlabname)
+            print("Lab %s cloned to new lab %s." % (oldlabname, newlabname))
         elif is_valid and option == "-d":
             deletecontainer = sys.argv[2]
             handle_delete_container(tdir, deletecontainer)
