@@ -420,8 +420,11 @@ def main():
     current_dir = os.getcwd()
     parent_dir = os.path.basename(os.path.dirname(current_dir))
     if parent_dir != "labs":
-        sys.stderr.write('Lab directories must be below the labs parent directory.\n')
-        sys.exit(1)
+        if num_arg == 2:
+            usage()
+        else:
+            sys.stderr.write('Lab directories must be below the labs parent directory.\n')
+            sys.exit(1)
 
     is_valid = check_valid_lab(current_dir)
     if num_arg == 1:
