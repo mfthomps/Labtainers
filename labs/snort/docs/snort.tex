@@ -30,17 +30,26 @@ From your labtainer-student directory start the lab using:
 \noindent A link to this lab manual will be displayed.  
 
 \section{Network Configuration}
-This lab includes four networked computers as shown in Figure~\ref{fig:topology}.
-When the lab starts, you will get four virtual terminals, one connected to each
-component.
-The gateway is configured to perform routing between LAN1 and LAN2, and to
-route external addresses to an external gateway, e.g., to reach the Internet.
-The ws1 and ws2 workstations are pre-configured to route traffic to the gateway
-component.  The ws3 workstation is not yet configured for routing.
-
-The gateway is configured to use NAT to translate
+This lab includes several networked computers as shown in Figure~\ref{fig:topology}.
+When the lab starts, you will get virtual terminals, one connected to each
+component.  The gateway is configured with {\tt iptables} to use NAT to translate
 sources addresses of traffic from internal IP addresses, e.g., 192.168.1.1, to
-our external address, i.e., 203.0.113.10.
+our external address, i.e., 203.0.113.10.  The {\tt iptables} in the gateway also
+route web traffic (ports 80 and 443) to the web\_server component.
+The gateway is also configured to 
+mirror traffic that enters and leaves the gateway via the 203.0.113.10 link.  This
+mirrored traffic is routed to the {\tt snort} component.  
+
+The snort component includes the Snort IDS utility.  It also includes Wireshark
+to help you observe traffic being mirrored to the snort component.
+
+The web\_server runs Apache and is configured to use SSL for web pages in the
+{\tt www.example.com} domain.
+
+The {\tt external\_ws} component includes the Firefox browser, and a local 
+{\tt /etc/hosts} file that maps www.example.com to the external address of the
+gateway, i.e., 203.0.113.10.
+
 
 \begin{figure}[htb]
 \begin{center}
