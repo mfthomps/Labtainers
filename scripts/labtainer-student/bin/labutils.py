@@ -1106,7 +1106,7 @@ def FileModLater(ts, fname):
                         continue
                 elif f.endswith('_tar') and os.path.isdir(f):
                     continue
-                else:
+                elif os.path.isfile(f):
                     df_time = os.path.getmtime(f)
                     df_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
                     retval = DateIsLater(df_utc_string, ts)
