@@ -36,6 +36,7 @@ component.  The gateway is configured with {\tt iptables} to use NAT to translat
 sources addresses of traffic from internal IP addresses, e.g., 192.168.1.1, to
 our external address, i.e., 203.0.113.10.  The {\tt iptables} in the gateway also
 route web traffic (ports 80 and 443) to the web\_server component.
+
 The gateway is also configured to 
 mirror traffic that enters and leaves the gateway via the 203.0.113.10 link.  This
 mirrored traffic is routed to the {\tt snort} component.  
@@ -53,13 +54,43 @@ gateway, i.e., 203.0.113.10.
 
 \begin{figure}[htb]
 \begin{center}
-\includegraphics [width=0.8\textwidth,natwidth=621,natheight=403]{routing-basics.jpg}
+\includegraphics [width=0.8\textwidth,natwidth=621,natheight=403]{snort.jpg}
 \end{center}
-\caption{Network topology for routing-basics lab}
+\caption{Network topology for the snort lab}
 \label{fig:topology}
 \end{figure}
 
 \section{Lab Tasks}
+It is assumed that the student has received instruction or independent study on
+the basic operation of Snort, and the general goals and mechanics of network intrusion detection.
+
+Review the network topology.  In particular, consider the {\tt iptables} settings on the gateway.
+These can be seen by reviewing the commands in {\tt /etc/rc.local}, which are used to
+define the NAT translations and, critically for this lab, mirror traffic to the snort component. 
+
+\subsection{Starting and stopping snort}
+The Snort utility is installed on the snort component.  The home directory includes a {\ttstart\_snort.sh}
+script that will start the utility in \textit{Network Intrustion Dection Mode}, and display alerts
+to the console.  Start snort:
+\begin{verbatim}
+   ./start_snort.sh
+\end{verbatim}
+When it comes time to stop snort, e.g., to add rules, simply use {\tt <ctl> c}.
+
+\subsection{Pre-configured Snort rules}
+The Snort utility includes a set of pre-configured rules that create alerts for known
+suspicious network activity. The configuration on the snort component is largely as it
+exists after installation, however we did remove a few rules that generated false positves in the
+Labtainer environment.
+
+To see an example of some of the preconfigured rules, perform an nmap scan of www.example.com from the remote
+workstation:
+\begin{verbatim}
+    sudo nmap www.example.com
+\end{verbatim}
+\noindent Note the alters displayed at the snort console.
+
+
 \begin{verbatim}
 #alert ip any any -> $HOME_NET any (msg:"IP detected"; sid:00001;)
 #alert tcp any any -> $HOME_NET any (msg:"TCP detected"; sid:00002;)
