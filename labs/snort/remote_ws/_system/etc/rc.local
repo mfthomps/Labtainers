@@ -1,1 +1,4 @@
-/usr/bin/set_default_gw.sh 172.16.0.10
+#/usr/bin/set_default_gw.sh 172.16.0.10
+route delete default
+route add default gw 172.16.0.10
+
