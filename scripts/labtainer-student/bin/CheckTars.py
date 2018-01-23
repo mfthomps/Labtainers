@@ -62,6 +62,21 @@ def newest_file_in_tree(rootfolder):
         for filename in filenames),
         key=lambda fn: os.stat(fn).st_mtime)
 
+
+def copydir(source, dest):
+    """Copy a directory structure overwriting existing files"""
+    for root, dirs, files in os.walk(source):
+        if not os.path.isdir(root):
+            os.makedirs(root)
+
+        for file in files:
+            rel_path = root.replace(source, '').lstrip(os.sep)
+            dest_path = os.path.join(dest, rel_path)
+
+            if not os.path.isdir(dest_path):
+                os.makedirs(dest_path)
+            shutil.copyfile(os.path.join(root, file), os.path.join(dest_path, file))
+
 def CheckTars(container_dir, image_name, logger):
     here = os.getcwd()
     if container_dir.endswith('/'):
@@ -75,6 +90,7 @@ def CheckTars(container_dir, image_name, logger):
         full = os.path.join(container_dir, f)
         if os.path.isdir(full) and f.endswith('_tar'):
             try:
+                logger.DEBUG('remove tree at %s' % tmp_loc)
                 shutil.rmtree(tmp_loc)
             except:
                 pass
@@ -96,11 +112,15 @@ def CheckTars(container_dir, image_name, logger):
                 else:
                     if external in f_list:
                         ''' external manifest, expand that '''
+                        logger.DEBUG('expand manifest at %s' % full)
                         expandManifest(full, tar_name)
                     for cfile in f_list:
                         logger.DEBUG('cfile is %s' % cfile)
                         if cfile != external:
-                            shutil.copytree(cfile, os.path.join(tmp_loc, cfile))
+                            if os.path.isdir(cfile):
+                                copydir(cfile, os.path.join(tmp_loc, cfile))
+                            else:
+                                shutil.copytree(cfile, os.path.join(tmp_loc, cfile))
                     os.chdir(tmp_loc)
                     full_tar = os.path.join(full, tar_name)
                     if f == 'home_tar':
