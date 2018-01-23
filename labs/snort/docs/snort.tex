@@ -9,16 +9,11 @@
 \copyrightnotice
 
 \section{Overview}
-This exercise explores basic network routing concepts 
-in a Linux environment.  These include use of the \texttt{route}
-command, defining a DNS server in the /etc/resolv.conf file,
-and using Network Address Translation (NAT). 
-
-This exercise, (and manual), is not intended to replace instruction
-or independent reading on the topic of network routing and
-routing in Linux systems. The exercise is intended to provide
-students with an environment with which they can experiment
-with the mechanics of routing network traffic.
+This exercise introduces the use of the snort system
+to provide intrusion detection within a
+Linux environment.  Students will configure simple 
+snort rules and experiment with differences between
+a network IDS and a host based IDS.  
 
 
 \section{Lab Environment}
@@ -30,7 +25,7 @@ be run on any Linux host that supports Docker containers.
 
 From your labtainer-student directory start the lab using:
 \begin{verbatim}
-    start.py routing-basics
+    start.py snort
 \end{verbatim}
 \noindent A link to this lab manual will be displayed.  
 
@@ -56,6 +51,12 @@ our external address, i.e., 203.0.113.10.
 \end{figure}
 
 \section{Lab Tasks}
+\begin{verbatim}
+#alert ip any any -> $HOME_NET any (msg:"IP detected"; sid:00001;)
+#alert tcp any any -> $HOME_NET any (msg:"TCP detected"; sid:00002;)
+alert ip any any -> $HOME_NET any (msg:"CONFIDENTIAL detected"; content:"CONFIDENTIAL"; sid:00003;)
+\end{verbatim}
+
 \subsection{Internal Routing}
 From each of the three workstations, enter the following command:
 \begin{verbatim}
