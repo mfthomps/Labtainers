@@ -181,6 +181,10 @@ def CreateSingleContainer(container, mysubnet_name=None, mysubnet_ip=None):
             logger.DEBUG('container using X11')
         add_hosts = ''     
         for item in container.add_hosts:
+            if ':' not in item:
+               print('ADD-HOST entry in start.config missing colon: %s' % item)
+               print('sytax: ADD-HOST <host>:<ip>')
+               return
             ip, host = item.split(':')
             add_this = '--add-host %s ' % item
             add_hosts += add_this
