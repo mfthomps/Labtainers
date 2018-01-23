@@ -1,8 +1,8 @@
 routing-basics.pdf: routing-basics.tex header.tex
-	latex routing-basics
-	pdflatex -jobname=routing-basics routing-basics
-	pdflatex -jobname=routing-basics routing-basics
+	latex snort
+	pdflatex -jobname=snort snort
+	pdflatex -jobname=snort snort
 
 clean:
 	rm -fr auto
-	rm -f routing-basics.aux routing-basics.log routing-basics.pdf routing-basics.dvi routing-basics.out
+	rm -f snort.aux snort.log snort.pdf snort.dvi snort.out
