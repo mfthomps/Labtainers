@@ -156,14 +156,31 @@ Start Firefox on mary's ws2 computer to view the confidential business plan:
 \begin {verbatim}
     firefox www.example.com/plan.html
 \end {vertabim}
+This will not do.  The keen minds at that startup need to view their confidential
+business plan without IDS alerts firing off.  In this task, you will adjust your snort
+rule so that the alert only fires when the plan is accessed by addresses outside of
+the site.  In other words, no alert should fire if users of the 192.168.0.0/16 network
+access the web page.
 
-The snort rules include two address fields, These addresses are used to check the
+If you review rules found in the {\tt/etc/snort/rules} directory, you will see that rules
+have the general form of:
+\begin{verbatim}
+   alert <protocol> <source_addr> <src_port> ->  <dest_addr> <dest_port> <rule options in parens>
+\end{verbatim}
+
+The snort rules include two address fields: {\tt source\_addr} and {\tt dest\_addr}. 
+These addresses are used to check the
 source from which the packet originated and the destination of the packet. The address
-may be a single IP address or a network address. You can use \textit{any} keyword to apply a
-rule on all addresses. The address is followed by a slash character and number of bits in
-the  netmask.  For  example,  an  address  192.168.2.0/24  represents  C  class  network
-192.168.2.0  with  24  bits  in  the  network  mask.
+may be a single IP address or a network address. You likely have used the \textit{any} keyword to apply a
+rule on all addresses. For network addresses, the address is followed by a slash character 
+and number of bits in the netmask. For example, a network address of 192.168.2.0/24 
+represents C class network 192.168.2.0 with 24 bits in the network mask.
 
+The address fields may also identify excluded addresses.  For example, an address field of
+{\tt ![192.168.2.0/24]} would apply to any and all IP addresses except those in the 192.168.2.0/24
+subnetwork.
+
+Armed with the above, alter your CONFIDENTIAL rule to exclude internal traffic.
 
 \section{Submission}
 After finishing the lab, go to the terminal on your Linux system that was used to start the lab and type:
