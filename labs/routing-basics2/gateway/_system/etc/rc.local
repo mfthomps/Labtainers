@@ -21,6 +21,7 @@ sudo iptables -A FORWARD -i $wan -o $lan1 -p tcp --syn --dport 80 -m conntrack -
 sudo iptables -A FORWARD -i $wan -o $lan1 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 sudo iptables -A FORWARD -i $lan1 -o $wan -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 sudo iptables -t nat -A PREROUTING -i $wan -p tcp --dport 80 -j DNAT --to-destination 192.168.1.2
+sudo iptables -t nat -A POSTROUTING -o $lan1 -p tcp --dport 80 -s 192.168.0.0/16 -j RETURN
 sudo iptables -t nat -A POSTROUTING -o $lan1 -p tcp --dport 80 -d 192.168.1.2 -j SNAT --to-source 192.168.1.10
 #
 # restart the DNS forwarder (rely on DNS provided by ISP)
