@@ -313,6 +313,7 @@ def InstDocsToHostDir(start_config, labtainer_config, lab_path, role, quiet_star
         zipoutput = zipfile.ZipFile(fname, "r")
         ''' retain dates of student files '''
         for zi in zipoutput.infolist():
+            logger.DEBUG('zi is %s tmpdir is %s' % (zi.filename, tmpdir))
             zipoutput.extract(zi, tmpdir)
             date_time = time.mktime(zi.date_time + (0, 0, -1))
             dest = os.path.join(tmpdir, zi.filename)
@@ -560,6 +561,7 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False):
             os.mkdir(os.path.join(container_dir, 'sys_tar'))
         except:
             pass
+        ''' create sys_tar and home_tar before checking build dependencies '''
         CheckTars.CheckTars(container_dir, name, logger)
         if force_this_build or CheckBuild(lab_path, mycontainer_image_name, mycontainer_name, name, role, True, container_bin, start_config, container.registry, container.user):
             print('Will call buildImage to build %s' % mycontainer_name)
@@ -655,14 +657,14 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                 return
 
         if role == 'instructor':
-            # Do InstDocsToHostDir - extract students' docs.zip if exist
-            InstDocsToHostDir(start_config, labtainer_config, lab_path, role, quiet_start)
             '''
             Copy students' artifacts only to the container where 'Instructor.py' is
             to be run - where <labname>.grades.txt will later reside also (i.e., don't copy to all containers)
             Copy to container named start_config.grade_container
             '''
             if mycontainer_name == start_config.grade_container:
+                # Do InstDocsToHostDir - extract students' docs.zip if exist
+                InstDocsToHostDir(start_config, labtainer_config, lab_path, role, quiet_start)
                 logger.DEBUG('do CopyStudentArtifacts for %s, labname: %s regress: %s' % (mycontainer_name, labname, is_regress_test))
                 copy_result = CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_user, container_password, is_regress_test, is_watermark_test)
                 if copy_result == FAILURE:
@@ -871,7 +873,7 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
                 #sys.stderr.write("%s \n" % mycontainer_name)
                 if role == 'instructor':
                     # hack, instructor does not have augmented profile
-                    cmd = 'sh -c "cd /home/%s && bash -l"' % container.user
+                    cmd = "sh -c 'cd /home/%s && bash -l'" % container.user
                 else:
                     cmd = 'bash -l' 
                 #spawn_command = "gnome-terminal %s -x docker exec -it %s bash -l &" % (terminal_location, mycontainer_name)
@@ -1115,13 +1117,19 @@ def FileModLater(ts, fname):
                 
             #logger.DEBUG(line)
             ''' think that fname is in svn.  If fname is a dir, get its date (will match that of modified file in the dir '''
-            if os.path.isdir(fname) or line.startswith('M'):
+            if os.path.isdir(fname) or line.startswith('M') or line.startswith('>'):
+                if '/home_tar/' in line or '/sys_tar/' in line:
+                    continue
                 logger.DEBUG('svn status found something for fname %s, line %s' % (fname, line))
                 if line.startswith('M'):
                     parent = os.path.dirname(line.split()[1])
                     df_time = os.path.getmtime(parent)
                 else:
-                    df_time = os.path.getmtime(fname)
+                    file_path = '/'+line.split('/', 1)[1].strip()
+                    #logger.DEBUG('not and "M", get dftime for %s' % file_path)
+                    if not os.path.exists(file_path):
+                        continue
+                    df_time = os.path.getmtime(file_path)
                 df_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
                 retval = DateIsLater(df_utc_string, ts)
                 if retval:
