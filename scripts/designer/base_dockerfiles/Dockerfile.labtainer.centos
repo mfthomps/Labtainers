@@ -20,5 +20,8 @@ ADD system/bin/funbuffer-8.5 /usr/bin/funbuffer
 # put in /sbin so last in path search
 # this is the ubuntu version, which seems to work on /dev/pts.
 ADD system/bin/login /sbin/login
+# manage default gateways
+ADD system/bin/togglegw.sh /usr/bin/
+ADD system/bin/set_default_gw.sh /usr/bin/
 
 #
