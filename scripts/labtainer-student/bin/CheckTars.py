@@ -49,6 +49,9 @@ def newest_referenced_tar(full, tar_name):
         for line in fh:
             lab, image = line.strip().split(':')
             ref_tar = os.path.join(labdir, lab, image, os.path.basename(full), tar_name)
+            if not os.path.isfile(ref_tar):
+                print('Tar file named in manifest not found: %s component %s' % (ref_tar, full))
+                exit(1)
             tar_time = os.stat(ref_tar).st_mtime
             if tar_time > recent:
                 retval = ref_tar
