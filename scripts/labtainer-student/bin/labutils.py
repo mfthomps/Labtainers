@@ -1438,8 +1438,7 @@ def GatherOtherArtifacts(lab_path, name, container_name, container_user, contain
 def CopyAbsToResult(container_name, fname, container_user, ignore_stop_error):
     ''' copy from abs path to ~/.local/result '''
 
-    #command='docker exec %s echo "%s\n" | sudo -S cp --parents %s /home/%s/.local/result' % (container_name, 
-    #    container_password, fname, container_user)
+    command='docker exec %s mkdir -p /home/%s/.local/result' % (container_name, container_user)
     command='docker exec %s sudo  cp --parents %s /home/%s/.local/result' % (container_name, fname, container_user)
     logger.DEBUG(command)
     child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
