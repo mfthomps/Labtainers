@@ -1,19 +1,29 @@
 route delete default
 route add default gw 203.0.113.1
 #
-# get ethernet device names for the three interfaces
+# get ethernet device names for the two lans and the wan interfaces
 #
 lan1=$(ifconfig | grep -B1 "inet addr:192.168.1.10" | awk '$1!="inet" && $1!="--" {print $1}')
 lan2=$(ifconfig | grep -B1 "inet addr:192.168.2.10" | awk '$1!="inet" && $1!="--" {print $1}')
-lan3=$(ifconfig | grep -B1 "inet addr:192.168.3.10" | awk '$1!="inet" && $1!="--" {print $1}')
 wan=$(ifconfig | grep -B1 "inet addr:203.0.113.10" | awk '$1!="inet" && $1!="--" {print $1}')
 #
-# Define NAT for traffic from LANs to the WAN
+# flush and delete all chains
 #
 iptables --flush
 iptables -t nat --flush
+iptables -t mangle --flush
 iptables --delete-chain
 iptables -t nat --delete-chain
+iptables -t mangle --delete-chain
+#
+# mirror incoming wan traffic to snort
+#
+iptables -t mangle -A PREROUTING -i $wan -j TEE --gateway 192.168.3.1
+iptables -t mangle -A POSTROUTING -o $wan -j TEE --gateway 192.168.3.1
+
+#
+# Define NAT for traffic from LANs to the WAN
+#
 iptables --table nat -I POSTROUTING 1 --out-interface $wan -j MASQUERADE
 iptables --append FORWARD --in-interface $lan1 -j ACCEPT
 iptables --append FORWARD --in-interface $lan2 -j ACCEPT
@@ -29,11 +39,6 @@ sudo iptables -t nat -A PREROUTING -i $wan -p tcp --dport 22 -j DNAT --to-destin
 sudo iptables -t nat -A POSTROUTING -o $lan1 -p tcp --dport 22 -d 192.168.1.2 -j SNAT --to-source 192.168.1.10
 sudo iptables -t nat -A PREROUTING -i $wan -p tcp --dport 4444 -j DNAT --to-destination 192.168.1.2
 sudo iptables -t nat -A POSTROUTING -o $lan1 -p tcp --dport 4444 -d 192.168.1.2 -j SNAT --to-source 192.168.1.10
-#
-# mirror incoming wan traffic to snort
-#
-iptables -t mangle -A PREROUTING -s 203.0.113.10 -j TEE --gateway 192.168.3.1
-iptables -t mangle -A PREROUTING -d 203.0.113.10 -j TEE --gateway 192.168.3.1
 
 #
 # restart the DNS forwarder (rely on DNS provided by ISP)

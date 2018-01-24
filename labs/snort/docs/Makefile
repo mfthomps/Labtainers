@@ -1,4 +1,4 @@
-routing-basics.pdf: routing-basics.tex header.tex
+snort.pdf: snort.tex header.tex
 	latex snort
 	pdflatex -jobname=snort snort
 	pdflatex -jobname=snort snort
