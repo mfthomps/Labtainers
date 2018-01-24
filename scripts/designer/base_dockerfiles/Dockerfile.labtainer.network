@@ -13,9 +13,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # step around app armor or whatever
 RUN sudo mv /usr/sbin/tcpdump /usr/bin/tcpdump
-# manage default gateways
-ADD system/bin/togglegw.sh /usr/bin/
-ADD system/bin/set_default_gw.sh /usr/bin/
 # ssh server fu, otherwise it won't run
 ADD system/var/run/sshd /var/run/sshd
 RUN sudo chmod 0755 /var/run/sshd
