@@ -35,21 +35,21 @@ When the lab starts, you will get virtual terminals, one connected to each
 component.  The gateway is configured with {\tt iptables} to use NAT to translate
 sources addresses of traffic from internal IP addresses, e.g., 192.168.1.1, to
 our external address, i.e., 203.0.113.10.  The {\tt iptables} in the gateway also
-route web traffic (ports 80 and 443) to the web\_server component.
+routes web traffic (ports 80 and 443) to the web\_server component.
 
-The gateway is also configured to 
-mirror traffic that enters and leaves the gateway via the 203.0.113.10 link.  This
-mirrored traffic is routed to the {\tt snort} component.  
+The gateway is also configured to mirror traffic that enters and leaves the gateway via the 203.0.113.10 link.  This
+mirrored traffic is routed to the {\tt snort} component.  In other words, the snort component receives a copy
+of each and every packet either entering or exiting via the 203.0.113.10 interface.
 
 The snort component includes the Snort IDS utility.  It also includes Wireshark
 to help you observe traffic being mirrored to the snort component.
 
-The web\_server runs Apache and is configured to use SSL for web pages in the
+The web\_server runs Apache and is configured to support SSL for web pages in the
 {\tt www.example.com} domain.
 
 The {\tt external\_ws} component includes the Firefox browser, and a local 
 {\tt /etc/hosts} file that maps www.example.com to the external address of the
-gateway, i.e., 203.0.113.10.
+gateway, i.e., 203.0.113.10.  It also includes the nmap utility.
 
 
 \begin{figure}[htb]
@@ -69,100 +69,106 @@ These can be seen by reviewing the commands in {\tt /etc/rc.local}, which are us
 define the NAT translations and, critically for this lab, mirror traffic to the snort component. 
 
 \subsection{Starting and stopping snort}
-The Snort utility is installed on the snort component.  The home directory includes a {\ttstart\_snort.sh}
+The Snort utility is installed on the snort component.  The home directory includes a {\tt start\_snort.sh}
 script that will start the utility in \textit{Network Intrustion Dection Mode}, and display alerts
 to the console.  Start snort:
 \begin{verbatim}
    ./start_snort.sh
 \end{verbatim}
-When it comes time to stop snort, e.g., to add rules, simply use {\tt <ctl> c}.
+When it comes time to stop snort, e.g., to add rules, simply use {\tt CTL-C}.
 
 \subsection{Pre-configured Snort rules}
 The Snort utility includes a set of pre-configured rules that create alerts for known
 suspicious network activity. The configuration on the snort component is largely as it
-exists after installation, however we did remove a few rules that generated false positves in the
-Labtainer environment.
-
-To see an example of some of the preconfigured rules, perform an nmap scan of www.example.com from the remote
+exists after initial installation of the snort utility.  To see an example of 
+some of the preconfigured rules, perform an nmap scan of www.example.com from the remote
 workstation:
 \begin{verbatim}
     sudo nmap www.example.com
 \end{verbatim}
-\noindent Note the alters displayed at the snort console.
+\noindent Note the alerts displayed at the snort console.  The rules that generate these alerts can be seen,
+along with all rules, in {\tt /etc/snort/rules/}
 
-
+\subsection{Write a simple (bad) rule}
+Custom rules are typically added to the file at {\tt /etc/snort/rules/local.rules
+Stop snort and add a rule that generates an alert for each tcp connection.  For example:
 \begin{verbatim}
-#alert ip any any -> $HOME_NET any (msg:"IP detected"; sid:00001;)
-#alert tcp any any -> $HOME_NET any (msg:"TCP detected"; sid:00002;)
-alert ip any any -> $HOME_NET any (msg:"CONFIDENTIAL detected"; content:"CONFIDENTIAL"; sid:00003;)
+alert tcp any any -> any any (msg:"TCP detected"; sid:00002;)
 \end{verbatim}
 
-\subsection{Internal Routing}
-From each of the three workstations, enter the following command:
-\begin{verbatim}
-    route -n
-\end{verbatim}
-\noindent Note how ws1 and ws2 include routing table entries that name the
-gateway as the \textit{default gateway}.  This allows ws1 and ws2 to address each other, which 
-can be demonstrated by using \texttt{ping} from ws1 to reach ws2:
+Then restart snort.  Test this rule by starting Firefox on the remote workstation:
 
 \begin{verbatim}
-    ping [ws2 IP]
+    firefox www.example.com
 \end{verbatim}
 
-Now consider ws2 and ws3.  Since they are both on the same LAN, they can ping
-each other.  Try that for yourself.  Then try to ping ws1 from ws3.  That will
-fail because ws3 has no routing table entry defining what to do with traffic 
-that is not destined for a LAN directly connected to ws3.
+As you can see, the rule you wrote will overwhelm you with useless information.  So,
+stop snort and delete the rule.
 
-On ws3, define the gateway component as the \textit{default gateway} using the 
-\texttt{route} command, but this time using \texttt{sudo} because we are altering the routing:
+\subsection{Custom rule for CONFIDENTIAL traffic}
+At the Firefox browser, which should be displaying the webpage from www.example.com,
+we will display an unpublished web page that we know exists on the website.  In particular,
+we have heard that the keen minds at the startup company have placed their confidential 
+business plan at www.example.com/plan.html.  Take a look at it.
 
+Now add a rule to your local.rules file on snort that will generate an alert 
+whenever the text "CONFIDENTIAL" is sent out to the internet.  Be sure to give the
+rule its own unique sid.  After adding the rule, restart snort.
+
+On the browser at the remote workstation, clear your history (Menu / Preferences 
+Security \& Privacy), and then refresh the plan.html page.  You should see an alert at
+the snort console.
+
+\subsection{Effects of encryption}
+Back at the Firefox browser, again clear the browser history. Now alter the URL to make
+use of the web server SSL function.  Change the url to https://www.example.com/plan.html.
+Do you see a new snort alert?  Why?
+
+One solution to this problem is to use a reverse proxy in front of the web server.  This
+reverse proxy would handle the incoming web traffic and manage the SSL connections.
+The web server would then receive only HTTP traffic, and outgoing traffic from the web server
+could then be mirrored to the IDS.  We will not pursue that solution here.  
+
+\subsection{Watching internal traffic}
+Go to the ws2 (mary) component and run nmap:
 \begin{verbatim}
-    sudo route add default gw [gateway IP]
+    sudo nmap www.example.com
 \end{verbatim}
-\noindent Then try to ping between ws1 and ws3. 
+What do you see on the snort component?  Why?
 
-\subsection{Routing to the Internet}
-The gateway component is configured to route to a simulated ISP at 203.0.113.1, which 
-is a hidden component that provides routing to the Internet for this lab.  From ws2, 
-try to ping www.google.com.  Then do the same from ws3.  The problem with ws3 is that
-it has no domain name service (DNS) definition.  Note, routing from ws3 to the Internet
-works fine, which you can confirm by pinging the IP address of www.google.com (as displayed
-when you pinged from ws2).  The ws3 component simply lacks a DNS definition. 
-On ws2, the DNS is defined to be the
-gateway component, and this is achieved in the \texttt{/etc/resolv.conf} file \footnote{
-Many Linux systems include tools for defining your DNS, and these tools will overwrite
-the resolv.conf file.  That is not an issue in these labs}.  If you 
-modify that file on ws3 to match that of ws2, that will tell ws3 to use the gateway
-as its DNS.
-
-\subsection{Use of Network Address Translation (NAT)}
-Finally, review how the gateway component implements NAT using the \texttt{iptables} 
-utility.  Consider traffic from ws1 destined for www.google.com. The source IP address
-on those packets is 192.168.1.1.  The ws1 component sends the packets to its default
-gateway, i.e., our gateway component.  The gateway routing table is configured to
-send external traffic to 203.0.113.1.  However, before that traffic is sent, we need
-to translate the source IP address to our exernal 203.0.113.10 address so that google knows
-where to send replies.  
-Use this command:
+Go to the gateway component and edit the {\tt /etc/rc.local} script so that traffic to and
+from mary's workstation is mirrored to the snort component.  You can do this by adding
+these lines to the section of that file that defines the packet mirroring:
 \begin{verbatim}
-    sudo iptables -L -v -t nat
+   iptables -t mangle -A PREROUTING -i $lan2 -j TEE --gateway 192.168.3.1
+   iptables -t mangle -A POSTROUTING -o $lan2 -j TEE --gateway 192.168.3.1
 \end{verbatim}
-\noindent to view our NAT rule, having a target of \texttt{MASQUERADE}, which will translate
-source addresses for all traffic destined for our external network interface.  Then use 
-this command:
-\begin{verbatim}
-    sudo iptables -L -v 
-\end{verbatim}
-\noindent to see that we are forwarding traffic received from the two LANs. 
 
-Our iptables NAT rules are defined in the /etc/rc.local file on the gateway component.  
+Then run the script to replace the {\tt iptables} rules with your new rules:
+\begin{verbatim}
+    sudo /etc/rc.local
+\end{verbatim}
+Now restart snort and again run nmap from mary's ws2 computer.
+
+
+\subsection{Distinguishing traffic by address}
+Start Firefox on mary's ws2 computer to view the confidential business plan:
+\begin {verbatim}
+    firefox www.example.com/plan.html
+\end {vertabim}
+
+The snort rules include two address fields, These addresses are used to check the
+source from which the packet originated and the destination of the packet. The address
+may be a single IP address or a network address. You can use \textit{any} keyword to apply a
+rule on all addresses. The address is followed by a slash character and number of bits in
+the  netmask.  For  example,  an  address  192.168.2.0/24  represents  C  class  network
+192.168.2.0  with  24  bits  in  the  network  mask.
+
 
 \section{Submission}
 After finishing the lab, go to the terminal on your Linux system that was used to start the lab and type:
 \begin{verbatim}
-    stop.py routing-basics
+    stop.py snort
 \end{verbatim}
 When you stop the lab, the system will display a path to the zipped lab results on your Linux system.  Provide that file to 
 your instructor, e.g., via the Sakai site.
