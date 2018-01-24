@@ -13,3 +13,6 @@ echo "nameserver 192.168.3.10" | sudo tee /etc/resolv.conf
 # remove the dns route so as to not confuse student
 sudo route del -host 172.17.0.1
 
+# Avoid the circle of death -- no packet forwarding back to the gateway!
+sudo sysctl -w net.ipv4.ip_forward=0
+
