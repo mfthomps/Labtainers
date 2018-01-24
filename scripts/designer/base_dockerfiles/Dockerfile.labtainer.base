@@ -43,4 +43,7 @@ ADD system/bin/funbuffer /usr/bin/
 #RUN echo "ubuntu:ubuntu" | chpasswd
 #RUN chown -R ubuntu:ubuntu /home/ubuntu
 #RUN adduser ubuntu sudo
+# manage default gateways
+ADD system/bin/togglegw.sh /usr/bin/
+ADD system/bin/set_default_gw.sh /usr/bin/
 
