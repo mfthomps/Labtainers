@@ -59,8 +59,9 @@ ADD $labdir/$lab.tar.gz $HOME
 #
 #USER root
 #RUN systemctl enable mynotify
+#RUN systemctl enable rc.local
 #CMD ["/usr/sbin/init"]
-# replace below with three above for centos
+# replace below with four above for centos
 ENTRYPOINT sudo /sbin/faux_init && bash
 #
 #  DO NOT add below this line.
