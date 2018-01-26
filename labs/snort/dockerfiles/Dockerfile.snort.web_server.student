@@ -61,9 +61,8 @@ ADD $labdir/$lab.tar.gz $HOME
 #
 USER root
 RUN systemctl enable sshd.service
+RUN systemctl enable rc-local
 CMD ["/usr/sbin/init"]
-# replace below with two above for centos
-#ENTRYPOINT sudo /sbin/faux_init && bash
 #
 #  DO NOT add below this line.
 #
