@@ -1,3 +1,4 @@
+#!/bin/bash
 route delete default
 route add default gw 203.0.113.1
 #
@@ -28,10 +29,11 @@ iptables --table nat -I POSTROUTING 1 --out-interface $wan -j MASQUERADE
 iptables --append FORWARD --in-interface $lan1 -j ACCEPT
 iptables --append FORWARD --in-interface $lan2 -j ACCEPT
 
-sudo iptables -A FORWARD -i $wan -o $lan1 -p tcp --syn --dport 80 -m conntrack --ctstate NEW -j ACCEPT
-sudo iptables -A FORWARD -i $wan -o $lan1 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-sudo iptables -A FORWARD -i $lan1 -o $wan -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+#sudo iptables -A FORWARD -i $wan -o $lan1 -p tcp --syn --dport 80 -m conntrack --ctstate NEW -j ACCEPT
+#sudo iptables -A FORWARD -i $wan -o $lan1 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+#sudo iptables -A FORWARD -i $lan1 -o $wan -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 sudo iptables -t nat -A PREROUTING -i $wan -p tcp --dport 80 -j DNAT --to-destination 192.168.1.2
+sudo iptables -t nat -A POSTROUTING -o $lan1 -p tcp --dport 80 -s 192.168.0.0/16 -j RETURN
 sudo iptables -t nat -A POSTROUTING -o $lan1 -p tcp --dport 80 -d 192.168.1.2 -j SNAT --to-source 192.168.1.10
 sudo iptables -t nat -A PREROUTING -i $wan -p tcp --dport 443 -j DNAT --to-destination 192.168.1.2
 sudo iptables -t nat -A POSTROUTING -o $lan1 -p tcp --dport 443 -d 192.168.1.2 -j SNAT --to-source 192.168.1.10
