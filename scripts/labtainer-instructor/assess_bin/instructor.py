@@ -250,7 +250,7 @@ def main():
         ''' retain dates of student files '''
         for zi in zipoutput.infolist():
             zname = zi.filename
-            if zname == 'docs.zip':
+            if not zname.endswith('.zip') or zname == 'docs.zip':
                 continue
             second_email_labname, second_containername = zname.rsplit('=', 1)
             # Mismatch e-mail name at first level
