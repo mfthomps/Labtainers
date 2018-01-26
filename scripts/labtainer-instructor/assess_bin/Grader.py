@@ -91,7 +91,7 @@ def evalTimeDuring(goals_tag1, goals_tag2):
                 #print "Goal2 timestamp is (%s) and value is (%s)" % (goal2timestamp, goal2value)
                 # If there is Goal2 value that is True
                 if goal2value:
-                    #print "goal1ts (%s) goal2ts (%s)" % (goal1timestamp, goal2timestamp)
+                    print "goal1ts (%s) goal2ts (%s)" % (goal1timestamp, goal2timestamp)
                     evalTimeDuringResult = compare_time_during(goal1timestamp, goal2timestamp)
                     if evalTimeDuringResult:
                         # if evalTimeDuringResult is True - that means:
@@ -131,6 +131,29 @@ def add_goals_id_ts(goalid, goalts, goalvalue, goals_id_ts, goals_ts_id):
             exit(1)
         else:
             goals_ts_id[goalts][goalid] = goalvalue
+
+def getJsonOutTS(outputjsonfile):
+    jsonoutput = None
+    with open(outputjsonfile, "r") as jsonfile:
+        jsonoutput = json.load(jsonfile)
+    if jsonoutput is None:
+        return None
+    for ts in jsonoutput:
+        result_set = jsonoutput[ts]
+        for key in result_set:
+            old = result_set[key]
+            new = ast.literal_eval(old)
+            if new is not None:
+                if type(new) is str:
+                    new_filtered = filter(lambda x: x in string.printable, new)
+                else:
+                    new_filtered = new
+            else:
+                new_filtered = "NONE"
+            result_set[key] = new_filtered 
+        jsonoutput[ts] = result_set
+        #print('is %s' % new)
+    return jsonoutput
 
 def getJsonOut(outputjsonfile):
     with open(outputjsonfile, "r") as jsonfile:
@@ -207,7 +230,7 @@ def compare_result_answer(current_result, current_answer, operator):
 
     return found
 
-def processMatchLast(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
+def processMatchLast(result_sets, eachgoal, goals_id_ts, goals_ts_id):
     #print "Inside processMatchLast"
     found = False
     goalid = eachgoal['goalid']
@@ -233,36 +256,24 @@ def processMatchLast(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
 
     # MatchLast - Process only the last timestamp file
     # until match or not found
-    sorted_fnames = sorted(outjsonfnames, reverse=True)
-    outputjsonfile = sorted_fnames[0]
-    # Use rsplit to get the timestamppart
-    #print "processMatchLast: outputjsonfile is (%s)" % outputjsonfile
-    if outputjsonfile.endswith("student"):
-        filenamepart = outputjsonfile
-        timestamppart = "default"
-    else:
-        (filenamepart, timestamppart) = outputjsonfile.rsplit('.', 1)
-    #print "processMatchLast: Last file timestamped is (%s)" % outputjsonfile
-    #print "processMatchLast: Output json %s" % outputjsonfile
-    jsonoutput = getJsonOut(outputjsonfile)
-
-    #print jsonoutput
-    if jsonoutput == {}:
+    results, ts = result_sets.getLatest()
+    #print results
+    if results == {}:
         # empty - skip
         return
 
     try:
-        resulttagresult = jsonoutput[resulttag]
+        resulttagresult = results[resulttag]
     except:
         #print('processMatchLast: %s not found in file %s' % (resulttag, outputjsonfile))
         return
     #print resulttagresult
     try:
-        timestampend = jsonoutput['PROGRAM_ENDTIME']
+        timestampend = results['PROGRAM_ENDTIME']
     except:
         print('processMatchLast: PROGRAM_ENDTIME not found in file %s' % outputjsonfile)
         exit(1)
-    fulltimestamp = '%s-%s' % (timestamppart, timestampend)
+    fulltimestamp = '%s-%s' % (ts, timestampend)
     if one_answer:
         found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
         if found:
@@ -270,7 +281,7 @@ def processMatchLast(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
             add_goals_id_ts(goalid, fulltimestamp, True, goals_id_ts, goals_ts_id)
             return
     else:
-        current_onlyanswer = jsonoutput[answertagstring]
+        current_onlyanswer = results[answertagstring]
         #print "Correct onlyanswer is (%s)" % current_onlyanswer
         found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
         if found:
@@ -283,7 +294,7 @@ def processMatchLast(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
         #print "processMatchLast failed"
         add_goals_id_ts(goalid, fulltimestamp, False, goals_id_ts, goals_ts_id)
 
-def processMatchAcross(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
+def processMatchAcross(result_sets, eachgoal, goals_id_ts, goals_ts_id):
     '''  TBD, this seems wrong, should only be one answer for all timestamps? '''
     #print "Inside processMatchAcross"
     found = False
@@ -302,46 +313,36 @@ def processMatchAcross(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
     fulltimestamp = None
     # MatchAcross - Process each file against other files with different timestamp
     # until match or not found
-    for outputjsonfile in outjsonfnames:
-        #print "processMatchAcross: outputjsonfile is (%s)" % outputjsonfile
-        #print "processMatchAcross Output json %s" % outputjsonfile
-        # Use rsplit to get the timestamppart
-        if outputjsonfile.endswith("student"):
-            filenamepart = outputjsonfile
-            timestamppart = "default"
-        else:
-            (filenamepart, timestamppart) = outputjsonfile.rsplit('.', 1)
-        jsonoutput = getJsonOut(outputjsonfile)
-        #print "processMatchAcross: goalid is (%s), timestamppart is (%s)" % (goalid, timestamppart)
+    for ts in result_sets.getStamps():
+        results = result_sets.getSet(ts)
 
-        #print jsonoutput
-        if jsonoutput == {}:
+        #print results
+        if results == {}:
             # empty - skip
             continue
 
         try:
-            resulttagresult = jsonoutput[resulttag]
+            resulttagresult = results[resulttag]
         except:
             #print('processMatchAcross: %s not found in file %s' % (resulttag, outputjsonfile))
             continue
         #print resulttagresult
         try:
-            timestampend = jsonoutput['PROGRAM_ENDTIME']
+            timestampend = results['PROGRAM_ENDTIME']
         except:
             print('processMatchAcross: PROGRAM_ENDTIME not found in file %s' % outputjsonfile)
             exit(1)
-        fulltimestamp = '%s-%s' % (timestamppart, timestampend)
+        fulltimestamp = '%s-%s' % (ts, timestampend)
 
-        for outputjsonfile2 in outjsonfnames:
+        for ts2 in result_sets.getStamps():
             # ensure different time stamp
-            if outputjsonfile == outputjsonfile2:
+            if ts == ts2:
                 continue
             #print "processMatchAcross Output 2 json %s" % outputjsonfile
-            jsonfile2 = getJsonOut(outputjsonfile2)
+            results2 = result_sets.getSet(ts2)
             try:
-                current_answer = jsonfile2[answertagstring]
+                current_answer = results2[answertagstring]
             except KeyError:
-                #print('processMatchAcross: (2) %s not found in file %s' % (answertagstring, outputjsonfile2))
                 continue
 
             #print "Correct answer is (%s)" % current_answer
@@ -379,7 +380,7 @@ def handle_expression(resulttag, json_output, logger):
     return result
 
         
-def processMatchAny(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id, logger):
+def processMatchAny(result_sets, eachgoal, goals_id_ts, goals_ts_id, logger):
     #print "Inside processMatchAny"
     logger.DEBUG("Inside processMatchAny")
     found = False
@@ -405,55 +406,45 @@ def processMatchAny(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id, logger):
         #print answertagstring
 
     # for processMatchAny - Process all files regardless of match found or not found
-    for outputjsonfile in outjsonfnames:
-        logger.DEBUG("processMatchAny: outputjsonfile is (%s)" % outputjsonfile)
-        #print "processMatchAny Output json %s" % outputjsonfile
-        # Use rsplit to get the timestamppart
-        if outputjsonfile.endswith("student"):
-            filenamepart = outputjsonfile
-            timestamppart = "default"
-        else:
-            (filenamepart, timestamppart) = outputjsonfile.rsplit('.', 1)
-        jsonoutput = getJsonOut(outputjsonfile)
-
-        #print "processMatchAny: goalid is (%s), timestamppart is (%s)" % (goalid, timestamppart)
-        #print jsonoutput
-        if jsonoutput == {}:
+    for ts in result_sets.getStamps():
+        results = result_sets.getSet(ts)
+        if results == {}:
             # empty - skip
+            print('empty for ts %s' % ts)
             continue
 
         if resulttag.startswith('('):
-            resulttagresult = str(handle_expression(resulttag, jsonoutput, logger))
+            resulttagresult = str(handle_expression(resulttag, results, logger))
             logger.DEBUG('from handle_expression, got %s' % resulttagresult)
         else:
             try:
-                resulttagresult = jsonoutput[resulttag]
+                resulttagresult = results[resulttag]
             except KeyError:
-                logger.DEBUG('%s not found in file %s' % (resulttag, outputjsonfile))
+                logger.DEBUG('%s not found in file %s' % (resulttag, ts))
                 continue
         
         #print resulttagresult
         try:
-            timestampend = jsonoutput['PROGRAM_ENDTIME']
+            timestampend = results['PROGRAM_ENDTIME']
         except KeyError:
-            logger.ERROR('processMatchAny: PROGRAM_ENDTIME not found in file %s' % outputjsonfile)
+            logger.ERROR('processMatchAny: PROGRAM_ENDTIME not found in file %s' % ts)
             exit(1)
-        fulltimestamp = '%s-%s' % (timestamppart, timestampend)
+        fulltimestamp = '%s-%s' % (ts, timestampend)
         if one_answer:
             logger.DEBUG("Correct answer is (%s) result (%s)" % (current_onlyanswer, resulttagresult))
             found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
             add_goals_id_ts(goalid, fulltimestamp, found, goals_id_ts, goals_ts_id)
         else:
-            if answertagstring not in jsonoutput:
-                logger.ERROR('%s not in jsonoutput %s' % (answertagstring, str(jsonoutput)))
+            if answertagstring not in results:
+                logger.ERROR('%s not in results %s' % (answertagstring, str(results)))
                 sys.exit(1)
-            answertagresult = jsonoutput[answertagstring]
+            answertagresult = results[answertagstring]
             current_answer = answertagresult.strip()
             logger.DEBUG("Correct answer is (%s) result (%s)" % (current_answer, resulttagresult))
             found = compare_result_answer(resulttagresult, current_answer, eachgoal['goaloperator'])
             add_goals_id_ts(goalid, fulltimestamp, found, goals_id_ts, goals_ts_id)
 
-def processValue(outjsonfnames, eachgoal, grades, logger):
+def processValue(result_sets, eachgoal, grades, logger):
     ''' assign the grade the most recent non-NONE result '''
     goalid = eachgoal['goalid']
     #print goalid
@@ -464,22 +455,15 @@ def processValue(outjsonfnames, eachgoal, grades, logger):
        resulttag = resulttag[len('result.'):]
 
     value = 'NONE' 
-    for outputjsonfile in outjsonfnames:
-        #print "processCount: outputjsonfile is (%s)" % outputjsonfile
-        # Use rsplit to get the timestamppart
-        if outputjsonfile.endswith("student"):
-            filenamepart = outputjsonfile
-            timestamppart = "default"
-        else:
-            (filenamepart, timestamppart) = outputjsonfile.rsplit('.', 1)
-        jsonoutput = getJsonOut(outputjsonfile)
+    for ts in result_sets.getStamps():
+        results = result_sets.getSet(ts)
 
-        if jsonoutput == {}:
+        if results == {}:
             # empty - skip
             continue
 
         try:
-            resulttagresult = jsonoutput[resulttag]
+            resulttagresult = results[resulttag]
         except KeyError:
             #print('processCount: %s not found in file %s' % (resulttag, outputjsonfile))
             continue
@@ -488,7 +472,7 @@ def processValue(outjsonfnames, eachgoal, grades, logger):
     #print 'count is %d' % count
     grades[goalid] = value
  
-def processCount(outjsonfnames, eachgoal, grades, logger):
+def processCount(result_sets, eachgoal, grades, logger):
     #print "Inside processCount"
     count = 0
     goalid = eachgoal['goalid']
@@ -499,22 +483,15 @@ def processCount(outjsonfnames, eachgoal, grades, logger):
     if resulttag.startswith('result.'):
        resulttag = resulttag[len('result.'):]
  
-    for outputjsonfile in outjsonfnames:
-        #print "processCount: outputjsonfile is (%s)" % outputjsonfile
-        # Use rsplit to get the timestamppart
-        if outputjsonfile.endswith("student"):
-            filenamepart = outputjsonfile
-            timestamppart = "default"
-        else:
-            (filenamepart, timestamppart) = outputjsonfile.rsplit('.', 1)
-        jsonoutput = getJsonOut(outputjsonfile)
+    for ts in result_sets.getStamps():
+        results = result_sets.getSet(ts)
 
-        if jsonoutput == {}:
+        if results == {}:
             # empty - skip
             continue
 
         try:
-            resulttagresult = jsonoutput[resulttag]
+            resulttagresult = results[resulttag]
         except KeyError:
             #print('processCount: %s not found in file %s' % (resulttag, outputjsonfile))
             continue
@@ -542,10 +519,10 @@ def processCount(outjsonfnames, eachgoal, grades, logger):
                     #print "Correct answer is (%s) result (%s)" % (current_onlyanswer, resulttagresult)
                     found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
                 else:
-                    if answertagstring not in jsonoutput:
-                        logger.ERROR('%s not in jsonoutput %s' % (answertagstring, str(jsonoutput)))
+                    if answertagstring not in results:
+                        logger.ERROR('%s not in results %s' % (answertagstring, str(results)))
                         sys.exit(1)
-                    answertagresult = jsonoutput[answertagstring]
+                    answertagresult = results[answertagstring]
                     current_answer = answertagresult.strip()
                     found = compare_result_answer(resulttagresult, current_answer, eachgoal['goaloperator'])
                 if found:
@@ -555,7 +532,7 @@ def processCount(outjsonfnames, eachgoal, grades, logger):
     #print 'count is %d' % count
     grades[goalid] = count
 
-def processExecute(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
+def processExecute(results, eachgoal, goals_id_ts, goals_ts_id):
     #print "Inside processExecute"
     found = False
     goalid = eachgoal['goalid']
@@ -580,36 +557,25 @@ def processExecute(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
         exit(1)
 
     # for processExecute - Process all files regardless of match found or not found
-    for outputjsonfile in outjsonfnames:
-        #print "processExecute: outputjsonfile is (%s)" % outputjsonfile
-        #print "processExecute Output json %s" % outputjsonfile
-        # Use rsplit to get the timestamppart
-        if outputjsonfile.endswith("student"):
-            filenamepart = outputjsonfile
-            timestamppart = "default"
-        else:
-            (filenamepart, timestamppart) = outputjsonfile.rsplit('.', 1)
-        jsonoutput = getJsonOut(outputjsonfile)
-
-        #print "processExecute: goalid is (%s), timestamppart is (%s)" % (goalid, timestamppart)
-        #print jsonoutput
-        if jsonoutput == {}:
+    for ts in result_sets.getStamps():
+        results = result_sets.getSet(ts)
+        if results == {}:
             # empty - skip
             continue
 
         try:
-            resulttagresult = jsonoutput[resulttag]
+            resulttagresult = results[resulttag]
         except KeyError:
             print('processExecute: %s not found in file %s' % (resulttag, outputjsonfile))
             continue
         #print resulttagresult
         
         try:
-            timestampend = jsonoutput['PROGRAM_ENDTIME']
+            timestampend = results['PROGRAM_ENDTIME']
         except KeyError:
             print('processExecute: PROGRAM_ENDTIME not found in file %s' % outputjsonfile)
             exit(1)
-        fulltimestamp = '%s-%s' % (timestamppart, timestampend)
+        fulltimestamp = '%s-%s' % (ts, timestampend)
 
         #print "Correct answer is (%s) result (%s)" % (current_onlyanswer, resulttagresult)
         #found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
@@ -624,7 +590,7 @@ def processExecute(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
             #print "processExecute return 0"
             add_goals_id_ts(goalid, fulltimestamp, False, goals_id_ts, goals_ts_id)
 
-def processTrueFalse(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
+def processTrueFalse(result_sets, eachgoal, goals_id_ts, goals_ts_id):
     #print "Inside processTrueFalse"
     found = False
     goalid = eachgoal['goalid']
@@ -633,32 +599,25 @@ def processTrueFalse(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id):
     #print resulttag
     #print eachgoal
 
-    for outputjsonfile in outjsonfnames:
-        #print "processTrueFalse: outputjsonfile is (%s)" % outputjsonfile
-        # Use rsplit to get the timestamppart
-        if outputjsonfile.endswith("student"):
-            filenamepart = outputjsonfile
-            timestamppart = "default"
-        else:
-            (filenamepart, timestamppart) = outputjsonfile.rsplit('.', 1)
-        jsonoutput = getJsonOut(outputjsonfile)
+    for ts in result_sets.getStamps():
+        results = result_sets.getSet(ts)
 
-        if jsonoutput == {}:
+        if results == {}:
             # empty - skip
             continue
 
         try:
-            resulttagresult = jsonoutput[resulttag]
+            resulttagresult = results[resulttag]
         except KeyError:
             #print('processTrueFalse: %s not found in file %s' % (resulttag, outputjsonfile))
             continue
         
         try:
-            timestampend = jsonoutput['PROGRAM_ENDTIME']
+            timestampend = results['PROGRAM_ENDTIME']
         except KeyError:
             print('processTrueFalse: PROGRAM_ENDTIME not found in file %s' % outputjsonfile)
             exit(1)
-        fulltimestamp = '%s-%s' % (timestamppart, timestampend)
+        fulltimestamp = '%s-%s' % (ts, timestampend)
         #print('compare %s operator %s' % (resulttagresult, eachgoal['goaltype']))
         found = compare_result_answer(resulttagresult, None, eachgoal['goaltype'])
         add_goals_id_ts(goalid, fulltimestamp, found, goals_id_ts, goals_ts_id)
@@ -702,18 +661,17 @@ def processCountGreater(eachgoal, goals_id_ts, goals_ts_id):
     add_goals_id_ts(goalid, default_timestamp, is_greater, goals_id_ts, goals_ts_id)
     
 
-def processTemporal(eachgoal, goals_id_ts, goals_ts_id):
-    print('processTemporal')
+def processTemporal(eachgoal, goals_id_ts, goals_ts_id, logger):
     goal1tag = eachgoal['goal1tag']
     goal2tag = eachgoal['goal2tag']
     goalid = eachgoal['goalid']
-    #print "goal1tag is (%s) and goal2tag is (%s)" % (goal1tag, goal2tag)
+    logger.DEBUG("goal1tag is (%s) and goal2tag is (%s)" % (goal1tag, goal2tag))
     # Make sure goal1tag and goal2tag is in goals_id_ts
     if goal1tag not in goals_id_ts:
-        sys.stdout.write("warning: goal1tag (%s) does not exist in %s\n" % (goal1tag, eachgoal))
+        logger.DEBUG("warning: goal1tag (%s) does not exist in %s\n" % (goal1tag, str(goals_id_ts)))
         return
     if goal2tag not in goals_id_ts:
-        sys.stdout.write("warning: goal2tag (%s) does not exist!\n" % goal2tag)
+        logger.DEBUG("warning: goal2tag (%s) does not exist!\n" % goal2tag)
         return
     goals_tag1 = {}
     goals_tag2 = {}
@@ -729,12 +687,12 @@ def processTemporal(eachgoal, goals_id_ts, goals_ts_id):
         # (1) goals_tag1 is True and goals_tag2 is True
         # (2) goal1start <= goal2start
     if eachgoal['goaltype'] == "time_during":
+        logger.DEBUG('eval for %s %s' % (goals_tag1, goals_tag2))
         evalTimeResult = evalTimeDuring(goals_tag1, goals_tag2)
         # if evalTimeResult is False - that means, can't find the following condition:
         # (1) goals_tag1 is True and goals_tag2 is True
         # (2) goal2start (%s) <= goal1start (%s) <= goal2end (%s)
 
-    #print('processTemporal %s' % goalid)
     add_goals_id_ts(goalid, default_timestamp, evalTimeResult, goals_id_ts, goals_ts_id)
 
 def processBoolean(eachgoal, goals_id_ts, goals_ts_id, logger):
@@ -752,6 +710,44 @@ def processBoolean(eachgoal, goals_id_ts, goals_ts_id, logger):
     if evalBooleanResult is None:
         logger.DEBUG('processBoolean is None, goalid %s goal_id_ts %s' % (goalid, goals_id_ts))
         add_goals_id_ts(goalid, default_timestamp, False, goals_id_ts, goals_ts_id)
+
+class ResultSets():
+    def addSet(self, result_set, ts):
+        if ts in self.result_sets:
+            for key in result_set:
+                self.result_sets[ts][key] = result_set[key]
+        else:
+            self.result_sets[ts] = result_set
+
+    def __init__(self, result_file_list):
+        ''' result_file_list are full paths '''
+        self.result_sets = {}
+        self.latest = None
+        for result_file in result_file_list:
+            fname = os.path.basename(result_file)
+            print('addSet %s' % fname)
+            if '.' in fname:
+                dumb, ts = fname.rsplit('.',1)
+                if self.latest is None or ts > self.latest:
+                    self.latest = ts
+                result_set = getJsonOut(result_file)
+                self.addSet(result_set, ts)
+            elif fname.endswith('_ts'):
+                result_set_set = getJsonOutTS(result_file)
+                for ts in result_set_set:
+                    self.addSet(result_set_set[ts], ts)
+            else:
+                result_set = getJsonOut(result_file)
+                self.addSet(result_set, 'default')
+
+    def getSet(self, ts):
+        return self.result_sets[ts]
+    def getLatest(self):
+        return self.result_sets[self.latest], self.latest
+    def getStamps(self):
+        return list(self.result_sets.keys())
+         
+
 
 # Process Lab Exercise
 def processLabExercise(studentlabdir, labidname, grades, goals, goals_id_ts, goals_ts_id, logger):
@@ -771,13 +767,13 @@ def processLabExercise(studentlabdir, labidname, grades, goals, goals_id_ts, goa
     if not os.path.exists(RESULTHOME):
         sys.stderr.write("ERROR: missing RESULTHOME (%s)\n" % RESULTHOME)
         sys.exit(1)
-    # Note: outputjson now may include no timestamp
-    #print outjsonfnames
+
+    ''' Read result sets '''
+
     outjsonfnamesstring = '%s/%s/%s*' % (studentlabdir, ".local/result/", labidname)
-    #print "processLabExercise: outjsonfnamestring is (%s)" % outjsonfnamesstring
+
     outjsonfnames = glob.glob(outjsonfnamesstring)
-    #print "outputjsonfnames is "
-    #print outjsonfnames
+    result_sets = ResultSets(outjsonfnames)
 
     # Go through each goal for each student
     # Do the goaltype of non 'boolean' first
@@ -785,26 +781,26 @@ def processLabExercise(studentlabdir, labidname, grades, goals, goals_id_ts, goa
         #print('goal is %s type %s' % (eachgoal['goalid'], eachgoal['goaltype']))
 
         if eachgoal['goaltype'] == "matchany":
-            processMatchAny(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id, logger)
+            processMatchAny(result_sets, eachgoal, goals_id_ts, goals_ts_id, logger)
         elif eachgoal['goaltype'] == "matchlast":
-            processMatchLast(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id)
+            processMatchLast(result_sets, eachgoal, goals_id_ts, goals_ts_id)
         elif eachgoal['goaltype'] == "matchacross":
-            processMatchAcross(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id)
+            processMatchAcross(result_sets, eachgoal, goals_id_ts, goals_ts_id)
         elif eachgoal['goaltype'] == "execute":
-            processExecute(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id)
+            processExecute(result_sets, eachgoal, goals_id_ts, goals_ts_id)
         elif eachgoal['goaltype'] == "boolean":
             processBoolean(eachgoal, goals_id_ts, goals_ts_id, logger)
         elif eachgoal['goaltype'] == "time_before" or \
              eachgoal['goaltype'] == "time_during":
-            processTemporal(eachgoal, goals_id_ts, goals_ts_id)
+            processTemporal(eachgoal, goals_id_ts, goals_ts_id, logger)
         elif eachgoal['goaltype'] == "count_greater":
             processCountGreater(eachgoal, goals_id_ts, goals_ts_id)
         elif eachgoal['goaltype'] == "count":
-            processCount(outjsonfnames, eachgoal, grades, logger)
+            processCount(result_sets, eachgoal, grades, logger)
         elif eachgoal['goaltype'] == "value":
-            processValue(outjsonfnames, eachgoal, grades, logger)
+            processValue(result_sets, eachgoal, grades, logger)
         elif eachgoal['goaltype'].startswith('is_'):
-            processTrueFalse(outjsonfnames, eachgoal, goals_id_ts, goals_ts_id)
+            processTrueFalse(result_sets, eachgoal, goals_id_ts, goals_ts_id)
         else:
             sys.stdout.write("Error: Invalid goal type!\n")
             sys.exit(1)
