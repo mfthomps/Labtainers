@@ -33,7 +33,7 @@ stdinfnameslist = []
 stdoutfnameslist = []
 timestamplist = {}
 line_types = ['CHECKSUM', 'CONTAINS', 'LINE', 'STARTSWITH', 'NEXT_STARTSWITH', 'HAVESTRING', 
-              'LINE_COUNT', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT']
+              'HAVESTRING_TS', 'LINE_COUNT', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT']
 just_field_type = ['CHECKSUM', 'LINE_COUNT']
 logger = None
 resultidlist = {}
@@ -70,12 +70,12 @@ def GetExecProgramList(containername, studentlabdir, container_list, targetfile)
     return myexec_proglist
 
 
-def ValidateTokenId(each_value, token_id, logger):
+def ValidateTokenId(result_value, token_id, logger):
     if token_id != 'ALL' and token_id != 'LAST':
         try:
             int(token_id)
         except ValueError:
-            logger.ERROR("results.config line (%s)\n" % each_value)
+            logger.ERROR("results.config line (%s)\n" % result_value)
             logger.ERROR("results.config has invalid token_id")
             sys.exit(1)
 
@@ -86,14 +86,14 @@ def findLineIndex(values):
 
     return None
 
-def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname, each_key, each_value, logger):
+def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname, result_key, result_value, logger):
     '''
     Misleading name, this function populates a set of global structures used in processign the results
     '''
     valid_field_types = ['TOKEN', 'PARENS', 'QUOTES', 'SLASH', 'LINE_COUNT', 'CHECKSUM', 'CONTAINS', 
                          'SEARCH', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT']
-    if not MyUtil.CheckAlphaDashUnder(each_key):
-        logger.ERROR("Not allowed characters in results.config's key (%s)" % each_key)
+    if not MyUtil.CheckAlphaDashUnder(result_key):
+        logger.ERROR("Not allowed characters in results.config's key (%s)" % result_key)
         sys.exit(1)
     values = []
     # expecting:
@@ -106,27 +106,27 @@ def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname,
     #    exception case is field_type CHECKSUM - no other (field_id, line_type or line_id) required
 
     # NOTE: Split using ' : ' - i.e., "space colon space"
-    values = [x.strip() for x in each_value.split(' : ')]
+    values = [x.strip() for x in result_value.split(' : ')]
     #print values
     numvalues = len(values)
-    logger.DEBUG("each_value is %s -- numvalues is (%d)" % (each_value, numvalues))
+    logger.DEBUG("result_value is %s -- numvalues is (%d)" % (result_value, numvalues))
     if numvalues < 2:
-        logger.ERROR("found no ':' delimiter in %s" % each_value)
+        logger.ERROR("found no ':' delimiter in %s" % result_value)
         sys.exit(1)
     if numvalues < 3 and values[1] not in just_field_type:
-        logger.ERROR("Offending line: (%s).\n Perhaps there is a missing ':'?" % each_value)
+        logger.ERROR("Offending line: (%s).\n Perhaps there is a missing ':'?" % result_value)
         logger.ERROR("results.config expected %s to be one of these: %s." % (values[1], str(just_field_type)))
         sys.exit(1)
 
     line_at = findLineIndex(values)
     if line_at is None:
-        logger.ERROR('No line_type in %s' % each_value)
+        logger.ERROR('No line_type in %s' % result_value)
         sys.exit(1)
     num_splits = line_at+1
     #print "line_at is (%d) and num_splits is (%d)" % (line_at, num_splits)
      
     # NOTE: Split using ' : ' - i.e., "space colon space"
-    values = [x.strip() for x in each_value.split(' : ', num_splits)]
+    values = [x.strip() for x in result_value.split(' : ', num_splits)]
 
     # get optional container name and determine if it is 'stdin' or 'stdout'
     newprogname_type = values[0].strip()
@@ -136,7 +136,7 @@ def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname,
         cfgcontainername, progname_type = newprogname_type.split(':', 1)
     else:
         if len(container_list) > 1:
-            logger.ERROR('No container name found in multi container lab entry (%s = %s)' % (each_key, each_value))
+            logger.ERROR('No container name found in multi container lab entry (%s = %s)' % (result_key, result_value))
             sys.exit(1)
         if newprogname_type.endswith('stdin') or newprogname_type.endswith('stdout') \
              or newprogname_type.endswith('prgout'):
@@ -196,7 +196,7 @@ def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname,
     if line_at == 3:
         field_type = values[1].strip()
         if field_type not in valid_field_types:
-            logger.ERROR("results.config line (%s)\n" % each_value)
+            logger.ERROR("results.config line (%s)\n" % result_value)
             logger.ERROR("results.config invalid field_type")
             sys.exit(1)
 
@@ -204,14 +204,14 @@ def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname,
     if values[line_at] == 'PARAM':
         logger.DEBUG("progname_type is (%s)" % progname_type)
         if not progname_type.endswith('stdin'):
-            logger.ERROR("results.config line (%s)\n" % each_value)
+            logger.ERROR("results.config line (%s)\n" % result_value)
             logger.ERROR("PARAM field_type on non stdin file")
             sys.exit(1)
         paramtoken_id = values[2].strip()
         try:
             paramindex = int(paramtoken_id) 
         except:
-            logger.ERROR("results.config line (%s)\n" % each_value)
+            logger.ERROR("results.config line (%s)\n" % result_value)
             logger.ERROR('PARAM field_type could not parse int from %s' % paramtoken_id)
             sys.exit(1)
 
@@ -220,13 +220,13 @@ def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname,
         token_index = 1
         if line_at == 3:
             token_index = 2
-        ValidateTokenId(each_value, values[token_index], logger)
+        ValidateTokenId(result_value, values[token_index], logger)
 
     if values[line_at] == 'LINE':
         try:
             int(values[line_at+1])
         except:
-            logger.ERROR('Expected integer following LINE type, got %s in %s' % (values[line_at+1], each_value))
+            logger.ERROR('Expected integer following LINE type, got %s in %s' % (values[line_at+1], result_value))
             sys.exit(1)
 
     return newprogname_type
@@ -305,126 +305,17 @@ def lineHasCommand(line, look_for):
         if c.startswith(look_for):
             retval += 1
     return retval
-        
-def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_list, timestamppart, logger):
-    retval = True
-    targetlines = None
-    #print('line is %s' % line)
-    logger.DEBUG('line is %s' % line)
-    (each_key, each_value) = line.split('=', 1)
-    each_key = each_key.strip()
 
-    #print each_key
-    # Note: config file has been validated
-    # Split into four parts or five parts
-    # NOTE: Split using ' : ' - i.e., "space colon space"
-    values = [x.strip() for x in each_value.split(' : ')]
-    line_at = findLineIndex(values)
-    num_splits = line_at+1
-    # NOTE: Split using ' : ' - i.e., "space colon space"
-    values = [x.strip() for x in each_value.split(' : ', num_splits)]
-    newtargetfile = values[0].strip()
-    logger.DEBUG('line_at is %d newtargetvalue = %s, values: %s' % (line_at, newtargetfile, str(values)))
-    #print('newtargetfile is %s' % newtargetfile)
-    # <cfgcontainername>:<exec_program>.<type>
-    containername = None
-    if ':' in newtargetfile:
-        cfgcontainername, targetfile = newtargetfile.split(':', 1)
-    else:
-        ''' default to first container? '''
-        #print('first cont is %s' % container_list[0])
-        containername = container_list[0]
-        targetfile = newtargetfile
-    # Construct proper containername from cfgcontainername
-    if containername is None:
-        containername = labidname + "." + cfgcontainername + ".student"
-    result_home = '%s/%s/%s' % (studentlabdir, containername, ".local/result/")
+def getTS(line):
+    retval = None
+    if '[' in line and ']' in line:
+        ts_string = line[line.find("[")+1:line.find("]")].split()[0]
+        time_val = datetime.datetime.strptime(ts_string, '%d/%b/%Y:%H:%M:%S')
+        retval = time_val.strftime("%Y%m%d%H%M%S")
+    return retval 
+         
 
-    if targetfile.startswith('/'):
-        targetfile = os.path.join(result_home, targetfile[1:])
-    #print('targetfile is %s containername is %s' % (targetfile, containername))
-    logger.DEBUG('targetfile is %s, containername is %s' % (targetfile, containername))
-    if containername is not None and containername not in container_list:
-        print "Config line (%s) containername %s not in container list (%s), skipping..." % (line, containername, str(container_list))
-        logger.DEBUG("Config line (%s) containername %s not in container list (%s), skipping..." % (line, 
-              containername, str(container_list)))
-        # set nametags - value pair to NONE
-        #nametags[mycontainername][each_key] = "NONE"
-        nametags[each_key] = "NONE"
-        return False
-
-    command = values[line_at].strip()
-    # field_type - if exists (because field_type is optional)
-    #              has been validated to be one of the valid field types.
-    #              
-    # if it does not exists, default field_type is TOKEN
-    if line_at == 3:
-        field_type = values[1].strip()
-    else:
-        field_type = "TOKEN"
-    # command has been validated to be either 'LINE' or 'STARTSWITH' or 'HAVESTRING'
-    token_index = 1
-    if line_at == 3:
-        token_index = 2
-    if command == 'PARAM':
-        token_id = values[2].strip()
-    elif command == 'CHECKSUM':
-        token_id = "NONE"
-    else:
-        token_id = values[token_index].strip()
-    if command == 'LINE':
-        lineno = int(values[line_at+1].strip())
-    elif command not in just_field_type:
-        # command = 'STARTSWITH': or 'HAVESTRING'
-        lookupstring = values[line_at+1].strip()
-    logger.DEBUG('command %s, field_type %s, token_id %s' % (command, field_type, token_id))
-    targetfname_list = []
-    if targetfile.startswith('*'):
-        # Handle 'asterisk' -- 
-        #print "Handling asterisk"
-        #print "containername is %s, targetfile is %s" % (containername, targetfile)
-        # Replace targetfile as a list of files
-        targetfileparts = targetfile.split('.')
-        targetfilestdinstdout = None
-        if targetfileparts is not None:
-            targetfilestdinstdout = targetfileparts[1]
-        if targetfilestdinstdout is not None:
-            #print "targetfilestdinstdout is %s" % targetfilestdinstdout
-            if containername in container_exec_proglist:
-                myproglist = container_exec_proglist[containername]
-            else:
-                myproglist = container_exec_proglist["CURRENT"]
-            for progname in myproglist:
-                if timestamppart is not None:
-                    targetfname = '%s%s.%s.%s' % (result_home, progname, targetfilestdinstdout, timestamppart)
-                    targetfname_list.append(targetfname)
-    else:
-        #print "Handling non-asterisk"
-
-        if timestamppart is not None:
-            targetfname = '%s%s.%s' % (result_home, targetfile, timestamppart)
-        else:
-            ''' descrete file, no timestamp. '''
-            if targetfile.startswith('~/'):
-                targetfile = targetfile[2:]
-            targetfname = os.path.join(studentlabdir, containername, targetfile)
-        #print "targetfname is (%s)" % targetfname
-        #print "labdir is (%s)" % studentlabdir
-
-        targetfname_list.append(targetfname)
-
-    #print "Current targetfname_list is %s" % targetfname_list
-
-    tagstring = "NONE"
-    # Loop through targetfname_list
-    for current_targetfname in targetfname_list:
-        if not os.path.exists(current_targetfname):
-            # If file does not exist, treat as can't find token
-            token = "NONE"
-            logger.DEBUG("No %s file does not exist\n" % current_targetfname)
-            nametags[each_key] = token
-            return False
-        else:
+def getTokenFromFile(current_targetfname, command, field_type, token_id, logger, lookupstring, line, result_key):
             # Read in corresponding file
             targetf = open(current_targetfname, "r")
             targetlines = targetf.readlines()
@@ -450,9 +341,10 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
                 # If not found - set to NONE
                 if found_lookupstring == False:
                     linerequested = "NONE"
+            elif command == 'HAVESTRING_TS':
+                return None
             elif command == 'LINE_COUNT':
-                nametags[each_key] = targetfilelen
-                return True
+                return targetfilelen
             elif command == 'PARAM':
                 fname = os.path.basename(current_targetfname).rsplit('.',1)[0] 
                 if fname.endswith('stdin'):
@@ -461,8 +353,7 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
                     # Config file 'PARAM' has been validated against stdin
                     # Treat this as can't find token
                     logger.DEBUG('PARAM only valid for stdin files: %s' % current_targetfname)
-                    nametags[each_key] = "NONE"
-                    return False
+                    return None
                 if 'PROGRAM_ARGUMENTS' in targetlines[0]:
                     try:
                         index = int(token_id) 
@@ -483,19 +374,15 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
                             # Couldn't find the corresponding parameter
                             # Treat this as can't find token
                             logger.DEBUG('did not find parameter %d in %s' % (index-1, param_str))
-                            nametags[each_key] = "NONE"
-                            return False
-                    nametags[each_key] = tagstring
-                    return True
+                            return None
+                    return tagstring
             elif command == 'CHECKSUM':
                 ''' Create a checksum of the targetfile '''
                 mymd5 = md5.new()
                 targetlinestring = "".join(targetlines)
                 mymd5.update(targetlinestring)
                 tagstring = mymd5.hexdigest()
-                nametags[each_key] = tagstring
-                #print('tag string is %s for eachkey %s' % (tagstring, each_key))
-                return True
+                return tagstring
             elif command == 'CONTAINS':
                 if token_id == 'CONTAINS':
                     ''' search entire file, vice searching for line '''
@@ -507,9 +394,7 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
                         if remain in currentline:
                             tagstring = 'True'
                             break 
-                    nametags[each_key] = tagstring
-                    #print('tag string is %s for eachkey %s' % (tagstring, each_key))
-                    return True
+                    return tagstring
                 else:
                     # this is deprecated, HAVSTRING should be used
                     found_lookupstring = False
@@ -533,9 +418,7 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
                     #print('look for <%s> in %s' % (remain, currentline))
                     if remain in currentline:
                         count += 1
-                nametags[each_key] = count
-                #print('tag string is %s for eachkey %s' % (tagstring, each_key))
-                return True
+                return count
 
             elif command == 'COMMAND_COUNT':
                 ''' intended for bash_history files, look for occurances of what look like commands '''
@@ -545,9 +428,7 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
                 for currentline in targetlines:
                     occurances = lineHasCommand(currentline.strip(), look_for)
                     count += occurances
-                nametags[each_key] = count
-                #print('tag string is %s for eachkey %s' % (tagstring, each_key))
-                return True
+                return count
 
             elif command == 'STARTSWITH':
                 #print('is startswith')
@@ -585,6 +466,141 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
 
             token = getToken(linerequested, field_type, token_id, logger)
             logger.DEBUG('field_type %s, token_id %s, got token %s' % (field_type, token_id, token))
+            return token
+        
+def getConfigItems(labidname, line, studentlabdir, container_list, logger):
+    targetlines = None
+    if '=' not in line:
+         print('no equals in %s' % line)
+         return
+    containername= targetfile= result_key= command= field_type= token_id= lookupstring= result_home  = None
+    #print('line is %s' % line)
+    logger.DEBUG('line is %s' % line)
+    (result_key, result_value) = line.split('=', 1)
+    result_key = result_key.strip()
+
+    #print result_key
+    # Note: config file has been validated
+    # Split into four parts or five parts
+    # NOTE: Split using ' : ' - i.e., "space colon space"
+    values = [x.strip() for x in result_value.split(' : ')]
+    line_at = findLineIndex(values)
+    num_splits = line_at+1
+    # NOTE: Split using ' : ' - i.e., "space colon space"
+    values = [x.strip() for x in result_value.split(' : ', num_splits)]
+    newtargetfile = values[0].strip()
+    logger.DEBUG('line_at is %d newtargetvalue = %s, values: %s' % (line_at, newtargetfile, str(values)))
+    #print('newtargetfile is %s' % newtargetfile)
+    # <cfgcontainername>:<exec_program>.<type>
+    containername = None
+    if ':' in newtargetfile:
+        cfgcontainername, targetfile = newtargetfile.split(':', 1)
+        #print('split got targetfile of %s' % targetfile)
+    else:
+        ''' default to first container? '''
+        #print('first cont is %s' % container_list[0])
+        containername = container_list[0]
+        targetfile = newtargetfile
+    # Construct proper containername from cfgcontainername
+    if containername is None:
+        containername = labidname + "." + cfgcontainername + ".student"
+    result_home = '%s/%s/%s' % (studentlabdir, containername, ".local/result/")
+
+    if targetfile.startswith('/'):
+        targetfile = os.path.join(result_home, targetfile[1:])
+    #print('targetfile is %s containername is %s' % (targetfile, containername))
+    logger.DEBUG('targetfile is %s, containername is %s' % (targetfile, containername))
+    if containername is not None and containername not in container_list:
+        print "Config line (%s) containername %s not in container list (%s), skipping..." % (line, containername, str(container_list))
+        logger.DEBUG("Config line (%s) containername %s not in container list (%s), skipping..." % (line, 
+              containername, str(container_list)))
+        # set nametags - value pair to NONE
+        #nametags[mycontainername][result_key] = "NONE"
+        return None, None, result_key, None, None, None, None, None 
+
+    command = values[line_at].strip()
+    # field_type - if exists (because field_type is optional)
+    #              has been validated to be one of the valid field types.
+    #              
+    # if it does not exists, default field_type is TOKEN
+    if line_at == 3:
+        field_type = values[1].strip()
+    else:
+        field_type = "TOKEN"
+    # command has been validated to be either 'LINE' or 'STARTSWITH' or 'HAVESTRING'
+    token_index = 1
+    if line_at == 3:
+        token_index = 2
+    if command == 'PARAM':
+        token_id = values[2].strip()
+    elif command == 'CHECKSUM':
+        token_id = "NONE"
+    else:
+        token_id = values[token_index].strip()
+    if command == 'LINE':
+        lineno = int(values[line_at+1].strip())
+    elif command not in just_field_type:
+        # command = 'STARTSWITH': or 'HAVESTRING'
+        lookupstring = values[line_at+1].strip()
+    return containername, targetfile, result_key, command, field_type, token_id, lookupstring, result_home 
+
+
+def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_list, timestamppart, logger):
+    retval = True
+    containername, targetfile, result_key, command, field_type, token_id, lookupstring, result_home = getConfigItems(labidname, line, studentlabdir, container_list, logger)
+    if targetfile is None:
+        nametags[result_key]=None
+    logger.DEBUG('command %s, field_type %s, token_id %s' % (command, field_type, token_id))
+    targetfname_list = []
+    if targetfile.startswith('*'):
+        # Handle 'asterisk' -- 
+        #print "Handling asterisk"
+        #print "containername is %s, targetfile is %s" % (containername, targetfile)
+        # Replace targetfile as a list of files
+        targetfileparts = targetfile.split('.')
+        targetfilestdinstdout = None
+        if targetfileparts is not None:
+            targetfilestdinstdout = targetfileparts[1]
+        if targetfilestdinstdout is not None:
+            #print "targetfilestdinstdout is %s" % targetfilestdinstdout
+            if containername in container_exec_proglist:
+                myproglist = container_exec_proglist[containername]
+            else:
+                myproglist = container_exec_proglist["CURRENT"]
+            for progname in myproglist:
+                if timestamppart is not None:
+                    targetfname = '%s%s.%s.%s' % (result_home, progname, targetfilestdinstdout, timestamppart)
+                    targetfname_list.append(targetfname)
+    else:
+        #print "Handling non-asterisk"
+
+        if timestamppart is not None:
+            if not targetfile.startswith(result_home):
+                targetfname = '%s%s.%s' % (result_home, targetfile, timestamppart)
+            else:
+                targetfname = '%s.%s' % (targetfile, timestamppart)
+        else:
+            ''' descrete file, no timestamp. '''
+            if targetfile.startswith('~/'):
+                targetfile = targetfile[2:]
+            targetfname = os.path.join(studentlabdir, containername, targetfile)
+        #print "labdir is (%s)" % studentlabdir
+
+        targetfname_list.append(targetfname)
+
+    #print "Current targetfname_list is %s" % targetfname_list
+
+    tagstring = "NONE"
+    # Loop through targetfname_list
+    for current_targetfname in targetfname_list:
+        if not os.path.exists(current_targetfname):
+            # If file does not exist, treat as can't find token
+            token = "NONE"
+            logger.DEBUG("No %s file does not exist\n" % current_targetfname)
+            nametags[result_key] = token
+            return False
+        else:
+            token = getTokenFromFile(current_targetfname, command, field_type, token_id, logger, lookupstring, line, result_key)
 
         #print token
         if token == "NONE":
@@ -595,9 +611,46 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
             break
 
     # set nametags - value pair
-    nametags[each_key] = tagstring
+    nametags[result_key] = tagstring
     return True
 
+
+def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfname, container_list, logger):
+    ts_nametags = {}
+    for line in configfilelines:
+        linestrip = line.rstrip()
+        if linestrip is not None and not linestrip.startswith('#') and len(line.strip())>0:
+            containername, targetfile, result_key, command, field_type, token_id, lookupstring, result_home = getConfigItems(labidname, linestrip, studentlabdir, container_list, logger)
+        
+            if command == 'HAVESTRING_TS':
+                if not os.path.isfile(targetfile):
+                    continue
+                with open(targetfile, "r") as fh:
+                    targetlines = fh.readlines()
+                for currentline in targetlines:
+                    if lookupstring in currentline:
+                        ts = str(getTS(currentline))
+                        if ts not in ts_nametags:
+                            ts_nametags[ts] = {}
+                            ts_nametags[ts]['PROGRAM_ENDTIME'] = ts
+                        token = getToken(currentline, field_type, token_id, logger)
+                        ts_nametags[ts][result_key] = token
+
+    jsonoutput = open(ts_jsonfname, "w")
+    for ts in ts_nametags:
+        for key in ts_nametags[ts]:
+            old = ts_nametags[ts][key]
+            new = repr(old)
+            ts_nametags[ts][key] = new
+    try:
+        jsondumpsoutput = json.dumps(ts_nametags, indent=4)
+    except:
+        logger.ERROR('json dumps failed on %s' % ts_nametags)
+        exit(1)
+    #print('dumping %s' % str(jsondumpsoutput))
+    jsonoutput.write(jsondumpsoutput)
+    jsonoutput.write('\n')
+    jsonoutput.close()
 
 def ParseConfigForFile(studentlabdir, labidname, configfilelines, 
                        outputjsonfname, container_list, timestamppart, end_time, logger):
@@ -655,14 +708,14 @@ def ParseValidateResultConfig(actual_parsing, homedir, studentlabdir, container_
             if not linestrip.startswith('#'):
                 #print "Current linestrip is (%s)" % linestrip
                 try:
-                    (each_key, each_value) = linestrip.split('=', 1)
+                    (result_key, result_value) = linestrip.split('=', 1)
                 except:
                      logger.ERROR('missing "=" character in %s' % linestrip)
                      sys.exit(1)
-                each_key = each_key.strip()
-                progname_type = ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname, each_key, each_value, logger)
-                if each_key not in resultidlist:
-                    resultidlist[each_key] = progname_type
+                result_key = result_key.strip()
+                progname_type = ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname, result_key, result_value, logger)
+                if result_key not in resultidlist:
+                    resultidlist[result_key] = progname_type
         #else:
         #    print "Skipping empty linestrip is (%s)" % linestrip
 
@@ -769,5 +822,7 @@ def ParseStdinStdout(homedir, studentlabdir, container_list, instructordir, labi
     ''' process files without timestamps '''
     outputjsonfname = '%s%s' % (OUTPUTRESULTHOME, jsonoutputfilename)
     ParseConfigForFile(studentlabdir, labidname, configfilelines, outputjsonfname, container_list, None, None, logger)
+    ts_jsonfname = outputjsonfname+'_ts'
+    ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfname, container_list, logger)
 
 
