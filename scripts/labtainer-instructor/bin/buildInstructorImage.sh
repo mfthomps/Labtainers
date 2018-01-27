@@ -57,7 +57,7 @@ else
     fi
     ORIG_PWD=`pwd`
     echo $ORIG_PWD
-    ../labtainer-student/checkTars.py $LAB_DIR $imagename
+    ../labtainer-student/bin/checkTars.py $LAB_DIR $imagename
     LAB_TAR=$LAB_DIR/$labimage.tar.gz
     SYS_TAR=$LAB_DIR/sys_$labimage.tar.gz
     TMP_DIR=/tmp/$labimage
