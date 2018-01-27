@@ -32,6 +32,10 @@ def compare_time_during(goal1timestamp, goal2timestamp):
     goal2start, goal2end = goal2timestamp.split('-')
     #print "goal1start (%s) goal1end (%s)" % (goal1start, goal1end)
     #print "goal2start (%s) goal2end (%s)" % (goal2start, goal2end)
+    if goal1end == '0':
+        goal1end = goal1start
+    if goal2end == '0':
+        goal2end = goal2start
     if goal1start == 'default' or goal2start == 'default':
         return False
         #print "Can't compare 'default' timestamp!"
@@ -82,55 +86,118 @@ def evalTimeBefore(goals_tag1, goals_tag2):
     return evalTimeBeforeResult
 
 def evalTimeDuring(goals_tag1, goals_tag2):
-    evalTimeDuringResult = False
+    ''' return a dictionary of goals_tag1 time ranges having boolean values
+        reflecting if goals_tag2 goals occurred curing the time range'''
+    retval = {}
     for goal1timestamp, goal1value in goals_tag1.iteritems():
         #print "Goal1 timestamp is (%s) and value is (%s)" % (goal1timestamp, goal1value)
         # For each Goal1 value that is True
         if goal1value:
+            eval_time_during_result = False
             for goal2timestamp, goal2value in goals_tag2.iteritems():
                 #print "Goal2 timestamp is (%s) and value is (%s)" % (goal2timestamp, goal2value)
                 # If there is Goal2 value that is True
                 if goal2value:
                     print "goal1ts (%s) goal2ts (%s)" % (goal1timestamp, goal2timestamp)
-                    evalTimeDuringResult = compare_time_during(goal1timestamp, goal2timestamp)
-                    if evalTimeDuringResult:
-                        # if evalTimeDuringResult is True - that means:
+                    eval_time_during_result = compare_time_during(goal1timestamp, goal2timestamp)
+                    if eval_time_during_result:
+                        # if eval_time_during_result is True - that means:
                         # (1) goals_tag1 is True and goals_tag2 is True
                         # (2) goal2start (%s) <= goal1start (%s) <= goal2end (%s)
+                        retval[goal1timestamp] = True
                         break
-        if evalTimeDuringResult:
-            break
+            if not eval_time_during_result:
+                retval[goal1timestamp] = False
 
-    return evalTimeDuringResult
+    return retval
 
-def add_goals_id_ts(goalid, goalts, goalvalue, goals_id_ts, goals_ts_id):
-    #print('add_goals_id_ts goalid %s goalts %s' % (goalid, goalts))
-    # Do goals_id_ts first
-    if goalid not in goals_id_ts:
-        goals_id_ts[goalid] = {}
-        goals_id_ts[goalid][goalts] = goalvalue
-    else:
-        if goalts in goals_id_ts[goalid]:
-            if goalts != default_timestamp:
+class GoalTimes():
+    def __init__(self):
+        self.goals_id_ts = {}
+        self.goals_ts_id = {}
+        self.time_stamps = []
+        self.singletons = {}
+    def hasGoal(self, goal_id):
+        if goal_id in self.goals_id_ts:
+            return True
+        else:
+            return False
+
+    def getGoal(self, goal_id):
+        return self.goals_id_ts[goal_id]
+
+    def getGoalIdTimeStamp(self):
+        return self.goals_id_ts
+    def getGoalTimeStampId(self):
+        return self.goals_ts_id
+
+    def NOT_USED(self, goalid, goalts, goalvalue):
+        ''' NOT LIKELY TO WORK, ends up with multiple similar log records in one 
+            time stamp range.  Use during instead. 
+             f the given timestamp is a singleton, and it should be part of 
+            one or more time stamp ranges, return a list of those.  Otherwise
+            return a one-item list with the given time.
+            If the given timestamp is not a singleton and is new, look in 
+            the existing singletons to see if they should be part of that range.
+        '''
+        retval = []
+        start, end = goalts.split('-')
+        if goalts == default_timestamp:
+            print('add default %s' % (goalid))
+            self.addOneGoal(goalid, goalts, goalvalue)
+        elif end == '0':
+            if start not in self.singletons:
+                self.singletons[start] = {}
+            self.singletons[start][goalid] = goalvalue
+            for ts in self.goals_ts_id:
+                tmp_start, tmp_end = ts.split('-')
+                if start >= tmp_start and start <= tmp_end:
+                    print('add %s, single was %s, to ts %s' % (goalid, start, ts))
+                    self.addOneGoal(goalid, ts, goalvalue)
+        else:
+            ''' ts is a range, add it and check existing singetons '''
+            print('add range %s %s' % (goalid, goalts))
+            self.addOneGoal(goalid, goalts, goalvalue)
+            for single in self.singletons:
+                if single >= start and single <= end:
+                    for goalid in self.singletons[single]:
+                        print('add %s, old single was %s, to ts %s' % (goalid, single, goalts))
+                        self.addOneGoal(goalid, goalts, self.singletons[single][goalid])
+                
+        
+    def addGoal(self, goalid, goalts, goalvalue):
+        '''
+        Manage duplicate dictionaries with inverted key-value pairs.
+        The 
+        '''
+
+        print('add_goals_id_ts goalid %s goalts %s' % (goalid, goalts))
+        # Do goals_id_ts first
+        if goalid not in self.goals_id_ts:
+            self.goals_id_ts[goalid] = {}
+            self.goals_id_ts[goalid][goalts] = goalvalue
+        else:
+            if goalts in self.goals_id_ts[goalid]:
+                if goalts != default_timestamp:
+                    # Already have that goal with that goalid and that timestamp
+                    print("Grader.py add_goals_id_ts(1): duplicate goalid <%s> timestamp <%s> exit" % (goalid, goalts))
+                    exit(1)
+                else:
+                    print("Grader.py add_goals_id_ts(1): duplicate goalid <%s> timestamp <%s>, return" % (goalid, goalts))
+                    return
+            else:
+                self.goals_id_ts[goalid][goalts] = goalvalue
+        # Do goals_ts_id next
+        if goalts not in self.goals_ts_id:
+            self.goals_ts_id[goalts] = {}
+            self.goals_ts_id[goalts][goalid] = goalvalue
+        else:
+            if goalid in self.goals_ts_id[goalts]:
                 # Already have that goal with that goalid and that timestamp
-                print("Grader.py add_goals_id_ts(1): duplicate goalid <%s> timestamp <%s> exit" % (goalid, goalts))
+                print("Grader.py add_goals_id_ts(2): duplicate goalid timestamp!")
                 exit(1)
             else:
-                print("Grader.py add_goals_id_ts(1): duplicate goalid <%s> timestamp <%s>, return" % (goalid, goalts))
-                return
-        else:
-            goals_id_ts[goalid][goalts] = goalvalue
-    # Do goals_ts_id next
-    if goalts not in goals_ts_id:
-        goals_ts_id[goalts] = {}
-        goals_ts_id[goalts][goalid] = goalvalue
-    else:
-        if goalid in goals_ts_id[goalts]:
-            # Already have that goal with that goalid and that timestamp
-            print("Grader.py add_goals_id_ts(2): duplicate goalid timestamp!")
-            exit(1)
-        else:
-            goals_ts_id[goalts][goalid] = goalvalue
+                self.goals_ts_id[goalts][goalid] = goalvalue
 
 def getJsonOutTS(outputjsonfile):
     jsonoutput = None
@@ -230,7 +297,7 @@ def compare_result_answer(current_result, current_answer, operator):
 
     return found
 
-def processMatchLast(result_sets, eachgoal, goals_id_ts, goals_ts_id):
+def processMatchLast(result_sets, eachgoal, goal_times):
     #print "Inside processMatchLast"
     found = False
     goalid = eachgoal['goalid']
@@ -278,7 +345,7 @@ def processMatchLast(result_sets, eachgoal, goals_id_ts, goals_ts_id):
         found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
         if found:
             #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_onlyanswer)
-            add_goals_id_ts(goalid, fulltimestamp, True, goals_id_ts, goals_ts_id)
+            goal_times.addGoal(goalid, fulltimestamp, True)
             return
     else:
         current_onlyanswer = results[answertagstring]
@@ -286,15 +353,15 @@ def processMatchLast(result_sets, eachgoal, goals_id_ts, goals_ts_id):
         found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
         if found:
             #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_onlyanswer)
-            add_goals_id_ts(goalid, fulltimestamp, True, goals_id_ts, goals_ts_id)
+            goal_times.addGoal(goalid, fulltimestamp, True)
             return
  
     # All file processed - still not found
     if not found:
         #print "processMatchLast failed"
-        add_goals_id_ts(goalid, fulltimestamp, False, goals_id_ts, goals_ts_id)
+        goal_times.addGoal(goalid, fulltimestamp, False)
 
-def processMatchAcross(result_sets, eachgoal, goals_id_ts, goals_ts_id):
+def processMatchAcross(result_sets, eachgoal, goal_times):
     '''  TBD, this seems wrong, should only be one answer for all timestamps? '''
     #print "Inside processMatchAcross"
     found = False
@@ -350,13 +417,13 @@ def processMatchAcross(result_sets, eachgoal, goals_id_ts, goals_ts_id):
             found = compare_result_answer(resulttagresult, current_answer, eachgoal['goaloperator'])
             if found:
                 #print "resulttagresult is (%s) matches answer (%s)" % (resulttagresult, current_answer)
-                add_goals_id_ts(goalid, fulltimestamp, True, goals_id_ts, goals_ts_id)
+                goal_times.addGoal(goalid, fulltimestamp, True)
                 return
  
     # All file processed - still not found
     if not found:
         #print "processMatchAcross failed"
-        add_goals_id_ts(goalid, fulltimestamp, False, goals_id_ts, goals_ts_id)
+        goal_times.addGoal(goalid, fulltimestamp, False)
 
 def handle_expression(resulttag, json_output, logger):
     result = 'NONE'
@@ -380,7 +447,7 @@ def handle_expression(resulttag, json_output, logger):
     return result
 
         
-def processMatchAny(result_sets, eachgoal, goals_id_ts, goals_ts_id, logger):
+def processMatchAny(result_sets, eachgoal, goal_times, logger):
     #print "Inside processMatchAny"
     logger.DEBUG("Inside processMatchAny")
     found = False
@@ -433,7 +500,7 @@ def processMatchAny(result_sets, eachgoal, goals_id_ts, goals_ts_id, logger):
         if one_answer:
             logger.DEBUG("Correct answer is (%s) result (%s)" % (current_onlyanswer, resulttagresult))
             found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
-            add_goals_id_ts(goalid, fulltimestamp, found, goals_id_ts, goals_ts_id)
+            goal_times.addGoal(goalid, fulltimestamp, found)
         else:
             if answertagstring not in results:
                 logger.ERROR('%s not in results %s' % (answertagstring, str(results)))
@@ -442,7 +509,7 @@ def processMatchAny(result_sets, eachgoal, goals_id_ts, goals_ts_id, logger):
             current_answer = answertagresult.strip()
             logger.DEBUG("Correct answer is (%s) result (%s)" % (current_answer, resulttagresult))
             found = compare_result_answer(resulttagresult, current_answer, eachgoal['goaloperator'])
-            add_goals_id_ts(goalid, fulltimestamp, found, goals_id_ts, goals_ts_id)
+            goal_times.addGoal(goalid, fulltimestamp, found)
 
 def processValue(result_sets, eachgoal, grades, logger):
     ''' assign the grade the most recent non-NONE result '''
@@ -532,7 +599,7 @@ def processCount(result_sets, eachgoal, grades, logger):
     #print 'count is %d' % count
     grades[goalid] = count
 
-def processExecute(results, eachgoal, goals_id_ts, goals_ts_id):
+def processExecute(results, eachgoal, goal_times):
     #print "Inside processExecute"
     found = False
     goalid = eachgoal['goalid']
@@ -585,12 +652,12 @@ def processExecute(results, eachgoal, goals_id_ts, goals_ts_id):
         result = subprocess.call(command, shell=True)
         if result:
             #print "processExecute return 1"
-            add_goals_id_ts(goalid, fulltimestamp, True, goals_id_ts, goals_ts_id)
+            goal_times.addGoal(goalid, fulltimestamp, True)
         else:
             #print "processExecute return 0"
-            add_goals_id_ts(goalid, fulltimestamp, False, goals_id_ts, goals_ts_id)
+            goal_times.addGoal(goalid, fulltimestamp, False)
 
-def processTrueFalse(result_sets, eachgoal, goals_id_ts, goals_ts_id):
+def processTrueFalse(result_sets, eachgoal, goal_times):
     #print "Inside processTrueFalse"
     found = False
     goalid = eachgoal['goalid']
@@ -620,7 +687,7 @@ def processTrueFalse(result_sets, eachgoal, goals_id_ts, goals_ts_id):
         fulltimestamp = '%s-%s' % (ts, timestampend)
         #print('compare %s operator %s' % (resulttagresult, eachgoal['goaltype']))
         found = compare_result_answer(resulttagresult, None, eachgoal['goaltype'])
-        add_goals_id_ts(goalid, fulltimestamp, found, goals_id_ts, goals_ts_id)
+        goal_times.addGoal(goalid, fulltimestamp, found)
  
 def countTrue(the_goals, current_goals):
     #print('current goals %s' % str(current_goals))
@@ -634,7 +701,7 @@ def countTrue(the_goals, current_goals):
                 the_goals.remove(item)
     return count
     
-def processCountGreater(eachgoal, goals_id_ts, goals_ts_id):
+def processCountGreater(eachgoal, goal_times):
     goalid = eachgoal['goalid']
     try:
         value = int(eachgoal['answertag'])
@@ -650,6 +717,7 @@ def processCountGreater(eachgoal, goals_id_ts, goals_ts_id):
     the_list = subgoal_list[subgoal_list.find("(")+1:subgoal_list.find(")")]
     the_goals = the_list.strip().split(',')
     the_goals = [x.strip() for x in the_goals]
+    goals_ts_id = goal_times.getGoalTimeStampId()
     for timestamppart, current_goals in goals_ts_id.iteritems():
         true_count += countTrue(the_goals, current_goals)
         #print('true_count now %d' % true_count)
@@ -658,58 +726,61 @@ def processCountGreater(eachgoal, goals_id_ts, goals_ts_id):
         is_greater = True
     #print('true_count is %d' % true_count)
     #print('countGreater result is %r' % is_greater)
-    add_goals_id_ts(goalid, default_timestamp, is_greater, goals_id_ts, goals_ts_id)
+    goal_times.addGoal(goalid, default_timestamp, is_greater)
     
 
-def processTemporal(eachgoal, goals_id_ts, goals_ts_id, logger):
+def processTemporal(eachgoal, goal_times, logger):
     goal1tag = eachgoal['goal1tag']
     goal2tag = eachgoal['goal2tag']
     goalid = eachgoal['goalid']
     logger.DEBUG("goal1tag is (%s) and goal2tag is (%s)" % (goal1tag, goal2tag))
     # Make sure goal1tag and goal2tag is in goals_id_ts
-    if goal1tag not in goals_id_ts:
+    if not goal_times.hasGoal(goal1tag):
         logger.DEBUG("warning: goal1tag (%s) does not exist in %s\n" % (goal1tag, str(goals_id_ts)))
         return
-    if goal2tag not in goals_id_ts:
+    if not goal_times.hasGoal(goal2tag):
         logger.DEBUG("warning: goal2tag (%s) does not exist!\n" % goal2tag)
         return
-    goals_tag1 = {}
-    goals_tag2 = {}
-    goals_tag1 = goals_id_ts[goal1tag]
-    goals_tag2 = goals_id_ts[goal2tag]
+    goals_tag1 = goal_times.getGoal(goal1tag)
+    goals_tag2 = goal_times.getGoal(goal2tag)
     #print "Goals tag1 is "
     #print goals_tag1
     #print "Goals tag2 is "
     #print goals_tag2
     if eachgoal['goaltype'] == "time_before":
-        evalTimeResult = evalTimeBefore(goals_tag1, goals_tag2)
-        # if evalTimeResult is False - that means, can't find the following condition:
+        eval_time_result = evalTimeBefore(goals_tag1, goals_tag2)
+        # if eval_time_result is False - that means, can't find the following condition:
         # (1) goals_tag1 is True and goals_tag2 is True
         # (2) goal1start <= goal2start
-    if eachgoal['goaltype'] == "time_during":
+        goal_times.addGoal(goalid, default_timestamp, eval_time_result)
+    elif eachgoal['goaltype'] == "time_during":
         logger.DEBUG('eval for %s %s' % (goals_tag1, goals_tag2))
-        evalTimeResult = evalTimeDuring(goals_tag1, goals_tag2)
-        # if evalTimeResult is False - that means, can't find the following condition:
+        eval_time_result = evalTimeDuring(goals_tag1, goals_tag2)
+        for ts in eval_time_result:
+            goal_times.addGoal(goalid, ts, eval_time_result[ts])
+            
+                
+        # if eval_time_result is False - that means, can't find the following condition:
         # (1) goals_tag1 is True and goals_tag2 is True
         # (2) goal2start (%s) <= goal1start (%s) <= goal2end (%s)
 
-    add_goals_id_ts(goalid, default_timestamp, evalTimeResult, goals_id_ts, goals_ts_id)
 
-def processBoolean(eachgoal, goals_id_ts, goals_ts_id, logger):
+def processBoolean(eachgoal, goal_times, logger):
     t_string = eachgoal['boolean_string']
     evalBooleanResult = None
     goalid = eachgoal['goalid']
     # Process all goals_ts_id dictionary
+    goals_ts_id = goal_times.getGoalTimeStampId()
     for timestamppart, current_goals in goals_ts_id.iteritems():
         if timestamppart != default_timestamp:
             logger.DEBUG('eval %s against %s tspart %s' % (t_string, str(current_goals), timestamppart))
             evalBooleanResult = evalBoolean.evaluate_boolean_expression(t_string, current_goals, logger)
             if evalBooleanResult is not None:
-                add_goals_id_ts(goalid, timestamppart, evalBooleanResult, goals_id_ts, goals_ts_id)
+                goal_times.addGoal(goalid, timestamppart, evalBooleanResult)
     # if evalBooleanResult is None - means not found
     if evalBooleanResult is None:
-        logger.DEBUG('processBoolean is None, goalid %s goal_id_ts %s' % (goalid, goals_id_ts))
-        add_goals_id_ts(goalid, default_timestamp, False, goals_id_ts, goals_ts_id)
+        logger.DEBUG('processBoolean is None, goalid %s goal_id_ts %s' % (goalid, goals_ts_id))
+        goal_times.addGoal(goalid, default_timestamp, False)
 
 class ResultSets():
     def addSet(self, result_set, ts):
@@ -750,7 +821,7 @@ class ResultSets():
 
 
 # Process Lab Exercise
-def processLabExercise(studentlabdir, labidname, grades, goals, goals_id_ts, goals_ts_id, logger):
+def processLabExercise(studentlabdir, labidname, grades, goals, goal_times, logger):
     #print('processLabExercise studentlabdir %s ' % (studentlabdir))
     #print "Goals JSON config is"
     #print goals
@@ -781,26 +852,26 @@ def processLabExercise(studentlabdir, labidname, grades, goals, goals_id_ts, goa
         #print('goal is %s type %s' % (eachgoal['goalid'], eachgoal['goaltype']))
 
         if eachgoal['goaltype'] == "matchany":
-            processMatchAny(result_sets, eachgoal, goals_id_ts, goals_ts_id, logger)
+            processMatchAny(result_sets, eachgoal, goal_times, logger)
         elif eachgoal['goaltype'] == "matchlast":
-            processMatchLast(result_sets, eachgoal, goals_id_ts, goals_ts_id)
+            processMatchLast(result_sets, eachgoal, goal_times)
         elif eachgoal['goaltype'] == "matchacross":
-            processMatchAcross(result_sets, eachgoal, goals_id_ts, goals_ts_id)
+            processMatchAcross(result_sets, eachgoal, goal_times)
         elif eachgoal['goaltype'] == "execute":
-            processExecute(result_sets, eachgoal, goals_id_ts, goals_ts_id)
+            processExecute(result_sets, eachgoal, goal_times)
         elif eachgoal['goaltype'] == "boolean":
-            processBoolean(eachgoal, goals_id_ts, goals_ts_id, logger)
+            processBoolean(eachgoal, goal_times, logger)
         elif eachgoal['goaltype'] == "time_before" or \
              eachgoal['goaltype'] == "time_during":
-            processTemporal(eachgoal, goals_id_ts, goals_ts_id, logger)
+            processTemporal(eachgoal, goal_times, logger)
         elif eachgoal['goaltype'] == "count_greater":
-            processCountGreater(eachgoal, goals_id_ts, goals_ts_id)
+            processCountGreater(eachgoal, goal_times)
         elif eachgoal['goaltype'] == "count":
             processCount(result_sets, eachgoal, grades, logger)
         elif eachgoal['goaltype'] == "value":
             processValue(result_sets, eachgoal, grades, logger)
         elif eachgoal['goaltype'].startswith('is_'):
-            processTrueFalse(result_sets, eachgoal, goals_id_ts, goals_ts_id)
+            processTrueFalse(result_sets, eachgoal, goal_times)
         else:
             sys.stdout.write("Error: Invalid goal type!\n")
             sys.exit(1)
@@ -823,6 +894,7 @@ def processLabExercise(studentlabdir, labidname, grades, goals, goals_id_ts, goa
             continue
         #print "goalid is (%s)" % goalid
         current_goals_result = False
+        goals_id_ts = goal_times.getGoalIdTimeStamp()
         for current_goals, timestamp in goals_id_ts.iteritems():
             #print "current_goals is "
             #print current_goals
@@ -853,8 +925,7 @@ def processLabExercise(studentlabdir, labidname, grades, goals, goals_id_ts, goa
 #     <labidname> - labidname should represent filename of output json file
 def ProcessStudentLab(studentlabdir, labidname, logger):
     # Goals
-    goals_id_ts = {}
-    goals_ts_id = {}
+    goal_times = GoalTimes()
     grades = {}
     resultsdir = os.path.join(studentlabdir, '.local','result')
     try:
@@ -868,7 +939,7 @@ def ProcessStudentLab(studentlabdir, labidname, logger):
     #print "Goals JSON config is"
     #print goals
 
-    processLabExercise(studentlabdir, labidname, grades, goals, goals_id_ts, goals_ts_id, logger)
+    processLabExercise(studentlabdir, labidname, grades, goals, goal_times, logger)
     
     return grades
 
