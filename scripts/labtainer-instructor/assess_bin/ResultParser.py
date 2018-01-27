@@ -632,7 +632,7 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
                         ts = str(getTS(currentline))
                         if ts not in ts_nametags:
                             ts_nametags[ts] = {}
-                            ts_nametags[ts]['PROGRAM_ENDTIME'] = ts
+                            ts_nametags[ts]['PROGRAM_ENDTIME'] = 0
                         token = getToken(currentline, field_type, token_id, logger)
                         ts_nametags[ts][result_key] = token
 
