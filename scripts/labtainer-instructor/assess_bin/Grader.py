@@ -104,10 +104,10 @@ def evalTimeDuring(goals_tag1, goals_tag2):
                         # if eval_time_during_result is True - that means:
                         # (1) goals_tag1 is True and goals_tag2 is True
                         # (2) goal2start (%s) <= goal1start (%s) <= goal2end (%s)
-                        retval[goal1timestamp] = True
+                        retval[goal2timestamp] = True
                         break
             if not eval_time_during_result:
-                retval[goal1timestamp] = False
+                retval[goal2timestamp] = False
 
     return retval
 
@@ -171,8 +171,10 @@ class GoalTimes():
         The 
         '''
 
-        print('add_goals_id_ts goalid %s goalts %s' % (goalid, goalts))
+        #print('in addGoal goalid %s goalts %s value %s' % (goalid, goalts, goalvalue))
         # Do goals_id_ts first
+        if goalvalue == None:
+            return
         if goalid not in self.goals_id_ts:
             self.goals_id_ts[goalid] = {}
             self.goals_id_ts[goalid][goalts] = goalvalue
@@ -216,7 +218,7 @@ def getJsonOutTS(outputjsonfile):
                 else:
                     new_filtered = new
             else:
-                new_filtered = "NONE"
+                new_filtered = None
             result_set[key] = new_filtered 
         jsonoutput[ts] = result_set
         #print('is %s' % new)
@@ -235,7 +237,7 @@ def getJsonOut(outputjsonfile):
             else:
                 new_filtered = new
         else:
-            new_filtered = "NONE"
+            new_filtered = None
         jsonoutput[key] = new_filtered
         #print('is %s' % new)
     return jsonoutput
@@ -426,16 +428,16 @@ def processMatchAcross(result_sets, eachgoal, goal_times):
         goal_times.addGoal(goalid, fulltimestamp, False)
 
 def handle_expression(resulttag, json_output, logger):
-    result = 'NONE'
+    result = None
     if resulttag.startswith('(') and resulttag.endswith(')'):
         express = resulttag[resulttag.find("(")+1:resulttag.find(")")]
         for tag in json_output:
             logger.DEBUG('is tag %s in express %s' % (tag, express))
             if tag in express:
-                if json_output[tag] != 'NONE':
+                if json_output[tag] != None:
                     express = express.replace(tag, json_output[tag])
                 else:
-                    return 'NONE'
+                    return None
         try:
             logger.DEBUG('try eval of <%s>' % express)
             result = evalExpress.eval_expr(express)
@@ -489,7 +491,8 @@ def processMatchAny(result_sets, eachgoal, goal_times, logger):
             except KeyError:
                 logger.DEBUG('%s not found in file %s' % (resulttag, ts))
                 continue
-        
+        if resulttagresult == None:
+            continue 
         #print resulttagresult
         try:
             timestampend = results['PROGRAM_ENDTIME']
@@ -521,7 +524,7 @@ def processValue(result_sets, eachgoal, grades, logger):
     if resulttag.startswith('result.'):
        resulttag = resulttag[len('result.'):]
 
-    value = 'NONE' 
+    value = None
     for ts in result_sets.getStamps():
         results = result_sets.getSet(ts)
 
@@ -534,7 +537,7 @@ def processValue(result_sets, eachgoal, grades, logger):
         except KeyError:
             #print('processCount: %s not found in file %s' % (resulttag, outputjsonfile))
             continue
-        if resulttagresult != 'NONE':        
+        if resulttagresult != None:
             value = resulttagresult
     #print 'count is %d' % count
     grades[goalid] = value
@@ -562,7 +565,7 @@ def processCount(result_sets, eachgoal, grades, logger):
         except KeyError:
             #print('processCount: %s not found in file %s' % (resulttag, outputjsonfile))
             continue
-        if resulttagresult != 'NONE':        
+        if resulttagresult != None:
             if 'goaloperator' in eachgoal and len(eachgoal['goaloperator']) > 0:
                 jsonanswertag = eachgoal['answertag']
                 #print jsonanswertag
@@ -677,6 +680,8 @@ def processTrueFalse(result_sets, eachgoal, goal_times):
             resulttagresult = results[resulttag]
         except KeyError:
             #print('processTrueFalse: %s not found in file %s' % (resulttag, outputjsonfile))
+            continue
+        if resulttagresult == None:
             continue
         
         try:
@@ -796,7 +801,7 @@ class ResultSets():
         self.latest = None
         for result_file in result_file_list:
             fname = os.path.basename(result_file)
-            print('addSet %s' % fname)
+            #print('addSet %s' % fname)
             if '.' in fname:
                 dumb, ts = fname.rsplit('.',1)
                 if self.latest is None or ts > self.latest:
@@ -849,7 +854,7 @@ def processLabExercise(studentlabdir, labidname, grades, goals, goal_times, logg
     # Go through each goal for each student
     # Do the goaltype of non 'boolean' first
     for eachgoal in goals:
-        #print('goal is %s type %s' % (eachgoal['goalid'], eachgoal['goaltype']))
+        logger.DEBUG('goal is %s type %s' % (eachgoal['goalid'], eachgoal['goaltype']))
 
         if eachgoal['goaltype'] == "matchany":
             processMatchAny(result_sets, eachgoal, goal_times, logger)
