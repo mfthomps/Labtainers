@@ -20,7 +20,7 @@ iptables -t mangle --delete-chain
 # mirror incoming wan traffic to snort
 #
 iptables -t mangle -A PREROUTING -i $wan -j TEE --gateway 192.168.3.1
-iptables -t mangle -A POSTROUTING -i $lan1 -j TEE --gateway 192.168.3.1
+iptables -t mangle -A PREROUTING -i $lan1 -j TEE --gateway 192.168.3.1
 
 #
 # Define NAT for traffic from LANs to the WAN
