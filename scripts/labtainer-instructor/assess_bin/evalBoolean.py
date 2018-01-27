@@ -127,10 +127,13 @@ def evaluate_boolean_expression(s, the_dict, logger):
     for key, value in the_dict.items():
         if key not in replacelist:
             replacelist.append(key)
+    #print('len of replace list is %d' % len(replacelist))
+    #print(str(replacelist))
     sorted_replacelist = sorted(replacelist, key=len, reverse=True)
     for item in sorted_replacelist:
         if item in s:
             value = '%r' % the_dict[item]
+            #print('s %s item %s value %s' % (s, item, value))
             s = s.replace(item, value)
 
     tokens = ['(',')','and_not', 'AND_NOT', 'or_not', 'OR_NOT', 'not','NOT','and','AND','or','OR','True','False'] 
@@ -138,7 +141,7 @@ def evaluate_boolean_expression(s, the_dict, logger):
     for t in tokens:
         remains = remains.replace(t,'')
     if len(remains.strip()) > 0:
-        logger.DEBUG('ERROR: boolean expression %s, unknown token(s): %s' % (s, remains))
+        logger.DEBUG('maybe error? likely not: boolean expression %s, unknown token(s): %s' % (s, remains))
         return None
     
     return nested_bool_eval(s) 

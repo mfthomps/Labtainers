@@ -233,8 +233,8 @@ def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname,
 
 def getToken(linerequested, field_type, token_id, logger):
         #print "Line requested is (%s)" % linerequested
-        if linerequested == "NONE":
-            token = "NONE"
+        if linerequested == None:
+            token = ''
         else:
             linetokens = {}
             if field_type == 'PARENS':
@@ -287,7 +287,7 @@ def getToken(linerequested, field_type, token_id, logger):
                 tokenno = int(token_id)
                 #print "tokenno = %d" % tokenno
                 if tokenno > numlinetokens:
-                    token = "NONE"
+                    token = ""
                     #print "setting result to none tokenno > numlinetokens"
                 else:
                     token = linetokens[tokenno-1]
@@ -324,7 +324,7 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
             #print('current_targetfname %s' % current_targetfname)
 
             # command has been validated to be either 'LINE' or 'STARTSWITH' or 'HAVESTRING'
-            linerequested = "NONE"
+            linerequested = None
             if command == 'LINE':
                 # make sure lineno <= targetfilelen
                 if lineno <= targetfilelen:
@@ -338,9 +338,9 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                             found_lookupstring = True
                             linerequested = currentline
                             break
-                # If not found - set to NONE
+                # If not found - set to None
                 if found_lookupstring == False:
-                    linerequested = "NONE"
+                    linerequested = None
             elif command == 'HAVESTRING_TS':
                 return None
             elif command == 'LINE_COUNT':
@@ -405,9 +405,9 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                                 linerequested = currentline
                                 #print('line requested is %s' % linerequested)
                                 break
-                    # If not found - set to NONE
+                    # If not found - set to None
                     if found_lookupstring == False:
-                        linerequested = "NONE"
+                        linerequested = None
 
             elif command == 'STRING_COUNT':
                 ''' search entire file, vice searching for line '''
@@ -440,10 +440,10 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                             linerequested = currentline
                             #print('line requested is %s' % linerequested)
                             break
-                # If not found - set to NONE
+                # If not found - set to None
                 if found_lookupstring == False:
                     logger.DEBUG('*** No line starts with %s ***' % (lookupstring))
-                    linerequested = "NONE"
+                    linerequested = None
             elif command == 'NEXT_STARTSWITH':
                 found_lookupstring = False
                 prev_line = None
@@ -454,10 +454,10 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                             linerequested = prev_line
                             break
                     prev_line = currentline
-                # If not found - set to NONE
+                # If not found - set to None
                 if found_lookupstring == False:
                     logger.DEBUG('*** No next line starts with %s ***' % (lookupstring))
-                    linerequested = "NONE"
+                    linerequested = None
             else:
                 # config file should have been validated
                 # - if still unknown command, then should exit
@@ -514,8 +514,6 @@ def getConfigItems(labidname, line, studentlabdir, container_list, logger):
         print "Config line (%s) containername %s not in container list (%s), skipping..." % (line, containername, str(container_list))
         logger.DEBUG("Config line (%s) containername %s not in container list (%s), skipping..." % (line, 
               containername, str(container_list)))
-        # set nametags - value pair to NONE
-        #nametags[mycontainername][result_key] = "NONE"
         return None, None, result_key, None, None, None, None, None 
 
     command = values[line_at].strip()
@@ -534,7 +532,7 @@ def getConfigItems(labidname, line, studentlabdir, container_list, logger):
     if command == 'PARAM':
         token_id = values[2].strip()
     elif command == 'CHECKSUM':
-        token_id = "NONE"
+        token_id = None
     else:
         token_id = values[token_index].strip()
     if command == 'LINE':
@@ -590,12 +588,12 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
 
     #print "Current targetfname_list is %s" % targetfname_list
 
-    tagstring = "NONE"
+    tagstring = ""
     # Loop through targetfname_list
     for current_targetfname in targetfname_list:
         if not os.path.exists(current_targetfname):
             # If file does not exist, treat as can't find token
-            token = "NONE"
+            token = ""
             logger.DEBUG("No %s file does not exist\n" % current_targetfname)
             nametags[result_key] = token
             return False
@@ -603,8 +601,8 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
             token = getTokenFromFile(current_targetfname, command, field_type, token_id, logger, lookupstring, line, result_key)
 
         #print token
-        if token == "NONE":
-            tagstring = "NONE"
+        if token == "":
+            tagstring = ""
         else:
             tagstring = token
             # found the token - break out of the main for loop
