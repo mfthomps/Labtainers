@@ -209,6 +209,9 @@ a separate terminal:
 \end{verbatim}
 
 Note the ``rebuild.py'' command is not intended for use by students, they would use the ``start.py'' command.  
+The rebuild.py utility compares file modification dates to Docker image creation dates to determine if
+a given image needs to be rebuilt.  Note this will miss file deletion.  Thus, if files are deleted, you must
+force the rebuild using the {\tt -f} option at the end of the rebuild.py command.
 
 Stop the containers with 
 \begin{verbatim}
@@ -261,11 +264,14 @@ by the configuration of the associated container.
 \subsection {Container Isolation}
 Docker provides namespace isolation between different containers, and
 between the containers and the host platform.  Note however, that all
-containers and the host share the same operating system kernel.  Kernel
-configuration changes will affect all containers and the host.  For example,
+containers and the host share the same operating system kernel.  Some
+kernel configuration changes will affect all containers and the host.  For example,
 use of sysctl to modify Address Space Layout Randomization (ASLR) will effect
 all containers and the effects will persist in the host after the containers
-are stopped.
+are stopped.  However, some tuning parameters such as net.ipv4.ip\_forward are
+isolated, i.e., local to the container. These do get reset in ways that are
+hard to predict, so it is suggested that sysctl tuning be done in rc.local
+scripts so that they happen on each boot.
 
 \subsection {Naming Containers}
 If a lab is to include only one container, you can
@@ -342,7 +348,8 @@ providing a name for the network, the following values are defined:
 
 \begin{itemize}
 \item MASK [network address mask] -- The network mask, e.g., 172.25.0.0./24
-\item GATEWAY [gateway address] -- The IP address of the network gateway
+\item GATEWAY [gateway address] -- The IP address of the network gateway used by Docker to communicate with the
+host.  Please note that to define a different network gateway for the component, you should use the {\tt set\_default\_gw.sh}.  This field should not name the IP of any of your other components.  See the {\tt routing\_basics2} for examples.
 \end{itemize}
 
 \item CONTAINER [container name] -- One of these sections is required for each container in the lab.
@@ -843,19 +850,25 @@ Entries within the results.config file each have the following format:
                         assigned, and no other fields should be present.
                         If field_type is "CHECKSUM", no other field is required.
             line_type - Identifies how the line is to be identified, values include:
-                LINE           --  The line_id will be an integer line number 
+                LINE           --  The line_id is an integer line number 
                                    (starting at one).  Use of this to identify 
                                    lines is discouraged since minor lab changes 
                                    might alter the count.
-                STARTSWITH     --  the line_id will be a string.  This names the 
+                STARTSWITH     --  the line_id is a string.  This names the 
                                    first occurrence of a line that starts with 
                                    this string. 
-                HAVESTRING      --  The line_id will be a string.  This names the 
+                HAVESTRING      --  The line_id is a string.  This names the 
                                    first occurrence of a line that contains the 
                                    string.
-                NEXT_STARTSWITH -- the line_id will be a string.  This names the 
+                NEXT_STARTSWITH -- the line_id is a string.  This names the 
                                    line preceeding the first occurrence of a line 
                                    that starts with this string. 
+                HAVESTRING_TS   -- Intended for use with log files that have 
+                                   timestamped entries.  Each entry containing
+                                   the string identified in line_id will have
+                                   its result stored as a timestamped value
+                                   as if it came from a timestamped stdout or 
+                                   stdin file.  See the snort lab for an example.
             line_id - See line_type above.
 \end{verbatim}
 
@@ -940,11 +953,13 @@ with the framework.
                          summed across all timestamps.  The subgoal list is 
                          comma-separated within parenthesis.
          time_before - Both goal1 and goal2 must be goal_ids from previous 
-                         *matchany* goal types.  Evaluates to TRUE if any TRUE 
-                         goal1 has a timestamp that is before than any TRUE goal2
+                         *matchany, is_true, or is_false* goal types.  
+                         Evaluates to TRUE if any TRUE goal1 has a timestamp 
+                         that is before than any TRUE goal2
          time_during - Both goal1 and goal2 must be goal_ids from previous 
-                         *matchany* goal types.  Timestamps include a start and 
-                         end time, reflecting when the program starts and when it 
+                         *matchany, is_true, or is_false* goal types.  
+                         Timestamps include a start and end time, reflecting 
+                         when the program starts and when it 
                          terminates.  Evaluates to TRUE if any TRUE goal1 has a 
                          start timestamp within the start and end times of any 
                          TRUE goal2.
@@ -1196,7 +1211,8 @@ Wireshark will not run as root in Labtainer containers.  It should be configured
 require root to collect network packets:
 \begin{verbatim}
 In short, put this before the apt-get that installs wireshark:
-    RUN echo 'wireshark-common        wireshark-common/install-setuid boolean true' | debconf-set-selections
+    RUN echo 'wireshark-common wireshark-common/install-setuid \
+      boolean true' | debconf-set-selections
 And this right after the apt-get that installs wireshark:
     RUN chmod a+x /usr/bin/dumpcap
 
@@ -1218,4 +1234,16 @@ An example of such a script is in the labs/tcpip/server/\_bin directory.
 \subsection{Login Prompts}
 See the centos-log lab for an example of a lab that prompts users to login to the virtual terminal.
 In particular, you will need the {\tt bin/student\_startup.sh} script, and the {\tt \_system/sbin/login} program and the {\tt \_system/etc/login.defs} and {\tt securetty} files.
+\subsection{Networking Notes}
+Send copies of traffic from one ethernet port to another using the iptables TEE operation, e.g.,
+\begin{verbatim}
+    iptables -t mangle -A PREROUTING -i eth1 -j TEE --gateway 172.16.3.1
+\end{verbatim}
+\noindent will send copies of all incoming traffic on eth1 to the component with address 172.16.3.1.
+Note that gateway must be a next hop, or you will have to configure the nexthop to forward it further.
+This is useful for IDS labs, e.g., snort.  Mirroring all incoming traffic into a component will let you
+reconstruct TCP sessions within that component.  Mirroring output from components is not always reliable.
+Besides potential for duplicat traffic, Docker networks seem to sometimes gratuitously replace destination
+addresses with those of the Docker network gateway, i.e., the gateway to the host.
 \end{document}
+
