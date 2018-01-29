@@ -1172,7 +1172,13 @@ def FileModLater(ts, fname):
                     if line.startswith('Last Changed Date:'):
                         parts = line.split()
                         df_utc_string = parts[3]+' '+parts[4] +' '+parts[5]
-                        retval = DateIsLater(df_utc_string, ts, True)
+                        svn_is_later = DateIsLater(df_utc_string, ts, True)
+
+                        df_time = os.path.getmtime(fname)
+                        file_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
+                        file_is_later = DateIsLater(file_utc_string, ts, False)
+
+                        retval = svn_is_later and file_is_later
                         logger.DEBUG('changed date from svn %s for %s df_utc_string is %s' % (line, fname, df_utc_string))
                         break
                 else:
