@@ -108,9 +108,9 @@ which had not been previously pulled from the hub.  This is transparent to
 the student, other than waiting for downloads to complete.
 
 After the student performs the lab exercise, artifacts from the container
-environments are automatically collected into a zip file that appears on
-the student's Linux host.  The student forwards this zip file to the instructor,
-e.g., via email or a learning management system (LMS).  The instructor collects student zip files into a common
+environments are automatically collected into an archive, (a zip file), that appears on
+the student's Linux host.  The student forwards this archive file to the instructor,
+e.g., via email or a learning management system (LMS).  The instructor collects student archive files into a common
 directory on his or her own Linux host, and then issues a command that starts
 the instructor container(s) for that lab.  This results in automated assessment of student lab
 activity, (if the lab is designed for that), and creation of an environment
@@ -119,7 +119,7 @@ in which the instructor can review the work of each student.
 Many cybersecurity lab exercises are assessed through use of reports in which students
 describe their activities and answer specific questions posed by the instructor.  Labtainers
 are intended to augment, rather than supplant this type of reporting.  The framework includes
-mechanisms for automating the collection of student lab reports into the zip files
+mechanisms for automating the collection of student lab reports into the artifact archive files
 that are collected by instructors. 
 
 \section {Obtaining the Labtainer Development Kit}
@@ -638,26 +638,38 @@ may have done in the course of the lab.
 
 Automated assessment is achieved by first generating artifact files while the student works. 
 Then, artifacts within those files are identified, and the values of those artifacts are compared to expected values.
+
 \subsection{Artifact files}
 The files from which artifacts are derived include persisent data, such as system logs and 
 {\tt .bash\_history}, as well as 
-timestamped snapshots of transitory data such as stdout of a program.  Lab designers can generate
+timestamped snapshots of transitory data such as stdout of a program.  Lab designers can also generate
 customized artifacts in response to student actions using scripts that automatically execute when selected
 programs or utilities are executed -- or when selected files are accessed.   The following subsections
 described how these artifacts are generated.
+
+As described in the following subsections, the Labtainer framework use of timestampes allows 
+designers to express temporal 
+relationships between artifacts, and thus between events.  For example, the designer can determine if
+two distinct artifacts were part of the same stdout stream.  Or if artifacts in the stdout stream from one 
+program were occuring during the invocation of a different program that generated other specific artifacts.  
+The framework also can include 
+timestamps from standard log file formats, e.g., syslog, allowing the designer to determine if some logfile
+entry occurred during the invocation of a program whose stdout stream contains selected artifacts.
+As a more concrete example, the use of timestamps allows the designer to determine that a spcific web log
+record occurred during invocation of some program that produced a specific artifact.
 
 \subsubsection{Capturing stdin and stdout}
 The framework's automated assessment functions generally assume the student will interact with one or
 more programs or system utilities.  Each time the student invokes a selected program or utility, the 
 framework captures copies of standard input and standard output, (stdin and stdout) into timestamped file sets.
 This is transparent to the student.  (Also see the following section for capturing
-program output other than stdout.)  These timestamped file sets, and everything else relative to
+program output other than stdout.)  These timestamped file sets, selected system logs,  and everything relative to
 the student's home directory, are automatically packaged when the student completes the lab.
 These packages of artifacts are then transferred to the instructor, (e.g., via email or a LMS), and 
 ingested into the instructor's system where lab assessment occurs. Timestamped stdin and stdout files
 are captured in \texttt{\$HOME/.local/result}
 
-The stdin and stdout for all non-system programs is captured, e.g., the results of an ``ls'' command
+By default, stdin and stdout for all non-system programs is captured, e.g., the results of an ``ls'' command
 are not captured.  The stdin and stdout of system programs will be captured if the program
 names appear at the beginning of a line in the \textit{treataslocal} file at
 \begin{verbatim}
@@ -701,6 +713,10 @@ program    delim_type:delim_value
 The framework collects all student bash history into the \texttt{\$HOME/.bash\_history} and \newline
 \texttt{/root/.bash\_history} files.  These files are
 available for reference as an artifact file.  
+
+\subsection{System logs}
+All files referenced in the {\tt results.config} file, (described below in section \ref{results.config}
+will be collected into the artifact archive.  
 
 \subsubsection{Capturing information about the environment}
 \label{checklocal}
@@ -773,6 +789,7 @@ one timestamped file allows the designer to identify events that occured as part
 invocation.  Again, see the {\tt acl} lab for an example.
 
 \subsection{Identify lab-specific artifacts}
+\label{results.config}
 The automated assessment functions encourage labs to be organized into a set of distinct ``goals''.
 For each goal, the lab designer should identify specific fields within artifact files that
 could be compared to ``expected'' values.  These lab-specific artifacts are identified within the
@@ -781,16 +798,17 @@ could be compared to ``expected'' values.  These lab-specific artifacts are iden
 \item the program that was invoked, (or persistent file name);
 \item whether the artifact is in stdin or stdout
 \item the line containing the artifact, and a token within that line.
+\item whether the file contains a given string
 \item ad-hoc properties, such as the quantity of lines in the stdin file.
 \end{enumerate}
 
 Each identified artifact is given a symbolic name. A named artifact is referred to herein as a \textit{result}, which 
 is then referenced in the goals.config file to assess whether it is an expected value.
 
-Consider the labs/formatstring/instr\_config/results.config file.  The first non-comment line
-defines a result having the symbolic name ``crashStringCanary''.  This result is
+Consider the labs/formatstring/instr\_config/results.config file.  The third non-comment line
+defines a result having the symbolic name ``origsecret1value''.  This result is
 found by looking at stdout from the ``vul\_prog'' program, finding the first line that starts with:
-`` stack smashing detected''.  The result is assigned the value of the third space-delimited 
+``The original secrets:''.  The result is assigned the value of the sixth space-delimited 
 token in that line.
 
 Entries within the results.config file each have the following format:
@@ -888,23 +906,27 @@ directory of the container.
 \subsection{Assessing the student results}
 Results of student lab activity are assigned symbolic names by the results.config file
 as described above.  These results are then referenced in the goals.config to assess whether
-the student obtained expected results.  Each lab goal defined in the goals.config file
+the student obtained expected results.  Most lab goals defined in the goals.config file
 will evaluate to TRUE or FALSE, with TRUE reflecting that the student met the defined goal.
-Once evaluated, a goal may determine the state of subsequent goals within the goals.config file, 
+In addition to these binary goals, the designer can capture and report on quantities of events,
+e.g., the number of times a student ran a specific program.
+Once evaluated, a goal may determine the value of subsequent goals within the goals.config file, 
 i.e., through use of boolean expressions and temporal comparisons between goals.  The evaluated
-state of each goal can then contribute to a student grade.
+state of each goal can then contribute to an overall student assessment.
 
 As noted earlier, student results may derive from multiple invocations of the same program or system utility.  
 The framework does not discourage students from continuing to experiment and explore aspects of the 
 exercise subsequent to obtaining the desired results.  In general, the assessment determines if the student
 obtained expected results during any invocation of a program or system utility.  In those cases 
-where the student is required to obtain the expected results during the last invocation of a program, 
+where the student is required to obtain the expected results during the final invocation of a program, 
 the \textit{matchlast} goal type may be specified as described below.
 
 To facilitate grading multiple attempts or explorations of a lab exercise, the framework associates
 timestamps with the results of processing the results.config file.  A single timestamp will
 include results from a stdin file and a stdout file.  In general, there will be a distinct, 
-timestamped set of results for each occurrence of a student invoking a targeted program.
+timestamped set of results for each occurrence of a student invoking a targeted program. There will also
+be timestamped sets of results derived from use of the {\tt HAVESTRING\_TS} line types with log files
+containing timestamps, e.g., system log files.
 
 The following syntax defines each goal or subgoal within the goals.config file.  While the syntax
 may appear complex, most goals can be expressed simply as can be seen in the labtainer examples distributed
