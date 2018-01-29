@@ -4,6 +4,7 @@ Labtainers README file     mm/dd/yyyy
 please send bug reports, questions and
 suggestions to mfthomps@nps.edu
 *** Thank You    ****
+Release notes at the end of this file.
 
 This is a Labtainers repository containing scripts and data
 necessary to construct, run and grade Labtainers labs.
@@ -35,3 +36,16 @@ of new labs.  For those, run ./update-designer.sh from the labtainer directory.
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+
+
+January 24, 2018
+-  Use of tabbed windows caused instructor side to fail, use of double quotes.
+-  Ignore files in _tar directories (other than .tar) when determining build
+   dependencies.
+
+January 30, 2018
+-  Add snort lab
+-  Integrate log file timestamps, e.g., from syslogs, into timestamped results.
+-  Remove undefined result values from intermediate timestamped json result files.
+-  Alter the time_during goal assessment operation to associate timestamps with 
+   the resulting goal value.
