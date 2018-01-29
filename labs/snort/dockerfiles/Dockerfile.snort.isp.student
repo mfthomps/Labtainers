@@ -28,10 +28,7 @@ ARG imagedir
 ARG user_name
 ARG password
 ARG apt_source
-#
-# Install the system files found in the _system directory
-#
-RUN apt-get update && apt-get install -y iptables dnsmasq
+RUN apt-get update && apt-get install -y iptables dnsutils dnsmasq
 ADD $labdir/$imagedir/sys_tar/sys.tar /
 ADD $labdir/sys_$lab.tar.gz /
 #
