@@ -308,10 +308,33 @@ def lineHasCommand(line, look_for):
 
 def getTS(line):
     retval = None
-    if '[' in line and ']' in line:
-        ts_string = line[line.find("[")+1:line.find("]")].split()[0]
-        time_val = datetime.datetime.strptime(ts_string, '%d/%b/%Y:%H:%M:%S')
+    ''' try syslog format first '''
+    ts_string = line[:15]
+    try:
+        time_val = datetime.datetime.strptime(ts_string, '%b %d %H:%M:%S')
         retval = time_val.strftime("%Y%m%d%H%M%S")
+    except:
+        pass
+    if retval is None:
+        ''' snort format '''
+        ts_string = line[:14]
+        try:
+            time_val = datetime.datetime.strptime(ts_string, '%m/%d-%H:%M:%S')
+            retval = time_val.strftime("%Y%m%d%H%M%S")
+        except:
+            pass
+    
+    if retval is None:
+        ''' httpd format '''
+        if '[' in line and ']' in line:
+            ts_string = line[line.find("[")+1:line.find("]")].split()[0]
+            try:
+                time_val = datetime.datetime.strptime(ts_string, '%d/%b/%Y:%H:%M:%S')
+                retval = time_val.strftime("%Y%m%d%H%M%S")
+            except:
+                pass
+    if retval is None:
+        print('ERROR getting timestamp from %s' % line)
     return retval 
          
 
@@ -627,7 +650,10 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
                     targetlines = fh.readlines()
                 for currentline in targetlines:
                     if lookupstring in currentline:
-                        ts = str(getTS(currentline))
+                        time_val = getTS(currentline)
+                        if time_val is None:
+                            continue
+                        ts = str(time_val)
                         if ts not in ts_nametags:
                             ts_nametags[ts] = {}
                             ts_nametags[ts]['PROGRAM_ENDTIME'] = 0
