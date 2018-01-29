@@ -2,7 +2,7 @@
 \begin{document}
 
 \begin{center}
-{\LARGE Routing Basics}
+{\LARGE Snort -- Intrusion Detection}
 \vspace{0.1in}\\
 \end{center}
 
@@ -35,11 +35,14 @@ When the lab starts, you will get virtual terminals, one connected to each
 component.  The gateway is configured with {\tt iptables} to use NAT to translate
 sources addresses of traffic from internal IP addresses, e.g., 192.168.1.1, to
 our external address, i.e., 203.0.113.10.  The {\tt iptables} in the gateway also
-routes web traffic (ports 80 and 443) to the web\_server component.
+routes web traffic (ports 80 and 443) to the web\_server component by translating
+the externalally visible destination address to the internal web server address.
 
-The gateway is also configured to mirror traffic that enters and leaves the gateway via the 203.0.113.10 link.  This
-mirrored traffic is routed to the {\tt snort} component.  In other words, the snort component receives a copy
-of each and every packet either entering or exiting via the 203.0.113.10 interface.
+The gateway is also configured to mirror traffic that enters the gateway 
+via either the 203.0.113.10 link, or the link to the web server.  This
+mirrored traffic is routed to the {\tt snort} component.  This mirroring allows
+the snort component to reconstruct TCP sessions between the web server and external
+addresses.
 
 The snort component includes the Snort IDS utility.  It also includes Wireshark
 to help you observe traffic being mirrored to the snort component.
@@ -49,7 +52,9 @@ The web\_server runs Apache and is configured to support SSL for web pages in th
 
 The {\tt external\_ws} component includes the Firefox browser, and a local 
 {\tt /etc/hosts} file that maps www.example.com to the external address of the
-gateway, i.e., 203.0.113.10.  It also includes the nmap utility.
+gateway, i.e., 203.0.113.10.  The internal workstation (ws2) also includes Firefox
+and an entry in {\tt /etc/hosts} for www.example.com.  Both workstations also
+include the nmap utility.
 
 
 \begin{figure}[htb]
@@ -71,7 +76,7 @@ define the NAT translations and, critically for this lab, mirror traffic to the 
 \subsection{Starting and stopping snort}
 The Snort utility is installed on the snort component.  The home directory includes a {\tt start\_snort.sh}
 script that will start the utility in \textit{Network Intrustion Dection Mode}, and display alerts
-to the console.  Start snort:
+to the console.  For this lab, you are required to start snort with:
 \begin{verbatim}
    ./start_snort.sh
 \end{verbatim}
@@ -90,12 +95,15 @@ workstation:
 along with all rules, in {\tt /etc/snort/rules/}
 
 \subsection{Write a simple (bad) rule}
-Custom rules are typically added to the file at {\tt /etc/snort/rules/local.rules
+Custom rules are typically added to the file at {\tt /etc/snort/rules/local.rules}
 Stop snort and add a rule that generates an alert for each tcp connection.  For example:
 \begin{verbatim}
 alert tcp any any -> any any (msg:"TCP detected"; sid:00002;)
 \end{verbatim}
 
+\noindent That rule can be read as: ``Generate an alert whenever a TCP packet from any
+address on any  port is sent to any address on any port, and include this message and give
+the rule an identifier of 00002.''
 Then restart snort.  Test this rule by starting Firefox on the remote workstation:
 
 \begin{verbatim}
@@ -112,7 +120,9 @@ we have heard that the keen minds at the startup company have placed their confi
 business plan at www.example.com/plan.html.  Take a look at it.
 
 Now add a rule to your local.rules file on snort that will generate an alert 
-whenever the text "CONFIDENTIAL" is sent out to the internet.  Be sure to give the
+whenever the text "CONFIDENTIAL" is sent out to the internet.  Reference existing
+rules to understand how to qualify alerts based on \textit{content}.  Be sure to include the
+word "CONFIDENTIAL" in the alert message, and give the
 rule its own unique sid.  After adding the rule, restart snort.
 
 On the browser at the remote workstation, clear your history (Menu / Preferences 
@@ -127,21 +137,21 @@ Do you see a new snort alert?  Why?
 One solution to this problem is to use a reverse proxy in front of the web server.  This
 reverse proxy would handle the incoming web traffic and manage the SSL connections.
 The web server would then receive only HTTP traffic, and outgoing traffic from the web server
-could then be mirrored to the IDS.  We will not pursue that solution here.  
+could then be mirrored to the IDS.  We will not pursue that solution in this lab.
 
 \subsection{Watching internal traffic}
 Go to the ws2 (mary) component and run nmap:
 \begin{verbatim}
     sudo nmap www.example.com
 \end{verbatim}
-What do you see on the snort component?  Why?
+What do you see on the snort component?  Does it include the {\tt ICMP PING NMAP}
+alert that you saw when the remote workstation ran nmap?  Why not?
 
-Go to the gateway component and edit the {\tt /etc/rc.local} script so that traffic to and
-from mary's workstation is mirrored to the snort component.  You can do this by adding
-these lines to the section of that file that defines the packet mirroring:
+Go to the gateway component and edit the {\tt /etc/rc.local} script so that traffic
+from Mary's workstation is mirrored to the snort component.  You can do this by adding
+this line to the section of that file that defines the packet mirroring:
 \begin{verbatim}
    iptables -t mangle -A PREROUTING -i $lan2 -j TEE --gateway 192.168.3.1
-   iptables -t mangle -A POSTROUTING -o $lan2 -j TEE --gateway 192.168.3.1
 \end{verbatim}
 
 Then run the script to replace the {\tt iptables} rules with your new rules:
@@ -155,17 +165,19 @@ Now restart snort and again run nmap from mary's ws2 computer.
 Start Firefox on mary's ws2 computer to view the confidential business plan:
 \begin {verbatim}
     firefox www.example.com/plan.html
-\end {vertabim}
-This will not do.  The keen minds at that startup need to view their confidential
-business plan without IDS alerts firing off.  In this task, you will adjust your snort
-rule so that the alert only fires when the plan is accessed by addresses outside of
-the site.  In other words, no alert should fire if users of the 192.168.0.0/16 network
-access the web page.
+\end {verbatim}
+This will not do!  The keen minds at the startup need to view their confidential
+business plan without IDS alerts firing off.  But they do want to monitor
+internal computers for suspicious traffic, e.g., nmap scans.  In this task, you 
+will adjust your snort rule so that the CONFIDENTIAL alert only fires when the plan 
+is accessed by addresses outside of
+the site.  
 
 If you review rules found in the {\tt/etc/snort/rules} directory, you will see that rules
 have the general form of:
 \begin{verbatim}
-   alert <protocol> <source_addr> <src_port> ->  <dest_addr> <dest_port> <rule options in parens>
+   alert <protocol> <source_addr> <src_port> ->  \
+         <dest_addr> <dest_port> <rule options in parens>
 \end{verbatim}
 
 The snort rules include two address fields: {\tt source\_addr} and {\tt dest\_addr}. 
@@ -176,11 +188,18 @@ rule on all addresses. For network addresses, the address is followed by a slash
 and number of bits in the netmask. For example, a network address of 192.168.2.0/24 
 represents C class network 192.168.2.0 with 24 bits in the network mask.
 
-The address fields may also identify excluded addresses.  For example, an address field of
-{\tt ![192.168.2.0/24]} would apply to any and all IP addresses except those in the 192.168.2.0/24
-subnetwork.
+Note that as a result of our use of NAT, all traffic from the web server destined for an
+external address will have a destination address of the gateway, (i.e., 192.168.1.10), 
+while web traffic destined for internal users will have destination addresses that match the internal user.
 
-Armed with the above, alter your CONFIDENTIAL rule to exclude internal traffic.
+For this task, you must set your snort rules and traffic mirroring such that:
+\begin{enumerate}
+\item External access to the business plan generates an alert;
+\item Internal access to the business plan does not generate an alert;
+\item External or internal use of nmap will generate an ICMP NMAP PING alert.
+\end{enumerate}
+Your must test each of these criteria during a single snort session, i.e., if you change
+a snort rule, or port mirroring, you must restart your tests.
 
 \section{Submission}
 After finishing the lab, go to the terminal on your Linux system that was used to start the lab and type:
