@@ -28,13 +28,13 @@ ARG imagedir
 ARG user_name
 ARG password
 ARG apt_source
+RUN apt-get update && apt-get install -y iptables dnsutils dnsmasq
 #
 # Install the system files found in the _system directory
 #
 ADD $labdir/$imagedir/sys_tar/sys.tar /
 ADD $labdir/sys_$lab.tar.gz /
 
-RUN apt-get update && apt-get install -y iptables dnsutils dnsmasq
 #
 RUN useradd -ms /bin/bash $user_name
 RUN echo "$user_name:$password" | chpasswd
