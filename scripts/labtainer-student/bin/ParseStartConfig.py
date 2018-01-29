@@ -100,8 +100,8 @@ class ParseStartConfig():
                 self.logger.ERROR('bad ip subnet %s for subnet %s\n' % (self.mask, self.name))
                 exit(1)
             if not IPAddress(self.gateway) in IPNetwork(self.mask):
-                self.logger.ERROR('Gateway IP (%s) not in subnet for SUBNET line(%s)!\n' % 
-                    (self.gateway, self.mask))
+                self.logger.ERROR('network: %s Gateway IP (%s) not in subnet for SUBNET line(%s)!\n' % 
+                    (self.name, self.gateway, self.mask))
                 exit(1)
 
     def add_if_new(self, name, location, thing):
