@@ -32,8 +32,8 @@ containernamelist = []
 stdinfnameslist = []
 stdoutfnameslist = []
 timestamplist = {}
-line_types = ['CHECKSUM', 'CONTAINS', 'LINE', 'STARTSWITH', 'NEXT_STARTSWITH', 'HAVESTRING', 
-              'HAVESTRING_TS', 'LINE_COUNT', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT']
+line_types = ['CHECKSUM', 'CONTAINS', 'FILE_REGEX', 'LINE', 'STARTSWITH', 'NEXT_STARTSWITH', 'HAVESTRING', 
+              'HAVESTRING_TS', 'REGEX', 'REGEX_TS', 'LINE_COUNT', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT']
 just_field_type = ['CHECKSUM', 'LINE_COUNT']
 logger = None
 resultidlist = {}
@@ -90,7 +90,7 @@ def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname,
     '''
     Misleading name, this function populates a set of global structures used in processign the results
     '''
-    valid_field_types = ['TOKEN', 'PARENS', 'QUOTES', 'SLASH', 'LINE_COUNT', 'CHECKSUM', 'CONTAINS', 
+    valid_field_types = ['TOKEN', 'PARENS', 'QUOTES', 'SLASH', 'LINE_COUNT', 'CHECKSUM', 'CONTAINS','FILE_REGEX',  
                          'SEARCH', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT']
     if not MyUtil.CheckAlphaDashUnder(result_key):
         logger.ERROR("Not allowed characters in results.config's key (%s)" % result_key)
@@ -364,7 +364,19 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                 # If not found - set to None
                 if found_lookupstring == False:
                     linerequested = None
-            elif command == 'HAVESTRING_TS':
+            elif command == 'REGEX':
+                found_lookupstring = False
+                for currentline in targetlines:
+                    if found_lookupstring == False:
+                        sobj = re.search(lookupstring, currentline)
+                        if sobj is not None:
+                            found_lookupstring = True
+                            linerequested = currentline
+                            break
+                # If not found - set to None
+                if found_lookupstring == False:
+                    linerequested = None
+            elif command == 'HAVESTRING_TS' or command == 'REGEX_TS':
                 return None
             elif command == 'LINE_COUNT':
                 return targetfilelen
@@ -376,7 +388,7 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                     # Config file 'PARAM' has been validated against stdin
                     # Treat this as can't find token
                     logger.DEBUG('PARAM only valid for stdin files: %s' % current_targetfname)
-                    return None
+                    return ''
                 if 'PROGRAM_ARGUMENTS' in targetlines[0]:
                     try:
                         index = int(token_id) 
@@ -397,7 +409,7 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                             # Couldn't find the corresponding parameter
                             # Treat this as can't find token
                             logger.DEBUG('did not find parameter %d in %s' % (index-1, param_str))
-                            return None
+                            return ''
                     return tagstring
             elif command == 'CHECKSUM':
                 ''' Create a checksum of the targetfile '''
@@ -418,16 +430,19 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                             tagstring = 'True'
                             break 
                     return tagstring
-                else:
-                    # this is deprecated, HAVSTRING should be used
-                    found_lookupstring = False
+
+            elif command == 'FILE_REGEX':
+                    ''' search entire file, for line with given regex '''
+                    remain = line.split(command,1)[1]
+                    remain = remain.split(':', 1)[1].strip()
+                    tagstring = 'False'
                     for currentline in targetlines:
-                        if found_lookupstring == False:
-                            if lookupstring in currentline:
-                                found_lookupstring = True
-                                linerequested = currentline
-                                #print('line requested is %s' % linerequested)
-                                break
+                        #print('look for <%s> in %s' % (remain, currentline))
+                        sobj = re.search(remain, current_line)
+                        if sobj is not None:
+                            tagstring = 'True'
+                            break 
+                    return tagstring
                     # If not found - set to None
                     if found_lookupstring == False:
                         linerequested = None
@@ -613,27 +628,35 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
 
     tagstring = ""
     # Loop through targetfname_list
+    # Will ONLY contain one entry, except for the case where astrix is used
     for current_targetfname in targetfname_list:
         if not os.path.exists(current_targetfname):
             # If file does not exist, treat as can't find token
             token = ""
             logger.DEBUG("No %s file does not exist\n" % current_targetfname)
-            nametags[result_key] = token
+            #nametags[result_key] = token
             return False
         else:
             token = getTokenFromFile(current_targetfname, command, field_type, token_id, logger, lookupstring, line, result_key)
+            if token is None:
+                return False
 
         #print token
         if token == "":
             tagstring = ""
+        elif token is None:
+            tagstring = None
         else:
             tagstring = token
             # found the token - break out of the main for loop
             break
 
     # set nametags - value pair
-    nametags[result_key] = tagstring
-    return True
+    if tagstring is not None:
+        nametags[result_key] = tagstring
+        return True
+    else:
+        return False
 
 
 def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfname, container_list, logger):
@@ -650,6 +673,23 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
                     targetlines = fh.readlines()
                 for currentline in targetlines:
                     if lookupstring in currentline:
+                        time_val = getTS(currentline)
+                        if time_val is None:
+                            continue
+                        ts = str(time_val)
+                        if ts not in ts_nametags:
+                            ts_nametags[ts] = {}
+                            ts_nametags[ts]['PROGRAM_ENDTIME'] = 0
+                        token = getToken(currentline, field_type, token_id, logger)
+                        ts_nametags[ts][result_key] = token
+            elif command == 'REGEX_TS':
+                if not os.path.isfile(targetfile):
+                    continue
+                with open(targetfile, "r") as fh:
+                    targetlines = fh.readlines()
+                for currentline in targetlines:
+                    sobj = re.search(lookupstring, currentline)
+                    if sobj is not None:
                         time_val = getTS(currentline)
                         if time_val is None:
                             continue
