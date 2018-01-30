@@ -61,7 +61,10 @@ def main():
     lab_path = os.path.join(os.path.abspath('../../labs'), labname)
     validatetestsets = False
     validatetestsets_path = ""
-    validate.DoValidate(lab_path, labname, validatetestsets, validatetestsets_path, labutils.logger)
+    ok = validate.DoValidate(lab_path, labname, validatetestsets, validatetestsets_path, labutils.logger)
+    if not ok:
+        print('validation failed, exiting')
+        exit(1)
     labutils.RebuildLab(lab_path, "instructor", force_build=force_build, quiet_start=quiet_start)
 
     return 0
