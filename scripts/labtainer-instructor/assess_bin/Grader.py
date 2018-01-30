@@ -98,7 +98,7 @@ def evalTimeDuring(goals_tag1, goals_tag2):
                 #print "Goal2 timestamp is (%s) and value is (%s)" % (goal2timestamp, goal2value)
                 # If there is Goal2 value that is True
                 if goal2value:
-                    print "goal1ts (%s) goal2ts (%s)" % (goal1timestamp, goal2timestamp)
+                    #print "goal1ts (%s) goal2ts (%s)" % (goal1timestamp, goal2timestamp)
                     eval_time_during_result = compare_time_during(goal1timestamp, goal2timestamp)
                     if eval_time_during_result:
                         # if eval_time_during_result is True - that means:
