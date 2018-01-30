@@ -791,23 +791,35 @@ invocation.  Again, see the {\tt acl} lab for an example.
 \subsection{Identify lab-specific artifacts}
 \label{results.config}
 The automated assessment functions encourage labs to be organized into a set of distinct ``goals''.
-For each goal, the lab designer should identify specific fields within artifact files that
+For each goal, the lab designer should identify one or more specific fields within artifact files that
 could be compared to ``expected'' values.  These lab-specific artifacts are identified within the
 \texttt{instr\_config/results.config file}.  Artifacts are identified in terms of:
 \begin{enumerate}
 \item the program that was invoked, (or persistent file name);
 \item whether the artifact is in stdin or stdout
-\item the line containing the artifact, and a token within that line.
-\item whether the file contains a given string
+\item the line containing the artifact, and a token within that line, optionally using regualar expressions.
+\item whether the file contains a given string or regular expression
 \item ad-hoc properties, such as the quantity of lines in the stdin file.
 \end{enumerate}
 
 Each identified artifact is given a symbolic name. A named artifact is referred to herein as a \textit{result}, which 
 is then referenced in the goals.config file to assess whether it is an expected value.
 
-Consider the labs/formatstring/instr\_config/results.config file.  The third non-comment line
-defines a result having the symbolic name ``origsecret1value''.  This result is
-found by looking at stdout from the ``vul\_prog'' program, finding the first line that starts with:
+Consider the labs/formatstring/instr\_config/results.config file for a few examples.  
+The first non-comment line defines a result having the symbolic name ``crashStringSignal'':
+\begin{verbatim}
+crashStringSignal = vul_prog.stdout : CONTAINS : program exit, segmentation
+\end{verbatim}
+\noindent This result is true for each timestamped stdout file resulting from running 
+the vul\_prog program in which the file contains the string ``program exit, segmentation''.
+
+The third non-comment line
+defines a result having the symbolic name ``origsecret1value'':  
+\begin{verbatim}
+   origsecret1value = vul_prog.stdout : 6 : STARTSWITH : The original secrets:
+\end{verbatim}
+\noindent The timestamped results are
+found by looking at stdout from the ``vul\_prog'' program, and finding the first line that starts with:
 ``The original secrets:''.  The result is assigned the value of the sixth space-delimited 
 token in that line.
 
@@ -844,17 +856,25 @@ Entries within the results.config file each have the following format:
                              of the file.
                CONTAINS   -- The value of nametag will be set to true if the file 
                              contains the string represented in field_id.
+               FILE_REGEX -- The value of nametag will be set to true if the file 
+                             contains the regular expression represented in field_id.
                STRING_COUNT--The value of nametag will be set to the quantity of
                              occurances of the string represented in field_id.
                PARAM      -- The value of the nametag will be set to nth parameter
                              (0 is the program name), provided in the 
                              program invocation.  
                              
-               SEARCH     -- The value nametag will be set to the search resulting
-                             from the given field_id, which is treated as an
+               SEARCH     -- The nametag will be set to the value of the search 
+                             resulting from the given field_id, which is treated as an
                              expression having the syntax of pythons parse.search 
                              function.  E.g., "frame.number=={:d}" would 
                              yield the frame number.
+               GROUP      -- Intended for use with "REGEX" line types, the 
+                             nametag will be set to the value of the regex group 
+                             number named by the field_id.  Regular expressions
+                             and their groups are processed using the python
+                             re.search semantics.
+                             
                               
             field_id -- An integer identifying the nth occurance of the field type.
                         Alternately may be "LAST" for the last occurance of the 
@@ -875,9 +895,12 @@ Entries within the results.config file each have the following format:
                 STARTSWITH     --  the line_id is a string.  This names the 
                                    first occurrence of a line that starts with 
                                    this string. 
-                HAVESTRING      --  The line_id is a string.  This names the 
+                HAVESTRING      -- The line_id is a string.  This names the 
                                    first occurrence of a line that contains the 
                                    string.
+                REGEX           -- The line_id is a regular expression.  This names the 
+                                   first occurrence of a line that matches the regular
+                                   expression.  Also see the "GROUP" field_type.
                 NEXT_STARTSWITH -- the line_id is a string.  This names the 
                                    line preceeding the first occurrence of a line 
                                    that starts with this string. 
@@ -887,6 +910,8 @@ Entries within the results.config file each have the following format:
                                    its result stored as a timestamped value
                                    as if it came from a timestamped stdout or 
                                    stdin file.  See the snort lab for an example.
+                REGEX_TS        -- Similar to HAVESTRING_TS, but with REGEX semantics,
+                                   including optional use of the GROUP field_type.
             line_id - See line_type above.
 \end{verbatim}
 
