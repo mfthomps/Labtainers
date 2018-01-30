@@ -12,8 +12,8 @@
 This exercise introduces the use of the snort system
 to provide intrusion detection within a
 Linux environment.  Students will configure simple 
-snort rules and experiment with differences between
-a network IDS and a host based IDS.  
+snort rules and experiment with a network 
+intrusion detection system, (IDS).  
 
 
 \section{Lab Environment}
@@ -96,14 +96,14 @@ along with all rules, in {\tt /etc/snort/rules/}
 
 \subsection{Write a simple (bad) rule}
 Custom rules are typically added to the file at {\tt /etc/snort/rules/local.rules}
-Stop snort and add a rule that generates an alert for each tcp connection.  For example:
+Stop snort and add a rule that generates an alert for each packet within a TCP stream. For example:
 \begin{verbatim}
 alert tcp any any -> any any (msg:"TCP detected"; sid:00002;)
 \end{verbatim}
 
 \noindent That rule can be read as: ``Generate an alert whenever a TCP packet from any
-address on any  port is sent to any address on any port, and include this message and give
-the rule an identifier of 00002.''
+address on any  port is sent to any address on any port, and include the message tagged as
+{\tt msg:}, and give the rule an identifier of 00002.''
 Then restart snort.  Test this rule by starting Firefox on the remote workstation:
 
 \begin{verbatim}
@@ -120,8 +120,9 @@ we have heard that the keen minds at the startup company have placed their confi
 business plan at www.example.com/plan.html.  Take a look at it.
 
 Now add a rule to your local.rules file on snort that will generate an alert 
-whenever the text "CONFIDENTIAL" is sent out to the internet.  Reference existing
-rules to understand how to qualify alerts based on \textit{content}.  Be sure to include the
+whenever the text "CONFIDENTIAL" is sent out to the internet.  Reference 
+the snort manual \url{https://www.snort.org/downloads/snortplus/snort_manual.pdf}
+or existing rules to understand how to qualify alerts based on \textit{content}.  Be sure to include the
 word "CONFIDENTIAL" in the alert message, and give the
 rule its own unique sid.  After adding the rule, restart snort.
 
@@ -136,7 +137,7 @@ Do you see a new snort alert?  Why?
 
 One solution to this problem is to use a reverse proxy in front of the web server.  This
 reverse proxy would handle the incoming web traffic and manage the SSL connections.
-The web server would then receive only HTTP traffic, and outgoing traffic from the web server
+The web server would then receive only clear-text HTTP traffic, and outgoing traffic from the web server
 could then be mirrored to the IDS.  We will not pursue that solution in this lab.
 
 \subsection{Watching internal traffic}
@@ -166,7 +167,7 @@ Start Firefox on mary's ws2 computer to view the confidential business plan:
 \begin {verbatim}
     firefox www.example.com/plan.html
 \end {verbatim}
-This will not do!  The keen minds at the startup need to view their confidential
+Then observe the snort console.  This will not do!  The keen minds at the startup need to view their confidential
 business plan without IDS alerts firing off.  But they do want to monitor
 internal computers for suspicious traffic, e.g., nmap scans.  In this task, you 
 will adjust your snort rule so that the CONFIDENTIAL alert only fires when the plan 
