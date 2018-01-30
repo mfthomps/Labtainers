@@ -21,8 +21,10 @@ ln -s trunk/setup_scripts/update-labtainer.sh
 full=`realpath trunk/setup_scripts/update-labtainer.sh`
 ln -sf $full trunk/scripts/labtainer-student/bin/update-labtainer.sh
 
-if [[ -z "$LABTAINER_TESTING" ]]; then
+if [[ "$LABTAINER_TESTING" != TRUE ]]; then
     wget https://my.nps.edu/documents/107523844/109121513/labtainer.tar/6fc80410-e87d-4e47-ae24-cbb60c7619fa -O labtainer.tar
+else
+    echo "USING LOCAL TAR, NOT PULLING FROM WEB"
 fi
 cd ..
 tar xf labtainer/labtainer.tar
