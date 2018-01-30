@@ -90,7 +90,7 @@ def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname,
     '''
     Misleading name, this function populates a set of global structures used in processign the results
     '''
-    valid_field_types = ['TOKEN', 'PARENS', 'QUOTES', 'SLASH', 'LINE_COUNT', 'CHECKSUM', 'CONTAINS','FILE_REGEX',  
+    valid_field_types = ['TOKEN', 'GROUP', 'PARENS', 'QUOTES', 'SLASH', 'LINE_COUNT', 'CHECKSUM', 'CONTAINS','FILE_REGEX',  
                          'SEARCH', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT']
     if not MyUtil.CheckAlphaDashUnder(result_key):
         logger.ERROR("Not allowed characters in results.config's key (%s)" % result_key)
@@ -371,7 +371,10 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                         sobj = re.search(lookupstring, currentline)
                         if sobj is not None:
                             found_lookupstring = True
-                            linerequested = currentline
+                            if field_type == 'GROUP':
+                                linerequested = sobj
+                            else:
+                                linerequested = currentline
                             break
                 # If not found - set to None
                 if found_lookupstring == False:
@@ -438,7 +441,7 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                     tagstring = 'False'
                     for currentline in targetlines:
                         #print('look for <%s> in %s' % (remain, currentline))
-                        sobj = re.search(remain, current_line)
+                        sobj = re.search(remain, currentline)
                         if sobj is not None:
                             tagstring = 'True'
                             break 
@@ -501,8 +504,13 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                 # - if still unknown command, then should exit
                 logger.ERROR('unknown command %s' % command)
                 sys.exit(1)
-
-            token = getToken(linerequested, field_type, token_id, logger)
+            if command == 'REGEX' and field_type == 'GROUP':
+                try:
+                    token = linerequested.group(int(token_id))
+                except:
+                    token = ''
+            else:
+                token = getToken(linerequested, field_type, token_id, logger)
             logger.DEBUG('field_type %s, token_id %s, got token %s' % (field_type, token_id, token))
             return token
         
@@ -697,7 +705,13 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
                         if ts not in ts_nametags:
                             ts_nametags[ts] = {}
                             ts_nametags[ts]['PROGRAM_ENDTIME'] = 0
-                        token = getToken(currentline, field_type, token_id, logger)
+                        if field_type == 'GROUP':
+                            try:
+                                token = sobj.group(int(token_id))
+                            except:
+                                token = ''
+                        else:
+                            token = getToken(currentline, field_type, token_id, logger)
                         ts_nametags[ts][result_key] = token
 
     jsonoutput = open(ts_jsonfname, "w")
