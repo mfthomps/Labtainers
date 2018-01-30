@@ -85,29 +85,33 @@ def evalTimeBefore(goals_tag1, goals_tag2):
 
     return evalTimeBeforeResult
 
-def evalTimeDuring(goals_tag1, goals_tag2):
-    ''' return a dictionary of goals_tag1 time ranges having boolean values
-        reflecting if goals_tag2 goals occurred curing the time range'''
+
+def evalTimeDuring(goals_tag1, goals_tag2, logger):
+    ''' return a dictionary of goals_tag2 time ranges having boolean values
+        reflecting if goals_tag1 goals occurred curing the time range'''
     retval = {}
-    for goal1timestamp, goal1value in goals_tag1.iteritems():
-        #print "Goal1 timestamp is (%s) and value is (%s)" % (goal1timestamp, goal1value)
-        # For each Goal1 value that is True
-        if goal1value:
+    for goal2timestamp, goal2value in goals_tag2.iteritems():
+        retval[goal2timestamp] = False
+        #logger.DEBUG("Goal2 timestamp is (%s) and value is (%s)" % (goal2timestamp, goal2value))
+        # For each Goal2 value that is True
+        if goal2value:
             eval_time_during_result = False
-            for goal2timestamp, goal2value in goals_tag2.iteritems():
-                #print "Goal2 timestamp is (%s) and value is (%s)" % (goal2timestamp, goal2value)
-                # If there is Goal2 value that is True
-                if goal2value:
-                    #print "goal1ts (%s) goal2ts (%s)" % (goal1timestamp, goal2timestamp)
+            for goal1timestamp, goal1value in goals_tag1.iteritems():
+                #logger.DEBUG("Goal1 timestamp is (%s) and value is (%s)" % (goal1timestamp, goal1value))
+                # If there is Goal1 value that is True
+                if goal1value:
                     eval_time_during_result = compare_time_during(goal1timestamp, goal2timestamp)
+                    #logger.DEBUG("determine if goal1ts (%s) occurred during goal2ts (%s) -- result: %r" % (goal1timestamp, 
+                    #        goal2timestamp, eval_time_during_result))
                     if eval_time_during_result:
                         # if eval_time_during_result is True - that means:
                         # (1) goals_tag1 is True and goals_tag2 is True
                         # (2) goal2start (%s) <= goal1start (%s) <= goal2end (%s)
                         retval[goal2timestamp] = True
                         break
-            if not eval_time_during_result:
-                retval[goal2timestamp] = False
+            #if not eval_time_during_result:
+            #    logger.DEBUG('no goal1 found to have occured during %s, set false' % goal2timestamp) 
+            #    retval[goal2timestamp] = False
 
     return retval
 
@@ -451,7 +455,7 @@ def handle_expression(resulttag, json_output, logger):
         
 def processMatchAny(result_sets, eachgoal, goal_times, logger):
     #print "Inside processMatchAny"
-    logger.DEBUG("Inside processMatchAny")
+    #logger.DEBUG("Inside processMatchAny")
     found = False
     goalid = eachgoal['goalid']
     #print goalid
@@ -501,7 +505,7 @@ def processMatchAny(result_sets, eachgoal, goal_times, logger):
             exit(1)
         fulltimestamp = '%s-%s' % (ts, timestampend)
         if one_answer:
-            logger.DEBUG("Correct answer is (%s) result (%s)" % (current_onlyanswer, resulttagresult))
+            #logger.DEBUG("Correct answer is (%s) result (%s)" % (current_onlyanswer, resulttagresult))
             found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
             goal_times.addGoal(goalid, fulltimestamp, found)
         else:
@@ -510,7 +514,7 @@ def processMatchAny(result_sets, eachgoal, goal_times, logger):
                 sys.exit(1)
             answertagresult = results[answertagstring]
             current_answer = answertagresult.strip()
-            logger.DEBUG("Correct answer is (%s) result (%s)" % (current_answer, resulttagresult))
+            #logger.DEBUG("Correct answer is (%s) result (%s)" % (current_answer, resulttagresult))
             found = compare_result_answer(resulttagresult, current_answer, eachgoal['goaloperator'])
             goal_times.addGoal(goalid, fulltimestamp, found)
 
@@ -760,7 +764,7 @@ def processTemporal(eachgoal, goal_times, logger):
         goal_times.addGoal(goalid, default_timestamp, eval_time_result)
     elif eachgoal['goaltype'] == "time_during":
         logger.DEBUG('eval for %s %s' % (goals_tag1, goals_tag2))
-        eval_time_result = evalTimeDuring(goals_tag1, goals_tag2)
+        eval_time_result = evalTimeDuring(goals_tag1, goals_tag2, logger)
         for ts in eval_time_result:
             goal_times.addGoal(goalid, ts, eval_time_result[ts])
             
