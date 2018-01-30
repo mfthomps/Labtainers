@@ -185,6 +185,7 @@ def check_boolean(parameter_list, resultidlist, goals, jsongoalid, boolean_strin
         validate_ok = False
     if not validate_ok:
         found_error = True
+    return found_error
 
 def check_execute(parameter_list, resultidlist, goals, jsongoalid, executefilepath, jsonanswertag, jsonresulttag):
     found_error = False
@@ -293,7 +294,11 @@ def validate_goals(parameter_list, resultidlist, goals):
 
         # Found an error - break for loop
         if found_error:
-            break
+            return False
+    if not found_error:
+        return True
+    else:
+        return False
 
 
 def setup_to_validate(lab_path, labname, validatetestsets, validatetestsets_path, logger):
@@ -464,7 +469,7 @@ def DoValidate(lab_path, labname, validatetestsets, validatetestsets_path, logge
     #logger.DEBUG("Goals JSON config is")
     #logger.DEBUG(goals)
 
-    validate_goals(parameter_list, resultidlist, goals)
+    return validate_goals(parameter_list, resultidlist, goals)
 
 # Usage: validate.py <labname> | -c <validatetestsetsname>
 #    -c <validatetestsetsname> to run validate.py against <validatetestsetsname>
