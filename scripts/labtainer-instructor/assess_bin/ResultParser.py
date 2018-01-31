@@ -32,7 +32,7 @@ containernamelist = []
 stdinfnameslist = []
 stdoutfnameslist = []
 timestamplist = {}
-line_types = ['CHECKSUM', 'CONTAINS', 'FILE_REGEX', 'LINE', 'STARTSWITH', 'NEXT_STARTSWITH', 'HAVESTRING', 
+line_types = ['CHECKSUM', 'CONTAINS', 'FILE_REGEX', 'FILE_REGEX_TS', 'LINE', 'STARTSWITH', 'NEXT_STARTSWITH', 'HAVESTRING', 
               'HAVESTRING_TS', 'REGEX', 'REGEX_TS', 'LINE_COUNT', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT']
 just_field_type = ['CHECKSUM', 'LINE_COUNT']
 logger = None
@@ -91,7 +91,7 @@ def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname,
     Misleading name, this function populates a set of global structures used in processign the results
     '''
     valid_field_types = ['TOKEN', 'GROUP', 'PARENS', 'QUOTES', 'SLASH', 'LINE_COUNT', 'CHECKSUM', 'CONTAINS','FILE_REGEX',  
-                         'SEARCH', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT']
+                         'FILE_REGEX_TS', 'SEARCH', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT']
     if not MyUtil.CheckAlphaDashUnder(result_key):
         logger.ERROR("Not allowed characters in results.config's key (%s)" % result_key)
         sys.exit(1)
@@ -379,7 +379,7 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                 # If not found - set to None
                 if found_lookupstring == False:
                     linerequested = None
-            elif command == 'HAVESTRING_TS' or command == 'REGEX_TS':
+            elif command == 'HAVESTRING_TS' or command == 'REGEX_TS' or command == 'FILE_REGEX_TS':
                 return None
             elif command == 'LINE_COUNT':
                 return targetfilelen
@@ -426,11 +426,11 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                     ''' search entire file, vice searching for line '''
                     remain = line.split(command,1)[1]
                     remain = remain.split(':', 1)[1].strip()
-                    tagstring = 'False'
+                    tagstring = False
                     for currentline in targetlines:
                         #print('look for <%s> in %s' % (remain, currentline))
                         if remain in currentline:
-                            tagstring = 'True'
+                            tagstring = True
                             break 
                     return tagstring
 
@@ -438,12 +438,12 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                     ''' search entire file, for line with given regex '''
                     remain = line.split(command,1)[1]
                     remain = remain.split(':', 1)[1].strip()
-                    tagstring = 'False'
+                    tagstring = False
                     for currentline in targetlines:
                         #print('look for <%s> in %s' % (remain, currentline))
                         sobj = re.search(remain, currentline)
                         if sobj is not None:
-                            tagstring = 'True'
+                            tagstring = True
                             break 
                     return tagstring
                     # If not found - set to None
@@ -713,6 +713,22 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
                         else:
                             token = getToken(currentline, field_type, token_id, logger)
                         ts_nametags[ts][result_key] = token
+            elif command == 'FILE_REGEX_TS':
+                if not os.path.isfile(targetfile):
+                    continue
+                with open(targetfile, "r") as fh:
+                    targetlines = fh.readlines()
+                for currentline in targetlines:
+                    sobj = re.search(lookupstring, currentline)
+                    if sobj is not None:
+                        time_val = getTS(currentline)
+                        if time_val is None:
+                            continue
+                        ts = str(time_val)
+                        if ts not in ts_nametags:
+                            ts_nametags[ts] = {}
+                            ts_nametags[ts]['PROGRAM_ENDTIME'] = 0
+                        ts_nametags[ts][result_key] = True
 
     jsonoutput = open(ts_jsonfname, "w")
     for ts in ts_nametags:
