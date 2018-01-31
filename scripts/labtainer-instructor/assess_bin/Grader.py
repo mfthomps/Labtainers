@@ -87,31 +87,27 @@ def evalTimeBefore(goals_tag1, goals_tag2):
 
 
 def evalTimeDuring(goals_tag1, goals_tag2, logger):
-    ''' return a dictionary of goals_tag2 time ranges having boolean values
-        reflecting if goals_tag1 goals occurred curing the time range'''
+    ''' Return a dictionary of booleans keyed with goals_tag2 time ranges for each goals_tag1
+        that occured during the goals_tag2 time range. The boolean is true if at least
+        one goals_tag1 value within the range is true''' 
+
     retval = {}
+    ''' make sure dictionary contains entry for each goals_tag2 time range within which
+        there exists at least one goals_tag1 time -- independent of the boolean values. '''
     for goal2timestamp, goal2value in goals_tag2.iteritems():
-        retval[goal2timestamp] = False
         #logger.DEBUG("Goal2 timestamp is (%s) and value is (%s)" % (goal2timestamp, goal2value))
-        # For each Goal2 value that is True
-        if goal2value:
-            eval_time_during_result = False
-            for goal1timestamp, goal1value in goals_tag1.iteritems():
-                #logger.DEBUG("Goal1 timestamp is (%s) and value is (%s)" % (goal1timestamp, goal1value))
-                # If there is Goal1 value that is True
-                if goal1value:
-                    eval_time_during_result = compare_time_during(goal1timestamp, goal2timestamp)
-                    #logger.DEBUG("determine if goal1ts (%s) occurred during goal2ts (%s) -- result: %r" % (goal1timestamp, 
-                    #        goal2timestamp, eval_time_during_result))
-                    if eval_time_during_result:
-                        # if eval_time_during_result is True - that means:
-                        # (1) goals_tag1 is True and goals_tag2 is True
-                        # (2) goal2start (%s) <= goal1start (%s) <= goal2end (%s)
-                        retval[goal2timestamp] = True
-                        break
-            #if not eval_time_during_result:
-            #    logger.DEBUG('no goal1 found to have occured during %s, set false' % goal2timestamp) 
-            #    retval[goal2timestamp] = False
+        value_for_ts2 = None
+        for goal1timestamp, goal1value in goals_tag1.iteritems():
+            #logger.DEBUG("Goal1 timestamp is (%s) and value is (%s)" % (goal1timestamp, goal1value))
+            eval_time_during_result = compare_time_during(goal1timestamp, goal2timestamp)
+            if eval_time_during_result:
+                #logger.DEBUG("is during Goal1 timestamp is (%s) and value is (%s)" % (goal1timestamp, goal1value))
+                ''' at least one during event '''
+                if value_for_ts2 is None:
+                    value_for_ts2 = False
+                value_for_ts2 = value_for_ts2 or (goal2value and goal1value)
+        if value_for_ts2 is not None:
+            retval[goal2timestamp] = value_for_ts2
 
     return retval
 
@@ -135,39 +131,6 @@ class GoalTimes():
     def getGoalTimeStampId(self):
         return self.goals_ts_id
 
-    def NOT_USED(self, goalid, goalts, goalvalue):
-        ''' NOT LIKELY TO WORK, ends up with multiple similar log records in one 
-            time stamp range.  Use during instead. 
-             f the given timestamp is a singleton, and it should be part of 
-            one or more time stamp ranges, return a list of those.  Otherwise
-            return a one-item list with the given time.
-            If the given timestamp is not a singleton and is new, look in 
-            the existing singletons to see if they should be part of that range.
-        '''
-        retval = []
-        start, end = goalts.split('-')
-        if goalts == default_timestamp:
-            print('add default %s' % (goalid))
-            self.addOneGoal(goalid, goalts, goalvalue)
-        elif end == '0':
-            if start not in self.singletons:
-                self.singletons[start] = {}
-            self.singletons[start][goalid] = goalvalue
-            for ts in self.goals_ts_id:
-                tmp_start, tmp_end = ts.split('-')
-                if start >= tmp_start and start <= tmp_end:
-                    print('add %s, single was %s, to ts %s' % (goalid, start, ts))
-                    self.addOneGoal(goalid, ts, goalvalue)
-        else:
-            ''' ts is a range, add it and check existing singetons '''
-            print('add range %s %s' % (goalid, goalts))
-            self.addOneGoal(goalid, goalts, goalvalue)
-            for single in self.singletons:
-                if single >= start and single <= end:
-                    for goalid in self.singletons[single]:
-                        print('add %s, old single was %s, to ts %s' % (goalid, single, goalts))
-                        self.addOneGoal(goalid, goalts, self.singletons[single][goalid])
-                
         
     def addGoal(self, goalid, goalts, goalvalue):
         '''
@@ -745,7 +708,7 @@ def processTemporal(eachgoal, goal_times, logger):
     logger.DEBUG("goal1tag is (%s) and goal2tag is (%s)" % (goal1tag, goal2tag))
     # Make sure goal1tag and goal2tag is in goals_id_ts
     if not goal_times.hasGoal(goal1tag):
-        logger.DEBUG("warning: goal1tag (%s) does not exist in %s\n" % (goal1tag, str(goals_id_ts)))
+        logger.DEBUG("warning: goal1tag (%s) does not exist in goalTimes\n" % (goal1tag))
         return
     if not goal_times.hasGoal(goal2tag):
         logger.DEBUG("warning: goal2tag (%s) does not exist!\n" % goal2tag)
@@ -792,14 +755,26 @@ def processBoolean(eachgoal, goal_times, logger):
         goal_times.addGoal(goalid, default_timestamp, False)
 
 class ResultSets():
-    def addSet(self, result_set, ts):
+    def addSet(self, result_set, ts, goal_times):
+        if 'PROGRAM_ENDTIME' in result_set:
+            fulltimestamp = '%s-%s' % (ts, result_set['PROGRAM_ENDTIME'])
+        else:
+            fulltimestamp = '%s-0' % (ts)
+            
         if ts in self.result_sets:
             for key in result_set:
                 self.result_sets[ts][key] = result_set[key]
+                if isinstance(result_set[key], bool):
+                    #print 'ts is %s' % ts
+                    goal_times.addGoal(key, fulltimestamp, result_set[key])
         else:
             self.result_sets[ts] = result_set
+            for key in result_set:
+                if isinstance(result_set[key], bool):
+                    #print 'ts is %s' % ts
+                    goal_times.addGoal(key, fulltimestamp, result_set[key])
 
-    def __init__(self, result_file_list):
+    def __init__(self, result_file_list, goal_times):
         ''' result_file_list are full paths '''
         self.result_sets = {}
         self.latest = None
@@ -811,14 +786,14 @@ class ResultSets():
                 if self.latest is None or ts > self.latest:
                     self.latest = ts
                 result_set = getJsonOut(result_file)
-                self.addSet(result_set, ts)
+                self.addSet(result_set, ts, goal_times)
             elif fname.endswith('_ts'):
                 result_set_set = getJsonOutTS(result_file)
                 for ts in result_set_set:
-                    self.addSet(result_set_set[ts], ts)
+                    self.addSet(result_set_set[ts], ts, goal_times)
             else:
                 result_set = getJsonOut(result_file)
-                self.addSet(result_set, 'default')
+                self.addSet(result_set, 'default', goal_times)
 
     def getSet(self, ts):
         return self.result_sets[ts]
@@ -853,7 +828,7 @@ def processLabExercise(studentlabdir, labidname, grades, goals, goal_times, logg
     outjsonfnamesstring = '%s/%s/%s*' % (studentlabdir, ".local/result/", labidname)
 
     outjsonfnames = glob.glob(outjsonfnamesstring)
-    result_sets = ResultSets(outjsonfnames)
+    result_sets = ResultSets(outjsonfnames, goal_times)
 
     # Go through each goal for each student
     # Do the goaltype of non 'boolean' first
