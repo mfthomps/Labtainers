@@ -82,6 +82,13 @@ treatlocal(){
 }
 ignorelocal(){
    local cmd_path=$1
+   if [[ -z $cmd_path ]]; then
+       return 1
+   fi
+   cmd=$(basename $cmd_path)
+   if [[ "$cmd" == Student.py ]]; then
+       return 1
+   fi
    local TAS=$PRECMD_HOME/.local/bin/ignorelocal
    if [ -f $TAS ]
    then
