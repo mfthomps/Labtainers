@@ -111,10 +111,13 @@ def check_countgreater(parameter_list, resultidlist, goals, jsongoalid, jsonansw
             goaltag = tag.strip()
             # goaltag must be in goals otherwise it is an error
             found_goaltag_in_goals = False
-            for eachgoal in goals:
-                if goaltag == eachgoal['goalid']:
-                    found_goaltag_in_goals = True
-                    break
+            if goaltag in resultidlist:
+                found_goaltag_in_goals = True
+            else:
+                for eachgoal in goals:
+                    if goaltag == eachgoal['goalid']:
+                        found_goaltag_in_goals = True
+                        break
             if found_goaltag_in_goals:
                 continue
             else:
@@ -132,12 +135,15 @@ def check_temporal(parameter_list, resultidlist, goals, jsongoalid, goal1tag, go
     found_error = False
     goal1tag_ok = True
     goal2tag_ok = True
-    # goal1tag must be in goals otherwise it is an error
+    # goal1tag must be in goals, or a result name (TBD should only be booleans) otherwise it is an error
     found_goaltag_in_goals = False
-    for eachgoal in goals:
-        if goal1tag == eachgoal['goalid']:
-            found_goaltag_in_goals = True
-            break
+    if goal1tag in resultidlist:
+        found_goaltag_in_goals = True
+    else:
+        for eachgoal in goals:
+            if goal1tag == eachgoal['goalid']:
+                found_goaltag_in_goals = True
+                break
     if not found_goaltag_in_goals:
         goal1tag_ok = False
         labutils.logger.ERROR("ERROR: Goals goalid (%s) has invalid goal1tag (%s)" % (jsongoalid, goal1tag))
@@ -170,10 +176,13 @@ def check_boolean(parameter_list, resultidlist, goals, jsongoalid, boolean_strin
                 continue
             # goaltag must be in goals otherwise it is an error
             found_goaltag_in_goals = False
-            for eachgoal in goals:
-                if goaltag == eachgoal['goalid']:
-                    found_goaltag_in_goals = True
-                    break
+            if goaltag in resultidlist:
+                found_goaltag_in_goals = True
+            else:
+                for eachgoal in goals:
+                    if goaltag == eachgoal['goalid']:
+                        found_goaltag_in_goals = True
+                        break
             if found_goaltag_in_goals:
                 continue
             else:
