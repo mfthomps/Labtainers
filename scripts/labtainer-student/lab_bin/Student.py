@@ -10,26 +10,40 @@ domain and is not subject to copyright.
 '''
 
 # Student.py
-# Description: Create a zip file
-#              containing the student lab work
+# Description: Create a zip file containing the student's lab work
+# Also kill any lingering monitored processes
 
 import glob
 import json
 import os
+import subprocess
 import sys
 import zipfile
 
 
-#print os.path.expanduser("~")
+def killMonitoredProcess():
+    cmd = "ps x -o \"%r %c\" | grep [c]apinout.sh | awk '{print $1}' | uniq"
+    child = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    done = False
+    print("cmd was %s" % cmd)
+    while not done:
+        line = child.stdout.readline().strip()
+        print('got line %s' % line)
+        if len(line)>0:
+            cmd = 'kill -TERM -%s' % line
+            print('cmd is %s' % cmd)
+            os.system(cmd)
+        else:
+            done = True
 
-# Usage: Student.py
-# Arguments:
-#     None
 def main():
     #print "Running Student.py"
     if len(sys.argv) != 3:
         sys.stderr.write("Usage: Student.py <username> <image_name>\n")
         return 1
+
+    killMonitoredProcess()
+
     user_name = sys.argv[1]
     container_image = sys.argv[2].split('.')[1]
     StudentHomeDir = os.path.join('/home',user_name)
