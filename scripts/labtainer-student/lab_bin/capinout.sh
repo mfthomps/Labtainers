@@ -18,6 +18,16 @@ END
 # trapfun - add program finish time
 trapfun()
 {
+    #echo "PROGNAME is $PROGNAME"
+    PGROUP=$(ps x -o "%r %c" | grep $PROGNAME | awk '{print $1}')
+    #echo "PGROUP IS $PGROUP"
+    HAS_ROOT=$(pgrep -u root -g $PGROUP)
+    if [[ -z $HAS_ROOT ]]; then
+        kill -TERM -$PGROUP
+    else
+        sudo kill -TERM -$PGROUP
+    fi
+
     endtime=`date +"%Y%m%d%H%M%S"`
     echo "PROGRAM FINISH: $endtime" >> $stdinfile
     echo "PROGRAM FINISH: $endtime" >> $stdoutfile
