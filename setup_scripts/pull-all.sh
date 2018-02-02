@@ -6,9 +6,9 @@
 # Intended to be called from update-labtainer.sh
 #
 if [ "$TEST_REGSISTRY" == YES ]; then
-    registry=$(grep TEST_REGISTRY labtainer/trunk/config/labtainer.config | cut -f 2)
+    registry=$(grep TEST_REGISTRY labtainer/trunk/config/labtainer.config | tr -s ' ' | cut -d ' ' -f 3)
 else
-    registry=$(grep DEFAULT_REGISTRY labtainer/trunk/config/labtainer.config | cut -f 2)
+    registry=$(grep DEFAULT_REGISTRY labtainer/trunk/config/labtainer.config | tr -s ' ' | cut -d ' ' -f 3)
 fi
 docker pull $registry/labtainer.base
 docker pull $registry/labtainer.network
