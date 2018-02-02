@@ -8,9 +8,8 @@
 # The labtainer.network image adds the following packages:
 #   openssl openssh-server openvpn wget tcpdump  update-inetd  xinetd
 #
-FROM mfthomps/labtainer.firefox
-#FROM mfthomps/labtainer.base
-#FROM mfthomps/labtainer.network
+ARG registry 
+FROM $registry/labtainer.firefox
 ARG lab
 ARG labdir
 ARG imagedir
@@ -18,11 +17,9 @@ ARG user_name
 ARG password 
 ARG apt_source
 
+RUN apt-get update && apt-get install -y --no-install-recommends telnet wget lynx
 ADD $labdir/$imagedir/sys_tar/sys.tar /
 ADD $labdir/sys_$lab.tar.gz /
-
-RUN sed -i s/archive.ubuntu.com/$apt_source/ /etc/apt/sources.list
-RUN apt-get update && apt-get install -y --no-install-recommends telnet wget nmap lynx
 
 # Need pyModbusTCP to run the Modbus test program
 RUN pip install pyModbusTCP

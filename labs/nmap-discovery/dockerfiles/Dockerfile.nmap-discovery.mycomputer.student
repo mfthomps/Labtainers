@@ -1,12 +1,11 @@
-FROM mfthomps/labtainer.base
-#FROM mfthomps/labtainer.network
+ARG registry 
+FROM $registry/labtainer.network
 ARG lab
 ARG labdir
 ARG imagedir
 ARG user_name
 ARG apt_source
 
-RUN apt-get update && apt-get install -y --no-install-recommends nmap
 RUN apt-get update && apt-get install -y --no-install-recommends telnet
 
 ADD $labdir/sys_$lab.tar.gz /

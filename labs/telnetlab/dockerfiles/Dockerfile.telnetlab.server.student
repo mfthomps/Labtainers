@@ -1,11 +1,10 @@
-FROM mfthomps/labtainer.network
+ARG registry 
+FROM $registry/labtainer.network
 ARG lab
 ARG labdir
 ARG imagedir
 ARG apt_source
 ARG user_name
-RUN sed -i s/archive.ubuntu.com/$apt_source/ /etc/apt/sources.list
-
 #
 # Example of installing xinetd to manage inetd type system services
 # And, installation of rsyslog to cause system logging local to the

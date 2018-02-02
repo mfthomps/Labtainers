@@ -1,4 +1,5 @@
-FROM mfthomps/labtainer.base
+ARG registry 
+FROM $registry/labtainer.base
 MAINTAINER jkhosali@nps.edu
 ARG lab
 ARG labdir
@@ -6,13 +7,11 @@ ARG imagedir
 ARG user_name
 ARG apt_source
 
+RUN apt-get update && apt-get install -y --no-install-recommends zsh
 RUN echo "# This secret file is generated when container is created" >> /root/.secret
 RUN echo "# The root secret string below will be replaced with a keyed hash" >> /root/.secret
 RUN echo "My ROOT secret string is: ROOT_SECRET" >> /root/.secret
 ADD $labdir/sys_$lab.tar.gz /
-RUN sed -i s/archive.ubuntu.com/$apt_source/ /etc/apt/sources.list
-RUN apt-get update && apt-get install -y --no-install-recommends \
-	zsh
 RUN useradd -ms /bin/bash $user_name
 RUN echo "$user_name:$user_name" | chpasswd
 RUN adduser $user_name sudo
