@@ -1,4 +1,5 @@
-FROM mfthomps/labtainer.base
+ARG registry
+FROM $registry/labtainer.base
 LABEL description="This is base Docker image for networking Parameterized labs"
 ARG lab
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -9,6 +10,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     tcpdump \
     update-inetd \
     xinetd \
+    iptables \
+    dnsutils \
+    dnsmasq \
+    nmap \
     netcat-openbsd
 
 # step around app armor or whatever
