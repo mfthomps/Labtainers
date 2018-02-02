@@ -11,9 +11,8 @@
 # The labtainer.network image adds the following packages:
 #   openssl openssh-server openvpn wget tcpdump  update-inetd  xinetd
 #
-#FROM mfthomps/labtainer.base
-FROM mfthomps/labtainer.network
-#FROM mfthomps/labtainer.centos
+ARG registry 
+FROM $registry/labtainer.network
 #
 #  lab is the fully qualified image name, e.g., mylab.some_container.student
 #  labdir is the name of the lab, e.g., mylab 
@@ -34,7 +33,6 @@ ARG apt_source
 ADD $labdir/$imagedir/sys_tar/sys.tar /
 ADD $labdir/sys_$lab.tar.gz /
 
-RUN apt-get update && apt-get install -y dnsutils
 #
 RUN useradd -ms /bin/bash $user_name
 RUN echo "$user_name:$password" | chpasswd

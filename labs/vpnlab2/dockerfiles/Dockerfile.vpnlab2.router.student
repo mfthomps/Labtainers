@@ -1,4 +1,5 @@
-FROM mfthomps/labtainer.network
+ARG registry 
+FROM $registry/labtainer.network
 MAINTAINER jkhosali@nps.edu
 ARG lab
 ARG labdir

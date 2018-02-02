@@ -1,4 +1,5 @@
-FROM mfthomps/labtainer.network
+ARG registry 
+FROM $registry/labtainer.wireshark
 ARG lab
 ARG labdir
 ARG imagedir
@@ -6,19 +7,9 @@ ARG apt_source
 ARG user_name
 
 #
-# Example of installing xinetd to manage inetd type system services
-# And, installation of rsyslog to cause system logging local to the
-# container.
-#
 # Give them telnetd - just in case students need to experiment
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    telnetd
-ENV DEBIAN_FRONTEND noninteractive
-RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
-RUN echo 'wireshark-common        wireshark-common/install-setuid boolean true' | debconf-set-selections
-# Need wireshark to get 'editcap'
-RUN apt-get install -y --no-install-recommends wireshark tshark
-RUN chmod a+x /usr/bin/dumpcap
+RUN apt-get update && apt-get install -y --no-install-recommends tshark telnetd
+
 ADD $labdir/sys_$lab.tar.gz /
 
 RUN useradd -ms /bin/bash $user_name

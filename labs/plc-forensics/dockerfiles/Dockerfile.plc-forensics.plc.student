@@ -1,20 +1,12 @@
-FROM mfthomps/labtainer.network
+ARG registry 
+FROM $registry/labtainer.network
 ARG lab
 ARG labdir
 ARG imagedir
 ARG user_name
 ARG apt_source
-RUN sed -i s/archive.ubuntu.com/$apt_source/ /etc/apt/sources.list
-
-#
-# Example of installing xinetd to manage inetd type system services
-# And, installation of rsyslog to cause system logging local to the
-# container.
-#
 RUN apt-get update && apt-get install -y --no-install-recommends \
     vsftpd
-ENV DEBIAN_FRONTEND noninteractive
-RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
 
 ADD $labdir/sys_$lab.tar.gz /
 

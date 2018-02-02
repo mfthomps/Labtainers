@@ -8,8 +8,8 @@
 # The labtainer.network image adds the following packages:
 #   openssl openssh-server openvpn wget tcpdump  update-inetd  xinetd
 #
-#FROM mfthomps/labtainer.base
-FROM mfthomps/labtainer.network
+ARG registry 
+FROM $registry/labtainer.network
 ARG lab
 ARG labdir
 ARG imagedir
@@ -17,16 +17,14 @@ ARG user_name
 ARG password 
 ARG apt_source
 
+RUN apt-get update && apt-get install -y --no-install-recommends telnetd
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    nodejs
 ADD $labdir/$imagedir/sys_tar/sys.tar /
 ADD $labdir/sys_$lab.tar.gz /
 
-RUN sed -i s/archive.ubuntu.com/$apt_source/ /etc/apt/sources.list
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    telnetd
 
 # Need nodejs to start OpenPLC server
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    nodejs
 
 RUN useradd -ms /bin/bash $user_name
 RUN echo "$user_name:$password" | chpasswd
