@@ -87,7 +87,7 @@ if [ -f /var/tmp/home.tar ]; then
    cd $HOME
    tar xf /var/tmp/home.tar
    echo $CONTAINER_PASSWORD | sudo -S rm /var/tmp/home.tar
-   echo "expanded /var/tmp/home.tar to $HOME" >>/tmp/parameterize.log 2>&1
+   echo "expanded /var/tmp/home.tar to $HOME" >>/tmp/parameterize.out 2>&1
 fi
 
 $HOME/.local/bin/hookBash.sh 2>>/tmp/hookBash.output
