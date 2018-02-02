@@ -1,16 +1,17 @@
-FROM mfthomps/labtainer.base
+ARG registry 
+FROM $registry/labtainer.base
 ARG lab
 ARG labdir
 ARG imagedir
 ARG apt_source
 ARG user_name
 ARG password
-ADD $labdir/sys_$lab.tar.gz /
 RUN apt-get update && apt-get install -y --no-install-recommends \
     openssl \
     openssh-client
 RUN apt-get install -y \
     hexedit
+ADD $labdir/sys_$lab.tar.gz /
 
 RUN useradd -ms /bin/bash $user_name
 RUN echo "$user_name:$password" | chpasswd

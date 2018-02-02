@@ -1,6 +1,6 @@
 #!/bin/sh
 
-### BEGIN INIT INFO
+### BEGIN INIT  INFO
 # Provides:          httpserver
 # Required-Start:    $syslog
 # Required-Stop:     $syslog
