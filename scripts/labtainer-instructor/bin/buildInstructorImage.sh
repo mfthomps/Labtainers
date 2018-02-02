@@ -21,17 +21,14 @@ user_password=$4
 force_build=$5 
 LAB_TOP=$6 
 APT_SOURCE=$7 
+REGISTRY=$8 
 #------------------------------------V
-if [ "$#" -eq 8 ]; then
-    registry=$7 
-elif [ "$#" -eq 7 ]; then
-    registry=mfthomps
-else
-    echo "Usage: buildImage.sh <labname> <imagename> <user_name> <user_password> <force_build> <LAB_TOP> <apt_source> [registry]"
+if [ "$#" -ne 8 ]; then
+    echo "Usage: buildImage.sh <labname> <imagename> <user_name> <user_password> <force_build> <LAB_TOP> <apt_source> <registry>"
     echo "   <force_build> is either true or false"
     echo "   <LAB_TOP> is a path to the trunk/labs directory"
     echo "   <apt_source> is the host to use in apt/sources.list"
-    echo "   registry is an optional name of an alternate docker hub registry"
+    echo "   <registry> is a docker registry"
     exit
 fi
 echo "LAB_TOP is $LAB_TOP"
@@ -44,8 +41,8 @@ if [ ! -d $LAB_DIR ]; then
 fi
 
 #-----------------------------------V
-echo docker pull $registry/$labimage
-docker pull $registry/$labimage
+echo docker pull $REGISTRY/$labimage
+docker pull $REGISTRY/$labimage
 result=$?
 if [ "$result" == "0" ] && [ $force_build = "False" ]; then
     imagecheck="YES"
@@ -114,6 +111,7 @@ if [ ! -z "$imagecheck" ] && [ $force_build = "False" ]; then
 #                 --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY \
 #                 --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY \
 #                 --build-arg NO_PROXY=$NO_PROXY  --build-arg no_proxy=$NO_PROXY \
+#                 --build-arg registry=$REGISTRY \
 #                 -t $labimage .
 else
     docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename \
@@ -121,6 +119,7 @@ else
                  --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY \
                  --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY \
                  --build-arg NO_PROXY=$NO_PROXY  --build-arg no_proxy=$NO_PROXY \
+                 --build-arg registry=$REGISTRY \
                  --pull -f $full_dfile -t $labimage .
 fi
 #--------------------------------^

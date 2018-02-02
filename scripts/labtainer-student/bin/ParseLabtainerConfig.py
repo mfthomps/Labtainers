@@ -29,6 +29,8 @@ class ParseLabtainerConfig():
         self.watermark_root= None # WATERMARK_ROOT - watermark test root
         self.file_log_level= "" # FILE_LOG_LEVEL - level to log to file
         self.console_log_level= "" # CONSOLE_LOG_LEVEL - level to log to console
+        self.test_registry = 'testregistry:5000'
+        self.default_registry = 'mfthomps'
         self.apt_source='archive.ubuntu.com'
         if logger != None:
             self.logger = logger

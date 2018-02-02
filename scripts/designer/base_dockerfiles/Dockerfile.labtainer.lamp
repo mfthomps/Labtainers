@@ -1,4 +1,5 @@
-FROM mfthomps/labtainer.centos
+ARG registry
+FROM $registry/labtainer.centos
 LABEL description="This is base Docker image for Labtainer CENTOS-hosted LAMP images"
 #
 RUN wget http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm

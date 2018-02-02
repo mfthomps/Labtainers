@@ -15,6 +15,7 @@ then
     exit
 fi
 here=`pwd`
+source ./set_reg.sh
 cd ../
-docker build -f base_dockerfiles/Dockerfile.labtainer.lamp -t labtainer.lamp:latest .
+docker build --build-arg registry=$LABTAINER_REGISTRY -f base_dockerfiles/Dockerfile.labtainer.lamp -t labtainer.lamp:latest .
 cd $here

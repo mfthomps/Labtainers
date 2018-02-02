@@ -8,10 +8,14 @@ created  by United States Government employees, pursuant to Title 17
 United States Code Section 105.   This software is in the public 
 domain and is not subject to copyright. 
 END
-
-export DOCKER_ID_USER="mfthomps"
+if [[ "${TEST_REGISTRY}" != YES ]]; then
+    export LABTAINER_REGISTRY="mfthomps"
+    docker login
+else
+    export LABTAINER_REGISTRY="testregistry:5000"
+fi
+echo "Using registry $LABTAINER_REGISTRY"
 image=$1
-docker login
-docker tag $image $DOCKER_ID_USER/$image
-docker push $DOCKER_ID_USER/$image
+docker tag $image $LABTAINER_REGISTRY/$image
+docker push $LABTAINER_REGISTRY/$image
 
