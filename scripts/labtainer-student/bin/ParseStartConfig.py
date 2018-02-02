@@ -224,7 +224,7 @@ class ParseStartConfig():
                self.containers[name].password = self.containers[name].user
             if self.containers[name].script == "none":
                self.containers[name].script = "";
-            if use_test_registry is not None and use_test_registry.lower() == 'yes':
+            if use_test_registry is not None and (use_test_registry.lower() == 'yes' or use_test_registry.lower() == 'true':
                 self.containers[name].registry = labtainer_config.test_registry
             elif self.containers[name].registry == None:
                 self.containers[name].registry = labtainer_config.default_registry
