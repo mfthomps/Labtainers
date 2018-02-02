@@ -82,15 +82,16 @@ if [ -f $HOME/.local/bin/fixlocal.sh ]
 then
     $HOME/.local/bin/fixlocal.sh $CONTAINER_PASSWORD 2>>/tmp/fixlocal.output
 fi
-$HOME/.local/bin/hookBash.sh 2>>/tmp/hookBash.output
-rmdir $LOCKDIR
 
 if [ -f /var/tmp/home.tar ]; then
    cd $HOME
    tar xf /var/tmp/home.tar
    echo $CONTAINER_PASSWORD | sudo -S rm /var/tmp/home.tar
+   echo "expanded /var/tmp/home.tar to $HOME" >>/tmp/parameterize.log 2>&1
 fi
 
+$HOME/.local/bin/hookBash.sh 2>>/tmp/hookBash.output
+rmdir $LOCKDIR
 # Added a permanent 'did_param' lock directory
 PERMLOCKDIR=/var/labtainer/did_param
 sudo mkdir -p "$PERMLOCKDIR" >/dev/null 2>&1
