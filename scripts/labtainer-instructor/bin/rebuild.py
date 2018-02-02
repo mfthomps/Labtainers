@@ -17,6 +17,7 @@ domain and is not subject to copyright.
 
 import sys
 import os
+import argparse
 instructor_cwd = os.getcwd()
 student_cwd = instructor_cwd.replace('labtainer-instructor', 'labtainer-student')
 # Append Student CWD to sys.path
@@ -32,40 +33,29 @@ import validate
 #    [-f] will force a rebuild
 #    [-q] will load the lab using a predetermined email.
 def main():
-    if len(sys.argv) < 2 or len(sys.argv)>4:
-        sys.stderr.write("Usage: rebuild.py <labname> [-f] [-q]\n")
-        sys.stderr.write("   -f will force a rebuild.\n")
-        sys.stderr.write("   -q will load the lab using a predetermined email.\n")
-        sys.exit(1)
-   
-    force_build = False
-    quiet_start = False
-    #if arguments is: redo.py <labname> [-f]
-    if len(sys.argv) == 3 and sys.argv[2] == '-f':
-        force_build = True 
-    #if arguments is: redo.py <labname> [-q]    
-    elif len(sys.argv) == 3 and sys.argv[2] == '-q':
-        quiet_start = True
-    #if arguments is: redo.py <labname> [-q] [-f]    
-    elif len(sys.argv) == 4 and sys.argv[2] == '-q' and sys.argv[3] == '-f':
-        quiet_start = True
-        force_build = True 
-    #if arguments is: redo.py <labname> [-f] [-q]    
-    elif len(sys.argv) == 4 and sys.argv[2] == '-f' and sys.argv[3] == '-q':
-        quiet_start = True
-        force_build = True 
+    parser = argparse.ArgumentParser(description='Build the images of a lab')
+    parser.add_argument('labname', help='The lab to build')
+    parser.add_argument('-f', '--force', action='store_true', help='force build')
+    parser.add_argument('-p', '--prompt', action='store_true', help='prompt for email, otherwise use stored')
+    parser.add_argument('-c', '--container', action='store', help='force rebuild just this container')
+    parser.add_argument('-i', '--ignore_validate', action='store', help='ignore validation errors', default=False)
 
-    labname = sys.argv[1]
-    labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
-    labutils.logger.INFO("Begin logging Rebuild.py for %s lab" % labname)
-    lab_path = os.path.join(os.path.abspath('../../labs'), labname)
+    args = parser.parse_args()
+    quiet_start = True
+    if args.prompt == True:
+        quiet_start = False
+    if args.force is not None:
+        force_build = args.force
+    labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", args.labname, "../../config/labtainer.config")
+    labutils.logger.INFO("Begin logging Rebuild.py for %s lab" % args.labname)
+    lab_path = os.path.join(os.path.abspath('../../labs'), args.labname)
     validatetestsets = False
     validatetestsets_path = ""
-    ok = validate.DoValidate(lab_path, labname, validatetestsets, validatetestsets_path, labutils.logger)
-    if not ok:
+    ok = validate.DoValidate(lab_path, args.labname, validatetestsets, validatetestsets_path, labutils.logger)
+    if not ok and not args.ignore_validate:
         print('validation failed, exiting')
         exit(1)
-    labutils.RebuildLab(lab_path, "instructor", force_build=force_build, quiet_start=quiet_start)
+    labutils.RebuildLab(lab_path, "instructor", force_build=force_build, quiet_start=quiet_start, just_container=args.container)
 
     return 0
 
