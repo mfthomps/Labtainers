@@ -15,6 +15,8 @@ then
     exit
 fi
 here=`pwd`
+source ./set_reg.sh
 cd ../
-docker build -f base_dockerfiles/Dockerfile.labtainer.network -t labtainer.network:latest .
+echo "registry is $LABTAINER_REGISTRY"
+docker build --build-arg registry=$LABTAINER_REGISTRY -f base_dockerfiles/Dockerfile.labtainer.network -t labtainer.network:latest .
 cd $here

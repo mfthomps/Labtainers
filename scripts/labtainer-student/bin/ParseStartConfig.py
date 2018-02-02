@@ -14,6 +14,7 @@ import sys
 import re
 from netaddr import *
 import LabtainerLogging
+import ParseLabtainerConfig
 
 def isalphadashscore(name):
     # check name - alphanumeric,dash,underscore
@@ -29,6 +30,7 @@ class ParseStartConfig():
         self.lab_master_seed= None # LAB_MASTER_SEED - this is the master seed string for to this laboratory
         self.grade_container = None # GRADE_CONTAINER - this is where the instructor performs the grading
         self.logger = logger
+        self.fname = fname
         # COLLECT_DOCS - this optional setting indicates whether to collect lab's docs directory or not
         # default to NO (i.e., do not collect)
         self.collect_docs = None
@@ -201,6 +203,10 @@ class ParseStartConfig():
         else:
             self.grade_container = self.labname + "." + self.grade_container + "." + self.caller 
 
+        labtainer_config_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(self.fname)))), 'config', 'labtainer.config')
+        labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_dir, self.logger)
+
+        use_test_registry = os.getenv('TEST_REGISTRY')
         # fixing up container parameters
         for name in self.containers:
             if name == "default": namestr = ""
@@ -218,8 +224,10 @@ class ParseStartConfig():
                self.containers[name].password = self.containers[name].user
             if self.containers[name].script == "none":
                self.containers[name].script = "";
-            if self.containers[name].registry == None:
-                self.containers[name].registry = 'mfthomps'
+            if use_test_registry is not None and use_test_registry.lower() == 'yes':
+                self.containers[name].registry = labtainer_config.test_registry
+            elif self.containers[name].registry == None:
+                self.containers[name].registry = labtainer_config.default_registry
 
     def show_current_settings(self):
         bar = "="*80

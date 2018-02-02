@@ -8,7 +8,7 @@ created  by United States Government employees, pursuant to Title 17
 United States Code Section 105.   This software is in the public 
 domain and is not subject to copyright. 
 END
-read -p "This buid will pull from the docker hub.  Have you published the base?"
+read -p "This buid will pull from the docker hub.  Have you published the network?"
 if [[ ! $REPLY =~ ^[Yy]$ ]]
 then
     echo exiting
@@ -17,5 +17,5 @@ fi
 here=`pwd`
 source ./set_reg.sh
 cd ../
-docker build --build-arg registry=$LABTAINER_REGISTRY -f base_dockerfiles/Dockerfile.labtainer.firefox -t labtainer.firefox:latest .
+docker build --build-arg registry=$LABTAINER_REGISTRY -f base_dockerfiles/Dockerfile.labtainer.wireshark -t labtainer.wireshark:latest .
 cd $here
