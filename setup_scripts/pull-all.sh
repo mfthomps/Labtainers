@@ -5,7 +5,7 @@
 # Script assumes the pwd is the parent of the labtainer directory
 # Intended to be called from update-labtainer.sh
 #
-if [ "$TEST_REGISTRY" == YES ]; then
+if [ "$TEST_REGISTRY" == TRUE ]; then
     registry=$(grep TEST_REGISTRY labtainer/trunk/config/labtainer.config | tr -s ' ' | cut -d ' ' -f 3)
 else
     registry=$(grep DEFAULT_REGISTRY labtainer/trunk/config/labtainer.config | tr -s ' ' | cut -d ' ' -f 3)
