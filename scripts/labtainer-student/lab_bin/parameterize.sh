@@ -85,6 +85,12 @@ fi
 $HOME/.local/bin/hookBash.sh 2>>/tmp/hookBash.output
 rmdir $LOCKDIR
 
+if [ -f /var/tmp/home.tar ]; then
+   cd $HOME
+   tar xf /var/tmp/home.tar
+   echo $CONTAINER_PASSWORD | sudo -S rm /var/tmp/home.tar
+fi
+
 # Added a permanent 'did_param' lock directory
 PERMLOCKDIR=/var/labtainer/did_param
 sudo mkdir -p "$PERMLOCKDIR" >/dev/null 2>&1
