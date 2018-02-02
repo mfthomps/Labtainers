@@ -486,13 +486,13 @@ def ImageExists(image_name, container_name, registry):
             return False, result, image_name
     return True, result, image_name
 
-def RebuildLab(lab_path, role, is_regress_test=None, force_build=False, quiet_start=False):
+def RebuildLab(lab_path, role, is_regress_test=None, force_build=False, quiet_start=False, just_container=None):
     # Pass 'True' to ignore_stop_error (i.e., ignore certain error encountered during StopLab
     #                                         since it might not even be an error)
     labname = os.path.basename(lab_path)
     StopLab(lab_path, role, True)
     logger.DEBUG('Back from StopLab')
-    DoRebuildLab(lab_path, role, is_regress_test, force_build)
+    DoRebuildLab(lab_path, role, is_regress_test, force_build, just_container)
 
     # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
     config_path       = os.path.join(lab_path,"config") 
@@ -508,7 +508,7 @@ def RebuildLab(lab_path, role, is_regress_test=None, force_build=False, quiet_st
     is_watermark_test = True
     DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start)
 
-def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False):
+def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False, just_container=None):
     retval = set()
     labname = os.path.basename(lab_path)
     is_valid_lab(lab_path)
@@ -531,6 +531,10 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False):
     else:
         container_bin = './lab_bin'
     for name, container in start_config.containers.items():
+        if just_container is not None and just_container != name:
+            continue
+        elif just_container == name:
+            force_build = True
         mycontainer_name       = container.full_name
         mycontainer_image_name = container.image_name
         retval.add(container.registry)
