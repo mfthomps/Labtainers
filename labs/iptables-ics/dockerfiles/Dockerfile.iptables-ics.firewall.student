@@ -8,8 +8,8 @@
 # The labtainer.network image adds the following packages:
 #   openssl openssh-server openvpn wget tcpdump  update-inetd  xinetd
 #
-#FROM mfthomps/labtainer.base
-FROM mfthomps/labtainer.network
+ARG registry 
+FROM $registry/labtainer.wireshark
 ARG lab
 ARG labdir
 ARG imagedir
@@ -17,17 +17,8 @@ ARG user_name
 ARG password
 ARG apt_source
 
+RUN apt-get update && apt-get install -y --no-install-recommends tshark
 ADD $labdir/sys_$lab.tar.gz /
-
-RUN sed -i s/archive.ubuntu.com/$apt_source/ /etc/apt/sources.list
-
-ENV DEBIAN_FRONTEND noninteractive
-RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
-
-RUN echo 'wireshark-common        wireshark-common/install-setuid boolean true' | debconf-set-selections
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    iptables wireshark tshark
-RUN chmod a+x /usr/bin/dumpcap
 
 
 RUN useradd -ms /bin/bash $user_name
