@@ -1,5 +1,24 @@
 #!/bin/bash
 #
+#  Update a labtainers installation to use the latest tar and fetch the
+#  latest baseline images
+#
+if [ "$#" -eq 1 ]; then
+   if [ "$1" == "-t" ]; then
+       export TEST_REGISTRY=TRUE
+   else
+       echo "update-labtainers [-t]"
+       echo "   use -t to pull tar from /media/sf_SEED"
+       echo "   and pull images from the test registry"
+       exit
+   fi
+elif [ "$#" -ne 0 ]; then
+   echo "update-labtainers [-t]"
+   echo "   use -t to pull tar from /media/sf_SEED"
+   echo "   and pull images from the test registry"
+   exit
+fi
+#
 # figure out where we are executing from and go to the labtainer directory
 #
 here=`pwd`
