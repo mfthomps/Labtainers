@@ -1,4 +1,5 @@
-FROM mfthomps/labtainer.base
+ARG registry 
+FROM $registry/labtainer.base
 ARG lab
 ARG labdir
 ARG imagedir

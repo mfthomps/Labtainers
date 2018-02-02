@@ -11,10 +11,8 @@
 # The labtainer.network image adds the following packages:
 #   openssl openssh-server openvpn wget tcpdump  update-inetd  xinetd
 #
-#FROM mfthomps/labtainer.base
-#FROM mfthomps/labtainer.network
-FROM mfthomps/labtainer.lamp
-#FROM mfthomps/labtainer.centos
+ARG registry 
+FROM $registry/labtainer.lamp
 #
 #  lab is the fully qualified image name, e.g., mylab.some_container.student
 #  labdir is the name of the lab, e.g., mylab 

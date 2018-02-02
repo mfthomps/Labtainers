@@ -11,9 +11,8 @@
 # The labtainer.network image adds the following packages:
 #   openssl openssh-server openvpn wget tcpdump  update-inetd  xinetd
 #
-#FROM mfthomps/labtainer.base
-FROM mfthomps/labtainer.network
-#FROM mfthomps/labtainer.centos
+ARG registry 
+FROM $registry/labtainer.wireshark
 #
 #  lab is the fully qualified image name, e.g., mylab.some_container.student
 #  labdir is the name of the lab, e.g., mylab 
@@ -28,15 +27,13 @@ ARG imagedir
 ARG user_name
 ARG password
 ARG apt_source
+RUN apt-get update && apt-get install -y --no-install-recommends bind9 dnsutils
 #
 # Install the system files found in the _system directory
 #
 ADD $labdir/$imagedir/sys_tar/sys.tar /
 ADD $labdir/sys_$lab.tar.gz /
 #
-RUN echo 'wireshark-common        wireshark-common/install-setuid boolean true' | debconf-set-selections
-RUN apt-get update && apt-get install -y bind9 dnsutils wireshark
-RUN chmod a+x /usr/bin/dumpcap
 
 RUN useradd -ms /bin/bash $user_name
 RUN echo "$user_name:$password" | chpasswd
