@@ -8,16 +8,16 @@
 # The labtainer.network image adds the following packages:
 #   openssl openssh-server openvpn wget tcpdump  update-inetd  xinetd
 #
-FROM mfthomps/labtainer.base
-#FROM mfthomps/labtainer.network
+ARG registry 
+FROM $registry/labtainer.network
 ARG lab
 ARG labdir
 ARG imagedir
 ARG user_name
 ARG apt_source
+RUN apt-get update && apt-get install -y --no-install-recommends telnet
 ADD $labdir/sys_$lab.tar.gz /
 RUN sed -i s/archive.ubuntu.com/$apt_source/ /etc/apt/sources.list
-RUN apt-get update && apt-get install -y --no-install-recommends telnet wget nmap
 RUN useradd -ms /bin/bash $user_name
 RUN echo "$user_name:$user_name" | chpasswd
 RUN adduser $user_name sudo

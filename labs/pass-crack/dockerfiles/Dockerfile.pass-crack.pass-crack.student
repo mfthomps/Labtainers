@@ -11,8 +11,8 @@
 # The labtainer.network image adds the following packages:
 #   openssl openssh-server openvpn wget tcpdump  update-inetd  xinetd
 #
-FROM mfthomps/labtainer.base
-#FROM mfthomps/labtainer.network
+ARG registry 
+FROM $registry/labtainer.base
 #
 #  lab is the fully qualified image name, e.g., mylab.some_container.student
 #  labdir is the name of the lab, e.g., mylab 
@@ -26,6 +26,7 @@ ARG labdir
 ARG imagedir
 ARG user_name
 ARG apt_source
+RUN apt-get update && apt-get install -y apache2-utils
 #
 # Install the system files found in the _system directory
 #
@@ -39,7 +40,6 @@ RUN sudo adduser $user_name sudo
 #  **** Perform all root operations, e.g.,           ****
 #  **** "apt-get install" prior to the USER command. ****
 #
-RUN apt-get update && apt-get install -y apache2-utils
 USER $user_name
 ENV HOME /home/$user_name
 #
