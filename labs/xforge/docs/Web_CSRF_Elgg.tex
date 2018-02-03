@@ -117,7 +117,7 @@ attacking {\tt Elgg}. This web site is accessible via
 In this task, we need two people in the {\tt Elgg} social network: Alice
 and Boby. Boby wants to become a friend to Alice, but Alice refuses to add 
 Boby to her {\tt Elgg} friend list. Boby decides to use the CSRF attack to
-achieve his goal. He sends Alice an URL (via an email or a posting in {\tt
+achieve his goal. He sends Alice an URL (via a posting in {\tt
 Elgg}); Alice, curious about it, clicks on the URL, which leads her to Boby's web site:    
 {\tt www.csrflabattacker.com}. Pretend that you are Boby, describe how you
 can construct the content of the web page, so as soon as Alice visits the
@@ -175,7 +175,7 @@ included in the HTTP message body):
 
 {\footnotesize
 \begin{Verbatim}[frame=single]
- http://www.csrflabelgg.com/action/profile/edit
+ http://csrflabelgg.com/action/profile/edit
 
 POST /action/profile/edit HTTP/1.1
 Host: www.csrflabelgg.com
