@@ -315,6 +315,7 @@ FROM mfthomps/labtainer.network
 \item labtainer.centos -- A CentOS server with systemd and the true ``init'' initial process.
 \item labtainer.lamp -- A CentOS server with Apache, Mysql and PHP, (the LAMP stack)
 \item labtainer.firefox -- An Ubuntu container with the Firefox browser.
+\item labtainer.wireshark -- The labtaienr.network with wireshark added.
 \item labtainer.java -- An Ubuntu container with the Firefox browser and the open JDK.
 \end{itemize}
 
@@ -980,17 +981,12 @@ with the framework.
                          at least two distinct values in different 
                          timestamped sets.  Note: 'matchacross' cannot 
                          be used within the boolean expression defined below.
-         is_true     - The goal is true if the value of the resulttag is 
-                         true, e.g., from a "CONTAINS" field type in the 
-                         results.config
-         is_false    - The goal is true if the value of the resulttag is 
-                         not true, e.g., from a "CONTAINS" field type in the 
-                         results.config
          boolean     - The goal value is computed from a boolean expression 
                          consisting of goal_id's and boolean operators, ("and", 
                          "or", "and_not", "or_not", and "not"), and parenthisis 
                          for precedence.  The goal_id's must be from goals defined 
-                         earlier in the goals.config file.  The goal evalutes to 
+                         earlier in the goals.config file, or boolean results
+                         from results.config.  The goal evalutes to 
                          TRUE if the boolen expression evaluates to TRUE for any
                          of the timestamped sets of goal_ids, (see the 'matchany' 
                          discussion above).  The goal_id's cannot include any 
@@ -999,17 +995,25 @@ with the framework.
                          list exceeds the given value.  The subgoals are 
                          summed across all timestamps.  The subgoal list is 
                          comma-separated within parenthesis.
-         time_before - Both goal1 and goal2 must be goal_ids from previous 
-                         *matchany, is_true, or is_false* goal types.  
-                         Evaluates to TRUE if any TRUE goal1 has a timestamp 
-                         that is before than any TRUE goal2
+         time_before -   Both goal1 and goal2 must be goal_ids from previous 
+                         matchany, or boolean values from results.config
+                         A timestamped goal is created for each goal2 
+                         timestamped instance whose timestamp is proceeded 
+                         by a goal1 timestamped instance. The goal for that
+                         timestamp will be true if the goal2
+                         instance true, and at least one of the goal1
+                         instances is true. These timestamped goals can
+                         then be evaluated within boolean goals.
          time_during - Both goal1 and goal2 must be goal_ids from previous 
-                         *matchany, is_true, or is_false* goal types.  
-                         Timestamps include a start and end time, reflecting 
-                         when the program starts and when it 
-                         terminates.  Evaluates to TRUE if any TRUE goal1 has a 
-                         start timestamp within the start and end times of any 
-                         TRUE goal2.
+                         matchany goal types, or boolean values from 
+                         results.config.  Timestamps include a start and end 
+                         time, reflecting when the program starts and when it 
+                         terminates.  A timestamped goal is created for each
+                         goal2 range that encompasses a goal1 timestamp.
+                         The goal for that timestamp will be true of the
+                         goal2 instance is true, and at least one goal1 instance
+                         is true. These timestamped goals can then be
+                         evaluated within boolean goals.
          execute     - The <operator> is treated as a file name of a script to 
                          execute, with the resulttag and answertag passed to the 
                          script as arguments.  The resulttag is expected to be 
@@ -1026,8 +1030,6 @@ with the framework.
                          that satisfy the given operator and arguments.
          value       - The goal value is assigned the given resulttag value from
                          the most recent timestamped file that satisfies the resulttag.
-                         NOTE: use is_true for boolen expressions within goals where
-                         you are evaluating values having a common timestamp.
  
 <operator> - the following operators evaluate to TRUE as described below:
    string_equal -  The strings derived from <answertag> and <resulttag>
@@ -1074,6 +1076,15 @@ with the framework.
 \end{verbatim}
          Note that values derived from the parameters.config file are assigned the same values as
          were assigned when the lab was parameterized for the student.
+
+\subsection{Assessment results}
+Grading occurs on an instructor container, via a script named {\tt instructor.py}, which runs
+automatically when the instructor starts the lab.  The script can also be run manually, e.g., to
+test changes and additions to grading configuartion files.  It must be run from the HOME directory
+on the container identified in the start.config for the lab as being the {\tt GRADE\_CONTAINER}
+By convention, all goals and boolean results whose symbolic names are not prefaced with an
+underscore ({\tt\_}), will have corresponding entries in the assessment report, located in 
+the home directory in a file named {\tt <lab name>.grades.txt>}
 
 \subsection{Simple Parameterization for Checking Own-work}
 The simplest, though by no means robust, strategy for ensuring students
@@ -1139,7 +1150,7 @@ If you build a new Labtainer lab, the container images will not be on the Docker
 them there.  If they are not on the hub, each student's computer will rebuild your lab when they go to run it.
 While this is fully functional, the build time may distract from performance of the lab.  If you
 create your own public repository on the Docker Hub (https://hub.docker.com/), you can populate that
-with your lab(s) by setting the ``REGSITRY\_ID'' value in the start.config file for the lab(s). You
+with your lab(s) by setting the ``REGISTRY\_ID'' value in the start.config file for the lab(s). You
 would then use the distrib/publish.py script to build, tag and push your lab to your registry.
 
 \subsection{NPS Development Operations}
@@ -1154,6 +1165,12 @@ publish all of the Labtainer labs managed by NPS.
 The publish.py script will only rebuild labs that have changed.  After pushing a new lab container
 image to the Docker hub, the script deletes the image from the local system.  The intent is to
 ensure that future testing of the lab is done on the authoritative copy, i.e., from the hub.
+
+\subsection{Alternate registry for testing}
+If the environment variable {\tt TEST\_REGISTRY}, is set to YES, labs to be pulled and pushed
+into an alternate registry defined in the trunk/config/labtainer.config file test\_registry entry entry.
+It is easy to set up a registry (it is a container!), \url{https://docs.docker.com/registry/deploying/}
+
 
 \subsection{Reuse of large file sets}
 \label{manifest}
@@ -1244,28 +1261,30 @@ of the containers.
 
 \section{Notes} \label{Notes}
 \subsection{Firefox}
-See the sql-inject lab client/home\_tar for an example firefox .mozillia directory.  
-That home.tar also includes a {\tt ~/.cache/dconf} directory to avoid Firefox error
-messages.
-Use an {\tt external-manifest} file (per section~\ref{manifest}) to link to that 
-tar to avoid firefox starting with its welcome pages and privacy statements.
-The labtainer.firefox image includes a customized /usr/bin/firefox that starts the
-browswer in a new instance so it does share existing browsers. The {\tt about:config}
+The labtainer.firefox image includes a /var/tmp/home.tar 
+which is expanded into the user home directory when parameterize.sh is run.
+This tar includes a profile in .mozilla that avoids firefox starting with its 
+welcome pages and privacy statements.  The labtainer.firefox image includes a 
+customized /usr/bin/firefox that starts the browswer in a new instance so it does share existing browsers. 
+The {\tt about:config}
 was altered to disabled insecure field warnings for the labs that do not use SSL connections to web servers.
 
 \subsection{Wireshark}
-Wireshark will not run as root in Labtainer containers.  It should be configured to not
+Wireshark will not run as root in Labtainer containers.  
+The wireshark installion in the labtainer.wireshark image is configured to not
 require root to collect network packets:
-\begin{verbatim}
-In short, put this before the apt-get that installs wireshark:
-    RUN echo 'wireshark-common wireshark-common/install-setuid \
-      boolean true' | debconf-set-selections
-And this right after the apt-get that installs wireshark:
-    RUN chmod a+x /usr/bin/dumpcap
 
-and then after the existing "RUN adduser $user_name sudo":
-    RUN adduser $user_name wireshark
+When using the wireshark image, after the existing 
+\begin{verbatim}
+RUN adduser $user_name sudo
 \end{verbatim}
+
+\noindent add:
+
+\begin{verbatim}
+RUN adduser $user_name wireshark
+\end{verbatim}
+
 \subsection{Elgg}
 The xsite/vuln-site/myelgg.sql file needs to be loaded for elgg to run.  First edit it to
 change xsslabelgg.com to your site name (two changes).  Copy the sys\_tar/var/www/xsslabelgg.com/elgg
