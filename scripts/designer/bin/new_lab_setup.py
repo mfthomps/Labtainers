@@ -13,6 +13,7 @@ import os
 import pwd
 import shutil
 import sys
+import argparse
 
 # Filename: new_lab_setup.py
 # Description:
@@ -412,6 +413,13 @@ def main():
         sys.stderr.write('LABTAINER_DIR environment variable not set.\n')
         sys.exit(1)
     tdir = os.path.join(LABTAINER_DIR, 'scripts','designer','templates')
+    parser = argparse.ArgumentParser(description='Create a new lab or change an existing lab')
+    parser.add_argument('-c', '--clone_container', action='store', help='Clone the current lab to a new lab', metavar='')
+    parser.add_argument('-a', '--add_container', action='store', help='Add a container to this lab', metavar='')
+    parser.add_argument('-r', '--rename_container', action='store', nargs = 2, help='Rename the lab container, e.g., "-r old new"', metavar='')
+    parser.add_argument('-d', '--delete_container', action='store', help='Delete a container from this lab', metavar='')
+
+    args = parser.parse_args()
 
     num_arg = len(sys.argv)
     #print("LABTAINER_DIR is (%s)" % LABTAINER_DIR)
@@ -421,53 +429,32 @@ def main():
     current_dir = os.getcwd()
     parent_dir = os.path.basename(os.path.dirname(current_dir))
     if parent_dir != "labs":
-        if num_arg == 2:
-            usage()
-        else:
-            sys.stderr.write('Lab directories must be below the labs parent directory.\n')
-            sys.exit(1)
+        sys.stderr.write('Lab directories must be below the labs parent directory.\n')
+        sys.exit(1)
 
     is_valid = check_valid_lab(current_dir)
     if num_arg == 1:
         if is_valid:
             print("This already appears to be a lab directory!\n")
-            usage()
+            parser.print_help()
         else:
             copy_from_template(tdir)
             print('New lab created.  Use "new_lab_setup.py -h" to see')
             print('options for adding components to the lab.')
-    elif num_arg == 2:
-        help_option = sys.argv[1]
-        #print("help_option is (%s)" % help_option)
-        # Display usage regardless of what the argument is
-        usage()
-    elif num_arg == 3:
-        option = sys.argv[1]
-        if is_valid and option == "-a":
-            newcontainer = sys.argv[2]
+    else:
+        if args.add_container is not None:
+            newcontainer = args.add_container
             handle_add_container(tdir, newcontainer)
             print("Added new container %s." % newcontainer)
-        elif is_valid and option == "-c":
-            newlabname = sys.argv[2]
-            oldlabname = handle_clone_lab(tdir, newlabname)
-            print("Lab %s cloned to new lab %s." % (oldlabname, newlabname))
-        elif is_valid and option == "-d":
-            deletecontainer = sys.argv[2]
-            handle_delete_container(tdir, deletecontainer)
-            print("Container %s deleted." % deletecontainer)
-        else:
-            usage()
-    elif num_arg == 4:
-        option = sys.argv[1]
-        if is_valid and option == "-r":
-            oldcontainer = sys.argv[2]
-            newcontainer = sys.argv[3]
-            handle_replace_container(tdir, oldcontainer, newcontainer)
-            print("Container %s renamed to %s." % (oldcontainer, newcontainer))
-        else:
-            usage()
-    else:
-        usage()
+        elif args.clone_container is not None:
+            oldlabname = handle_clone_lab(tdir, args.clone_container)
+            print("Lab %s cloned to new lab %s." % (oldlabname, args.clone_container))
+        elif args.delete_container is not None:
+            handle_delete_container(tdir, args.delete_container)
+            print("Container %s deleted." % args.delete_container)
+        elif args.rename_container is not None:
+            handle_replace_container(tdir, args.rename_container[0], args.rename_container[1])
+            print("Container %s renamed to %s." % (args.rename_container[0], args.rename_container[1]))
 
     return 0
 
