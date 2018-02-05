@@ -49,3 +49,12 @@ January 30, 2018
 -  Remove undefined result values from intermediate timestamped json result files.
 -  Alter the time_during goal assessment operation to associate timestamps with 
    the resulting goal value.
+
+February 5, 2018
+-  Boolean values from results.config files are now treated as goal values
+-  Add regular expression support for identifying artifact results.
+-  Support for alternate Docker registries, including a local test registry for testing
+-  Msc fixes to labs and lab manuals
+-  The capinout monitoring hook was not killing child processes on exit.
+-  Kill monitored processes before collecting artifacts
+-  Add labtainer.wireshark as a baseline container, clean up dockerfiles
