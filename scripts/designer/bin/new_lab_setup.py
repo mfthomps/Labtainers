@@ -129,6 +129,65 @@ def handle_add_container(tdir, newcontainer):
     newcontainer_dockerfile = os.path.join(here, 'dockerfiles', newcontainer_dockerfilename)
     shutil.copy(dockerfile_template, newcontainer_dockerfile)
 
+def handle_rename_lab(newlabname):
+    here = os.getcwd()
+    oldlabname = os.path.basename(here)
+    currentlabpath = os.path.abspath(here)
+    newlabpath = currentlabpath.replace(oldlabname, newlabname)
+    if os.path.exists(newlabpath):
+        print('%s already exists' % newlabpath)
+        exit(1)
+    shutil.move(here, newlabpath)
+    # Rename dockerfiles
+    newlabname_olddockerfilename = os.path.join(newlabpath, 'dockerfiles')
+    newlabname_olddockerfiles = glob.glob('%s/*' % newlabname_olddockerfilename)
+    for name in newlabname_olddockerfiles:
+        fname = os.path.basename(name)
+        # Replace only the first occurence to prevent replacing the container name portion
+        newfname = fname.replace(oldlabname, newlabname, 1)
+        newname = os.path.join(os.path.dirname(name), newfname)
+        #print "name is (%s) newname is (%s)" % (name, newname)
+        # Rename dockerfiles as new labname dockerfiles
+        try:
+            os.rename(name, newname)
+        except Exception as e:
+            print('error renaming %s to %s %s' % (name, newname, str(e)))
+            exit(1)
+    count_container_lines = 0
+    start_config_filename = os.path.join(newlabpath, 'config', 'start.config')
+    start_config_file = open(start_config_filename, 'r')
+    start_config_filelines = start_config_file.readlines()
+    for line in start_config_filelines:
+        if line.startswith('CONTAINER'):
+            count_container_lines = count_container_lines + 1
+    #print "Number of lines that starts with 'CONTAINER' is (%d)" % count_container_lines
+    if count_container_lines == 0:
+        print "Can't have a no container lab!"
+        sys.exit(1)
+    if count_container_lines == 1:
+        oldcontainerpath = os.path.join(newlabpath, oldlabname)
+        newcontainerpath = os.path.join(newlabpath, newlabname)
+        # Move the single old container as new container as the new labname container
+        os.rename(oldcontainerpath, newcontainerpath)
+
+        # Also rename dockerfile again (this should take care of the container name portion)
+        newlabname_olddockerfilename = os.path.join(newlabpath, 'dockerfiles')
+        newlabname_olddockerfiles = glob.glob('%s/*' % newlabname_olddockerfilename)
+        for name in newlabname_olddockerfiles:
+            newname = name.replace(oldlabname, newlabname)
+            #print "name is (%s) newname is (%s)" % (name, newname)
+            # Rename dockerfiles as new labname dockerfiles
+            os.rename(name, newname)
+
+        # Read start.config, replace 'oldlabname' as 'newlabname' into start.config
+        start_config_file = open(start_config_filename, 'r')
+        config_filelines = start_config_file.readlines()
+        start_config_file.close()
+        start_config_file = open(start_config_filename, 'w')
+        for line in config_filelines:
+            newline = line.replace(oldlabname, newlabname)
+            start_config_file.write(newline)
+
 def handle_clone_lab(tdir, newlabname):
     if newlabname != newlabname.lower():
         print('New lab name is (%s)' % newlabname)
@@ -169,8 +228,9 @@ def handle_clone_lab(tdir, newlabname):
             print('error renaming %s to %s %s' % (name, newname, str(e)))
             exit(1)
 
-    # Handle a single container lab cloning
-    # Open start.config with append
+    # Handle a single container lab cloning.  Special case to rename the
+    # container.  If multiple containers, we assume the container names
+    # are not tied to the lab name
     count_container_lines = 0
     start_config_filename = os.path.join(newlabpath, 'config', 'start.config')
     start_config_file = open(start_config_filename, 'r')
@@ -379,33 +439,6 @@ def check_valid_lab(current_dir):
             is_valid = False
     return is_valid
 
-def usage():
-    sys.stderr.write("Usage: new_lab_setup.py [ -h | -a <container> | -d <container> | -r <oldcontainer> <newcontainer> | -c <newlabname> ]\n")
-    sys.stderr.write("If no arguments are given, populates the current directory with copies of Labtainer templates.")
-    sys.stderr.write("Otherwise, if arguments are given:\n")
-    sys.stderr.write("   -h : Display usage\n")
-    sys.stderr.write("   -a <container> : add a new container to the existing lab\n")
-    sys.stderr.write("                    (Must be run from existing lab directory)\n")
-    sys.stderr.write("   -d <container> : delete an existing container in a lab\n")
-    sys.stderr.write("                    (Must be run from existing lab directory)\n")
-    sys.stderr.write("   -r <oldcontainer> <newcontainer> : rename a container and its associated files.\n")
-    sys.stderr.write("   -c <newlabname> : clone the current lab into a new lab with the given name\n")
-    sys.exit(1)
-
-
-# Usage: new_lab_setup.py [ -h | -a <container> | -d <container> | -r <oldcontainer> <newcontainer> | -c <newlabname> ]
-# Arguments:
-#    -h : Display usage
-#    -a <container> : add a new container to the existing lab
-#                     (Must be run from existing lab directory)
-#    -d <container> : delete an existing container in a lab
-#                     (Must be run from existing lab directory)
-#    -c <newlabname> : clone the current lab into a new lab with the given name
-#    -r <oldcontainer> <newcontainer> : change a container name and update as necessary
-#    No arguments : do the following:
-#                   1. check as a valid lab directory
-#                   1.a. If it is already a valid lab directory, print that message and usage
-#                   1.b. If it is not (i.e., empty), then copy from template
 def main():
     try:
         LABTAINER_DIR = os.environ['LABTAINER_DIR']
@@ -413,10 +446,11 @@ def main():
         sys.stderr.write('LABTAINER_DIR environment variable not set.\n')
         sys.exit(1)
     tdir = os.path.join(LABTAINER_DIR, 'scripts','designer','templates')
-    parser = argparse.ArgumentParser(description='Create a new lab or change an existing lab')
+    parser = argparse.ArgumentParser(description='Create a new lab or change an existing lab.  If no arguments are given, create a new lab in the current directory. ')
     parser.add_argument('-c', '--clone_container', action='store', help='Clone the current lab to a new lab', metavar='')
     parser.add_argument('-a', '--add_container', action='store', help='Add a container to this lab', metavar='')
-    parser.add_argument('-r', '--rename_container', action='store', nargs = 2, help='Rename the lab container, e.g., "-r old new"', metavar='')
+    parser.add_argument('-r', '--rename_container', action='store', nargs = 2, help='Rename container in the lab, e.g., "-r old new"', metavar='')
+    parser.add_argument('-m', '--rename_lab', action='store',  help='Rename the current lab to the given name. Warning: may break subversion!"', metavar='')
     parser.add_argument('-d', '--delete_container', action='store', help='Delete a container from this lab', metavar='')
 
     args = parser.parse_args()
@@ -455,6 +489,11 @@ def main():
         elif args.rename_container is not None:
             handle_replace_container(tdir, args.rename_container[0], args.rename_container[1])
             print("Container %s renamed to %s." % (args.rename_container[0], args.rename_container[1]))
+        elif args.rename_lab is not None:
+            was = os.path.basename(os.getcwd())
+            handle_rename_lab(args.rename_lab)
+            print("Container %s renamed to %s." % (was, args.rename_lab))
+            print('PLEASE  cd ../%s' % args.rename_lab)
 
     return 0
 
