@@ -1,4 +1,4 @@
-export TEST_REGISTIRY=YES
+export TEST_REGISTIRY=NO
 #./create_base_image.sh
 #./publish_image.sh labtainer.base
 
