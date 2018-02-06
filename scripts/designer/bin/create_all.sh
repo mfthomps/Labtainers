@@ -1,6 +1,6 @@
-export TEST_REGISTIRY=NO
-#./create_base_image.sh
-#./publish_image.sh labtainer.base
+export TEST_REGISTRY=NO
+./create_base_image.sh
+./publish_image.sh labtainer.base
 
 ./create_network_image.sh
 ./publish_image.sh labtainer.network
@@ -17,6 +17,6 @@ export TEST_REGISTIRY=NO
 #./create_centos_image.sh
 #./publish_image.sh labtainer.centos
 
-./create_lamp_images.sh
-./publish_image.sh labtainer.lamp
+#./create_lamp_images.sh
+#./publish_image.sh labtainer.lamp
 
