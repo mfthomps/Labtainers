@@ -1077,8 +1077,8 @@ def DateIsLater(df_utc_string, ts, local=False):
     else:
         df_ts = calendar.timegm(x.timetuple())
 
-    logger.DEBUG('df_utc time is %s' % df_utc_string)
-    logger.DEBUG('df_utc ts is %s given ts is %s' % (df_ts, ts))
+    #logger.DEBUG('df_utc time is %s' % df_utc_string)
+    #logger.DEBUG('df_utc ts is %s given ts is %s' % (df_ts, ts))
     if df_ts > ts:
         return True
     else:
