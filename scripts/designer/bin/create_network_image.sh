@@ -8,15 +8,21 @@ created  by United States Government employees, pursuant to Title 17
 United States Code Section 105.   This software is in the public 
 domain and is not subject to copyright. 
 END
-read -p "This buid will pull from the docker hub.  Have you published the base?"
-if [[ ! $REPLY =~ ^[Yy]$ ]]
-then
-    echo exiting
-    exit
+source ./set_reg.sh
+if [[ "$1" != -f ]]; then
+   echo "This will build the labtainer network image.  "
+   echo "Confirm that the labtainer.base has been published."
+   echo "registry is $LABTAINER_REGISTRY"
+   read -p "Continue? (y/n)"
+   if [[ ! $REPLY =~ ^[Yy]$ ]]
+   then
+       echo exiting
+       exit
+   fi
+else
+   echo "registry is $LABTAINER_REGISTRY"
 fi
 here=`pwd`
-source ./set_reg.sh
 cd ../
-echo "registry is $LABTAINER_REGISTRY"
 docker build --build-arg registry=$LABTAINER_REGISTRY -f base_dockerfiles/Dockerfile.labtainer.network -t labtainer.network:latest .
 cd $here
