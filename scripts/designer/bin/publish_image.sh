@@ -8,11 +8,22 @@ created  by United States Government employees, pursuant to Title 17
 United States Code Section 105.   This software is in the public 
 domain and is not subject to copyright. 
 END
-if [[ "${TEST_REGISTRY}" != YES ]]; then
+usage(){
+    echo "publish_image.sh image [-t]"
+    echo "use -t to push to the testregistry:5000 registry for testing"
+    exit
+}
+
+if [ $# -eq 0 ]; then
+   usage
+fi
+if [[ $# -eq 1 ]]; then
     export LABTAINER_REGISTRY="mfthomps"
     docker login
-else
+elif [[ "$2" == -t ]]; then
     export LABTAINER_REGISTRY="testregistry:5000"
+else
+   usage
 fi
 echo "Using registry $LABTAINER_REGISTRY"
 image=$1
