@@ -8,17 +8,21 @@ created  by United States Government employees, pursuant to Title 17
 United States Code Section 105.   This software is in the public 
 domain and is not subject to copyright. 
 END
+source ./set_reg.sh
 if [[ "$1" != -f ]]; then
-   echo "This will build the labtainer base image.  It is suggested that all "
-   echo "other images be purged, e.g., rm -fr /var/lib/docker. "
+   echo "This will build the labtainer java image.  "
+   echo "Confirm that the labtainer.firefox has been published."
+   echo "registry is $LABTAINER_REGISTRY"
    read -p "Continue? (y/n)"
    if [[ ! $REPLY =~ ^[Yy]$ ]]
    then
        echo exiting
        exit
    fi
+else
+   echo "registry is $LABTAINER_REGISTRY"
 fi
 here=`pwd`
 cd ../
-docker build -f base_dockerfiles/Dockerfile.labtainer.base -t labtainer.base:latest .
+docker build --build-arg registry=$LABTAINER_REGISTRY -f base_dockerfiles/Dockerfile.labtainer.java -t labtainer.java:latest .
 cd $here

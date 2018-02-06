@@ -8,11 +8,19 @@ created  by United States Government employees, pursuant to Title 17
 United States Code Section 105.   This software is in the public 
 domain and is not subject to copyright. 
 END
-read -p "This buid will pull from the docker hub.  Have you published the network?"
-if [[ ! $REPLY =~ ^[Yy]$ ]]
-then
-    echo exiting
-    exit
+source ./set_reg.sh
+if [[ "$1" != -f ]]; then
+   echo "This will build the labtainer wireshark image.  "
+   echo "Confirm that the labtainer.network has been published."
+   echo "registry is $LABTAINER_REGISTRY"
+   read -p "Continue? (y/n)"
+   if [[ ! $REPLY =~ ^[Yy]$ ]]
+   then
+       echo exiting
+       exit
+   fi
+else
+   echo "registry is $LABTAINER_REGISTRY"
 fi
 here=`pwd`
 source ./set_reg.sh
