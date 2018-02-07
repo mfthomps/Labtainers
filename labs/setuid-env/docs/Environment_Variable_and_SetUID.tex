@@ -31,6 +31,20 @@ child, and how they affect system/program bahivors. We are particularly
 interested in how environment variables affect the behavior of \setuid
 programs, which are usually privileged programs. 
 
+\section{Lab Environment}
+
+This lab runs in the Labtainer framework,
+available at http://my.nps.edu/web/c3o/labtainers.
+That site includes links to a pre-built virtual machine
+that has Labtainers installed, however Labtainers can 
+be run on any Linux host that supports Docker containers.
+
+From your labtainer-student directory start the lab using:
+\begin{verbatim}
+    start.py setuid-env
+\end{verbatim}
+Links to this lab manual and to an empty lab report will be displayed.  If you create your lab report on a separate system, 
+be sure to copy it back to the specified location on your Linux system. 
 
 
 \section{Lab Tasks}
@@ -264,37 +278,56 @@ surprises to you, describe them.
 
 
 
-\subsection{Task 6: The PATH Environment variable and \setuid Programs}
-
-Because of the shell program invoked, calling {\tt system()} 
-within a \setuid program is quite dangerous. This is because the actual behavior of the 
-shell program can be affected by environment variables, such
-as {\tt PATH}; these environment variables are provided by the user, who 
-may be malicious.  By changing these variables, malicious users can control
-the behavior of the {\tt Set-UID} program. In {\tt Bash}, you can
-change the {\tt PATH} environment variable in the following way (this example 
-adds the directory {\tt /home/seed} to the beginning of the {\tt PATH} environment variable):
+\subsection{Task 6: The system() function and \setuid Programs}
+One of many changes made to the setuid feature over the years relates
+to its interaction with the system() function.  Since the results
+of system() are dependent on environment variables, it was a source
+of increased risk.  For example, use of the {\tt PATH} environment
+variable will determine which of potentially several instances of a
+given program will be invoked.  The following command:
 \begin{verbatim}
-  $ export PATH=~/:$PATH
+    export PATH=~/:$PATH
 \end{verbatim}
+\noindent would cause the shell to first look in your home directory for a program
+of a given name.
 
-
-The \setuid {\tt ls.c} program list below is supposed to execute the {\tt /bin/ls} command; 
+The setuid {\tt path-suid.c} program list below is supposed to execute the {\tt /bin/ls} command; 
 however, the programmer only uses the relative path for the {\tt ls} 
 command, rather than the absolute path:
 
 \begin{Verbatim}[frame=single] 
-   int main()
-   {
-       system("ls");
-       return 0;
-   }
+# path-suid.c
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+int main()
+{
+   uid_t euid = geteuid();
+   printf("euid %d\n", euid);
+   system("ls");
+   return 0;
+}
 \end{Verbatim}
 
-Please compile the {\tt ls.c} program, and change its owner to {\tt root}, and 
-make it a \setuid program.  Can you cause this \setuid program run your code instead of 
+Please compile the {\tt path-suid.c} program, and change its owner to {\tt root}, and 
+make it a \setuid program.  
+
+Can you cause the path-suid.c \setuid program run the ls.c program instead of 
 {\tt /bin/ls}?  If you can, is your code running with the root privilege?
 Describe and explain your observations. 
+\begin{Verbatim}[frame=single] 
+# ls.c
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+int main(){
+    uid_t euid = geteuid();
+    printf("my ls prog, euid is %d\n", euid);
+    return 0;
+}
+\end{Verbatim}
+
 
 
 \subsection{Task 7: The {\tt LD\_PRELOAD} environment variable and \setuid
@@ -313,7 +346,7 @@ In Linux, {\tt ld.so} or {\tt ld-linux.so}, are the dynamic
 loader/linker (each for different types of binary).
 Among the environment variables that affect their behavior,
 {\tt LD\_LIBRARY\_PATH} and {\tt LD\_PRELOAD} are the two
-that we are concered in this lab. 
+that we are concerned in this lab. 
 In Linux, {\tt LD\_LIBRARY\_PATH} is a colon-separated set
 of directories where libraries should be searched for first, before the
 standard set of directories. 
@@ -473,6 +506,16 @@ observations that are interesting or surprising. You are encouraged to
 pursue further investigation, beyond what is required by the lab
 description. Your can earn bonus points for extra efforts (at the
 discretion of your instructor).
+
+If you edited your lab report on a separate system, copy it back to the Linux system at the location
+identified when you started the lab, and do this before running the stop.py command.
+After finishing the lab, go to the terminal on your Linux system that was used to start the lab and type:
+\begin{verbatim}
+    stop.py setuid-env
+\end{verbatim}
+When you stop the lab, the system will display a path to the zipped lab results on your Linux system.  Provide that file to
+your instructor, e.g., via the Sakai site.
+
 
 
 \end{document}
