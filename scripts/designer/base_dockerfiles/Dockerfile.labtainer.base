@@ -39,10 +39,6 @@ RUN pip install enum
 ADD system/etc/sudoers /etc/sudoers
 ADD system/etc/rc.local /etc/rc.local
 ADD system/bin/funbuffer /usr/bin/
-#RUN useradd -ms /bin/bash ubuntu
-#RUN echo "ubuntu:ubuntu" | chpasswd
-#RUN chown -R ubuntu:ubuntu /home/ubuntu
-#RUN adduser ubuntu sudo
 # manage default gateways
 ADD system/bin/togglegw.sh /usr/bin/
 ADD system/bin/set_default_gw.sh /usr/bin/
