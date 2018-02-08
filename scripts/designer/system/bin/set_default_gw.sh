@@ -10,8 +10,12 @@ my_host_ip=$(grep my_host /etc/hosts | awk '{print $1}')
 host_default_gw=$(route -n | grep "^0.0.0.0" | awk '{print $2}')
 #echo myip is $my_host_ip
 #echo mygw is $host_default_gw
-echo $host_default_gw >> $labvar/host_gw
-echo $1 >> $labvar/container_gw
+if [ -f $labvar/host_gw ]; then
+    echo "Host gateway file already exist"
+else
+    echo $host_default_gw > $labvar/host_gw
+fi
+echo $1 > $labvar/container_gw
 route add -host $my_host_ip gw $host_default_gw
 route delete default
 route add default gw $1
