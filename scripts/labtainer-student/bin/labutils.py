@@ -1430,22 +1430,38 @@ def GatherOtherArtifacts(lab_path, name, container_name, container_user, contain
                 logger.WARNING('no = in line %s' % line)
                 continue
             after_equals = line.split('=', 1)[1].strip()
+            # note assumes field delimeters are space-:-space, vice container:file 
             fname = after_equals.split(' : ')[0].strip()
             is_mine = False
             if ':' in fname:
-                f_container, fname = fname.split(':')
+                '''
+                [container_name:]<prog>.[stdin | stdout] | [container_name:]file_path[:time_program]
+ 
+                '''
+                f_container = None
+                parts = fname.split(':')
+                if len(parts) == 2:
+                    if parts[0].startswith('/'):
+                        filename =  parts[0]
+                    else:
+                        f_container = parts[0]
+                        filename = parts[1]
+                elif len(parts) == 3:
+                    f_container = parts[0]
+                    filename = parts[1]
                 logger.DEBUG('f_container <%s> container_name %s' % (f_container, name))
-                if f_container.strip() == name:
+                if f_container is not None and f_container.strip() == name:
                     is_mine = True 
-                fname = fname.strip()
+                filename = filename.strip()
             else: 
                 is_mine = True
+                filename = fname
             if is_mine:
-                logger.DEBUG('file on this container to copy <%s>' % fname )
-                if fname.startswith('/') and fname not in did_file:
+                logger.DEBUG('file on this container to copy <%s>' % filename )
+                if filename.startswith('/') and filename not in did_file:
                     ''' copy from abs path to ~/.local/result ''' 
-                    CopyAbsToResult(container_name, fname, container_user, ignore_stop_error) 
-                    did_file.append(fname)
+                    CopyAbsToResult(container_name, filename, container_user, ignore_stop_error) 
+                    did_file.append(filename)
                         
 def CopyAbsToResult(container_name, fname, container_user, ignore_stop_error):
     ''' copy from abs path to ~/.local/result '''
