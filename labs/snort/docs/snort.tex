@@ -33,10 +33,10 @@ From your labtainer-student directory start the lab using:
 This lab includes several networked computers as shown in Figure~\ref{fig:topology}.
 When the lab starts, you will get virtual terminals, one connected to each
 component.  The gateway is configured with {\tt iptables} to use NAT to translate
-sources addresses of traffic from internal IP addresses, e.g., 192.168.1.1, to
+sources addresses of traffic from internal IP addresses, e.g., 192.168.2.1, to
 our external address, i.e., 203.0.113.10.  The {\tt iptables} in the gateway also
 routes web traffic (ports 80 and 443) to the web\_server component by translating
-the externalally visible destination address to the internal web server address.
+the externally visible destination address to the internal web server address.
 
 The gateway is also configured to mirror traffic that enters the gateway 
 via either the 203.0.113.10 link, or the link to the web server.  This
@@ -47,10 +47,10 @@ addresses.
 The snort component includes the Snort IDS utility.  It also includes Wireshark
 to help you observe traffic being mirrored to the snort component.
 
-The web\_server runs Apache and is configured to support SSL for web pages in the
+The web server runs Apache and is configured to support SSL for web pages in the
 {\tt www.example.com} domain.
 
-The {\tt external\_ws} component includes the Firefox browser, and a local 
+The {\tt remote\_ws} component includes the Firefox browser, and a local 
 {\tt /etc/hosts} file that maps www.example.com to the external address of the
 gateway, i.e., 203.0.113.10.  The internal workstation (ws2) also includes Firefox
 and an entry in {\tt /etc/hosts} for www.example.com.  Both workstations also
