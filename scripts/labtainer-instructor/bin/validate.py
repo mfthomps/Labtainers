@@ -149,10 +149,13 @@ def check_temporal(parameter_list, resultidlist, goals, jsongoalid, goal1tag, go
         labutils.logger.ERROR("ERROR: Goals goalid (%s) has invalid goal1tag (%s)" % (jsongoalid, goal1tag))
     # goal2tag must be in goals otherwise it is an error
     found_goaltag_in_goals = False
-    for eachgoal in goals:
-        if goal2tag == eachgoal['goalid']:
-            found_goaltag_in_goals = True
-            break
+    if goal2tag in resultidlist:
+        found_goaltag_in_goals = True
+    else:
+        for eachgoal in goals:
+            if goal2tag == eachgoal['goalid']:
+                found_goaltag_in_goals = True
+                break
     if not found_goaltag_in_goals:
         goal2tag_ok = False
         labutils.logger.ERROR("ERROR: Goals goalid (%s) has invalid goal2tag (%s)" % (jsongoalid, goal2tag))
@@ -411,7 +414,18 @@ def ValidateTreataslocal(labname, lab_path, resultidlist, logger):
     checklist = []
     for key, progname_type in resultidlist.iteritems():
         if ':' in progname_type:
-            container_name, newprogname_type = progname_type.split(':')
+            #container_name, newprogname_type = progname_type.split(':')
+            container_name = labname
+            parts = progname_type.split(':')
+            if len(parts) == 2:
+                if parts[0].startswith('/'):
+                    newprogname_type =  parts[0]
+                else:
+                    container_name = parts[0]
+                    newprogname_type = parts[1]
+            elif len(parts) == 3:
+                container_name = parts[0]
+                newprogname_type = parts[1]
         else:
             container_name = labname
             newprogname_type = progname_type
