@@ -350,7 +350,9 @@ providing a name for the network, the following values are defined:
 \begin{itemize}
 \item MASK [network address mask] -- The network mask, e.g., 172.25.0.0./24
 \item GATEWAY [gateway address] -- The IP address of the network gateway used by Docker to communicate with the
-host.  Please note that to define a different network gateway for the component, you should use the {\tt set\_default\_gw.sh}.  This field should not name the IP of any of your other components.  See the {\tt routing\_basics2} for examples.
+host.  Please note that to define a different network gateway for the component, you should 
+use the {\tt set\_default\_gw.sh}.  This GATEWAY field should not name the IP of any of your other components.  
+See the {\tt routing\_basics2} for examples.
 \end{itemize}
 
 \item CONTAINER [container name] -- One of these sections is required for each container in the lab.
@@ -532,6 +534,7 @@ the named container will be copied to the host computer into a directory named b
 to the Labtainer working directory.
 
 \section{Parameterizing a lab}
+\label{parameterizing}
 This section describes how to individualize the lab for each student to discourage
 sharing of lab solutions.  This is achieved by defining symbols within source 
 code or/and data.  The framework will replace these symbols with randomized values
@@ -641,6 +644,7 @@ Automated assessment is achieved by first generating artifact files while the st
 Then, artifacts within those files are identified, and the values of those artifacts are compared to expected values.
 
 \subsection{Artifact files}
+\label{artifact files}
 The files from which artifacts are derived include persisent data, such as system logs and 
 {\tt .bash\_history}, as well as 
 timestamped snapshots of transitory data such as stdout of a program.  Lab designers can also generate
@@ -680,9 +684,10 @@ names appear at the beginning of a line in the \textit{treataslocal} file at
 In other words, if the treataslocal entry is: \texttt{usr/bin/nmap}, the path leading to nmap is ignored.
 
 Non-system programs can be excluded from stdin/stdout capturing by including their names in
-a ``ignorelocal'' file in that same directory.
+a ``ignorelocal'' file in that same directory.  These should not include path information, just the program name.
 
 \subsubsection{Capturing program file output}
+\label{program output}
 Sometimes program file output is of interest to automated assessment, e.g., the program
 may not have useful stdout.
 The treataslocal entries can include optional output file identifiers that
@@ -792,59 +797,64 @@ invocation.  Again, see the {\tt acl} lab for an example.
 \subsection{Identify lab-specific artifacts}
 \label{results.config}
 The automated assessment functions encourage labs to be organized into a set of distinct ``goals''.
-For each goal, the lab designer should identify one or more specific fields within artifact files that
+For each goal, the lab designer identifies one or more specific fields or attributes of artifact files that
 could be compared to ``expected'' values.  These lab-specific artifacts are identified within the
-\texttt{instr\_config/results.config file}.  Artifacts are identified in terms of:
+\texttt{instr\_config/results.config file}.  Artifact files are identified in terms of:
 \begin{enumerate}
-\item the program that was invoked, (or persistent file name);
-\item whether the artifact is in stdin or stdout
-\item the line containing the artifact, and a token within that line, optionally using regualar expressions.
-\item whether the file contains a given string or regular expression
-\item ad-hoc properties, such as the quantity of lines in the stdin file.
+\item The program that was invoked
+\item Whether the artifact is in stdin or stdout or is program output (prgout) as descrbed in section \ref{program output}
+\item An explicit file name, either as an absolute path or relative to the user HOME directory.  These are intended
+to be persistent log files, e.g., syslogs.
 \end{enumerate}
 
-Each identified artifact is given a symbolic name. A named artifact is referred to herein as a \textit{result}, which 
-is then referenced in the goals.config file to assess whether it is an expected value.
+One or more properties of each artifact file are assigned symbolic names, referred to herein as \textit{results}, which 
+are then referenced in the goals.config file to assess whether results match expected values.  Directives within the
+results.config file assign each result a value having one of three types:
+\begin{itemize}
+\item Boolean, e.g., did an artifact file contain a specific string or regular expression?
+\item String, e.g., the third space-delimited token on the first line containing the string "Audience says:"
+\item Numeric such as the quantity of lines in an artifact file, or the quantity of occurances of a string in an artifact file.
+\end{itemize} 
 
-Consider the labs/formatstring/instr\_config/results.config file for a few examples.  
-The first non-comment line defines a result having the symbolic name ``crashStringSignal'':
+There are typically multiple instances of each result, each with its own associated timestamp. The framework automatically
+associates timestamps with results, thereby allowing the designer to express temporal relationships between results
+as introduced in section \ref{artifact files} The timestamp associated with any given result will be derived from different
+sources depending on the nature of the results.config directive:
+\begin{itemize}
+\item The timestamp of the artifact file.  For example, each stdout artifact file name includes a timestamp reflecting when the
+program was invoked, (and its corresponding stdin file contains an entry reflecting when the program terminated).
+\item A timestamped entry from a log file, e.g., an entry in a web log, that matches criteria specified in the results.config
+directive.
+\item The invocation times of {\tt time\_delimiter} programs, syntactically associated with system log artifact files.
+This allows designers to temporally group syslog results that were generated between changes to system configurations
+as defined by invocation of the {\tt time\_delimiter} program, e.g., a script that alters the routing table.  See section 
+\ref{time delimeter} for additional information. 
+\end{itemize}
+
+Directives within the results.config file each have the following format:
+
 \begin{verbatim}
-crashStringSignal = vul_prog.stdout : CONTAINS : program exit, segmentation
-\end{verbatim}
-\noindent This result is true for each timestamped stdout file resulting from running 
-the vul\_prog program in which the file contains the string ``program exit, segmentation''.
-
-The third non-comment line
-defines a result having the symbolic name ``origsecret1value'':  
-\begin{verbatim}
-   origsecret1value = vul_prog.stdout : 6 : STARTSWITH : The original secrets:
-\end{verbatim}
-\noindent The timestamped results are
-found by looking at stdout from the ``vul\_prog'' program, and finding the first line that starts with:
-``The original secrets:''.  The result is assigned the value of the sixth space-delimited 
-token in that line.
-
-Entries within the results.config file each have the following format:
-
-\begin{verbatim}
-  <nametag> = <file_id> : <field_type> : <field_id> [: <line_type> : <line_id>]
+  <result> = <file_id> : <field_type> : <field_id> [: <line_type> : <line_id>]
       where:
-            nametag -- The symbolic name of the result, which will be referenced in 
+            result -- The symbolic name of the result, which will be referenced in 
                        the goals configuration file.  It must be alphanumeric, 
                        underscores permitted.
             file_id -- Identifies a single file, or the set of files to be parsed.  
-                       The format of this id is:
-                [container_name:]<prog>.[stdin | stdout] | file_path
-                   where <prog> is a program or utility name whose stdin and stdout 
-                   artifacts will include timestamps.  The optional container_name 
-                   identifies the container hosting the file.  Labs with a single 
-                   container can omit this qualifier.  Alternately, an explicit 
+                  The format of this id is:
+                     [container_name:]<prog>.[stdin | stdout | prgout] | 
+                           [container_name:]file_path[:time_delimiter]
+                   where <prog> is a program or utility name whose stdin, stdout,
+                   or program output (prgout) artifacts will include timestamps.  
+                   The optional container_name identifies the container hosting 
+                   the file.  Labs with a single container can omit this qualifier.  
+                   Alternately, an explicit 
                    file_path is intended for log files of services that persist 
                    across multiple student operations.  If the given path is not 
                    absolute, it is relative to the container user's home directory. 
                    The wildcard character '*' can be used in place of <prog>,
                    i.e., *.stdin is for all stdin artifacts and *.stdout is for all 
-                   stdout artifacts.
+                   stdout artifacts.  The optional time_delimiter qualifier is 
+                   explained further below.
             field_type - Optional, defaults to "TOKEN", possible values include:
                TOKEN      -- Treat the line as space-delimited tokens
                PARENS     -- The desired value is contained in parenthesis
@@ -853,25 +863,25 @@ Entries within the results.config file each have the following format:
                              e.g., /foo/
                LINE_COUNT -- The quantity of lines in the file. Remaining fields 
                              are ignored.
-               CHECKSUM   -- The value of nametag will be set to the md5 checksum 
+               CHECKSUM   -- The result value is set to the md5 checksum 
                              of the file.
-               CONTAINS   -- The value of nametag will be set to true if the file 
+               CONTAINS   -- The result value is set to true if the file 
                              contains the string represented in field_id.
-               FILE_REGEX -- The value of nametag will be set to true if the file 
+               FILE_REGEX -- The result value is set to true if the file 
                              contains the regular expression represented in field_id.
-               STRING_COUNT--The value of nametag will be set to the quantity of
+               STRING_COUNT--The result value is set to the quantity of
                              occurances of the string represented in field_id.
-               PARAM      -- The value of the nametag will be set to nth parameter
+               PARAM      -- The result value is set to nth parameter
                              (0 is the program name), provided in the 
                              program invocation.  
                              
-               SEARCH     -- The nametag will be set to the value of the search 
-                             resulting from the given field_id, which is treated as an
+               SEARCH     -- The result is assigned the value of the search 
+                             defined by the given field_id, which is treated as an
                              expression having the syntax of pythons parse.search 
                              function.  E.g., "frame.number=={:d}" would 
                              yield the frame number.
                GROUP      -- Intended for use with "REGEX" line types, the 
-                             nametag will be set to the value of the regex group 
+                             result is set to the value of the regex group 
                              number named by the field_id.  Regular expressions
                              and their groups are processed using the python
                              re.search semantics.
@@ -916,7 +926,6 @@ Entries within the results.config file each have the following format:
             line_id - See line_type above.
 \end{verbatim}
 
-
 \subsubsection{Converting artifact file formats}
 Some artifact file formats are not easily referenced by results.config directives.
 For example, a browser history file in the .sqlite format is binary.  Such files
@@ -943,18 +952,36 @@ state of each goal can then contribute to an overall student assessment.
 As noted earlier, student results may derive from multiple invocations of the same program or system utility.  
 The framework does not discourage students from continuing to experiment and explore aspects of the 
 exercise subsequent to obtaining the desired results.  In general, the assessment determines if the student
-obtained expected results during any invocation of a program or system utility.  In those cases 
+obtained expected results during any invocation of a program or system utility, or during a time period
+delineated by timestamp ranges described in section \ref{results.config}.  In those cases 
 where the student is required to obtain the expected results during the final invocation of a program, 
-the \textit{matchlast} goal type may be specified as described below.
+the \textit{matchlast} goal type may be specified as described below.  
 
-To facilitate grading multiple attempts or explorations of a lab exercise, the framework associates
-timestamps with the results of processing the results.config file.  A single timestamp will
-include results from a stdin file and a stdout file.  In general, there will be a distinct, 
-timestamped set of results for each occurrence of a student invoking a targeted program. There will also
-be timestamped sets of results derived from use of the {\tt HAVESTRING\_TS} line types with log files
-containing timestamps, e.g., system log files.
+The goals.config file contains directives, each of which assigns a value to symbolic name referred
+to as the {\tt goal\_id}.  Each goal\_id may have multiple instances of timestamped values, with their
+associated timestamp ranges inherited from results.  Examples of assigning values to a goal\_id include:
+\begin{itemize}
+\item A goal\_id is automatically created for each boolean result from the results.config file.  The timestamps
+are directlly inherited from the results.
 
-The following syntax defines each goal or subgoal within the goals.config file.  While the syntax
+\item The value of a specific result is compared (e.g., do two strings match?) to a literal expected value.
+A boolean goal\_id value is generated for each referenced result's timestamp.
+
+\item The value of a specific result is compared to a parameterized value
+generated from the student email address as described in section \ref{parameterizing}.
+A boolean goal\_id value is generated for each referenced result's timestamp.
+
+\item Timestamps and boolean values of two different goal\_id's are compared.  For example, ``was
+a true value for {\tt result A} generated while a true value for {\tt result B} was being generated?''  
+A boolean goal\_id is generated for each
+timestamp range of {\tt result B} within which falls at least one {\tt result A} timestamp.
+
+\item A boolean expression consisting of multiple {\tt goal\_id}'s and boolean operators such as OR, AND, NOT\_AND.
+A boolean goal\_id is generated for each timestamp range for which there is an instance of every goal\_id named
+in the expression.
+\end{itemize}
+
+The following syntax defines each goal within the goals.config file.  While the syntax
 may appear complex, most goals can be expressed simply as can be seen in the labtainer examples distributed
 with the framework.
 
@@ -1094,6 +1121,90 @@ and then check that file and the archive file names during grading.  The framewo
 this automatically and reports on any student archive that does not seem to have
 originated from a Labtainer initiated with that student's email address.
 
+\subsection{Automated assessment usage and examples}
+\subsubsection{Do artifact files contain specific strings?}
+Consider the labs/formatstring/instr\_config/results.config file for a few examples.  
+The first non-comment line defines a result having the symbolic name ``\_crash\_sig'':
+\begin{verbatim}
+   _crash_sig = vul_prog.stdout : CONTAINS : program exit, segmentation
+   _crash_smash = vul_prog.stdout : CONTAINS : *** stack smashing detected
+\end{verbatim}
+\noindent This result is true for each timestamped stdout file resulting from running 
+the vul\_prog program in which the file contains the string ``program exit, segmentation''.
+The goals.config includes this goal:
+\begin{verbatim}
+   crash =  boolean : ( _crash_smash or _crash_sig )
+\end{verbatim}
+\noindent The value of the crash goal is true if either result is true.
+
+\subsubsection{Get field from selected line in an artifact file}
+Again refrence the labs/formatstring/instr\_config/results.config file.  The third non-comment line
+defines a result having the symbolic name ``origsecret1value'':  
+\begin{verbatim}
+   origsecret1value = vul_prog.stdout : 6 : STARTSWITH : The original secrets:
+   newsecret1value = vul_prog.stdout : 6 : STARTSWITH : The new secrets:
+\end{verbatim}
+\noindent The timestamped results are
+found by looking at stdout from the ``vul\_prog'' program, and finding the first line that starts with:
+``The original secrets:''.  The result is assigned the value of the sixth space-delimited 
+token in that line.  The ``newsecret1value`` assignment is similar.  The goals.config file includes:
+\begin{verbatim}
+modify_value = matchany : string_diff : newsecret1value : result.origsecret1value
+\end{verbatim}
+\noindent , which will be true if any of the vul\_prog stdout files include a
+``newsecret1value'' that differs from its ``oldsecret1value``.
+
+\subsubsection{time\_delimeter file name qualifier} These are intended for use with 
+\label{time delimeter}
+log files having timestamped entries.  The {\tt time\_delimiter} identifies some
+monitored program whose start times will be used to organize the log file into
+a set of timestamped results.  This differs from use of HAVESTRING\_TS and
+REGEX\_TS in that those store results as descrete timestamped values for each
+timestamp found in the log file.  The {\tt time\_delimiter} timestamp values are
+delimited by the start times of the monitored program.  The intended use is to
+group results from programs whose actions result in entries in the log file.
+This can be useful for grouping system log entries based on system configuration
+changes (i.e., accomplished via the {\tt time\_delimiter} program). 
+
+Consider a lab that directs students to alter iptables on a component using the
+/etc/rc.local script.  The student is required to demonstrate a desired iptables
+configuration by running nmap on various other components.  The instructor wants 
+to confirm that some set of expected stdout from nmap all occurred within a single
+configuration of iptables, delimited by the running of rc.local.  In other words,
+the the student cannot succeed by altering iptables between invocations of nmap on
+different components.  In this example, the {\tt file\_path} would name the iptables
+log, and the {\tt time\_delimiter} would name rc.local.  If the lab result.config were:
+\begin{verbatim}
+    _iplog = outer_gw:/var/log/ulog/syslogemu.log:rc.local : \
+             CONTAINS : IPTABLES DROPPED
+    _remote_nmap_443 = remote_ws:nmap.stdout : CONTAINS : 443/tcp open  https
+    _remote_nmap_sql = remote_ws:nmap.stdout : CONTAINS : 3306/tcp open  mysql
+    _local_nmap_443 = ws1:nmap.stdout : CONTAINS : 443/tcp open  https
+    _local_nmap_sql = ws1:nmap.stdout : CONTAINS : 3306/tcp open  mysql
+\end{verbatim}
+
+\noindent The {\tt \_iplog} would then have up to N+1 timestamped results,
+where N is the quantity of times that rc.local was executed. The first possible
+timestamp would have a starting time of zero and and ending time of the very first
+invocation of rc.local.  The nmap results would each have timestamps corresponding
+to their times of execution.  Note the nmap results include results from two different
+computers, ws1 and remote\_ws.
+
+A goals.config file of:
+\begin{verbatim}
+    remote_nmap_443 = time_during : _remote_nmap_443 : _iplog
+    remote_nmap_sql = time_during : _remote_nmap_sql : _iplog
+    local_nmap_443 = time_during : _local_nmap_443 : _iplog
+    local_nmap_sql = time_during : _local_nmap_sql : _iplog
+    remote_correct = boolean : ((remote_nmap_443 and_not remote_nmap_sql) and local_nmap_443 and local_nmap_sql)
+\end{verbatim}
+\noindent would generate sets of nmap goals grouped into timestamps corresponding to the
+{\tt \_iplog} results.  The {\tt remote\_correct} boolean expression could then be read as: ``Was there any
+single iptables configuration in which:
+\begin{itemize}
+\item The remote workstation could reach the HTTPS port but not the SQL port, and,
+\item The local workstation could reach the HTTPS port and the SQL port.
+\end{itemize}
 \section{Networking}
 Most networking is simply a matter of defining networks and assigning them to containers
 as described in \ref{start.config}.  
@@ -1132,7 +1243,7 @@ This lab includes the following properties that can be reproduced in other labs:
 \item Use of \texttt{iptables} in gateway components to implement NAT.
 \item A hidden ISP component that exchanges network traffic with the host Linux system,
 thereby allowing all visible components to include routing, DNS and iptables entries that do not
-expose virtual networking tricks.
+expose virtual networking tricks.  See section \ref{Networking Notes} for additional information.
 
 \end{itemize}
 
@@ -1165,6 +1276,18 @@ publish all of the Labtainer labs managed by NPS.
 The publish.py script will only rebuild labs that have changed.  After pushing a new lab container
 image to the Docker hub, the script deletes the image from the local system.  The intent is to
 ensure that future testing of the lab is done on the authoritative copy, i.e., from the hub.
+
+Labtainer base images are built and published from the scripts/designer/bin directory.  Prior to publishing
+baseline images, it is suggested that all local images be purged from the development machine, e,g.,
+\begin{verbatim}
+sudo systemctl stop docker
+sudo rm -fr /var/lib/docker
+sudo sysetmctl start docker
+\end{verbatim}
+\noindent This will ensure the new baseline images to not incorporate layer remnants.
+
+All new images should be first built and pushed onto the test registry, i.e., using the 
+{\tt ./publish\_image.sh <image> -t}
 
 \subsection{Alternate registry for testing}
 If the environment variable {\tt TEST\_REGISTRY}, is set to YES, labs to be pulled and pushed
@@ -1300,7 +1423,10 @@ An example of such a script is in the labs/tcpip/server/\_bin directory.
 \subsection{Login Prompts}
 See the centos-log lab for an example of a lab that prompts users to login to the virtual terminal.
 In particular, you will need the {\tt bin/student\_startup.sh} script, and the {\tt \_system/sbin/login} program and the {\tt \_system/etc/login.defs} and {\tt securetty} files.
+
 \subsection{Networking Notes}
+\label{Networking Notes}
+\subsubsection{Traffic mirroring}
 Send copies of traffic from one ethernet port to another using the iptables TEE operation, e.g.,
 \begin{verbatim}
     iptables -t mangle -A PREROUTING -i eth1 -j TEE --gateway 172.16.3.1
@@ -1311,5 +1437,27 @@ This is useful for IDS labs, e.g., snort.  Mirroring all incoming traffic into a
 reconstruct TCP sessions within that component.  Mirroring output from components is not always reliable.
 Besides potential for duplicat traffic, Docker networks seem to sometimes gratuitously replace destination
 addresses with those of the Docker network gateway, i.e., the gateway to the host.
-\end{document}
 
+\subsubsection{DNS}
+Install bind9 in dockerfile.  Add zone files to /etc/bind and db files to ../\_system/var/cache/bind/.
+Add reference to the /etc/bind/named.conf.local as seen in local-dns/\_bin/fixlocal.sh
+
+\subsubsection{Overridding Docker routing and DNS}
+Realistic network topologies require components to have /etc/resolv.conf and routing
+table entries that do not depend on Docker gateways and related magic.  However, at some point you may
+want components to be able to reach the outside world.  If you've fiddled resolv.conf and routing,
+you likely broke the default Docker method for doing this.  One solution is to 
+define an \textit{isp} component that has a default gateway and resolv.conf as Docker defines them.  Then
+route all traffic and DNS queries to that (making use of dnsmasq and your own resolv.conf entries).  
+Note you will also have to set up your own NAT on that ISP component.  See the dmz-example lab
+ISP component .local/bin/fixlocal.sh as a worked example of a simple NAT setup.
+
+As a worked example, the dmz-example lab components (other than the ISP), typically use the .local/bin/fixlocal.sh script to 
+delete the Docker-generated route:
+\begin{verbatim}
+    sudo route del -host 172.17.0.1
+\end{verbatim}
+\noindent And the fixlocal.sh also replaces the resolv.conf entry with either a local DNS component, or a gateway running
+the dnsmasq utility.  The /etc/rc.local script generally sets the default gateway, and configures iptables.
+
+\end{document}
