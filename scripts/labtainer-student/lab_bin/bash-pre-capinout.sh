@@ -194,6 +194,10 @@ preexec() {
        if [ $result == 1 ]; then
            return 0
        fi
+       # ad-hoc check for /etc/
+       if [[ $cmd_path == /etc/* ]]; then
+           return 0
+       fi
        if [[ ! -z $cmd_path ]] && [[ "$cmd_path" != /usr/* ]] && \
           [[ "$cmd_path" != /bin/* ]] && [[ "$cmd_path" != /sbin/* ]]; then
            #echo "would do this command $1"
