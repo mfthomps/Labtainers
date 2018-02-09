@@ -197,7 +197,11 @@ def getJsonOut(outputjsonfile):
 
     for key in jsonoutput:
         old = jsonoutput[key]
-        new = ast.literal_eval(old)
+        try:
+            new = ast.literal_eval(old)
+        except:
+            print('failed to do literal_eval on %s key was %s' % (old, key))
+            exit(1)
         if new is not None:
             if type(new) is str:
                 new_filtered = filter(lambda x: x in string.printable, new)
@@ -787,7 +791,7 @@ class ResultSets():
                     self.latest = ts
                 result_set = getJsonOut(result_file)
                 self.addSet(result_set, ts, goal_times)
-            elif fname.endswith('_ts'):
+            elif fname.endswith('_ts') or fname.endswith('_td'):
                 result_set_set = getJsonOutTS(result_file)
                 for ts in result_set_set:
                     self.addSet(result_set_set[ts], ts, goal_times)
