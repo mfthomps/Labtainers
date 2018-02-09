@@ -1,0 +1,43 @@
+#!/bin/bash
+#
+#  Configure the inner gateway of a DMZ
+#  where 192.168.1.10 and 192.168.2.10 are internal LANs
+#  and 198.18.1.10 is connected to the external gateway
+#  with address 198.18.1.2
+# 
+#
+/usr/bin/set_default_gw.sh 198.18.1.2
+#
+# get ethernet device names for the three interfaces for use later
+#
+lan1=$(ifconfig | grep -B1 "inet addr:192.168.1.10" | awk '$1!="inet" && $1!="--" {print $1}')
+lan2=$(ifconfig | grep -B1 "inet addr:192.168.2.10" | awk '$1!="inet" && $1!="--" {print $1}')
+wan=$(ifconfig | grep -B1 "inet addr:198.18.1.10" | awk '$1!="inet" && $1!="--" {print $1}')
+#
+# default drop
+#
+iptables --flush
+iptables -t nat --flush
+iptables --delete-chain
+iptables -t nat --delete-chain
+
+iptables -P INPUT DROP
+iptables -P OUTPUT DROP
+iptables -P FORWARD DROP
+
+#
+# Define NAT for traffic from LANs to the WAN
+#
+iptables --table nat -I POSTROUTING 1 --out-interface $wan -j MASQUERADE
+iptables -A FORWARD --in-interface $lan1 -j ACCEPT
+iptables -A FORWARD --in-interface $lan2 -j ACCEPT
+
+# allow incoming for established connections
+iptables -A FORWARD -i $wan -o $lan1 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+iptables -A FORWARD -i $wan -o $lan2 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+
+#
+# restart the DNS forwarder (rely on DNS provided by ISP)
+#
+/etc/init.d/dnsmasq restart
+
