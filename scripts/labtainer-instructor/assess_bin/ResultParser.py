@@ -26,10 +26,7 @@ import MyUtil
 from parse import *
 
 MYHOME = ""
-logfilelist = []
 container_exec_proglist = {}
-containernamelist = []
-stdinfnameslist = []
 stdoutfnameslist = []
 timestamplist = {}
 line_types = ['CHECKSUM', 'CONTAINS', 'FILE_REGEX', 'FILE_REGEX_TS', 'LINE', 'STARTSWITH', 'NEXT_STARTSWITH', 'HAVESTRING', 
@@ -96,14 +93,7 @@ def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname,
         logger.ERROR("Not allowed characters in results.config's key (%s)" % result_key)
         sys.exit(1)
     values = []
-    # expecting:
-    # . - [ stdin | stdout | prgout ] : [<field_type>] : <field_id> :  <line_type1> : <line_id>
-    #    field_type = (a valid_field_type defined above)
-    #    field_value is a numeric identifying the nth field of the given type
-    #    line_type1 = LINE | STARTSWITH | NEXT_STARTSWITH | HAVESTRING
-    #    line_id is a number if the type is LINE, or a string if the type is STARTSWITH/HAVESTRING
-    #    line_id is a string if the type is CONTAINS
-    #    exception case is field_type CHECKSUM - no other (field_id, line_type or line_id) required
+    # See the Labtainer Lab Designer User guide for syntax
 
     # NOTE: Split using ' : ' - i.e., "space colon space"
     values = [x.strip() for x in result_value.split(' : ')]
@@ -133,7 +123,24 @@ def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname,
     logger.DEBUG('newprogname_type is %s' % newprogname_type)
     # <cfgcontainername>:<exec_program>.<type>
     if ':' in newprogname_type:
-        cfgcontainername, progname_type = newprogname_type.split(':', 1)
+        '''
+        [container_name:]<prog>.[stdin | stdout] | [container_name:]file_path[:time_program]
+
+        '''
+        cfgcontainername = ''
+        parts = newprogname_type.split(':')
+        if len(parts) == 2:
+            if parts[0].startswith('/'):
+                progname_type =  parts[0]
+                if len(container_list) > 1:
+                    logger.ERROR('No container name found in multi container lab entry (%s = %s)' % (result_key, result_value))
+                    sys.exit(1)
+            else:
+                cfgcontainername = parts[0]
+                progname_type = parts[1]
+        elif len(parts) == 3:
+            cfgcontainername = parts[0]
+            progname_type = parts[1]
     else:
         if len(container_list) > 1:
             logger.ERROR('No container name found in multi container lab entry (%s = %s)' % (result_key, result_value))
@@ -151,17 +158,12 @@ def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname,
     else:
         containername = labidname + "." + cfgcontainername + ".student"
 
-    if containername != "":
-        if containername not in containernamelist:
-            containernamelist.append(containername)
 
     logger.DEBUG('Start to populate exec_program_list, progname_type is %s' % progname_type)
-    # No longer restricted to stdin/stdout filenames anymore
+    # No longer restricted to stdin/stdout filenames 
     if ('stdin' not in progname_type) and ('stdout' not in progname_type) and ('prgout' not in progname_type):
         # Not stdin/stdout - add the full name
         logger.DEBUG('Not a STDIN or STDOUT: %s ' % progname_type)
-        if progname_type not in logfilelist:
-            logfilelist.append(progname_type)
     else:
         (exec_program, targetfile) = progname_type.rsplit('.', 1)
         exec_program_list = []
@@ -310,16 +312,19 @@ def getTS(line):
     retval = None
     ''' try syslog format first '''
     ts_string = line[:15]
+    now = datetime.datetime.now()
+    ts_string = '%d %s' % (now.year, ts_string)
     try:
-        time_val = datetime.datetime.strptime(ts_string, '%b %d %H:%M:%S')
+        time_val = datetime.datetime.strptime(ts_string, '%Y %b %d %H:%M:%S')
         retval = time_val.strftime("%Y%m%d%H%M%S")
     except:
         pass
     if retval is None:
         ''' snort format '''
         ts_string = line[:14]
+        ts_string = '%d %s' % (now.year, ts_string)
         try:
-            time_val = datetime.datetime.strptime(ts_string, '%m/%d-%H:%M:%S')
+            time_val = datetime.datetime.strptime(ts_string, '%Y %m/%d-%H:%M:%S')
             retval = time_val.strftime("%Y%m%d%H%M%S")
         except:
             pass
@@ -746,6 +751,79 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
     jsonoutput.write('\n')
     jsonoutput.close()
 
+def ParseConfigForTimeDelim(studentlabdir, labidname, configfilelines, ts_jsonfname, container_list, logger):
+    '''
+    Handle case of timestamped log files whose names are qualified by a 
+    "time delimiter" program whose start times will
+    be used to break up a timestamped log file.  The quantity of timestamped groupings
+    of log file results will be one plus the quantity of invocations of the "time delimeter" program.
+    '''
+    ts_nametags = {}
+    for line in configfilelines:
+        linestrip = line.rstrip()
+        if linestrip is not None and not linestrip.startswith('#') and len(line.strip())>0:
+            containername, targetfile, result_key, command, field_type, token_id, lookupstring, result_home = getConfigItems(labidname, linestrip, studentlabdir, container_list, logger)
+            if ':' in targetfile:
+                fname, delim_prog = targetfile.split(':')
+                logger.DEBUG('targetfile is time delim %s delim_prog %s fname %s' % (targetfile, delim_prog, fname))
+                look_for = os.path.join(result_home,'%s.stdout.*' % delim_prog)
+                #print('look for %s' % look_for)
+                delim_list = glob.glob(look_for)
+                delim_ts_set = []
+                for delim_ts_file in delim_list:
+                    ts = delim_ts_file.rsplit('.',1)[1]
+                    delim_ts_set.append(ts)
+                if len(delim_ts_set) == 0:
+                    logger.DEBUG('no ts files for program time delimiter %s' % delim_prog)
+                    continue
+                delim_ts_set.sort()
+                end_times='99999999999999'
+                delim_ts_set.append(end_times)
+                ts = 0
+                current_ts_end = delim_ts_set[0]
+                index = 0
+                with open(fname) as fh:
+                    for currentline in fh:
+                        time_val = getTS(currentline)
+                        logger.DEBUG('ts[index] %s  my_time %s' % (delim_ts_set[index], time_val))
+                        if time_val > delim_ts_set[index]:
+                            logger.DEBUG('time greater')
+                            if ts in ts_nametags:
+                                ts_nametags[ts]['PROGRAM_ENDTIME'] = time_val
+                            ts = delim_ts_set[index]
+                            index += 1
+                        if command == 'CONTAINS':
+                            if lookupstring in currentline:
+                                if ts not in ts_nametags:
+                                    ts_nametags[ts] = {}
+                                    ts_nametags[ts]['PROGRAM_ENDTIME'] = end_times
+                                ts_nametags[ts][result_key] = True
+                        elif command == 'FILE_REGEX':
+                            remain = line.split(command,1)[1]
+                            remain = remain.split(':', 1)[1].strip()
+                            sobj = re.search(remain, currentline)
+                            if sobj is not None:
+                                if ts not in ts_nametags:
+                                    ts_nametags[ts] = {}
+                                    ts_nametags[ts]['PROGRAM_ENDTIME'] = end_times
+                                ts_nametags[ts][result_key] = True
+    if len(ts_nametags) > 0:
+        jsonoutput = open(ts_jsonfname, "w")
+        for ts in ts_nametags:
+            for key in ts_nametags[ts]:
+                old = ts_nametags[ts][key]
+                new = repr(old)
+                ts_nametags[ts][key] = new
+        try:
+            jsondumpsoutput = json.dumps(ts_nametags, indent=4)
+        except:
+            logger.ERROR('json dumps failed on %s' % ts_nametags)
+            exit(1)
+        jsonoutput.write(jsondumpsoutput)
+        jsonoutput.write('\n')
+        jsonoutput.close()
+
+
 def ParseConfigForFile(studentlabdir, labidname, configfilelines, 
                        outputjsonfname, container_list, timestamppart, end_time, logger):
     '''
@@ -831,16 +909,11 @@ def ParseStdinStdout(homedir, studentlabdir, container_list, instructordir, labi
   
     timestamplist.clear()
 
-    del logfilelist[:]
     #del exec_proglist[:]
-    del containernamelist[:]
-    del stdinfnameslist[:]
     del stdoutfnameslist[:]
 
     #print "exec_proglist is: "
     #print exec_proglist
-    #print "logfilelist is: "
-    #print logfilelist
     OUTPUTRESULTHOME = '%s/%s' % (studentlabdir, ".local/result/")
     logger.DEBUG('Done with validate, outputresult to %s' % OUTPUTRESULTHOME)
 
@@ -868,12 +941,6 @@ def ParseStdinStdout(homedir, studentlabdir, container_list, instructordir, labi
             prgoutfiles = '%s%s.%s.' % (RESULTHOME, exec_prog, "prgout")
             logger.DEBUG('stdin %s stdout %s' % (stdinfiles, stdoutfiles))
             globstdinfnames = glob.glob('%s*' % stdinfiles)
-            if globstdinfnames != []:
-                #print "globstdinfname list is "
-                #print globstdinfnames
-                for stdinfnames in globstdinfnames:
-                    #print stdinfnames
-                    stdinfnameslist.append(stdinfnames)
             globstdoutfnames = glob.glob('%s*' % stdoutfiles)
             if globstdoutfnames != []:
                 #print "stdoutfnameglob list is "
@@ -918,5 +985,7 @@ def ParseStdinStdout(homedir, studentlabdir, container_list, instructordir, labi
     ParseConfigForFile(studentlabdir, labidname, configfilelines, outputjsonfname, container_list, None, None, logger)
     ts_jsonfname = outputjsonfname+'_ts'
     ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfname, container_list, logger)
+    td_jsonfname = outputjsonfname+'_td'
+    ParseConfigForTimeDelim(studentlabdir, labidname, configfilelines, td_jsonfname, container_list, logger)
 
 
