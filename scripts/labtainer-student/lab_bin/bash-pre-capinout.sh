@@ -50,6 +50,8 @@ getlocaloutput(){
 }
 treatlocal(){
    local cmd_path=$1
+   local orig_command=$2
+   #echo "cmd_path is $cmd_path"
    local TAS=$PRECMD_HOME/.local/bin/treataslocal
    if [ -f $TAS ]
    then
@@ -61,10 +63,28 @@ treatlocal(){
            fi
            read -r -a cmd_array <<< "$cmdlocal"
            the_command=${cmd_array[0]}
-           #echo "the command $the_command"
            base_cmd=$(basename "$cmd_path")
            base_treat=$(basename "$the_command")
-           if [[ "$base_cmd" == "$base_treat" ]]; then
+
+           if [[ $the_command == *.service ]]; then
+               # special handling for service commands
+               if [[ $base_cmd == systemctl ]] || [[ $base_cmd == /etc/init.d ]]; then
+                   orig_cmd_array=($command)
+                   action_index=1
+                   if [ ${orig_cmd_array[0]} == "sudo" ]; then
+                       action_index=2
+                   fi
+                   action=${orig_cmd_array[$action_index]}
+                   if [[ $action == 'start' ]] || [[ $action == 'restart' ]]; then
+                       service_index=`expr $action_index + 1`
+                       service=${orig_cmd_array[$service_index]}
+                       if [[ $base_treat == $service.service ]]; then
+                           # echo will monitor $command
+                           return 1
+                       fi
+                   fi
+               fi
+           elif [[ "$base_cmd" == "$base_treat" ]]; then
 
                if [[ ${#cmd_array[@]} == "2" ]];then
                   the_param=${cmd_array[1]}
@@ -94,7 +114,7 @@ ignorelocal(){
    then
        # Get the list of commands from ignorelocal
        while read cmdlocal; do
-           if [[ "$cmd" == "$cmdlocal" ]]; then
+           if [[ "$cmd_path" == "$cmdlocal" ]]; then
                return 1
            else
                continue
@@ -175,7 +195,7 @@ preexec() {
           return 0
        fi
        # do we treat a system command as a local command to be tracked?
-       treatlocal $cmd_path
+       treatlocal $cmd_path $command
        result=$?
        if [ $result == 1 ]; then
            #echo "will treat as local"
@@ -192,10 +212,6 @@ preexec() {
        ignorelocal $cmd_path
        result=$?
        if [ $result == 1 ]; then
-           return 0
-       fi
-       # ad-hoc check for /etc/
-       if [[ $cmd_path == /etc/* ]]; then
            return 0
        fi
        if [[ ! -z $cmd_path ]] && [[ "$cmd_path" != /usr/* ]] && \
