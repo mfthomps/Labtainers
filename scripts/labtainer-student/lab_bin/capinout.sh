@@ -51,7 +51,7 @@ append_sym=">>"
 full=$1
 counter=$2
 timestamp=$3
-#echo $full
+#echo "full is $full"
 #
 # Look for redirect, and remove from command
 #
@@ -124,9 +124,16 @@ fi
 #echo "PROGNAME is ($PROGNAME)"
 #echo "PROGRAM_ARGUMENTS is ($PROGRAM_ARGUMENTS)"
 #echo "Program to execute is $EXECPROG"
-#echo "basename of $EXECPROG is $PROGNAME"
-stdinfile="$PRECMD_HOME/.local/result/$PROGNAME.stdin.$timestamp"
-stdoutfile="$PRECMD_HOME/.local/result/$PROGNAME.stdout.$timestamp"
+#echo "PROGNAME is $PROGNAME"
+if [[ $PROGNAME == systemctl ]] || [[ $PROGNAME == /etc/init.d ]]; then
+    # special handling for service program stdin and stdout file names
+    ARG_ARRAY=($PROGRAM_ARGUMENTS)
+    stdinfile="$PRECMD_HOME/.local/result/${ARG_ARRAY[2]}.service.stdin.$timestamp"
+    stdoutfile="$PRECMD_HOME/.local/result/${ARG_ARRAY[2]}.service.stdout.$timestamp"
+else
+    stdinfile="$PRECMD_HOME/.local/result/$PROGNAME.stdin.$timestamp"
+    stdoutfile="$PRECMD_HOME/.local/result/$PROGNAME.stdout.$timestamp"
+fi
 
 # Store programs arguments into stdinfile
 echo "PROGRAM_ARGUMENTS is ($PROGRAM_ARGUMENTS)" >> $stdinfile
