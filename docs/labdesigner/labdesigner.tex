@@ -66,7 +66,7 @@ of using containers over VMs, namely, containers require significantly less reso
 than do VMs.  A student laptop that struggles to run two or more VMs can readily 
 run multiple containers simultaneously, as shown in this 50 second demonstration: \url{https://youtu.be/JDV6jGF3Szw} 
 
-\section {Overview of the Student Environment and Workflow}
+\section {Overview of the student environment and workflow}
 Labtainers support laboratory exercises designed for Linux environments,
 ranging from interaction with individual programs to labs that include
 what appear to be multiple components and networks.  Students see and interact with Linux
@@ -122,7 +122,7 @@ are intended to augment, rather than supplant this type of reporting.  The frame
 mechanisms for automating the collection of student lab reports into the artifact archive files
 that are collected by instructors. 
 
-\section {Obtaining the Labtainer Development Kit}
+\section {Obtaining the labtainer development kit}
 Installation of Labtainers is described in in the \textit{Labtainer Student Guide},  
 which also includes instructions for installing an Ubuntu VM (if you do not already have a Linux system),
 and the Labtainer framework.  Our website also distributes pre-packaged VM appliances that already have
@@ -140,7 +140,7 @@ sets some environment variables.
 It is suggested that you periodically run that update script to get the latest lab definition files,
 and to update framework software.   
 
-\section {Defining New Labs}
+\section {Defining new labs}
 \label{sec:new_labs}
 The most challenging and critical part of designing a new cybersecurity lab
 is the design of the lab itself, i.e., identifying learning objectives and
@@ -240,12 +240,26 @@ the lab has but one container, whose name defaults to the lab name.
 The following sections describe how to futher alter the lab execution environment seen by 
 the student.
 
+\subsection {Multiple containers}
+The {\tt new\_lab\_setup.sh} script can be used to create additional containers for use
+in the lab.  For example:
+\begin{verbatim}
+    new_lab_setup.sh -a joe_computer
+\end{verbatim}
+\noindent will create a second container for your lab,
+named ``joe\_computer''.  Use 
+\begin{verbatim}
+    new_lab_setup.sh -h
+\end{verbatim}
+\noindent to view the operations available in that script.
+
 \section {Defining the lab execution environment}
 A given lab typically requires some set of software packages, and some
 system configuration, e.g., network settings.  
 The framework captures most configuration details within a standard
-Dockerfile.  A default Labtainer-specific Dockerfiles is placed in the new lab's ``dockerfiles'' 
-directory when the new lab is created.  We use standard Docker file syntax, which is described at 
+Dockerfile.  A default Labtainer-specific Dockerfile is placed in the new lab's ``dockerfiles'' 
+directory when the new lab is created.  And additional Dockerfiles are added when the
+{\tt new\_lab\_setup.sh -a} script is run.  We use standard Docker file syntax, which is described at 
 \url{https://docs.docker.com/engine/reference/builder/}
 
 Lab designers should reference that Docker documentation for the 
@@ -261,36 +275,8 @@ computers connected via networks.  The execution environment seen by a
 student when interacting with one of these ``computers'' is therefore defined
 by the configuration of the associated container.  
 
-\subsection {Container Isolation}
-Docker provides namespace isolation between different containers, and
-between the containers and the host platform.  Note however, that all
-containers and the host share the same operating system kernel.  Some
-kernel configuration changes will affect all containers and the host.  For example,
-use of sysctl to modify Address Space Layout Randomization (ASLR) will effect
-all containers and the effects will persist in the host after the containers
-are stopped.  However, some tuning parameters such as net.ipv4.ip\_forward are
-isolated, i.e., local to the container. These do get reset in ways that are
-hard to predict, so it is suggested that sysctl tuning be done in rc.local
-scripts so that they happen on each boot.
-
-\subsection {Naming Containers}
-If a lab is to include only one container, you can
-skip ahead to the subsection titled Lab-specific files in the student's home directory.
-
-Creating new containers for a lab, and changing the name of an existing container
-can be performed automaticall using the ``new\_lab\_setup.py'' script.  Use ``h'' to see
-the options.  Much of the discussion immediatly below describes things are are
-automated by that script.
-You must assign a name to each container within the new lab.  Each new lab
-starts with a single container, whose name matches the lab name.  You are free
-to change that name. The names of containers should reflect their role in the lab,
-e.g., ``client'' and ``server''.  Once you have picked container names, you must create
-Dockerfiles and update the 
-\begin{verbatim}
-   $LABTAINER_DIR/labs/[labname]/config/start.config file.
-
-\end{verbatim}
-\noindent Each container must have its own Dockerfile within the 
+\subsection {Docker files}
+\noindent Each container has its own Dockerfile within the 
 \begin{verbatim}
    $LABTAINER_DIR/labs/[labname]/dockerfiles
 \end{verbatim}
@@ -301,8 +287,7 @@ Dockerfiles and update the
 where role is either ``student'' or ``instructor''.  The framework will use the student Dockerfile to
 create the instructor container unless a distinct instructor file is present (e.g., if the designer
 wishes the instructor to have unique software packages.) The system automatically creates a student Dockerfile
-when a new lab is created.  You are responsible for creating (copying to) additional Dockerfiles for other containers,
-and changing the name of the initial Dockerfile if its container name changes.
+when a new lab (or additional container) is created.  
 
 The first line of each Dockerfile identifies the base image to be pulled from the Docker Hub.
 The initial default image is a basic Ubuntu system with a minimal set of packages.  To use an
@@ -319,6 +304,13 @@ FROM mfthomps/labtainer.network
 \item labtainer.java -- An Ubuntu container with the Firefox browser and the open JDK.
 \end{itemize}
 
+The Dockerfile is used to add packages to your container, e.g., 
+\begin{verbatim}
+RUN apt-get update && apt-get install -y some_package
+\end{verbatim}
+
+You will also see ``ADD'' commands in the Docker file that populate the container
+directories with lab-specific files such as described in section \ref{home files}.
 
 Next, you must also describe your containers within the \textit{start.config} file as described below.
 
@@ -396,6 +388,7 @@ A simple example of a two-container lab can be found in
 
 
 \subsection {Lab-specific files in the student's home directory}
+\label{home files}
 Files that are to reside in the student's \$HOME directory are placed in the 
 new lab container directory.  For example, if a lab includes a source code file, that
 should be placed in the lab container directory, as a result, the file will appear in the student's
@@ -476,6 +469,18 @@ commented options for CentOS.  The config/start.config file must also include th
 \noindent line.  The centos-log also provides an example of forcing the student to login using the traditional
 login program, controlled by its bin/student\_startup.sh script.   
 
+
+\subsection {Container isolation}
+Docker provides namespace isolation between different containers, and
+between the containers and the host platform.  Note however, that all
+containers and the host share the same operating system kernel.  Some
+kernel configuration changes will affect all containers and the host.  For example,
+use of sysctl to modify Address Space Layout Randomization (ASLR) will effect
+all containers and the effects will persist in the host after the containers
+are stopped.  However, some tuning parameters such as net.ipv4.ip\_forward are
+isolated, i.e., local to the container. These do get reset in ways that are
+hard to predict, so it is suggested that sysctl tuning be done in rc.local
+scripts so that they happen on each boot.
 
 \subsection {Instructions for Students} \label{instructions}
 Lab instructions for students can be displayed in a virtual terminal by placing an
@@ -624,6 +629,14 @@ is followed by one of the following operations:
 
 The parameter\_id fields may be referenced during the automated grading function, described below. 
 
+\subsection{Simple Parameterization for Checking Own-work}
+The simplest, though by no means robust, strategy for ensuring students
+have turned in their own work, (vice getting a zip file from a friend and simply
+changing the name of the file), is to individualize some file on one of the containers,
+and then check that file and the archive file names during grading.  The framework does
+this automatically and reports on any student archive that does not seem to have
+originated from a Labtainer initiated with that student's email address.
+
 
 \section{Automated assessment of student labs}
 This section describes how to configure a lab for automated assessment of student work.
@@ -664,6 +677,7 @@ As a more concrete example, the use of timestamps allows the designer to determi
 record occurred during invocation of some program that produced a specific artifact.
 
 \subsubsection{Capturing stdin and stdout}
+\label{stdin and stdout}
 The framework's automated assessment functions generally assume the student will interact with one or
 more programs or system utilities.  Each time the student invokes a selected program or utility, the 
 framework captures copies of standard input and standard output, (stdin and stdout) into timestamped file sets.
@@ -682,6 +696,9 @@ names appear at the beginning of a line in the \textit{treataslocal} file at
 \end{verbatim}
 \noindent The basename of the treataslocal entries are compared to the basename of each command.
 In other words, if the treataslocal entry is: \texttt{usr/bin/nmap}, the path leading to nmap is ignored.
+Starting of services can be monitored through use of treataslocal entries having a ``.service'' suffix,
+e.g., {\tt httpd.service} would generate timestamped artifact files whenever http was start (or restarted)
+using systemctl or /etc/init.d.  See section \ref{time delimeter services}
 
 Non-system programs can be excluded from stdin/stdout capturing by including their names in
 a ``ignorelocal'' file in that same directory.  These should not include path information, just the program name.
@@ -691,10 +708,10 @@ a ``ignorelocal'' file in that same directory.  These should not include path in
 Sometimes program file output is of interest to automated assessment, e.g., the program
 may not have useful stdout.
 The treataslocal entries can include optional output file identifiers that
-cause timestamped copies of specified files to be made whenever the program is invoked.  
+cause timestamped copies of specified files to be made whenever the named program terminates.
 If program file output from local programs is to be captured in timestamp files (in addition
 to the stdout and stdin), simply include those program names in the treataslocal file.
-These identifiers are of the form:
+These output file identifiers are of the form:
 \begin{verbatim}
 program    delim_type:delim_value
         where delim_type is one of:
@@ -938,7 +955,7 @@ In general, the pregrade.sh script is expected to extract or convert
 data from an artifact file, and write it into a new file in the .local/results
 directory of the container.   
 
-\subsection{Assessing the student results}
+\subsection{Assessing student results}
 Results of student lab activity are assigned symbolic names by the results.config file
 as described above.  These results are then referenced in the goals.config to assess whether
 the student obtained expected results.  Most lab goals defined in the goals.config file
@@ -1104,7 +1121,7 @@ with the framework.
          Note that values derived from the parameters.config file are assigned the same values as
          were assigned when the lab was parameterized for the student.
 
-\subsection{Assessment results}
+\subsubsection{Assessment Report}
 Grading occurs on an instructor container, via a script named {\tt instructor.py}, which runs
 automatically when the instructor starts the lab.  The script can also be run manually, e.g., to
 test changes and additions to grading configuartion files.  It must be run from the HOME directory
@@ -1113,15 +1130,11 @@ By convention, all goals and boolean results whose symbolic names are not prefac
 underscore ({\tt\_}), will have corresponding entries in the assessment report, located in 
 the home directory in a file named {\tt <lab name>.grades.txt>}
 
-\subsection{Simple Parameterization for Checking Own-work}
-The simplest, though by no means robust, strategy for ensuring students
-have turned in their own work, (vice getting a zip file from a friend and simply
-changing the name of the file), is to individualize some file on one of the containers,
-and then check that file and the archive file names during grading.  The framework does
-this automatically and reports on any student archive that does not seem to have
-originated from a Labtainer initiated with that student's email address.
 
-\subsection{Automated assessment usage and examples}
+\subsection{Assessment examples}
+The following examples illustrate some typical assessment operations as they would
+be defined in the results.config and goals.config files.
+
 \subsubsection{Do artifact files contain specific strings?}
 Consider the labs/formatstring/instr\_config/results.config file for a few examples.  
 The first non-comment line defines a result having the symbolic name ``\_crash\_sig'':
@@ -1137,7 +1150,7 @@ The goals.config includes this goal:
 \end{verbatim}
 \noindent The value of the crash goal is true if either result is true.
 
-\subsubsection{Get field from selected line in an artifact file}
+\subsubsection{Compare value of field from selected line in an artifact file}
 Again refrence the labs/formatstring/instr\_config/results.config file.  The third non-comment line
 defines a result having the symbolic name ``origsecret1value'':  
 \begin{verbatim}
@@ -1154,14 +1167,20 @@ modify_value = matchany : string_diff : newsecret1value : result.origsecret1valu
 \noindent , which will be true if any of the vul\_prog stdout files include a
 ``newsecret1value'' that differs from its ``oldsecret1value``.
 
-\subsubsection{time\_delimeter file name qualifier} These are intended for use with 
+\subsubsection{My desired artifacts are not in stdin or stdout, the program outputs a file}
+See section \ref{program output}
+
+\subsubsection{Distinguish log file entries generated before and after configuration changes}
 \label{time delimeter}
-log files having timestamped entries.  The {\tt time\_delimiter} identifies some
+When log files are named in results.config files, you can qualify the log file name
+with the name of program whose invocation serves as a {\tt time\_delimiter} introduced
+in section {results.config}.
+The {\tt time\_delimiter} identifies some
 monitored program whose start times will be used to organize the log file into
 a set of timestamped results.  This differs from use of HAVESTRING\_TS and
 REGEX\_TS in that those store results as descrete timestamped values for each
 timestamp found in the log file.  The {\tt time\_delimiter} timestamp values are
-delimited by the start times of the monitored program.  The intended use is to
+based on the start times of the monitored program.  The intended use is to
 group results from programs whose actions result in entries in the log file.
 This can be useful for grouping system log entries based on system configuration
 changes (i.e., accomplished via the {\tt time\_delimiter} program). 
@@ -1169,11 +1188,15 @@ changes (i.e., accomplished via the {\tt time\_delimiter} program).
 Consider a lab that directs students to alter iptables on a component using the
 /etc/rc.local script.  The student is required to demonstrate a desired iptables
 configuration by running nmap on various other components.  The instructor wants 
-to confirm that some set of expected stdout from nmap all occurred within a single
+to confirm that some set of expected stdout from nmap running on different
+components all occurred within a single
 configuration of iptables, delimited by the running of rc.local.  In other words,
-the the student cannot succeed by altering iptables between invocations of nmap on
+the student cannot succeed by altering iptables between invocations of nmap on
 different components.  In this example, the {\tt file\_path} would name the iptables
-log, and the {\tt time\_delimiter} would name rc.local.  If the lab result.config were:
+log, and the {\tt time\_delimiter} would name rc.local.  In order to track invocations
+of rc.local, we would add it to the {\tt treataslocal} file described in section \ref{stdin and stdout}.
+
+Then, if the lab result.config were:
 \begin{verbatim}
     _iplog = outer_gw:/var/log/ulog/syslogemu.log:rc.local : \
              CONTAINS : IPTABLES DROPPED
@@ -1183,9 +1206,9 @@ log, and the {\tt time\_delimiter} would name rc.local.  If the lab result.confi
     _local_nmap_sql = ws1:nmap.stdout : CONTAINS : 3306/tcp open  mysql
 \end{verbatim}
 
-\noindent The {\tt \_iplog} would then have up to N+1 timestamped results,
+\noindent The {\tt \_iplog} result would then have up to N+1 timestamped instances,
 where N is the quantity of times that rc.local was executed. The first possible
-timestamp would have a starting time of zero and and ending time of the very first
+timestamp would have a starting time of zero and an ending time of the very first
 invocation of rc.local.  The nmap results would each have timestamps corresponding
 to their times of execution.  Note the nmap results include results from two different
 computers, ws1 and remote\_ws.
@@ -1205,6 +1228,33 @@ single iptables configuration in which:
 \item The remote workstation could reach the HTTPS port but not the SQL port, and,
 \item The local workstation could reach the HTTPS port and the SQL port.
 \end{itemize}
+
+\subsubsection{Delimiting logs by starting services}
+\label{time delimiter services}
+Another example of the use of {\tt time\_delimiter} log file qualifiers is a web server,
+and its corresponding httpd log.  It may be desired to group log entries generated during a
+single configuration of the web server, delimited by the starting of the web server, e.g., via
+{\tt sudo systemctl restart httpd}.  Here, our {\tt time\_delimiter} program is the use of systemctl
+to start or restart the httpd.  Services are named in the {\tt treataslocal} file by giving them a
+suffix of ``.service'', e.g.,
+\begin{verbatim}
+    httpd.service
+\end{verbatim}
+\noindent and that same name is used for our {\tt time\_delimiter}, e.g.,
+\begin{verbatim}
+   web_log = vuln-site:/var/www/csrflabelgg.com:httpd.service : CONTAINS : GET / HTTP/
+\end{verbatim} 
+\noindent will create time stamp ranges delimited by the starting of the web server.  Results from
+other programs, (or other results derived from the web log), could then be similarly group using 
+the {\tt time\_during} operation, e.g.,
+\begin{verbatim}
+   _some_goal = time_during : other_result : web_log
+   _some_other_goal = time_during : yet_another_result : web_log
+   success = boolean (_some_goal and _some_other_goal) 
+\end{verbatim}
+The success goal would only then be true if the two goals each occurred during a single instance
+of the web server configuration, as delimited by use of {\tt systemctl restart httpd}.
+
 \section{Networking}
 Most networking is simply a matter of defining networks and assigning them to containers
 as described in \ref{start.config}.  
