@@ -22,13 +22,15 @@ This document is in the public domain and is not subject to copyright.
 This manual is intended for use by lab designers wanting
 to create or adapt cybersecurity labs to use the Docker
 container-based lab framework known as ``Labtainers''.
-
-\subsection{Intended use}
 The Labtainer framework is designed for use with computer and network security
 laboratory exercises targeting Linux environments, and it is built around 
-standard Linux Docker containers.  A Labtainer lab may include multiple 
+standard Linux Docker containers.  A Labtainer exerciese may include multiple 
 networked components, all running locally on a student's computer, but without
 the performance degredation associated with running multiple virtual machines.
+
+While most Labtainer exercises focus on exploring concepts via the Linux command line -- GUI based
+applications, e.g., browsers and Wireshark are also supported. 
+
 \subsection {Benefits of Labtainers}
 
 Deploying cybersecurity labs using this framework
@@ -65,6 +67,16 @@ Exercises that include multiple networked computers illustrate an advantage
 of using containers over VMs, namely, containers require significantly less resources
 than do VMs.  A student laptop that struggles to run two or more VMs can readily 
 run multiple containers simultaneously, as shown in this 50 second demonstration: \url{https://youtu.be/JDV6jGF3Szw} 
+
+Lab designers enhance labs to include automated assessment using directives built into the famework 
+For example, 10 rather simple directives can evaluate the following question:
+
+``Was there any
+single iptables configuration during which the student used nmap to demonstrate that:
+\begin{itemize}
+\item The remote workstation could reach the HTTPS port but not the SQL port, and,
+\item The local workstation could reach the HTTPS port and the SQL port.''
+\end{itemize}
 
 \section {Overview of the student environment and workflow}
 Labtainers support laboratory exercises designed for Linux environments,
@@ -126,7 +138,7 @@ that are collected by instructors.
 Installation of Labtainers is described in in the \textit{Labtainer Student Guide},  
 which also includes instructions for installing an Ubuntu VM (if you do not already have a Linux system),
 and the Labtainer framework.  Our website also distributes pre-packaged VM appliances that already have
-Labtainers installed. Note Labtainers will work with any Linux
+Labtainers installed. Labtainers will work with any Linux
 distribution that supports Docker containers.  If you already have Docker installed on a Linux system, 
 reference the Student Guide for other dependencies. 
 
@@ -140,19 +152,30 @@ sets some environment variables.
 It is suggested that you periodically run that update script to get the latest lab definition files,
 and to update framework software.   
 
-\section {Defining new labs}
+\section {Creating new labs}
 \label{sec:new_labs}
 The most challenging and critical part of designing a new cybersecurity lab
 is the design of the lab itself, i.e., identifying learning objectives and
 organizing exercises to achieve those objectives.  The Labtainer framework
 does not specifically address any of that.  Rather, the framework is intended
 to allow you to focus more time on the design of the lab and less time on mitigating and
-explaining system administration burdens you are placing on students and instructors.
-The framework does not require lab designers to program or create scripts.  The
-lab designer primarily interacts with the framework by editing configuration files
-which affect the student's execution environment and the optional automated
-assessment of student activity.
+explaining system administration and provisioning burdens you are placing on 
+students and instructors.
 
+Typical steps for developing a new lab are:
+\begin{enumerate}
+\item Give the lab a name and create its computers using the {\tt new\_lab\_setup.py} script;
+\item Choose the starting baseline configuration for each computer and add software packages
+within a Dockerfile;
+\item Define networks and connections to the lab computers in the lab's {\tt start.config} file.
+\item Populate the user's HOME directory and system directories with lab-specific files.
+\end{enumerate}
+The remainder of this section covers the fist step and provides an example.  The 
+following section \ref{execution environment}, covers the other three
+steps.  After a lab is created, you can then optionally parameterize it per section \ref{parameterize} and/or
+define criteria for automated assessment per section \ref{assessment}
+
+\subsection{Create the first lab computer}
 Labtainer exercises each have their own
 directory under the ``labs'' directory in the project repository.
 The first step in creating a new lab within the framework is to create
@@ -163,20 +186,22 @@ used by students when starting the lab.  It must be all lower case and not conta
     mkdir <new lab name>
     cd <new lab name>
 \end{verbatim}
-\noindent Note: the {\tt \$LABTAINER\_DIR} will have been defined in your .bashrc
+
+\noindent After the new lab directory is created, run the ``new\_lab\_setup.sh'' script.
+\footnote {The {\tt \$LABTAINER\_DIR} will have been defined in your .bashrc
 file when you installed Labtainers.  It should point to the {\tt labtainers/trunk}
 directory.  You may need to start a new {\tt bash} shell to inherit the environment
-variable.
+variable.}
 
-After the new lab directory is created, run the ``new\_lab\_setup.sh'' script.
 \begin{verbatim}
     new_lab_setup.py
 \end{verbatim}
 This will create a set of template files that you can then customize
 for the new lab.  These template files are referenced in the discussion
-The result is a new labtainer lab that can be run.  While this new
-lab will initially only present you with a bash shell to an
-empty directory, it is worth testing the lab to understand the workflow.
+below.
+The result of running {\tt new\_lab\_setup.py} is a new labtainer lab that can be immediately run.  
+While this new lab will initially only present you with a bash shell to an
+empty directory on a Linux computer, it is worth testing the lab to understand the workflow.
 
 \subsection{Testing the new lab}
 Once a new lab directory is created, and the new\_lab\_setup.py has been run, then 
@@ -195,8 +220,8 @@ Then start the container using the:
 \end{verbatim}
 command, where labname is the name of the lab you just created.  
 
-The rebuild.py command will remove and recreate the container
-each time the script is run.  And it will rebuild the container image if any of its configuration 
+The rebuild.py command will remove and recreate the lab containers
+each time the script is run.  And it will rebuild the container images if any of their configuration 
 information has changed.  \footnote{The build process may generate warnings in red text, some of which are expected.  
 These include an unreferenced ``user'' variable and the lack of apt-utils if apt-get is used to install packages in 
 Dockerfiles.}  This is often necessary when building and testing new labs, to ensure the
@@ -210,14 +235,14 @@ a separate terminal:
 
 Note the ``rebuild.py'' command is not intended for use by students, they would use the ``start.py'' command.  
 The rebuild.py utility compares file modification dates to Docker image creation dates to determine if
-a given image needs to be rebuilt.  Note this will miss file deletion.  Thus, if files are deleted, you must
-force the rebuild using the {\tt -f} option at the end of the rebuild.py command.
+a given image needs to be rebuilt.  \footnote{rebuild.py will miss file deletion.  Thus, if files are deleted, you must
+force the rebuild using the {\tt -f} option at the end of the rebuild.py command.}
 
 Stop the containers with 
 \begin{verbatim}
     stop.py [labname]
 \end{verbatim}
-Note that when you stop the container, a path to saved results is displayed.
+When you stop the container, a path to saved results is displayed.
 This is the zip file that the student will forward to the instructor.
 
 To test adding a ``hello world'' program to the new labtainer, perform the following steps:
@@ -232,50 +257,59 @@ home directory.  If you run the program from the container, and then stop the co
 with stop.py, you will see the stdin and stdout results of the program within the
 saved zip file.
 
-Note how the ``hello world'' program was placed in \verb!$LABTAINER_DIR/labs/[labname]/[labname]!.
+The ``hello world'' program was placed in \verb!$LABTAINER_DIR/labs/[labname]/[labname]!.
 The seemingly redundant ``labname'' directories are a naming convention in which the
 second directory names one of potentially many containers.  In this simple example,
 the lab has but one container, whose name defaults to the lab name.
 
-The following sections describe how to futher alter the lab execution environment seen by 
+The following sections describe how to further alter the lab execution environment seen by 
 the student.
 
 \subsection {Multiple containers}
 The {\tt new\_lab\_setup.sh} script can be used to create additional containers for use
-in the lab.  For example:
+in the lab.  For example, from your new lab directory:
 \begin{verbatim}
     new_lab_setup.sh -a joe_computer
 \end{verbatim}
 \noindent will create a second container for your lab,
-named ``joe\_computer''.  Use 
+named ``joe\_computer''.  If you again run the rebuild.py script, you will see two virtual
+terminals, each connected to one of your two independent computers. 
+
+Use 
 \begin{verbatim}
     new_lab_setup.sh -h
 \end{verbatim}
 \noindent to view the operations available in that script.
+The following sections describe how to configure the execution environments on your components,
+and how to define virtual networks connected to the components.
 
 \section {Defining the lab execution environment}
+\label{execution environment}
 A given lab typically requires some set of software packages, and some
-system configuration, e.g., network settings.  
-The framework captures most configuration details within a standard
-Dockerfile.  A default Labtainer-specific Dockerfile is placed in the new lab's ``dockerfiles'' 
+system configuration, e.g., network settings, and perhaps some lab-specific
+files.  It can include multiple containers, each appearing as distinct
+computers connected via networks.  The execution environment seen by a
+student when interacting with one of these ``computers'' is therefore defined
+by the configuration of the associated container. 
+
+Software packages are defined in each container's Dockerfile, described in 
+the subsection below. That is followed by subsection \ref{start.config} describing network definitions,
+(and other computer attributes) in the start.config file.  The remaining subsections then
+described populating the user HOME directory and system directories, and methods for starting 
+system services and miscellanious envrionment settings. 
+
+\subsection {Docker files}
+A default Labtainer-specific Dockerfile is placed in the new lab's ``dockerfiles'' 
 directory when the new lab is created.  And additional Dockerfiles are added when the
-{\tt new\_lab\_setup.sh -a} script is run.  We use standard Docker file syntax, which is described at 
+{\tt new\_lab\_setup.sh -a} script adds computers to the lab. We use standard Docker file syntax, which is described at 
 \url{https://docs.docker.com/engine/reference/builder/}
 
-Lab designers should reference that Docker documentation for the 
-syntax and semantics of these files.
 Simple labs should be able to use the default Dockerfile copied by the 
 new\_lab\_setup.py script.  That Dockerfile refers to a base Labtainer
 image that contains the minimum set of Linux packages necessary to 
 host a lab within the framework.  The default
 execution environment builds off of a recent Ubuntu image.
 
-A given lab can include multiple containers, each appearing as distinct
-computers connected via networks.  The execution environment seen by a
-student when interacting with one of these ``computers'' is therefore defined
-by the configuration of the associated container.  
-
-\subsection {Docker files}
 \noindent Each container has its own Dockerfile within the 
 \begin{verbatim}
    $LABTAINER_DIR/labs/[labname]/dockerfiles
@@ -286,10 +320,9 @@ by the configuration of the associated container.
 \end{verbatim}
 where role is either ``student'' or ``instructor''.  The framework will use the student Dockerfile to
 create the instructor container unless a distinct instructor file is present (e.g., if the designer
-wishes the instructor to have unique software packages.) The system automatically creates a student Dockerfile
-when a new lab (or additional container) is created.  
+wishes the instructor to have unique software packages.) 
 
-The first line of each Dockerfile identifies the base image to be pulled from the Docker Hub.
+The first line of each Dockerfile identifies the baseline Labtainer image to be pulled from the Docker Hub.
 The initial default image is a basic Ubuntu system with a minimal set of packages.  To use an
 alternate image having additional networking packges (e.g., tcpdump, xinetd, sshd), change the first line to:
 \begin{verbatim}
@@ -303,6 +336,8 @@ FROM mfthomps/labtainer.network
 \item labtainer.wireshark -- The labtaienr.network with wireshark added.
 \item labtainer.java -- An Ubuntu container with the Firefox browser and the open JDK.
 \end{itemize}
+Refer to the Dockerfiles in {\tt \$LABTAINER\_DIR/scripts/designer/base\_dockerfiles} to see which
+software packages are included within each baseline image. 
 
 The Dockerfile is used to add packages to your container, e.g., 
 \begin{verbatim}
@@ -317,8 +352,10 @@ Next, you must also describe your containers within the \textit{start.config} fi
 \subsection{Container definitions in start.config}
 \label{start.config}
 Most single container labs can use the automatically generated start.config file
-without modification.  Labs consisting of multiple containers must modify the start.config 
-file.  The following describes the major sections of that configuration file.
+without modification.  Adding networks to containers and defining users other than the
+default "ubuntu" user requires modification of the start.config file.
+The following describes the major sections of that configuration file.  Most of the configuration
+entries can be left alone for most labs.
 \begin{itemize}
 \item GLOBAL\_SETTINGS -- Beneath this keyword, the following values must be defined:
 
@@ -344,20 +381,22 @@ providing a name for the network, the following values are defined:
 \item GATEWAY [gateway address] -- The IP address of the network gateway used by Docker to communicate with the
 host.  Please note that to define a different network gateway for the component, you should 
 use the {\tt set\_default\_gw.sh}.  This GATEWAY field should not name the IP of any of your other components.  
-See the {\tt routing\_basics2} for examples.
+See the the {\tt routing\_basics2} lab for examples.
 \end{itemize}
 
 \item CONTAINER [container name] -- One of these sections is required for each container in the lab.
-In addition to naming the container, the following values are defined: 
+These sections are automatically created by the {\tt new\_lab\_setup.py} script.  In addition to 
+naming the container, the following values are defined: 
 
 \begin{itemize}
 \item TERMINALS [quantity] -- The number of virtual terminals to open and attach to this 
 container when a lab starts.  If missing, it defaults to 1. Terminal titles are set to the 
-bash shell prompt.
+bash shell prompt. A value of 0 suppresses creation of a terminal, and a value of -1 prevents
+the student from attaching a terminal to the container. 
 \item TERMINAL\_GROUP [name] -- All virtual terminals within the same group are organized as
 tabs within a single virtual terminal.  Terminal group names can be arbitrary strings.
-\item XTERM [title] [script] -- The named script is execute in a virtual terminal with the
-give title.   The system will change to the user's home directory prior to executing the
+\item XTERM [title] [script] -- The named script is executed in a virtual terminal with the
+given title.   The system will change to the user's home directory prior to executing the
 script.  The script should be placed in container \_bin directory, i.e.,
 \begin{verbatim}
     $LABTAINER_DIR/labs/[labname]/[container]/_bin
@@ -373,7 +412,7 @@ that is to be connected to this container.  A separate line should be entered fo
 can optionally include a MAC address assignment as a suffix following a colon, e.g., "172.25.0.1:2:34:ac:19:0:2".
 \item SCRIPT [script] -- Optional script to provide to the Docker create command, defaults to ``bash''.  This must be set to
 ``NONE'' for CentOS-based labs (and likely fedora[test that]).
-\item ADD-HOST [host:ip] -- Optional addition to the /etc/host file, a container may have multipled ADD-HOST entries.
+\item ADD-HOST [host:ip] -- Optional addition to the /etc/host file, a container may have multiple ADD-HOST entries.
 \item X11 [YES/NO] -- Optional, defaults to NO.  If YES, the container mounts the TCP socked used by the hosts X11 server,
 enabling the container to run applications with GUIs, e.g., browsers or wireshark.  See sql-inject as an example.  See the
 Notes section at the end of this manual for tips on using Firefox and Wireshark.
@@ -390,15 +429,15 @@ A simple example of a two-container lab can be found in
 \subsection {Lab-specific files in the student's home directory}
 \label{home files}
 Files that are to reside in the student's \$HOME directory are placed in the 
-new lab container directory.  For example, if a lab includes a source code file, that
-should be placed in the lab container directory, as a result, the file will appear in the student's
+new lab container directory.  For example, if a lab is to include a source code file, that
+should be placed in the lab container directory. The file will appear in the student's
 home directory within the container when the container starts.  The lab container
 directory is at:  
 
 \begin{verbatim}
     $LABTAINER_DIR/labs/[labname]/[container name]
 \end{verbatim}
-Note the name of the container name in labs with a single container matches the labname by default.
+The container name in labs with a single container matches the labname by default.
 
 All files and directories in the lab container directory will be copied to the student's HOME
 directory except for the \_bin and \_system directories.
@@ -406,7 +445,7 @@ Each initial Dockerfile from the templates include this line:
 \begin{verbatim}
     ADD $labdir/$lab.tar.gz $HOME
 \end{verbatim}
-to accomplish the copying. Except as noted below, Dockerfile should not include any other ADD commands
+to accomplish the copying. Except as noted below, Dockerfiles should not include any other ADD commands
 to copy files to the HOME directory.
 \subsubsection{Large or numerous files in the home directory} \label{large files}
 If there are large sized, or a high quantity of files that are to be placed relative to a 
@@ -453,34 +492,23 @@ In general, files modified and maintained by the designer should go into the
 The Dockerfile ``ENTRYPOINT'' command can be used to start a system service.  The general Docker 
 model is that a single Docker container runs a single service, with logging being forwarded to 
 the host.  Labtainers disregards this model because our goal is to make a container look more like a Linux
-system rather than a conformant Docker container.  The default Labtainer Dockerfiles include an
+system rather than a conformant Docker container.  The Ubuntu-based Labtainer Dockerfiles include an
 ENTRYPOINT command that launches a \textit{faux\_init} script that starts rsyslog, (so that system logs
 appear in /var/log), and runs rc.local.  The network configuration of the baseline Dockerfile also starts xinetd,
 which will then fork services, e.g., the sshd, per the /etc/xinet.d/ configuration files.  The faux\_init script
 can be extended (or replaced) as needed by the lab.  The example telnetlab illustrates the use of this script
 to provide network services.
 
-The CentOS-based Labtainer labs, exemplified by centos-log, do not use the \textit{faux\_init}, rather they
+The CentOS-based Labtainer containers, exemplified by centos-log, do not use the \textit{faux\_init}, rather they
 use a Docker image built to run systemd and the /usr/sbin/init process.  The Dockerfile template includes
 commented options for CentOS.  The config/start.config file must also include the 
 \begin{verbatim}
     SCRIPT NONE
 \end{verbatim}
-\noindent line.  The centos-log also provides an example of forcing the student to login using the traditional
+\noindent line for the container.  The centos-log also provides an example of forcing 
+the student to login using the traditional
 login program, controlled by its bin/student\_startup.sh script.   
 
-
-\subsection {Container isolation}
-Docker provides namespace isolation between different containers, and
-between the containers and the host platform.  Note however, that all
-containers and the host share the same operating system kernel.  Some
-kernel configuration changes will affect all containers and the host.  For example,
-use of sysctl to modify Address Space Layout Randomization (ASLR) will effect
-all containers and the effects will persist in the host after the containers
-are stopped.  However, some tuning parameters such as net.ipv4.ip\_forward are
-isolated, i.e., local to the container. These do get reset in ways that are
-hard to predict, so it is suggested that sysctl tuning be done in rc.local
-scripts so that they happen on each boot.
 
 \subsection {Instructions for Students} \label{instructions}
 Lab instructions for students can be displayed in a virtual terminal by placing an
@@ -503,7 +531,7 @@ included with the student artifacts and available extracted into the intstrutor'
 labtainer\_xfer/[lab]/docs directory.
 
 \subsection {Running programs in Virtual Terminals}
-Programs can be started automatically within virtual terminals in two manners.
+Programs can be started automatically within virtual terminals using two methods.
 The first is the ``XTERM'' directive in the container section in the start.config file
 described in \ref{start.config}.  That is intended for programs whose results are displayed
 within the virtual terminal.  The second method is intended for user authentiation and
@@ -521,7 +549,7 @@ The initial environment encountered by the student is further refined using
 the optional \_bin/fixlocal.sh script.  The framework executes
 this script the first time a student starts the lab container.  For example,
 this could be used to compile lab-specific programs afer they have been parameterized,
-(as described below).  Or this script could perform final configuration adjustments
+(as described below in \ref{parameterize}).  Or this script could perform final configuration adjustments
 that cannot be easily performed by the Dockerfile.  These scripts are per-container
 and reside at:
 \begin{verbatim}
@@ -529,7 +557,7 @@ and reside at:
 \end{verbatim}
 
 \subsection{Automatic copying files from containers to the host}
-This feature no longer has an intended use. 
+This feature no longer has an intended use, but it is available if you have one.
 Files are identified within
 \begin{verbatim}
     $LABTAINER_DIR/labs/[labname]/config/files_to_host.config
@@ -539,7 +567,7 @@ the named container will be copied to the host computer into a directory named b
 to the Labtainer working directory.
 
 \section{Parameterizing a lab}
-\label{parameterizing}
+\label{parameterize}
 This section describes how to individualize the lab for each student to discourage
 sharing of lab solutions.  This is achieved by defining symbols within source 
 code or/and data.  The framework will replace these symbols with randomized values
@@ -627,7 +655,8 @@ is followed by one of the following operations:
      of the concatenation of the lab instance seed and "myrootfile".
 \end{verbatim}
 
-The parameter\_id fields may be referenced during the automated grading function, described below. 
+The parameter\_id fields may be referenced during the automated grading function, described below
+in section \ref{goals.config}. 
 
 \subsection{Simple Parameterization for Checking Own-work}
 The simplest, though by no means robust, strategy for ensuring students
@@ -639,8 +668,9 @@ originated from a Labtainer initiated with that student's email address.
 
 
 \section{Automated assessment of student labs}
+\label{assessment}
 This section describes how to configure a lab for automated assessment of student work.
-Note the framework does not require that labs include automated assessment, e.g., the
+Note the framework does not require automated assessment, e.g., the
 ``results'' of a lab may consist entirely of a written report submitted by the student.
 Support for automated collection of written reports is described in \ref{instructions}
 and the use of COLLECT\_DOCS in the start.config file.
@@ -653,8 +683,10 @@ ad-hock exploration by students.  Therefore, lab designer should consider ways t
 evidence that steps of a lab were performed rather than trying to identify everything a student
 may have done in the course of the lab.
 
-Automated assessment is achieved by first generating artifact files while the student works. 
-Then, artifacts within those files are identified, and the values of those artifacts are compared to expected values.
+Automated assessment is achieved by first generating artifact files while the student works.  That
+is described in the first subsection below.  Next, artifacts within those files are identified
+as described in section \ref{results.config}.  The values of the resulting artifacts are then
+compared to expected values, as per section \ref{goals.config}.
 
 \subsection{Artifact files}
 \label{artifact files}
@@ -662,15 +694,14 @@ The files from which artifacts are derived include persisent data, such as syste
 {\tt .bash\_history}, as well as 
 timestamped snapshots of transitory data such as stdout of a program.  Lab designers can also generate
 customized artifacts in response to student actions using scripts that automatically execute when selected
-programs or utilities are executed -- or when selected files are accessed.   The following subsections
-described how these artifacts are generated.
+programs or utilities are executed -- or when selected files are accessed.   The following paragraphs
+describe how these artifacts are generated.
 
-As described in the following subsections, the Labtainer framework use of timestampes allows 
-designers to express temporal 
+The Labtainer framework use of timestamps allows designers to express temporal 
 relationships between artifacts, and thus between events.  For example, the designer can determine if
 two distinct artifacts were part of the same stdout stream.  Or if artifacts in the stdout stream from one 
 program were occuring during the invocation of a different program that generated other specific artifacts.  
-The framework also can include 
+The framework also can incorporate
 timestamps from standard log file formats, e.g., syslog, allowing the designer to determine if some logfile
 entry occurred during the invocation of a program whose stdout stream contains selected artifacts.
 As a more concrete example, the use of timestamps allows the designer to determine that a spcific web log
@@ -678,8 +709,7 @@ record occurred during invocation of some program that produced a specific artif
 
 \subsubsection{Capturing stdin and stdout}
 \label{stdin and stdout}
-The framework's automated assessment functions generally assume the student will interact with one or
-more programs or system utilities.  Each time the student invokes a selected program or utility, the 
+Each time the student invokes a selected program or utility, the 
 framework captures copies of standard input and standard output, (stdin and stdout) into timestamped file sets.
 This is transparent to the student.  (Also see the following section for capturing
 program output other than stdout.)  These timestamped file sets, selected system logs,  and everything relative to
@@ -695,13 +725,13 @@ names appear at the beginning of a line in the \textit{treataslocal} file at
     $LABTAINER_DIR/labs/[labname]/[container name]/_bin/treataslocal
 \end{verbatim}
 \noindent The basename of the treataslocal entries are compared to the basename of each command.
-In other words, if the treataslocal entry is: \texttt{usr/bin/nmap}, the path leading to nmap is ignored.
+\footnote{In other words, if the treataslocal entry is: \texttt{usr/bin/nmap}, the path leading to nmap is ignored.}
 Starting of services can be monitored through use of treataslocal entries having a ``.service'' suffix,
-e.g., {\tt httpd.service} would generate timestamped artifact files whenever http was start (or restarted)
-using systemctl or /etc/init.d.  See section \ref{time delimeter services}
+e.g., {\tt httpd.service} would generate timestamped artifact files whenever http was started (or restarted)
+using systemctl or /etc/init.d.  See section \ref{time delimeter services} for the intended use of this feature.
 
 Non-system programs can be excluded from stdin/stdout capturing by including their names in
-a ``ignorelocal'' file in that same directory.  These should not include path information, just the program name.
+a ``ignorelocal'' file in that same directory.  \footnote{These should not include path information, just the program name.}
 
 \subsubsection{Capturing program file output}
 \label{program output}
@@ -737,14 +767,14 @@ The framework collects all student bash history into the \texttt{\$HOME/.bash\_h
 \texttt{/root/.bash\_history} files.  These files are
 available for reference as an artifact file.  
 
-\subsection{System logs}
+\subsubsection{System logs}
 All files referenced in the {\tt results.config} file, (described below in section \ref{results.config}
 will be collected into the artifact archive.  
 
 \subsubsection{Capturing information about the environment}
 \label{checklocal}
 Some labs require the student to alter system configuration settings,
-e.g., using the sysctl command to effect ASLR. A \textit{checklocal.sh} script in:
+e.g., using the sysctl command to affect ASLR. A \textit{checklocal.sh} script in:
 \begin{verbatim}
     $LABTAINER_DIR/labs/[labname]/[container name]/_bin
 \end{verbatim}
@@ -802,7 +832,7 @@ the {\tt checklocal.sh} script is invoked, passing in the given path and access 
 the {\tt acl} lab for an example.
 
 The output from the {\tt checklocal.sh} script is captured in timestamped files, just as
-what those resulting from events described in Section \ref{checklocal}.  Note it is possible,
+those resulting from events described in Section \ref{checklocal}.  Note it is possible,
 (and often advantagous) for events resulting from program invocation, e.g., due to use of
 a {\tt forcecheck} file, to be recorded in the very same timestamped file as events resulting
 from a {\tt notify} file.  In such cases, output from the former will preceed output from the latter
@@ -811,7 +841,7 @@ file that was created up to two seconds prior to the {\tt notify} event.  Inclus
 one timestamped file allows the designer to identify events that occured as part of a single program
 invocation.  Again, see the {\tt acl} lab for an example.
 
-\subsection{Identify lab-specific artifacts}
+\subsection{Artifact result values}
 \label{results.config}
 The automated assessment functions encourage labs to be organized into a set of distinct ``goals''.
 For each goal, the lab designer identifies one or more specific fields or attributes of artifact files that
@@ -882,9 +912,9 @@ Directives within the results.config file each have the following format:
                              are ignored.
                CHECKSUM   -- The result value is set to the md5 checksum 
                              of the file.
-               CONTAINS   -- The result value is set to true if the file 
+               CONTAINS   -- The result value is set to TRUE if the file 
                              contains the string represented in field_id.
-               FILE_REGEX -- The result value is set to true if the file 
+               FILE_REGEX -- The result value is set to TRUE if the file 
                              contains the regular expression represented in field_id.
                STRING_COUNT--The result value is set to the quantity of
                              occurances of the string represented in field_id.
@@ -955,9 +985,10 @@ In general, the pregrade.sh script is expected to extract or convert
 data from an artifact file, and write it into a new file in the .local/results
 directory of the container.   
 
-\subsection{Assessing student results}
+\subsection{Evaluating results}
+\label{goals.config}
 Results of student lab activity are assigned symbolic names by the results.config file
-as described above.  These results are then referenced in the goals.config to assess whether
+as described above.  These results are then referenced in the goals.config to evaluate whether
 the student obtained expected results.  Most lab goals defined in the goals.config file
 will evaluate to TRUE or FALSE, with TRUE reflecting that the student met the defined goal.
 In addition to these binary goals, the designer can capture and report on quantities of events,
@@ -966,15 +997,15 @@ Once evaluated, a goal may determine the value of subsequent goals within the go
 i.e., through use of boolean expressions and temporal comparisons between goals.  The evaluated
 state of each goal can then contribute to an overall student assessment.
 
-As noted earlier, student results may derive from multiple invocations of the same program or system utility.  
+Student results may derive from multiple invocations of the same program or system utility.  
 The framework does not discourage students from continuing to experiment and explore aspects of the 
-exercise subsequent to obtaining the desired results.  In general, the assessment determines if the student
+exercise subsequent to obtaining the desired results.  In general, Labtainer assessment determines if the student
 obtained expected results during any invocation of a program or system utility, or during a time period
-delineated by timestamp ranges described in section \ref{results.config}.  In those cases 
+delineated by timestamp ranges described in section \ref{results.config}.  \footnote{In those cases 
 where the student is required to obtain the expected results during the final invocation of a program, 
-the \textit{matchlast} goal type may be specified as described below.  
+the \textit{matchlast} goal type may be specified as described below.}
 
-The goals.config file contains directives, each of which assigns a value to symbolic name referred
+The goals.config file contains directives, each of which assigns a value to a symbolic name referred
 to as the {\tt goal\_id}.  Each goal\_id may have multiple instances of timestamped values, with their
 associated timestamp ranges inherited from results.  Examples of assigning values to a goal\_id include:
 \begin{itemize}
@@ -985,11 +1016,11 @@ are directlly inherited from the results.
 A boolean goal\_id value is generated for each referenced result's timestamp.
 
 \item The value of a specific result is compared to a parameterized value
-generated from the student email address as described in section \ref{parameterizing}.
+generated from the student email address as described in section \ref{parameterize}.
 A boolean goal\_id value is generated for each referenced result's timestamp.
 
 \item Timestamps and boolean values of two different goal\_id's are compared.  For example, ``was
-a true value for {\tt result A} generated while a true value for {\tt result B} was being generated?''  
+a TRUE value for {\tt result A} generated while a TRUE value for {\tt result B} was being generated?''  
 A boolean goal\_id is generated for each
 timestamp range of {\tt result B} within which falls at least one {\tt result A} timestamp.
 
@@ -999,8 +1030,8 @@ in the expression.
 \end{itemize}
 
 The following syntax defines each goal within the goals.config file.  While the syntax
-may appear complex, most goals can be expressed simply as can be seen in the labtainer examples distributed
-with the framework.
+may appear complex, most goals can be expressed simply as can be seen in section \ref{examples} and
+in the Labtainer exercises distributed with the framework.
 
 \begin{verbatim}
 <goal_id> = <type> : [<operator> : <resulttag> : <answertag> | <boolean_expression> 
@@ -1035,7 +1066,7 @@ with the framework.
                          of the timestamped sets of goal_ids, (see the 'matchany' 
                          discussion above).  The goal_id's cannot include any 
                          "matchacross" goals.
-         count_greater The goal is true if the count of true subgoals in the 
+         count_greater The goal is TRUE if the count of TRUE subgoals in the 
                          list exceeds the given value.  The subgoals are 
                          summed across all timestamps.  The subgoal list is 
                          comma-separated within parenthesis.
@@ -1044,9 +1075,9 @@ with the framework.
                          A timestamped goal is created for each goal2 
                          timestamped instance whose timestamp is proceeded 
                          by a goal1 timestamped instance. The goal for that
-                         timestamp will be true if the goal2
-                         instance true, and at least one of the goal1
-                         instances is true. These timestamped goals can
+                         timestamp will be TRUE if the goal2
+                         instance is TRUE, and at least one of the goal1
+                         instances is TRUE. These timestamped goals can
                          then be evaluated within boolean goals.
          time_during - Both goal1 and goal2 must be goal_ids from previous 
                          matchany goal types, or boolean values from 
@@ -1054,9 +1085,9 @@ with the framework.
                          time, reflecting when the program starts and when it 
                          terminates.  A timestamped goal is created for each
                          goal2 range that encompasses a goal1 timestamp.
-                         The goal for that timestamp will be true of the
-                         goal2 instance is true, and at least one goal1 instance
-                         is true. These timestamped goals can then be
+                         The goal for that timestamp will be TRUE if the
+                         goal2 instance is TRUE, and at least one goal1 instance
+                         is TRUE. These timestamped goals can then be
                          evaluated within boolean goals.
          execute     - The <operator> is treated as a file name of a script to 
                          execute, with the resulttag and answertag passed to the 
@@ -1122,7 +1153,7 @@ with the framework.
          were assigned when the lab was parameterized for the student.
 
 \subsubsection{Assessment Report}
-Grading occurs on an instructor container, via a script named {\tt instructor.py}, which runs
+Evaluation of student results occurs on an instructor container, via a script named {\tt instructor.py}, which runs
 automatically when the instructor starts the lab.  The script can also be run manually, e.g., to
 test changes and additions to grading configuartion files.  It must be run from the HOME directory
 on the container identified in the start.config for the lab as being the {\tt GRADE\_CONTAINER}
@@ -1132,6 +1163,7 @@ the home directory in a file named {\tt <lab name>.grades.txt>}
 
 
 \subsection{Assessment examples}
+\label{examples}
 The following examples illustrate some typical assessment operations as they would
 be defined in the results.config and goals.config files.
 
@@ -1142,15 +1174,15 @@ The first non-comment line defines a result having the symbolic name ``\_crash\_
    _crash_sig = vul_prog.stdout : CONTAINS : program exit, segmentation
    _crash_smash = vul_prog.stdout : CONTAINS : *** stack smashing detected
 \end{verbatim}
-\noindent This result is true for each timestamped stdout file resulting from running 
+\noindent This result is TRUE for each timestamped stdout file resulting from running 
 the vul\_prog program in which the file contains the string ``program exit, segmentation''.
 The goals.config includes this goal:
 \begin{verbatim}
    crash =  boolean : ( _crash_smash or _crash_sig )
 \end{verbatim}
-\noindent The value of the crash goal is true if either result is true.
+\noindent The value of the crash goal is TRUE if either result is TRUE.
 
-\subsubsection{Compare value of field from selected line in an artifact file}
+\subsubsection{Compare value of a field from a selected line in an artifact file}
 Again refrence the labs/formatstring/instr\_config/results.config file.  The third non-comment line
 defines a result having the symbolic name ``origsecret1value'':  
 \begin{verbatim}
@@ -1164,7 +1196,7 @@ token in that line.  The ``newsecret1value`` assignment is similar.  The goals.c
 \begin{verbatim}
 modify_value = matchany : string_diff : newsecret1value : result.origsecret1value
 \end{verbatim}
-\noindent , which will be true if any of the vul\_prog stdout files include a
+\noindent , which will be TRUE if any of the vul\_prog stdout files include a
 ``newsecret1value'' that differs from its ``oldsecret1value``.
 
 \subsubsection{My desired artifacts are not in stdin or stdout, the program outputs a file}
@@ -1174,7 +1206,7 @@ See section \ref{program output}
 \label{time delimeter}
 When log files are named in results.config files, you can qualify the log file name
 with the name of program whose invocation serves as a {\tt time\_delimiter} introduced
-in section {results.config}.
+in section \ref{results.config}.
 The {\tt time\_delimiter} identifies some
 monitored program whose start times will be used to organize the log file into
 a set of timestamped results.  This differs from use of HAVESTRING\_TS and
@@ -1196,7 +1228,7 @@ different components.  In this example, the {\tt file\_path} would name the ipta
 log, and the {\tt time\_delimiter} would name rc.local.  In order to track invocations
 of rc.local, we would add it to the {\tt treataslocal} file described in section \ref{stdin and stdout}.
 
-Then, if the lab result.config were:
+Then, if the lab results.config were:
 \begin{verbatim}
     _iplog = outer_gw:/var/log/ulog/syslogemu.log:rc.local : \
              CONTAINS : IPTABLES DROPPED
@@ -1222,8 +1254,9 @@ A goals.config file of:
     remote_correct = boolean : ((remote_nmap_443 and_not remote_nmap_sql) and local_nmap_443 and local_nmap_sql)
 \end{verbatim}
 \noindent would generate sets of nmap goals grouped into timestamps corresponding to the
-{\tt \_iplog} results.  The {\tt remote\_correct} boolean expression could then be read as: ``Was there any
-single iptables configuration in which:
+{\tt \_iplog} results.  The {\tt remote\_correct} boolean expression could then be read as: 
+``Was there any
+single iptables configuration during which the student used nmap to demonstrate that:
 \begin{itemize}
 \item The remote workstation could reach the HTTPS port but not the SQL port, and,
 \item The local workstation could reach the HTTPS port and the SQL port.
@@ -1252,7 +1285,7 @@ the {\tt time\_during} operation, e.g.,
    _some_other_goal = time_during : yet_another_result : web_log
    success = boolean (_some_goal and _some_other_goal) 
 \end{verbatim}
-The success goal would only then be true if the two goals each occurred during a single instance
+The success goal would only then be TRUE if the two goals each occurred during a single instance
 of the web server configuration, as delimited by use of {\tt systemctl restart httpd}.
 
 \section{Networking}
@@ -1267,7 +1300,7 @@ It also allows the student to reach external networks, e.g., to fetch additional
 support of student exploration.
 
 In many instances, the lab designer will want to define a different default route for a 
-container.  Each container derived from the Labtainer network base includes a \textit{set\_default\_gw.sh}
+container.  Each container includes a \textit{set\_default\_gw.sh}
 script that can be added to the \textit{/etc/rc.local} (or \textit{fixlocal.sh}) file to redefine the default gateway.
 This script will automatically retain a route table entry so that the student can reach the ``my\_host''
 address.  Additionally, those baseline images include a \textit{togglegw.sh} script that the student
@@ -1307,7 +1340,7 @@ rebuild those images that have changed.  The designer can force the rebuild of a
 a lab by appending the ``-f'' switch to the end of the ``rebuild.py'' command.  That switch is not
 intended for routine use because it wastes time and masks errors in our dependency logic.
 
-If you build a new Labtainer lab, the container images will not be on the Docker Hub unless you put
+If you build a new Labtainer exerciese, the container images will not be on the Docker Hub unless you put
 them there.  If they are not on the hub, each student's computer will rebuild your lab when they go to run it.
 While this is fully functional, the build time may distract from performance of the lab.  If you
 create your own public repository on the Docker Hub (https://hub.docker.com/), you can populate that
@@ -1321,7 +1354,7 @@ svn.  Use the publish.py script (described above) to publish the lab containers.
 The distrib/mkdist.sh script is used by NPS to create the distribution tar file.  This script relies on
 an internal NPS subversion repository as the source to the Labtainer scripts and labs.  Use the mk-devel-distrib.py script
 to publish the developer configuration of the tar file.  The distrib/publish.py script is used to rebuild and 
-publish all of the Labtainer labs managed by NPS.
+publish all of the Labtainer exercieses managed by NPS.
 
 The publish.py script will only rebuild labs that have changed.  After pushing a new lab container
 image to the Docker hub, the script deletes the image from the local system.  The intent is to
@@ -1509,5 +1542,17 @@ delete the Docker-generated route:
 \end{verbatim}
 \noindent And the fixlocal.sh also replaces the resolv.conf entry with either a local DNS component, or a gateway running
 the dnsmasq utility.  The /etc/rc.local script generally sets the default gateway, and configures iptables.
+
+\subsection {Container isolation}
+Docker provides namespace isolation between different containers, and
+between the containers and the host platform.  Note however, that all
+containers and the host share the same operating system kernel.  Some
+kernel configuration changes will affect all containers and the host.  For example,
+use of sysctl to modify Address Space Layout Randomization (ASLR) will effect
+all containers and the effects will persist in the host after the containers
+are stopped.  However, some tuning parameters such as net.ipv4.ip\_forward are
+isolated, i.e., local to the container. These do get reset in ways that are
+hard to predict, so it is suggested that sysctl tuning be done in rc.local
+scripts so that they happen on each boot.
 
 \end{document}
