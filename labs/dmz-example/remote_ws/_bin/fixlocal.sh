@@ -10,5 +10,3 @@
 echo "nameserver 203.0.113.1" | sudo tee /etc/resolv.conf
 # remove the dns route so as to not confuse student
 sudo route del -host 172.17.0.1
-echo "198.18.1.1  www.example.com" | sudo tee -a /etc/hosts
-echo "198.18.1.1  example.com" | sudo tee -a /etc/hosts
