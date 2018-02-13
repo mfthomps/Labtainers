@@ -57,6 +57,8 @@ ADD $labdir/$lab.tar.gz $HOME
 #  The first thing that executes on the container.
 #
 USER root
+RUN chown apache:apache -R var/www/*.com/elgg/
+RUN chown apache:apache -R var/run/elgg_data
 CMD ["/usr/sbin/init"]
 # replace below with two above for centos
 #ENTRYPOINT sudo /sbin/faux_init && bash
