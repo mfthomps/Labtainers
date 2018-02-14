@@ -4,18 +4,18 @@
 # Add any other system services here, e.g., starting xinetd
 #
 /usr/sbin/rsyslogd -n &
-service rc.local start
-/etc/init.d/dnsmasq start
 ### Uncomment the while loop below 
 ### if it is necessary to make sure parameterization has happened
 
 # Check the existent of permanent 'did_param' lock directory
 # Sleep until exist
 PERMLOCKDIR=/var/labtainer/did_param
-###while [ ! -d "$PERMLOCKDIR" ]
-###do
-###    sleep 2
-###done
+while [ ! -d "$PERMLOCKDIR" ]
+do
+    sleep 2
+done
 
 # PUT any daemon start (that need parameterization after while loop)
 
+service rc.local start
+/etc/init.d/dnsmasq start
