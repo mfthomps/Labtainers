@@ -21,7 +21,7 @@ def isalphadashscore(name):
     return re.match(r'^[a-zA-Z0-9_-]*$', name)
 
 class ParseStartConfig():
-    def __init__(self, fname, labname, caller, logger):
+    def __init__(self, fname, labname, caller, labtainer_config, logger, skip_networks=True):
         self.containers = {} # dictionary of containers
         self.subnets    = {} # dictionary of subnets 
         self.labname = labname
@@ -31,6 +31,8 @@ class ParseStartConfig():
         self.grade_container = None # GRADE_CONTAINER - this is where the instructor performs the grading
         self.logger = logger
         self.fname = fname
+        self.skip_networks = skip_networks
+        self.labtainer_config = labtainer_config
         # COLLECT_DOCS - this optional setting indicates whether to collect lab's docs directory or not
         # default to NO (i.e., do not collect)
         self.collect_docs = None
@@ -184,12 +186,13 @@ class ParseStartConfig():
         if not self.grade_container:
             self.logger.ERROR("Missing grade_container in start.config!\n")
             exit(1)
+        
+        if not self.skip_networks:
+            for subnet in self.subnets.values():
+                subnet.validate()
 
-        for subnet in self.subnets.values():
-            subnet.validate()
-
-        for container in self.containers.values():
-            container.validate(self.subnets.keys())
+            for container in self.containers.values():
+                container.validate(self.subnets.keys())
 
 
     def finalize(self):
@@ -203,8 +206,6 @@ class ParseStartConfig():
         else:
             self.grade_container = self.labname + "." + self.grade_container + "." + self.caller 
 
-        labtainer_config_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(self.fname)))), 'config', 'labtainer.config')
-        labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_dir, self.logger)
 
         use_test_registry = os.getenv('TEST_REGISTRY')
         # fixing up container parameters
@@ -225,9 +226,9 @@ class ParseStartConfig():
             if self.containers[name].script == "none":
                self.containers[name].script = "";
             if use_test_registry is not None and (use_test_registry.lower() == 'yes' or use_test_registry.lower() == 'true'):
-                self.containers[name].registry = labtainer_config.test_registry
+                self.containers[name].registry = self.labtainer_config.test_registry
             elif self.containers[name].registry == None:
-                self.containers[name].registry = labtainer_config.default_registry
+                self.containers[name].registry = self.labtainer_config.default_registry
 
     def show_current_settings(self):
         bar = "="*80
