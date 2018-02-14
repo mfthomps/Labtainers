@@ -83,9 +83,9 @@ def findLineIndex(values):
 
     return None
 
-def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname, result_key, result_value, logger):
+def ProcessConfigLine(actual_parsing, studentlabdir, container_list, labidname, result_key, result_value, logger):
     '''
-    Misleading name, this function populates a set of global structures used in processign the results
+    This function populates a set of global structures used in processing the results
     '''
     valid_field_types = ['TOKEN', 'GROUP', 'PARENS', 'QUOTES', 'SLASH', 'LINE_COUNT', 'CHECKSUM', 'CONTAINS','FILE_REGEX',  
                          'FILE_REGEX_TS', 'SEARCH', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT']
@@ -121,6 +121,7 @@ def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname,
     # get optional container name and determine if it is 'stdin' or 'stdout'
     newprogname_type = values[0].strip()
     logger.DEBUG('newprogname_type is %s' % newprogname_type)
+    cmd = values[1].strip()
     # <cfgcontainername>:<exec_program>.<type>
     if ':' in newprogname_type:
         '''
@@ -197,6 +198,7 @@ def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname,
     field_type = None
     if line_at == 3:
         field_type = values[1].strip()
+        print('field type is ' % field_type)
         if field_type not in valid_field_types:
             logger.ERROR("results.config line (%s)\n" % result_value)
             logger.ERROR("results.config invalid field_type")
@@ -231,7 +233,7 @@ def ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname,
             logger.ERROR('Expected integer following LINE type, got %s in %s' % (values[line_at+1], result_value))
             sys.exit(1)
 
-    return newprogname_type
+    return newprogname_type, cmd
 
 def getToken(linerequested, field_type, token_id, logger):
         #print "Line requested is (%s)" % linerequested
@@ -867,6 +869,7 @@ def ParseConfigForFile(studentlabdir, labidname, configfilelines,
 
 # Note this can be called directly also
 def ParseValidateResultConfig(actual_parsing, homedir, studentlabdir, container_list, labidname, logger_in):
+    bool_results = []
     MYHOME = homedir
     logger = logger_in
     configfilename = os.path.join(MYHOME,'.local','instr_config', 'results.config')
@@ -885,20 +888,23 @@ def ParseValidateResultConfig(actual_parsing, homedir, studentlabdir, container_
                      logger.ERROR('missing "=" character in %s' % linestrip)
                      sys.exit(1)
                 result_key = result_key.strip()
-                progname_type = ValidateConfigfile(actual_parsing, studentlabdir, container_list, labidname, result_key, result_value, logger)
+                progname_type, cmd = ProcessConfigLine(actual_parsing, studentlabdir, container_list, labidname, result_key, result_value, logger)
                 if result_key not in resultidlist:
                     resultidlist[result_key] = progname_type
+                if cmd == 'CONTAINS' or (cmd is not None and cmd.startswith('FILE_REGEX')):
+                    bool_results.append(result_key.strip())
         #else:
         #    print "Skipping empty linestrip is (%s)" % linestrip
 
-    return configfilelines, resultidlist
+    return configfilelines, resultidlist, bool_results
 
 def ParseStdinStdout(homedir, studentlabdir, container_list, instructordir, labidname, logger_in):
     MYHOME = homedir
     logger = logger_in
     actual_parsing = True
     # Parse and Validate Results configuration file
-    configfilelines, resultlist = ParseValidateResultConfig(actual_parsing, homedir, studentlabdir, container_list, labidname, logger_in)
+    configfilelines, resultlist, bool_results = ParseValidateResultConfig(actual_parsing, homedir, studentlabdir, 
+                                      container_list, labidname, logger_in)
 
     ''' process all results files (ignore name of function) for a student.  These
         are distrbuted amongst multiple containers, per container_list.
@@ -906,7 +912,7 @@ def ParseStdinStdout(homedir, studentlabdir, container_list, instructordir, labi
     jsonoutputfilename = labidname
     #print("ParseStdinStdout: jsonoutputfilename is (%s) studentlabdir %s" % (jsonoutputfilename, studentlabdir))
     logger.DEBUG("ParseStdinStdout: jsonoutputfilename is (%s) studentlabdir %s" % (jsonoutputfilename, studentlabdir))
-  
+
     timestamplist.clear()
 
     #del exec_proglist[:]
@@ -919,6 +925,10 @@ def ParseStdinStdout(homedir, studentlabdir, container_list, instructordir, labi
 
     if not os.path.exists(OUTPUTRESULTHOME):
         os.makedirs(OUTPUTRESULTHOME)
+
+    bool_results_file = os.path.join(OUTPUTRESULTHOME, 'bool_results.json')
+    with open(bool_results_file, 'w') as fh:
+        json.dump(bool_results, fh, indent=4)
 
     '''
     A round-about-way of getting all time stamps

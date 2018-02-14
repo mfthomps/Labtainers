@@ -163,7 +163,7 @@ def check_temporal(parameter_list, resultidlist, goals, jsongoalid, goal1tag, go
         found_error = True
     return found_error
 
-def check_boolean(parameter_list, resultidlist, goals, jsongoalid, boolean_string):
+def check_boolean(parameter_list, bool_results, goals, jsongoalid, boolean_string):
     found_error = False
     # Make it easier to tokenize later
     boolean_string = boolean_string.replace('(', ' ( ')
@@ -179,7 +179,7 @@ def check_boolean(parameter_list, resultidlist, goals, jsongoalid, boolean_strin
                 continue
             # goaltag must be in goals otherwise it is an error
             found_goaltag_in_goals = False
-            if goaltag in resultidlist:
+            if goaltag in bool_results:
                 found_goaltag_in_goals = True
             else:
                 for eachgoal in goals:
@@ -251,13 +251,14 @@ def check_matches(parameter_list, resultidlist, goals, jsongoalid, jsonanswertag
 
     return found_error
 
-def validate_goals(parameter_list, resultidlist, goals):
+def validate_goals(parameter_list, resultidlist, goals, bool_results):
     #labutils.logger.DEBUG("Result ID list is ")
     #labutils.logger.DEBUG(resultidlist)
     #labutils.logger.DEBUG("Parameter list is ")
     #labutils.logger.DEBUG(parameter_list)
     #labutils.logger.DEBUG("Goals list is ")
     #labutils.logger.DEBUG(goals)
+    found_error = False
     for eachgoal in goals:
         #labutils.logger.DEBUG("Current goal is ")
         #labutils.logger.DEBUG(eachgoal)
@@ -282,7 +283,7 @@ def validate_goals(parameter_list, resultidlist, goals):
             found_error = check_execute(parameter_list, resultidlist, goals, jsongoalid, executefilepath, jsonanswertag, jsonresulttag)
         elif jsongoaltype == "boolean":
             boolean_string = eachgoal['boolean_string']
-            found_error = check_boolean(parameter_list, resultidlist, goals, jsongoalid, boolean_string)
+            found_error = check_boolean(parameter_list, bool_results, goals, jsongoalid, boolean_string)
         elif jsongoaltype == "time_before" or jsongoaltype == "time_during":
             goal1tag = eachgoal['goal1tag']
             goal2tag = eachgoal['goal2tag']
@@ -324,9 +325,11 @@ def setup_to_validate(lab_path, labname, validatetestsets, validatetestsets_path
 
     # Pick arbitrary e-mail
     user_email = "validate%s@dummy.org" % labname
-    config_path       = os.path.join(lab_path,"config") 
-    start_config_path = os.path.join(config_path,"start.config")
-    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, "instructor", labutils.logger)
+    #config_path       = os.path.join(lab_path,"config") 
+    #start_config_path = os.path.join(config_path,"start.config")
+    #start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, "instructor", labutils.logger)
+    labtainer_config, start_config = labutils.GetBothConfigs(lab_path, 'instructor', logger)
+
    
     # Warns if xterm has no instruction.txt file
     for container_name, container in start_config.containers.items():
@@ -477,7 +480,7 @@ def DoValidate(lab_path, labname, validatetestsets, validatetestsets_path, logge
     LabDirName = os.path.join(TEMPDIR, email_labname)
     # Just validating - not actual parsing
     actual_parsing = False
-    configfilelines, resultidlist = ResultParser.ParseValidateResultConfig(actual_parsing, TEMPDIR, LabDirName, container_list, labname, logger)
+    configfilelines, resultidlist, bool_results = ResultParser.ParseValidateResultConfig(actual_parsing, TEMPDIR, LabDirName, container_list, labname, logger)
 
     # Validate resultidlist for 'system' in 'treataslocal'
     ValidateTreataslocal(labname, lab_path, resultidlist, logger)
@@ -492,7 +495,7 @@ def DoValidate(lab_path, labname, validatetestsets, validatetestsets_path, logge
     #logger.DEBUG("Goals JSON config is")
     #logger.DEBUG(goals)
 
-    return validate_goals(parameter_list, resultidlist, goals)
+    return validate_goals(parameter_list, resultidlist, goals, bool_results)
 
 # Usage: validate.py <labname> | -c <validatetestsetsname>
 #    -c <validatetestsetsname> to run validate.py against <validatetestsetsname>
