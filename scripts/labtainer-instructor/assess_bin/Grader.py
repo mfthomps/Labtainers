@@ -760,17 +760,22 @@ def processBoolean(eachgoal, goal_times, logger):
 
 class ResultSets():
     def addSet(self, result_set, ts, goal_times):
+        print('addSet')
         if 'PROGRAM_ENDTIME' in result_set:
             fulltimestamp = '%s-%s' % (ts, result_set['PROGRAM_ENDTIME'])
         else:
             fulltimestamp = '%s-0' % (ts)
             
         if ts in self.result_sets:
+            print('ts')
+            ''' add boolean results to goals '''
             for key in result_set:
+                print('look at %s, val %s' % (key, result_set[key]))
                 self.result_sets[ts][key] = result_set[key]
                 if isinstance(result_set[key], bool):
-                    #print 'ts is %s' % ts
+                    print 'is bool ts is %s' % ts
                     goal_times.addGoal(key, fulltimestamp, result_set[key])
+                    
         else:
             self.result_sets[ts] = result_set
             for key in result_set:
@@ -807,9 +812,33 @@ class ResultSets():
         return list(self.result_sets.keys())
          
 
+def finalGoalValue(goalid, grades, goal_times):
+    if goalid in grades:
+        # already there, must be calculated value
+        return
+    #print "goalid is (%s)" % goalid
+    current_goals_result = False
+    goals_id_ts = goal_times.getGoalIdTimeStamp()
+    for current_goals, timestamp in goals_id_ts.iteritems():
+        #print "current_goals is "
+        #print current_goals
+        if current_goals == goalid:
+            current_value = False
+            # Use goals_ts_id for processing 
+            # - if found on any timestamp then True
+            # - if not found on any timestamp then False
+            for key, value in timestamp.iteritems():
+                #print "Key is (%s) - value is (%s)" % (key, value)
+                if value:
+                    current_value = True
+                    break
+            current_goals_result = current_value
+            break
+    #print('assign grades[%s] %r' % (goalid, current_goals_result))
+    grades[goalid] = current_goals_result
 
 # Process Lab Exercise
-def processLabExercise(studentlabdir, labidname, grades, goals, goal_times, logger):
+def processLabExercise(studentlabdir, labidname, grades, goals, bool_results, goal_times, logger):
     #print('processLabExercise studentlabdir %s ' % (studentlabdir))
     #print "Goals JSON config is"
     #print goals
@@ -877,29 +906,9 @@ def processLabExercise(studentlabdir, labidname, grades, goals, goal_times, logg
     # Now generate the grades - based on goalid
     for eachgoal in goals:
         goalid = eachgoal['goalid']
-        if goalid in grades:
-            # already there, must be calculated value
-            continue
-        #print "goalid is (%s)" % goalid
-        current_goals_result = False
-        goals_id_ts = goal_times.getGoalIdTimeStamp()
-        for current_goals, timestamp in goals_id_ts.iteritems():
-            #print "current_goals is "
-            #print current_goals
-            if current_goals == goalid:
-                current_value = False
-                # Use goals_ts_id for processing 
-                # - if found on any timestamp then True
-                # - if not found on any timestamp then False
-                for key, value in timestamp.iteritems():
-                    #print "Key is (%s) - value is (%s)" % (key, value)
-                    if value:
-                        current_value = True
-                        break
-                current_goals_result = current_value
-                break
-        #print('assign grades[%s] %r' % (goalid, current_goals_result))
-        grades[goalid] = current_goals_result
+        finalGoalValue(goalid, grades, goal_times)
+    for result in bool_results:
+        finalGoalValue(result, grades, goal_times)
 
     #print grades
 
@@ -921,13 +930,14 @@ def ProcessStudentLab(studentlabdir, labidname, logger):
     except:
         pass
     goalsjsonfname = os.path.join(resultsdir,'goals.json')
-    goalsjson = open(goalsjsonfname, "r")
-    goals = json.load(goalsjson)
-    goalsjson.close()
-    #print "Goals JSON config is"
-    #print goals
+    with open(goalsjsonfname) as fh:
+        goals = json.load(fh)
 
-    processLabExercise(studentlabdir, labidname, grades, goals, goal_times, logger)
+    boolresultsfname = os.path.join(resultsdir,'bool_results.json')
+    with open(boolresultsfname) as fh:
+        bool_results = json.load(fh)
+
+    processLabExercise(studentlabdir, labidname, grades, goals, bool_results, goal_times, logger)
     
     return grades
 

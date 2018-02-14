@@ -226,8 +226,10 @@ def ParseGoals(homedir, studentdir, logger_in):
     container_user = ""
     param_filename = os.path.join(MYHOME, '.local', 'config',
           'parameter.config')
-    parameter_list = {}
-    parameter_list = ParameterParser.ParseParameterConfig(container_user, lab_instance_seed, param_filename, logger)
+
+    pp = ParameterParser.ParameterParser(None, container_user, lab_instance_seed, logger)
+
+    parameter_list = pp.ParseParameterConfig(param_filename)
 
     for line in configfilelines:
         linestrip = line.rstrip()
