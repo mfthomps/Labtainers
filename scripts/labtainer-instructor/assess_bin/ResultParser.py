@@ -198,7 +198,6 @@ def ProcessConfigLine(actual_parsing, studentlabdir, container_list, labidname, 
     field_type = None
     if line_at == 3:
         field_type = values[1].strip()
-        print('field type is ' % field_type)
         if field_type not in valid_field_types:
             logger.ERROR("results.config line (%s)\n" % result_value)
             logger.ERROR("results.config invalid field_type")
