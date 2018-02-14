@@ -146,7 +146,7 @@ if [ -f $PRECMD_HOME/.local/bin/checklocal.sh ]
 then
     checklocaloutfile="$PRECMD_HOME/.local/result/checklocal.stdout.$timestamp"
     checklocalinfile="$PRECMD_HOME/.local/result/checklocal.stdin.$timestamp"
-    $PRECMD_HOME/.local/bin/checklocal.sh $PROGNAME > $checklocaloutfile
+    $PRECMD_HOME/.local/bin/checklocal.sh $PROGNAME > $checklocaloutfile 2>/dev/null
     # For now, there is nothing (i.e., no stdin) for checklocal
     echo "" >> $checklocalinfile
 fi
