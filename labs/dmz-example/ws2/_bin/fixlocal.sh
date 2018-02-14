@@ -10,5 +10,6 @@
 # Use gateway as the name server
 #
 echo "nameserver 198.18.1.3" | sudo tee /etc/resolv.conf
+sudo /usr/bin/set_default_gw.sh 192.168.2.INNER_LAN2
 # remove the dns route so as to not confuse student
 sudo route del -host 172.17.0.1
