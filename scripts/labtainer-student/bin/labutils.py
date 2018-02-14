@@ -27,6 +27,13 @@ try:
     from dateutil.parser import parse
 except:
     pass
+
+instructor_cwd = os.getcwd()
+student_cwd = instructor_cwd.replace('labtainer-instructor', 'labtainer-student')
+sys.path.append(student_cwd+"/lab_bin")
+import ParameterParser
+
+
 ''' logger is defined in whatever script that invokes the labutils '''
 global logger
 '''
@@ -267,13 +274,19 @@ def putLastEmail(email):
     with open(EMAIL_TMP, 'w') as fh:
             fh.write(email)
 
-def ParamForStudent(lab_master_seed, mycontainer_name, container_user, container_password, labname, student_email):
+def GetLabSeed(lab_master_seed, student_email):
     # Create hash using LAB_MASTER_SEED concatenated with user's e-mail
     # LAB_MASTER_SEED is per laboratory - specified in start.config
     string_to_be_hashed = '%s:%s' % (lab_master_seed, student_email)
     mymd5 = md5.new()
     mymd5.update(string_to_be_hashed)
     mymd5_hex_string = mymd5.hexdigest()
+    return mymd5_hex_string
+
+#def ParamStartConfig(lab_seed):
+    
+def ParamForStudent(lab_master_seed, mycontainer_name, container_user, container_password, labname, student_email):
+    mymd5_hex_string = GetLabSeed(lab_master_seed, student_email)
     logger.DEBUG(mymd5_hex_string)
 
     if not ParameterizeMyContainer(mycontainer_name, container_user, container_password, mymd5_hex_string,
@@ -486,21 +499,26 @@ def ImageExists(image_name, container_name, registry):
             return False, result, image_name
     return True, result, image_name
 
+def GetBothConfigs(lab_path, role, logger):
+    labtainer_config_dir = os.path.join(os.path.dirname(os.path.dirname(lab_path)), 'config', 'labtainer.config')
+    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_dir, logger)
+    labname = os.path.basename(lab_path)
+    config_path       = os.path.join(lab_path,"config") 
+    start_config_path = os.path.join(config_path,"start.config")
+    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, labtainer_config, logger)
+    return labtainer_config, start_config
+
 def RebuildLab(lab_path, role, is_regress_test=None, force_build=False, quiet_start=False, just_container=None):
     # Pass 'True' to ignore_stop_error (i.e., ignore certain error encountered during StopLab
     #                                         since it might not even be an error)
-    labname = os.path.basename(lab_path)
     StopLab(lab_path, role, True)
     logger.DEBUG('Back from StopLab')
-    DoRebuildLab(lab_path, role, is_regress_test, force_build, just_container)
+    labtainer_config, start_config = GetBothConfigs(lab_path, role, logger)
+    
+    DoRebuildLab(lab_path, role, is_regress_test=is_regress_test, force_build=force_build, 
+                 just_container=just_container, start_config = start_config, labtainer_config = labtainer_config)
 
     # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
-    config_path       = os.path.join(lab_path,"config") 
-    start_config_path = os.path.join(config_path,"start.config")
-   
-    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, logger)
-    labtainer_config_dir = os.path.join(os.path.dirname(os.path.dirname(lab_path)), 'config', 'labtainer.config')
-    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_dir, logger)
     host_home_xfer = labtainer_config.host_home_xfer
     myhomedir = os.environ['HOME']
     host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
@@ -508,16 +526,12 @@ def RebuildLab(lab_path, role, is_regress_test=None, force_build=False, quiet_st
     is_watermark_test = True
     DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start)
 
-def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False, just_container=None):
+def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False, just_container=None, start_config=None, labtainer_config=None):
     retval = set()
     labname = os.path.basename(lab_path)
     is_valid_lab(lab_path)
-    config_path       = os.path.join(lab_path,"config") 
-    start_config_path = os.path.join(config_path,"start.config")
-   
-    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, logger)
-    labtainer_config_dir = os.path.join(os.path.dirname(os.path.dirname(lab_path)), 'config', 'labtainer.config')
-    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_dir, logger)
+    if start_config is None:
+        labtainer_config, start_config = GetBothConfigs(lab_path, role, logger)
     host_home_xfer = labtainer_config.host_home_xfer
 
     build_student = 'bin/buildImage.sh'
@@ -568,7 +582,6 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False, just_c
         ''' create sys_tar and home_tar before checking build dependencies '''
         CheckTars.CheckTars(container_dir, name, logger)
         if force_this_build or CheckBuild(lab_path, mycontainer_image_name, mycontainer_name, name, role, True, container_bin, start_config, container.registry, container.user):
-            print('Will call buildImage to build %s' % mycontainer_name)
             logger.DEBUG("Will rebuild %s, Image exists(ignore if force): %s force_this_build: %s" % (mycontainer_name, 
                 image_exists, force_this_build))
             if os.path.isfile(build_student):
@@ -741,6 +754,36 @@ def CheckLabContainerApps(start_config, lab_path, apps2start):
 
     return has_multi_container
 
+def ReloadStartConfig(lab_path, labtainer_config, start_config, student_email, role, logger):
+    config_path       = os.path.join(lab_path,"config") 
+    start_config_path = os.path.join(config_path,"start.config")
+    param_path = os.path.join(config_path,"parameter.config")
+    tmp_config = '/tmp/start.config'
+    shutil.copyfile(start_config_path, tmp_config)
+    lab_instance_seed = GetLabSeed(start_config.lab_master_seed, student_email)
+    pp = ParameterParser.ParameterParser(None, None, lab_instance_seed, logger)
+    pp.ParseParameterConfig(param_path)
+    pp.DoReplace()
+    labname = os.path.basename(lab_path)
+    start_config = ParseStartConfig.ParseStartConfig(tmp_config, labname, role, labtainer_config, logger, skip_networks=False)
+    return start_config, student_email
+
+def CheckEmailReloadStartConfig(start_config, quiet_start, is_regress_test, lab_path, role, labtainer_config, logger):
+    student_email = None
+    for name, container in start_config.containers.items():
+        if is_regress_test and container.full_name != start_config.grade_container:
+            continue
+        # Obscure means of making sure we have an email and getting one if
+        # a container has not yet been created.
+        if not IsContainerCreated(container.full_name):
+            if student_email == None and role == 'student':
+                student_email = GetUserEmail(quiet_start)
+                # piggy back on obscurity to reload the start_config here
+                start_config, student_email = ReloadStartConfig(lab_path, labtainer_config, start_config, student_email, role, logger)
+            elif role == 'instructor':
+                start_config, student_email = ReloadStartConfig(lab_path, labtainer_config, start_config, 'instructor@here.there', role, logger)
+    return start_config, student_email
+
 def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start):
     labname = os.path.basename(lab_path)
     logger.DEBUG("DoStart Multiple Containers and/or multi-home networking")
@@ -772,14 +815,12 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
     results = []
     if has_multi_container:
         container_warning_printed = False
+    start_config, student_email = CheckEmailReloadStartConfig(start_config, quiet_start, is_regress_test, lab_path, role, 
+                                      labtainer_config, logger)
     for name, container in start_config.containers.items():
         if is_regress_test and container.full_name != start_config.grade_container:
             continue
-        # If container has not been created
-        if not IsContainerCreated(container.full_name):
-            if student_email == None and role == 'student':
-                student_email = GetUserEmail(quiet_start)
-        #DoStartOne(name, container, start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start, results)
+
         if has_multi_container and container_warning_printed == False:
             print "Starting the lab, this may take a moment..."
             container_warning_printed = True
@@ -1020,12 +1061,8 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
     logger.DEBUG("current user's home directory for %s" % myhomedir)
     logger.DEBUG("ParseStartConfig for %s" % labname)
     is_valid_lab(lab_path)
-    config_path       = os.path.join(lab_path,"config") 
-    start_config_path = os.path.join(config_path,"start.config")
-   
-    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, logger)
-    labtainer_config_dir = os.path.join(os.path.dirname(os.path.dirname(lab_path)), 'config', 'labtainer.config')
-    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_dir, logger)
+
+    labtainer_config, start_config = GetBothConfigs(lab_path, role, logger)
     host_home_xfer = os.path.join(labtainer_config.host_home_xfer, labname)
 
     build_student = 'bin/buildImage.sh'
@@ -1517,12 +1554,8 @@ def WatermarkTest(lab_path, role, standard, isFirstRun=False):
     myhomedir = os.environ['HOME']
     logger.DEBUG("ParseStartConfig for %s" % labname)
     is_valid_lab(lab_path)
-    config_path       = os.path.join(lab_path,"config") 
-    start_config_path = os.path.join(config_path,"start.config")
-    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, logger)
+    labtainer_config, start_config = GetBothConfigs(lab_path, role, logger)
 
-    labtainer_config_dir = os.path.join(os.path.dirname(os.path.dirname(lab_path)), 'config', 'labtainer.config')
-    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_dir, logger)
     watermarktest_lab_path = os.path.join(labtainer_config.watermark_root, labname, standard)
     host_home_xfer = os.path.join(labtainer_config.host_home_xfer, labname)
     logger.DEBUG("Host Xfer directory for labname %s is %s" % (labname, host_home_xfer))
@@ -1535,6 +1568,7 @@ def WatermarkTest(lab_path, role, standard, isFirstRun=False):
     is_regress_test = standard
     is_watermark_test = True
     if isFirstRun:   
+        # just to stop previous lab?
 	RedoLab(lab_path, role, is_regress_test, is_watermark_test=is_watermark_test)
     else: 
 	StartLab(lab_path, role, is_regress_test, is_watermark_test=is_watermark_test, is_redo=True)
@@ -1572,13 +1606,8 @@ def RegressTest(lab_path, role, standard, isFirstRun=False):
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
     logger.DEBUG("ParseStartConfig for %s" % labname)
+    labtainer_config, start_config = GetBothConfigs(lab_path, role, logger)
     is_valid_lab(lab_path)
-    config_path       = os.path.join(lab_path,"config") 
-    start_config_path = os.path.join(config_path,"start.config")
-    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, logger)
-
-    labtainer_config_dir = os.path.join(os.path.dirname(os.path.dirname(lab_path)), 'config', 'labtainer.config')
-    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_dir, logger)
     regresstest_lab_path = os.path.join(labtainer_config.testsets_root, labname, standard)
     host_home_xfer = os.path.join(labtainer_config.host_home_xfer, labname)
     logger.DEBUG("Host Xfer directory for labname %s is %s" % (labname, host_home_xfer))
@@ -1887,12 +1916,7 @@ def StopLab(lab_path, role, ignore_stop_error, is_regress_test=None):
     logger.DEBUG("current user's home directory for %s" % myhomedir)
     logger.DEBUG("ParseStartConfig for %s" % labname)
     is_valid_lab(lab_path)
-    config_path       = os.path.join(lab_path,"config") 
-    start_config_path = os.path.join(config_path,"start.config")
-   
-    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, logger)
-    labtainer_config_dir = os.path.join(os.path.dirname(os.path.dirname(lab_path)), 'config', 'labtainer.config')
-    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_dir, logger)
+    labtainer_config, start_config = GetBothConfigs(lab_path, role, logger)
     host_home_xfer = os.path.join(labtainer_config.host_home_xfer, labname)
 
     # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
@@ -1912,10 +1936,7 @@ def DoMoreterm(lab_path, role, container, num_terminal):
     logger.DEBUG("current user's home directory for %s" % myhomedir)
     logger.DEBUG("ParseStartConfig for %s" % labname)
     is_valid_lab(lab_path)
-    config_path       = os.path.join(lab_path,"config")
-    start_config_path = os.path.join(config_path,"start.config")
-
-    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, logger)
+    labtainer_config, start_config = GetBothConfigs(lab_path, role, logger)
     logger.DEBUG('num terms is %d' % start_config.containers[container].terminals)
 
     mycontainer_name = '%s.%s.%s' % (labname, container, role)
@@ -1943,12 +1964,7 @@ def DoTransfer(lab_path, role, container, filename, direction):
     logger.DEBUG("current user's home directory for %s" % myhomedir)
     logger.DEBUG("ParseStartConfig for %s" % labname)
     is_valid_lab(lab_path)
-    config_path       = os.path.join(lab_path,"config")
-    start_config_path = os.path.join(config_path,"start.config")
-
-    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, logger)
-    labtainer_config_dir = os.path.join(os.path.dirname(os.path.dirname(lab_path)), 'config', 'labtainer.config')
-    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_dir, logger)
+    labtainer_config, start_config = GetBothConfigs(lab_path, role, logger)
     host_home_xfer = os.path.join(labtainer_config.host_home_xfer, labname)
     logger.DEBUG('num terms is %d' % start_config.containers[container].terminals)
     host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
