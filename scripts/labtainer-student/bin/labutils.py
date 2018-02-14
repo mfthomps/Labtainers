@@ -30,7 +30,12 @@ except:
 
 instructor_cwd = os.getcwd()
 student_cwd = instructor_cwd.replace('labtainer-instructor', 'labtainer-student')
-sys.path.append(student_cwd+"/lab_bin")
+if student_cwd.endswith('labtainer-student'):
+    sys.path.append(student_cwd+"/lab_bin")
+else:
+    # assume from labtainer/distrib
+    print('is distrib %s' % os.getcwd())
+    sys.path.append('../trunk/scripts/labtainer-student/lab_bin')
 import ParameterParser
 
 
