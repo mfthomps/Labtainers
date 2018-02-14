@@ -1381,10 +1381,11 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
                         continue
                     parts = line.split(' : ')
                     # look for container, or lack of any container qualifier in file name
-                    if container_name in line or role == 'instructor' or len(parts)<3 or ':' not in parts[2]: 
-                        logger.WARNING('%s (or the script) is later and %s mentioned in it, will build' % (param_file, container_name))
-                        retval = True
-                        break
+                    if parts[2] != 'start.config':
+                        if container_name in line or role == 'instructor' or len(parts)<3 or ':' not in parts[2]: 
+                            logger.WARNING('%s (or the script) is later and %s mentioned in it, will build' % (param_file, container_name))
+                            retval = True
+                            break
 
     if not retval and container_bin is not None:
         all_bin_files = os.listdir(container_bin)
