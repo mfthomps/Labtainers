@@ -10,9 +10,9 @@
 #
 # get ethernet device names for the three interfaces for use later
 #
-lan1=$(ifconfig | grep -B1 "inet addr:192.168.1.10" | awk '$1!="inet" && $1!="--" {print $1}')
-lan2=$(ifconfig | grep -B1 "inet addr:192.168.2.10" | awk '$1!="inet" && $1!="--" {print $1}')
-wan=$(ifconfig | grep -B1 "inet addr:198.18.1.10" | awk '$1!="inet" && $1!="--" {print $1}')
+lan1=$(ifconfig | grep -B1 "inet addr:192.168.1.INNER_LAN1" | awk '$1!="inet" && $1!="--" {print $1}')
+lan2=$(ifconfig | grep -B1 "inet addr:192.168.2.INNER_LAN2" | awk '$1!="inet" && $1!="--" {print $1}')
+wan=$(ifconfig | grep -B1 "inet addr:198.18.1.INNER_DMZ" | awk '$1!="inet" && $1!="--" {print $1}')
 #
 # default drop
 #
