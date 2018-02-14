@@ -131,7 +131,7 @@ class ParameterParser():
             while True:
                 random_int = random.randint(lowerbound_int, upperbound_int)
                 if random_int not in self.unique_values[key]:
-                    self.unique_values[key] = random_int
+                    self.unique_values[key].append(random_int)
                     break
         else:
             random_int = random.randint(lowerbound_int, upperbound_int)
