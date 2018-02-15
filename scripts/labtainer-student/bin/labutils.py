@@ -873,7 +873,7 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
         # Do not spawn terminal if it is regression testing
         if is_regress_test:
             continue
-        num_terminal = container.terminals
+        num_terminal = int(container.terminals)
         mycontainer_name = container.full_name
         logger.DEBUG("Number of terminal is %d" % num_terminal)
         # If this is instructor - spawn 2 terminal for 'grader' container otherwise 1 terminal
