@@ -1,0 +1,26 @@
+#!/bin/bash
+#
+#  Configure the inner gateway of a DMZ
+#  where 198.18.1.INNER_LAN1 and 198.18.1.INNER_LAN2 are internal LANs
+#  and 198.18.1.10 is connected to the external gateway
+#  with address 198.18.1.2
+# 
+#
+/usr/bin/set_default_gw.sh 198.18.1.2
+#
+#  IPTABLES rules below
+#
+iptables --flush
+iptables -t nat --flush
+iptables --delete-chain
+iptables -t nat --delete-chain
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+
+
+#
+# restart the DNS forwarder (rely on DNS provided by ISP)
+#
+/etc/init.d/dnsmasq restart
+
