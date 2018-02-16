@@ -1,0 +1,35 @@
+#!/bin/bash
+#
+# iptables for outer gateway, connected to ISP 198.18.0.1
+#
+# Use ISP as default gateway
+#
+/usr/bin/set_default_gw.sh 198.18.0.1
+
+# Route to inner gateway boxes
+sudo route add -net 198.18.1.128 netmask 255.255.255.128 gw 198.18.1.INNER_DMZ
+#
+# reset iptables
+#
+iptables --flush
+iptables -t nat --flush
+iptables --delete-chain
+iptables -t nat --delete-chain
+
+
+iptables -A INPUT -j ACCEPT
+iptables -A OUTPUT -j ACCEPT
+iptables -A FORWARD -j ACCEPT
+
+
+#
+#  THE IPTABLES NFLOG must not be changed.  Do not modify below this line.
+#
+# logging using user space logger ulog
+iptables -A FORWARD -j NFLOG -m limit --limit 2/min --nflog-prefix "IPTABLES DROPPED" 
+iptables -A INPUT -j DROP
+iptables -A FORWARD -j DROP
+
+
+# restart dns forwarder
+/etc/init.d/dnsmasq restart
