@@ -1,0 +1,14 @@
+$TTL 3D
+@	IN	SOA	ns.example.com. admin.example.com. (
+		2008111001
+		8H
+		2H
+		4W
+		1D)
+@	IN	NS	ns.example.com.
+
+101	IN	PTR	www.example.com.
+102	IN	PTR	mail.example.com.
+10	IN	PTR	ns.example.com.
+
+
