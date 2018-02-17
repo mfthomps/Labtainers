@@ -44,6 +44,7 @@ class ParseStartConfig():
         self.get_configs(fname)
         self.finalize()
         self.validate()
+        self.logger.DEBUG('Completed reload from %s' % fname)
 
     class Container():
         def __init__(self, name, logger):
@@ -66,7 +67,7 @@ class ParseStartConfig():
         def add_net(self, name, ipaddr):
             self.container_nets[name] = ipaddr
 
-        def validate(self, valid_networks=set()):
+        def validate(self, valid_networks=set(), skip_networks = False):
             self.terminals = int(self.terminals) #replace with something smarter
           
             if '=' in self.name: # TODO: do we still need this?
@@ -76,16 +77,17 @@ class ParseStartConfig():
                 if name not in valid_networks:
                     self.logger.ERROR('Container %s cannot be added to undefined network %s\n' % (self.full_name, name))
                     exit(1)
-                if ':' in addr:
-                    addr, mac = addr.split(':',1)
-                    if not re.match("[0-9a-f]{2}([-:])[0-9a-f]{2}(\\1[0-9a-f]{2}){4}$", mac.lower()):
-                        self.logger.ERROR('bad MAC address %s in %s\n' % (mac, name))
+                if not skip_networks:
+                    if ':' in addr:
+                        addr, mac = addr.split(':',1)
+                        if not re.match("[0-9a-f]{2}([-:])[0-9a-f]{2}(\\1[0-9a-f]{2}){4}$", mac.lower()):
+                            self.logger.ERROR('bad MAC address %s in %s\n' % (mac, name))
+                            exit(1)
+                    try:
+                        IPAddress(addr)
+                    except :
+                        self.logger.ERROR('bad ip addr %s in %s\n' % (addr, name))
                         exit(1)
-                try:
-                    IPAddress(addr)
-                except :
-                    self.logger.ERROR('bad ip addr %s in %s\n' % (addr, name))
-                    exit(1)
 
     class Subnet():
         def __init__(self, name, logger):
@@ -191,8 +193,8 @@ class ParseStartConfig():
             for subnet in self.subnets.values():
                 subnet.validate()
 
-            for container in self.containers.values():
-                container.validate(self.subnets.keys())
+        for container in self.containers.values():
+            container.validate(self.subnets.keys(), self.skip_networks)
 
 
     def finalize(self):
