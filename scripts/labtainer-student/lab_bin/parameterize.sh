@@ -90,9 +90,9 @@ if [ -f /var/tmp/home.tar ]; then
    echo "expanded /var/tmp/home.tar to $HOME" >>/tmp/parameterize.out 2>&1
 fi
 
-$HOME/.local/bin/hookBash.sh 2>>/tmp/hookBash.output
+echo $CONTAINER_PASSWORD | sudo -S $HOME/.local/bin/hookBash.sh 2>>/tmp/hookBash.output
 rmdir $LOCKDIR
 # Added a permanent 'did_param' lock directory
 PERMLOCKDIR=/var/labtainer/did_param
-sudo mkdir -p "$PERMLOCKDIR" >/dev/null 2>&1
+echo $CONTAINER_PASSWORD | sudo -S mkdir -p "$PERMLOCKDIR" >/dev/null 2>&1
 
