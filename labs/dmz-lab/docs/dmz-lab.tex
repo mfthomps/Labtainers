@@ -9,9 +9,7 @@
 \copyrightnotice
 
 \section{Overview}
-This lab illustrates a simple DMZ.
-It is intended as an example network topology definition for
-Labtainer exercises.
+This lab requires that you configure a DMZ using iptables on two gateway components.
 
 \section{Lab Environment}
 This lab runs in the Labtainer framework,
@@ -22,7 +20,7 @@ be run on any Linux host that supports Docker containers.
 
 From your labtainer-student directory start the lab using:
 \begin{verbatim}
-    start.py dmz-example
+    start.py dmz-lab
 \end{verbatim}
 \noindent A link to this lab manual will be displayed.  
 
@@ -33,25 +31,32 @@ for some of the components.
 When the lab starts, you will get several virtual terminals, one connected to each
 component.
 
-The DMZ is created using an inner gateway and an outer gateway.  The former uses NAT to
-hide internal network addresses.
-
 The outer gateway and the remote gateway each reach the Internet via an ISP with 
 address 198.18.0.1.  The local site has a network address of 198.18.1.0/24.  The remote
 site has a network address of 203.0.113.0/24.
+
+Initially, the DMZ is in name only.
 
 \begin{figure}[htb]
 \begin{center}
 \includegraphics [width=0.8\textwidth,natwidth=621,natheight=403]{dmz-example.jpg}
 \end{center}
-\caption{Network topology for dmz-example lab}
+\caption{Network topology for dmz-lab}
 \label{fig:topology}
 \end{figure}
 
 \section{Lab Tasks}
-Use nmap on various components within the lab to determine which services are visible from
-different locations within the network topology.  Review the iptables configurations as
-defined in the /etc/rc.local scripts on the inner and outer gateways.
+Configure the inner\_gateway and outer\_gateway such that:
+\begin{itemize}
+\item Remote users can only access the web server, e.g., via wget www.example.com, using
+HTTP, HTTPS and SSH.
+\item Local users can reach the internet via the ISP, e.g., wget www.google.com
+\item Local users can reach the local web server via HTTP, HTTPS, SSH and MYSQL
+\end{itemize}
+
+Use the /etc/rc.local scripts on the inner and outer gateways to issue iptables directives.
+Respect the comments in the rc.local scripts regarding sections that should not be modified.
+Demonstrate your DMZ by issuing the following commands, without any additional changes to iptables.
 
 \section{Submission}
 After finishing the lab, go to the terminal on your Linux system that was used to start the lab and type:
