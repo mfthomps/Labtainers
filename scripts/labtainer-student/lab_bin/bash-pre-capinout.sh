@@ -180,17 +180,20 @@ preexec() {
            IFS=$'\n' read -rd '' -a y <<<"$cmd_path"
            cmd_path=$(echo ${y[1]} | xargs)
        fi
-       # do we want to run checklocal on this command, though it is not otherwise tracked?
+       # do we want to run precheck on this command, though it is not otherwise tracked?
        forcecheck $cmd_path
        result=$?
        if [ $result == 1 ]; then
-          if [ -f $PRECMD_HOME/.local/bin/checklocal.sh ]
+          if [ -f $PRECMD_HOME/.local/bin/precheck.sh ]
           then
-              checklocaloutfile="$PRECMD_HOME/.local/result/checklocal.stdout.$timestamp"
-              checklocalinfile="$PRECMD_HOME/.local/result/checklocal.stdin.$timestamp"
-              $PRECMD_HOME/.local/bin/checklocal.sh $cmd_path > $checklocaloutfile 2>/dev/null
-              # For now, there is nothing (i.e., no stdin) for checklocal
-              echo "" >> $checklocalinfile
+              precheckoutfile="$PRECMD_HOME/.local/result/precheck.stdout.$timestamp"
+              precheckinfile="$PRECMD_HOME/.local/result/precheck.stdin.$timestamp"
+              $PRECMD_HOME/.local/bin/precheck.sh $cmd_path > $precheckoutfile 2>/dev/null
+              if [[ -s $precheckoutfile ]]; then
+                  rm -f $precheckoutfile
+              fi
+              # For now, there is nothing (i.e., no stdin) for precheck
+              #echo "" >> $precheckinfile
           fi
           return 0
        fi
@@ -215,7 +218,8 @@ preexec() {
            return 0
        fi
        if [[ ! -z $cmd_path ]] && [[ "$cmd_path" != /usr/* ]] && \
-          [[ "$cmd_path" != /bin/* ]] && [[ "$cmd_path" != /sbin/* ]]; then
+          [[ "$cmd_path" != /bin/* ]] && [[ "$cmd_path" != /sbin/* ]] && \
+          [[ "$cmd_path" != /etc/* ]]; then
            #echo "would do this command $1"
            capinout.sh "$1" $counter $timestamp
            return 1
