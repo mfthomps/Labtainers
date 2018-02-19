@@ -11,20 +11,21 @@ domain and is not subject to copyright.
 # Add preexec hooks to the bash shell to capture stdin & stdout
 #
 END
-if [[ -f $HOME/.profile ]]; then
-    target=$HOME/.profile
-elif [[ -f $HOME/.bash_profile ]]; then
-    target=$HOME/.bash_profile
+MYHOME=$1
+if [[ -f $MYHOME/.profile ]]; then
+    target=$MYHOME/.profile
+elif [[ -f $MYHOME/.bash_profile ]]; then
+    target=$MYHOME/.bash_profile
 else
     echo "no profile, use .profile anyway?"
-    target=$HOME/.profile
+    target=$MYHOME/.profile
 fi
-if grep --quiet startup.sh $target/.profile; then
+if grep --quiet startup.sh $target; then
     echo "already hooked" >>/dev/null
 else
     #echo "hook not enabled, fix this"
-    cat $HOME/.local/bin/profile-add >> $target
-    cat $HOME/.local/bin/bashrc-add  |  sed 's@PRECMD_HOME_REPLACE_ME@'"$HOME"'@' >> $HOME/.bashrc
-    cat $HOME/.local/bin/bashrc-add  |  sed 's@PRECMD_HOME_REPLACE_ME@'"$HOME"'@' >> /root/.bashrc
+    cat $MYHOME/.local/bin/profile-add >> $target
+    cat $MYHOME/.local/bin/bashrc-add  |  sed 's@PRECMD_HOME_REPLACE_ME@'"$MYHOME"'@' >> $MYHOME/.bashrc
+    cat $MYHOME/.local/bin/bashrc-add  |  sed 's@PRECMD_HOME_REPLACE_ME@'"$MYHOME"'@' >> /root/.bashrc
 fi
 
