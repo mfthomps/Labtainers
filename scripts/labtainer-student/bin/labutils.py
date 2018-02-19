@@ -550,10 +550,12 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False, just_c
     else:
         container_bin = './lab_bin'
     for name, container in start_config.containers.items():
+        logger.DEBUG('this container name %s just_container %s' % (name, just_container))
         if just_container is not None and just_container != name:
             continue
         elif just_container == name:
             force_build = True
+            print('Force build of %s' % just_container)
         mycontainer_name       = container.full_name
         mycontainer_image_name = container.image_name
         retval.add(container.registry)
@@ -1114,7 +1116,7 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
 
     DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start)
 
-def DateIsLater(df_utc_string, ts, local=False):
+def DateIsLater(df_utc_string, ts, local=False, debug=False):
     parts = df_utc_string.split('.')
     ''' use dateutil to parse for zone, which we get from svn '''
     x=parse(parts[0])
@@ -1122,9 +1124,9 @@ def DateIsLater(df_utc_string, ts, local=False):
         df_ts = time.mktime(x.timetuple())
     else:
         df_ts = calendar.timegm(x.timetuple())
-
-    #logger.DEBUG('df_utc time is %s' % df_utc_string)
-    #logger.DEBUG('df_utc ts is %s given ts is %s' % (df_ts, ts))
+    if debug:
+        logger.DEBUG('df_utc time is %s' % df_utc_string)
+        logger.DEBUG('df_utc ts is %s given ts is %s' % (df_ts, ts))
     if df_ts > ts:
         return True
     else:
@@ -1168,22 +1170,23 @@ def FileModLater(ts, fname):
                         break
                 
             #logger.DEBUG(line)
-            ''' think that fname is in svn.  If fname is a dir, get its date (will match that of modified file in the dir '''
             if os.path.isdir(fname) or line.startswith('M') or line.startswith('>'):
                 if '/home_tar/' in line or '/sys_tar/' in line:
                     continue
                 logger.DEBUG('svn status found something for fname %s, line %s' % (fname, line))
                 if line.startswith('M'):
-                    parent = os.path.dirname(line.split()[1])
-                    df_time = os.path.getmtime(parent)
+                    file_path = line.split()[1]
+                    df_time = os.path.getmtime(file_path)
+                    #parent = os.path.dirname(line.split()[1])
+                    #df_time = os.path.getmtime(parent)
                 else:
                     file_path = '/'+line.split('/', 1)[1].strip()
-                    #logger.DEBUG('not and "M", get dftime for %s' % file_path)
+                    #logger.DEBUG('not an "M", get dftime for %s' % file_path)
                     if not os.path.exists(file_path):
                         continue
                     df_time = os.path.getmtime(file_path)
                 df_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
-                retval = DateIsLater(df_utc_string, ts)
+                retval = DateIsLater(df_utc_string, ts, debug=True)
                 if retval:
                     break
         else:
@@ -1195,7 +1198,7 @@ def FileModLater(ts, fname):
             error_string = child.stderr.read().strip()
         if not has_svn or len(error_string) > 0:
             # assume not in svn
-            logger.DEBUG("not in svn? %s" % fname)
+            #logger.DEBUG("not in svn? %s" % fname)
             if fname.endswith('.tar'):
                 if EmptyTar(fname):
                     # hacky special case for empty tar files.  ug.
@@ -1208,7 +1211,7 @@ def FileModLater(ts, fname):
                 df_time = os.path.getmtime(fname)
             else:
                 check_file = newest_file_in_tree(fname)
-                logger.DEBUG('latest found is %s' % check_file)
+                #logger.DEBUG('latest found is %s' % check_file)
                 if EmptyTar(check_file):
                     # hacky special case for empty tar files.  ug.
                     return False
@@ -1231,18 +1234,18 @@ def FileModLater(ts, fname):
                         file_is_later = DateIsLater(file_utc_string, ts, False)
 
                         retval = svn_is_later and file_is_later
-                        logger.DEBUG('changed date from svn %s for %s df_utc_string is %s' % (line, fname, df_utc_string))
+                        #logger.DEBUG('changed date from svn %s for %s df_utc_string is %s' % (line, fname, df_utc_string))
                         break
                 else:
                     break
             if df_utc_string is None:
                 # must be an add
-                logger.DEBUG('%s must be an add' % fname)
+                #logger.DEBUG('%s must be an add' % fname)
                 if os.path.isfile(fname):
                     df_time = os.path.getmtime(fname)
                 else:
                     check_file = newest_file_in_tree(fname)
-                    logger.DEBUG('latest found is %s' % check_file)
+                    #logger.DEBUG('latest found is %s' % check_file)
                     df_time = os.path.getmtime(check_file)
                 df_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
                 retval = DateIsLater(df_utc_string, ts)
@@ -1365,7 +1368,7 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
                     check_file = newest_file_in_tree(os.path.join(container_dir, f))
                 else:
                     check_file = os.path.join(container_dir, f)
-                logger.DEBUG('check file %s' % check_file)
+                #logger.DEBUG('check file %s' % check_file)
                 if FileModLater(ts, check_file):
                     logger.WARNING('files in container %s is later, will build' % check_file)
                     retval = True
