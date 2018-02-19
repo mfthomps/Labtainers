@@ -17,10 +17,10 @@ from inotify_simple import INotify, flags
 '''
 This runs as a service on the containers. It uses inotify
 to catch events defined in the .local/bin/notify file, 
-and will invoke checklocal.sh for when those events occur.
-We pass the file, the mode the first user in the system to
-checklocal.sh   The timestamped output is appended to any
-existing checklocal.stdout.... within 1 second of now.
+and will invoke notify_cb.sh for when those events occur.
+We pass the file, the mode, the the first user in the system to
+notify_cb.sh   The timestamped output is appended to any
+existing notify.stdout.... within 1 second of now.
 Alternately, the notify file can include an optional output
 filename.
  
@@ -75,11 +75,18 @@ inotify = INotify()
 first_user = get_first_user()
 logger.debug('first user is %s' % first_user)
 notify_file = '/home/%s/.local/bin/notify' % first_user
-checklocal = '/home/%s/.local/bin/checklocal.sh' % first_user
+notify_cb = '/home/%s/.local/bin/notify_cb.sh' % first_user
 results = '/home/%s/.local/result' % first_user
-if not os.path.isfile(notify_file) or not os.path.isfile(checklocal):
-    logger.debug('missing checklocal %s or notify %s' % (checklocal, notify_file))
+
+if not os.path.isfile(notify_file) or not os.path.isfile(notify_cb):
+    logger.error('missing notify %s' % (notify_file))
     exit(0)
+
+if not os.path.isfile(notify_cb):
+    logger.debug("no notify_cb.sh, just ouput path & cmd")
+    notify_cb = None
+
+''' read in the notify file, set watches on file access as directed '''
 with open(notify_file) as fh:
     for line in fh:
         if not line.strip().startswith('#'):
@@ -94,6 +101,9 @@ with open(notify_file) as fh:
                 watches[wd] = watch
             except:
                 logger.debug('could not add watch for %s %s' % (watch.path, watch.flag))
+#
+# forever loop responding to inotify events
+#
 while True:
     for event in inotify.read():
         print(event)
@@ -102,35 +112,64 @@ while True:
         logger.debug('path: %s flag: %s' % (watch.path, watch.flag))
         now = time.time()
         ts = time.strftime('%Y%m%d%H%M%S', time.localtime(now))
-        checklocaloutfile = os.path.join(results, 'checklocal.stdout.%s' % ts )
-        #checklocalinfile = os.path.join(results, 'checklocal.stdin.%s' % ts)
-        is_a_file = False
+        ''' use given outputfile name, if provided in the notify directive '''
         if watch.outfile is None:
-            if not os.path.isfile(checklocaloutfile):
-                ''' no file, if from previous second, use that as hack to merge with output from command '''
-                now = now -1
-                ts = time.strftime('%Y%m%d%H%M%S', time.localtime(now))
-                tmpfile = os.path.join(results, 'checklocal.stdout.%s' % ts )
-                if os.path.isfile(tmpfile):
-                    checklocaloutfile = os.path.join(results, 'checklocal.stdout.%s' % ts )
-                    #checklocalinfile = os.path.join(results, 'checklocal.stdin.%s' % ts)
-                    is_a_file = True
-            else:
+            notifyoutfile = os.path.join(results, 'notify.stdout')
+        else:
+            notifyoutfile = os.path.join(results, '%s.stdout' % (watch.outfile))
+        notifyoutfile_ts = '%s.%s' % (notifyoutfile, ts)
+        #notifyoutfile = os.path.join(results, 'notify.stdin.%s' % ts)
+        hist_file = '/home/%s/.bash_history' % first_user
+        cmd_time_history = os.path.getmtime(hist_file)
+        root_hist_file = '/root/.bash_history'
+        cmd_user = first_user
+        if os.path.isfile(root_hist_file):
+            time_root_history = os.path.getmtime(root_hist_file)
+            if cmd_time_history > time_root_history:
+                cmd_time_history = time_root_history
+                hist_file = root_hist_file
+                cmd_user = 'root'
+        cmd = None
+        with open(hist_file) as fh:
+            hist = fh.readlines() 
+            cmd = hist[-1].strip()
+            if cmd.startswith('sudo'):
+                cmd = cmd[5:]
+                cmd_user = 'root'
+
+        ''' determine if we should append to an existig output file '''
+        is_a_file = False
+        if not os.path.isfile(notifyoutfile_ts):
+            ''' no file, if from previous second, use that as hack to merge with output from command '''
+            now = now -1
+            ts = time.strftime('%Y%m%d%H%M%S', time.localtime(now))
+            tmpfile = '%s.%s' % (notifyoutfile, ts)
+            if os.path.isfile(tmpfile):
+                notifyoutfile_ts = tmpfile
                 is_a_file = True
         else:
-            ''' use output filename from notify list '''
-            checklocaloutfile = os.path.join(results, '%s.stdout.%s' % (watch.outfile, ts))
+            is_a_file = True
           
         if is_a_file:    
             ''' existing file, append to it '''
-            cmd = '%s %s %s %s >> %s 2>/dev/null' % (checklocal, watch.path, watch.flag, first_user, checklocaloutfile)
-            os.system(cmd)
-            #logger.debug('cmd is %s' % cmd)
+            if notify_cb is not None:
+                sys_cmd = '%s %s %s %s %s >> %s 2>/dev/null' % (notify_cb, watch.path, 
+                          watch.flag, cmd_user, cmd, notifyoutfile_ts)
+                os.system(sys_cmd)
+                logger.debug('sys_cmd is %s' % sys_cmd)
+            else:
+                with open(notifyoutfile_ts, 'a') as fh:
+                    fh.write('path: %s cmd: %s user: %s' % (watch.path, cmd, cmd_user))
         else:
-            ''' only write to file if checklocal generates output '''
-            cmd = '%s %s %s %s ' % (checklocal, watch.path, watch.flag, first_user)
-            child = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            output = child.communicate()
-            if len(output[0]) > 0:
-                with open(checklocaloutfile, 'w') as fh:
-                    fh.write(output[0])
+            if notify_cb is not None:
+                ''' only write to file if notify_cb generates output '''
+                sys_cmd = '%s %s %s %s "%s"' % (notify_cb, watch.path, watch.flag, cmd_user, cmd)
+                logger.debug('sys_cmd is %s' % sys_cmd)
+                child = subprocess.Popen(sys_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                output = child.communicate()
+                if len(output[0]) > 0:
+                    with open(notifyoutfile_ts, 'w') as fh:
+                        fh.write(output[0])
+            else:
+                with open(notifyoutfile_ts, 'a') as fh:
+                    fh.write('path: %s cmd: %s user: %s' % (watch.path, cmd, cmd_user))
