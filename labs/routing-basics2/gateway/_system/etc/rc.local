@@ -1,11 +1,11 @@
 route delete default
-route add default gw 203.0.113.1
+route add default gw 240.0.113.1
 #
 # get ethernet device names for the three interfaces
 #
 lan1=$(ifconfig | grep -B1 "inet addr:192.168.1.10" | awk '$1!="inet" && $1!="--" {print $1}')
 lan2=$(ifconfig | grep -B1 "inet addr:192.168.2.10" | awk '$1!="inet" && $1!="--" {print $1}')
-wan=$(ifconfig | grep -B1 "inet addr:203.0.113.10" | awk '$1!="inet" && $1!="--" {print $1}')
+wan=$(ifconfig | grep -B1 "inet addr:240.0.113.10" | awk '$1!="inet" && $1!="--" {print $1}')
 #
 # Define NAT for traffic from LANs to the WAN
 #
