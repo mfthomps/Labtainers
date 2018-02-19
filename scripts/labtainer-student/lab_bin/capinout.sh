@@ -141,14 +141,17 @@ echo "PROGRAM_ARGUMENTS is ($PROGRAM_ARGUMENTS)" >> $stdinfile
 #echo "stdinfile is $stdinfile"
 #echo "stdoutfile is $stdoutfile"
 
-# If file $PRECMD_HOME/.local/bin/checklocal.sh exist, run it
-if [ -f $PRECMD_HOME/.local/bin/checklocal.sh ]
+# If file $PRECMD_HOME/.local/bin/precheck.sh exist, run it
+if [ -f $PRECMD_HOME/.local/bin/precheck.sh ]
 then
-    checklocaloutfile="$PRECMD_HOME/.local/result/checklocal.stdout.$timestamp"
-    checklocalinfile="$PRECMD_HOME/.local/result/checklocal.stdin.$timestamp"
-    $PRECMD_HOME/.local/bin/checklocal.sh $PROGNAME > $checklocaloutfile 2>/dev/null
-    # For now, there is nothing (i.e., no stdin) for checklocal
-    echo "" >> $checklocalinfile
+    precheckoutfile="$PRECMD_HOME/.local/result/precheck.stdout.$timestamp"
+    precheckinfile="$PRECMD_HOME/.local/result/precheck.stdin.$timestamp"
+    $PRECMD_HOME/.local/bin/precheck.sh $PROGNAME > $precheckoutfile 2>/dev/null
+    if [[ -s $precheckoutfile ]]; then
+        rm -f $precheckoutfile
+    fi
+    # For now, there is nothing (i.e., no stdin) for precheck
+    #echo "" >> $precheckinfile
 fi
 
 # kill the tee when the pipe consumer dies
