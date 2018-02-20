@@ -437,7 +437,7 @@ def ValidateTreataslocal(labname, lab_path, resultidlist, logger):
             continue
         if newprogname_type.endswith('stdin') or newprogname_type.endswith('stdout'):
             execprog, type = newprogname_type.rsplit('.', 1)
-            if execprog == "checklocal":
+            if execprog == "precheck":
                 # skip checklocal
                 continue
         else:
