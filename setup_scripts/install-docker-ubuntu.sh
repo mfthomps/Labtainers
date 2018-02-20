@@ -14,6 +14,8 @@ END
 
 #---needed packages for install
 sudo apt-get update
+# gdf ubuntu
+#sudo apt-get install libcurl3-gnutls=7.47.0-1ubuntu2
 sudo apt-get -y install apt-transport-https ca-certificates curl software-properties-common 
 RESULT=$?
 if [ $RESULT -ne 0 ];then
