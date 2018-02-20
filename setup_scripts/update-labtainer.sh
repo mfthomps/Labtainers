@@ -48,7 +48,9 @@ else
 fi
 cd ..
 tar xf labtainer/labtainer.tar
-labtainer/trunk/setup_scripts/pull-all.sh
+cd labtainer/trunk/setup_scripts
+./pull-all.sh
+cd ../../..
 #
 # ensure labtainer paths in .bashrc
 #
