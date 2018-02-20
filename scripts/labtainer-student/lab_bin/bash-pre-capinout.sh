@@ -189,7 +189,7 @@ preexec() {
               precheckoutfile="$PRECMD_HOME/.local/result/precheck.stdout.$timestamp"
               precheckinfile="$PRECMD_HOME/.local/result/precheck.stdin.$timestamp"
               $PRECMD_HOME/.local/bin/precheck.sh $cmd_path > $precheckoutfile 2>/dev/null
-              if [[ -s $precheckoutfile ]]; then
+              if [[ ! -s $precheckoutfile ]]; then
                   rm -f $precheckoutfile
               fi
               # For now, there is nothing (i.e., no stdin) for precheck
