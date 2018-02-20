@@ -1384,7 +1384,7 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
               logger.DEBUG('%s is later, see if container is named' % param_file)
               with open(param_file) as param_fh:
                 for line in param_fh:
-                    if line.startswith('#'):
+                    if line.startswith('#') or ' : ' not in line:
                         continue
                     parts = line.split(' : ')
                     filenames = parts[2].split(';')
