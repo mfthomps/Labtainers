@@ -420,10 +420,12 @@ Notes section at the end of this manual for tips on using Firefox and Wireshark.
 \end{itemize}
 \end{itemize}
   
-A simple example of a two-container lab can be found in 
+A simple example of a two-container lab with suitable network settings in the start.config file can be found in 
 \begin{verbatim}
     $LABTAINER_DIR/labs/telnetlab
 \end{verbatim}
+Entries in the start.config file can be parameterized as described in section \ref{parameterize}, e.g., to allocate
+random IP addresses to components.
 
 
 \subsection {Lab-specific files in the student's home directory}
@@ -570,7 +572,9 @@ to the Labtainer working directory.
 \label{parameterize}
 This section describes how to individualize the lab for each student to discourage
 sharing of lab solutions.  This is achieved by defining symbols within source 
-code or/and data.  The framework will replace these symbols with randomized values
+code or/and data files residing on lab containers. \footnote{An exception is the
+start.config file, which can be parameterized as described in the syntax description.}  
+The framework will replace these symbols with randomized values
 specific to each student.  The config/parameter.config file identifies the files, and
 the symbols within those files that are to be modified.  A simple example can be found in 
 \begin{verbatim}
@@ -604,6 +608,9 @@ is followed by one of the following operations:
                          with a container name and a ":", (the container 
                          name is optional for single-container labs).  
                          This may be a list of files, delimited by semicolons. 
+                         A file name of "start.config" will cause symbols
+                         in the lab's start.config file to be replaced, e.g.,
+                         to randomize IP addresses.
            <symbol> - the string to be replaced
            <LowerBound> and <UpperBound> specifies the lower and upper bound
                                        to be used by random generator
@@ -614,6 +621,12 @@ is followed by one of the following operations:
      (all one line) will randomly replace the token string "BUFFER_SIZE" found in
      file stack.c on the mylab.client.student container with a number ranging from 
      200 to 2000
+
+ RAND_REPLACE_UNIQUE : <filename> : <symbol> : <LowerBound> : <UpperBound>
+   Identical to RAND_REPLACE, except randomly selected values are never resused
+   within any given upper/lower bound range.  This is intended for use on IP
+   addresses, e.g., 198.18.1.WEB_IP.  It is suggested that random ranges be selected
+   such that they do not intersect any non-random address allocations.
  
  HASH_CREATE : <filename> : <string>
    Create or overwrite a file with a hash of a given string and the lab 
@@ -657,6 +670,14 @@ is followed by one of the following operations:
 
 The parameter\_id fields may be referenced during the automated grading function, described below
 in section \ref{goals.config}. 
+
+Parameterizing occurs subsequent to system "boot", but prior to running the fixlocal.sh script.
+The ubuntu based images /sbin/faux\_init.sh  script includes logic to delay the starting of 
+selected services until after parameterization occurs (see commented sections at the end of that script).
+
+Parameterizing of the start.config file occurs prior to Docker container creation.  The framework 
+modifies a copy of the file stored in /tmp/start.config and uses that when assigning attributes to containers,
+e.g., IP addresses. Currently only IP addresses within the start.config can parameteterized (e.g., not user names).
 
 \subsection{Simple Parameterization for Checking Own-work}
 The simplest, though by no means robust, strategy for ensuring students
@@ -772,21 +793,21 @@ All files referenced in the {\tt results.config} file, (described below in secti
 will be collected into the artifact archive.  
 
 \subsubsection{Capturing information about the environment}
-\label{checklocal}
+\label{precheck}
 Some labs require the student to alter system configuration settings,
-e.g., using the sysctl command to affect ASLR. A \textit{checklocal.sh} script in:
+e.g., using the sysctl command to affect ASLR. A \textit{precheck.sh} script in:
 \begin{verbatim}
     $LABTAINER_DIR/labs/[labname]/[container name]/_bin
 \end{verbatim}
 is intended to contain whatever commands are necessary to record the 
 state of the system at the time a program was invoked.  The stdout of
-the checklocal.sh script is recorded in a timestamped \textit{checklocal.stdout}
+the precheck.sh script is recorded in a timestamped \textit{precheck.stdout}
 file.  The timestamp of this file will match the timestamp of the stdin and
-stdout artifacts associated with the command that caused checklocal.sh to run.
-The checklocal.sh is passed in the name of the program as an argument, thereby
+stdout artifacts associated with the command that caused precheck.sh to run.
+The precheck.sh is passed in the name of the program as an argument, thereby
 allowing the designer to capture different environment information for different commands.
 
-As another example, consider the file-deletion lab \textit{checklocal.sh} script.
+As another example, consider the file-deletion lab \textit{precheck.sh} script.
 It mounts a directory, lists its content, and unmounts it.  This all occurs 
 transparently to the student, and, in this example, helps confirm a specific file
 was in fact deleted at the time of issuing a command to recover deleted content from
@@ -800,7 +821,7 @@ list within a file at:
 \begin{verbatim}
     $LABTAINER_DIR/labs/[labname]/[container name]/_bin/forcecheck
 \end{verbatim}
-\noindent and then include \texttt{ls -l /usr/bin/tcpdump} in the checklocal.sh script.
+\noindent and then include \texttt{ls -l /usr/bin/tcpdump} in the precheck.sh script.
 Note that the \textit{forcecheck} list of programs must include the full path name.
 The \textit{forcecheck} file can be used instead of a \textit{treataslocal} file entry
 for those cases where stdin and stdout are not required for goal assessment.  An example of the use of
@@ -809,14 +830,14 @@ forcecheck can be found in the \textit{capabilities} lab.
 \subsubsection{Capturing file access events}
 \label{notify}
 File creation, reading and modification events can be recorded using a combination of
-a {\tt checklocal.sh} script and a file at:
+a {\tt notify} file and an optinoal {\tt notify\_cb.sh} script at:
 \begin{verbatim}
-    $LABTAINER_DIR/labs/[labname]/[container name]/_bin/notify
+    $LABTAINER_DIR/labs/[labname]/[container name]/_bin/
 \end{verbatim}
-\noindent This file will name directory or file paths and the access modes of interest, one entry
+\noindent The {\tt notify} file will name directory or file paths and the access modes of interest, one entry
 per line, having this format:
 \begin{verbatim}
-    <file_path> <mode>
+    <file_path> <mode> [output file]
 \end{verbatim}
 \noindent
 where the {\tt file\_path} is the absolute path to the file of interest, and {\tt mode} is 
@@ -827,16 +848,23 @@ creation within the named directory.
 \item {\tt ACCESS} will capture any read of the file named by the path.
 \item {\tt MODIFY} will capture any write to the file named by the path.
 \end{itemize}
+\noindent The optional {\tt output file} will be used for the timestamped filename of the
+output from the event (instead of the default {\tt notify.stdout.YYMMDDHHMM}
 \noindent Each time an event occurs matching a criteria specified in the {\tt notify} file,
-the {\tt checklocal.sh} script is invoked, passing in the given path and access mode.  See
-the {\tt acl} lab for an example.
+the {\tt notify\_cb.sh} script is invoked (if it exists), passing in the given path and access mode.  
+The script is also provided with the most recent command issued by either the container user, or the
+root account (whichever is more recent).
+If there is no {\tt notify\_cb.sh} script, then the output consists of the file\_path, the most recent
+command, and the associated user (e.g., root).
+See the {\tt acl} lab for an example.
 
-The output from the {\tt checklocal.sh} script is captured in timestamped files, just as
-those resulting from events described in Section \ref{checklocal}.  Note it is possible,
-(and often advantagous) for events resulting from program invocation, e.g., due to use of
-a {\tt forcecheck} file, to be recorded in the very same timestamped file as events resulting
+The output from the notify event is captured in timestamped files, just as
+those resulting from events described in Section \ref{precheck}.  If the optional output file
+provided in the {\tt notify} list is given as {\tt precheck}, then
+events resulting from program invocation, e.g., due to use of
+a {\tt forcecheck} file, can be recorded in the very same timestamped file as events resulting
 from a {\tt notify} file.  In such cases, output from the former will preceed output from the latter
-within the file.  The framework will append the {\tt notify} output to any timestamped {\tt checklocal.stdout}
+within the file.  The framework will append the {\tt notify} output to any timestamped {\tt precheck.stdout}
 file that was created up to two seconds prior to the {\tt notify} event.  Inclusion of both outputs into
 one timestamped file allows the designer to identify events that occured as part of a single program
 invocation.  Again, see the {\tt acl} lab for an example.
@@ -1251,7 +1279,8 @@ A goals.config file of:
     remote_nmap_sql = time_during : _remote_nmap_sql : _iplog
     local_nmap_443 = time_during : _local_nmap_443 : _iplog
     local_nmap_sql = time_during : _local_nmap_sql : _iplog
-    remote_correct = boolean : ((remote_nmap_443 and_not remote_nmap_sql) and local_nmap_443 and local_nmap_sql)
+    remote_correct = boolean : ((remote_nmap_443 and_not remote_nmap_sql) \
+                                and local_nmap_443 and local_nmap_sql)
 \end{verbatim}
 \noindent would generate sets of nmap goals grouped into timestamps corresponding to the
 {\tt \_iplog} results.  The {\tt remote\_correct} boolean expression could then be read as: 
