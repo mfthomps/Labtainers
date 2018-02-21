@@ -479,6 +479,9 @@ def GetRunningLabNames(containers_list, role):
     return found_lab_role, labnameslist
 
 def ImageExists(image_name, container_name, registry):
+    '''
+    determine if a given image exists.
+    '''
     retval = True
     #logger.DEBUG('check existence of container %s image %s registry %s' % (container_name, image_name, registry))
     cmd = "docker inspect -f '{{.Created}}' --type image %s" % image_name
@@ -566,12 +569,14 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False, just_c
         if len(output[1]) > 0:
             logger.DEBUG("Error from command %s was  '%s'" % (cmd, output[1]))
         force_this_build = force_build
+        logger.DEBUG('force_this_build: %r' % force_this_build)
         if not force_this_build:
             image_exists, result, new_image_name = ImageExists(mycontainer_image_name, mycontainer_name, container.registry)
             if not image_exists:
                 cmd = 'docker pull %s/%s' % (container.registry, mycontainer_image_name)
                 ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
                 output = ps.communicate()
+                logger.DEBUG('image did not exist, pull cmd is %s' % cmd)
                 if len(output[1]) > 0:
                    logger.DEBUG("Command was (%s), result %s" % (cmd, output[1]))
                    force_this_build = True
@@ -1173,7 +1178,7 @@ def FileModLater(ts, fname):
             if os.path.isdir(fname) or line.startswith('M') or line.startswith('>'):
                 if '/home_tar/' in line or '/sys_tar/' in line:
                     continue
-                logger.DEBUG('svn status found something for fname %s, line %s' % (fname, line))
+                #logger.DEBUG('svn status found something for fname %s, line %s' % (fname, line))
                 if line.startswith('M'):
                     file_path = line.split()[1]
                     df_time = os.path.getmtime(file_path)
@@ -1368,7 +1373,7 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
                     check_file = newest_file_in_tree(os.path.join(container_dir, f))
                 else:
                     check_file = os.path.join(container_dir, f)
-                #logger.DEBUG('check file %s' % check_file)
+                logger.DEBUG('check file %s' % check_file)
                 if FileModLater(ts, check_file):
                     logger.WARNING('files in container %s is later, will build' % check_file)
                     retval = True
@@ -1410,6 +1415,7 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
                retval = True
                break
 
+    ''' instructor-specific files.  NOTE: assess_bin is copied at runtime '''
     if not retval and role == 'instructor':
         if container_name == start_config.grade_container:
             inst_cfg = os.path.join(lab_path,'instr_config')
@@ -1429,7 +1435,7 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
             logger.WARNING('user changed from %s to %s, will build' % (user, container_user))
             retval = True
 
-    logger.DEBUG('returning retaval of %s' % str(retval))    
+    logger.DEBUG('returning retval of %s' % str(retval))    
     return retval
 
 def dumb():
