@@ -41,14 +41,17 @@ if [ ! -d $LAB_DIR ]; then
     exit
 fi
 #------------------------------------V
-echo docker pull $REGISTRY/$labimage
-docker pull $REGISTRY/$labimage
-result=$?
+echo "force_build is $force_build"
+if [ $force_build == "False" ]; then
+    echo docker pull $REGISTRY/$labimage
+    docker pull $REGISTRY/$labimage
+    result=$?
+fi
 if [ "$result" == "0" ] && [ $force_build = "False" ]; then
     imagecheck="YES"
 else
     echo "Please wait while the lab is built"
-    sleep 3
+    #sleep 3
     LABIMAGE_DIR=$LAB_TOP/$lab/$imagename/
     if [ ! -d $LABIMAGE_DIR ]; then
         echo "$LABIMAGE_DIR not found"
