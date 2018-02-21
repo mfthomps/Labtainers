@@ -22,6 +22,7 @@ import sys
 import zipfile
 import time
 import glob
+import shutil
 import GenReport
 import Grader
 import GoalsParser
@@ -353,6 +354,15 @@ def main():
                 cmd = '%s %s %s' % (pregrade_script, MYHOME, dest)
                 logger.DEBUG('invoke pregrade script %s' % cmd)
                 os.system(cmd) 
+
+        ''' backward compatible for test sets '''
+        for container in student_list[email_labname]:
+            dest = os.path.join(email_labname, container)
+            look_for = dest+'/.local/result/checklocal*'
+            check_local_list = glob.glob(look_for)
+            for cl in check_local_list:
+                newname = cl.replace('checklocal', 'precheck')
+                shutil.move(cl, newname)
 
         # Call ResultParser script to parse students' result
         LabDirName = os.path.join(MYHOME, email_labname)
