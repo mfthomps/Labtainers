@@ -114,7 +114,7 @@ ignorelocal(){
    then
        # Get the list of commands from ignorelocal
        while read cmdlocal; do
-           if [[ "$cmd_path" == "$cmdlocal" ]]; then
+           if [[ "$cmd" == "$cmdlocal" ]]; then
                return 1
            else
                continue
