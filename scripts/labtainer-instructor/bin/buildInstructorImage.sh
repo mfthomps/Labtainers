@@ -41,9 +41,11 @@ if [ ! -d $LAB_DIR ]; then
 fi
 
 #-----------------------------------V
-echo docker pull $REGISTRY/$labimage
-docker pull $REGISTRY/$labimage
-result=$?
+if [ "$force_build" == "False" ]; then
+    echo docker pull $REGISTRY/$labimage
+    docker pull $REGISTRY/$labimage
+    result=$?
+fi
 if [ "$result" == "0" ] && [ $force_build = "False" ]; then
     imagecheck="YES"
 else
