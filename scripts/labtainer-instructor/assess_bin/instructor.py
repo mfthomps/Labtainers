@@ -187,12 +187,16 @@ def Check_SecondLevel_EmailWatermark_OK(gradesjson, email_labname, student_id, z
 #   watermark_test - whether to do watermark checks or not
 def main():
     #print "Running Instructor.py"
+    #
+    # TBD clean this up, break out routines.  impossible to follow.
+    #
 
     logger.INFO("Begin logging instructor.py")
 
     # Default to watermark_test to True
     watermark_test = True
     logger.DEBUG('MYHOME is %s' % MYHOME)
+    os.chdir(MYHOME)
     lab_name_dir = os.path.join(MYHOME,'.local','.labname')
     if not os.path.isfile(lab_name_dir):
         logger.ERROR('no file at %s, perhaps running instructor script on wrong containers?' % lab_name_dir)
