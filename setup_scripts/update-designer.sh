@@ -2,6 +2,21 @@
 #
 # figure out where we are executing from and go to the labtainer directory
 #
+if [ "$#" -eq 1 ]; then
+   if [ "$1" == "-t" ]; then
+       export TEST_REGISTRY=TRUE
+   else
+       echo "update-labtainers [-t]"
+       echo "   use -t to pull tar from /media/sf_SEED"
+       echo "   and pull images from the test registry"
+       exit
+   fi
+elif [ "$#" -ne 0 ]; then
+   echo "update-labtainers [-t]"
+   echo "   use -t to pull tar from /media/sf_SEED"
+   echo "   and pull images from the test registry"
+   exit
+fi
 here=`pwd`
 if [[ $here == */labtainer ]]; then
    echo is at top >> /dev/null
@@ -31,8 +46,11 @@ rm -f update-designer.sh
 ln -s trunk/setup_scripts/update-designer.sh
 full=`realpath trunk/setup_scripts/update-designer.sh`
 ln -sf $full trunk/scripts/labtainer-student/bin/update-designer.sh
-if [[ -z "$LABTAINER_TESTING" ]]; then
+if [[ "$TEST_REGISTRY" != TRUE ]]; then
     wget https://my.nps.edu/documents/107523844/109121513/labtainer-developer.tar/f377285e-23b5-4cd4-a578-c879b0200fff -O labtainer-developer.tar
+
+    cp /media/sf_SEED/labtainer-developer.tar .
+    echo "USING SHARED FILE TAR, NOT PULLING FROM WEB"
 fi
 cd ..
 tar xf labtainer/labtainer-developer.tar
