@@ -24,6 +24,7 @@ dbg=/tmp/pregrade.log
 cd $homedir/$destdir
 sniff_file=sniff.pcapng
 if [[ -f $sniff_file ]]; then
+    # put output in results to not confuse content of student home
     outpath=.local/result
     outfile=$outpath/sniff.txt
     mkdir -p "$outpath"
