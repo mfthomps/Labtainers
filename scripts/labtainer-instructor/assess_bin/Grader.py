@@ -760,7 +760,7 @@ def processBoolean(eachgoal, goal_times, logger):
 
 class ResultSets():
     def addSet(self, result_set, ts, goal_times):
-        print('addSet')
+        #print('addSet')
         if 'PROGRAM_ENDTIME' in result_set:
             fulltimestamp = '%s-%s' % (ts, result_set['PROGRAM_ENDTIME'])
         else:
