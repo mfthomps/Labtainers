@@ -342,12 +342,17 @@ def main():
         ''' note odd hack, labinstance seed is stored on container, so need to fine one, use first '''
         DestinationDirName = '%s/%s' % (email_labname, student_list[email_labname][0])
         DestDirName =os.path.join(MYHOME, DestinationDirName)
+        # TBD also getting what, student parameters from first container.  
+        # Better way to get instr_config files than do duplicate on each container?  Just put on grader? 
+        student_parameter = GoalsParser.ParseGoals(MYHOME, DestDirName, logger)
        
         if do_pregrade:
-            cmd = '%s %s %s' % (pregrade_script, MYHOME, DestinationDirName)
-            logger.DEBUG('invoke pregrade script %s' % cmd)
-            os.system(cmd) 
-        student_parameter = GoalsParser.ParseGoals(MYHOME, DestDirName, logger)
+            ''' invoke pregrade for each container '''
+            for container in student_list[email_labname]: 
+                dest = os.path.join(email_labname, container)
+                cmd = '%s %s %s' % (pregrade_script, MYHOME, dest)
+                logger.DEBUG('invoke pregrade script %s' % cmd)
+                os.system(cmd) 
 
         # Call ResultParser script to parse students' result
         LabDirName = os.path.join(MYHOME, email_labname)
