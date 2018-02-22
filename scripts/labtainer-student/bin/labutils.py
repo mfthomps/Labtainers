@@ -1349,16 +1349,16 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
     ''' get ts of base image '''
     ts_base, bname = BaseImageTime(df)
     if ts_base > ts:
-        logger.WARNING('Base image %s changed, will build' % bname)
+        logger.WARNING('Base image %s changed, will build %s' % (bname, name))
         retval = True
-    if FileModLater(ts, df):
-        logger.WARNING('dockerfile changed, will build')
+    elif FileModLater(ts, df):
+        logger.WARNING('dockerfile changed, will build %s' % name)
         retval = True
     else:
         ''' look for new/deleted files in the container '''
         logger.DEBUG('container dir %s' % container_dir)
         if FileModLater(ts, container_dir):
-           logger.WARNING('new/deleted %s is later, will build' % container_dir)
+           logger.WARNING('new/deleted %s is later, will build %s' % (container_dir, name))
            retval = True
         else:
             ''' look at all files/directories in container '''
@@ -1375,7 +1375,7 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
                     check_file = os.path.join(container_dir, f)
                 logger.DEBUG('check file %s' % check_file)
                 if FileModLater(ts, check_file):
-                    logger.WARNING('files in container %s is later, will build' % check_file)
+                    logger.WARNING('files in container %s is later, will build %s' % (check_file, name))
                     retval = True
                     break
 
@@ -1411,7 +1411,7 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
                 continue
             f_path = os.path.join(container_bin, f)
             if FileModLater(ts, f_path):
-               logger.WARNING('container_bin %s is later, will build' % f_path)
+               logger.WARNING('container_bin %s is later, will build %s' % (f_path, name))
                retval = True
                break
 
@@ -1425,14 +1425,14 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
                     continue
                 f_path = os.path.join(inst_cfg, f)
                 if FileModLater(ts, f_path):
-                   logger.WARNING('instr_config %s is later, will build' % f_path)
+                   logger.WARNING('instr_config %s is later, will build %s' % (f_path, name))
                    retval = True
                    break
         logger.DEBUG('is instructor')
     if not retval:
         user, password = GetImageUser(image_name, container_registry)
         if user != container_user:
-            logger.WARNING('user changed from %s to %s, will build' % (user, container_user))
+            logger.WARNING('user changed from %s to %s, will build %s' % (user, container_user, name))
             retval = True
 
     logger.DEBUG('returning retval of %s' % str(retval))    

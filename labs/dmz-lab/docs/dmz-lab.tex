@@ -57,6 +57,13 @@ HTTP, HTTPS and SSH.
 Use the /etc/rc.local scripts on the inner and outer gateways to issue iptables directives.
 Respect the comments in the rc.local scripts regarding sections that should not be modified.
 Demonstrate your DMZ by issuing the following commands, without any additional changes to iptables.
+\begin{enumerate}
+\item On the remote\_ws (hank): {\tt sudo nmap www.example.com}
+\item On the ws1 (tom): {\tt sudo nmap www.example.com}
+\item On the ws1 (tom): {\tt wget www.google.com}
+\end{enumerate}
+\noindent If you make any changes to iptables in the course of your testing, restart your testing from
+item (1) above.
 
 \section{Submission}
 After finishing the lab, go to the terminal on your Linux system that was used to start the lab and type:
