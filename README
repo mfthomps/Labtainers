@@ -37,6 +37,16 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+February 21, 2018
+-  Add dmz-lab
+-  Change "checklocal" to "precheck", reflecting it runs prior to the command.
+-  Decouple inotify event reporting from use of precheck.sh, allow inotify
+   event lists to include optional outputfile name.
+-  Extend bash hook to root operations, flush that bash_history.
+-  Allow parameterization of start.config fields, e.g., for random IP addresses
+-  Support monitoring of services started via systemctl or /etc/init.d
+-  Introduce time delimeter qualifiers to organize a timestamped log file into
+   ranges delimited by some configuration change of interest (see dmz-lab)
 
 January 24, 2018
 -  Use of tabbed windows caused instructor side to fail, use of double quotes.
