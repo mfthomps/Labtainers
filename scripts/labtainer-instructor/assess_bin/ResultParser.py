@@ -445,16 +445,14 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                     remain = line.split(command,1)[1]
                     remain = remain.split(':', 1)[1].strip()
                     tagstring = False
-                    for currentline in targetlines:
-                        #print('look for <%s> in %s' % (remain, currentline))
-                        sobj = re.search(remain, currentline)
-                        if sobj is not None:
-                            tagstring = True
-                            break 
+                    allofit = ''.join(targetlines)
+                    #print('%s' % allofit)
+                    #print('look for %s' % remain)
+                    sobj = re.findall(remain, allofit, re.MULTILINE)
+                    if sobj is not None:
+                        tagstring = True
                     return tagstring
-                    # If not found - set to None
-                    if found_lookupstring == False:
-                        linerequested = None
+
 
             elif command == 'STRING_COUNT':
                 ''' search entire file, vice searching for line '''
