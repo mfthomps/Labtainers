@@ -101,6 +101,9 @@ def main():
 		if "." not in items:
 		    standards.append(items)
             lab_path = os.path.join(LABS_ROOT, labname)
+            if len(standards) == 0:
+                print('Did not find any subdirectories under %s' % lab_path)
+                print('Test paths should be testsets/labs/[lab]/GOLD/...')
 	    for standard in standards:
             	RegressTestResult = labutils.RegressTest(lab_path, "instructor", standard, isFirstRun=isFirstRun)	
 		isFirstRun = False
