@@ -48,18 +48,6 @@ February 21, 2018
 -  Introduce time delimeter qualifiers to organize a timestamped log file into
    ranges delimited by some configuration change of interest (see dmz-lab)
 
-January 24, 2018
--  Use of tabbed windows caused instructor side to fail, use of double quotes.
--  Ignore files in _tar directories (other than .tar) when determining build
-   dependencies.
-
-January 30, 2018
--  Add snort lab
--  Integrate log file timestamps, e.g., from syslogs, into timestamped results.
--  Remove undefined result values from intermediate timestamped json result files.
--  Alter the time_during goal assessment operation to associate timestamps with 
-   the resulting goal value.
-
 February 5, 2018
 -  Boolean values from results.config files are now treated as goal values
 -  Add regular expression support for identifying artifact results.
@@ -68,3 +56,16 @@ February 5, 2018
 -  The capinout monitoring hook was not killing child processes on exit.
 -  Kill monitored processes before collecting artifacts
 -  Add labtainer.wireshark as a baseline container, clean up dockerfiles
+
+January 30, 2018
+-  Add snort lab
+-  Integrate log file timestamps, e.g., from syslogs, into timestamped results.
+-  Remove undefined result values from intermediate timestamped json result files.
+-  Alter the time_during goal assessment operation to associate timestamps with 
+   the resulting goal value.
+
+January 24, 2018
+-  Use of tabbed windows caused instructor side to fail, use of double quotes.
+-  Ignore files in _tar directories (other than .tar) when determining build
+   dependencies.
+
