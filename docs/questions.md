@@ -54,4 +54,10 @@ This will be compared to a md5 computed in a checklocal.sh script?
 Add command completion logic to start.py, and perhaps stop.py (which would rely on settings made
 from start.py)?
 
-Consider using tabbed virtual terminals for different components?
+
+Do not use xfer directory as a workspace for zip-fu!
+
+Add a "checkme" command to the linux host, it will run scripts to assess selcted properites,
+e.g., run scans or attacks.
+
+When running parameterize.sh, run it as root, and then drop privilges so the container user need not be root?
