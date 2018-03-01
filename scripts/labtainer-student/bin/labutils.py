@@ -1791,12 +1791,14 @@ def GetListRunningLab():
     if len(output[0]) > 0:
         docker_ps_output = output[0].split('\n')
         for each_line in docker_ps_output:
-            # Skip the "CONTAINER ID" line - the header line returned by "docker ps"
+            # Skip empty line or the "CONTAINER ID" line - the header line returned by "docker ps"
             current_line = each_line.strip()
             if not current_line or current_line.startswith("CONTAINER"):
                 continue
+            # Assume the container name is the last token on the line
             container_info = current_line.split()
             container_name = container_info[-1]
+            # Assume the labname is the first token if split by '.'
             labname = container_name.split('.')[0]
             if labname not in lablist:
                 lablist.append(labname)
