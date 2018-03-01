@@ -1777,6 +1777,31 @@ def StopMyContainer(start_config, container_name, ignore_stop_error):
     #    logger.DEBUG('StopMyContainer stdout %s' % output[0])
     #result = subprocess.call(command, shell=True)
 
+# Get a list of running lab
+def GetListRunningLab():
+    lablist = []
+    # Note: doing "docker ps" not "docker ps -a" to get just the running container
+    command = "docker ps"
+    logger.DEBUG("Command to execute is (%s)" % command)
+    ps = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if len(output[1].strip()) > 0:
+        logger.ERROR('Fail to get a list of running containers, error returned %s' % output[1])
+        sys.exit(1)
+    if len(output[0]) > 0:
+        docker_ps_output = output[0].split('\n')
+        for each_line in docker_ps_output:
+            # Skip the "CONTAINER ID" line - the header line returned by "docker ps"
+            current_line = each_line.strip()
+            if not current_line or current_line.startswith("CONTAINER"):
+                continue
+            container_info = current_line.split()
+            container_name = container_info[-1]
+            labname = container_name.split('.')[0]
+            if labname not in lablist:
+                lablist.append(labname)
+    return lablist
+
 def IsContainerRunning(mycontainer_name):
     try:
         s = subprocess.check_output('docker ps', shell=True)
