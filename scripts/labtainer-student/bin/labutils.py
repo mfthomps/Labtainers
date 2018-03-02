@@ -246,9 +246,42 @@ def CreateSubnets(subnets):
             output = ps.communicate()
             logger.DEBUG("Result of subprocess.call CreateSubnets docker network create is %s" % output[0])
             if len(output[1]) > 0:
-                logger.ERROR("Failed to create %s subnet at %s, %s\n" % (subnet_name, subnet_network_mask, output[1]))
-                logger.ERROR("command was %s\n" % command)
-                sys.exit(1)
+                found_match_network = False
+                found_match_network_name = ""
+                # Before a hard exit - give the user some indication of what to do next
+                # First check to see if a gateway is provided and it is already used
+                if subnets[subnet_name].gateway != None:
+                    found_match_network, found_match_network_name = FindNetworkGivenGatewayIP(subnets[subnet_name].gateway)
+                    # If Gateway IP address not okay, no need to check subnet anymore
+                    if not found_match_network:
+                        # Gateway IP address might be okay but subnet mask might not
+                        found_match_network, found_match_network_name = FindNetworkGivenSubnet(subnet_network_mask)
+                else:
+                    # No Gateway IP address, check the subnet mask only
+                    found_match_network, found_match_network_name = FindNetworkGivenSubnet(subnet_network_mask)
+
+                # At this point, if still not found then just print error and exit
+                if not found_match_network:
+                    logger.ERROR("Failed to create %s subnet at %s, %s\n" % (subnet_name, subnet_network_mask, output[1]))
+                    logger.ERROR("command was %s\n" % command)
+                    sys.exit(1)
+                else:
+                    # Found either a network matching the Gateway IP address or matching subnet
+                    lablist = []
+                    # See if any lab is using that network
+                    lablist = GetListLabContainerOnNetwork(found_match_network_name)
+                    if lablist == []:
+                        # No lab is using the network - tell user to remove that "left-over" network
+                        logger.ERROR("An existing Docker network is preventing this lab from starting.")
+                        logger.ERROR("Try removing the network with:")
+                        logger.ERROR("docker network rm %s" % found_match_network_name)
+                        sys.exit(1)
+                    else:
+                        # There is lab using that network - tell user to stop that lab first
+                        logger.ERROR("An existing Docker network is preventing this lab from starting.")
+                        logger.ERROR("This may be due to a failure to stop a previous lab.")
+                        logger.ERROR("Please stop the lab %s and try again." % lablist)
+                        sys.exit(1)
         else:
             logger.WARNING("Already exists! Not creating %s subnet at %s!\n" % (subnet_name, subnet_network_mask))
 
