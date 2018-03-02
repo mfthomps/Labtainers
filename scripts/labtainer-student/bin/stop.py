@@ -27,29 +27,39 @@ import LabtainerLogging
 # Arguments:
 #    <labname> - the lab to stop
 def main():
-    if len(sys.argv) != 2:
-        sys.stderr.write("Usage: stop.py <labname>\n")
+    if len(sys.argv) > 2:
+        sys.stderr.write("Usage: stop.py [<labname>]\n")
         sys.exit(1)
     
-    labname = sys.argv[1]
-    labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
-    labutils.logger.INFO("Begin logging stop.py for %s lab" % labname)
-    # Pass 'False' to ignore_stop_error (i.e., do not ignore error)
-    lab_path = os.path.join(os.path.abspath('../../labs'), labname)
-    has_running_containers, running_containers_list = labutils.GetRunningContainersList()
-    if has_running_containers:
-        has_lab_role, labnamelist = labutils.GetRunningLabNames(running_containers_list, "student")
-        if has_lab_role:
-            if labname not in labnamelist:
-                labutils.logger.ERROR("No lab named %s in currently running labs!" % labname)
+    lablist = []
+    if len(sys.argv) == 2:
+        labname = sys.argv[1]
+        labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
+        lablist.append(labname)
+    else:
+        labname = "all"
+        # labutils.logger need to be set before calling GetListRunningLab()
+        labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
+        lablist = labutils.GetListRunningLab()
+
+    for labname in lablist:
+        labutils.logger.INFO("Begin logging stop.py for %s lab" % labname)
+        # Pass 'False' to ignore_stop_error (i.e., do not ignore error)
+        lab_path = os.path.join(os.path.abspath('../../labs'), labname)
+        has_running_containers, running_containers_list = labutils.GetRunningContainersList()
+        if has_running_containers:
+            has_lab_role, labnamelist = labutils.GetRunningLabNames(running_containers_list, "student")
+            if has_lab_role:
+                if labname not in labnamelist:
+                    labutils.logger.ERROR("No lab named %s in currently running labs!" % labname)
+                    sys.exit(1)
+            else:
+                labutils.logger.ERROR("No running labs in student's role")
                 sys.exit(1)
         else:
-            labutils.logger.ERROR("No running labs in student's role")
+            labutils.logger.ERROR("No running labs at all")
             sys.exit(1)
-    else:
-        labutils.logger.ERROR("No running labs at all")
-        sys.exit(1)
-    labutils.StopLab(lab_path, "student", False)
+        labutils.StopLab(lab_path, "student", False)
 
     return 0
 
