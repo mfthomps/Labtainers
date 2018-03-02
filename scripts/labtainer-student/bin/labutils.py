@@ -1804,6 +1804,81 @@ def GetListRunningLab():
                 lablist.append(labname)
     return lablist
 
+# Given a network name, if it is valid, get a list of labname for the container(s) that is(are)
+# using that network. Note: the network name is passed in as an argument
+def GetListLabContainerOnNetwork(network_name):
+    containerlabnamelist = []
+    command = "docker network inspect %s" % network_name
+    logger.DEBUG("Command to execute is (%s)" % command)
+    ps = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if len(output[1].strip()) > 0:
+        logger.ERROR('Fail to inspect the network %s, error returned %s' % (network_name, output[1]))
+        sys.exit(1)
+    if len(output[0]) > 0:
+        network_result = json.loads(output[0])
+        if len(network_result) != 0:
+            result = network_result[0]
+            containers = result["Containers"]
+            for key in containers:
+                container_name = containers[key]["Name"]
+                # Assume the labname is the first token if split by '.'
+                labname = container_name.split('.')[0]
+                if labname not in containerlabnamelist:
+                    containerlabnamelist.append(labname)
+    return containerlabnamelist
+
+# Given an IP address (gateway IP address) - find a network name that has that IP address as its gateway
+# Note: the IP address is passed in as an argument
+def FindNetworkGivenGatewayIP(gateway_address):
+    found_match_network = False
+    found_match_network_name = ""
+    logger.DEBUG("FindNetworkGivenGatewayIP %s" % gateway_address)
+    networklist = []
+    # First get a list of network name of driver=bridge
+    command = "docker network ls --filter driver=bridge"
+    logger.DEBUG("Command to execute is (%s)" % command)
+    ps = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if len(output[1].strip()) > 0:
+        logger.ERROR('Fail to get a list of network (driver=bridge), error returned %s' % output[1])
+        sys.exit(1)
+    if len(output[0]) > 0:
+        network_list = output[0].split('\n')
+        for each_line in network_list:
+            # Skip empty line or the "NETWORK ID" line - the header line returned by "docker network"
+            current_line = each_line.strip()
+            if not current_line or current_line.startswith("NETWORK"):
+                continue
+            # Assume the network name is the second token on the line
+            container_info = current_line.split()
+            network_name = container_info[1]
+            # Do not need to check network name "bridge"
+            if network_name != "bridge" and network_name not in networklist:
+                networklist.append(network_name)
+    # Loop through each network (driver=bridge) to find if any uses IP address as gateway
+    for network_name in networklist:
+        command = "docker network inspect %s" % network_name
+        logger.DEBUG("Command to execute is (%s)" % command)
+        ps = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        output = ps.communicate()
+        if len(output[1].strip()) > 0:
+            logger.ERROR('Fail to inspect the network %s, error returned %s' % (network_name, output[1]))
+            sys.exit(1)
+        if len(output[0]) > 0:
+            network_result = json.loads(output[0])
+            if len(network_result) != 0:
+                result = network_result[0]
+                ipam_config = result["IPAM"]["Config"][0]
+                for key in ipam_config:
+                    if key == "Gateway":
+                        ipam_config_gateway_ip = ipam_config[key]
+                        if gateway_address == ipam_config_gateway_ip:
+                            found_match_network = True
+                            found_match_network_name = network_name
+                            break
+    return found_match_network, found_match_network_name
+
 def IsContainerRunning(mycontainer_name):
     try:
         s = subprocess.check_output('docker ps', shell=True)
