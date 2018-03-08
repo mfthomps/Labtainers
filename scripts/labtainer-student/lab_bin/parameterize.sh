@@ -91,6 +91,16 @@ if [ -f /var/tmp/home.tar ]; then
 fi
 
 echo $CONTAINER_PASSWORD | sudo -S $HOME/.local/bin/hookBash.sh $HOME 2>>/tmp/hookBash.output
+
+# restore the apt/yum sources (if not done already)
+export APT_SOURCE=NO
+if [ -f /usr/bin/yum-source.sh ]; then
+    echo $CONTAINER_PASSWORD | sudo -S /usr/bin/yum-source.sh
+fi
+if [ -f /usr/bin/apt-source.sh ]; then
+    echo $CONTAINER_PASSWORD | sudo -S /usr/bin/apt-source.sh
+fi
+
 rmdir $LOCKDIR
 # Added a permanent 'did_param' lock directory
 PERMLOCKDIR=/var/labtainer/did_param
