@@ -240,7 +240,7 @@ force the rebuild using the {\tt -f} option at the end of the rebuild.py command
 
 Stop the containers with 
 \begin{verbatim}
-    stop.py [labname]
+    stop.py 
 \end{verbatim}
 When you stop the container, a path to saved results is displayed.
 This is the zip file that the student will forward to the instructor.
@@ -1377,6 +1377,13 @@ with your lab(s) by setting the ``REGISTRY\_ID'' value in the start.config file 
 would then use the distrib/publish.py script to build, tag and push your lab to your registry.
 
 \subsection{NPS Development Operations}
+When building lab images at NPS, please set the LABTAINER\_NPS environment variable to "YES", e.g.,
+\begin{verbatim}
+   export LABTAINER_NPS=YES
+\end{verbatim}
+This will force packages to be retrieved from the local NPS mirrors (centosmirror.uc.nps.edu or
+ubuntumirror.uc.nps.edu).  Refer to section \ref{package sources} for additional information.
+
 Labs must be checked into the Subversion repository in order to be distributed.  After creating and testing
 the lab, use the scripts/designer/bin/cleanlab4svn.py script to remove temporary files that do not belong in 
 svn.  Use the publish.py script (described above) to publish the lab containers.
@@ -1392,9 +1399,7 @@ ensure that future testing of the lab is done on the authoritative copy, i.e., f
 Labtainer base images are built and published from the scripts/designer/bin directory.  Prior to publishing
 baseline images, it is suggested that all local images be purged from the development machine, e,g.,
 \begin{verbatim}
-sudo systemctl stop docker
-sudo rm -fr /var/lib/docker
-sudo sysetmctl start docker
+    /trunk/setup_scripts/destroy-docker.sh
 \end{verbatim}
 \noindent This will ensure the new baseline images to not incorporate layer remnants.
 
@@ -1405,7 +1410,6 @@ All new images should be first built and pushed onto the test registry, i.e., us
 If the environment variable {\tt TEST\_REGISTRY}, is set to YES, labs to be pulled and pushed
 into an alternate registry defined in the trunk/config/labtainer.config file test\_registry entry entry.
 It is easy to set up a registry (it is a container!), \url{https://docs.docker.com/registry/deploying/}
-
 
 \subsection{Reuse of large file sets}
 \label{manifest}
@@ -1425,18 +1429,23 @@ when creating an archive for the new lab.  This allows the sys\_tar to include l
 as well as files from other labs.  Designers should avoid adding duplicate tar files to the SVN repository.
 This will avoid duplication of the files when a new distribution is created.
 
-\section{Ubuntu Package Sources}
-Labtainer images built on Ubuntu use apt-get to install packages.  Some enterprise environments have 
-difficulty reaching selected Ubuntu software source mirrors.  A Docker image build will use the default 
-Ubuntu package sources, ``archive.ubuntu.com''.  This hostname can be overridden via the 
-trunk/config/labtainer.config file apt\_source entry, and having the following in your dockerfile:
+\subsection{Package Sources for apt and yum}
+\label{package sources}
+Labtainer base images include configuration files to use local NPS mirrors when creating derivative
+images.  The original apt or yum sources are restored to an image if it is built without an environment
+variable of {\tt LABTAINER\_NPS=YES}  The original sources are also restored when any container is first
+run.  See the baseline Labtainer Dockerfiles in {\tt trunk/scripts/designer/base\_dockerfiles} to understand
+how the sources files are manipulated.
+
+The {\tt apt\_source} entry in the trunk/config/labtainer.config file will set the {\tt \$apt\_source}
+environment variable in a Dockerfile, and this can be used by lab designers to force image builds to use
+alternate sources.  By default, the value of the variable is ``archive.ubuntu.com''.  This hostname can be 
+overridden via the trunk/config/labtainer.config file apt\_source entry, and having the following in your dockerfile:
 \begin{verbatim}
 RUN sed -i s/archive.ubuntu.com/$apt_source/ /etc/apt/sources.list
 \end{verbatim}
-\noindent prior to the installation of packages.  The Labatainer labs from NPS 
-generally have sources.list entries that reflect sources that were working from NPS at the time of the build.
 
-\section{Locale Settings}
+\subsection{Locale Settings}
 The locale settings, (e.g., used when interpreting character encodings) are set to en\_US.utf-8 
 as can be seen in 
 \begin{verbatim}
