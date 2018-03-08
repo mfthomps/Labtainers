@@ -127,6 +127,8 @@ class ParseLabtainerConfig():
                           'error' : logging.ERROR}
         self.file_log_level = logging_levels[self.file_log_level]
         self.console_log_level = logging_levels[self.console_log_level]
+        if os.getenv('LABTAINER_NPS') == 'YES':
+            self.apt_source = 'NPS'
 
 
     def show_current_settings(self):
