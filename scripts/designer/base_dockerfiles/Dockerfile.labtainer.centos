@@ -6,8 +6,12 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en  
 ENV LC_ALL en_US.UTF-8  
 RUN sed -i '/tsflags=nodocs/d' /etc/yum.conf
+RUN mkdir /tmp/yum.repos.d
+RUN mv /etc/yum.repos.d/* /tmp/yum.repos.d
+ADD system/etc/nps.repo /etc/yum.repos.d/CentOS-Base.repo
+ADD system/bin/yum-source.sh /usr/bin/yum-source.sh
 RUN yum install -y sudo rsyslog which less openssh-server openssh-clients man man-pages nano gdb file net-tools \
-    python hexedit wget tcpdump nc xinetd expect tcl epel-release ghex leafpad iptables-services bind-utils dnsmasq nmap vim
+    python hexedit wget tcpdump nc xinetd expect tcl ghex epel-release leafpad iptables-services bind-utils dnsmasq nmap vim
 RUN yum install -y python-pip
 RUN sudo pip install --upgrade pip
 RUN sudo pip install setuptools
