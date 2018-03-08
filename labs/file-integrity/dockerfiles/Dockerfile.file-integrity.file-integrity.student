@@ -27,6 +27,9 @@ ARG imagedir
 ARG user_name
 ARG password
 ARG apt_source
+ENV APT_SOURCE $apt_source
+RUN /usr/bin/yum-source.sh
+RUN yum install -y aide
 #
 # Install the system files found in the _system directory
 #
@@ -39,7 +42,6 @@ RUN echo "root:badpassword" | chpasswd
 #RUN adduser $user_name sudo
 # replace above with below for centos/fedora
 RUN usermod $user_name -a -G wheel
-RUN yum install -y aide
 
 #
 #  **** Perform all root operations, e.g.,           ****

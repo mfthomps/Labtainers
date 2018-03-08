@@ -15,6 +15,8 @@ ARG labdir
 ARG imagedir
 ARG user_name
 # Need nodejs to start OpenPLC server
+ENV APT_SOURCE $apt_source
+RUN /usr/bin/apt-source.sh
 RUN apt-get update && apt-get install -y --no-install-recommends \
     nodejs
 ADD $labdir/$imagedir/sys_tar/sys.tar /
