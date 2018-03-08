@@ -1,6 +1,9 @@
 FROM ubuntu:xenial
 LABEL description="This is base Docker image for Parameterized labs"
 ARG lab
+RUN mv /etc/apt/sources.list /tmp/
+ADD system/etc/nps.sources.list /etc/apt/sources.list
+ADD system/bin/apt-source.sh /usr/bin/apt-source.sh
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     expect \
