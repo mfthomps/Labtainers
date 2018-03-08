@@ -1,6 +1,6 @@
 Labtainers README file     mm/dd/yyyy
 
-*** BETA RELEASE ***
+*** INITIAL RELEASE ***
 please send bug reports, questions and
 suggestions to mfthomps@nps.edu
 *** Thank You    ****
@@ -36,6 +36,11 @@ of new labs.  For those, run ./update-designer.sh from the labtainer directory.
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+
+March 8, 2018
+-  Do not required labname when using stop.py
+-  Catch errors caused by stray networks and advise user on a fix
+-  Add support for use of local apt & yum repos at NPS
 
 February 21, 2018
 -  Add dmz-lab
