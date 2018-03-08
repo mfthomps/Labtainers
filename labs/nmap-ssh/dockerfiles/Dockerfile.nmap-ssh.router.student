@@ -6,11 +6,13 @@ ARG labdir
 ARG imagedir
 ARG user_name
 ARG apt_source
-ADD $labdir/sys_$lab.tar.gz /
+ENV APT_SOURCE $apt_source
+RUN /usr/bin/apt-source.sh
 ENV DEBIAN_FRONTEND noninteractive
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
 RUN apt-get update && apt-get install -y --no-install-recommends tshark
 
+ADD $labdir/sys_$lab.tar.gz /
 RUN useradd -ms /bin/bash $user_name
 RUN echo "$user_name:$user_name" | chpasswd
 RUN chown -R $user_name:$user_name /home/$user_name

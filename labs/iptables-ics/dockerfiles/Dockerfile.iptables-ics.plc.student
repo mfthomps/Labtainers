@@ -17,6 +17,8 @@ ARG user_name
 ARG password 
 ARG apt_source
 
+ENV APT_SOURCE $apt_source
+RUN /usr/bin/apt-source.sh
 RUN apt-get update && apt-get install -y --no-install-recommends telnetd
 RUN apt-get update && apt-get install -y --no-install-recommends \
     nodejs

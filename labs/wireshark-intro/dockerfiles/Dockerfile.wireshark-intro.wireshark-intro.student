@@ -8,6 +8,8 @@ ARG user_name
 
 #
 # Give them telnetd - just in case students need to experiment
+ENV APT_SOURCE $apt_source
+RUN /usr/bin/apt-source.sh
 RUN apt-get update && apt-get install -y --no-install-recommends tshark telnetd
 
 ADD $labdir/sys_$lab.tar.gz /
