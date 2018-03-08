@@ -15,6 +15,8 @@ ARG labdir
 ARG imagedir
 ARG user_name
 
+ENV APT_SOURCE $apt_source
+RUN /usr/bin/apt-source.sh
 RUN apt-get update && apt-get install -y --no-install-recommends sshpass
 
 ADD $labdir/sys_$lab.tar.gz /
