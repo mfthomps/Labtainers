@@ -6,6 +6,8 @@ ARG imagedir
 ARG apt_source
 ARG user_name
 ARG password
+ENV APT_SOURCE $apt_source
+RUN /usr/bin/apt-source.sh
 RUN apt-get update && apt-get install -y --no-install-recommends \
     openssl \
     openssh-client

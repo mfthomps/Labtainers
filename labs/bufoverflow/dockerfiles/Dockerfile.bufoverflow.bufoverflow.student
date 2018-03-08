@@ -7,6 +7,8 @@ ARG imagedir
 ARG user_name
 ARG apt_source
 
+ENV APT_SOURCE $apt_source
+RUN /usr/bin/apt-source.sh
 RUN apt-get update && apt-get install -y --no-install-recommends zsh
 RUN echo "# This secret file is generated when container is created" >> /root/.secret
 RUN echo "# The root secret string below will be replaced with a keyed hash" >> /root/.secret
