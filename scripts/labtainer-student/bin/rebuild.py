@@ -34,6 +34,7 @@ def main():
     parser.add_argument('-f', '--force', action='store_true', help='force build')
     parser.add_argument('-p', '--prompt', action='store_true', help='prompt for email, otherwise use stored')
     parser.add_argument('-c', '--container', action='store', help='force rebuild just this container')
+    parser.add_argument('-t', '--test_registry', action='store_true', default=False, help='build and publish with test registry')
 
     args = parser.parse_args()
     quiet_start = True
@@ -45,6 +46,18 @@ def main():
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", args.labname, "../../config/labtainer.config")
     labutils.logger.INFO("Begin logging Rebuild.py for %s lab" % args.labname)
     lab_path = os.path.join(os.path.abspath('../../labs'), args.labname)
+
+    if args.test_registry:
+        if os.getenv('TEST_REGISTRY') is None:
+            print('use putenv to set it')
+            os.putenv("TEST_REGISTRY", "TRUE")
+            ''' why does putenv not set the value? '''
+            os.environ['TEST_REGISTRY'] = 'TRUE'
+        else:
+            print('exists, set it true')
+            os.environ['TEST_REGISTRY'] = 'TRUE'
+        print('set TEST REG to %s' % os.getenv('TEST_REGISTRY'))
+
     labutils.RebuildLab(lab_path, "student", force_build=force_build, quiet_start=quiet_start, just_container=args.container)
 
     return 0
