@@ -23,7 +23,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends telnet wget lyn
 ADD $labdir/$imagedir/sys_tar/sys.tar /
 ADD $labdir/sys_$lab.tar.gz /
 
-RUN sed -i s/archive.ubuntu.com/$apt_source/ /etc/apt/sources.list
 
 # Need pyModbusTCP to run the Modbus test program
 RUN pip install pyModbusTCP
