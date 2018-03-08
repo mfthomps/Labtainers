@@ -19,7 +19,10 @@ if [ $# -eq 0 ]; then
 fi
 if [[ $# -eq 1 ]]; then
     export LABTAINER_REGISTRY="mfthomps"
-    docker login
+    if [ -z "$DOCKER_LOGIN" ]; then
+        docker login
+        DOCKER_LOGIN=YES
+    fi
 elif [[ "$2" == -t ]]; then
     export LABTAINER_REGISTRY="testregistry:5000"
 else
