@@ -11,6 +11,8 @@ ARG apt_source
 # And, installation of rsyslog to cause system logging local to the
 # container.
 #
+ENV APT_SOURCE $apt_source
+RUN /usr/bin/apt-source.sh
 RUN apt-get update && apt-get install -y --no-install-recommends \
     telnetd 
 

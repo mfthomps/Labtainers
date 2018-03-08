@@ -27,7 +27,6 @@ ARG imagedir
 ARG user_name
 ARG password
 ARG apt_source
-RUN yum install -y mod_ssl
 #
 # Install the system files found in the _system directory
 #
