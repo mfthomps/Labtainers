@@ -12,9 +12,7 @@ domain and is not subject to copyright.
 # ParameterParser.py
 # Description: * Read parameter.config
 #              * Parse stdin and stdout files based on parameter.config
-#              * Create a json file
 
-import json
 import glob
 import md5
 import os
@@ -359,14 +357,17 @@ class ParameterParser():
             #print replacelist
             content = None
             # First open the file - read
-            with open(filename, 'r') as infile:
-                content = infile.read()
-                for replaceitem in replacelist:
-                    (oldtoken, newtoken) = replaceitem.split(':')
-                    content = content.replace(oldtoken, newtoken)
+            infile = open(filename, 'r') 
+            content = infile.read()
+            for replaceitem in replacelist:
+                (oldtoken, newtoken) = replaceitem.split(':')
+                content = content.replace(oldtoken, newtoken)
+            infile.close()
             # Re-open file with write
-            with open(filename, 'w') as outfile:
-                outfile.write(content)
+            outfile = open(filename, 'w') 
+            outfile.write(content)
+            outfile.close()
+
             
     
     # Perform HASH_CREATE
@@ -442,14 +443,16 @@ class ParameterParser():
             #print replacelist
             content = None
        
-            with open(filename, 'r') as infile:
-                content = infile.read() 
-                for replaceitem in replacelist:
-                    (oldtoken, newtoken) = replaceitem.split(':')
-                    content = content.replace(oldtoken, newtoken)
+            infile = open(filename, 'r')
+            content = infile.read() 
+            for replaceitem in replacelist:
+                (oldtoken, newtoken) = replaceitem.split(':')
+                content = content.replace(oldtoken, newtoken)
+            infile.close()
             # Re-open file with write
-            with open(filename, 'w') as outfile:
-                outfile.write(content)
+            outfile = open(filename, 'w') 
+            outfile.write(content)
+            outfile.close()
     
     def DoReplace(self):
         # Do create Watermark here - instructor container does not call this
