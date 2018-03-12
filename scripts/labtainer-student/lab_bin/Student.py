@@ -14,7 +14,6 @@ domain and is not subject to copyright.
 # Also kill any lingering monitored processes
 
 import glob
-import json
 import os
 import subprocess
 import sys
@@ -51,10 +50,12 @@ def main():
     os.chdir(StudentHomeDir)
     student_email_file=os.path.join(HomeLocal, '.email')
     lab_name_file=os.path.join(HomeLocal, '.labname')
-    with open(student_email_file) as fh:
-        student_email = fh.read().strip()
-    with open(lab_name_file) as fh:
-        lab_name = fh.read().strip()
+    fh = open(student_email_file)
+    student_email = fh.read().strip()
+    fh.close()
+    fh = open(lab_name_file)
+    lab_name = fh.read().strip()
+    fh.close()
     # NOTE: Always store as e-mail+lab_name.zip
     #       e-mail+lab_name.zip will be renamed by stop.py (add containername)
     ZipFileName = '%s.%s.zip' % (student_email.replace("@","_at_"), lab_name)
@@ -82,9 +83,10 @@ def main():
     manifest = '%s-home_tar.list' % container_image
     skip_file = os.path.join(udir,'.local','config', manifest)
     if os.path.isfile(skip_file):
-        with open(skip_file) as fh:
-            for line in fh:
-                skip_list.append(line.strip())
+        fh = open(skip_file) 
+        for line in fh:
+            skip_list.append(line.strip())
+        fh.close()
     for rootdir, subdirs, files in os.walk(StudentHomeDir):
         newdir = rootdir.replace(udir, ".")
         for file in files:
