@@ -111,11 +111,12 @@ def ParameterizeMyContainer(mycontainer_name, container_user, container_password
     logger.DEBUG("About to call parameterize.sh with : %s" % str(command))
     #return retval 
     child = subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    error_string = child.stderr.read().strip()
+    error_string = child.stderr.read()
     if len(error_string) > 0:
-        if not error_string.startswith('[sudo]'):
-            logger.ERROR('ParameterizeMyContainer %s' % error_string)
-            retval = False
+        for line in error_string.splitlines(True):
+            if  not line.startswith('[sudo]') and "LC_ALL" not in line:
+                logger.ERROR('ParameterizeMyContainer %s' % line)
+                retval = False
     out_string = child.stdout.read().strip()
     if len(out_string) > 0:
         logger.DEBUG('ParameterizeMyContainer %s' % out_string)
@@ -200,14 +201,19 @@ def CreateSingleContainer(container, mysubnet_name=None, mysubnet_ip=None):
             ip, host = item.split(':')
             add_this = '--add-host %s ' % item
             add_hosts += add_this
+        add_host_param = '--add-host my_host:%s %s' % (docker0_IPAddr, add_hosts)
+        priv_param = ''
+        if not container.no_privilege:
+            priv_param = '--privileged'
+        
         if mysubnet_name:
             mac = ''
             if ':' in mysubnet_ip:
                 mysubnet_ip, mac_addr = mysubnet_ip.split(':',1)
                 mac = '--mac-address=%s' % mac_addr 
-            createsinglecommand = "docker create -t --network=%s --ip=%s %s --privileged --add-host my_host:%s %s --name=%s --hostname %s %s %s %s" % (mysubnet_name, mysubnet_ip, mac, docker0_IPAddr, add_hosts,  container.full_name, container.hostname, volume, new_image_name, container.script)
+            createsinglecommand = "docker create -t --network=%s --ip=%s %s %s %s --name=%s --hostname %s %s %s %s" % (mysubnet_name, mysubnet_ip, mac, priv_param, add_host_param,  container.full_name, container.hostname, volume, new_image_name, container.script)
         else:
-            createsinglecommand = "docker create -t --privileged --add-host my_host:%s %s --name=%s --hostname %s %s %s %s " % (docker0_IPAddr, add_hosts, 
+            createsinglecommand = "docker create -t %s %s --name=%s --hostname %s %s %s %s " % (priv_param, add_host_param, 
                container.full_name, container.hostname, volume, new_image_name, container.script)
         logger.DEBUG("Command to execute was (%s)" % createsinglecommand)
 
