@@ -62,6 +62,7 @@ class ParseStartConfig():
             self.registry = None
             self.terminal_group = None
             self.add_hosts = []
+            self.no_privilege = 'no'
             self.logger = logger
 
         def add_net(self, name, ipaddr):
