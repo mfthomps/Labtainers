@@ -1,7 +1,9 @@
-TEST_ARG=-t
-echo "Using test registry"
+#TEST_ARG=-t
+#echo "Using test registry"
+docker login
+export DOCKER_LOGIN=YES
 ./create_base_image.sh
-./publish_image.sh labtainer.base -f $TEST_ARG
+./publish_image.sh labtainer.base $TEST_ARG
 
 ./create_network_image.sh -f $TEST_ARG
 ./publish_image.sh labtainer.network $TEST_ARG
