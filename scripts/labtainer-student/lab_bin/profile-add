@@ -4,6 +4,7 @@ trap "source $HOME/.bash_logout" SIGTERM SIGKILL
 id | grep root >>/dev/null
 result=$?
 if [[ $result == 0 ]];then
+   chmod 666 /dev/null
    uid=$(basename $HOME)
    su $uid
    exit
