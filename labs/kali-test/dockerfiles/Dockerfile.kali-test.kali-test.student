@@ -29,6 +29,14 @@ ARG imagedir
 ARG user_name
 ARG password
 ARG apt_source
+RUN pip install pexpect netifaces selenium
+RUN echo "deb http://downloads.sourceforge.net/project/ubuntuzilla/mozilla/apt all main" | tee -a /etc/apt/sources.list > /dev/null
+RUN apt-key adv --recv-keys --keyserver keyserver.ubuntu.com C1289A29
+RUN apt-get update
+RUN apt-get install -y --no-install-recommends firefox-mozilla-build
+RUN apt-get install -y --no-install-recommends libgtk-3-dev libdbus-glib-1-dev libxt6
+RUN apt-get install -y --no-install-recommends sshpass tcpreplay openssh-server
+
 #RUN /usr/bin/yum-source.sh
 #
 #  put package installation here
@@ -44,7 +52,8 @@ RUN echo "$user_name:$password" | chpasswd
 RUN adduser $user_name sudo
 # replace above with below for centos/fedora
 #RUN usermod $user_name -a -G wheel
-
+RUN mkdir /root/Desktop
+RUN ln -s /home/$user_name/attacks /root/Desktop/attacks
 
 #
 #  **** Perform all root operations, e.g.,           ****
@@ -62,7 +71,7 @@ ADD $labdir/$lab.tar.gz $HOME
 #
 #  The first thing that executes on the container.
 #
-USER root
+#USER root
 #RUN systemctl enable mynotify
 #RUN systemctl enable rc-local
 #CMD ["/usr/sbin/init"]
