@@ -1,0 +1,389 @@
+1481139048106	geckodriver	INFO	Listening on 127.0.0.1:35967
+1481139049112	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.Gto94oqR6jPk
+1481139049113	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1481139049115	geckodriver::marionette	INFO	Connecting to Marionette on localhost:33201
+1481139052882	geckodriver	INFO	Listening on 127.0.0.1:51829
+1481139053876	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.Q6BkSJlYRO2l
+1481139053877	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1481139053879	geckodriver::marionette	INFO	Connecting to Marionette on localhost:46117
+1481221773515	geckodriver	INFO	Listening on 127.0.0.1:57953
+1481221774525	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.ctL9aIK1qWDu
+1481221774526	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1481221774534	geckodriver::marionette	INFO	Connecting to Marionette on localhost:44261
+1481221778529	geckodriver	INFO	Listening on 127.0.0.1:47533
+1481221779489	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.y4QSRJIiZ5ss
+1481221779490	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1481221779492	geckodriver::marionette	INFO	Connecting to Marionette on localhost:46271
+1481221838175	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+1481221842676	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+1481221967374	geckodriver	INFO	Listening on 127.0.0.1:40077
+1481221968383	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.CFI1FW5OPmL3
+1481221968384	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1481221968392	geckodriver::marionette	INFO	Connecting to Marionette on localhost:34609
+1481221972165	geckodriver	INFO	Listening on 127.0.0.1:56543
+1481221973162	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.wvWdNC0cfA7U
+1481221973163	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1481221973165	geckodriver::marionette	INFO	Connecting to Marionette on localhost:34825
+1481222031900	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+1481222037967	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+1481222526613	geckodriver	INFO	Listening on 127.0.0.1:41245
+1481222527612	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.OBvVd0igH8tO
+1481222527613	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1481222527614	geckodriver::marionette	INFO	Connecting to Marionette on localhost:37275
+1481222531024	geckodriver	INFO	Listening on 127.0.0.1:45491
+1481222532012	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.YiuTbIYHvwmX
+1481222532012	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1481222532014	geckodriver::marionette	INFO	Connecting to Marionette on localhost:43165
+firefox: Fatal IO error 11 (Resource temporarily unavailable) on X server :0.
+firefox: Fatal IO error 11 (Resource temporarily unavailable) on X server :0.
+1481226874604	geckodriver	INFO	Listening on 127.0.0.1:49551
+1481226875613	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.NuQmyIF8KxkY
+1481226875613	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1481226875622	geckodriver::marionette	INFO	Connecting to Marionette on localhost:45099
+1481226880697	geckodriver	INFO	Listening on 127.0.0.1:60347
+1481226881685	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.sICdTXETAGSr
+1481226881686	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1481226881688	geckodriver::marionette	INFO	Connecting to Marionette on localhost:43055
+1481227047644	geckodriver	INFO	Listening on 127.0.0.1:40045
+1481227048641	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.h5Eme5NDYjMN
+1481227048642	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1481227048645	geckodriver::marionette	INFO	Connecting to Marionette on localhost:34347
+1481227052072	geckodriver	INFO	Listening on 127.0.0.1:43935
+1481227053060	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.lrV9a2JhrwLd
+1481227053061	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1481227053063	geckodriver::marionette	INFO	Connecting to Marionette on localhost:38299
+1481227111859	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+1481227116851	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+1481227673174	geckodriver	INFO	Listening on 127.0.0.1:53547
+1481227674137	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.jQ2KXVhmLtbi
+1481227674138	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1481227674152	geckodriver::marionette	INFO	Connecting to Marionette on localhost:44433
+1481227697955	geckodriver	INFO	Listening on 127.0.0.1:45671
+1481227698950	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.Fr21c0KHAIRa
+1481227698951	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1481227698959	geckodriver::marionette	INFO	Connecting to Marionette on localhost:46101
+1481239185533	geckodriver	INFO	Listening on 127.0.0.1:39699
+1481239186545	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.rDRLdTc38zsP
+1481239186546	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1481239186554	geckodriver::marionette	INFO	Connecting to Marionette on localhost:38341
+1481239190397	geckodriver	INFO	Listening on 127.0.0.1:52931
+1481239191396	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.dexKdIWQmexn
+1481239191396	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1481239191398	geckodriver::marionette	INFO	Connecting to Marionette on localhost:34125
+1481239250105	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+1481239255788	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+1481239401142	geckodriver	INFO	Listening on 127.0.0.1:43745
+1481239402150	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.Pd5uUNjeuZ51
+1481239402151	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1481239402159	geckodriver::marionette	INFO	Connecting to Marionette on localhost:45285
+1481239407044	geckodriver	INFO	Listening on 127.0.0.1:57319
+1481239408037	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.7JavUTkictgH
+1481239408038	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1481239408047	geckodriver::marionette	INFO	Connecting to Marionette on localhost:41579
+1481239466692	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+1481239472216	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+1481240005280	geckodriver	INFO	Listening on 127.0.0.1:56125
+1481240005306	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.D3fSeKQSIvRk
+1481240005307	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1481240005322	geckodriver::marionette	INFO	Connecting to Marionette on localhost:46855
+1481240011493	geckodriver	INFO	Listening on 127.0.0.1:52525
+1481240012479	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.NSmoT1eBkDt4
+1481240012480	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1481240012488	geckodriver::marionette	INFO	Connecting to Marionette on localhost:44607
+1481241092340	geckodriver	INFO	Listening on 127.0.0.1:39939
+1481241093349	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.AOHJx6ACBjpD
+1481241093349	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1481241093358	geckodriver::marionette	INFO	Connecting to Marionette on localhost:36319
+1481241097371	geckodriver	INFO	Listening on 127.0.0.1:36079
+1481241097392	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.9ADqGVobHkie
+1481241097392	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1481241097402	geckodriver::marionette	INFO	Connecting to Marionette on localhost:46527
+1481241157059	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+1481241160600	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+1482251843418	geckodriver	INFO	Listening on 127.0.0.1:36055
+1482251844427	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.SOT8hDsNDIaC
+1482251844428	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1482251844439	geckodriver::marionette	INFO	Connecting to Marionette on localhost:36315
+1482251848535	geckodriver	INFO	Listening on 127.0.0.1:56223
+1482251849531	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.S3ZdJfFjRnxM
+1482251849532	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1482251849534	geckodriver::marionette	INFO	Connecting to Marionette on localhost:40905
+1482251908275	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+1482251914758	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+1482253127881	geckodriver	INFO	Listening on 127.0.0.1:58269
+1482253128892	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.wEKHst8QJr32
+1482253128893	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1482253128901	geckodriver::marionette	INFO	Connecting to Marionette on localhost:41297
+1482253132812	geckodriver	INFO	Listening on 127.0.0.1:57633
+1482253133801	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.VHTTUJBwtKyc
+1482253133802	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1482253133804	geckodriver::marionette	INFO	Connecting to Marionette on localhost:43089
+1482253192557	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+1482253197042	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+firefox: Fatal IO error 11 (Resource temporarily unavailable) on X server :0.
+firefox: Fatal IO error 11 (Resource temporarily unavailable) on X server :0.
+1482253395073	geckodriver	INFO	Listening on 127.0.0.1:55093
+1482253396079	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.JTn9J7JsCeBn
+1482253396080	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1482253396089	geckodriver::marionette	INFO	Connecting to Marionette on localhost:36569
+1482253401028	geckodriver	INFO	Listening on 127.0.0.1:55203
+1482253402027	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.dqjoIhNBKksd
+1482253402027	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1482253402029	geckodriver::marionette	INFO	Connecting to Marionette on localhost:41637
+1482253460703	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+1482253465349	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+firefox: Fatal IO error 11 (Resource temporarily unavailable) on X server :0.
+firefox: Fatal IO error 11 (Resource temporarily unavailable) on X server :0.
+1482351167126	geckodriver	INFO	Listening on 127.0.0.1:47485
+1482351168117	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.WQF7F0JyS7zo
+1482351168129	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1482351168131	geckodriver::marionette	INFO	Connecting to Marionette on localhost:41397
+1482351174465	geckodriver	INFO	Listening on 127.0.0.1:36001
+1482351175453	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.qu6wJXcxCgjz
+1482351175454	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1482351175463	geckodriver::marionette	INFO	Connecting to Marionette on localhost:43375
+1482352411680	geckodriver	INFO	Listening on 127.0.0.1:58485
+1482352412683	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.iC35EBemQCNs
+1482352412684	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1482352412691	geckodriver::marionette	INFO	Connecting to Marionette on localhost:43223
+1482352417762	geckodriver	INFO	Listening on 127.0.0.1:41883
+1482352418745	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.VyZ0FCdClMPk
+1482352418745	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1482352418747	geckodriver::marionette	INFO	Connecting to Marionette on localhost:39961
+1482352587933	geckodriver	INFO	Listening on 127.0.0.1:37183
+1482352588930	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.ihNGkDcFHt3t
+1482352588931	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1482352588942	geckodriver::marionette	INFO	Connecting to Marionette on localhost:33785
+1482352594025	geckodriver	INFO	Listening on 127.0.0.1:48703
+1482352595016	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.AQtVJj4MsIl9
+1482352595017	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1482352595024	geckodriver::marionette	INFO	Connecting to Marionette on localhost:33547
+1483662087476	geckodriver	INFO	Listening on 127.0.0.1:35543
+1483662088484	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.56d1Cb8gkKh2
+1483662088485	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1483662088493	geckodriver::marionette	INFO	Connecting to Marionette on localhost:44683
+1483662092727	geckodriver	INFO	Listening on 127.0.0.1:42195
+1483662093717	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.EmnnzRnhlhE3
+1483662093717	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1483662093719	geckodriver::marionette	INFO	Connecting to Marionette on localhost:39681
+1483662152458	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+1483662158573	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+1484068603115	geckodriver	INFO	Listening on 127.0.0.1:32851
+1484068604125	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.IZ1zp4SXoeki
+1484068604126	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1484068604137	geckodriver::marionette	INFO	Connecting to Marionette on localhost:32935
+1484068611001	geckodriver	INFO	Listening on 127.0.0.1:60935
+1484068612004	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.kkFuG7Pnqe43
+1484068612004	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1484068612009	geckodriver::marionette	INFO	Connecting to Marionette on localhost:36407
+1485902148277	geckodriver	INFO	Listening on 127.0.0.1:60875
+1485902149281	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.HkQDrpjzSPgX
+1485902149282	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1485902149290	geckodriver::marionette	INFO	Connecting to Marionette on localhost:45225
+1485902153492	geckodriver	INFO	Listening on 127.0.0.1:58687
+1485902154478	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.aTm4y7488bV4
+1485902154479	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1485902154481	geckodriver::marionette	INFO	Connecting to Marionette on localhost:36329
+1485902213231	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+1485902218563	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+1485908773880	geckodriver	INFO	Listening on 127.0.0.1:34337
+1485908774887	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.G9WSZ5YcVg0p
+1485908774888	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1485908774896	geckodriver::marionette	INFO	Connecting to Marionette on localhost:35259
+1485908779713	geckodriver	INFO	Listening on 127.0.0.1:41443
+1485908780705	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.Asz5ljb9m7Lm
+1485908780706	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1485908780708	geckodriver::marionette	INFO	Connecting to Marionette on localhost:39547
+1485908839408	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+1485908845718	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+1485909607646	geckodriver	INFO	Listening on 127.0.0.1:60975
+1485909608650	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.WKkNpp3B3xHp
+1485909608651	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1485909608658	geckodriver::marionette	INFO	Connecting to Marionette on localhost:43967
+1485909613981	geckodriver	INFO	Listening on 127.0.0.1:46185
+1485909614950	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.vXhADxRTHEV7
+1485909614952	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1485909614955	geckodriver::marionette	INFO	Connecting to Marionette on localhost:37807
+firefox: Fatal IO error 11 (Resource temporarily unavailable) on X server :0.
+firefox: Fatal IO error 11 (Resource temporarily unavailable) on X server :0.
+1485970070376	geckodriver	INFO	Listening on 127.0.0.1:36487
+1485970071387	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.J9jDlVCjNb18
+1485970071388	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1485970071397	geckodriver::marionette	INFO	Connecting to Marionette on localhost:37569
+1485970078318	geckodriver	INFO	Listening on 127.0.0.1:39667
+1485970079339	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.4QXkew9zAWwY
+1485970079342	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1485970079362	geckodriver::marionette	INFO	Connecting to Marionette on localhost:42441
+1485970137669	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+1485970147275	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+firefox: Fatal IO error 11 (Resource temporarily unavailable) on X server :0.
+firefox: Fatal IO error 11 (Resource temporarily unavailable) on X server :0.
+1485971899022	geckodriver	INFO	Listening on 127.0.0.1:60865
+1485971900025	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.BeoEMOLpzeDb
+1485971900026	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1485971900036	geckodriver::marionette	INFO	Connecting to Marionette on localhost:40397
+1485971957748	geckodriver	INFO	Listening on 127.0.0.1:57649
+1485971958750	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.RfO3kxKfzMIU
+1485971958752	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1485971958755	geckodriver::marionette	INFO	Connecting to Marionette on localhost:33155
+1485971963920	geckodriver	INFO	Listening on 127.0.0.1:53595
+1485971964879	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.mtIukDSygHLP
+1485971964881	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1485971964888	geckodriver::marionette	INFO	Connecting to Marionette on localhost:41905
+1485972023574	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+1485972030235	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+firefox: Fatal IO error 11 (Resource temporarily unavailable) on X server :0.
+1485988307052	geckodriver	INFO	Listening on 127.0.0.1:48309
+1485988308060	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.Nd4Fp0laHC3m
+1485988308061	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1485988308069	geckodriver::marionette	INFO	Connecting to Marionette on localhost:32919
+1485988313413	geckodriver	INFO	Listening on 127.0.0.1:54545
+1485988314396	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.h2yU0d8AHAxo
+1485988314398	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1485988314405	geckodriver::marionette	INFO	Connecting to Marionette on localhost:36521
+1485988373083	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+1485988378690	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+firefox: Fatal IO error 11 (Resource temporarily unavailable) on X server :0.
+1486421262103	geckodriver	INFO	Listening on 127.0.0.1:59127
+1486421263101	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.kRb9S7j48MDd
+1486421263102	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1486421263104	geckodriver::marionette	INFO	Connecting to Marionette on localhost:40739
+1486421266882	geckodriver	INFO	Listening on 127.0.0.1:41825
+1486421267885	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.3x5nHTPGU7vr
+1486421267886	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1486421267888	geckodriver::marionette	INFO	Connecting to Marionette on localhost:43933
+1486675006811	geckodriver	INFO	Listening on 127.0.0.1:52691
+1486675007789	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.WXqBG5KUcdMy
+1486675007789	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1486675007798	geckodriver::marionette	INFO	Connecting to Marionette on localhost:34313
+1486675012480	geckodriver	INFO	Listening on 127.0.0.1:37929
+1486675013481	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.VGFepkXBXciY
+1486675013482	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1486675013485	geckodriver::marionette	INFO	Connecting to Marionette on localhost:43083
+1486675072165	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+1486675079057	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+firefox: Fatal IO error 11 (Resource temporarily unavailable) on X server :0.
+1486675426144	geckodriver	INFO	Listening on 127.0.0.1:49639
+1486675427145	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.Uip2PAnzYoGi
+1486675427146	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1486675427155	geckodriver::marionette	INFO	Connecting to Marionette on localhost:40311
+1486675434146	geckodriver	INFO	Listening on 127.0.0.1:50965
+1486675435108	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.kXFVETU8tKJw
+1486675435109	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1486675435111	geckodriver::marionette	INFO	Connecting to Marionette on localhost:37601
+1486675493721	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+1486675499776	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+
+(firefox:1309): GLib-GObject-CRITICAL **: g_type_add_interface_static: assertion 'g_type_parent (interface_type) == G_TYPE_INTERFACE' failed
+1486675507125 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: loginInput
+
+(firefox:1309): GLib-GObject-CRITICAL **: g_type_add_interface_static: assertion 'g_type_parent (interface_type) == G_TYPE_INTERFACE' failed
+1486675514231 Marionette: Element does not have a correct accessibility role and may not be manipulated via the accessibility API -> id: , tagName: INPUT, className: loginInput
+
+(firefox:1309): GLib-GObject-CRITICAL **: g_type_add_interface_static: assertion 'g_type_parent (interface_type) == G_TYPE_INTERFACE' failed
+1486675549572 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+1486675558022 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+1486675566328 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+1486675574497 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+1486675582768 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+1486675674823 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+1486675674953 Marionette: Element is missing an accesible name -> id: , tagName: TEXTAREA, className: 
+JavaScript error: http://192.168.1.20/vulnerabilities/xss_s/, line 1: ReferenceError: checkForm is not defined
+1486675703276 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+1486675703363 Marionette: Element is missing an accesible name -> id: , tagName: TEXTAREA, className: 
+JavaScript error: http://192.168.1.20/vulnerabilities/xss_s/, line 1: ReferenceError: checkForm is not defined
+1486675731698 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+1486675731766 Marionette: Element is missing an accesible name -> id: , tagName: TEXTAREA, className: 
+JavaScript error: http://192.168.1.20/vulnerabilities/xss_s/, line 1: ReferenceError: checkForm is not defined
+1486675760353 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+
+(firefox:1371): GLib-GObject-CRITICAL **: g_type_add_interface_static: assertion 'g_type_parent (interface_type) == G_TYPE_INTERFACE' failed
+1486675805306 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: loginInput
+
+(firefox:1371): GLib-GObject-CRITICAL **: g_type_add_interface_static: assertion 'g_type_parent (interface_type) == G_TYPE_INTERFACE' failed
+1486675816416 Marionette: Element does not have a correct accessibility role and may not be manipulated via the accessibility API -> id: , tagName: INPUT, className: loginInput
+
+(firefox:1371): GLib-GObject-CRITICAL **: g_type_add_interface_static: assertion 'g_type_parent (interface_type) == G_TYPE_INTERFACE' failed
+
+(firefox:1371): GLib-GObject-CRITICAL **: g_type_add_interface_static: assertion 'g_type_parent (interface_type) == G_TYPE_INTERFACE' failed
+1486675873564 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+1486675893951 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+1486675914244 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+1486675934441 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+1486675954694 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+1486675974981 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+1486675995315 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+1486676015995 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+1487803590305	geckodriver	INFO	Listening on 127.0.0.1:38365
+1487803591355	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.pQoupGXc2UHj
+1487803591355	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1487803591371	geckodriver::marionette	INFO	Connecting to Marionette on localhost:41333
+1487803596961	geckodriver	INFO	Listening on 127.0.0.1:43921
+1487803597959	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.IiNTO2Y7FVB9
+1487803597961	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1487803597963	geckodriver::marionette	INFO	Connecting to Marionette on localhost:36383
+1487803656717	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+1487803659786	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+1488327890750	geckodriver	INFO	Listening on 127.0.0.1:58247
+1488327891727	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.4BiR6kn5PBC3
+1488327891729	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1488327891754	geckodriver::marionette	INFO	Connecting to Marionette on localhost:46309
+1488327897691	geckodriver	INFO	Listening on 127.0.0.1:35933
+1488327898690	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.fufc5NjyKfKa
+1488327898692	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1488327898696	geckodriver::marionette	INFO	Connecting to Marionette on localhost:35969
+1488327957451	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+1488327961469	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+
+(firefox:3869): GLib-GObject-CRITICAL **: g_type_add_interface_static: assertion 'g_type_parent (interface_type) == G_TYPE_INTERFACE' failed
+1488331905193 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: loginInput
+
+(firefox:3869): GLib-GObject-CRITICAL **: g_type_add_interface_static: assertion 'g_type_parent (interface_type) == G_TYPE_INTERFACE' failed
+1488331916243 Marionette: Element does not have a correct accessibility role and may not be manipulated via the accessibility API -> id: , tagName: INPUT, className: loginInput
+
+(firefox:3869): GLib-GObject-CRITICAL **: g_type_add_interface_static: assertion 'g_type_parent (interface_type) == G_TYPE_INTERFACE' failed
+1488331971561 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+1488331984709 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+1488331997899 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+1488332011035 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+1488332024199 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+1488332178664 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+1488332178719 Marionette: Element is missing an accesible name -> id: , tagName: TEXTAREA, className: 
+JavaScript error: http://192.168.1.20/vulnerabilities/xss_s/, line 1: ReferenceError: checkForm is not defined
+1488332222980 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+1488332223036 Marionette: Element is missing an accesible name -> id: , tagName: TEXTAREA, className: 
+JavaScript error: http://192.168.1.20/vulnerabilities/xss_s/, line 1: ReferenceError: checkForm is not defined
+1488332267260 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+1488332267314 Marionette: Element is missing an accesible name -> id: , tagName: TEXTAREA, className: 
+JavaScript error: http://192.168.1.20/vulnerabilities/xss_s/, line 1: ReferenceError: checkForm is not defined
+1488332311738 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+
+(firefox:3921): GLib-GObject-CRITICAL **: g_type_add_interface_static: assertion 'g_type_parent (interface_type) == G_TYPE_INTERFACE' failed
+1488332649766 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: loginInput
+
+(firefox:3921): GLib-GObject-CRITICAL **: g_type_add_interface_static: assertion 'g_type_parent (interface_type) == G_TYPE_INTERFACE' failed
+1488332668824 Marionette: Element does not have a correct accessibility role and may not be manipulated via the accessibility API -> id: , tagName: INPUT, className: loginInput
+1488332763549 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+1488332795709 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+1488332827921 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+1488332860107 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+1488332892296 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+1488332924524 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+1488332956809 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+1488332989267 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: 
+1488388340116	geckodriver	INFO	Listening on 127.0.0.1:46475
+1488388341112	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.AejBu2JsqkQc
+1488388341112	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1488388341115	geckodriver::marionette	INFO	Connecting to Marionette on localhost:36559
+1488388344952	geckodriver	INFO	Listening on 127.0.0.1:32825
+1488388345942	mozprofile::profile	INFO	Using profile path /tmp/rust_mozprofile.ENsYTJ7zXeIF
+1488388345942	geckodriver::marionette	INFO	Starting browser /usr/bin/firefox
+1488388345945	geckodriver::marionette	INFO	Connecting to Marionette on localhost:44565
+1488388404657	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+1488388409482	addons.productaddons	ERROR	Request failed certificate checks: [Exception... "SSL is required and URI scheme is not https."  nsresult: "0x8000ffff (NS_ERROR_UNEXPECTED)"  location: "JS frame :: resource://gre/modules/CertUtils.jsm :: checkCert :: line 145"  data: no]
+
+(firefox:6261): GLib-GObject-CRITICAL **: g_type_add_interface_static: assertion 'g_type_parent (interface_type) == G_TYPE_INTERFACE' failed
+1488392107477 Marionette: Element is missing an accesible name -> id: , tagName: INPUT, className: loginInput
+
+(firefox:6261): GLib-GObject-CRITICAL **: g_type_add_interface_static: assertion 'g_type_parent (interface_type) == G_TYPE_INTERFACE' failed
+1488392118544 Marionette: Element does not have a correct accessibility role and may not be manipulated via the accessibility API -> id: , tagName: INPUT, className: loginInput
