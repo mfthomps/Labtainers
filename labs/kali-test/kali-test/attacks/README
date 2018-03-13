@@ -1,0 +1,41 @@
+This document explains how the CHLICSA scenario attacking machine is configured
+and how it executes the attacks. 
+
+1. Auto-login
+Because this machine is unmanned, yet several attacks called require a UI 
+(e.g., browser window), this machine auto logs in. 
+
+  /etc/profile.d/pyserver.sh 
+  This shell script calls the main attack file: /root/Desktop/attacks/main2.py
+
+
+	
+
+
+
+This is the directory with all of the attacks and files needed for the attacks
+
+***Notes
+
+*To run all the attacks simply run main.py
+	*to add attacks change main.py
+
+*Proxychains.conf should be in the /etc directory
+
+*https-ftp uses the commands from ftpcommands.txt
+
+*To get the socks proxy up start ssh and run:
+	*ssh -NfD 9050 root@localhost
+
+*To run the loginssh.py file you need the pxssh module
+	*run 'pip install pxssh' or 'pip install pexpect'
+
+*MITM attacks require ettecap
+
+*Scans.py requires nmap
+
+*ftpbrute.py and sshbrute.py require hydra
+
+*Also getip.py and main.py require the netifaces module
+	*run 'pip install netifaces'
+
