@@ -170,6 +170,16 @@ def DisconnectNetworkFromContainer(mycontainer_name, mysubnet_name):
     logger.DEBUG("Result of subprocess.call DisconnectNetworkFromContainer is %s" % result)
     return result
 
+def SetXhost():
+    ''' allow container root users to access xserver '''
+    cmd = 'xhost'
+    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if not 'LOCAL:' in output[0]:
+        cmd = 'xhost local:root'
+        os.system(cmd)
+    
+    
 def CreateSingleContainer(container, mysubnet_name=None, mysubnet_ip=None):
     logger.DEBUG("Create Single Container")
     retval = True
@@ -192,6 +202,7 @@ def CreateSingleContainer(container, mysubnet_name=None, mysubnet_ip=None):
             #volume = '-e DISPLAY -v /tmp/.Xll-unix:/tmp/.X11-unix --net=host -v$HOME/.Xauthority:/home/developer/.Xauthority'
             volume = '--env="DISPLAY"  --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw"'
             logger.DEBUG('container using X11')
+            SetXhost()
         add_hosts = ''     
         for item in container.add_hosts:
             if ':' not in item:
@@ -203,7 +214,7 @@ def CreateSingleContainer(container, mysubnet_name=None, mysubnet_ip=None):
             add_hosts += add_this
         add_host_param = '--add-host my_host:%s %s' % (docker0_IPAddr, add_hosts)
         priv_param = ''
-        if not container.no_privilege:
+        if container.no_privilege != 'yes':
             priv_param = '--privileged'
         
         if mysubnet_name:
