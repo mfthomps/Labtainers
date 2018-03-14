@@ -1,0 +1,22 @@
+# File:/etc/yum.repos.d/internal-repos.repo
+[base]
+name=CentOS Base
+baseurl=http://centosmirror.uc.nps.edu/repos/base/
+gpgcheck=0
+enabled=1
+[centosplus]
+name=CentOS CentOSPlus
+baseurl=http://centosmirror.uc.nps.edu/repos/centosplus/
+gpgcheck=0
+enabled=1
+[extras]
+name=CentOS Extras
+baseurl=http://centosmirror.uc.nps.edu/repos/extras/
+gpgcheck=0
+enabled=1
+[updates]
+name=CentOS Updates
+baseurl=http://centosmirror.uc.nps.edu/repos/updates/
+gpgcheck=0
+enabled=1
+
