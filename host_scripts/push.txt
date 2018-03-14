@@ -1,0 +1,7 @@
+open mfthomps@205.155.65.42
+cd /data/sites/CyberCIEGE/downloads
+option transfer binary
+put z:\home\mike\labtainer-scripts\vbox\LabtainerVM-VirtualBox.ova 
+put z:\home\mike\labtainer-scripts\vmware\LabtainerVM-VMWare.ova 
+close
+exit
