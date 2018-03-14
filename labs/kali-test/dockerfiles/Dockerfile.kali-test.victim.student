@@ -45,6 +45,9 @@ RUN adduser $user_name sudo
 # replace above with below for centos/fedora
 #RUN usermod $user_name -a -G wheel
 
+RUN gpasswd -a postgres ssl-cert
+RUN chown -R root:ssl-cert /etc/ssl/private
+RUN chmod -R g+r /etc/ssl/private
 
 #
 #  **** Perform all root operations, e.g.,           ****
