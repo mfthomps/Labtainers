@@ -3,6 +3,7 @@
 \geometry{a4paper, total={170mm,257mm},left=20mm, top=20mm,}
 \usepackage[colorlinks=true,linkcolor=blue,urlcolor=black]{hyperref}
 \usepackage{bookmark}
+\usepackage{graphicx}
 \usepackage[autostyle, english = american]{csquotes}
 \begin{document}
 \begin{titlepage}
@@ -1364,6 +1365,39 @@ expose virtual networking tricks.  See section \ref{Networking Notes} for additi
 
 \end{itemize}
 
+\subsection{Communicating with external hosts or VMs}
+\label {external hosts}
+A container can be configured to support network communication with external hosts.
+For example, consider a VirtualBox VMM that hosts a Linux VM that runs Labtainers and
+a Windows VM.  Assume the Windows VM has a fixed IP of 192.168.1.12 and the container 
+will be assigned a network address of 192.168.1.2.  To permit network communication between 
+a container on the Linux VM and the Windows VM:
+\begin{itemize}
+\item Define a host-only network in VirtualBox with ip address/mask 192.168.1.1/24, and assign that to the two VMs, configuring the VM
+network links to use promiscuous mode.
+\item Start both VMs.  On the Linux VM, make note of the ethernet interface associated with the host-only network (assumed to be enp0s8 below).
+\item On the Linux VM, ensure the network interface is in promiscuous mode, {\tt sudo ifconfig enp0s8 promisc}
+\item Assign the network interface an address (needed to programatically find the interface name)
+\item In the container start.config file, define a network as:
+\begin{verbatim}
+NETWORK  LAN
+     MASK 192.168.1.0/24
+     GATEWAY 192.168.1.1
+     MACVLAN 192.168.1
+     IP_RANGE 192.168.1.0/24
+\end{verbatim}
+\noindent where the MACVLAN value is a partial IP address that will be used with grep to find the device name.
+\item Assign 192.168.1.2 to the container in the start.config
+\end{itemize}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.4\textwidth,natwidth=621,natheight=403]{ExternalNetworks.jpg}
+\caption{Networking with external hosts.}
+\label{fig:external hosts}
+\end{figure}
+
+
 \section{Building, Maintaining and Publishing Labs} \label{publishing}
 Typically, when a Labtainer is started, the container's associated Docker images are pulled from
 the Docker Hub if they are not already local on the Linux host.  When building and editing labs,
@@ -1586,31 +1620,6 @@ delete the Docker-generated route:
 \end{verbatim}
 \noindent And the fixlocal.sh also replaces the resolv.conf entry with either a local DNS component, or a gateway running
 the dnsmasq utility.  The /etc/rc.local script generally sets the default gateway, and configures iptables.
-
-\subsection{Communicating with external hosts or VMs}
-\label {external hosts}
-A container can be configured to support network communication with external hosts.
-For example, consider a VirtualBox VMM that hosts a Linux VM that runs Labtainers and
-a Windows VM.  Assume the Windows VM has a fixed IP of 192.168.1.12 and the container 
-will be assigned a network address of 192.168.1.2.  To permit network communication between 
-a container on the Linux VM and the Windows VM:
-\begin{itemize}
-\item Define a host-only network in VirtualBox with ip address/mask 192.168.1.1/24, and assign that to the two VMs, configuring the VM
-network links to use promiscuous mode.
-\item Start both VMs.  On the Linux VM, make note of the ethernet interface associated with the host-only network (assumed to be enp0s8 below).
-\item On the Linux VM, ensure the network interface is in promiscuous mode, {\tt sudo ifconfig enp0s8 promisc}
-\item Assign the network interface an address (needed to programatically find the interface name)
-\item In the container start.config file, define a network as:
-\begin{verbatim}
-NETWORK  LAN
-     MASK 192.168.1.0/24
-     GATEWAY 192.168.1.1
-     MACVLAN 192.168.1
-     IP_RANGE 192.168.1.0/24
-\end{verbatim}
-\noindent where the MACVLAN value is a partial IP address that will be used with grep to find the device name.
-\item Assign 192.168.1.2 to the container in the start.config
-\end{itemize}
 
 
 \subsection {Container isolation}
