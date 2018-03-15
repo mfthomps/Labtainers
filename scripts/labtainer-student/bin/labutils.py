@@ -265,26 +265,26 @@ def CreateSubnets(subnets):
         logger.DEBUG("Result of subprocess.call CreateSubnets docker network inspect is %s" % inspect_result)
         if inspect_result == FAILURE:
             # Fail means does not exist - then we can create
-            parent = ''
+            macvlan = ''
             ip_range = ''
             net_type = 'bridge'
-            if subnets[subnet_name].parent is not None:
-                iface = GetIface(subnets[subnet_name].parent)
+            if subnets[subnet_name].macvlan is not None:
+                iface = GetIface(subnets[subnet_name].macvlan)
                 if iface is None or len(iface) == 0:
                     logger.ERROR("No IP assigned to network %s, assign an ip on Linux host to enable use of macvlan with Labtainers")
                     exit(1)
                 if not CheckPromisc(iface):
                     logger.WARNING("network %s not in promisc mode, required for macvlan inter-vbox comms" % iface)
-                parent = '-o parent=%s -o macvlan_mod=bridge' % iface
+                macvlan = '-o parent=%s -o macvlan_mod=bridge' % iface
                 net_type = 'macvlan'
             if subnets[subnet_name].ip_range is not None:
                 ip_range = '--ip-range %s' % subnets[subnet_name].ip_range 
             if subnets[subnet_name].gateway != None:
                 logger.DEBUG(subnets[subnet_name].gateway)
                 subnet_gateway = subnets[subnet_name].gateway
-                command = "docker network create -d %s --gateway=%s --subnet %s %s %s %s" % (net_type, subnet_gateway, subnet_network_mask, parent, ip_range, subnet_name)
+                command = "docker network create -d %s --gateway=%s --subnet %s %s %s %s" % (net_type, subnet_gateway, subnet_network_mask, macvlan, ip_range, subnet_name)
             else:
-                command = "docker network create -d %s --subnet %s %s %s %s" % (net_type, subnet_network_mask, parent, ip_range, subnet_name)
+                command = "docker network create -d %s --subnet %s %s %s %s" % (net_type, subnet_network_mask, macvlan, ip_range, subnet_name)
             logger.DEBUG("Command to execute is (%s)" % command)
             #create_result = subprocess.call(command, shell=True)
             ps = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
