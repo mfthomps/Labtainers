@@ -37,6 +37,10 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+March 15, 2018
+-  Support macvlan networks for communications with external hosts
+-  Add a Kali linux base, and a Metasploitable 2 image (see kali-test)
+
 March 8, 2018
 -  Do not required labname when using stop.py
 -  Catch errors caused by stray networks and advise user on a fix
