@@ -37,6 +37,7 @@ RUN apt-get install -y --no-install-recommends firefox-mozilla-build
 RUN apt-get install -y --no-install-recommends libgtk-3-dev libdbus-glib-1-dev libxt6
 RUN apt-get install -y --no-install-recommends sshpass tcpreplay openssh-server
 RUN apt-get install -y --no-install-recommends hydra ettercap-text-only
+RUN apt-get install -y --no-install-recommends tcpdump
 
 #RUN /usr/bin/yum-source.sh
 #
