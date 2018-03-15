@@ -1,0 +1,12 @@
+This is not a lab exercise, it is an example of running a Kali Linux
+system and a Metasploitable host.  It is also and example of using
+MACVLANs to enable networking between containers and external hosts,
+e.g., a Windows VM.  This lab assumes you have defined a host-only
+network on the host that is running a VMM, e.g., VirtualBox, assigned
+that network an IP address on the VM running Labtainers, and enabled 
+promiscuous mode for that interface in both the VMM and on the 
+Labtainers VM.  You should then be able to spin up an external VM,
+e.g., Windows, assign it an address on that same subnet, and communicate
+with it.
+
+See the Lab Designer's User Guide for details.
