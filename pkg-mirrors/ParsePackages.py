@@ -43,7 +43,7 @@ class ParsePackages():
                 if not linestrip or linestrip.startswith("#"):
                     continue
                 if not previousline_end_with_comma:
-                    keyval = linestrip.split(':')
+                    keyval = linestrip.split(':', 1)
                     key = keyval[0].lower()
                     if len(keyval) > 1:
                         val = keyval[1].lower().strip()
