@@ -236,6 +236,20 @@ def CreateSingleContainer(container, mysubnet_name=None, mysubnet_ip=None):
             retval = False
     return retval
 
+def GetIface(ip):
+    cmd = 'ifconfig | grep -B1 "inet addr:%s" | awk \'$1!="inet" && $1!="--" {print $1}\'' % ip
+    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    return output[0].strip()
+
+def CheckPromisc(iface):
+    cmd = "netstat -i | grep enp0s8 | awk '{print $12}'"
+    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if 'P' in output[0]:
+        return True
+    else:
+        return False
 
 # Create SUBNETS
 def CreateSubnets(subnets):
@@ -251,12 +265,26 @@ def CreateSubnets(subnets):
         logger.DEBUG("Result of subprocess.call CreateSubnets docker network inspect is %s" % inspect_result)
         if inspect_result == FAILURE:
             # Fail means does not exist - then we can create
+            parent = ''
+            ip_range = ''
+            net_type = 'bridge'
+            if subnets[subnet_name].parent is not None:
+                iface = GetIface(subnets[subnet_name].parent)
+                if iface is None or len(iface) == 0:
+                    logger.ERROR("No IP assigned to network %s, assign an ip on Linux host to enable use of macvlan with Labtainers")
+                    exit(1)
+                if not CheckPromisc(iface):
+                    logger.WARNING("network %s not in promisc mode, required for macvlan inter-vbox comms" % iface)
+                parent = '-o parent=%s -o macvlan_mod=bridge' % iface
+                net_type = 'macvlan'
+            if subnets[subnet_name].ip_range is not None:
+                ip_range = '--ip-range %s' % subnets[subnet_name].ip_range 
             if subnets[subnet_name].gateway != None:
                 logger.DEBUG(subnets[subnet_name].gateway)
                 subnet_gateway = subnets[subnet_name].gateway
-                command = "docker network create -d bridge --gateway=%s --subnet %s %s" % (subnet_gateway, subnet_network_mask, subnet_name)
+                command = "docker network create -d %s --gateway=%s --subnet %s %s %s %s" % (net_type, subnet_gateway, subnet_network_mask, parent, ip_range, subnet_name)
             else:
-                command = "docker network create -d bridge --subnet %s %s" % (subnet_network_mask, subnet_name)
+                command = "docker network create -d %s --subnet %s %s %s %s" % (net_type, subnet_network_mask, parent, ip_range, subnet_name)
             logger.DEBUG("Command to execute is (%s)" % command)
             #create_result = subprocess.call(command, shell=True)
             ps = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)

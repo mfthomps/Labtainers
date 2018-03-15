@@ -95,6 +95,8 @@ class ParseStartConfig():
             self.name   = name
             self.mask = 0
             self.gateway = 0
+            self.parent = None
+            self.ip_range = None
             self.logger = logger
 
         def validate(self):
