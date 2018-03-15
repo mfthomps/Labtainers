@@ -61,3 +61,6 @@ Add a "checkme" command to the linux host, it will run scripts to assess selcted
 e.g., run scans or attacks.
 
 When running parameterize.sh, run it as root, and then drop privilges so the container user need not be root?
+
+Add setting network interfaces to promisc mode from parmeterize.sh, parse startconfig from linux host and 
+pass in list of interfaces to be promisc.
