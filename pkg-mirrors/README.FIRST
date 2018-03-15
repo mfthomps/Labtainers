@@ -1,0 +1,5 @@
+
+2018-03-15
+    The 'AddPackage.py' and corresponding scripts will install package (and its dependency only)
+    not including the recommends. This means that the user should install package with
+    the --no-install-recommends option.
