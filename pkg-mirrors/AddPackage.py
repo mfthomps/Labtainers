@@ -51,8 +51,10 @@ def process_filename_list(finalflist):
             os.system("cp %s %s" % (basefname, localfname))
     os.system("chown -R apache:apache %s" % POOLHOME)
 
-def collect_dependencies_filenames(packages, pkgname, deplist, finaldeplist, finalflist, logger):
+def collect_dependencies(deplist, finaldeplist, checkdeplist, logger):
     for dependency in deplist:
+        if dependency in checkdeplist:
+            continue
         if "|" in dependency:
             dependency = dependency.split('|')[0]
         if "(" in dependency:
@@ -61,19 +63,14 @@ def collect_dependencies_filenames(packages, pkgname, deplist, finaldeplist, fin
         if dependency not in finaldeplist:
             finaldeplist.append(dependency)
             # Recursive here
-            # Get the corresponding package first
             found = False
-            packagefile = ""
             for listname in LIST:
-                packagefile = "%s/%s" % (DISTHOME,listname)
                 pkginfo = pkgsdict[listname]
                 packages = pkginfo.GetPackages()
                 for name in packages:
                     if name == dependency:
-                        #logger.INFO("package file is %s" % packagefile)
                         #logger.INFO("package filename is %s" % packages[name].fname)
                         #logger.INFO("package dependencies is %s" % str(packages[name].deplist))
-                        finalflist.append(packages[name].fname)
                         found = True
                         break
                 if found:
@@ -81,8 +78,26 @@ def collect_dependencies_filenames(packages, pkgname, deplist, finaldeplist, fin
             if not found:
                 logger.WARNING("Package (%s) not found" % dependency)
             else:
-                finaldeplist, finalflist = collect_dependencies_filenames(packages, dependency, packages[dependency].deplist, finaldeplist, finalflist, logger)
-    return finaldeplist, finalflist
+                collect_dependencies(packages[dependency].deplist, finaldeplist, checkdeplist, logger)
+                checkdeplist.append(dependency)
+
+def collect_flist(finaldeplist, finalflist, logger):
+    for dependency in finaldeplist:
+        found = False
+        for listname in LIST:
+            pkginfo = pkgsdict[listname]
+            packages = pkginfo.GetPackages()
+            for name in packages:
+                if name == dependency:
+                    #logger.INFO("package filename is %s" % packages[name].fname)
+                    #logger.INFO("package dependencies is %s" % str(packages[name].deplist))
+                    finalflist.append(packages[name].fname)
+                    found = True
+                    break
+            if found:
+                break
+        if not found:
+            logger.WARNING("Package (%s) not found" % dependency)
 
 def main():
     if len(sys.argv) != 2:
@@ -111,29 +126,41 @@ def main():
         pkgsdict[listname] = pkginfo
 
     found = False
-    packagefile = ""
+    initiallist = []
+    finaldeplist = []
+    checkdeplist = []
+    finalflist = []
     for listname in LIST:
-        packagefile = "%s/%s" % (DISTHOME,listname)
         pkginfo = pkgsdict[listname]
         packages = pkginfo.GetPackages()
         for name in packages:
             if name == packagename:
                 #ParsePackages.logger.INFO("package filename is %s" % packages[name].fname)
                 #ParsePackages.logger.INFO("package dependencies is %s" % str(packages[name].deplist))
+                for dependency in packages[name].deplist:
+                    if "|" in dependency:
+                        dependency = dependency.split('|')[0]
+                    if "(" in dependency:
+                        dependency = dependency.split('(')[0]
+                    dependency = dependency.strip()
+                    if dependency not in initiallist:
+                        initiallist.append(dependency)
+                finalflist.append(packages[name].fname)
                 found = True
-                break
+                # Do not break here, get all names that starts with that packagename
+                #break
         if found:
             break
-    finalflist = []
-    finaldeplist = []
     if found:
-        #ParsePackages.logger.INFO("found the package (%s) in (%s)" % (packagename, packagefile))
-        finalflist.append(packages[name].fname)
-        finaldeplist, finalflist = collect_dependencies_filenames(packages, packagename, packages[name].deplist, finaldeplist, finalflist, ParsePackages.logger)
+        # Recursively collect dependencies
+        collect_dependencies(initiallist, finaldeplist, checkdeplist, ParsePackages.logger)
         ParsePackages.logger.INFO("final dependencies list is (%s)" % finaldeplist)
         ParsePackages.logger.INFO("final filename list is (%s)" % finalflist)
     else:
         ParsePackages.logger.ERROR("Package (%s) is not found in xenial or xenial-updates" % packagename)
+
+    # Collect filenames
+    collect_flist(finaldeplist, finalflist, ParsePackages.logger)
 
     process_filename_list(finalflist)
 
