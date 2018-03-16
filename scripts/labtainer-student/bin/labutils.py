@@ -159,12 +159,40 @@ def IsContainerCreated(mycontainer_name):
     logger.DEBUG("Result of subprocess.call IsContainerCreated is %s" % result)
     return retval
 
-def ConnectNetworkToContainer(mycontainer_name, mysubnet_name, mysubnet_ip):
-    logger.DEBUG("Connecting more network subnet to container %s" % mycontainer_name)
+def GetNetParam(mysubnet_ip, mycontainer_name):
+    ''' return the network address parameter and mac parameter for use in creating a container
+        or connecting the container to a network.  Parse out mac address suffix if it exists,
+        and adjust the ip address based on clone numbers if the address has a "+CLONE" suffix '''
+    mac = ''
     if ':' in mysubnet_ip:
         mysubnet_ip, mac_addr = mysubnet_ip.split(':',1)
         mac = '--mac-address=%s' % mac_addr 
-    command = "docker network connect --ip=%s %s %s" % (mysubnet_ip, mysubnet_name, mycontainer_name)
+    ip_param = ''
+    if mysubnet_ip.lower() != 'auto':
+        if '+' in mysubnet_ip:
+            ip, dumb = mysubnet_ip.split('+')
+            name, role = mycontainer_name.rsplit('.',1)
+            dumb, offset = name.rsplit('-', 1)
+            try:
+                offset_int = int(offset) 
+            except:
+                logger.ERROR('expected use of clone, but did not find clone counter in %s' % mycontainer_name)
+                exit(1)
+            ip_start, ip_suffix = ip.rsplit('.', 1)
+            ip_suffix_int = int(ip_suffix)
+            new_suffix = ip_suffix_int + offset_int - 1
+            if new_suffix > 254:
+                logger.ERROR('IP address adjusted to invalid value %d %s' % (new_suffix, mysubnet_ip))
+                exit(1)
+            ip_param = '--ip=%s.%d' % (ip_start, new_suffix)
+        else:
+            ip_param = '--ip=%s' % mysubnet_ip
+    return ip_param, mac
+
+def ConnectNetworkToContainer(mycontainer_name, mysubnet_name, mysubnet_ip):
+    logger.DEBUG("Connecting more network subnet to container %s" % mycontainer_name)
+    ip_param, dumb = GetNetParam(mysubnet_ip, mycontainer_name)
+    command = "docker network connect %s %s %s" % (ip_param, mysubnet_name, mycontainer_name)
     logger.DEBUG("Command to execute is (%s)" % command)
     result = subprocess.call(command, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
     logger.DEBUG("Result of subprocess.call ConnectNetworkToContainer is %s" % result)
@@ -247,19 +275,16 @@ def CreateSingleContainer(container, mysubnet_name=None, mysubnet_ip=None):
         mac = ''
         subnet_ip = ''
         network_param = ''
-        if mysubnet_name:
-            if mysubnet_ip != 'auto':
-                if ':' in mysubnet_ip:
-                    mysubnet_ip, mac_addr = mysubnet_ip.split(':',1)
-                    mac = '--mac-address=%s' % mac_addr 
-                subnet_ip = '--ip=%s' % mysubnet_ip
+        if mysubnet_name is not None:
             network_param = '--network=%s' % mysubnet_name
 
         clone_names = GetContainerCloneNames(container)
         for clone_fullname in clone_names:
             clone_host = clone_names[clone_fullname]
+            if mysubnet_name is not None:
+                subnet_ip, mac = GetNetParam(mysubnet_ip, clone_fullname)
             createsinglecommand = "docker create -t --cap-add NET_ADMIN %s %s %s %s %s --name=%s --hostname %s %s %s %s" % (network_param, 
-                 subnet_ip, mac, priv_param, add_host_param,  clone_fullname, clone_host, volume, new_image_name, container.script)
+                    subnet_ip, mac, priv_param, add_host_param,  clone_fullname, clone_host, volume, new_image_name, container.script)
             logger.DEBUG("Command to execute was (%s)" % createsinglecommand)
             ps = subprocess.Popen(createsinglecommand, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             output = ps.communicate()
