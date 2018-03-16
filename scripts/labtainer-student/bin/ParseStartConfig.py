@@ -85,6 +85,11 @@ class ParseStartConfig():
                         if not re.match("[0-9a-f]{2}([-:])[0-9a-f]{2}(\\1[0-9a-f]{2}){4}$", mac.lower()):
                             self.logger.ERROR('bad MAC address %s in %s\n' % (mac, name))
                             exit(1)
+                    elif '+' in addr:
+                        addr, adjust = addr.split('+')
+                        if adjust.lower() != 'clone':
+                            self.logger.ERROR('bad adjustment syntax for network definition of %s, expected "CLONE", got %s' % (name, adjust))
+                            exit(1)
                     if addr != 'auto':
                         try:
                             IPAddress(addr)
