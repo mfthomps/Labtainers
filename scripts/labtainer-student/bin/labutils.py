@@ -2227,7 +2227,7 @@ def StopLab(lab_path, role, ignore_stop_error, is_regress_test=None):
         print "Results stored in directory: %s" % host_xfer_dir
     return host_xfer_dir
 
-def DoMoreterm(lab_path, role, container, num_terminal):
+def DoMoreterm(lab_path, role, container_name, clone_num=None):
     labname = os.path.basename(lab_path)
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
@@ -2236,18 +2236,21 @@ def DoMoreterm(lab_path, role, container, num_terminal):
     logger.DEBUG("ParseStartConfig for %s" % labname)
     is_valid_lab(lab_path)
     labtainer_config, start_config = GetBothConfigs(lab_path, role, logger)
-    logger.DEBUG('num terms is %d' % start_config.containers[container].terminals)
+    logger.DEBUG('num terms is %d' % start_config.containers[container_name].terminals)
+    if clone_num is None:
+        mycontainer_name = '%s.%s.%s' % (labname, container_name, role)
+    else:
+        mycontainer_name = '%s.%s-%d.%s' % (labname, container_name, clone_num, role)
 
-    mycontainer_name = '%s.%s.%s' % (labname, container, role)
-    if not AllContainersCreated(container):
+    if not IsContainerCreated(mycontainer_name):
         logger.ERROR('container %s not found' % mycontainer_name)
         sys.exit(1)
-    if not AllContainersRunning(container):
+    if not IsContainerRunning(mycontainer_name):
         logger.ERROR("Container %s is not running!\n" % (mycontainer_name))
         sys.exit(1)
-    for x in range(num_terminal):
+    for x in range(1):
         # Change to allow spawning if terminal is 0 but not -1
-	if start_config.containers[container].terminals == -1:
+	if start_config.containers[container_name].terminals == -1:
             print("No terminals supported for this component")
 	    sys.exit(1)
 	else:
@@ -2255,7 +2258,8 @@ def DoMoreterm(lab_path, role, container, num_terminal):
 	    logger.DEBUG("spawn_command is (%s)" % spawn_command)
 	    os.system(spawn_command)
 
-def DoTransfer(lab_path, role, container, filename, direction):
+def DoTransfer(lab_path, role, container_name, filename, direction):
+    '''TBD this is not tested and likey broken'''
     labname = os.path.basename(lab_path)
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
@@ -2265,14 +2269,14 @@ def DoTransfer(lab_path, role, container, filename, direction):
     is_valid_lab(lab_path)
     labtainer_config, start_config = GetBothConfigs(lab_path, role, logger)
     host_home_xfer = os.path.join(labtainer_config.host_home_xfer, labname)
-    logger.DEBUG('num terms is %d' % start_config.containers[container].terminals)
+    logger.DEBUG('num terms is %d' % start_config.containers[container_name].terminals)
     host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
 
-    mycontainer_name = '%s.%s.%s' % (labname, container, role)
-    if not AllContainersCreated(container):
+    mycontainer_name = '%s.%s.%s' % (labname, container_name, role)
+    if not IsContainerCreated(mycontainer_name):
         logger.ERROR('container %s not found' % mycontainer_name)
         sys.exit(1)
-    if not AllContainersRunning(container):
+    if not IsContainerRunning(mycontainter_name):
         logger.ERROR("Container %s is not running!\n" % (mycontainer_name))
         sys.exit(1)
     container_user = ""
