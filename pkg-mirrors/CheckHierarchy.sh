@@ -37,6 +37,17 @@ do
         for k in "${ARCHDEP[@]}";
         do
             DIRNAME="$UBUNTUBASE/dists/$i/$j/$k"
+            /usr/bin/rm -rf $DIRNAME
+        done
+    done
+done
+for i in "${TOP[@]}";
+do
+    for j in "${VARIANT[@]}";
+    do
+        for k in "${ARCHDEP[@]}";
+        do
+            DIRNAME="$UBUNTUBASE/dists/$i/$j/$k"
             PARENTPATH="$UBUNTUBASE/dists/$i/$j"
             TMPDIRPATH="$TMPDIR/us.archive.ubuntu.com/ubuntu/dists/$i/$j/$k"
             PATH="http://us.archive.ubuntu.com/ubuntu/dists/$i/$j/$k"
@@ -52,8 +63,15 @@ do
                 /usr/bin/mkdir -p $TMPDIR
             fi
         done
+    done
+done
+for i in "${TOP[@]}";
+do
+    for j in "${VARIANT[@]}";
+    do
         PACKAGENAME="$UBUNTUBASE/dists/$i/$j/binary-amd64/Packages"
         PACKAGENAMEGZ="$UBUNTUBASE/dists/$i/$j/binary-amd64/Packages.gz"
+        PACKAGENAMEXZ="$UBUNTUBASE/dists/$i/$j/binary-amd64/Packages.xz"
         PATH="http://us.archive.ubuntu.com/ubuntu/dists/$i/$j/binary-amd64"
         if [ ! -f "$PACKAGENAME" ]
         then
@@ -61,14 +79,26 @@ do
             if [ -f "$PACKAGENAMEGZ" ]
             then
                 cd $TMPDIR
-                /usr/bin/gzip -d $PACKAGENAMEGZ
+                /usr/bin/cp $PACKAGENAMEGZ $TMPDIR/Packages.gz
+                /usr/bin/gzip -d $TMPDIR/Packages.gz
                 /usr/bin/mv $TMPDIR/Packages $PACKAGENAME
                 cd $CURRENTDIR
                 /usr/bin/rm -rf $TMPDIR
-                /usr/bin/mkdir -p TMPDIR
+                /usr/bin/mkdir -p $TMPDIR
             else
-                RESULTSTATUS="NOTOK"
-                break
+                if [ -f "$PACKAGENAMEXZ" ]
+                then
+                    cd $TMPDIR
+                    /usr/bin/cp $PACKAGENAMEGZ $TMPDIR/Packages.xz
+                    /usr/bin/unxz $TMPDIR/Packages.xz
+                    /usr/bin/mv $TMPDIR/Packages $PACKAGENAME
+                    cd $CURRENTDIR
+                    /usr/bin/rm -rf $TMPDIR
+                    /usr/bin/mkdir -p $TMPDIR
+                else
+                    RESULTSTATUS="NOTOK"
+                    break
+                fi
             fi
         fi
     done
@@ -88,9 +118,9 @@ then
             echo "DIRNAME ($DIRNAME) DOES NOT exist"
             RESULTSTATUS="NOTOK"
             /usr/bin/mkdir -p $PATH
-            /usr/bin/chown -R apache:apache $PATH
         fi
     done
 fi
 
+/usr/bin/chown -R apache:apache $UBUNTUBASE/dists $UBUNTUBASE/pool
 echo "RESULTSTATUS is ($RESULTSTATUS)"
