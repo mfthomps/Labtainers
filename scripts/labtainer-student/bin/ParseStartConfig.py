@@ -63,6 +63,7 @@ class ParseStartConfig():
             self.terminal_group = None
             self.add_hosts = []
             self.no_privilege = 'no'
+            self.clone = None
             self.logger = logger
 
         def add_net(self, name, ipaddr):
@@ -84,11 +85,12 @@ class ParseStartConfig():
                         if not re.match("[0-9a-f]{2}([-:])[0-9a-f]{2}(\\1[0-9a-f]{2}){4}$", mac.lower()):
                             self.logger.ERROR('bad MAC address %s in %s\n' % (mac, name))
                             exit(1)
-                    try:
-                        IPAddress(addr)
-                    except :
-                        self.logger.ERROR('bad ip addr %s in %s\n' % (addr, name))
-                        exit(1)
+                    if addr != 'auto':
+                        try:
+                            IPAddress(addr)
+                        except :
+                            self.logger.ERROR('bad ip addr %s in %s\n' % (addr, name))
+                            exit(1)
 
     class Subnet():
         def __init__(self, name, logger):
