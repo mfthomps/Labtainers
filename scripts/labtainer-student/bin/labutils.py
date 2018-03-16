@@ -147,7 +147,6 @@ def AllContainersCreated(container):
             return False
     return True
 
-
 # Check to see if my_container_name container has been created or not
 def IsContainerCreated(mycontainer_name):
     retval = True
@@ -2051,6 +2050,13 @@ def AllContainersRunning(container):
             return False
     return True
 
+def AnyContainersRunning(container):
+    clone_names = GetContainerCloneNames(container)
+    for clone_full in clone_names:
+        if not IsContainerRunning(clone_full):
+            return False
+    return True
+
 def IsContainerRunning(mycontainer_name):
     try:
         s = subprocess.check_output('docker ps', shell=True)
@@ -2082,15 +2088,17 @@ def DoStopOne(start_config, labtainer_config, lab_path, role, name, container, Z
             else:
                 logger.ERROR("Container %s does not exist!\n" % mycontainer_name)
             retval = False
-        elif not AllContainersRunning(container):
-            if ignore_stop_error:
-                logger.DEBUG("container %s not running\n" % (mycontainer_name))
-            else:
-                logger.ERROR("container %s not running\n" % (mycontainer_name))
-            retval = False
+
         else:
             clone_names = GetContainerCloneNames(container)
             for mycontainer_name in clone_names:
+                if not IsContainerRunning(mycontainer_name):
+                    if ignore_stop_error:
+                        logger.DEBUG("container %s not running\n" % (mycontainer_name))
+                    else:
+                        logger.ERROR("container %s not running\n" % (mycontainer_name))
+                    retval = False
+                    continue
                 if role == 'instructor':
                     if mycontainer_name == start_config.grade_container:
                         CopyChownGradesFile(start_config, labtainer_config, name, mycontainer_name, container_user, ignore_stop_error)
