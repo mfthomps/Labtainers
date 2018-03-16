@@ -46,27 +46,27 @@ import LabtainerLogging
 LABS_ROOT = os.path.abspath("../../labs/")
 
 def usage():
-    sys.stderr.write("Usage: moreterm.py <labname> [<container>] [<requested_term>]\n")
+    sys.stderr.write("Usage: moreterm.py <labname> [<container>] [<clone_num>]\n")
     exit(1)
 
 # Usage: (see usage)
 def main():
     num_args = len(sys.argv)
     container = None
-    requested_term = 1
+    clone_num = None
     if num_args < 2:
         usage()
     elif num_args == 2:
-        requested_term = 1
+        clone_num = None
         container = sys.argv[1]
     elif num_args == 3:
         if type(sys.argv[2]) is int:
-            requested_term = int(sys.argv[2])
+            clone_num = int(sys.argv[2])
             container = sys.argv[1]
         else:
             container = sys.argv[2]
     elif num_args == 4:
-        requested_term = int(sys.argv[3])
+        clone_num = int(sys.argv[3])
         container = sys.argv[2]
     else:
         usage()
@@ -76,7 +76,7 @@ def main():
     labutils.logger.INFO("Begin logging moreterm.py for %s lab" % labname)
     labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
     lab_path = os.path.join(os.path.abspath('../../labs'), labname)
-    labutils.DoMoreterm(lab_path, "instructor", container, requested_term)
+    labutils.DoMoreterm(lab_path, "instructor", container, clone_num)
 
     return 0
 
