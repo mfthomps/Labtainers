@@ -140,6 +140,14 @@ def StartMyContainer(mycontainer_name):
         logger.DEBUG(output[0])
     return retval
 
+def AllContainersCreated(container):
+    clone_names = GetContainerCloneNames(container)
+    for clone_full in clone_names:
+        if not IsContainerCreated(clone_full):
+            return False
+    return True
+
+
 # Check to see if my_container_name container has been created or not
 def IsContainerCreated(mycontainer_name):
     retval = True
@@ -179,8 +187,27 @@ def SetXhost():
         cmd = 'xhost local:root'
         os.system(cmd)
     
-    
+def GetContainerCloneNames(container):    
+    ''' populate dictionary with hostname/container names based on the quantity of clones
+        that are to be created '''
+    retval = {}
+    if container.clone is None or container.clone == 1:
+        retval[container.full_name] = container.hostname
+    else:
+        try:
+            count = int(container.clone)
+        except:
+            logger.ERROR('bad clone value for %s' % container.hostname)
+            exit(1)
+        name, role = container.full_name.rsplit('.', 1)
+        for i in range(1, count+1):
+            hostname = '%s-%d' % (container.hostname, i)
+            fullname = '%s-%d.%s' % (name, i, role)
+            retval[fullname] = hostname
+    return retval
+        
 def CreateSingleContainer(container, mysubnet_name=None, mysubnet_ip=None):
+    ''' create a single container -- or all clones of that container per the start.config '''
     logger.DEBUG("Create Single Container")
     retval = True
     image_exists, result, new_image_name = ImageExists(container.image_name, container.full_name, container.registry)
@@ -217,23 +244,31 @@ def CreateSingleContainer(container, mysubnet_name=None, mysubnet_ip=None):
         if container.no_privilege != 'yes':
             priv_param = '--privileged'
         
+        mac = ''
+        subnet_ip = ''
+        network_param = ''
         if mysubnet_name:
-            mac = ''
-            if ':' in mysubnet_ip:
-                mysubnet_ip, mac_addr = mysubnet_ip.split(':',1)
-                mac = '--mac-address=%s' % mac_addr 
-            createsinglecommand = "docker create -t --cap-add NET_ADMIN --network=%s --ip=%s %s %s %s --name=%s --hostname %s %s %s %s" % (mysubnet_name, mysubnet_ip, mac, priv_param, add_host_param,  container.full_name, container.hostname, volume, new_image_name, container.script)
-        else:
-            createsinglecommand = "docker create -t -add NET_ADMIN %s %s --name=%s --hostname %s %s %s %s " % (priv_param, add_host_param, 
-               container.full_name, container.hostname, volume, new_image_name, container.script)
-        logger.DEBUG("Command to execute was (%s)" % createsinglecommand)
+            if mysubnet_ip != 'auto':
+                if ':' in mysubnet_ip:
+                    mysubnet_ip, mac_addr = mysubnet_ip.split(':',1)
+                    mac = '--mac-address=%s' % mac_addr 
+                subnet_ip = '--ip=%s' % mysubnet_ip
+            network_param = '--network=%s' % mysubnet_name
 
-        ps = subprocess.Popen(createsinglecommand, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-        output = ps.communicate()
-        if len(output[1]) > 0:
-            logger.DEBUG('command was %s' % createsinglecommand)
-            logger.ERROR('CreateSingleContainer %s' % output[1])
-            retval = False
+        clone_names = GetContainerCloneNames(container)
+        for clone_fullname in clone_names:
+            clone_host = clone_names[clone_fullname]
+            createsinglecommand = "docker create -t --cap-add NET_ADMIN %s %s %s %s %s --name=%s --hostname %s %s %s %s" % (network_param, 
+                 subnet_ip, mac, priv_param, add_host_param,  clone_fullname, clone_host, volume, new_image_name, container.script)
+            logger.DEBUG("Command to execute was (%s)" % createsinglecommand)
+            ps = subprocess.Popen(createsinglecommand, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            output = ps.communicate()
+            if len(output[1]) > 0:
+                logger.DEBUG('command was %s' % createsinglecommand)
+                logger.ERROR('CreateSingleContainer %s' % output[1])
+                retval = False
+                break
+
     return retval
 
 def GetIface(ip):
@@ -527,7 +562,6 @@ def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_
             sys.exit(1)
 
 def GetRunningContainersList():
-    retval = True
     cmd = "docker container ls --format {{.Names}}"
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
@@ -537,6 +571,7 @@ def GetRunningContainersList():
     result = output[0].strip()
     logger.DEBUG('result is %s' % result)
     if 'Error:' in result or len(result.strip()) == 0:
+        print('wtf, over?')
         if 'Error:' in result:
             logger.DEBUG("Command was (%s)" % cmd)
             logger.DEBUG("Error from command = '%s'" % result)
@@ -640,12 +675,16 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False, just_c
         mycontainer_name       = container.full_name
         mycontainer_image_name = container.image_name
         retval.add(container.registry)
-        cmd = 'docker rm %s' % mycontainer_name
-        ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-        output = ps.communicate()
-        #logger.DEBUG("Command was (%s)" % cmd)
-        if len(output[1]) > 0:
-            logger.DEBUG("Error from command %s was  '%s'" % (cmd, output[1]))
+
+        clone_names = GetContainerCloneNames(container)
+        for clone_full in clone_names:
+            cmd = 'docker rm %s' % clone_full
+            ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            output = ps.communicate()
+            #logger.DEBUG("Command was (%s)" % cmd)
+            if len(output[1]) > 0:
+                logger.DEBUG("Error from command %s was  '%s'" % (cmd, output[1]))
+
         force_this_build = force_build
         logger.DEBUG('force_this_build: %r' % force_this_build)
         if not force_this_build:
@@ -718,7 +757,7 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
         container_password         = container.password
         container_hostname         = container.hostname
 
-        haveContainer = IsContainerCreated(mycontainer_name)
+        haveContainer = AllContainersCreated(container)
         logger.DEBUG("DoStart IsContainerCreated result (%s)" % haveContainer)
 
         # Set need_seeds=False first
@@ -747,15 +786,17 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
             need_seeds=True
 
         # Check again - 
-        haveContainer = IsContainerCreated(mycontainer_name)
-        logger.DEBUG("IsContainerCreated result (%s)" % haveContainer)
+        haveContainer = AllContainersCreated(container)
+        logger.DEBUG("AllContainersCreated result (%s)" % haveContainer)
 
         # IsContainerCreated returned False if container does not exists
         if not haveContainer:
             logger.ERROR("Container %s still not created!\n" % mycontainer_name)
             results.append(False)
             return
-        else:
+        
+        clone_names = GetContainerCloneNames(container)
+        for mycontainer_name in clone_names:
             for mysubnet_name, mysubnet_ip in container.container_nets.items():
                 connectNetworkResult = ConnectNetworkToContainer(mycontainer_name, mysubnet_name, mysubnet_ip)
 
@@ -764,33 +805,34 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                 logger.ERROR("Container %s failed to start!\n" % mycontainer_name)
                 results.append(False)
                 return
-
-        if role == 'instructor':
-            '''
-            Copy students' artifacts only to the container where 'Instructor.py' is
-            to be run - where <labname>.grades.txt will later reside also (i.e., don't copy to all containers)
-            Copy to container named start_config.grade_container
-            '''
-            if mycontainer_name == start_config.grade_container:
-                # Do InstDocsToHostDir - extract students' docs.zip if exist
-                InstDocsToHostDir(start_config, labtainer_config, lab_path, role, quiet_start)
-                logger.DEBUG('do CopyStudentArtifacts for %s, labname: %s regress: %s' % (mycontainer_name, labname, is_regress_test))
-                copy_result = CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_user, container_password, is_regress_test, is_watermark_test)
-                if copy_result == FAILURE:
-                    logger.ERROR("Failed to copy students' artifacts to container %s!\n" % mycontainer_name)
-                    results.append(False)
-                    return
-                CopyAssessBin(mycontainer_name, container_user)
-
-    	# If the container is just created, then use the previous user's e-mail
-        # then parameterize the container
-    	elif quiet_start and need_seeds and role == 'student':
-            ParamForStudent(start_config.lab_master_seed, mycontainer_name, container_user, container_password, labname, student_email)
-        
-        elif need_seeds and role == 'student':
-            ParamForStudent(start_config.lab_master_seed, mycontainer_name, container_user, 
-                                             container_password, labname, student_email)
-
+    
+            if role == 'instructor':
+                '''
+                Copy students' artifacts only to the container where 'Instructor.py' is
+                to be run - where <labname>.grades.txt will later reside also (i.e., don't copy to all containers)
+                Copy to container named start_config.grade_container
+                '''
+                if mycontainer_name == start_config.grade_container:
+                    # Do InstDocsToHostDir - extract students' docs.zip if exist
+                    InstDocsToHostDir(start_config, labtainer_config, lab_path, role, quiet_start)
+                    logger.DEBUG('do CopyStudentArtifacts for %s, labname: %s regress: %s' % (mycontainer_name, labname, is_regress_test))
+                    copy_result = CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, 
+                                     container_user, container_password, is_regress_test, is_watermark_test)
+                    if copy_result == FAILURE:
+                        logger.ERROR("Failed to copy students' artifacts to container %s!\n" % mycontainer_name)
+                        results.append(False)
+                        return
+                    CopyAssessBin(mycontainer_name, container_user)
+    
+       	    # If the container is just created, then use the previous user's e-mail
+            # then parameterize the container
+            elif quiet_start and need_seeds and role == 'student':
+                ParamForStudent(start_config.lab_master_seed, mycontainer_name, container_user, container_password, labname, student_email)
+            
+            elif need_seeds and role == 'student':
+                ParamForStudent(start_config.lab_master_seed, mycontainer_name, container_user, 
+                                                 container_password, labname, student_email)
+    
         results.append(retval)
 
 def GetUserEmail(quiet_start):
@@ -867,7 +909,7 @@ def CheckEmailReloadStartConfig(start_config, quiet_start, is_regress_test, lab_
             continue
         # Obscure means of making sure we have an email and getting one if
         # a container has not yet been created.
-        if not IsContainerCreated(container.full_name) and student_email is None:
+        if not AllContainersCreated(container) and student_email is None:
             if student_email == None and role == 'student':
                 student_email = GetUserEmail(quiet_start)
             elif role == 'instructor':
@@ -876,6 +918,80 @@ def CheckEmailReloadStartConfig(start_config, quiet_start, is_regress_test, lab_
                 student_email = GetUserEmail(True)
     start_config = ReloadStartConfig(lab_path, labtainer_config, start_config, student_email, role, logger)
     return start_config, student_email
+
+def ContainerTerminals(lab_path, start_config, container, role, terminal_count, terminal_groups):
+    num_terminal = int(container.terminals)
+    clone_names = GetContainerCloneNames(container)
+    for mycontainer_name in clone_names:
+        logger.DEBUG("Number of terminal is %d" % num_terminal)
+        # If this is instructor - spawn 2 terminal for 'grader' container otherwise 1 terminal
+        if role == 'instructor':
+            if mycontainer_name == start_config.grade_container:
+                # hack use startup.sh instead of instructor.py because some profiles already run startup...
+                cmd =  'sh -c "cd /home/%s && .local/bin/startup.sh"' % (container.user)
+                terminal_location = terminalWideCounter(terminal_count)
+                terminal_count += 1
+                # note hack to change --geometry to -geometry
+                spawn_command = "xterm %s -title GOAL_RESULTS -fa 'Monospace' -fs 11 -e docker exec -it %s %s  &" % (terminal_location[1:], 
+                     mycontainer_name, cmd)
+                #print spawn_command
+                logger.DEBUG("instructor spawn: %s" % spawn_command)
+                os.system(spawn_command)
+            num_terminal = 1
+        else:
+            CopyFilesToHost(lab_path, container.name, mycontainer_name, container.user)
+        if container.xterm is not None:
+                parts = container.xterm.split()
+                title = parts[0]
+                command = None
+                if title.lower() == 'instructions' and len(parts) == 1:
+                    if role != 'instructor':
+                        command = 'startup.sh'
+                elif len(parts) == 2:
+                    command = parts[1]
+                else:
+                    logger.ERROR("Bad XTERM entryin in start.config: %s" % container.xterm)
+                    exit(1)
+                if command is not None:
+                    cmd =  'sh -c "cd /home/%s && .local/bin/%s"' % (container.user, command)
+                    terminal_location = terminalCounter(terminal_count)
+                    terminal_count += 1
+                    # note hack to change --geometry to -geometry
+                    spawn_command = "xterm %s -title %s -sb -rightbar -fa 'Monospace' -fs 11 -e docker exec -it %s %s  & 2>/tmp/xterm.out" % (terminal_location[1:], 
+                         title, mycontainer_name, cmd)
+                    logger.DEBUG("xterm spawn: %s" % spawn_command)
+                    #print spawn_command
+                    os.system(spawn_command)
+                    # race condition, gnome may beat xterm to the startup.sh script
+                    time.sleep(1)
+        # If the number of terminal is -1 or zero -- do not spawn
+        if not (num_terminal == 0 or num_terminal == -1):
+            for x in range(num_terminal):
+                #sys.stderr.write("%d \n" % terminal_count)
+                terminal_location = terminalCounter(terminal_count)
+                #sys.stderr.write("%s \n" % terminal_location)
+                #sys.stderr.write("%s \n" % mycontainer_name)
+                if role == 'instructor':
+                    # hack, instructor does not have augmented profile
+                    cmd = "sh -c 'cd /home/%s && bash -l'" % container.user
+                else:
+                    cmd = 'bash -l' 
+                #spawn_command = "gnome-terminal %s -x docker exec -it %s bash -l &" % (terminal_location, mycontainer_name)
+                if container.terminal_group is not None:
+                    if container.terminal_group not in terminal_groups:
+                        terminal_count += 1
+                        terminal_groups[container.terminal_group] = []
+                    group_command = '"docker exec -it %s %s"' % (mycontainer_name, cmd)
+                    terminal_groups[container.terminal_group].append(group_command)
+                else:
+                    terminal_count += 1
+                    spawn_command = 'gnome-terminal %s -- docker exec -it %s %s &' % (terminal_location,
+                       mycontainer_name, cmd)
+                    logger.DEBUG("gnome spawn: %s" % spawn_command)
+                    #print spawn_command
+                    os.system(spawn_command)
+    return terminal_count
+
 
 def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start):
     labname = os.path.basename(lab_path)
@@ -962,75 +1078,7 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
         # Do not spawn terminal if it is regression testing
         if is_regress_test:
             continue
-        num_terminal = int(container.terminals)
-        mycontainer_name = container.full_name
-        logger.DEBUG("Number of terminal is %d" % num_terminal)
-        # If this is instructor - spawn 2 terminal for 'grader' container otherwise 1 terminal
-        if role == 'instructor':
-            if mycontainer_name == start_config.grade_container:
-                # hack use startup.sh instead of instructor.py because some profiles already run startup...
-                cmd =  'sh -c "cd /home/%s && .local/bin/startup.sh"' % (container.user)
-                terminal_location = terminalWideCounter(terminal_count)
-                terminal_count += 1
-                # note hack to change --geometry to -geometry
-                spawn_command = "xterm %s -title GOAL_RESULTS -fa 'Monospace' -fs 11 -e docker exec -it %s %s  &" % (terminal_location[1:], 
-                     mycontainer_name, cmd)
-                #print spawn_command
-                logger.DEBUG("instructor spawn: %s" % spawn_command)
-                os.system(spawn_command)
-            num_terminal = 1
-        else:
-            CopyFilesToHost(lab_path, container.name, mycontainer_name, container.user)
-        if container.xterm is not None:
-                parts = container.xterm.split()
-                title = parts[0]
-                command = None
-                if title.lower() == 'instructions' and len(parts) == 1:
-                    if role != 'instructor':
-                        command = 'startup.sh'
-                elif len(parts) == 2:
-                    command = parts[1]
-                else:
-                    logger.ERROR("Bad XTERM entryin in start.config: %s" % container.xterm)
-                    exit(1)
-                if command is not None:
-                    cmd =  'sh -c "cd /home/%s && .local/bin/%s"' % (container.user, command)
-                    terminal_location = terminalCounter(terminal_count)
-                    terminal_count += 1
-                    # note hack to change --geometry to -geometry
-                    spawn_command = "xterm %s -title %s -sb -rightbar -fa 'Monospace' -fs 11 -e docker exec -it %s %s  & 2>/tmp/xterm.out" % (terminal_location[1:], 
-                         title, mycontainer_name, cmd)
-                    logger.DEBUG("xterm spawn: %s" % spawn_command)
-                    #print spawn_command
-                    os.system(spawn_command)
-                    # race condition, gnome may beat xterm to the startup.sh script
-                    time.sleep(1)
-        # If the number of terminal is -1 or zero -- do not spawn
-        if not (num_terminal == 0 or num_terminal == -1):
-            for x in range(num_terminal):
-                #sys.stderr.write("%d \n" % terminal_count)
-                terminal_location = terminalCounter(terminal_count)
-                #sys.stderr.write("%s \n" % terminal_location)
-                #sys.stderr.write("%s \n" % mycontainer_name)
-                if role == 'instructor':
-                    # hack, instructor does not have augmented profile
-                    cmd = "sh -c 'cd /home/%s && bash -l'" % container.user
-                else:
-                    cmd = 'bash -l' 
-                #spawn_command = "gnome-terminal %s -x docker exec -it %s bash -l &" % (terminal_location, mycontainer_name)
-                if container.terminal_group is not None:
-                    if container.terminal_group not in terminal_groups:
-                        terminal_count += 1
-                        terminal_groups[container.terminal_group] = []
-                    group_command = '"docker exec -it %s %s"' % (mycontainer_name, cmd)
-                    terminal_groups[container.terminal_group].append(group_command)
-                else:
-                    terminal_count += 1
-                    spawn_command = 'gnome-terminal %s -- docker exec -it %s %s &' % (terminal_location,
-                       mycontainer_name, cmd)
-                    logger.DEBUG("gnome spawn: %s" % spawn_command)
-                    #print spawn_command
-                    os.system(spawn_command)
+        terminal_count = ContainerTerminals(lab_path, start_config, container, role, terminal_count, terminal_groups)
 
     for tg in terminal_groups:
         tab_commands = ''
@@ -1078,7 +1126,7 @@ def CreateHostHomeXfer(host_xfer_dir):
         os.makedirs(host_xfer_dir)
 
 # CopyChownGradesFile
-def CopyChownGradesFile(start_config, labtainer_config, container_name, container_image, container_user, ignore_stop_error):
+def CopyChownGradesFile(start_config, labtainer_config, name, container_name, container_user, ignore_stop_error):
     host_home_xfer = os.path.join(labtainer_config.host_home_xfer, start_config.labname)
     labname = start_config.labname
 
@@ -1097,27 +1145,15 @@ def CopyChownGradesFile(start_config, labtainer_config, container_name, containe
         logger.DEBUG("Result of subprocess.Popen exec cp instructor.log file is %s" % (result))
 
 
-        StopMyContainer(start_config, container_name, ignore_stop_error)
-        if ignore_stop_error:
-            logger.DEBUG("Container %s fail on executing cp %s.grades.txt file!\n" % (container_name, labname))
-        else:
-            logger.WARNING("Container %s fail on executing cp %s.grades.txt file!\n" % (container_name, labname))
+        clone_names = GetContainerCloneNames(start_config.containers[name])
+        for clone_full in clone_names:
+            StopMyContainer(clone_full, ignore_stop_error)
+            if ignore_stop_error:
+                logger.DEBUG("Container %s fail on executing cp %s.grades.txt file!\n" % (container_name, labname))
+            else:
+                logger.WARNING("Container %s fail on executing cp %s.grades.txt file!\n" % (container_name, labname))
         return
 
-    '''
-    # Change <labname>.grades.txt ownership to defined user $USER
-    command = "sudo chown %s:%s /home/%s/%s/%s.grades.txt" % (username, username, username, host_home_xfer, labname)
-    logger.DEBUG("Command to execute is (%s)" % command)
-    result = subprocess.call(command, shell=True)
-    logger.DEBUG("Result of subprocess.Popen exec chown %s.grades.txt file is %s" % (labname, result))
-    if result == FAILURE:
-        StopMyContainer(mycwd, start_config, container_name, ignore_stop_error)
-        if ignore_stop_error:
-            logger.DEBUG("Container %s fail on executing chown %s.grades.txt file!\n" % (container_name, labname))
-        else:
-            logger.ERROR("Container %s fail on executing chown %s.grades.txt file!\n" % (container_name, labname))
-        sys.exit(1)
-    '''
 
     # Copy <labname>.grades.json file
     gradejson_filename = '/home/%s/%s.grades.json' % (container_user, labname)
@@ -1126,26 +1162,14 @@ def CopyChownGradesFile(start_config, labtainer_config, container_name, containe
     result = subprocess.call(command, shell=True)
     logger.DEBUG("Result of subprocess.Popen exec cp %s.grades.json file is %s" % (labname, result))
     if result == FAILURE:
-        StopMyContainer(start_config, container_name, ignore_stop_error)
-        if ignore_stop_error:
-            logger.DEBUG("Container %s fail on executing cp %s.grades.json file!\n" % (container_name, labname))
-        else:
-            logger.WARNING("Container %s fail on executing cp %s.grades.json file!\n" % (container_name, labname))
+        clone_names = GetContainerCloneNames(container)
+        for clone_full in clone_names:
+            StopMyContainer(clone_full, ignore_stop_error)
+            if ignore_stop_error:
+                logger.DEBUG("Container %s fail on executing cp %s.grades.json file!\n" % (container_name, labname))
+            else:
+                logger.WARNING("Container %s fail on executing cp %s.grades.json file!\n" % (container_name, labname))
         return
-    '''
-    # Change <labname>.grades.json ownership to defined user $USER
-    command = "sudo chown %s:%s /home/%s/%s/%s.grades.json" % (username, username, username, host_home_xfer, labname)
-    logger.DEBUG("Command to execute is (%s)" % command)
-    result = subprocess.call(command, shell=True)
-    logger.DEBUG("Result of subprocess.Popen exec chown %s.grades.json file is %s" % (labname, result))
-    if result == FAILURE:
-        StopMyContainer(mycwd, start_config, container_name, ignore_stop_error)
-        if ignore_stop_error:
-            logger.DEBUG("Container %s fail on executing chown %s.grades.json file!\n" % (container_name, labname))
-        else:
-            logger.ERROR("Container %s fail on executing chown %s.grades.json file!\n" % (container_name, labname))
-        sys.exit(1)
-    '''
 
 def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=False, is_watermark_test=True, quiet_start=False):
     labname = os.path.basename(lab_path)
@@ -1171,12 +1195,14 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
         if is_redo:
             # If it is a redo then always remove any previous container
             # If it is not a redo, i.e., start.py then DO NOT remove existing container
-            cmd = 'docker rm %s' % mycontainer_name
-            ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-            output = ps.communicate()
-            logger.DEBUG("Command was (%s)" % cmd)
-            if len(output[1]) > 0:
-                logger.DEBUG("Error from command = '%s'" % str(output[1]))
+            clone_names = GetContainerCloneNames(container)
+            for clone_full in clone_names:
+                cmd = 'docker rm %s' % clone_full
+                ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+                output = ps.communicate()
+                logger.DEBUG("Command was (%s)" % cmd)
+                if len(output[1]) > 0:
+                    logger.DEBUG("Error from command = '%s'" % str(output[1]))
         image_exists, result, dumb = ImageExists(mycontainer_image_name, mycontainer_name, container.registry)
         if not image_exists:
             if os.path.isfile(build_student):
@@ -1753,7 +1779,7 @@ def RegressTest(lab_path, role, standard, isFirstRun=False):
     return CompareResult
 
 
-def CreateCopyChownZip(start_config, labtainer_config, container_name, container_image, container_user, container_password, ignore_stop_error):
+def CreateCopyChownZip(start_config, labtainer_config, name, container_name, container_image, container_user, container_password, ignore_stop_error):
     '''
     Zip up the student home directory and copy it to the Linux host home directory
     '''
@@ -1801,7 +1827,9 @@ def CreateCopyChownZip(start_config, labtainer_config, container_name, container
         else:
             logger.ERROR("Container %s fail on executing cp zip file!\n" % container_name)
             logger.ERROR("Command was (%s)" % command)
-        StopMyContainer(start_config, container_name, ignore_stop_error)
+        clone_names = GetContainerCloneNames(start_config.containers[name])
+        for clone_full in clone_names:
+            StopMyContainer(clone_full, ignore_stop_error)
         return None, None
     
     local_tmp_zip = os.path.join(tmp_dir, 'zip')
@@ -1820,28 +1848,11 @@ def CreateCopyChownZip(start_config, labtainer_config, container_name, container
     DestZipPath = os.path.join('/home', username, host_home_xfer, DestZipFilename)
     shutil.copyfile(os.path.join(local_tmp_zip, orig_zipfilenameext), DestZipPath)
 
-    '''
-    # Change ownership to defined user $USER
-    command = "sudo chown %s:%s /home/%s/%s/*.zip" % (username, username, username, host_home_xfer)
-    logger.DEBUG("Command to execute is (%s)" % command)
-    child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    error_string = child.stderr.read().strip()
-    if len(error_string) > 0:
-        if ignore_stop_error:
-            logger.DEBUG("chown failed Command was (%s)" % command)
-            logger.DEBUG("Container %s fail on executing chown zip file!\n" % container_name)
-        else:
-            logger.ERROR("chown failed Command was (%s)" % command)
-            logger.ERROR("Container %s fail on executing chown zip file!\n" % container_name)
-        StopMyContainer(mycwd, start_config, container_name, ignore_stop_error)
-        return None, None
-
-    '''
     currentContainerZipFilename = "/home/%s/%s/%s" % (username, host_home_xfer, DestZipFilename)
     return baseZipFilename, currentContainerZipFilename
    
 # Stop my_container_name container
-def StopMyContainer(start_config, container_name, ignore_stop_error):
+def StopMyContainer(container_name, ignore_stop_error):
     command = "docker stop -t 1 %s 2>/dev/null" % container_name
     logger.DEBUG("Command to execute is (%s)" % command)
     ps = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
@@ -2008,6 +2019,13 @@ def FindNetworkGivenSubnet(subnet):
                             break
     return found_match_network, found_match_network_name
 
+def AllContainersRunning(container):
+    clone_names = GetContainerCloneNames(container)
+    for clone_full in clone_names:
+        if not IsContainerRunning(clone_full):
+            return False
+    return True
+
 def IsContainerRunning(mycontainer_name):
     try:
         s = subprocess.check_output('docker ps', shell=True)
@@ -2028,8 +2046,8 @@ def DoStopOne(start_config, labtainer_config, lab_path, role, name, container, Z
         container_user    = container.user
         container_password    = container.password
         mycontainer_image = container.image_name
-        haveContainer     = IsContainerCreated(mycontainer_name)
-        logger.DEBUG("IsContainerCreated result (%s)" % haveContainer)
+        haveContainer     = AllContainersCreated(container)
+        logger.DEBUG("AllContainerCreated result (%s)" % haveContainer)
 
         # IsContainerCreated returned FAILURE if container does not exists
         # error: can't stop non-existent container
@@ -2039,35 +2057,38 @@ def DoStopOne(start_config, labtainer_config, lab_path, role, name, container, Z
             else:
                 logger.ERROR("Container %s does not exist!\n" % mycontainer_name)
             retval = False
-        elif not IsContainerRunning(mycontainer_name):
+        elif not AllContainersRunning(container):
             if ignore_stop_error:
                 logger.DEBUG("container %s not running\n" % (mycontainer_name))
             else:
                 logger.ERROR("container %s not running\n" % (mycontainer_name))
             retval = False
         else:
-            if role == 'instructor':
-                if mycontainer_name == start_config.grade_container:
-                    CopyChownGradesFile(start_config, labtainer_config, mycontainer_name, mycontainer_image, container_user, ignore_stop_error)
-            else:
-                GatherOtherArtifacts(lab_path, name, mycontainer_name, container_user, container_password, ignore_stop_error)
-                # Before stopping a container, run 'Student.py'
-                # This will create zip file of the result
+            clone_names = GetContainerCloneNames(container)
+            for mycontainer_name in clone_names:
+                if role == 'instructor':
+                    if mycontainer_name == start_config.grade_container:
+                        CopyChownGradesFile(start_config, labtainer_config, name, mycontainer_name, container_user, ignore_stop_error)
+                else:
+                    GatherOtherArtifacts(lab_path, name, mycontainer_name, container_user, container_password, ignore_stop_error)
+                    # Before stopping a container, run 'Student.py'
+                    # This will create zip file of the result
     
-                baseZipFilename, currentContainerZipFilename = CreateCopyChownZip(start_config, labtainer_config, mycontainer_name, mycontainer_image, container_user, container_password, ignore_stop_error)
-                if baseZipFilename is not None:
-                    ZipFileList.append(currentContainerZipFilename)
-                logger.DEBUG("baseZipFilename is (%s)" % baseZipFilename)
+                    baseZipFilename, currentContainerZipFilename = CreateCopyChownZip(start_config, labtainer_config, name, mycontainer_name, mycontainer_image, container_user, container_password, ignore_stop_error)
+                    if baseZipFilename is not None:
+                        ZipFileList.append(currentContainerZipFilename)
+                    logger.DEBUG("baseZipFilename is (%s)" % baseZipFilename)
 
-            #command = 'docker exec %s echo "%s\n" | sudo -S rmdir /tmp/.mylockdir 2>/dev/null' % (mycontainer_name, container_password)
-            command = 'docker exec %s sudo rmdir /tmp/.mylockdir 2>/dev/null' % (mycontainer_name)
-            os.system(command)
+                #command = 'docker exec %s echo "%s\n" | sudo -S rmdir /tmp/.mylockdir 2>/dev/null' % (mycontainer_name, container_password)
+                command = 'docker exec %s sudo rmdir /tmp/.mylockdir 2>/dev/null' % (mycontainer_name)
+                os.system(command)
 
-            for mysubnet_name, mysubnet_ip in container.container_nets.items():
-                disconnectNetworkResult = DisconnectNetworkFromContainer(mycontainer_name, mysubnet_name)
+                for mysubnet_name, mysubnet_ip in container.container_nets.items():
+                    disconnectNetworkResult = DisconnectNetworkFromContainer(mycontainer_name, mysubnet_name)
 
-            # Stop the container
-            StopMyContainer(start_config, mycontainer_name, ignore_stop_error)
+                # Stop the container
+            
+                StopMyContainer(mycontainer_name, ignore_stop_error)
 
         results.append(retval)
 
@@ -2193,10 +2214,10 @@ def DoMoreterm(lab_path, role, container, num_terminal):
     logger.DEBUG('num terms is %d' % start_config.containers[container].terminals)
 
     mycontainer_name = '%s.%s.%s' % (labname, container, role)
-    if not IsContainerCreated(mycontainer_name):
+    if not AllContainersCreated(container):
         logger.ERROR('container %s not found' % mycontainer_name)
         sys.exit(1)
-    if not IsContainerRunning(mycontainer_name):
+    if not AllContainersRunning(container):
         logger.ERROR("Container %s is not running!\n" % (mycontainer_name))
         sys.exit(1)
     for x in range(num_terminal):
@@ -2223,10 +2244,10 @@ def DoTransfer(lab_path, role, container, filename, direction):
     host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
 
     mycontainer_name = '%s.%s.%s' % (labname, container, role)
-    if not IsContainerCreated(mycontainer_name):
+    if not AllContainersCreated(container):
         logger.ERROR('container %s not found' % mycontainer_name)
         sys.exit(1)
-    if not IsContainerRunning(mycontainer_name):
+    if not AllContainersRunning(container):
         logger.ERROR("Container %s is not running!\n" % (mycontainer_name))
         sys.exit(1)
     container_user = ""
