@@ -80,7 +80,11 @@ echo $CONTAINER_PASSWORD | sudo -S $HOME/.local/bin/ParameterParser.py $CONTAINE
 # If file $HOME/.local/bin/fixlocal.sh exists, run it
 if [ -f $HOME/.local/bin/fixlocal.sh ]
 then
-    $HOME/.local/bin/fixlocal.sh $CONTAINER_PASSWORD 2>>/tmp/fixlocal.output
+    if [[ $EUID -ne 0 ]]; then
+        $HOME/.local/bin/fixlocal.sh $CONTAINER_PASSWORD $CONTAINER_USER 2>>/tmp/fixlocal.output
+    else
+        su -c "$HOME/.local/bin/fixlocal.sh $CONTAINER_PASSWORD $CONTAINER_USER 2>>/tmp/fixlocal.output" $CONTAINER_USER
+    fi
 fi
 
 if [ -f /var/tmp/home.tar ]; then
