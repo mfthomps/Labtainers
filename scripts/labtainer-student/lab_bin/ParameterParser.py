@@ -26,6 +26,7 @@ class ParameterParser():
         self.unique_values = {}
         self.hashcreatelist = {}
         self.hashreplacelist = {}
+        self.clonereplacelist = {}
         self.paramlist = {}
         self.container_user = container_user
         self.container_name = container_name
@@ -301,6 +302,49 @@ class ParameterParser():
                 self.hashreplacelist[myfilename].append('%s:%s' % (token, mymd5_hex_string))
         self.paramlist[param_id] = mymd5_hex_string
     
+    def CheckCloneReplaceEntry(self, param_id, each_value):
+        # HASH_REPLACE : <filename> : <token> : <string>
+        #print "Checking HASH_REPLACE entry"
+        if self.container_name is None:
+            return
+        entryline = each_value.split(': ')
+        #print entryline
+        numentry = len(entryline)
+                
+        myfilename_field = entryline[0].strip()
+        token = entryline[1].strip()
+        the_string = entryline[2].strip()
+        dumb, clone_num = self.container_name.rsplit('-', 1)
+    
+        # Check to see if ':' in myfilename
+        myfilename_list = myfilename_field.split(';')
+        for myfilename in myfilename_list:
+            if ':' in myfilename:
+                # myfilename has the container_name also
+                tempcontainer_name, myactualfilename = myfilename.split(':')
+                # Assume filename is relative to /home/<container_user>
+                if not myactualfilename.startswith('/'):
+                    user_home_dir = '/home/%s' % self.container_user
+                    myfullactualfilename = os.path.join(user_home_dir, myactualfilename)
+                else:
+                    myfullactualfilename = myactualfilename
+                myfilename = '%s:%s' % (tempcontainer_name, myfullactualfilename)
+            else:
+                # myfilename does not have the containername
+                # Assume filename is relative to /home/<container_user>
+                if not myfilename.startswith('/') and myfilename != 'start.config':
+    
+                    user_home_dir = '/home/%s' % self.container_user
+                    myfullfilename = os.path.join(user_home_dir, myfilename)
+                else:
+                    myfullfilename = myfilename
+                myfilename = myfullfilename
+    
+            if myfilename not in self.clonereplacelist:
+                self.clonereplacelist[myfilename] = []
+            self.clonereplacelist[myfilename].append('%s:%s' % (token, clone_num))
+        self.paramlist[param_id] = clone_num
+    
     
     def ValidateParameterConfig(self, param_id, each_key, each_value):
         ''' build file/token replacment list for each type of replacement '''
@@ -316,6 +360,9 @@ class ParameterParser():
         elif each_key == "HASH_REPLACE":
             #print "HASH_REPLACE"
             self.CheckHashReplaceEntry(param_id, each_value)
+        elif each_key == "CLONE_REPLACE":
+            #print "CLONE"
+            self.CheckCloneReplaceEntry(param_id, each_value)
         else:
             self.logger.ERROR("ParseParameter.py, ValidateParameterConfig, Invalid operator %s" % each_key)
             sys.exit(1)
@@ -329,7 +376,7 @@ class ParameterParser():
         #print "Perform_RAND_REPLACE"
         for (listfilename, replacelist) in self.randreplacelist.items():
             if self.container_name is None:
-                ''' running one linux host before container creationt '''
+                ''' running one linux host before container creation '''
                 if listfilename != 'start.config':
                     #print('listfile is <%s>' % listfilename)
                     self.logger.DEBUG('running on host, not start.config')
@@ -378,7 +425,7 @@ class ParameterParser():
         #print "Perform_HASH_CREATE"
         for (listfilename, createlist) in self.hashcreatelist.items():
             if self.container_name is None:
-                ''' running one linux host before container creationt '''
+                ''' running one linux host before container creation '''
                 if listfilename != 'start.config':
                     #print('listfile is <%s>' % listfilename)
                     self.logger.DEBUG('running on host, not start.config')
@@ -454,6 +501,54 @@ class ParameterParser():
             outfile.write(content)
             outfile.close()
     
+    def Perform_CLONE_REPLACE(self):
+        #print clonereplacelist
+        if self.container_name is None:
+            ''' running on linux host prior to container creation '''
+            return
+        for (listfilename, replacelist) in self.clonereplacelist.items():
+            if self.container_name is None:
+                ''' running one linux host before container creationt '''
+                if listfilename != 'start.config':
+                    #print('listfile is <%s>' % listfilename)
+                    self.logger.DEBUG('running on host, not start.config')
+                    continue
+                else:
+                    filename = '/tmp/start.config'
+            elif ':' in listfilename:
+                # listfilename has the containername also
+                #print "listfilename is (%s)" % listfilename
+                #print "container_name is (%s)" % container_name
+                if self.container_name != "" and listfilename.startswith(self.container_name+':'):
+                    #print "Yes it startswith"
+                    tmp_container_name, filename = listfilename.split(':')
+                else:
+                    #print "No it does not startswith"
+                    # Not for this container
+                    continue
+            else:
+                #print "Does not have :"
+                filename = listfilename
+            #print "Current Filename is %s" % filename
+            if not os.path.exists(filename):
+                self.logger.ERROR("Perform_HASH_REPLACE: File %s does not exist" % filename)
+                sys.exit(1)
+            #else:
+            #    print "File (%s) exist\n" % filename
+            #print "Replace list is "
+            #print replacelist
+            content = None
+       
+            infile = open(filename, 'r')
+            content = infile.read() 
+            for replaceitem in replacelist:
+                (oldtoken, newtoken) = replaceitem.split(':')
+                content = content.replace(oldtoken, newtoken)
+            infile.close()
+            # Re-open file with write
+            outfile = open(filename, 'w') 
+            outfile.write(content)
+            outfile.close()
     def DoReplace(self):
         # Do create Watermark here - instructor container does not call this
         #print "WATERMARK_CREATE"
@@ -466,6 +561,8 @@ class ParameterParser():
         self.Perform_HASH_CREATE()
         # Perform HASH_REPLACE
         self.Perform_HASH_REPLACE()
+        # Perform CLONE_REPLACE
+        self.Perform_CLONE_REPLACE()
     
     def ParseParameterConfig(self, configfilename):
         # Seed random with lab seed
