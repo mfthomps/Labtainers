@@ -348,7 +348,7 @@ def CreateSubnets(subnets):
                     logger.ERROR("No IP assigned to network %s, assign an ip on Linux host to enable use of macvlan with Labtainers")
                     exit(1)
                 if not CheckPromisc(iface):
-                    logger.WARNING("network %s not in promisc mode, required for macvlan inter-vbox comms" % iface)
+                    logger.WARNING("network %s not in promisc mode, required for macvlan inter-vbox comms\nUse: sudo ifconfig %s promisc" % (iface, iface))
                 macvlan = '-o parent=%s -o macvlan_mod=bridge' % iface
                 net_type = 'macvlan'
             if subnets[subnet_name].ip_range is not None:
@@ -767,7 +767,8 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False, just_c
             while True:
                 line = ps.stdout.readline()
                 if line != '':
-                    if 'Error in docker build result 1' in line:
+                    #if 'Error in docker build result 1' in line:
+                    if 'Error in docker build result 1' in line or 'Error in docker build result 2' in line:
                         logger.ERROR(line)
                         fatal_error = True
                     else:
