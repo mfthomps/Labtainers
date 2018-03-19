@@ -84,27 +84,6 @@ if [ -z "$pipcheck" ]; then
     #echo $packagefail
 fi
 
-#
-#Add the hosts DNS servers to the /etc/resolv.conf by appending them
-#to the resolv.conf.d/head file.  Dockers on ubuntu, cannot resolve
-#addresses from within containers.
-#
-rel=`lsb_release -a | grep Release | awk '{print $2}'`
-if [[ $rel == 14.* ]]; then
-    dns_list=$(nmcli dev list | grep DNS | awk '{print $2 $4}')
-else
-    dns_list=$(nmcli dev show | grep DNS | awk '{print $2 $4}')
-fi
-echo already is $dns_list
-for dns in $dns_list
-do
-    already=$(grep $dns /etc/resolvconf/resolv.conf.d/head)
-    if [ -z "$already" ]; then
-        echo "nameserver $dns" | sudo tee -a /etc/resolvconf/resolv.conf.d/head
-    fi
-done
-sudo resolvconf -u
-
 if [ $packagefail = "true" ]; then
     echo "If you manually install packages to correct the problem, be sure to reboot the system before trying to use Labtainers."
     exit 1
