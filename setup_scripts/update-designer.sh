@@ -52,7 +52,7 @@ else
     cp /media/sf_SEED/labtainer-developer.tar .
     echo "USING SHARED FILE TAR, NOT PULLING FROM WEB"
 fi
-trunk/setup_scripts/dns-add.py
+sudo trunk/setup_scripts/dns-add.py
 sudo systemctl restart docker
 cd ..
 tar xf labtainer/labtainer-developer.tar
