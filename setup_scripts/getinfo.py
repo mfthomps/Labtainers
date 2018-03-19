@@ -72,9 +72,9 @@ def main():
     print ""
     if numprocessor == 1:
         print "Labtainers will perform better with two processors allocated to the Linux host."
-    if memoryinGB < 2.0:
+    if memoryinGB < 1.8:
         print "Labtainers may perform better with at least 2 GB of RAM allocated to the Linux host."
-    if numprocessor == 1 or memoryinGB < 2.0:
+    if numprocessor == 1 or memoryinGB < 1.8:
         user_input=None
         user_input=raw_input("Would like to shutdown the host so you can allocate more resources? (yes/no)\n")
         user_input=user_input.strip().lower()
