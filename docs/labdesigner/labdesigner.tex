@@ -83,11 +83,13 @@ single iptables configuration during which the student used nmap to demonstrate 
 Labtainers support laboratory exercises designed for Linux environments,
 ranging from interaction with individual programs to labs that include
 what appear to be multiple components and networks.  Students see and interact with Linux
-environments, primarily via bash shell commands. In general, the Labtainer
+computers, primarily via bash shell commands and GUI-based applications. In general, the Labtainer
 framework implementation is not visible to the student, and the Linux
 environment as seen by the student is not augmented to support the framework.
 
-Labtainers are intended for use on individual student computers.
+Labtainers are intended for use on individual student computers \footnote{Labtainers
+can also be installed on servers, e.g., one or more VMs in a VM farm. This guide does
+not (yet) address administration of such deployments.}
 The computer utilized by a student must include the Linux operating system, e.g.,
 as a single VM.  This Linux operating system, referred to herein
 as the \textit{Linux host}, can be any distribution and version
@@ -100,6 +102,9 @@ It is suggested that the student's Linux host be a virtual machine that is
 not used for purposes requiring trust.  Software programs contained in cybersecurity lab
 exercises are not, in general, trusted.  And while Docker containers provide namespace
 isolation between the containers and the Linux host, the containers run as privileged.
+
+Labtainer exercises can include networking to external hosts, e.g., a Windows VM
+running alongside the Linux host VM, as described in section \ref{external hosts}.
 
 Students initiate any and all labs from a
 single workspace directory on the Linux host.
@@ -294,10 +299,14 @@ student when interacting with one of these ``computers'' is therefore defined
 by the configuration of the associated container. 
 
 Software packages are defined in each container's Dockerfile, described in 
-the subsection below. That is followed by subsection \ref{start.config} describing network definitions,
+the subsection below. That is followed by subsection \ref{start config} describing network definitions,
 (and other computer attributes) in the start.config file.  The remaining subsections then
 described populating the user HOME directory and system directories, and methods for starting 
 system services and miscellanious envrionment settings. 
+
+Labtainer containers, by default, present students with a virtual terminal and a bash
+shell requiring no login.  Alternate initial environments, including use of the login program, are
+described in section \ref{student start}.
 
 \subsection {Docker files}
 A default Labtainer-specific Dockerfile is placed in the new lab's ``dockerfiles'' 
@@ -351,7 +360,7 @@ directories with lab-specific files such as described in section \ref{home files
 Next, you must also describe your containers within the \textit{start.config} file as described below.
 
 \subsection{Container definitions in start.config}
-\label{start.config}
+\label{start config}
 Most single container labs can use the automatically generated start.config file
 without modification.  Adding networks to containers and defining users other than the
 default "ubuntu" user requires modification of the start.config file.
@@ -383,11 +392,11 @@ providing a name for the network, the following values are defined:
 host.  Please note that to define a different network gateway for the component, you should 
 use the {\tt set\_default\_gw.sh}.  This GATEWAY field should not name the IP of any of your other components.  
 See the the {\tt routing\_basics2} lab for examples.
-\item MACVLAN [IP prefix] -- Causes the Docker network driver to create and use a macvlan tied to the ethernet
+\item MACVLAN [IP prefix] -- Optional, causes the Docker network driver to create and use a macvlan tied to the ethernet
 interface to which the given IP prefix is assigned.  This will cause the network devices to be placed 
 in promiscuous mode.  These types of interfaces can be used to communicate with external hosts, e.g., other VMs
 as described in \ref{external hosts}
-\item IP\_RANGE [range] -- Allocates an ip range to the network, e.g., 192.168.1.4/30
+\item IP\_RANGE [range] -- Optional, allocates an ip range to the network, e.g., 192.168.1.4/30
 \end{itemize}
 
 \item CONTAINER [container name] -- One of these sections is required for each container in the lab.
@@ -416,12 +425,18 @@ This defaults to the user name defined above.
 \item network name [ip address] -- Network address assignments for each network (defined via a NETWORK section), 
 that is to be connected to this container.  A separate line should be entered for each network.  The given ip address 
 can optionally include a MAC address assignment as a suffix following a colon, e.g., "172.25.0.1:2:34:ac:19:0:2".
+If {\tt AUTO} is provided as the address, an address is chosen for you from the subnet range.  When the {\tt CLONE}
+option is used (as defined below), then the address should either be {\tt AUTO}, or append a suffix of {\tt +CLONE} to
+the address to cause each clone to be assigned a sequence of addresses starting with the given address.
 \item SCRIPT [script] -- Optional script to provide to the Docker create command, defaults to ``bash''.  This must be set to
 ``NONE'' for CentOS-based labs (and likely fedora[test that]).
 \item ADD-HOST [host:ip] -- Optional addition to the /etc/host file, a container may have multiple ADD-HOST entries.
 \item X11 [YES/NO] -- Optional, defaults to NO.  If YES, the container mounts the TCP socked used by the hosts X11 server,
 enabling the container to run applications with GUIs, e.g., browsers or wireshark.  See sql-inject as an example.  See the
 Notes section at the end of this manual for tips on using Firefox and Wireshark.
+\item CLONE [quantity] -- optional quantity of copies of this container to create. Each copy is assigned a monotonically
+increasing integer starting with one, and this value can be used for teh network address as describe above, and within
+parameterization as described in section \ref{parameterize}.
 
 \end{itemize}
 \end{itemize}
@@ -515,7 +530,7 @@ commented options for CentOS.  The config/start.config file must also include th
 \end{verbatim}
 \noindent line for the container.  The centos-log also provides an example of forcing 
 the student to login using the traditional
-login program, controlled by its bin/student\_startup.sh script.   
+login program, as described in section \ref{student start}.
 
 
 \subsection {Instructions for Students} \label{instructions}
@@ -539,9 +554,10 @@ included with the student artifacts and available extracted into the intstrutor'
 labtainer\_xfer/[lab]/docs directory.
 
 \subsection {Running programs in Virtual Terminals}
+\label {student start}
 Programs can be started automatically within virtual terminals using two methods.
 The first is the ``XTERM'' directive in the container section in the start.config file
-described in \ref{start.config}.  That is intended for programs whose results are displayed
+described in \ref{start config}.  That is intended for programs whose results are displayed
 within the virtual terminal.  The second method is intended for user authentiation and
 for starting GUI based programs
 that will use the Linux host Xserver.  If a file exists at:
@@ -549,7 +565,10 @@ that will use the Linux host Xserver.  If a file exists at:
     $LABTAINER_DIR/labs/[labname]/[container name]/_bin/student_start.sh
 \end{verbatim}
 it will be executed from each virtual terminal created for the container.
-See the sql-inject lab and the centos-log lab examples.
+See the sql-inject lab and the centos-log lab examples, with the latter
+running the login program to require students to login prior to getting a shell prompt.
+\footnote{Copy the login program from labs/centos-log/centos-log/\_system/sbin/login
+to your container's \_system/sbin directory.}
 
 
 \subsection{Final lab environment fixup}
@@ -563,6 +582,8 @@ and reside at:
 \begin{verbatim}
     $LABTAINER_DIR/labs/[labname]/[container name]/_bin
 \end{verbatim}
+\noindent Note the fixlocal.sh script runs as the user defined in the start.config for the container, 
+regardless of whether root is set as the user in the Dockerfile.
 
 \subsection{Automatic copying files from containers to the host}
 This feature no longer has an intended use, but it is available if you have one.
@@ -672,6 +693,12 @@ is followed by one of the following operations:
            ROOT_SECRET : myrootfile
      The string "ROOT_SECRET" in file /root/.secret will be replaced with an MD5 hash
      of the concatenation of the lab instance seed and "myrootfile".
+
+ CLONE_REPLACE : <filename> : <symbol> : <ignored>
+   Replace a symbol with the clone number of a container per the CLONE option
+   in the start.config file.  This is intended for use in providing instance-
+   unique values on cloned containers, e.g., to assign a unique password to
+   each container based on the clone number.
 \end{verbatim}
 
 The parameter\_id fields may be referenced during the automated grading function, described below
@@ -1325,7 +1352,7 @@ of the web server configuration, as delimited by use of {\tt systemctl restart h
 
 \section{Networking}
 Most networking is simply a matter of defining networks and assigning them to containers
-as described in \ref{start.config}.  
+as described in \ref{start config}.  
 
 In addition to networks properties defined in the
 start.config file, each container \texttt{/etc/host} file includes a ``my\_host entry'' that names
@@ -1621,6 +1648,8 @@ delete the Docker-generated route:
 \noindent And the fixlocal.sh also replaces the resolv.conf entry with either a local DNS component, or a gateway running
 the dnsmasq utility.  The /etc/rc.local script generally sets the default gateway, and configures iptables.
 
+\subsection {Multi-user Labtainers}
+TBD.  See use of Clone option.
 
 \subsection {Container isolation}
 Docker provides namespace isolation between different containers, and
