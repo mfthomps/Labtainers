@@ -53,6 +53,7 @@ else
     echo "USING SHARED FILE TAR, NOT PULLING FROM WEB"
 fi
 trunk/setup_scripts/dns-add.py
+sudo systemctl restart docker
 cd ..
 tar xf labtainer/labtainer-developer.tar
 grep README labtainer/trunk/README | awk '{print "Updated to designer release of: ", $4, $5}'
