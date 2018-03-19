@@ -52,6 +52,7 @@ else
     cp /media/sf_SEED/labtainer-developer.tar .
     echo "USING SHARED FILE TAR, NOT PULLING FROM WEB"
 fi
+trunk/setup_scripts/dns-add.py
 cd ..
 tar xf labtainer/labtainer-developer.tar
 grep README labtainer/trunk/README | awk '{print "Updated to designer release of: ", $4, $5}'

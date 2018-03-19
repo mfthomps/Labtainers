@@ -64,6 +64,7 @@ if [[ "$RESULT" -eq 0 ]]; then
     /usr/bin/newgrp $USER <<EONG
     source ./pull-all.sh
 EONG
+    ./dns-add.py
     ./getinfo.py
     sudo reboot
 else
