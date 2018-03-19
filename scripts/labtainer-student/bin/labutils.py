@@ -232,7 +232,20 @@ def GetContainerCloneNames(container):
             fullname = '%s-%d.%s' % (name, i, role)
             retval[fullname] = hostname
     return retval
-        
+       
+def GetDNS(): 
+    dns_param = ''
+    dns_param = '--dns=8.8.8.8'
+    cmd="nmcli dev show | grep 'IP4.DNS'"
+    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if len(output[0]) > 0: 
+        for line in output[0].splitlines(True):
+            dns_param = '--dns=%s %s' % (line.split()[1].strip(), dns_param)
+            ''' just take first '''
+            break
+    return dns_param
+
 def CreateSingleContainer(container, mysubnet_name=None, mysubnet_ip=None):
     ''' create a single container -- or all clones of that container per the start.config '''
     logger.DEBUG("Create Single Container")
@@ -267,10 +280,11 @@ def CreateSingleContainer(container, mysubnet_name=None, mysubnet_ip=None):
             add_this = '--add-host %s ' % item
             add_hosts += add_this
         add_host_param = '--add-host my_host:%s %s' % (docker0_IPAddr, add_hosts)
+        dns_param = GetDNS()
         priv_param = ''
         if container.no_privilege != 'yes':
             priv_param = '--privileged'
-        
+
         mac = ''
         subnet_ip = ''
         network_param = ''
@@ -282,8 +296,9 @@ def CreateSingleContainer(container, mysubnet_name=None, mysubnet_ip=None):
             clone_host = clone_names[clone_fullname]
             if mysubnet_name is not None:
                 subnet_ip, mac = GetNetParam(mysubnet_ip, clone_fullname)
-            createsinglecommand = "docker create -t --cap-add NET_ADMIN %s %s %s %s %s --name=%s --hostname %s %s %s %s" % (network_param, 
-                    subnet_ip, mac, priv_param, add_host_param,  clone_fullname, clone_host, volume, new_image_name, container.script)
+            createsinglecommand = "docker create -t %s --cap-add NET_ADMIN %s %s %s %s %s --name=%s --hostname %s %s %s %s" % (dns_param, 
+                    network_param, subnet_ip, mac, priv_param, add_host_param,  clone_fullname, clone_host, volume, 
+                    new_image_name, container.script)
             logger.DEBUG("Command to execute was (%s)" % createsinglecommand)
             ps = subprocess.Popen(createsinglecommand, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             output = ps.communicate()
@@ -2325,20 +2340,6 @@ def DoTransfer(lab_path, role, container_name, filename, direction):
             logger.ERROR("Failed to copy file from container %s!\n" % mycontainer_name)
             sys.exit(1)
 
-def GetDNS():
-    #command = 'nmcli dev show | grep DNS'
-    retval = []
-    command = 'nmcli dev show'
-    ps = subprocess.Popen(shlex.split(command), True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    grep_command = 'grep DNS'
-    ps_grep = subprocess.Popen(shlex.split(grep_command), stdin=ps.stdout,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    ps.stdout.close()
-    output = ps_grep.communicate()
-    if len(output[0]) > 0:
-        for line in output[0].splitlines(True):
-            parts = line.split()
-            retval.append(parts[1])
-    return retval
 
 def CopyFilesToHost(lab_path, container_name, full_container_name, container_user):
     labname = os.path.basename(lab_path)
