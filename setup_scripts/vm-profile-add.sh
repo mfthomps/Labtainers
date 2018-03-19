@@ -3,7 +3,7 @@
 # Modify the user profile to create a terminal on login that
 # starts in the labtainer workspace.  The profile will also, run the Labtainer
 # update script if the labtainer/.doupdate file exists.
-# This script also creates the .doupdate file and modifieds gnmoe
+# This script also creates the .doupdate file and modifieds gnome
 # to shutdown when the virtual powerbutton is pressed.
 #
 cat >>~/.profile <<EOL
@@ -15,5 +15,3 @@ EOL
 touch /home/student/labtainer/.doupdate 
 gsettings set org.gnome.settings-daemon.plugins.power button-power 'shutdown'
 cat >>/etc/rc.local <<EOL
-rm -f /etc/resolvconf/resolv.conf.d/head
-/home/student/labtainer/trunk/setup_scripts/fixresolv.sh
