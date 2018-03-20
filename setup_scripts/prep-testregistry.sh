@@ -4,10 +4,6 @@
 # labtainer images.
 #
 echo "10.20.200.41 testregistry" >> /etc/hosts
-cat >/etc/docker/daemon.json <<EOL
-{
-  "insecure-registries" : ["testregistry:5000"]
-}
-EOL
+./testreg-add.py
 systemctl restart docker
 
