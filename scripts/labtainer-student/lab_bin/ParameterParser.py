@@ -22,6 +22,7 @@ import ParameterizeLogging
 
 class ParameterParser():
     def __init__(self, container_name, container_user, lab_instance_seed, logger=None):    
+        ''' NOTE: container_name is none if running on Linux host vice a container, e.g., for start.config '''
         self.randreplacelist = {}
         self.unique_values = {}
         self.hashcreatelist = {}
@@ -314,21 +315,26 @@ class ParameterParser():
         myfilename_field = entryline[0].strip()
         token = entryline[1].strip()
         the_string = entryline[2].strip()
+        if '-' not in self.container_name:
+            self.logger.DEBUG('skipping container that does not look like a clone %s' % self.container_name)
+            return
         dumb, clone_num = self.container_name.rsplit('-', 1)
     
         # Check to see if ':' in myfilename
         myfilename_list = myfilename_field.split(';')
         for myfilename in myfilename_list:
             if ':' in myfilename:
-                # myfilename has the container_name also
+                # myfilename includes the container_name 
                 tempcontainer_name, myactualfilename = myfilename.split(':')
+                self.logger.DEBUG('tmpcontainer_name is %s fname %s' % (tempcontainer_name, myactualfilename))
                 # Assume filename is relative to /home/<container_user>
                 if not myactualfilename.startswith('/'):
                     user_home_dir = '/home/%s' % self.container_user
                     myfullactualfilename = os.path.join(user_home_dir, myactualfilename)
                 else:
                     myfullactualfilename = myactualfilename
-                myfilename = '%s:%s' % (tempcontainer_name, myfullactualfilename)
+                myfilename = '%s-%s:%s' % (tempcontainer_name, clone_num, myfullactualfilename)
+                self.logger.DEBUG('myfilename now %s' % myfilename)
             else:
                 # myfilename does not have the containername
                 # Assume filename is relative to /home/<container_user>
@@ -376,7 +382,7 @@ class ParameterParser():
         #print "Perform_RAND_REPLACE"
         for (listfilename, replacelist) in self.randreplacelist.items():
             if self.container_name is None:
-                ''' running one linux host before container creation '''
+                ''' running on linux host before container creation '''
                 if listfilename != 'start.config':
                     #print('listfile is <%s>' % listfilename)
                     self.logger.DEBUG('running on host, not start.config')
@@ -507,31 +513,25 @@ class ParameterParser():
             ''' running on linux host prior to container creation '''
             return
         for (listfilename, replacelist) in self.clonereplacelist.items():
-            if self.container_name is None:
-                ''' running one linux host before container creationt '''
-                if listfilename != 'start.config':
-                    #print('listfile is <%s>' % listfilename)
-                    self.logger.DEBUG('running on host, not start.config')
-                    continue
-                else:
-                    filename = '/tmp/start.config'
-            elif ':' in listfilename:
-                # listfilename has the containername also
+            if ':' in listfilename:
+                # listfilename includes the containername 
                 #print "listfilename is (%s)" % listfilename
                 #print "container_name is (%s)" % container_name
+                self.logger.DEBUG('self.container_name is <%s>, listfilename is <%s>' % (self.container_name, listfilename))
                 if self.container_name != "" and listfilename.startswith(self.container_name+':'):
                     #print "Yes it startswith"
                     tmp_container_name, filename = listfilename.split(':')
                 else:
                     #print "No it does not startswith"
                     # Not for this container
+                    self.logger.DEBUG('does not startwith')
                     continue
             else:
                 #print "Does not have :"
                 filename = listfilename
-            #print "Current Filename is %s" % filename
+            self.logger.DEBUG("Current Filename is %s" % filename)
             if not os.path.exists(filename):
-                self.logger.ERROR("Perform_HASH_REPLACE: File %s does not exist" % filename)
+                self.logger.ERROR("Perform_CLONE_REPLACE: File %s does not exist" % filename)
                 sys.exit(1)
             #else:
             #    print "File (%s) exist\n" % filename
