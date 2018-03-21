@@ -6,4 +6,10 @@
 #  Thus, if this script is to use sudo and the sudoers for the lab
 #  not not permit nopassword, then use:
 #  echo $1 | sudo -S the-command
-#
+newpwd=studentCLONE_NUM
+user=$2
+/usr/bin/passwd $user <<EOF
+$1
+$newpwd
+$newpwd
+EOF
