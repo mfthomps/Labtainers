@@ -9,4 +9,8 @@ Labtainers VM.  You should then be able to spin up an external VM,
 e.g., Windows, assign it an address on that same subnet, and communicate
 with it.
 
+The username for the kali systems is "ubuntu".  The password is "studentN" where
+N is the instance number of the kali client.  This lab also illustrates the
+use of CLONES.
+
 See the Lab Designer's User Guide for details.
