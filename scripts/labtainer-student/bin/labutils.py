@@ -101,6 +101,22 @@ def isalphadashscore(name):
 def getDocker0IPAddr():
     return get_ip_address('docker0')
 
+def HackFixes(mycontainer_name, container_user):
+    #cmd = 'sudo cp /home/%s/.local/bin/capinout.sh /sbin/' % (container_user)
+    loc = '/home/%s/.local/bin/capinout.sh' % (container_user)
+
+    command=['docker', 'exec', '-i',  mycontainer_name, 'sudo', 'cp', loc, '/sbin/']
+    logger.DEBUG("About to call : %s" % str(command))
+    #return retval 
+    child = subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    error_string = child.stderr.read()
+    if len(error_string) > 0:
+        for line in error_string.splitlines(True):
+            logger.DEBUG(line)
+    out_string = child.stdout.read().strip()
+    if len(out_string) > 0:
+        logger.DEBUG('HackFixes %s' % out_string)
+
 # Parameterize my_container_name container
 def ParameterizeMyContainer(mycontainer_name, container_user, container_password, lab_instance_seed, user_email, labname):
     retval = True
@@ -122,6 +138,7 @@ def ParameterizeMyContainer(mycontainer_name, container_user, container_password
     out_string = child.stdout.read().strip()
     if len(out_string) > 0:
         logger.DEBUG('ParameterizeMyContainer %s' % out_string)
+    HackFixes(mycontainer_name, container_user)
     return retval
 
 # Start my_container_name container
