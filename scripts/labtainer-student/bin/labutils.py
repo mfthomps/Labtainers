@@ -114,9 +114,11 @@ def ParameterizeMyContainer(mycontainer_name, container_user, container_password
     error_string = child.stderr.read()
     if len(error_string) > 0:
         for line in error_string.splitlines(True):
-            if  not line.startswith('[sudo]') and "LC_ALL" not in line:
+            if  not line.startswith('[sudo]') and "LC_ALL" not in line and "ENCRYPT_METHOD" not in line:
                 logger.ERROR('ParameterizeMyContainer %s' % line)
                 retval = False
+            else:
+                logger.DEBUG(line)
     out_string = child.stdout.read().strip()
     if len(out_string) > 0:
         logger.DEBUG('ParameterizeMyContainer %s' % out_string)
@@ -246,6 +248,30 @@ def GetDNS():
             break
     return dns_param
 
+def GetX11SSH():
+    ''' EXPERIMENTAL, not used '''
+    ip = '192.168.1.222'
+    xauth = '/tmp/.docker.xauth'
+    #display = os.getenv('DISPLAY') 
+    display = ':10'
+    cmd = 'xauth list %s' % display
+    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if len(output[0]) > 0: 
+        parts = output[0].strip().split()
+        magic_cookie = parts[2]
+    else:
+        print('could not find magic cookie')
+        exit(1)
+    x11_port = display.split(':')[1] 
+    print('x11_port %s' % x11_port)
+    cmd = 'xauth -f /tmp/.docker.xauth add %s:%s . %s' % (ip, x11_port, magic_cookie)
+    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    os.chmod(xauth, 0777)
+    retval = '--env="%s:%s" -v %s:%s -e XAUTHORITY="%s"' % (ip, x11_port, xauth, xauth, xauth)
+    #retval = '--env="DISPLAY" -v %s:%s -e XAUTHORITY="%s"' % (xauth, xauth, xauth)
+    return retval 
+
 def CreateSingleContainer(container, mysubnet_name=None, mysubnet_ip=None):
     ''' create a single container -- or all clones of that container per the start.config '''
     logger.DEBUG("Create Single Container")
@@ -291,14 +317,17 @@ def CreateSingleContainer(container, mysubnet_name=None, mysubnet_ip=None):
         if mysubnet_name is not None:
             network_param = '--network=%s' % mysubnet_name
 
+        x11_ssh = ''
+        #if container.ssh_x11.lower() != 'no':
+        #    x11_ssh = GetX11SSH()
         clone_names = GetContainerCloneNames(container)
         for clone_fullname in clone_names:
             clone_host = clone_names[clone_fullname]
             if mysubnet_name is not None:
                 subnet_ip, mac = GetNetParam(mysubnet_ip, clone_fullname)
-            createsinglecommand = "docker create -t %s --cap-add NET_ADMIN %s %s %s %s %s --name=%s --hostname %s %s %s %s" % (dns_param, 
+            createsinglecommand = "docker create -t %s --cap-add NET_ADMIN %s %s %s %s %s --name=%s --hostname %s %s %s %s %s" % (dns_param, 
                     network_param, subnet_ip, mac, priv_param, add_host_param,  clone_fullname, clone_host, volume, 
-                    new_image_name, container.script)
+                    x11_ssh, new_image_name, container.script)
             logger.DEBUG("Command to execute was (%s)" % createsinglecommand)
             ps = subprocess.Popen(createsinglecommand, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             output = ps.communicate()
@@ -730,9 +759,9 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False, just_c
             image_exists, result, new_image_name = ImageExists(mycontainer_image_name, mycontainer_name, container.registry)
             if not image_exists:
                 cmd = 'docker pull %s/%s' % (container.registry, mycontainer_image_name)
+                logger.DEBUG('image did not exist, pull cmd is %s' % cmd)
                 ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
                 output = ps.communicate()
-                logger.DEBUG('image did not exist, pull cmd is %s' % cmd)
                 if len(output[1]) > 0:
                    logger.DEBUG("Command was (%s), result %s" % (cmd, output[1]))
                    force_this_build = True
