@@ -92,6 +92,22 @@ def get_ip_address(ifname):
         struct.pack('256s', ifname[:15])
     )[20:24])
 
+def get_hw_address(ifname):
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', ifname[:15]))
+    return ':'.join(['%02x' % ord(char) for char in info[18:24]])
+
+
+def get_new_mac(ifname):
+    ''' use last two byte of mac address to generate a new mac
+        intended for use on macvlan '''
+    preface = '02:43:ac:12'
+    my_mac = get_hw_address(ifname)
+    parts = my_mac.split(':')
+    p1 = parts[4]
+    p2 = parts[5]
+    full = '%s:%s:%s' % (preface, p1, p2)
+    return  full
 
 def isalphadashscore(name):
     # check name - alphanumeric,dash,underscore
@@ -177,16 +193,21 @@ def IsContainerCreated(mycontainer_name):
     logger.DEBUG("Result of subprocess.call IsContainerCreated is %s" % result)
     return retval
 
-def GetNetParam(mysubnet_ip, mycontainer_name):
+def GetNetParam(start_config, mysubnet_name, mysubnet_ip, mycontainer_name):
     ''' return the network address parameter and mac parameter for use in creating a container
         or connecting the container to a network.  Parse out mac address suffix if it exists,
         and adjust the ip address based on clone numbers if the address has a "+CLONE" suffix '''
     mac = ''
+    ip_param = ''
+    print('GetNetParam for %s' % mysubnet_name)
     if ':' in mysubnet_ip:
         mysubnet_ip, mac_addr = mysubnet_ip.split(':',1)
         mac = '--mac-address=%s' % mac_addr 
-    ip_param = ''
-    if mysubnet_ip.lower() != 'auto':
+    elif mysubnet_ip.lower() == 'auto_mac':
+        mac_addr = get_new_mac(start_config.subnets[mysubnet_name].macvlan)
+        print('GetNetParam has macvlan new_mac %s' % mac_addr)
+        mac = '--mac-address=%s' % mac_addr
+    if not mysubnet_ip.lower().startswith('auto'):
         if '+' in mysubnet_ip:
             ip, dumb = mysubnet_ip.split('+')
             name, role = mycontainer_name.rsplit('.',1)
@@ -207,9 +228,9 @@ def GetNetParam(mysubnet_ip, mycontainer_name):
             ip_param = '--ip=%s' % mysubnet_ip
     return ip_param, mac
 
-def ConnectNetworkToContainer(mycontainer_name, mysubnet_name, mysubnet_ip):
+def ConnectNetworkToContainer(start_config, mycontainer_name, mysubnet_name, mysubnet_ip):
     logger.DEBUG("Connecting more network subnet to container %s" % mycontainer_name)
-    ip_param, dumb = GetNetParam(mysubnet_ip, mycontainer_name)
+    ip_param, dumb = GetNetParam(start_config, mysubnet_name, mysubnet_ip, mycontainer_name)
     command = "docker network connect %s %s %s" % (ip_param, mysubnet_name, mycontainer_name)
     logger.DEBUG("Command to execute is (%s)" % command)
     result = subprocess.call(command, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -289,7 +310,7 @@ def GetX11SSH():
     #retval = '--env="DISPLAY" -v %s:%s -e XAUTHORITY="%s"' % (xauth, xauth, xauth)
     return retval 
 
-def CreateSingleContainer(container, mysubnet_name=None, mysubnet_ip=None):
+def CreateSingleContainer(start_config, container, mysubnet_name=None, mysubnet_ip=None):
     ''' create a single container -- or all clones of that container per the start.config '''
     logger.DEBUG("Create Single Container")
     retval = True
@@ -341,7 +362,7 @@ def CreateSingleContainer(container, mysubnet_name=None, mysubnet_ip=None):
         for clone_fullname in clone_names:
             clone_host = clone_names[clone_fullname]
             if mysubnet_name is not None:
-                subnet_ip, mac = GetNetParam(mysubnet_ip, clone_fullname)
+                subnet_ip, mac = GetNetParam(start_config, mysubnet_name, mysubnet_ip, clone_fullname)
             createsinglecommand = "docker create -t %s --cap-add NET_ADMIN %s %s %s %s %s --name=%s --hostname %s %s %s %s %s" % (dns_param, 
                     network_param, subnet_ip, mac, priv_param, add_host_param,  clone_fullname, clone_host, volume, 
                     x11_ssh, new_image_name, container.script)
@@ -389,7 +410,8 @@ def CreateSubnets(subnets):
             ip_range = ''
             net_type = 'bridge'
             if subnets[subnet_name].macvlan is not None:
-                iface = GetIface(subnets[subnet_name].macvlan)
+                #iface = GetIface(subnets[subnet_name].macvlan)
+                iface = subnets[subnet_name].macvlan
                 if iface is None or len(iface) == 0:
                     logger.ERROR("No IP assigned to network %s, assign an ip on Linux host to enable use of macvlan with Labtainers")
                     exit(1)
@@ -855,10 +877,10 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
             # Use CreateSingleContainer()
             containerCreated = False
             if len(container.container_nets) == 0:
-                containerCreated = CreateSingleContainer(container)
+                containerCreated = CreateSingleContainer(start_config, container)
             else:
                 mysubnet_name, mysubnet_ip = container.container_nets.popitem()
-                containerCreated = CreateSingleContainer(container, mysubnet_name, mysubnet_ip)
+                containerCreated = CreateSingleContainer(start_config, container, mysubnet_name, mysubnet_ip)
                 
             logger.DEBUG("CreateSingleContainer result (%s)" % containerCreated)
             if not containerCreated:
@@ -884,7 +906,7 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
         clone_names = GetContainerCloneNames(container)
         for mycontainer_name in clone_names:
             for mysubnet_name, mysubnet_ip in container.container_nets.items():
-                connectNetworkResult = ConnectNetworkToContainer(mycontainer_name, mysubnet_name, mysubnet_ip)
+                connectNetworkResult = ConnectNetworkToContainer(start_config, mycontainer_name, mysubnet_name, mysubnet_ip)
 
             # Start the container
             if not StartMyContainer(mycontainer_name):
