@@ -33,7 +33,8 @@ def main():
     parser.add_argument('labname', help='The lab to build')
     parser.add_argument('-f', '--force', action='store_true', help='force build')
     parser.add_argument('-p', '--prompt', action='store_true', help='prompt for email, otherwise use stored')
-    parser.add_argument('-c', '--container', action='store', help='force rebuild just this container')
+    parser.add_argument('-C', '--force_container', action='store', help='force rebuild just this container')
+    parser.add_argument('-c', '--run_container', action='store', help='run just this container')
     parser.add_argument('-t', '--test_registry', action='store_true', default=False, help='build and publish with test registry')
 
     args = parser.parse_args()
@@ -58,7 +59,8 @@ def main():
             os.environ['TEST_REGISTRY'] = 'TRUE'
         print('set TEST REG to %s' % os.getenv('TEST_REGISTRY'))
 
-    labutils.RebuildLab(lab_path, "student", force_build=force_build, quiet_start=quiet_start, just_container=args.container)
+    labutils.RebuildLab(lab_path, "student", force_build=force_build, quiet_start=quiet_start, 
+          just_container=args.force_container, run_container=args.run_container)
 
     return 0
 
