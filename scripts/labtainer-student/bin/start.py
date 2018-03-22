@@ -38,6 +38,7 @@ def main():
     parser.add_argument('labname', help='The lab to run')
     parser.add_argument('-c', '--run_container', action='store', help='run just this container')
     parser.add_argument('-q', '--quiet', action='store_true', help='Do not prompt for email, use previoulsy supplied email.')
+    parser.add_argument('-s', '--servers', action='store_true', help='Intended for distributed Labtainers, start the containers that are not clients.')
     try:
         args = parser.parse_args()
     except SystemExit:
@@ -74,7 +75,7 @@ def main():
         ''' for prepackaged VMs, do not auto update after first lab is run '''
         os.remove(update_flag)
     #print('lab_path is %s' % lab_path)
-    labutils.StartLab(lab_path, "student", quiet_start=args.quiet, run_container=args.run_container)
+    labutils.StartLab(lab_path, "student", quiet_start=args.quiet, run_container=args.run_container, servers=args.servers)
 
     return 0
 
