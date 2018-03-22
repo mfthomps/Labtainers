@@ -734,16 +734,17 @@ def GetBothConfigs(lab_path, role, logger):
     start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, labtainer_config, logger)
     return labtainer_config, start_config
 
-def RebuildLab(lab_path, role, is_regress_test=None, force_build=False, quiet_start=False, just_container=None, run_container=None):
+def RebuildLab(lab_path, role, is_regress_test=None, force_build=False, quiet_start=False, 
+               just_container=None, run_container=None, servers=False):
     # Pass 'True' to ignore_stop_error (i.e., ignore certain error encountered during StopLab
     #                                         since it might not even be an error)
-    StopLab(lab_path, role, True, run_container)
+    StopLab(lab_path, role, True, run_container, servers)
     logger.DEBUG('Back from StopLab')
     labtainer_config, start_config = GetBothConfigs(lab_path, role, logger)
     
     DoRebuildLab(lab_path, role, is_regress_test=is_regress_test, force_build=force_build, 
                  just_container=just_container, start_config = start_config, 
-                 labtainer_config = labtainer_config, run_container=run_container)
+                 labtainer_config = labtainer_config, run_container=run_container, servers=servers)
 
     # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
     host_home_xfer = labtainer_config.host_home_xfer
@@ -751,10 +752,10 @@ def RebuildLab(lab_path, role, is_regress_test=None, force_build=False, quiet_st
     host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
     CreateHostHomeXfer(host_xfer_dir)
     is_watermark_test = True
-    DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start, run_container)
+    DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start, run_container, servers)
 
 def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False, just_container=None, 
-                 start_config=None, labtainer_config=None, run_container=None):
+                 start_config=None, labtainer_config=None, run_container=None, servers=False):
     retval = set()
     labname = os.path.basename(lab_path)
     is_valid_lab(lab_path)
@@ -1100,8 +1101,19 @@ def ContainerTerminals(lab_path, start_config, container, role, terminal_count, 
                     os.system(spawn_command)
     return terminal_count
 
+def SkipContainer(run_container, name, start_config, servers):
+    if run_container is not None and name != run_container:
+        return True
+    if start_config.client is not None:
+        if servers:
+            if name == start_config.client:
+                return True
+        else:
+            if name != start_config.client:
+                return True
+    return False
 
-def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start, run_container):
+def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start, run_container, servers):
     labname = os.path.basename(lab_path)
     logger.DEBUG("DoStart Multiple Containers and/or multi-home networking")
 
@@ -1137,7 +1149,7 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
     for name, container in start_config.containers.items():
         if is_regress_test and container.full_name != start_config.grade_container:
             continue
-        if run_container is not None and name != run_container:
+        if SkipContainer(run_container, name, start_config, servers):
             continue
 
         if has_multi_container and container_warning_printed == False:
@@ -1155,7 +1167,7 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
         logger.DEBUG('joined %s' % t.getName())
 
     if False in results:
-        DoStop(start_config, labtainer_config, lab_path, role, False, is_regress_test, run_container)
+        DoStop(start_config, labtainer_config, lab_path, role, False, is_regress_test, run_container, servers)
         logger.ERROR('DoStartOne has at least one failure!')
         sys.exit(1)
 
@@ -1188,7 +1200,7 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
         # Do not spawn terminal if it is regression testing
         if is_regress_test:
             continue
-        if run_container is not None and name != run_container:
+        if SkipContainer(run_container, name, start_config, servers):
             continue
         terminal_count = ContainerTerminals(lab_path, start_config, container, role, terminal_count, terminal_groups)
 
@@ -1284,7 +1296,7 @@ def CopyChownGradesFile(start_config, labtainer_config, name, container_name, co
         return
 
 def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=False, is_watermark_test=True, quiet_start=False,
-             run_container=None):
+             run_container=None, servers=False):
     labname = os.path.basename(lab_path)
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
@@ -1303,7 +1315,7 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
     ''' hackey assumption about running from labtainers-student or labtainers-instructor '''
     container_bin = './bin'
     for name, container in start_config.containers.items():
-        if run_container is not None and name != run_container:
+        if SkipContainer(run_container, name, start_config, servers):
             continue
         mycontainer_name       = container.full_name
         mycontainer_image_name = container.image_name
@@ -1338,7 +1350,7 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
     host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
     CreateHostHomeXfer(host_xfer_dir)
 
-    DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start, run_container)
+    DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start, run_container, servers=servers)
 
 def DateIsLater(df_utc_string, ts, local=False, debug=False):
     parts = df_utc_string.split('.')
@@ -2174,21 +2186,21 @@ def DoStopOne(start_config, labtainer_config, lab_path, role, name, container, Z
         # IsContainerCreated returned FAILURE if container does not exists
         # error: can't stop non-existent container
         if not haveContainer:
-            if ignore_stop_error:
+            if ignore_stop_error or (start_config.client is not None):
                 logger.DEBUG("Container %s does not exist!\n" % mycontainer_name)
             else:
                 logger.ERROR("Container %s does not exist!\n" % mycontainer_name)
-            retval = False
+                retval = False
 
         else:
             clone_names = GetContainerCloneNames(container)
             for mycontainer_name in clone_names:
                 if not IsContainerRunning(mycontainer_name):
-                    if ignore_stop_error:
+                    if ignore_stop_error or start_config.client is not None:
                         logger.DEBUG("container %s not running\n" % (mycontainer_name))
                     else:
                         logger.ERROR("container %s not running\n" % (mycontainer_name))
-                    retval = False
+                        retval = False
                     continue
                 if role == 'instructor':
                     if mycontainer_name == start_config.grade_container:
@@ -2216,7 +2228,7 @@ def DoStopOne(start_config, labtainer_config, lab_path, role, name, container, Z
 
         results.append(retval)
 
-def DoStop(start_config, labtainer_config, lab_path, role, ignore_stop_error, is_regress_test=None, run_container=None):
+def DoStop(start_config, labtainer_config, lab_path, role, ignore_stop_error, is_regress_test=None, run_container=None, servers=False):
     mycwd = os.getcwd()
     retval = True
     labname = os.path.basename(lab_path)
@@ -2311,7 +2323,7 @@ def DoStop(start_config, labtainer_config, lab_path, role, ignore_stop_error, is
 # ignore_stop_error - set to 'False' : do not ignore error
 # ignore_stop_error - set to 'True' : ignore certain error encountered since it might not even be an error
 #                                     such as error encountered when trying to stop non-existent container
-def StopLab(lab_path, role, ignore_stop_error, is_regress_test=None, run_container=None):
+def StopLab(lab_path, role, ignore_stop_error, is_regress_test=None, run_container=None, servers=False):
     labname = os.path.basename(lab_path)
     myhomedir = os.environ['HOME']
     logger.DEBUG("ParseStartConfig for %s" % labname)
@@ -2323,7 +2335,7 @@ def StopLab(lab_path, role, ignore_stop_error, is_regress_test=None, run_contain
     host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
     CreateHostHomeXfer(host_xfer_dir)
 
-    if DoStop(start_config, labtainer_config, lab_path, role, ignore_stop_error, is_regress_test, run_container):
+    if DoStop(start_config, labtainer_config, lab_path, role, ignore_stop_error, is_regress_test, run_container, servers):
         # Inform user where results are stored
         print "Results stored in directory: %s" % host_xfer_dir
     return host_xfer_dir
