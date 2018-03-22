@@ -60,7 +60,7 @@ else
     ORIG_PWD=`pwd`
     echo $ORIG_PWD
     LAB_TAR=$LAB_DIR/$labimage.tar.gz
-    SYS_TAR=$LAB_DIR/sys_$labimage.tar.gz
+    SYS_TAR=$LAB_DIR/sys_$labimage.tar
     TMP_DIR=/tmp/$labimage
     rm -rf $TMP_DIR
     mkdir $TMP_DIR
@@ -80,14 +80,17 @@ else
     mkdir $TMP_DIR/.local/result
     if [ -d $LABIMAGE_DIR/_system ]; then
         cd $LABIMAGE_DIR/_system
-        tar --atime-preserve -zcvf $SYS_TAR . > $TMP_DIR/.local/sys_manifest.list
+        tar --atime-preserve -cvf $SYS_TAR . > $TMP_DIR/.local/sys_manifest.list
     else
         echo nothing at $LABIMAGE_DIR/_system
         # make empty tar
         mkdir $LABIMAGE_DIR/_system
         cd -p $LABIMAGE_DIR/_system
-        tar --atime-preserve -zcvf $SYS_TAR .
+        tar --atime-preserve -cvf $SYS_TAR .
     fi
+    cd $ORIG_PWD/lab_sys
+    tar --append --file=$SYS_TAR * 
+    gzip -f $SYS_TAR
     # do after sys so we get manifest
     cd $TMP_DIR
     tar --atime-preserve -zcvf $LAB_TAR .
