@@ -50,6 +50,9 @@ def main():
     os.chdir(StudentHomeDir)
     student_email_file=os.path.join(HomeLocal, '.email')
     lab_name_file=os.path.join(HomeLocal, '.labname')
+    if not os.path.isfile(student_email_file):
+        print('No email file at %s, exit.' % student_email_file)
+        return 1
     fh = open(student_email_file)
     student_email = fh.read().strip()
     fh.close()
