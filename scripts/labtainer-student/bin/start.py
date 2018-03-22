@@ -15,6 +15,7 @@ import LabtainerLogging
 import os
 import pydoc
 import platform
+import argparse
 
 # Filename: start.py
 # Description:
@@ -33,14 +34,19 @@ def main():
     dir_path = dir_path[:dir_path.index("scripts/labtainer-student")]	
     path = dir_path + "labs/"
     dirs = os.listdir(path)
-    num_args = len(sys.argv)
-    if num_args < 2 or num_args > 3:
-        description = ''
-        description += "Usage: start.py <labname> [-q]\n"
-        description +="   -q will load the lab using a previously supplied email.\n"
-#	tell user list of lesson/folder names in "/labtainer/trunk/labs/"
-	description+="List of available labs:\n\n"
-	for loc in sorted(dirs):
+    parser = argparse.ArgumentParser(description='Start a Labtainers lab.  Provide no arguments see a list of labs.')
+    parser.add_argument('labname', help='The lab to run')
+    parser.add_argument('-c', '--run_container', action='store', help='run just this container')
+    parser.add_argument('-q', '--quiet', action='store_true', help='Do not prompt for email, use previoulsy supplied email.')
+    try:
+        args = parser.parse_args()
+    except SystemExit:
+        num_args = len(sys.argv)
+        if num_args < 2: 
+            description = ''
+            description += 'Start a Labtainers lab\n'
+    	    description+="List of available labs:\n\n"
+	    for loc in sorted(dirs):
                 description = description+'\n  '+loc
 		aboutFile = path + loc + "/config/about.txt"
 		if(os.path.isfile(aboutFile)):
@@ -50,18 +56,15 @@ def main():
                             description += line
                 else:
                     description += "\n"
-        #sys.stderr.write(description)
-        pydoc.pager(description)
+            #sys.stderr.write(description)
+            pydoc.pager(description)
         sys.exit(1)
     
-    labname = sys.argv[1]
-    if num_args == 2 and labname not in dirs:
+    labname = args.labname
+    if labname not in dirs:
         sys.stderr.write("ERROR: Lab named %s was not found!\n" % labname)
         sys.exit(1)
 
-    quiet_start = False
-    if num_args == 3 and sys.argv[2] == '-q':
-        quiet_start = True
     
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
     labutils.logger.INFO("Begin logging start.py for %s lab" % labname)
@@ -71,7 +74,7 @@ def main():
         ''' for prepackaged VMs, do not auto update after first lab is run '''
         os.remove(update_flag)
     #print('lab_path is %s' % lab_path)
-    labutils.StartLab(lab_path, "student", quiet_start=quiet_start)
+    labutils.StartLab(lab_path, "student", quiet_start=args.quiet, run_container=args.run_container)
 
     return 0
 
