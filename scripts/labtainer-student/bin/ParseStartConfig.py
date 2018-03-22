@@ -29,6 +29,7 @@ class ParseStartConfig():
         self.host_home_xfer= "" # HOST_HOME_XFER - directory to transfer artifact to/from containers
         self.lab_master_seed= None # LAB_MASTER_SEED - this is the master seed string for to this laboratory
         self.grade_container = None # GRADE_CONTAINER - this is where the instructor performs the grading
+        self.client = None # Used for distributed labtainers, indicates which container is the client
         self.logger = logger
         self.fname = fname
         self.skip_networks = skip_networks
