@@ -36,6 +36,7 @@ def main():
     parser.add_argument('-C', '--force_container', action='store', help='force rebuild just this container')
     parser.add_argument('-c', '--run_container', action='store', help='run just this container')
     parser.add_argument('-t', '--test_registry', action='store_true', default=False, help='build and publish with test registry')
+    parser.add_argument('-s', '--servers', action='store_true', help='Start containers that are not clients -- intended for distributed Labtainers')
 
     args = parser.parse_args()
     quiet_start = True
@@ -60,7 +61,7 @@ def main():
         print('set TEST REG to %s' % os.getenv('TEST_REGISTRY'))
 
     labutils.RebuildLab(lab_path, "student", force_build=force_build, quiet_start=quiet_start, 
-          just_container=args.force_container, run_container=args.run_container)
+          just_container=args.force_container, run_container=args.run_container, servers=args.servers)
 
     return 0
 
