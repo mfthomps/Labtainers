@@ -90,7 +90,7 @@ class ParseStartConfig():
                         if adjust.lower() != 'clone':
                             self.logger.ERROR('bad adjustment syntax for network definition of %s, expected "CLONE", got %s' % (name, adjust))
                             exit(1)
-                    if addr != 'auto':
+                    if addr != 'auto' and addr != 'auto_mac':
                         try:
                             IPAddress(addr)
                         except :
