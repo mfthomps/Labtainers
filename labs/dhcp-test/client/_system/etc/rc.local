@@ -1,2 +1,2 @@
 #!/bin/bash
-/sbin/mydhcp eth0
+/sbin/dhclient-labtainer eth0
