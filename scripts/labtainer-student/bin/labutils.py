@@ -117,25 +117,11 @@ def isalphadashscore(name):
 def getDocker0IPAddr():
     return get_ip_address('docker0')
 
-def HackFixes(mycontainer_name, container_user):
-    #cmd = 'sudo cp /home/%s/.local/bin/capinout.sh /sbin/' % (container_user)
-    loc = '/home/%s/.local/bin/capinout.sh' % (container_user)
-
-    command=['docker', 'exec', '-i',  mycontainer_name, 'sudo', 'cp', loc, '/sbin/']
-    logger.DEBUG("About to call : %s" % str(command))
-    #return retval 
-    child = subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    error_string = child.stderr.read()
-    if len(error_string) > 0:
-        for line in error_string.splitlines(True):
-            logger.DEBUG(line)
-    out_string = child.stdout.read().strip()
-    if len(out_string) > 0:
-        logger.DEBUG('HackFixes %s' % out_string)
-
 # Parameterize my_container_name container
 def ParameterizeMyContainer(mycontainer_name, container_user, container_password, lab_instance_seed, user_email, labname):
     retval = True
+    ''' copy lab_bin and lab_sys files into .local/bin and / respectively '''
+    CopyLabBin(mycontainer_name, container_user)
     cmd_path = '/home/%s/.local/bin/parameterize.sh' % (container_user)
     if container_password == "":
         container_password = container_user
@@ -154,7 +140,6 @@ def ParameterizeMyContainer(mycontainer_name, container_user, container_password
     out_string = child.stdout.read().strip()
     if len(out_string) > 0:
         logger.DEBUG('ParameterizeMyContainer %s' % out_string)
-    HackFixes(mycontainer_name, container_user)
     return retval
 
 # Start my_container_name container
@@ -608,6 +593,22 @@ def CopyAssessBin(mycontainer_name, container_user):
         logger.ERROR("Failed copy assess_bin %s!\n" % mycontainer_name)
         sys.exit(1)
 
+def CopyLabBin(mycontainer_name, container_user):
+    command = 'docker cp lab_bin/.  %s:/home/%s/.local/bin/' % (mycontainer_name, container_user)
+    logger.DEBUG("Command to execute is (%s)" % command)
+    result = subprocess.call(command, shell=True)
+    logger.DEBUG("Result of subprocess.call %s" % (result))
+    if result == FAILURE:
+        logger.ERROR("Failed copy lab_bin %s!\n" % mycontainer_name)
+        sys.exit(1)
+    command = 'docker cp lab_sys/.  %s:/' % (mycontainer_name)
+    logger.DEBUG("Command to execute is (%s)" % command)
+    result = subprocess.call(command, shell=True)
+    logger.DEBUG("Result of subprocess.call %s" % (result))
+    if result == FAILURE:
+        logger.ERROR("Failed copy lab_sys %s!\n" % mycontainer_name)
+        sys.exit(1)
+
 # Copy Students' Artifacts from host to instructor's lab container
 def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_user, container_password, is_regress_test, is_watermark_test):
     # Set the lab name 
@@ -738,7 +739,7 @@ def RebuildLab(lab_path, role, is_regress_test=None, force_build=False, quiet_st
                just_container=None, run_container=None, servers=False):
     # Pass 'True' to ignore_stop_error (i.e., ignore certain error encountered during StopLab
     #                                         since it might not even be an error)
-    StopLab(lab_path, role, True, run_container, servers)
+    StopLab(lab_path, role, True, run_container=run_container, servers=servers)
     logger.DEBUG('Back from StopLab')
     labtainer_config, start_config = GetBothConfigs(lab_path, role, logger)
     
@@ -1634,17 +1635,17 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
                                 break
                     if retval:
                         break
-
-    if not retval and container_bin is not None:
-        all_bin_files = os.listdir(container_bin)
-        for f in all_bin_files:
-            if f.endswith('.swp'):
-                continue
-            f_path = os.path.join(container_bin, f)
-            if FileModLater(ts, f_path):
-               logger.WARNING('container_bin %s is later, will build %s' % (f_path, name))
-               retval = True
-               break
+    
+    #if not retval and container_bin is not None:
+    #    all_bin_files = os.listdir(container_bin)
+    #    for f in all_bin_files:
+    #        if f.endswith('.swp'):
+    #            continue
+    #        f_path = os.path.join(container_bin, f)
+    #        if FileModLater(ts, f_path):
+    #           logger.WARNING('container_bin %s is later, will build %s' % (f_path, name))
+    #           retval = True
+    #           break
 
     ''' instructor-specific files.  NOTE: assess_bin is copied at runtime '''
     if not retval and role == 'instructor':
@@ -1678,7 +1679,7 @@ def RedoLab(lab_path, role, is_regress_test=None, force_build=False, is_watermar
     myhomedir = os.environ['HOME']
     # Pass 'True' to ignore_stop_error (i.e., ignore certain error encountered during StopLab
     #                                         since it might not even be an error)
-    StopLab(lab_path, role, True, is_regress_test)
+    StopLab(lab_path, role, True, is_regress_test=is_regress_test)
     is_redo = True
     StartLab(lab_path, role, is_regress_test, force_build, is_redo=is_redo, is_watermark_test=is_watermark_test, quiet_start=quiet_start)
 
@@ -1837,7 +1838,7 @@ def WatermarkTest(lab_path, role, standard, isFirstRun=False):
             RunInstructorCreateGradeFile(start_config.grade_container, container_user, labname, is_watermark_test)
 
     # Pass 'False' to ignore_stop_error (i.e., do not ignore error)
-    result_xfer = StopLab(lab_path, role, False, is_regress_test)
+    result_xfer = StopLab(lab_path, role, False, is_regress_test=is_regress_test)
     logger.DEBUG('result_xfer is %s' % result_xfer)
 
     # Give the container some time to copy the result out -- just in case
@@ -1888,7 +1889,7 @@ def RegressTest(lab_path, role, standard, isFirstRun=False):
             RunInstructorCreateGradeFile(start_config.grade_container, container_user, labname, is_watermark_test)
 
     # Pass 'False' to ignore_stop_error (i.e., do not ignore error)
-    result_xfer = StopLab(lab_path, role, False, is_regress_test)
+    result_xfer = StopLab(lab_path, role, False, is_regress_test=is_regress_test)
     logger.DEBUG('result_xfer is %s' % result_xfer)
 
     # Give the container some time to copy the result out -- just in case
@@ -2243,6 +2244,7 @@ def DoStop(start_config, labtainer_config, lab_path, role, ignore_stop_error, is
     results = []
     for name, container in start_config.containers.items():
         if run_container is not None and name != run_container:
+            print('not for me %s ' % run_container)
             continue
         mycontainer_name = '%s.%s.%s' % (labname, container.name, role)
         if is_regress_test and mycontainer_name != start_config.grade_container:
@@ -2256,7 +2258,7 @@ def DoStop(start_config, labtainer_config, lab_path, role, ignore_stop_error, is
         t.setName(name)
         t.start()
       
-    logger.DEBUG('started all')
+    logger.DEBUG('stopped all')
     for t in threads:
         t.join()
         logger.DEBUG('joined %s' % t.getName())
