@@ -60,7 +60,7 @@ else
     ORIG_PWD=`pwd`
     echo $ORIG_PWD
     LAB_TAR=$LAB_DIR/$labimage.tar.gz
-    SYS_TAR=$LAB_DIR/sys_$labimage.tar
+    SYS_TAR=$LAB_DIR/sys_$labimage.tar.gz
     TMP_DIR=/tmp/$labimage
     rm -rf $TMP_DIR
     mkdir $TMP_DIR
