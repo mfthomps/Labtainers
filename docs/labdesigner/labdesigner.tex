@@ -381,6 +381,9 @@ address to create an instance seed that controls parameterization of individual 
 See \ref{publishing} for details on the use of this keyword.
 \item COLLECT\_DOCS [yes/no] -- Optional directive to collect lab/docs content as part of student artifacts.
 These are then available to the instructor in the labtainer\_xfer/[lab]/docs directory.  Also see \ref{instructions}.
+\item CLIENT [container name] -- Intended for use with distribute Labtainers, this field identifies which of the lab's 
+containers is the client.  The {\tt start.py} fuction will start only this container, unless the {\tt -s} option is provided,
+in which case every container except this one will be started.
 \end{itemize}
 
 \item NETWORK [network name] -- One of these sections is require for each network within the lab.  In addition to
@@ -392,10 +395,11 @@ providing a name for the network, the following values are defined:
 host.  Please note that to define a different network gateway for the component, you should 
 use the {\tt set\_default\_gw.sh}.  This GATEWAY field should not name the IP of any of your other components.  
 See the the {\tt routing\_basics2} lab for examples.
-\item MACVLAN [IP prefix] -- Optional, causes the Docker network driver to create and use a macvlan tied to the ethernet
-interface to which the given IP prefix is assigned.  This will cause the network devices to be placed 
-in promiscuous mode.  These types of interfaces can be used to communicate with external hosts, e.g., other VMs
-as described in \ref{external hosts}
+\item MACVLAN [device] -- Optional, causes the Docker network driver to create and use a macvlan tied to the given ethernet
+interface.  The network device is expected to be a ``host-only'' VM network adaptor that is configure in promiscuous mode.
+The network adaptor itself also needs to be placed in primiscous mode on the Linux VM, e.g., using ``sudo ifconfig enp0s8 promisc.''
+These types of interfaces can be used to communicate with external hosts, e.g., other VMs
+as described in \ref{external hosts}  
 \item IP\_RANGE [range] -- Optional, allocates an ip range to the network, e.g., 192.168.1.4/30
 \end{itemize}
 
@@ -424,10 +428,18 @@ This defaults to ``ubuntu.''
 This defaults to the user name defined above.
 \item network name [ip address] -- Network address assignments for each network (defined via a NETWORK section), 
 that is to be connected to this container.  A separate line should be entered for each network.  The given ip address 
-can optionally include a MAC address assignment as a suffix following a colon, e.g., "172.25.0.1:2:34:ac:19:0:2".
-If {\tt AUTO} is provided as the address, an address is chosen for you from the subnet range.  When the {\tt CLONE}
-option is used (as defined below), then the address should either be {\tt AUTO}, or append a suffix of {\tt +CLONE} to
-the address to cause each clone to be assigned a sequence of addresses starting with the given address.
+can be one of the following:
+\begin{itemize}
+\item An IP address 
+\item An IP address with an optional MAC address assignment as a suffix following a colon, e.g., "172.25.0.1:2:34:ac:19:0:2".
+\item An IP address with an optional clone offset, e.g., "172.25.0.1+CONE" to cause each clone to be assigned a sequence
+of addresses starting with the given address.
+\item If {\tt AUTO} is provided as the address, an address is chosen for you from the subnet range.  When the {\tt CLONE}
+option is used for the container(as defined below), then the address should either be {\tt AUTO}, or the suffix of {\tt +CLONE}
+\item {\tt AUTO\_DHCP} directs the system to generate a MAC address whose last four bytes match those of the host network interface.
+This is intended for use with MACVLAN networks and distributed Labtainers in which client containers run on individual VMs allocated
+to each student.
+\end{itemize}
 \item SCRIPT [script] -- Optional script to provide to the Docker create command, defaults to ``bash''.  This must be set to
 ``NONE'' for CentOS-based labs (and likely fedora[test that]).
 \item ADD-HOST [host:ip] -- Optional addition to the /etc/host file, a container may have multiple ADD-HOST entries.
@@ -1424,6 +1436,8 @@ NETWORK  LAN
 \label{fig:external hosts}
 \end{figure}
 
+\subsection{Distributed Labtainers}
+
 
 \section{Building, Maintaining and Publishing Labs} \label{publishing}
 Typically, when a Labtainer is started, the container's associated Docker images are pulled from
@@ -1614,6 +1628,20 @@ In particular, you will need the {\tt bin/student\_startup.sh} script, and the {
 
 \subsection{Networking Notes}
 \label{Networking Notes}
+\subsubsection{SSH}
+The labtainer.network baseline dockerfile includes the following:
+\begin{verbatim}
+ADD system/var/run/sshd /var/run/sshd
+RUN sudo chmod 0755 /var/run/sshd
+\end{verbatim}
+
+\subsubsection{X11 over SSH}
+The scripts/designer/system/etc/ssh/sshd\_conf allows X11 tunneling over ssh, e.g.,
+from a remote VM connected to the same host-only lan as a container running the GUI
+application.  Use {\tt ssh -X container\_ip} to enable X11 tunneling in the ssh session.
+
+\noindent to allow sshd to run on an Ubuntu system. Include that if you are creating
+other baselines, or images derived from non-Labtainer images.
 \subsubsection{Traffic mirroring}
 Send copies of traffic from one ethernet port to another using the iptables TEE operation, e.g.,
 \begin{verbatim}
@@ -1649,7 +1677,86 @@ delete the Docker-generated route:
 the dnsmasq utility.  The /etc/rc.local script generally sets the default gateway, and configures iptables.
 
 \subsection {Multi-user Labtainers}
-TBD.  See use of Clone option.
+Labtainers can be installed on a server, e.g., a VM, to allow multiple students to work together on the
+same lab.  Labtainers does not yet include any labs intended for multi-user environments, however it does
+offer support for such environments.  For simplicity, we assume that multi-user labs will take one of two
+different forms:  1) All containers on one VM, or 2) Each student is allocated a VM on a VM farm, and some other
+VM on that farm will host the shared components.
+
+\subsubsection {Single VM with multiple students}
+In this approach all the Labtainer containers will run on a single VM.  External hosts, e.g., Windows VMs can be 
+supported as described in \ref{external hosts}.
+This example describes a Labtainer exercise in which each
+student is allocated their own container workstation, and these workstations are networked with shared infrastructure, e.g.,
+vulnerable servers.
+The Labtainer containers are all running on a single Linux VM.  Students are assumed to have access to one or more other
+VMs hosted on the same VMM as the VM that hosts Labtainers.  Pick a ``client subnet'' that will be used by student to 
+SSH into their container workstations.
+
+Create a ``host-only'' network and allocate it to each of the student VMs (typically as an additional network interface).
+Enable a DHCP server for that host-only VM, or otherwise configure them so that each is allocated an IP address in the
+client subnet.
+
+Allocate the host-only network to the Labtainer VM, and set it in promiscuous mode, and disable the network at the IPv4 level,
+e.g., in the Network Manager.  Set the interface in promiscuous mode from within the Linux host:
+\begin{verbatim}
+    sudo ifconfig ethx promisc
+\end{verbatim} 
+
+\textbf {Allocate a ``workstation'' container for each student}
+Use the {\tt CLONE} setting as described in section \ref{start config} to
+create multiple copies of a single container, e.g., the workstation that each student
+uses to individually access the shared infrastructure.   
+Define a MACVLAN network on the client subnet in the start.config file.
+
+Assign network addresses to the
+student container using the {\tt +CLONE} syntax described in \ref{start config}.  
+The ``workstation'' component should be defined to include a SSH server, e.g., in
+its Dockerfile.
+
+\textbf {Password management}
+Assuming you'd like to allocate each student a unique (insecure) password for purposes of
+further ensuring the student does not accidently start some other student's workstation put
+this in the workstation's \_bin/fixlocal.sh file:
+\begin{verbatim}
+newpwd=studentCLONE\_NUM
+user=$2
+/usr/bin/passwd $user <<EOF
+$1
+$newpwd
+$newpwd
+EOF
+\end{verbatim}
+
+\noindent And, this in the labs/multilab/config/parameter.config
+\begin{verbatim}
+PASSWD : CLONE_REPLACE : .local/bin/fixlocal.sh : CLONE_NUM : CLONE
+\end{verbatim}
+
+Once the Labtainer is started, students should then be able to ssh into their
+respective workstations (containers) using the allocated IP address.
+
+The kali-test lab is an example.
+
+\subsubsection {Distributed Labtainers, one VM per student}
+In this approach, each student is assumed to have been allocated an
+individual VM,
+and the student has access to that VM, e.g., via ssh or Vsphere.  The
+remaining containers, e.g., vulnerable servers, all run on a single VM.
+
+Define a host-only network and allocate it to each Labtainers VM.  Be sure
+to disable the IPv4 networking for this network on each Labtainers VM, and
+set the network interface to promisuous mode.
+
+Define a MACVLAN network on the client subnet in the start.config file.
+Use the "CLIENT" setting in the start.config to name the container that will
+be used by each student. Use the {\tt AUTO\_DHCP} network address option 
+for the student container.   Include a dhcp server as one of your containers,
+e.g., per the dhcp-client lab.  Put this in the workstation /etc/rc.local:
+\begin{verbatim}
+/sbin/dhclient-labtainer eth0
+\end{verbatim}
+
 
 \subsection {Container isolation}
 Docker provides namespace isolation between different containers, and
