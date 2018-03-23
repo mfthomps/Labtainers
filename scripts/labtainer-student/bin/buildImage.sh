@@ -65,8 +65,9 @@ else
     rm -rf $TMP_DIR
     mkdir $TMP_DIR
     mkdir $TMP_DIR/.local
+    mkdir $TMP_DIR/.local/bin
     cp -pr $LAB_DIR/config $TMP_DIR/.local/ 2>>/dev/null
-    cp -pr lab_bin/ $TMP_DIR/.local/bin  2>>/dev/null
+    #cp -pr lab_bin/ $TMP_DIR/.local/bin  2>>/dev/null
     cp -p $LAB_DIR/bin/* $TMP_DIR/.local/bin 2>>/dev/null
     chmod a+x $TMP_DIR/.local/bin/* 2>>/dev/null
     cp -p $LABIMAGE_DIR/_bin/* $TMP_DIR/.local/bin 2>>/dev/null
@@ -80,17 +81,17 @@ else
     mkdir $TMP_DIR/.local/result
     if [ -d $LABIMAGE_DIR/_system ]; then
         cd $LABIMAGE_DIR/_system
-        tar --atime-preserve -cvf $SYS_TAR . > $TMP_DIR/.local/sys_manifest.list
+        tar --atime-preserve -czvf $SYS_TAR . > $TMP_DIR/.local/sys_manifest.list
     else
         echo nothing at $LABIMAGE_DIR/_system
         # make empty tar
         mkdir $LABIMAGE_DIR/_system
         cd -p $LABIMAGE_DIR/_system
-        tar --atime-preserve -cvf $SYS_TAR .
+        tar --atime-preserve -czvf $SYS_TAR .
     fi
-    cd $ORIG_PWD/lab_sys
-    tar --append --file=$SYS_TAR * 
-    gzip -f $SYS_TAR
+    #cd $ORIG_PWD/lab_sys
+    #tar --append --file=$SYS_TAR * 
+    #gzip -f $SYS_TAR
     # do after sys so we get manifest
     cd $TMP_DIR
     tar --atime-preserve -zcvf $LAB_TAR .
