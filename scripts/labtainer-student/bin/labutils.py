@@ -1614,10 +1614,7 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
     if not retval:
         param_file = os.path.join(lab_path, 'config', 'parameter.config')
         if os.path.isfile(param_file):
-            ppath = 'lab_bin/ParameterParser.py'
-            if role == 'instructor':
-                ppath = '../labtainer-student/%s' % ppath
-            if FileModLater(ts, param_file) or FileModLater(ts, ppath):
+            if FileModLater(ts, param_file):
               logger.DEBUG('%s is later, see if container is named' % param_file)
               with open(param_file) as param_fh:
                 for line in param_fh:
@@ -1630,7 +1627,7 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
                         # look for container, or lack of any container qualifier in file name
                         if fname != 'start.config':
                             if fname.startswith(container_name+':') or role == 'instructor' or len(parts)<3 or ':' not in fname:
-                                logger.WARNING('%s (or the script) is later and %s mentioned in it, will build' % (param_file, container_name))
+                                logger.WARNING('%s is later and %s mentioned in it, will build' % (param_file, container_name))
                                 retval = True
                                 break
                     if retval:
