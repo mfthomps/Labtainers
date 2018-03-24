@@ -192,21 +192,30 @@ def GetNetParam(start_config, mysubnet_name, mysubnet_ip, mycontainer_name):
         mac = '--mac-address=%s' % mac_addr
     if not mysubnet_ip.lower().startswith('auto'):
         if '+' in mysubnet_ip:
-            ip, dumb = mysubnet_ip.split('+')
-            name, role = mycontainer_name.rsplit('.',1)
-            dumb, offset = name.rsplit('-', 1)
-            try:
-                offset_int = int(offset) 
-            except:
-                logger.ERROR('expected use of clone, but did not find clone counter in %s' % mycontainer_name)
-                exit(1)
-            ip_start, ip_suffix = ip.rsplit('.', 1)
-            ip_suffix_int = int(ip_suffix)
-            new_suffix = ip_suffix_int + offset_int - 1
-            if new_suffix > 254:
-                logger.ERROR('IP address adjusted to invalid value %d %s' % (new_suffix, mysubnet_ip))
-                exit(1)
-            ip_param = '--ip=%s.%d' % (ip_start, new_suffix)
+            ip, clone_type = mysubnet_ip.split('+')
+            if clone_type.lower() == 'clone' or start_config.multi_user == 'clones':
+                name, role = mycontainer_name.rsplit('.',1)
+                dumb, offset = name.rsplit('-', 1)
+                try:
+                    offset_int = int(offset) 
+                except:
+                    logger.ERROR('expected use of clone, but did not find clone counter in %s' % mycontainer_name)
+                    exit(1)
+                ip_start, ip_suffix = ip.rsplit('.', 1)
+                ip_suffix_int = int(ip_suffix)
+                new_suffix = ip_suffix_int + offset_int - 1
+                if new_suffix > 254:
+                    logger.ERROR('IP address adjusted to invalid value %d %s' % (new_suffix, mysubnet_ip))
+                    exit(1)
+                ip_param = '--ip=%s.%d' % (ip_start, new_suffix)
+            elif clone_type.lower() == 'clone_mac':
+                # assuming we are a multiuser client
+                mac_addr = get_new_mac(start_config.subnets[mysubnet_name].macvlan)
+                mac = '--mac-address=%s' % mac_addr
+
+            else:
+                ip_param = '--ip=%s' % ip
+                
         else:
             ip_param = '--ip=%s' % mysubnet_ip
     return ip_param, mac
@@ -338,9 +347,16 @@ def CreateSingleContainer(start_config, container, mysubnet_name=None, mysubnet_
         if mysubnet_name is not None:
             network_param = '--network=%s' % mysubnet_name
 
-        x11_ssh = ''
-        #if container.ssh_x11.lower() != 'no':
-        #    x11_ssh = GetX11SSH()
+        multi_user = ''
+        #print('start_config.clint is %s  container is %s  multiuser is %s' % (start_config.client, container.name, start_config.multi_user))
+        if start_config.client == container.name and start_config.multi_user is not None:
+            #print('use putenv to set %s' % start_config.multi_user)
+            os.putenv("DISTRIBUTED_LABTAINER", start_config.multi_user)
+            ''' why does putenv not set the value? '''
+            os.environ['DISTRIBUTED_LABTAINER'] = start_config.multi_user
+            multi_user = '--env=DISTRIBUTED_LABTAINER' 
+
+
         clone_names = GetContainerCloneNames(container)
         for clone_fullname in clone_names:
             clone_host = clone_names[clone_fullname]
@@ -348,7 +364,7 @@ def CreateSingleContainer(start_config, container, mysubnet_name=None, mysubnet_
                 subnet_ip, mac = GetNetParam(start_config, mysubnet_name, mysubnet_ip, clone_fullname)
             createsinglecommand = "docker create -t %s --cap-add NET_ADMIN %s %s %s %s %s --name=%s --hostname %s %s %s %s %s" % (dns_param, 
                     network_param, subnet_ip, mac, priv_param, add_host_param,  clone_fullname, clone_host, volume, 
-                    x11_ssh, new_image_name, container.script)
+                    multi_user, new_image_name, container.script)
             logger.DEBUG("Command to execute was (%s)" % createsinglecommand)
             ps = subprocess.Popen(createsinglecommand, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             output = ps.communicate()
@@ -376,7 +392,8 @@ def CheckPromisc(iface):
         return False
 
 # Create SUBNETS
-def CreateSubnets(subnets):
+def CreateSubnets(start_config):
+    subnets = start_config.subnets
     #for (subnet_name, subnet_network_mask) in networklist.iteritems():
     for subnet_name in subnets:
         subnet_network_mask = subnets[subnet_name].mask
@@ -726,26 +743,27 @@ def ImageExists(image_name, container_name, registry):
             return False, result, image_name
     return True, result, image_name
 
-def GetBothConfigs(lab_path, role, logger):
+def GetBothConfigs(lab_path, role, logger, servers=None, clone_count=None):
     labtainer_config_dir = os.path.join(os.path.dirname(os.path.dirname(lab_path)), 'config', 'labtainer.config')
     labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_dir, logger)
     labname = os.path.basename(lab_path)
     config_path       = os.path.join(lab_path,"config") 
     start_config_path = os.path.join(config_path,"start.config")
-    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, labtainer_config, logger)
+    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, 
+                       labtainer_config, logger, servers=servers, clone_count=clone_count)
     return labtainer_config, start_config
 
 def RebuildLab(lab_path, role, is_regress_test=None, force_build=False, quiet_start=False, 
-               just_container=None, run_container=None, servers=False):
+               just_container=None, run_container=None, servers=None, clone_count=None):
     # Pass 'True' to ignore_stop_error (i.e., ignore certain error encountered during StopLab
     #                                         since it might not even be an error)
-    StopLab(lab_path, role, True, run_container=run_container, servers=servers)
-    logger.DEBUG('Back from StopLab')
-    labtainer_config, start_config = GetBothConfigs(lab_path, role, logger)
+    StopLab(lab_path, role, True, run_container=run_container, servers=servers, clone_count=clone_count)
+    logger.DEBUG('Back from StopLab clone_count was %s' % clone_count)
+    labtainer_config, start_config = GetBothConfigs(lab_path, role, logger, servers, clone_count)
     
     DoRebuildLab(lab_path, role, is_regress_test=is_regress_test, force_build=force_build, 
                  just_container=just_container, start_config = start_config, 
-                 labtainer_config = labtainer_config, run_container=run_container, servers=servers)
+                 labtainer_config = labtainer_config, run_container=run_container, servers=servers, clone_count=clone_count)
 
     # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
     host_home_xfer = labtainer_config.host_home_xfer
@@ -753,15 +771,16 @@ def RebuildLab(lab_path, role, is_regress_test=None, force_build=False, quiet_st
     host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
     CreateHostHomeXfer(host_xfer_dir)
     is_watermark_test = True
-    DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start, run_container, servers)
+    DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start, 
+            run_container, servers, clone_count)
 
 def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False, just_container=None, 
-                 start_config=None, labtainer_config=None, run_container=None, servers=False):
+                 start_config=None, labtainer_config=None, run_container=None, servers=None, clone_count=None):
     retval = set()
     labname = os.path.basename(lab_path)
     is_valid_lab(lab_path)
     if start_config is None:
-        labtainer_config, start_config = GetBothConfigs(lab_path, role, logger)
+        labtainer_config, start_config = GetBothConfigs(lab_path, role, logger, servers, clone_count)
     host_home_xfer = labtainer_config.host_home_xfer
 
     build_student = 'bin/buildImage.sh'
@@ -996,7 +1015,7 @@ def CheckLabContainerApps(start_config, lab_path, apps2start):
 
     return has_multi_container
 
-def ReloadStartConfig(lab_path, labtainer_config, start_config, student_email, role, logger):
+def ReloadStartConfig(lab_path, labtainer_config, start_config, student_email, role, logger, servers, clone_count):
     config_path       = os.path.join(lab_path,"config") 
     start_config_path = os.path.join(config_path,"start.config")
     param_path = os.path.join(config_path,"parameter.config")
@@ -1007,12 +1026,13 @@ def ReloadStartConfig(lab_path, labtainer_config, start_config, student_email, r
     pp.ParseParameterConfig(param_path)
     pp.DoReplace()
     labname = os.path.basename(lab_path)
-    start_config = ParseStartConfig.ParseStartConfig(tmp_config, labname, role, labtainer_config, logger, skip_networks=False)
+    start_config = ParseStartConfig.ParseStartConfig(tmp_config, labname, role, labtainer_config, logger, skip_networks=False,
+                         servers=servers, clone_count=clone_count)
     logger.DEBUG('did start.config reload from %s' % tmp_config)
     return start_config
 
 
-def CheckEmailReloadStartConfig(start_config, quiet_start, is_regress_test, lab_path, role, labtainer_config, logger):
+def CheckEmailReloadStartConfig(start_config, quiet_start, is_regress_test, lab_path, role, labtainer_config, logger, servers, clone_count):
     student_email = None
     for name, container in start_config.containers.items():
         if is_regress_test and container.full_name != start_config.grade_container:
@@ -1026,7 +1046,7 @@ def CheckEmailReloadStartConfig(start_config, quiet_start, is_regress_test, lab_
                 student_email = 'instructor@here.there'
             else:
                 student_email = GetUserEmail(True)
-    start_config = ReloadStartConfig(lab_path, labtainer_config, start_config, student_email, role, logger)
+    start_config = ReloadStartConfig(lab_path, labtainer_config, start_config, student_email, role, logger, servers, clone_count)
     return start_config, student_email
 
 def ContainerTerminals(lab_path, start_config, container, role, terminal_count, terminal_groups):
@@ -1106,15 +1126,15 @@ def SkipContainer(run_container, name, start_config, servers):
     if run_container is not None and name != run_container:
         return True
     if start_config.client is not None:
-        if servers:
+        if servers == 'server':
             if name == start_config.client:
                 return True
-        else:
+        elif servers == 'client':
             if name != start_config.client:
                 return True
     return False
 
-def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start, run_container, servers):
+def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start, run_container, servers, clone_count):
     labname = os.path.basename(lab_path)
     logger.DEBUG("DoStart Multiple Containers and/or multi-home networking")
 
@@ -1139,14 +1159,14 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
                 sys.exit(1)
 
     # Create SUBNETS
-    CreateSubnets(start_config.subnets)
+    CreateSubnets(start_config)
     student_email = None
     threads = []
     results = []
     if has_multi_container:
         container_warning_printed = False
     start_config, student_email = CheckEmailReloadStartConfig(start_config, quiet_start, is_regress_test, lab_path, role, 
-                                      labtainer_config, logger)
+                                      labtainer_config, logger, servers, clone_count)
     for name, container in start_config.containers.items():
         if is_regress_test and container.full_name != start_config.grade_container:
             continue
@@ -1297,7 +1317,7 @@ def CopyChownGradesFile(start_config, labtainer_config, name, container_name, co
         return
 
 def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=False, is_watermark_test=True, quiet_start=False,
-             run_container=None, servers=False):
+             run_container=None, servers=None, clone_count=None):
     labname = os.path.basename(lab_path)
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
@@ -1306,7 +1326,7 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
     logger.DEBUG("ParseStartConfig for %s" % labname)
     is_valid_lab(lab_path)
 
-    labtainer_config, start_config = GetBothConfigs(lab_path, role, logger)
+    labtainer_config, start_config = GetBothConfigs(lab_path, role, logger, servers, clone_count)
     host_home_xfer = os.path.join(labtainer_config.host_home_xfer, labname)
 
     build_student = 'bin/buildImage.sh'
@@ -1351,7 +1371,7 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
     host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
     CreateHostHomeXfer(host_xfer_dir)
 
-    DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start, run_container, servers=servers)
+    DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start, run_container, servers=servers, clone_count=clone_count)
 
 def DateIsLater(df_utc_string, ts, local=False, debug=False):
     parts = df_utc_string.split('.')
@@ -2226,7 +2246,7 @@ def DoStopOne(start_config, labtainer_config, lab_path, role, name, container, Z
 
         results.append(retval)
 
-def DoStop(start_config, labtainer_config, lab_path, role, ignore_stop_error, is_regress_test=None, run_container=None, servers=False):
+def DoStop(start_config, labtainer_config, lab_path, role, ignore_stop_error, is_regress_test=None, run_container=None, servers=None, clone_count=None):
     mycwd = os.getcwd()
     retval = True
     labname = os.path.basename(lab_path)
@@ -2322,12 +2342,12 @@ def DoStop(start_config, labtainer_config, lab_path, role, ignore_stop_error, is
 # ignore_stop_error - set to 'False' : do not ignore error
 # ignore_stop_error - set to 'True' : ignore certain error encountered since it might not even be an error
 #                                     such as error encountered when trying to stop non-existent container
-def StopLab(lab_path, role, ignore_stop_error, is_regress_test=None, run_container=None, servers=False):
+def StopLab(lab_path, role, ignore_stop_error, is_regress_test=None, run_container=None, servers=None, clone_count=None):
     labname = os.path.basename(lab_path)
     myhomedir = os.environ['HOME']
     logger.DEBUG("ParseStartConfig for %s" % labname)
     is_valid_lab(lab_path)
-    labtainer_config, start_config = GetBothConfigs(lab_path, role, logger)
+    labtainer_config, start_config = GetBothConfigs(lab_path, role, logger, servers, clone_count)
     host_home_xfer = os.path.join(labtainer_config.host_home_xfer, labname)
 
     # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
