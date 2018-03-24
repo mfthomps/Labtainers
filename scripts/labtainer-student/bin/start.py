@@ -39,6 +39,8 @@ def main():
     parser.add_argument('-c', '--run_container', action='store', help='run just this container')
     parser.add_argument('-q', '--quiet', action='store_true', help='Do not prompt for email, use previoulsy supplied email.')
     parser.add_argument('-s', '--servers', action='store_true', help='Intended for distributed Labtainers, start the containers that are not clients.')
+    parser.add_argument('-w', '--workstation', action='store_true', help='Intended for distributed Labtainers, start the client workstation.')
+    parser.add_argument('-n', '--clone_count', action='store', help='Number of clones of client containers to create, itended for multi-user labs')
     try:
         args = parser.parse_args()
     except SystemExit:
@@ -75,7 +77,18 @@ def main():
         ''' for prepackaged VMs, do not auto update after first lab is run '''
         os.remove(update_flag)
     #print('lab_path is %s' % lab_path)
-    labutils.StartLab(lab_path, "student", quiet_start=args.quiet, run_container=args.run_container, servers=args.servers)
+    distributed = None
+    if args.servers and args.workstation:
+        print('--server and --workstation are mutually exclusive')
+        exit(1)
+    elif args.servers: 
+        distributed = 'server' 
+    elif args.workstation:
+        distributed = 'client'
+    if distributed is not None and args.clone_count is not None:
+        print('Cannot specify --server or --client if a --clone_count is provided')
+        exit(1)
+    labutils.StartLab(lab_path, "student", quiet_start=args.quiet, run_container=args.run_container, servers=distributed, clone_count=args.clone_count)
 
     return 0
 
