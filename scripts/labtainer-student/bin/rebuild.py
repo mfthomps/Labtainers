@@ -37,6 +37,8 @@ def main():
     parser.add_argument('-c', '--run_container', action='store', help='run just this container')
     parser.add_argument('-t', '--test_registry', action='store_true', default=False, help='build and publish with test registry')
     parser.add_argument('-s', '--servers', action='store_true', help='Start containers that are not clients -- intended for distributed Labtainers')
+    parser.add_argument('-w', '--workstation', action='store_true', help='Intended for distributed Labtainers, start the client workstation.')
+    parser.add_argument('-n', '--clone_count', action='store', help='Number of clones of client containers to create, itended for multi-user labs')
 
     args = parser.parse_args()
     quiet_start = True
@@ -60,8 +62,16 @@ def main():
             os.environ['TEST_REGISTRY'] = 'TRUE'
         print('set TEST REG to %s' % os.getenv('TEST_REGISTRY'))
 
+    distributed = None
+    if args.servers and args.workstation:
+        print('--server and --workstation are mutually exclusive')
+        exit(1)
+    elif args.servers: 
+        distributed = 'server' 
+    elif args.workstation:
+        distributed = 'client'
     labutils.RebuildLab(lab_path, "student", force_build=force_build, quiet_start=quiet_start, 
-          just_container=args.force_container, run_container=args.run_container, servers=args.servers)
+          just_container=args.force_container, run_container=args.run_container, servers=distributed, clone_count=args.clone_count)
 
     return 0
 
