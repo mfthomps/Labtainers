@@ -29,6 +29,7 @@ ARG imagedir
 ARG user_name
 ARG password
 ARG apt_source
+RUN apt-get update && apt-get install -y --no-install-recommends isc-dhcp-client
 #
 #  put package installation here
 #
@@ -67,7 +68,7 @@ USER root
 #RUN systemctl enable rc-local
 #CMD ["/usr/sbin/init"]
 # replace below with four above for centos
-ENTRYPOINT sudo /sbin/faux_init && bash
+ENTRYPOINT sudo /sbin/faux_init $DISTRIBUTED_LABTAINER && bash
 #
 #  DO NOT add below this line.
 #
