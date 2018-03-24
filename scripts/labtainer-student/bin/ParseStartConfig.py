@@ -21,7 +21,7 @@ def isalphadashscore(name):
     return re.match(r'^[a-zA-Z0-9_-]*$', name)
 
 class ParseStartConfig():
-    def __init__(self, fname, labname, caller, labtainer_config, logger, skip_networks=True):
+    def __init__(self, fname, labname, caller, labtainer_config, logger, skip_networks=True, servers=None, clone_count=None):
         self.containers = {} # dictionary of containers
         self.subnets    = {} # dictionary of subnets 
         self.labname = labname
@@ -34,6 +34,7 @@ class ParseStartConfig():
         self.fname = fname
         self.skip_networks = skip_networks
         self.labtainer_config = labtainer_config
+        self.clone_count = clone_count
         # COLLECT_DOCS - this optional setting indicates whether to collect lab's docs directory or not
         # default to NO (i.e., do not collect)
         self.collect_docs = None
@@ -45,6 +46,14 @@ class ParseStartConfig():
         self.get_configs(fname)
         self.finalize()
         self.validate()
+        self.multi_user = None
+        if self.client is not None:
+            print('client %s clone_count %s' % (self.client, self.clone_count))
+            ''' determine if running as a distributed Labtainers, or many clients on a single VM '''
+            if self.clone_count > 0: 
+                self.multi_user = 'clones'
+            elif servers is not None:
+                self.multi_user = servers 
         self.logger.DEBUG('Completed reload from %s' % fname)
 
     class Container():
@@ -88,7 +97,7 @@ class ParseStartConfig():
                             exit(1)
                     elif '+' in addr:
                         addr, adjust = addr.split('+')
-                        if adjust.lower() != 'clone':
+                        if adjust.lower() != 'clone' and adjust.lower() != 'clone_mac':
                             self.logger.ERROR('bad adjustment syntax for network definition of %s, expected "CLONE", got %s' % (name, adjust))
                             exit(1)
                     if addr != 'auto' and addr != 'auto_mac':
@@ -207,6 +216,10 @@ class ParseStartConfig():
         for container in self.containers.values():
             container.validate(self.subnets.keys(), self.skip_networks)
 
+        if self.clone_count is not None and self.client is None:
+            self.logger.ERROR('Cannot accept a clone_count for a lab that lacks a defined CLIENT in the start.config')
+            exit(1)
+
 
     def finalize(self):
         """Combines info provided by user with what we already know about the
@@ -242,6 +255,14 @@ class ParseStartConfig():
                 self.containers[name].registry = self.labtainer_config.test_registry
             elif self.containers[name].registry == None:
                 self.containers[name].registry = self.labtainer_config.default_registry
+            if self.clone_count is not None and name == self.client:
+                print('yep it is')
+                if self.containers[name].clone is not None:
+                    self.logger.ERROR('Cannot specify clone_count for container having CLONE set in the start.config file')
+                    exit(1)
+                else:
+                    print('set clone of %s to %s' % (name, self.clone_count))
+                    self.containers[name].clone = self.clone_count
 
     def show_current_settings(self):
         bar = "="*80

@@ -104,8 +104,9 @@ fi
 if [ -f /usr/bin/apt-source.sh ]; then
     echo $CONTAINER_PASSWORD | sudo -S /usr/bin/apt-source.sh
 fi
-
-rmdir $LOCKDIR
+if [ -d $LOCKDIR ]; then
+    rmdir $LOCKDIR
+fi
 # Added a permanent 'did_param' lock directory
 PERMLOCKDIR=/var/labtainer/did_param
 echo $CONTAINER_PASSWORD | sudo -S mkdir -p "$PERMLOCKDIR" >/dev/null 2>&1
