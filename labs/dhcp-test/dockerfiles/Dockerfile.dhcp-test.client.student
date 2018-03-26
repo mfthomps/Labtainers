@@ -12,8 +12,8 @@
 #   openssl openssh-server openvpn wget tcpdump  update-inetd  xinetd
 #
 ARG registry
-FROM $registry/labtainer.base
-#FROM $registry/labtainer.network
+#FROM $registry/labtainer.base
+FROM $registry/labtainer.network
 #FROM $registry/labtainer.centos
 #FROM $registry/labtainer.lamp
 #
