@@ -394,11 +394,10 @@ providing a name for the network, the following values are defined:
 host.  Please note that to define a different network gateway for the component, you should 
 use the {\tt set\_default\_gw.sh}.  This GATEWAY field should not name the IP of any of your other components.  
 See the the {\tt routing\_basics2} lab for examples.
-\item MACVLAN\_EXT [device] -- Optional, causes the Docker network driver to 
-create and use a macvlan tied to the given ethernet
-interface.  The network device is expected to be on a ``host-only'' VM network.  The VMM should disable the
-DHCP server on this network.   
-The network adaptor itself needs to be placed in primiscous mode on the VMM, and on the 
+\item MACVLAN\_EXT [N] -- Optional, causes the Docker network driver to 
+create and use a macvlan tied to the given Nth ethernet interface (in alphabetical order) that lacks an
+assigned IP address.  The network device is expected to be on a ``host-only'' VM network.  The VMM should disable the
+DHCP server on this network.   The network adaptor itself needs to be placed in primiscous mode on the VMM, and on the 
 Linux VM, e.g., using ``sudo ifconfig enp0s8 promisc.''  
 These types of interfaces can be used to communicate with external hosts, e.g., other VMs
 as described in \ref{external hosts}  
@@ -715,7 +714,8 @@ is followed by one of the following operations:
    Replace a symbol with the clone instance number of a container per the CLONE option
    in the start.config file.  This is intended for use in providing instance-
    unique values on cloned containers, e.g., to assign a unique password to
-   each container based on the clone number.
+   each container based on the clone number.  If the container has no clone
+   instance number then the symbol is replaced with an empty string.
 \end{verbatim}
 
 The parameter\_id fields may be referenced during the automated grading function, described below
@@ -1682,59 +1682,144 @@ the dnsmasq utility.  The /etc/rc.local script generally sets the default gatewa
 
 \subsection {Multi-user Labtainers}
 \label{multi user}
-Labtainers can be installed on a server, e.g., a VM, to allow multiple students to work together on the
-same lab.  Labtainers does not yet include complete examples labs intended for multi-user environments, however it does
-offer support for such environments.  For simplicity, we assume that multi-user labs will take one of two
-different forms:  
+Labtainer exercises can support multiple concurrent users, such as students collaborating or competing on a shared 
+set of networked components.  A multi-user lab can be operated in any one of three modes:
 \begin{enumerate}
-\item All containers are on one VM and students SSH into containers from different VMs in the same farm, or 
-\item Each student is allocated a VM on a VM farm, some other VM on that farm will host the shared components, and all of
-these VMs have Labtainers installed.
+\item Dedicated to a single student, e.g., on a laptop or a VM allocated to the student from a VM farm.
+\item Shared by multiple students, each running Labtainers on a per-student VM with shared componets running on separate
+Labtainers VM.  This is illustrated in Figure \ref{fig:multi-multi}
+\item Shared by multiple students, each SSHing from a non-Labtainer VM into a per-student Labtainer computer on a single
+VM running Labtainers.  This is illustrated in Figure \ref{fig:multi-single}
 \end{enumerate}
 
-\subsubsection {Single VM with multiple students}
-In this approach all the Labtainer containers will run on a single VM.  External hosts, e.g., Windows VMs can be 
-supported as described in \ref{external hosts}.
-This example describes a Labtainer exercise in which each
-student is allocated their own container workstation, and these workstations are networked with shared infrastructure, e.g.,
-vulnerable servers.
-The Labtainer containers are all running on a single Linux VM.  Students are assumed to have access to one or more other
-VMs hosted on the same VMM as the VM that hosts Labtainers. Students will SSH from these VMs into the container workstation
-allocated to the student.  The ssh command may include the ``-X'' option to permit X11 forwarding, thus allowing students to
-run GUI-based applications on their workstation containers.
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.4\textwidth,natwidth=621,natheight=403]{multiuser-multilabtainers.jpg}
+\caption{Multi-user Labtainers with multiple instances of Labtainers.}
+\label{fig:multi-multi}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.4\textwidth,natwidth=621,natheight=403]{multiuser-onelabtainer.jpg}
+\caption{Multi-user Labtainers via SSH.}
+\label{fig:multi-single}
+\end{figure}
+
+Both of the multiuser modes require a host-only network defined by the VMM.  This network should be defined
+before it is allocated to any VM, and the DCHCP server on the host-only network should be disabled within 
+the VMM.  
+
+\subsubsection {Multi-user Labtainers, one Labtainer VM per student}
+In this approach, each student is assumed to have been allocated an
+individual VM upon which Labtainers is installed.
+The student has access to that VM, e.g., via ssh or a vSphere client.  
+Each student VM runs a single per-student workstation Labtainer component.
+The remaining containers, e.g., vulnerable servers, all run on a single VM,
+which we refer to herein as the ``server VM''.  Provisioning a lab to run
+in this mode is summarized below.
 
 \begin{itemize}
-\item Pick a ``client subnet'' that will be used by student to 
-SSH into their container workstations.
-
-\item Create a ``host-only'' network on the VMM and disable the DHCP server on the VMM.
-Do this before assigning the network interface to VM (VirtualBox  ignores dhcp setting changes
-after assignment?).
-Student VMs will get their host-only
-network addresses from the Labtainer dchp service.
-
-and allocate it to each of the student VMs (typically as an additional network interface).
-
-\item Allocate the host-only network to the Labtainer VM, and set it in promiscuous mode, and disable the network at the IPv4 level,
-e.g., in the Network Manager.  Set the interface in promiscuous mode from within the Linux host:
+\item Allocate the host-only network to each Labtainers VM.  Be sure
+to disable the IPv4 networking for this network on each Labtainers VM, and
+set the network interface to promisuous mode (within the Linux host as well).
+For example:
 \begin{verbatim}
     sudo ifconfig ethx 0.0.0.0
     sudo ifconfig ethx promisc
 \end{verbatim} 
 
-\item Allocate a ``workstation'' container for each student.
-Use the {\tt CLONE} setting as described in section \ref{start config} to
-create multiple copies of a single container, e.g., the workstation that each student
-uses to individually access the shared infrastructure.   
+\item Start the lab on the server VM using start.py and the --server (-s) switch. This
+causes Labtainers to start each container in the lab that is not tagged as a ``CLIENT''. 
 
-\item Define a MACVLAN network on the client subnet in the start.config file.  Assign network addresses to the
-student workstation container using the {\tt +CLONE} syntax described in \ref{start config}.  
+\item Students then
+start the lab on their individual VMs using start.py with the --workstation switch, which will cause
+the student VM to only start the container identified as the ``CLIENT'' in the start.config file.
+\end{itemize}
 
-\item Include and SSH server in the workstation container, e.g., by deriving it from the labtainer.network base.
+When conformant labs (see \ref{conformant multi-user}) are started, the workstation containers 
+use DHCP to optain IP addresses from a Labtainers DHCP server.  The MAC address of the workstation
+container is derived from the MAC address of the Linux VM host-only network interface. 
+
+\subsubsection {Single Labtainers VM with multiple students}
+In this approach all the Labtainer containers will run on a single VM.  
+Students have access to one or more other
+VMs hosted on the same VMM as the VM that hosts Labtainers. Students will SSH from these VMs into the container workstation
+allocated to the student.  The ssh command may include the ``-X'' option to permit X11 forwarding, thus allowing students to
+run GUI-based applications on their workstation containers.
+
+\begin{itemize}
+\item Allocate the host-only network to the Labtainers VM Be sure
+to disable the IPv4 networking for this network on the Labtainers VM, and
+set the network interface to promisuous mode (within the Linux host as well).
+\item Allocate the host-only network to each VM used by students to SSH into their
+Labtainers workstation.  Configure the network on the VM to use DHCP (the host-only
+DHCP server should be disabled, the VM will get an IP from a Labtainer DHCP server.)
+
+\item Start the lab on the server VM using start.py and the --clone\_count (-n) switch,
+specifying the quantity of per-student client containers to start.
+
+\item Students then ssh into their respective containers over the host-only network.
+\end{itemize}
+
+
+\subsection{Creating conformant multi-user labs}
+\label{conformant multi-user}
+The following suggestions are intended to yield labs that can be started in any of
+the three operating modes.
+
+\begin{itemize}
+\item The lab should include a ``client subnet'' via which multiple VMs will communicate.
+
+\item Within the {\tt start.config} file, identify this subnet as either a MACVLAN or
+a MACVLAN\_EXT.  The MACVLAN\_EXT
+option will create a MACVLAN for this interface regardless of what mode the lab is started in.
+
+\item Itentify the client component within the {\tt start.config} file using:
+\begin{verbatim}
+    CLIENT YES
+\end{verbatim}
+
+\item Define the client component network address for the client subnet using the
+``+CLONE\_MAC'' option, e.g., 
+\begin{verbatim}
+    LAN 192.168.1.10+CLONE_MAC
+\end{verbatim}
+\noindent  When run in single user mode, the +CLONE\_MAC suffix is ignored.  When run
+with multiple Labtainer instances, the last four bytes of the network MAC address for
+each client is cloned from the network interface tied to the MACVLAN.  When all multi-user
+Labtainer workstations run on a single VM, then the IP address is incremented by one less
+than the clone instance number.
+
+\item Include a dhcp server as one of your containers, e.g., per the dhcp-client lab.  
+The labtainer.network base includes the dnsmasq service, which includes a DHCP
+server.  Start the service on that container, e.g., by editing the 
+{\tt \_system/sbin/faux\_init}
+file.  
+\item Edit the dhcp container's {\tt \_system/etc/dnsmasq.conf} file to include the
+range of DHCP addresses you wish to allocate to the clients.  When multiple instances
+of Labtainers are run, then ``client'' is the per-student Labtainer workstation.  When
+there is a single Labtainers VM, then ``clients'' are the VMs from which students
+SSH into their Labtainer workstations.  An example dnasq.conf entry is:
+\begin{verbatim}
+    dhcp-range=192.168.1.10, 192.168.1.99, 12h
+\end{verbatim}
+
+
+\item Enable dhcp on the client workstation components by installing isc-dhcp-client
+(via the Dockerfile), and putting this in the workstation \_system/etc/rc.local:
+\begin{verbatim}
+/sbin/dhclient-labtainer eth0
+\end{verbatim}
+\noindent Note the dhclient-labtainer invokes the dhclient program and then
+manually sets the ip address.  This is a workaround for a Docker limitation.
+
+\item Include an SSH server in the workstation container, e.g., by deriving it from the labtainer.network base.
 Include a {\tt \_system/etc/ssh/sshd\_config} file for the workstation container that permits X11 forwarding (if desired),
 e.g., by copying the file from the kali-test lab.
 
-\item Password management. Assuming you'd like to allocate each student a unique (insecure) password for purposes of
+\item Password management (only has an effect in multiuser mode when all Labtainers components are on a single VM). 
+Assuming you'd like to allocate each student a unique (insecure) password for purposes of
 further ensuring the student does not accidently start some other student's workstation put
 this in the workstation's \_bin/fixlocal.sh file:
 \begin{verbatim}
@@ -1747,61 +1832,12 @@ this in the workstation's \_bin/fixlocal.sh file:
     EOF
 \end{verbatim}
 
-\noindent And, this in the labs/[your lab]/config/parameter.config
+\noindent Add, this in the labs/[your lab]/config/parameter.config
 \begin{verbatim}
 PASSWD : CLONE_REPLACE : .local/bin/fixlocal.sh : CLONE_NUM : CLONE
 \end{verbatim}
-\end {itemize}
-Once the Labtainer is started, students should then be able to ssh into their
-respective workstations (containers) using the allocated IP address.
-
-The kali-test lab is an example.
-
-\subsubsection {Distributed Labtainers, one VM per student}
-In this approach, each student is assumed to have been allocated an
-individual VM,
-and the student has access to that VM, e.g., via ssh or a vSphere client.  
-The remaining containers, e.g., vulnerable servers, all run on a single VM,
-which we refer to herein as the ``server VM''.
-All of these VMs have Labtainers installed.
-
-\begin{itemize}
-\item Define a host-only network and allocate it to each Labtainers VM.  Be sure
-to disable the IPv4 networking for this network on each Labtainers VM, and
-set the network interface to promisuous mode (within the Linux host as well).
-
-\item Define a MACVLAN network on the client subnet in the start.config file.
-Use the "CLIENT" setting in the start.config to name the container that will
-be used by each student. Use the {\tt AUTO\_DHCP} network address option 
-for the student container network connection.   
-
-\item Include a dhcp server as one of your containers, e.g., per the dhcp-client lab.  
-The labtainer.network base includes the dnsmasq service, which includes a DHCP
-server.  Start the service on that container, e.g., by editing the 
-{\tt \_system/sbin/faux\_init}
-file.  Edit the dhcp container's {\tt \_system/etc/dnsmasq.conf} file to include the
-range of DHCP addresses you wish to allocate to the clients, e.g., 
-\begin{verbatim}
-    dhcp-range=192.168.1.10, 192.168.1.99, 12h
-\end{verbatim}
-
-
-\item Enable dhcp on the clients by installing ics-dhcp-client
-(via the Docerfile), and putting this in the workstation /etc/rc.local:
-\begin{verbatim}
-/sbin/dhclient-labtainer eth0
-\end{verbatim}
-\noindent Note the dhclient-labtainer invokes the dhclient program and then
-manually sets the ip address.  This is a workaround for a Docker limitation.
-
-\item DISABLE dhcp server on the VMM host-only network.
 
 \end{itemize}
-Start the lab on the server VM using start.py and the --server (-s) switch.  The students then
-start the lab on their individual VMs using start.py without the server switch, which will cause
-the student VM to only start the container identified as the ``CLIENT'' in the start.config file.
-
-The dhcp-test lab is an example.
 
 
 \subsection {Container isolation}
