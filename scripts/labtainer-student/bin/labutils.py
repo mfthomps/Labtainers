@@ -188,7 +188,7 @@ def GetNetParam(start_config, mysubnet_name, mysubnet_ip, mycontainer_name):
         mysubnet_ip, mac_addr = mysubnet_ip.split(':',1)
         mac = '--mac-address=%s' % mac_addr 
     elif mysubnet_ip.lower() == 'auto_mac':
-        mac_addr = get_new_mac(start_config.subnets[mysubnet_name].macvlan)
+        mac_addr = get_new_mac(start_config.subnets[mysubnet_name].macvlan_use)
         mac = '--mac-address=%s' % mac_addr
     if not mysubnet_ip.lower().startswith('auto'):
         if '+' in mysubnet_ip:
@@ -208,12 +208,13 @@ def GetNetParam(start_config, mysubnet_name, mysubnet_ip, mycontainer_name):
                     logger.ERROR('IP address adjusted to invalid value %d %s' % (new_suffix, mysubnet_ip))
                     exit(1)
                 ip_param = '--ip=%s.%d' % (ip_start, new_suffix)
-            elif clone_type.lower() == 'clone_mac':
+            elif clone_type.lower() == 'clone_mac' and start_config.multi_user == 'client':
                 # assuming we are a multiuser client
-                mac_addr = get_new_mac(start_config.subnets[mysubnet_name].macvlan)
+                mac_addr = get_new_mac(start_config.subnets[mysubnet_name].macvlan_use)
                 mac = '--mac-address=%s' % mac_addr
 
             else:
+                print('ip %s' % ip)
                 ip_param = '--ip=%s' % ip
                 
         else:
@@ -250,11 +251,11 @@ def GetContainerCloneNames(container):
     ''' populate dictionary with hostname/container names based on the quantity of clones
         that are to be created '''
     retval = {}
-    if container.clone is None or container.clone == 1:
+    if container.clone_copies is None or container.clone == 1:
         retval[container.full_name] = container.hostname
     else:
         try:
-            count = int(container.clone)
+            count = int(container.clone_copies)
         except:
             logger.ERROR('bad clone value for %s' % container.hostname)
             exit(1)
@@ -348,8 +349,7 @@ def CreateSingleContainer(start_config, container, mysubnet_name=None, mysubnet_
             network_param = '--network=%s' % mysubnet_name
 
         multi_user = ''
-        #print('start_config.clint is %s  container is %s  multiuser is %s' % (start_config.client, container.name, start_config.multi_user))
-        if start_config.client == container.name and start_config.multi_user is not None:
+        if container.client == 'yes' and start_config.multi_user is not None:
             #print('use putenv to set %s' % start_config.multi_user)
             os.putenv("DISTRIBUTED_LABTAINER", start_config.multi_user)
             ''' why does putenv not set the value? '''
@@ -409,9 +409,9 @@ def CreateSubnets(start_config):
             macvlan = ''
             ip_range = ''
             net_type = 'bridge'
-            if subnets[subnet_name].macvlan is not None:
+            if subnets[subnet_name].macvlan_use is not None:
                 #iface = GetIface(subnets[subnet_name].macvlan)
-                iface = subnets[subnet_name].macvlan
+                iface = subnets[subnet_name].macvlan_use
                 if iface is None or len(iface) == 0:
                     logger.ERROR("No IP assigned to network %s, assign an ip on Linux host to enable use of macvlan with Labtainers")
                     exit(1)
@@ -694,7 +694,6 @@ def GetRunningContainersList():
     result = output[0].strip()
     logger.DEBUG('result is %s' % result)
     if 'Error:' in result or len(result.strip()) == 0:
-        print('wtf, over?')
         if 'Error:' in result:
             logger.DEBUG("Command was (%s)" % cmd)
             logger.DEBUG("Error from command = '%s'" % result)
@@ -1123,14 +1122,15 @@ def ContainerTerminals(lab_path, start_config, container, role, terminal_count, 
     return terminal_count
 
 def SkipContainer(run_container, name, start_config, servers):
+    container = start_config.containers[name]
     if run_container is not None and name != run_container:
         return True
-    if start_config.client is not None:
+    if servers is not None:
         if servers == 'server':
-            if name == start_config.client:
+            if container.client == 'yes':
                 return True
         elif servers == 'client':
-            if name != start_config.client:
+            if container.client != 'yes':
                 return True
     return False
 
@@ -2188,6 +2188,15 @@ def IsContainerRunning(mycontainer_name):
     else:
         return False 
 
+def ShouldBeRunning(start_config, container):
+    if start_config.multi_user is not None and start_config.multi_user != 'clones':
+        if start_config.multi_user == 'server' and container.client == 'yes':
+            return False
+        if start_config.multi_user == 'client' and container.client != 'yes':
+            return False
+    return True
+       
+   
 def DoStopOne(start_config, labtainer_config, lab_path, role, name, container, ZipFileList, ignore_stop_error, results):
         labname = os.path.basename(lab_path) 
         #dumlog = os.path.join('/tmp', name+'.log')
@@ -2204,21 +2213,23 @@ def DoStopOne(start_config, labtainer_config, lab_path, role, name, container, Z
         # IsContainerCreated returned FAILURE if container does not exists
         # error: can't stop non-existent container
         if not haveContainer:
-            if ignore_stop_error or (start_config.client is not None):
-                logger.DEBUG("Container %s does not exist!\n" % mycontainer_name)
-            else:
-                logger.ERROR("Container %s does not exist!\n" % mycontainer_name)
-                retval = False
+            if ShouldBeRunning(start_config, container):
+                if ignore_stop_error:
+                    logger.DEBUG("Container %s does not exist!\n" % mycontainer_name)
+                else:
+                    logger.ERROR("Container %s does not exist!\n" % mycontainer_name)
+                    retval = False
 
         else:
             clone_names = GetContainerCloneNames(container)
             for mycontainer_name in clone_names:
                 if not IsContainerRunning(mycontainer_name):
-                    if ignore_stop_error or start_config.client is not None:
-                        logger.DEBUG("container %s not running\n" % (mycontainer_name))
-                    else:
-                        logger.ERROR("container %s not running\n" % (mycontainer_name))
-                        retval = False
+                    if ShouldBeRunning(start_config, container):
+                        if ignore_stop_error:
+                            logger.DEBUG("container %s not running\n" % (mycontainer_name))
+                        else:
+                            logger.ERROR("container %s not running\n" % (mycontainer_name))
+                            retval = False
                     continue
                 if role == 'instructor':
                     if mycontainer_name == start_config.grade_container:

@@ -1,2 +1,6 @@
 #!/bin/bash
-/sbin/dhclient-labtainer eth0
+echo "dl $DISTRIBUTED_LABTAINER" >> /tmp/rc.log
+env >> /tmp/rc.log
+if [ "$DISTRIBUTED_LABTAINER" == client ]; then
+    /sbin/dhclient-labtainer eth0
+fi
