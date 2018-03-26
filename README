@@ -36,6 +36,13 @@ of new labs.  For those, run ./update-designer.sh from the labtainer directory.
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+
+March 26, 2018
+-  Support for multi-user modes (see Lab Designer User Guide).
+-  Removed build dependency on the lab_bin and lab_sys files. Those are now copied
+   during parameterization of the lab.
+-  Move capinout.sh to /sbin so it can be found when running as root.
+
 March 21, 2018
 -  Add CLONE to permit multiple instances of the same container, e.g., for 
    labs shared by multiple concurrent students.
@@ -47,7 +54,7 @@ March 15, 2018
 -  Add a Kali linux base, and a Metasploitable 2 image (see kali-test)
 
 March 8, 2018
--  Do not required labname when using stop.py
+-  Do not require labname when using stop.py
 -  Catch errors caused by stray networks and advise user on a fix
 -  Add support for use of local apt & yum repos at NPS
 
