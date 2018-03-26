@@ -314,12 +314,9 @@ class ParameterParser():
                 
         myfilename_field = entryline[0].strip()
         token = entryline[1].strip()
-        the_string = entryline[2].strip()
-        if '-' not in self.container_name:
-            self.logger.DEBUG('skipping container that does not look like a clone %s' % self.container_name)
-            return
-        dumb, clone_num = self.container_name.rsplit('-', 1)
-    
+        clone_num = '' 
+        if '-' in self.container_name:
+            dumb, clone_num = self.container_name.rsplit('-', 1)
         # Check to see if ':' in myfilename
         myfilename_list = myfilename_field.split(';')
         for myfilename in myfilename_list:
@@ -333,7 +330,10 @@ class ParameterParser():
                     myfullactualfilename = os.path.join(user_home_dir, myactualfilename)
                 else:
                     myfullactualfilename = myactualfilename
-                myfilename = '%s-%s:%s' % (tempcontainer_name, clone_num, myfullactualfilename)
+                if clone_num != '':
+                    myfilename = '%s-%s:%s' % (tempcontainer_name, clone_num, myfullactualfilename)
+                else:
+                    myfilename = '%s:%s' % (tempcontainer_name, myfullactualfilename)
                 self.logger.DEBUG('myfilename now %s' % myfilename)
             else:
                 # myfilename does not have the containername
