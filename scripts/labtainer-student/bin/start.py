@@ -16,6 +16,7 @@ import os
 import pydoc
 import platform
 import argparse
+import CurrentLab
 
 # Filename: start.py
 # Description:
@@ -89,6 +90,11 @@ def main():
         print('Cannot specify --server or --client if a --clone_count is provided')
         exit(1)
     labutils.StartLab(lab_path, "student", quiet_start=args.quiet, run_container=args.run_container, servers=distributed, clone_count=args.clone_count)
+    current_lab = CurrentLab.CurrentLab()
+    current_lab.add('lab_name', args.labname)
+    current_lab.add('clone_count', args.clone_count)
+    current_lab.add('servers', distributed)
+    current_lab.save()
 
     return 0
 
