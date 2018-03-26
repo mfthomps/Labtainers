@@ -1705,14 +1705,16 @@ def dumb():
     pass
     '''
     '''
-def RedoLab(lab_path, role, is_regress_test=None, force_build=False, is_watermark_test=True, quiet_start=False):
+def RedoLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=False, is_watermark_test=True, quiet_start=False,
+             run_container=None, servers=None, clone_count=None):
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
     # Pass 'True' to ignore_stop_error (i.e., ignore certain error encountered during StopLab
     #                                         since it might not even be an error)
     StopLab(lab_path, role, True, is_regress_test=is_regress_test)
     is_redo = True
-    StartLab(lab_path, role, is_regress_test, force_build, is_redo=is_redo, is_watermark_test=is_watermark_test, quiet_start=quiet_start)
+    StartLab(lab_path, role, is_regress_test, force_build, is_redo=is_redo, is_watermark_test=is_watermark_test, quiet_start=quiet_start,
+             run_container=run_container, servers=servers, clone_count=clone_count)
 
 def CheckShutdown(lab_path, name, container_name, container_user, ignore_stop_error):
     ''' NOT USED at the moment '''
