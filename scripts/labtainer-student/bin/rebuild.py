@@ -54,12 +54,12 @@ def main():
 
     if args.test_registry:
         if os.getenv('TEST_REGISTRY') is None:
-            print('use putenv to set it')
+            #print('use putenv to set it')
             os.putenv("TEST_REGISTRY", "TRUE")
             ''' why does putenv not set the value? '''
             os.environ['TEST_REGISTRY'] = 'TRUE'
         else:
-            print('exists, set it true')
+            #print('exists, set it true')
             os.environ['TEST_REGISTRY'] = 'TRUE'
         print('set TEST REG to %s' % os.getenv('TEST_REGISTRY'))
 
