@@ -383,9 +383,6 @@ address to create an instance seed that controls parameterization of individual 
 See \ref{publishing} for details on the use of this keyword.
 \item COLLECT\_DOCS [yes/no] -- Optional directive to collect lab/docs content as part of student artifacts.
 These are then available to the instructor in the labtainer\_xfer/[lab]/docs directory.  Also see \ref{instructions}.
-\item CLIENT [container name] -- Intended for use with distribute Labtainers, this field identifies which of the lab's 
-containers is the client.  The {\tt start.py} fuction will start only this container, unless the {\tt -s} option is provided,
-in which case every container except this one will be started.
 \end{itemize}
 
 \item NETWORK [network name] -- One of these sections is require for each network within the lab.  In addition to
@@ -397,11 +394,16 @@ providing a name for the network, the following values are defined:
 host.  Please note that to define a different network gateway for the component, you should 
 use the {\tt set\_default\_gw.sh}.  This GATEWAY field should not name the IP of any of your other components.  
 See the the {\tt routing\_basics2} lab for examples.
-\item MACVLAN [device] -- Optional, causes the Docker network driver to create and use a macvlan tied to the given ethernet
-interface.  The network device is expected to be a ``host-only'' VM network adaptor that is configure in promiscuous mode.
-The network adaptor itself also needs to be placed in primiscous mode on the Linux VM, e.g., using ``sudo ifconfig enp0s8 promisc.''
+\item MACVLAN\_EXT [device] -- Optional, causes the Docker network driver to 
+create and use a macvlan tied to the given ethernet
+interface.  The network device is expected to be on a ``host-only'' VM network.  The VMM should disable the
+DHCP server on this network.   
+The network adaptor itself needs to be placed in primiscous mode on the VMM, and on the 
+Linux VM, e.g., using ``sudo ifconfig enp0s8 promisc.''  
 These types of interfaces can be used to communicate with external hosts, e.g., other VMs
 as described in \ref{external hosts}  
+\item MACVLAN -- Similar to MACVALN\_EXT, except a macvlan will not be created unless the Labtainer lab
+is started as a multi-user lab.
 \item IP\_RANGE [range] -- Optional, allocates an ip range to the network, e.g., 192.168.1.4/30
 \end{itemize}
 
@@ -438,9 +440,10 @@ can be one of the following:
 of addresses starting with the given address.
 \item If {\tt AUTO} is provided as the address, an address is chosen for you from the subnet range.  When the {\tt CLONE}
 option is used for the container(as defined below), then the address should either be {\tt AUTO}, or the suffix of {\tt +CLONE}
-\item {\tt AUTO\_DHCP} directs the system to generate a MAC address whose last four bytes match those of the host network interface.
-This is intended for use with MACVLAN networks and distributed Labtainers in which client containers run on individual VMs allocated
-to each student.
+\item {\tt CLONE\_MAC} Only takes effect if the lab is started in multi-user mode.  When started with the 
+{\tt --workstation} switch, this directs the system to generate a MAC address whose last four bytes match 
+those of the host network interface.  When stated as a multi-user lab with all containers on one VM, e.g., the 
+{\tt --clone\_count} switch, then the allocated IP address is incremeted by one less than the clone instance number.
 \end{itemize}
 \item SCRIPT [script] -- Optional script to provide to the Docker create command, defaults to ``bash''.  This must be set to
 ``NONE'' for CentOS-based labs (and likely fedora[test that]).
@@ -709,7 +712,7 @@ is followed by one of the following operations:
      of the concatenation of the lab instance seed and "myrootfile".
 
  CLONE_REPLACE : <filename> : <symbol> : <ignored>
-   Replace a symbol with the clone number of a container per the CLONE option
+   Replace a symbol with the clone instance number of a container per the CLONE option
    in the start.config file.  This is intended for use in providing instance-
    unique values on cloned containers, e.g., to assign a unique password to
    each container based on the clone number.
@@ -1704,9 +1707,13 @@ run GUI-based applications on their workstation containers.
 \item Pick a ``client subnet'' that will be used by student to 
 SSH into their container workstations.
 
-\item Create a ``host-only'' network and allocate it to each of the student VMs (typically as an additional network interface).
-Enable a DHCP server for the VMs on the host-only network, or otherwise configure them so that each is allocated an IP address in the
-client subnet.
+\item Create a ``host-only'' network on the VMM and disable the DHCP server on the VMM.
+Do this before assigning the network interface to VM (VirtualBox  ignores dhcp setting changes
+after assignment?).
+Student VMs will get their host-only
+network addresses from the Labtainer dchp service.
+
+and allocate it to each of the student VMs (typically as an additional network interface).
 
 \item Allocate the host-only network to the Labtainer VM, and set it in promiscuous mode, and disable the network at the IPv4 level,
 e.g., in the Network Manager.  Set the interface in promiscuous mode from within the Linux host:
@@ -1786,6 +1793,8 @@ range of DHCP addresses you wish to allocate to the clients, e.g.,
 \end{verbatim}
 \noindent Note the dhclient-labtainer invokes the dhclient program and then
 manually sets the ip address.  This is a workaround for a Docker limitation.
+
+\item DISABLE dhcp server on the VMM host-only network.
 
 \end{itemize}
 Start the lab on the server VM using start.py and the --server (-s) switch.  The students then

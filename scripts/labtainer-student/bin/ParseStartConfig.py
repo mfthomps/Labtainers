@@ -29,7 +29,6 @@ class ParseStartConfig():
         self.host_home_xfer= "" # HOST_HOME_XFER - directory to transfer artifact to/from containers
         self.lab_master_seed= None # LAB_MASTER_SEED - this is the master seed string for to this laboratory
         self.grade_container = None # GRADE_CONTAINER - this is where the instructor performs the grading
-        self.client = None # Used for distributed labtainers, indicates which container is the client
         self.logger = logger
         self.fname = fname
         self.skip_networks = skip_networks
@@ -44,16 +43,14 @@ class ParseStartConfig():
             sys.exit(1)
 
         self.get_configs(fname)
+        self.multi_user = None
+        ''' determine if running as a distributed Labtainers, or many clients on a single VM '''
+        if self.clone_count > 0: 
+            self.multi_user = 'clones'
+        elif servers is not None:
+            self.multi_user = servers 
         self.finalize()
         self.validate()
-        self.multi_user = None
-        if self.client is not None:
-            print('client %s clone_count %s' % (self.client, self.clone_count))
-            ''' determine if running as a distributed Labtainers, or many clients on a single VM '''
-            if self.clone_count > 0: 
-                self.multi_user = 'clones'
-            elif servers is not None:
-                self.multi_user = servers 
         self.logger.DEBUG('Completed reload from %s' % fname)
 
     class Container():
@@ -73,7 +70,9 @@ class ParseStartConfig():
             self.terminal_group = None
             self.add_hosts = []
             self.no_privilege = 'no'
-            self.clone = None
+            self.clone_copies = None # Dynamic, number of clones to be created.
+            self.clone = None  # Number of clones of this component to create.  
+            self.client = None # Used for distributed labtainers, indicates container is a client
             self.logger = logger
 
         def add_net(self, name, ipaddr):
@@ -113,6 +112,8 @@ class ParseStartConfig():
             self.mask = 0
             self.gateway = 0
             self.macvlan = None
+            self.macvlan_ext = None
+            self.macvlan_use = None
             self.ip_range = None
             self.logger = logger
 
@@ -216,9 +217,6 @@ class ParseStartConfig():
         for container in self.containers.values():
             container.validate(self.subnets.keys(), self.skip_networks)
 
-        if self.clone_count is not None and self.client is None:
-            self.logger.ERROR('Cannot accept a clone_count for a lab that lacks a defined CLIENT in the start.config')
-            exit(1)
 
 
     def finalize(self):
@@ -232,6 +230,12 @@ class ParseStartConfig():
         else:
             self.grade_container = self.labname + "." + self.grade_container + "." + self.caller 
 
+        ''' fix macvlan networks, assign use_macvan value based on whether ...'''
+        for net in self.subnets:
+            if self.subnets[net].macvlan_ext is not None:
+                self.subnets[net].macvlan_use = self.subnets[net].macvlan_ext
+            elif self.multi_user is not None:
+                self.subnets[net].macvlan_use = self.subnets[net].macvlan
 
         use_test_registry = os.getenv('TEST_REGISTRY')
         # fixing up container parameters
@@ -255,14 +259,14 @@ class ParseStartConfig():
                 self.containers[name].registry = self.labtainer_config.test_registry
             elif self.containers[name].registry == None:
                 self.containers[name].registry = self.labtainer_config.default_registry
-            if self.clone_count is not None and name == self.client:
-                print('yep it is')
+            if self.clone_count is not None and self.containers[name].client == 'yes':
                 if self.containers[name].clone is not None:
                     self.logger.ERROR('Cannot specify clone_count for container having CLONE set in the start.config file')
                     exit(1)
                 else:
-                    print('set clone of %s to %s' % (name, self.clone_count))
-                    self.containers[name].clone = self.clone_count
+                    self.containers[name].clone_copies = self.clone_count
+            if self.containers[name].clone is not None:
+                self.container[name].clone_copies = self.contaienrs[name].clone
 
     def show_current_settings(self):
         bar = "="*80
