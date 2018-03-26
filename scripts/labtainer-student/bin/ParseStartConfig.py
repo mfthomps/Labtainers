@@ -15,6 +15,7 @@ import re
 from netaddr import *
 import LabtainerLogging
 import ParseLabtainerConfig
+import labutils
 
 def isalphadashscore(name):
     # check name - alphanumeric,dash,underscore
@@ -233,9 +234,25 @@ class ParseStartConfig():
         ''' fix macvlan networks, assign use_macvan value based on whether ...'''
         for net in self.subnets:
             if self.subnets[net].macvlan_ext is not None:
-                self.subnets[net].macvlan_use = self.subnets[net].macvlan_ext
+                try:
+                    iface_num = int(self.subnets[net].macvlan_ext)
+                    use = labutils.getFirstUnassignedIface(iface_num)
+                    if use is None:
+                        self.logger.ERROR('MACVLAN requested, but not %s unassigned interfaces' % iface_num)
+                        exit(1)
+                except ValueError:
+                    use = self.subnets[net].macvlan_ext
+                self.subnets[net].macvlan_use = use
             elif self.multi_user is not None:
-                self.subnets[net].macvlan_use = self.subnets[net].macvlan
+                try:
+                    iface_num = int(self.subnets[net].macvlan)
+                    use = labutils.getFirstUnassignedIface(iface_num)
+                    if use is None:
+                        self.logger.ERROR('MACVLAN requested, but not %s unassigned interfaces' % iface_num)
+                        exit(1)
+                except ValueError:
+                    use = self.subnets[net].macvlan
+                self.subnets[net].macvlan_use = use
 
         use_test_registry = os.getenv('TEST_REGISTRY')
         # fixing up container parameters
