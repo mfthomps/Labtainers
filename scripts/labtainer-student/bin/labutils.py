@@ -84,15 +84,28 @@ def is_valid_lab(lab_path):
         #traceback.print_stack()
         sys.exit(1)
 
+def getFirstUnassignedIface(n=1):
+    ''' get the nth network iterface that lacks an assigned IP address '''
+    iflist = os.listdir('/sys/class/net')
+    for iface in sorted(iflist):
+        count = 1
+        ip = get_ip_address(iface)
+        if ip is None and n == count:
+            return iface
+        count += 1
+    return None
+
 def get_ip_address(ifname):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    return socket.inet_ntoa(fcntl.ioctl(
-        s.fileno(),
-        0x8915,  # SIOCGIFADDR
-        struct.pack('256s', ifname[:15])
-    )[20:24])
+    sp = struct.pack('256s', ifname[:15])
+    try:
+        fc = fcntl.ioctl(s.fileno(), 0x8915, sp)
+    except:
+        return None
+    return socket.inet_ntoa(fc[20:24])
 
 def get_hw_address(ifname):
+    #print('get_hw_address for %s' % ifname)
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', ifname[:15]))
     return ':'.join(['%02x' % ord(char) for char in info[18:24]])
@@ -101,6 +114,7 @@ def get_hw_address(ifname):
 def get_new_mac(ifname):
     ''' use last two byte of mac address to generate a new mac
         intended for use on macvlan '''
+    # TBD move this hardcoded prefix into some config file?
     preface = '02:43:ac:12'
     my_mac = get_hw_address(ifname)
     parts = my_mac.split(':')
