@@ -22,6 +22,7 @@ import os
 import labutils
 import logging
 import LabtainerLogging
+import CurrentLab
 
 # Usage: stop.py <labname>
 # Arguments:
@@ -59,7 +60,11 @@ def main():
         else:
             labutils.logger.ERROR("No running labs at all")
             sys.exit(1)
-        labutils.StopLab(lab_path, "student", False)
+        current_lab = CurrentLab.CurrentLab()
+        clone_count = current_lab.get('clone_count')        
+        servers = current_lab.get('servers')        
+        labutils.StopLab(lab_path, "student", False, servers=servers, clone_count=clone_count)
+        current_lab.clear()
 
     return 0
 

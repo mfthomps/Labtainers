@@ -21,6 +21,7 @@ import labutils
 import logging
 import LabtainerLogging
 import argparse
+import CurrentLab
 
 
 # Usage: redo.py <labname> [-f]
@@ -72,6 +73,11 @@ def main():
         distributed = 'client'
     labutils.RebuildLab(lab_path, "student", force_build=force_build, quiet_start=quiet_start, 
           just_container=args.force_container, run_container=args.run_container, servers=distributed, clone_count=args.clone_count)
+    current_lab = CurrentLab.CurrentLab()
+    current_lab.add('lab_name', args.labname)
+    current_lab.add('clone_count', args.clone_count)
+    current_lab.add('servers', distributed)
+    current_lab.save()
 
     return 0
 
