@@ -44,7 +44,7 @@ and configuration present on individual student computers.
 This allows each lab designer to control
 which software packages are present, the versions of libraries and
 specific configuration settings, e.g., /etc file values. These configurations
-may vary between labs, and they may vary between multiple containers in
+may vary between labs, and they may vary between multiple computers in
 a single lab.
 
 \item Assessment of student lab activity can be automated through a
@@ -221,7 +221,7 @@ directory.  So, open a new tab or window, and then:
 \begin{verbatim}
     cd $LABTAINER_DIR/scripts/labtainer-student
 \end{verbatim}
-Then start the container using the:
+Then start the lab using the:
 
 \begin{verbatim}
     rebuild.py [labname] 
@@ -246,11 +246,11 @@ The rebuild.py utility compares file modification dates to Docker image creation
 a given image needs to be rebuilt.  \footnote{rebuild.py will miss file deletion.  Thus, if files are deleted, you must
 force the rebuild using the {\tt -f} option at the end of the rebuild.py command.}
 
-Stop the containers with 
+Stop the lab with 
 \begin{verbatim}
     stop.py 
 \end{verbatim}
-When you stop the container, a path to saved results is displayed.
+When you stop the lab, a path to saved results is displayed.
 This is the zip file that the student will forward to the instructor.
 
 To test adding a ``hello world'' program to the new labtainer, perform the following steps:
@@ -261,7 +261,7 @@ To test adding a ``hello world'' program to the new labtainer, perform the follo
 \end{itemize}
     
 You should see the new program in the container's
-home directory.  If you run the program from the container, and then stop the container
+home directory.  If you run the program from the container, and then stop the lab
 with stop.py, you will see the stdin and stdout results of the program within the
 saved zip file.
 
@@ -281,13 +281,12 @@ in the lab.  For example, from your new lab directory:
 \end{verbatim}
 \noindent will create a second container for your lab,
 named ``joe\_computer''.  If you again run the rebuild.py script, you will see two virtual
-terminals, each connected to one of your two independent computers. 
-
-Use 
+terminals, each connected to one of your two independent computers.  Use 
 \begin{verbatim}
     new_lab_setup.sh -h
 \end{verbatim}
 \noindent to view the operations available in that script.
+
 The following sections describe how to configure the execution environments on your components,
 and how to define virtual networks connected to the components.
 
@@ -347,6 +346,8 @@ FROM mfthomps/labtainer.network
 \item labtainer.firefox -- An Ubuntu container with the Firefox browser.
 \item labtainer.wireshark -- The labtaienr.network with wireshark added.
 \item labtainer.java -- An Ubuntu container with the Firefox browser and the open JDK.
+\item labtainer.kali -- A Kali Linux system with the Metasploit framework.
+\item labtainer.metasploitable -- The Metasploitable-2 vulnerable server.
 \end{itemize}
 Refer to the Dockerfiles in {\tt \$LABTAINER\_DIR/scripts/designer/base\_dockerfiles} to see which
 software packages are included within each baseline image. 
@@ -369,7 +370,7 @@ default "ubuntu" user requires modification of the start.config file.
 The following describes the major sections of that configuration file.  Most of the configuration
 entries can be left alone for most labs.
 \begin{itemize}
-\item GLOBAL\_SETTINGS -- Beneath this keyword, the following values must be defined:
+\item GLOBAL\_SETTINGS -- These lab-wide parameters include:
 
 \begin{itemize}
 \item GRADE\_CONTAINER [container name] -- All lab containers are available to the instructor while assessing student labs.
@@ -397,18 +398,18 @@ See the the {\tt routing\_basics2} lab for examples.
 \item MACVLAN\_EXT [N] -- Optional, causes the Docker network driver to 
 create and use a macvlan tied to the given Nth ethernet interface (in alphabetical order) that lacks an
 assigned IP address.  The network device is expected to be on a ``host-only'' VM network.  The VMM should disable the
-DHCP server on this network.   The network adaptor itself needs to be placed in primiscous mode on the VMM, and on the 
+DHCP server on this network.   The network adaptor itself needs to be placed in primiscous mode on the 
 Linux VM, e.g., using ``sudo ifconfig enp0s8 promisc.''  
 These types of interfaces can be used to communicate with external hosts, e.g., other VMs
 as described in \ref{external hosts}  
 \item MACVLAN -- Similar to MACVALN\_EXT, except a macvlan will not be created unless the Labtainer lab
-is started as a multi-user lab.
+is started as a multi-user lab as descrbed in \ref{multi user}.
 \item IP\_RANGE [range] -- Optional, allocates an ip range to the network, e.g., 192.168.1.4/30
 \end{itemize}
 
 \item CONTAINER [container name] -- One of these sections is required for each container in the lab.
-These sections are automatically created by the {\tt new\_lab\_setup.py} script.  In addition to 
-naming the container, the following values are defined: 
+Default values for container sections are automatically created by the {\tt new\_lab\_setup.py} script.  
+In addition to naming the container, the following values are defined: 
 
 \begin{itemize}
 \item TERMINALS [quantity] -- The number of virtual terminals to open and attach to this 
@@ -429,35 +430,35 @@ in the container home directory will be displayed.
 This defaults to ``ubuntu.''
 \item PASSWORD [password] -- The password for the user name whose account will be accessed via the virtual terminals. 
 This defaults to the user name defined above.
-\item network name [ip address] -- Network address assignments for each network (defined via a NETWORK section), 
+\item \verb![network name]! [ip address] -- Network address assignments for each network (defined via a NETWORK section), 
 that is to be connected to this container.  A separate line should be entered for each network.  The given ip address 
 can be one of the following:
 \begin{itemize}
 \item An IP address 
-\item An IP address with an optional MAC address assignment as a suffix following a colon, e.g., "172.25.0.1:2:34:ac:19:0:2".
-\item An IP address with an optional clone offset, e.g., "172.25.0.1+CONE" to cause each clone to be assigned a sequence
-of addresses starting with the given address.
-\item If {\tt AUTO} is provided as the address, an address is chosen for you from the subnet range.  When the {\tt CLONE}
-option is used for the container(as defined below), then the address should either be {\tt AUTO}, or the suffix of {\tt +CLONE}
-\item {\tt CLONE\_MAC} Only takes effect if the lab is started in multi-user mode.  When started with the 
-{\tt --workstation} switch, this directs the system to generate a MAC address whose last four bytes match 
+\item An IP address with an optional MAC address assignment as a suffix following a colon, e.g., 172.25.0.1:2:34:ac:19:0:2.
+\item An IP address with an optional clone offset, e.g., {\tt 172.25.0.1+CLONE} to cause each clone to be assigned an address
+from a sequence starting with the given address.  Only intended for use with containers having the {\tt CLONE} option described below.
+\item Similar to the use of the {\tt +CLONE} suffix, {\tt CLONE\_MAC} only takes effect if the lab is started in multi-user mode.  
+When started with the {\tt --workstation} switch, this directs the system to generate a MAC address whose last four bytes match 
 those of the host network interface.  When stated as a multi-user lab with all containers on one VM, e.g., the 
-{\tt --clone\_count} switch, then the allocated IP address is incremeted by one less than the clone instance number.
+{\tt --client\_count} switch, then the allocated IP address is incremeted by one less than the clone instance number.
+\item If {\tt AUTO} is provided as the address, an address is chosen for you from the subnet range.  
 \end{itemize}
 \item SCRIPT [script] -- Optional script to provide to the Docker create command, defaults to ``bash''.  This must be set to
-``NONE'' for CentOS-based labs (and likely fedora[test that]).
+``NONE'' for CentOS-based labs or other images that run a true Linux init process.).
 \item ADD-HOST [host:ip] -- Optional addition to the /etc/host file, a container may have multiple ADD-HOST entries.
-\item X11 [YES/NO] -- Optional, defaults to NO.  If YES, the container mounts the TCP socked used by the hosts X11 server,
+\item X11 [YES/NO] -- Optional, defaults to NO.  If YES, the container mounts the TCP socket used by the hosts X11 server,
 enabling the container to run applications with GUIs, e.g., browsers or wireshark.  See sql-inject as an example.  See the
-Notes section at the end of this manual for tips on using Firefox and Wireshark.
+Notes section (\ref{Notes}) at the end of this manual for tips on using Firefox and Wireshark.
 \item CLONE [quantity] -- optional quantity of copies of this container to create. Each copy is assigned a monotonically
-increasing integer starting with one, and this value can be used for teh network address as describe above, and within
-parameterization as described in section \ref{parameterize}.
+increasing integer starting with one, and this value can be used for the network address as describe above, and within
+parameterization as described in section \ref{parameterize}. This option is not intended for use in creating multi-user
+labs.
 
 \end{itemize}
 \end{itemize}
   
-A simple example of a two-container lab with suitable network settings in the start.config file can be found in 
+A simple example of a two-container lab with network settings in the start.config file can be found in 
 \begin{verbatim}
     $LABTAINER_DIR/labs/telnetlab
 \end{verbatim}
@@ -467,7 +468,7 @@ random IP addresses to components.
 
 \subsection {Lab-specific files in the student's home directory}
 \label{home files}
-Files that are to reside in the student's \$HOME directory are placed in the 
+Files that are to reside relative to the student's \$HOME directory are placed in the 
 new lab container directory.  For example, if a lab is to include a source code file, that
 should be placed in the lab container directory. The file will appear in the student's
 home directory within the container when the container starts.  The lab container
@@ -511,7 +512,7 @@ For example, configuration files for /etc should appear in \_system/etc/.
 
 The initial Dockerfile from the templates include this line:
 \begin{verbatim}
-    ADD \$labdir/sys_\$lab.tar.gz /
+    ADD $labdir/sys_$lab.tar.gz /
 \end{verbatim}
 \noindent to accomplish the copying. 
 If a lab contains a large quantity of system files, or large files, those
@@ -574,8 +575,8 @@ labtainer\_xfer/[lab]/docs directory.
 Programs can be started automatically within virtual terminals using two methods.
 The first is the ``XTERM'' directive in the container section in the start.config file
 described in \ref{start config}.  That is intended for programs whose results are displayed
-within the virtual terminal.  The second method is intended for user authentiation and
-for starting GUI based programs
+within the virtual terminal, (see the plc lab for examples).  The second method is 
+intended for user authentiation and for starting GUI based programs
 that will use the Linux host Xserver.  If a file exists at:
 \begin{verbatim}
     $LABTAINER_DIR/labs/[labname]/[container name]/_bin/student_start.sh
@@ -583,8 +584,8 @@ that will use the Linux host Xserver.  If a file exists at:
 it will be executed from each virtual terminal created for the container.
 See the sql-inject lab and the centos-log lab examples, with the latter
 running the login program to require students to login prior to getting a shell prompt.
-\footnote{Copy the login program from labs/centos-log/centos-log/\_system/sbin/login
-to your container's \_system/sbin directory.}
+\footnote{On CentOS systems, copy the login program from labs/centos-log/centos-log/\_system/sbin/login
+to your container's \_system/sbin directory. The login program from Ubuntu works as is.}
 
 
 \subsection{Final lab environment fixup}
@@ -618,13 +619,13 @@ sharing of lab solutions.  This is achieved by defining symbols within source
 code or/and data files residing on lab containers. \footnote{An exception is the
 start.config file, which can be parameterized as described in the syntax description.}  
 The framework will replace these symbols with randomized values
-specific to each student.  The config/parameter.config file identifies the files, and
+specific to each student.  The {\tt config/parameter.config} file identifies the files, and
 the symbols within those files that are to be modified.  A simple example can be found in 
 \begin{verbatim}
     $LABTAINER_DIR/labs/formatstring/formatstring/config/parameter.config
 \end{verbatim}
 
-That configuration file causes the string ``SECRET2\_VALUE'' within the file:
+That configuration file causes the string {\tt SECRET2\_VALUE} within the file:
 \begin{verbatim}
      /home/ubuntu/vul_prog.c
 \end{verbatim}
@@ -636,7 +637,7 @@ but before the execution of the \_bin/fixlocal.sh script.  Thus, in the formatst
 lab, the executable program resulting from the fixlocal.sh script will be specific
 to each student (though not necessarily unique).
 
-Symbolic parameter replacement operations are defined within the config/parameter.config file.
+Symbolic parameter replacement operations are defined within the {\tt config/parameter.config} file.
 Each line of that file must start with a \verb!"<parameter_id> : "!, which is any unique string, and
 is followed by one of the following operations:
 
@@ -721,12 +722,12 @@ is followed by one of the following operations:
 The parameter\_id fields may be referenced during the automated grading function, described below
 in section \ref{goals.config}. 
 
-Parameterizing occurs subsequent to system "boot", but prior to running the fixlocal.sh script.
-The ubuntu based images /sbin/faux\_init.sh  script includes logic to delay the starting of 
+Parameterizing occurs subsequent to container ``boot'', but prior to running the fixlocal.sh script.
+The Ubuntu based images {\tt /sbin/faux\_init.sh}  script includes logic to delay the starting of 
 selected services until after parameterization occurs (see commented sections at the end of that script).
 
 Parameterizing of the start.config file occurs prior to Docker container creation.  The framework 
-modifies a copy of the file stored in /tmp/start.config and uses that when assigning attributes to containers,
+modifies a copy of the file stored in {\tt /tmp/start.config} and uses that when assigning attributes to containers,
 e.g., IP addresses. Currently only IP addresses within the start.config can parameteterized (e.g., not user names).
 
 \subsection{Simple Parameterization for Checking Own-work}
@@ -799,7 +800,7 @@ names appear at the beginning of a line in the \textit{treataslocal} file at
 \footnote{In other words, if the treataslocal entry is: \texttt{usr/bin/nmap}, the path leading to nmap is ignored.}
 Starting of services can be monitored through use of treataslocal entries having a ``.service'' suffix,
 e.g., {\tt httpd.service} would generate timestamped artifact files whenever http was started (or restarted)
-using systemctl or /etc/init.d.  See section \ref{time delimeter services} for the intended use of this feature.
+using systemctl, service or /etc/init.d/...  See section \ref{time delimeter} for the intended use of this feature.
 
 Non-system programs can be excluded from stdin/stdout capturing by including their names in
 a ``ignorelocal'' file in that same directory.  \footnote{These should not include path information, just the program name.}
@@ -1633,7 +1634,7 @@ the three operating modes.
 \item Within the {\tt start.config} file, identify this subnet as either a MACVLAN or
 a MACVLAN\_EXT.  The MACVLAN\_EXT
 option will create a MACVLAN for this interface regardless of what mode the lab is started in,
-and is only intended for use if the lab includes an external host as described in \ref{external host}.
+and is only intended for use if the lab includes an external host as described in \ref{external hosts}.
 
 \item Itentify the client component within the {\tt start.config} file using:
 \begin{verbatim}
@@ -1641,11 +1642,11 @@ and is only intended for use if the lab includes an external host as described i
 \end{verbatim}
 
 \item Define the client component network address for the client subnet using the
-``+CLONE\_MAC'' option, e.g., 
+{\tt +CLONE\_MAC} option, e.g., 
 \begin{verbatim}
     LAN 192.168.1.10+CLONE_MAC
 \end{verbatim}
-\noindent  When run in single user mode, the +CLONE\_MAC suffix is ignored.  When run
+\noindent  When run in single user mode, the {\tt +CLONE\_MAC} suffix is ignored.  When run
 with multiple Labtainer instances, the last four bytes of the network MAC address for
 each client is cloned from the network interface tied to the MACVLAN.  When all multi-user
 Labtainer workstations run on a single VM, then the IP address is incremented by one less
@@ -1732,6 +1733,7 @@ kernel configuration settings, e.g., enabling ASLR, will be visible across all
 of the containers.
 
 \section{Notes} \label{Notes}
+\label{Notes}
 \subsection{Firefox}
 The labtainer.firefox image includes a /var/tmp/home.tar 
 which is expanded into the user home directory when parameterize.sh is run.
@@ -1787,8 +1789,6 @@ The scripts/designer/system/etc/ssh/sshd\_conf allows X11 tunneling over ssh, e.
 from a remote VM connected to the same host-only lan as a container running the GUI
 application.  Use {\tt ssh -X container\_ip} to enable X11 tunneling in the ssh session.
 
-\noindent to allow sshd to run on an Ubuntu system. Include that if you are creating
-other baselines, or images derived from non-Labtainer images.
 \subsubsection{Traffic mirroring}
 Send copies of traffic from one ethernet port to another using the iptables TEE operation, e.g.,
 \begin{verbatim}
