@@ -41,7 +41,7 @@ if [ ! -d $LAB_DIR ]; then
     exit
 fi
 #------------------------------------V
-echo "force_build is $force_build"
+#echo "force_build is $force_build"
 if [ $force_build == "False" ]; then
     echo docker pull $REGISTRY/$labimage
     docker pull $REGISTRY/$labimage
