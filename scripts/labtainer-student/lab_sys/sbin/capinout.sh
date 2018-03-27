@@ -94,8 +94,10 @@ if [[ "$full" == *"$pipe_sym"* ]]; then
     EXECPROG=${TARGET_ARGS[0]}
     if [ ${TARGET_ARGS[0]} == "sudo" ]; then
        PROGNAME=`basename ${TARGET_ARGS[1]}`
+       PROGPATH=${TARGET_ARGS[1]}
     else
        PROGNAME=`basename ${TARGET_ARGS[0]}`
+       PROGPATH=${TARGET_ARGS[0]}
     fi
     len=${#TARGET_ARGS[@]}
     if [ $len -gt 1 ]; then
@@ -109,8 +111,10 @@ else
     EXECPROG=${TARGET_ARGS[0]}
     if [ ${TARGET_ARGS[0]} == "sudo" ]; then
        PROGNAME=`basename ${TARGET_ARGS[1]}`
+       PROGPATH=${TARGET_ARGS[1]}
     else
        PROGNAME=`basename ${TARGET_ARGS[0]}`
+       PROGPATH=${TARGET_ARGS[0]}
     fi
     len=${#TARGET_ARGS[@]}
     if [ $len -gt 1 ]; then
@@ -125,15 +129,36 @@ fi
 #echo "PROGRAM_ARGUMENTS is ($PROGRAM_ARGUMENTS)"
 #echo "Program to execute is $EXECPROG"
 #echo "PROGNAME is $PROGNAME"
-if [[ $PROGNAME == systemctl ]] || [[ $PROGNAME == /etc/init.d ]]; then
+if [[ $PROGNAME == systemctl ]]; then
     # special handling for service program stdin and stdout file names
     ARG_ARRAY=($PROGRAM_ARGUMENTS)
-    stdinfile="$PRECMD_HOME/.local/result/${ARG_ARRAY[2]}.service.stdin.$timestamp"
-    stdoutfile="$PRECMD_HOME/.local/result/${ARG_ARRAY[2]}.service.stdout.$timestamp"
+    if [[ $EXECPROG == sudo ]]; then
+        stdinfile="$PRECMD_HOME/.local/result/${ARG_ARRAY[2]}.service.stdin.$timestamp"
+        stdoutfile="$PRECMD_HOME/.local/result/${ARG_ARRAY[2]}.service.stdout.$timestamp"
+    else
+        stdinfile="$PRECMD_HOME/.local/result/${ARG_ARRAY[1]}.service.stdin.$timestamp"
+        stdoutfile="$PRECMD_HOME/.local/result/${ARG_ARRAY[1]}.service.stdout.$timestamp"
+    fi
+elif [[ $PROGNAME == service ]]; then
+    # special handling for service program stdin and stdout file names
+    ARG_ARRAY=($PROGRAM_ARGUMENTS)
+    if [[ $EXECPROG == sudo ]]; then
+        stdinfile="$PRECMD_HOME/.local/result/${ARG_ARRAY[1]}.service.stdin.$timestamp"
+        stdoutfile="$PRECMD_HOME/.local/result/${ARG_ARRAY[1]}.service.stdout.$timestamp"
+    else
+        stdinfile="$PRECMD_HOME/.local/result/${ARG_ARRAY[0]}.service.stdin.$timestamp"
+        stdoutfile="$PRECMD_HOME/.local/result/${ARG_ARRAY[0]}.service.stdout.$timestamp"
+    fi
+elif [[ $PROGPATH == /etc/init.d/* ]]; then
+    # special handling for service program stdin and stdout file names
+    ARG_ARRAY=($PROGRAM_ARGUMENTS)
+    stdinfile="$PRECMD_HOME/.local/result/$PROGNAME.service.stdin.$timestamp"
+    stdoutfile="$PRECMD_HOME/.local/result/$PROGNAME.service.stdout.$timestamp"
 else
     stdinfile="$PRECMD_HOME/.local/result/$PROGNAME.stdin.$timestamp"
     stdoutfile="$PRECMD_HOME/.local/result/$PROGNAME.stdout.$timestamp"
 fi
+#echo stdout $stdoutfile
 
 # Store programs arguments into stdinfile
 echo "PROGRAM_ARGUMENTS is ($PROGRAM_ARGUMENTS)" >> $stdinfile
