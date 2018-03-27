@@ -68,7 +68,8 @@ treatlocal(){
 
            if [[ $the_command == *.service ]]; then
                # special handling for service commands
-               if [[ $base_cmd == systemctl ]] || [[ $base_cmd == /etc/init.d ]]; then
+               #echo special handling base_cmd $base_cmd
+               if [[ $base_cmd == systemctl ]]; then
                    orig_cmd_array=($command)
                    action_index=1
                    if [ ${orig_cmd_array[0]} == "sudo" ]; then
@@ -79,7 +80,38 @@ treatlocal(){
                        service_index=`expr $action_index + 1`
                        service=${orig_cmd_array[$service_index]}
                        if [[ $base_treat == $service.service ]]; then
-                           # echo will monitor $command
+                           #echo will monitor $command
+                           return 1
+                       fi
+                   fi
+               elif [[ $base_cmd == service ]]; then
+                   orig_cmd_array=($command)
+                   action_index=2
+                   if [ ${orig_cmd_array[0]} == "sudo" ]; then
+                       action_index=3
+                   fi
+                   action=${orig_cmd_array[$action_index]}
+                   if [[ $action == 'start' ]] || [[ $action == 'restart' ]]; then
+                       service_index=`expr $action_index - 1`
+                       service=${orig_cmd_array[$service_index]}
+                       if [[ $base_treat == $service.service ]]; then
+                           #echo will monitor $command
+                           return 1
+                       fi
+                   fi
+               elif [[ $cmd_path == /etc/init.d/* ]]; then
+                   #echo "is init.d"
+                   orig_cmd_array=($command)
+                   action_index=1
+                   if [ ${orig_cmd_array[0]} == "sudo" ]; then
+                       action_index=2
+                   fi
+                   action=${orig_cmd_array[$action_index]}
+                   #echo "action $action"
+                   if [[ $action == 'start' ]] || [[ $action == 'restart' ]]; then
+                       service=$base_cmd
+                       if [[ $base_treat == $service.service ]]; then
+                           #echo will monitor $command
                            return 1
                        fi
                    fi
