@@ -30,16 +30,16 @@ import CurrentLab
 #    [-f] will force a rebuild
 #    [-q] will load the lab using a predetermined email.
 def main():
-    parser = argparse.ArgumentParser(description='Build the images of a lab')
+    parser = argparse.ArgumentParser(description='Build the images of a lab and start the lab.')
     parser.add_argument('labname', help='The lab to build')
-    parser.add_argument('-f', '--force', action='store_true', help='force build')
+    parser.add_argument('-f', '--force', action='store_true', help='Force build of all containers in the lab.')
     parser.add_argument('-p', '--prompt', action='store_true', help='prompt for email, otherwise use stored')
     parser.add_argument('-C', '--force_container', action='store', help='force rebuild just this container')
-    parser.add_argument('-c', '--run_container', action='store', help='run just this container')
-    parser.add_argument('-t', '--test_registry', action='store_true', default=False, help='build and publish with test registry')
+    parser.add_argument('-o', '--only_container', action='store', help='run only this container')
+    parser.add_argument('-t', '--test_registry', action='store_true', default=False, help='build from images in the test registry')
     parser.add_argument('-s', '--servers', action='store_true', help='Start containers that are not clients -- intended for distributed Labtainers')
     parser.add_argument('-w', '--workstation', action='store_true', help='Intended for distributed Labtainers, start the client workstation.')
-    parser.add_argument('-n', '--clone_count', action='store', help='Number of clones of client containers to create, itended for multi-user labs')
+    parser.add_argument('-n', '--client_count', action='store', help='Number of clones of client containers to create, intended for multi-user labs')
 
     args = parser.parse_args()
     quiet_start = True
@@ -72,10 +72,10 @@ def main():
     elif args.workstation:
         distributed = 'client'
     labutils.RebuildLab(lab_path, "student", force_build=force_build, quiet_start=quiet_start, 
-          just_container=args.force_container, run_container=args.run_container, servers=distributed, clone_count=args.clone_count)
+          just_container=args.force_container, run_container=args.only_container, servers=distributed, clone_count=args.client_count)
     current_lab = CurrentLab.CurrentLab()
     current_lab.add('lab_name', args.labname)
-    current_lab.add('clone_count', args.clone_count)
+    current_lab.add('clone_count', args.client_count)
     current_lab.add('servers', distributed)
     current_lab.save()
 
