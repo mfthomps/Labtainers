@@ -9,13 +9,10 @@ United States Code Section 105.   This software is in the public
 domain and is not subject to copyright. 
 '''
 
-# Filename: stop.py
-# Description:
-# This is the stop script to be run by the student.
-# Note:
-# 1. It needs 'start.config' file, where
-#    <labname> is given as a parameter to the script.
-#
+'''
+Stop a given Labtainers lab.  If no arguments are given, then all running
+labs will be stopped.
+'''
 
 import sys
 import os
@@ -23,23 +20,22 @@ import labutils
 import logging
 import LabtainerLogging
 import CurrentLab
+import argparse
 
 # Usage: stop.py <labname>
 # Arguments:
 #    <labname> - the lab to stop
 def main():
-    if len(sys.argv) > 2:
-        sys.stderr.write("Usage: stop.py [<labname>]\n")
-        sys.exit(1)
+    parser = argparse.ArgumentParser(description='Stop a Labtainers lab.  If no arguments are provided, then all labs are stopped.')
+    parser.add_argument('lab', nargs='?', default='all')
+    args = parser.parse_args()
     
+    labname = args.lab
     lablist = []
-    if len(sys.argv) == 2:
-        labname = sys.argv[1]
+    if labname != 'all':
         labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
         lablist.append(labname)
     else:
-        labname = "all"
-        # labutils.logger need to be set before calling GetListRunningLab()
         labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
         lablist = labutils.GetListRunningLab()
 
