@@ -310,7 +310,7 @@ shell requiring no login.  Alternate initial environments, including use of the 
 described in section \ref{student start}.
 
 \subsection {Docker files}
-A default Labtainer-specific Dockerfile is placed in the new lab's ``dockerfiles'' 
+A default Labtainer-specific Dockerfile is placed in the new lab's ``Dockerfiles'' 
 directory when the new lab is created.  And additional Dockerfiles are added when the
 {\tt new\_lab\_setup.sh -a} script adds computers to the lab. We use standard Docker file syntax, which is described at 
 \url{https://docs.docker.com/engine/reference/builder/}
@@ -325,7 +325,7 @@ execution environment builds off of a recent Ubuntu image.
 \begin{verbatim}
    $LABTAINER_DIR/labs/[labname]/dockerfiles
 \end{verbatim}
-\noindent directory.  The naming convention for dockerfiles is
+\noindent directory.  The naming convention for Dockerfiles is
 \begin{verbatim}
     Dockerfile.[labname].[container_name].[role]
 \end{verbatim}
@@ -1524,7 +1524,7 @@ how the sources files are manipulated.
 The {\tt apt\_source} entry in the trunk/config/labtainer.config file will set the {\tt \$apt\_source}
 environment variable in a Dockerfile, and this can be used by lab designers to force image builds to use
 alternate sources.  By default, the value of the variable is ``archive.ubuntu.com''.  This hostname can be 
-overridden via the trunk/config/labtainer.config file apt\_source entry, and having the following in your dockerfile:
+overridden via the trunk/config/labtainer.config file apt\_source entry, and having the following in your Dockerfile:
 \begin{verbatim}
 RUN sed -i s/archive.ubuntu.com/$apt_source/ /etc/apt/sources.list
 \end{verbatim}
@@ -1778,7 +1778,7 @@ In particular, you will need the {\tt bin/student\_startup.sh} script, and the {
 \subsection{Networking Notes}
 \label{Networking Notes}
 \subsubsection{SSH}
-The labtainer.network baseline dockerfile includes the following:
+The labtainer.network baseline Dockerfile includes the following:
 \begin{verbatim}
 ADD system/var/run/sshd /var/run/sshd
 RUN sudo chmod 0755 /var/run/sshd
@@ -1798,14 +1798,14 @@ Send copies of traffic from one ethernet port to another using the iptables TEE 
 Note that gateway must be a next hop, or you will have to configure the nexthop to forward it further.
 This is useful for IDS labs, e.g., snort.  Mirroring all incoming traffic into a component will let you
 reconstruct TCP sessions within that component.  Mirroring output from components is not always reliable.
-Besides potential for duplicat traffic, Docker networks seem to sometimes gratuitously replace destination
+Besides potential for duplicate traffic, Docker networks seem to sometimes gratuitously replace destination
 addresses with those of the Docker network gateway, i.e., the gateway to the host.
 
 \subsubsection{DNS}
-Install bind9 in dockerfile.  Add zone files to /etc/bind and db files to ../\_system/var/cache/bind/.
+Install bind9 in Dockerfile.  Add zone files to /etc/bind and db files to ../\_system/var/cache/bind/.
 Add reference to the /etc/bind/named.conf.local as seen in local-dns/\_bin/fixlocal.sh
 
-\subsubsection{Overridding Docker routing and DNS}
+\subsubsection{Overriding Docker routing and DNS}
 Realistic network topologies require components to have /etc/resolv.conf and routing
 table entries that do not depend on Docker gateways and related magic.  However, at some point you may
 want components to be able to reach the outside world.  If you've fiddled resolv.conf and routing,
@@ -1822,6 +1822,14 @@ delete the Docker-generated route:
 \end{verbatim}
 \noindent And the fixlocal.sh also replaces the resolv.conf entry with either a local DNS component, or a gateway running
 the dnsmasq utility.  The /etc/rc.local script generally sets the default gateway, and configures iptables.
+
+\subsection{User management and sudo}
+The Dockerfile should make the initial user, i.e., the user named in the start.config file, a member of sudoers.
+Otherwise, the fixlocal.sh script will not be unable to modify the environment.  If desired, that user can be
+removed from sudoers at the end of the fixlocal.sh script.
+
+Only the initial user (and that user's actions taken as root) are monitored.  Additional users can be added,
+e.g., in the Dockerfile, but their actions are not monitored or recorded in artifacts.
 
 
 \subsection{Suggestions for Developers}
