@@ -625,20 +625,33 @@ def CopyAssessBin(mycontainer_name, container_user):
         sys.exit(1)
 
 def CopyLabBin(mycontainer_name, container_user):
-    command = 'docker cp lab_bin/.  %s:/home/%s/.local/bin/' % (mycontainer_name, container_user)
-    logger.DEBUG("Command to execute is (%s)" % command)
-    result = subprocess.call(command, shell=True)
-    logger.DEBUG("Result of subprocess.call %s" % (result))
-    if result == FAILURE:
-        logger.ERROR("Failed copy lab_bin %s!\n" % mycontainer_name)
+    cmd = 'docker cp lab_bin/.  %s:/home/%s/.local/bin/' % (mycontainer_name, container_user)
+    logger.DEBUG("Command to execute is (%s)" % cmd)
+    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if len(output[1]) > 0:
+        logger.ERROR("Failed copy lab_bin %s %s" % (mycontainer_name, output[1]))
         sys.exit(1)
-    command = 'docker cp lab_sys/.  %s:/' % (mycontainer_name)
-    logger.DEBUG("Command to execute is (%s)" % command)
-    result = subprocess.call(command, shell=True)
-    logger.DEBUG("Result of subprocess.call %s" % (result))
-    if result == FAILURE:
-        logger.ERROR("Failed copy lab_sys %s!\n" % mycontainer_name)
+    cmd = 'tar cf /tmp/labsys.tar -C ./lab_sys etc sbin'
+    os.system(cmd)
+    cmd = 'docker cp /tmp/labsys.tar %s:/tmp/' % (mycontainer_name)
+    logger.DEBUG("Command to execute is (%s)" % cmd)
+    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    if len(output[1]) > 0:
+        logger.ERROR("Failed copy labsys.tar %s %s" % (mycontainer_name, output[1]))
         sys.exit(1)
+    cmd = 'docker exec %s script -q -c "tar xhf /tmp/labsys.tar -C /"' % (mycontainer_name)
+    logger.DEBUG("Command to execute is (%s)" % cmd)
+    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    if len(output[1]) > 0:
+        logger.ERROR("Failed untar of labsys %s %s" % (mycontainer_name, output[1]))
+    #command = 'docker cp lab_sys/.  %s:/' % (mycontainer_name)
+    #logger.DEBUG("Command to execute is (%s)" % command)
+    #result = subprocess.call(command, shell=True)
+    #logger.DEBUG("Result of subprocess.call %s" % (result))
+    #if result == FAILURE:
+    #    logger.ERROR("Failed copy lab_sys %s!\n" % mycontainer_name)
+    #    sys.exit(1)
 
 # Copy Students' Artifacts from host to instructor's lab container
 def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_user, container_password, is_regress_test, is_watermark_test):
