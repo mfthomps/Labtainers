@@ -132,10 +132,10 @@ def getDocker0IPAddr():
     return get_ip_address('docker0')
 
 # Parameterize my_container_name container
-def ParameterizeMyContainer(mycontainer_name, container_user, container_password, lab_instance_seed, user_email, labname):
+def ParameterizeMyContainer(mycontainer_name, container_user, container_password, lab_instance_seed, user_email, labname, lab_path, name):
     retval = True
     ''' copy lab_bin and lab_sys files into .local/bin and / respectively '''
-    CopyLabBin(mycontainer_name, container_user)
+    CopyLabBin(mycontainer_name, container_user, lab_path, name)
     cmd_path = '/home/%s/.local/bin/parameterize.sh' % (container_user)
     if container_password == "":
         container_password = container_user
@@ -189,7 +189,7 @@ def IsContainerCreated(mycontainer_name):
     result = subprocess.call(command, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
     if result == FAILURE:
        retval = False
-    logger.DEBUG("Result of subprocess.call IsContainerCreated is %s" % result)
+    logger.DEBUG("Result of subprocess.call for %s IsContainerCreated is %s (1=>FAILURE)" % (mycontainer_name, result))
     return retval
 
 def GetNetParam(start_config, mysubnet_name, mysubnet_ip, mycontainer_name):
@@ -319,9 +319,10 @@ def GetX11SSH():
 
 def CreateSingleContainer(start_config, container, mysubnet_name=None, mysubnet_ip=None):
     ''' create a single container -- or all clones of that container per the start.config '''
-    logger.DEBUG("Create Single Container")
+    logger.DEBUG("Create Single Container for %s" % container.name)
     retval = True
-    image_exists, result, new_image_name = ImageExists(container.image_name, container.full_name, container.registry)
+    image_exists, result, new_image_name = ImageExists(container.image_name, container.registry)
+        
     if not image_exists:
         logger.ERROR('Could not find image for %s' % container.image_name)
         retval = False
@@ -445,7 +446,7 @@ def CreateSubnets(start_config):
             #create_result = subprocess.call(command, shell=True)
             ps = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             output = ps.communicate()
-            logger.DEBUG("Result of subprocess.call CreateSubnets docker network create is %s" % output[0])
+            logger.DEBUG("stdout of subprocess.call CreateSubnets docker network create is %s" % output[0])
             if len(output[1]) > 0:
                 found_match_network = False
                 found_match_network_name = ""
@@ -524,15 +525,15 @@ def GetLabSeed(lab_master_seed, student_email):
 
 #def ParamStartConfig(lab_seed):
     
-def ParamForStudent(lab_master_seed, mycontainer_name, container_user, container_password, labname, student_email):
+def ParamForStudent(lab_master_seed, mycontainer_name, container_user, container_password, labname, student_email, lab_path, name):
     mymd5_hex_string = GetLabSeed(lab_master_seed, student_email)
     logger.DEBUG(mymd5_hex_string)
 
     if not ParameterizeMyContainer(mycontainer_name, container_user, container_password, mymd5_hex_string,
-                                                          student_email, labname):
+                                                          student_email, labname, lab_path, name):
         logger.ERROR("Failed to parameterize lab container %s!\n" % mycontainer_name)
         sys.exit(1)
-    logger.DEBUG('back from ParameterizeMyContainer')
+    logger.DEBUG('back from ParameterizeMyContainer for %s' % mycontainer_name)
 
 # Do InstDocsToHostDir - extract students' docs.zip if exist
 def InstDocsToHostDir(start_config, labtainer_config, lab_path, role, quiet_start):
@@ -619,32 +620,39 @@ def CopyAssessBin(mycontainer_name, container_user):
     command = 'docker cp /tmp/assess_bin/bin  %s:/home/%s/.local/' % (mycontainer_name, container_user)
     logger.DEBUG("Command to execute is (%s)" % command)
     result = subprocess.call(command, shell=True)
-    logger.DEBUG("Result of subprocess.call %s" % (result))
+    logger.DEBUG("Result of subprocess.call %s (1=>FAILURE)" % (result))
     if result == FAILURE:
         logger.ERROR("Failed copy assess_bin %s!\n" % mycontainer_name)
         sys.exit(1)
 
-def CopyLabBin(mycontainer_name, container_user):
-    cmd = 'docker cp lab_bin/.  %s:/home/%s/.local/bin/' % (mycontainer_name, container_user)
+def DockerCmd(cmd):
     logger.DEBUG("Command to execute is (%s)" % cmd)
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[1]) > 0:
-        logger.ERROR("Failed copy lab_bin %s %s" % (mycontainer_name, output[1]))
+        logger.ERROR("Failed copy %s %s %s" % (mycontainer_name, output[1]))
         sys.exit(1)
+
+
+def CopyLabBin(mycontainer_name, container_user, lab_path, name):
+    cmd = 'docker cp lab_bin/.  %s:/home/%s/.local/bin/' % (mycontainer_name, container_user)
+    DockerCmd(cmd)
+
+    ''' TBD perhaps move lab/_bin to here?  would it save duplicate containers?'''
+    #container_bin = os.path.join(lab_path, name,'_bin')
+    #if os.path.isdir(container_bin):
+    #    cmd = 'docker cp %s/.  %s:/home/%s/.local/bin/' % (container_bin, mycontainer_name, container_user)
+    #    DockerCmd(cmd)
+
     cmd = 'tar cf /tmp/labsys.tar -C ./lab_sys etc sbin'
     os.system(cmd)
+
     cmd = 'docker cp /tmp/labsys.tar %s:/tmp/' % (mycontainer_name)
-    logger.DEBUG("Command to execute is (%s)" % cmd)
-    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    if len(output[1]) > 0:
-        logger.ERROR("Failed copy labsys.tar %s %s" % (mycontainer_name, output[1]))
-        sys.exit(1)
+    DockerCmd(cmd)
+
     cmd = 'docker exec %s script -q -c "tar xhf /tmp/labsys.tar -C /"' % (mycontainer_name)
-    logger.DEBUG("Command to execute is (%s)" % cmd)
-    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    if len(output[1]) > 0:
-        logger.ERROR("Failed untar of labsys %s %s" % (mycontainer_name, output[1]))
+    DockerCmd(cmd)
+
     #command = 'docker cp lab_sys/.  %s:/' % (mycontainer_name)
     #logger.DEBUG("Command to execute is (%s)" % command)
     #result = subprocess.call(command, shell=True)
@@ -659,7 +667,7 @@ def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_
     command = 'docker exec %s script -q -c "echo %s > /home/%s/.local/.labname" /dev/null' % (mycontainer_name, labname, container_user)
     logger.DEBUG("Command to execute is (%s)" % command)
     result = subprocess.call(command, shell=True)
-    logger.DEBUG("Result of subprocess.call CopyStudentArtifacts set labname is %s" % result)
+    logger.DEBUG("Result of subprocess.call CopyStudentArtifacts set labname is %s (1=>FAILURE)" % result)
     if result == FAILURE:
         logger.ERROR("Failed to set labname in container %s!\n" % mycontainer_name)
         sys.exit(1)
@@ -668,7 +676,7 @@ def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_
     command = 'docker exec %s script -q -c "echo TRUE > /home/%s/.local/.is_grade_container" /dev/null' % (mycontainer_name, container_user)
     logger.DEBUG("Command to execute is (%s)" % command)
     result = subprocess.call(command, shell=True)
-    logger.DEBUG("Result of subprocess.call CopyStudentArtifacts create is_grade_container is %s" % result)
+    logger.DEBUG("Result of subprocess.call CopyStudentArtifacts create is_grade_container is %s (1=>FAILURE)" % result)
     if result == FAILURE:
         logger.ERROR("Failed to create is_grade_container in container %s!\n" % mycontainer_name)
         sys.exit(1)
@@ -696,7 +704,7 @@ def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_
         command = 'docker cp %s %s:/home/%s/' % (fname, mycontainer_name, container_user)
         logger.DEBUG("Command to execute is (%s)" % command)
         result = subprocess.call(command, shell=True)
-        logger.DEBUG("Result of subprocess.call CopyStudentArtifacts copy zipfile (%s) is %s" % (fname, result))
+        logger.DEBUG("Result of subprocess.call CopyStudentArtifacts copy zipfile (%s) is %s (1=>FAILURE)" % (fname, result))
         if result == FAILURE:
             logger.ERROR("Failed to set labname in container %s!\n" % mycontainer_name)
             sys.exit(1)
@@ -740,7 +748,7 @@ def GetRunningLabNames(containers_list, role):
                 labnameslist.append(labname)
     return found_lab_role, labnameslist
 
-def ImageExists(image_name, container_name, registry):
+def ImageExists(image_name, registry):
     '''
     determine if a given image exists.
     '''
@@ -752,7 +760,7 @@ def ImageExists(image_name, container_name, registry):
     if len(output[1].strip()) > 0:
         if registry is not None:
             with_registry = '%s/%s' % (registry, image_name)
-            return ImageExists(with_registry, container_name, None)
+            return ImageExists(with_registry, None)
         else:
             logger.DEBUG('No image: error returned %s, return false' % output[1])
             return False, None, None
@@ -761,7 +769,7 @@ def ImageExists(image_name, container_name, registry):
     if 'Error:' in result or len(result.strip()) == 0:
         if registry is not None:
             with_registry = '%s/%s' % (image_name, registry)
-            return ImageExists(with_registry, container_name, None)
+            return ImageExists(with_registry, None)
         else:
             if 'Error:' in result:
                 logger.DEBUG("Command was (%s)" % cmd)
@@ -839,10 +847,14 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False, just_c
             if len(output[1]) > 0:
                 logger.DEBUG("Error from command %s was  '%s'" % (cmd, output[1]))
 
+        if container.from_image is not None:
+            logger.DEBUG('skip image taken from %s' % container.from_image)
+            continue
+
         force_this_build = force_build
         logger.DEBUG('force_this_build: %r' % force_this_build)
         if not force_this_build:
-            image_exists, result, new_image_name = ImageExists(mycontainer_image_name, mycontainer_name, container.registry)
+            image_exists, result, new_image_name = ImageExists(mycontainer_image_name, container.registry)
             if not image_exists:
                 cmd = 'docker pull %s/%s' % (container.registry, mycontainer_image_name)
                 logger.DEBUG('image did not exist, pull cmd is %s' % cmd)
@@ -913,7 +925,7 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
         container_hostname         = container.hostname
 
         haveContainer = AllContainersCreated(container)
-        logger.DEBUG("DoStart IsContainerCreated result (%s)" % haveContainer)
+        logger.DEBUG("DoStart for %s AllContainersCreated result (%s)" % (container.name, haveContainer))
 
         # Set need_seeds=False first
         need_seeds=False
@@ -942,7 +954,7 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
 
         # Check again - 
         haveContainer = AllContainersCreated(container)
-        logger.DEBUG("AllContainersCreated result (%s)" % haveContainer)
+        logger.DEBUG("AllContainersCreated second check for %s result (%s)" % (container.name, haveContainer))
 
         # IsContainerCreated returned False if container does not exists
         if not haveContainer:
@@ -982,11 +994,11 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
        	    # If the container is just created, then use the previous user's e-mail
             # then parameterize the container
             elif quiet_start and need_seeds and role == 'student':
-                ParamForStudent(start_config.lab_master_seed, mycontainer_name, container_user, container_password, labname, student_email)
+                ParamForStudent(start_config.lab_master_seed, mycontainer_name, container_user, container_password, labname, student_email, lab_path, name)
             
             elif need_seeds and role == 'student':
                 ParamForStudent(start_config.lab_master_seed, mycontainer_name, container_user, 
-                                                 container_password, labname, student_email)
+                                                 container_password, labname, student_email, lab_path, name)
     
         results.append(retval)
 
@@ -1378,7 +1390,7 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
                 logger.DEBUG("Command was (%s)" % cmd)
                 if len(output[1]) > 0:
                     logger.DEBUG("Error from command = '%s'" % str(output[1]))
-        image_exists, result, dumb = ImageExists(mycontainer_image_name, mycontainer_name, container.registry)
+        image_exists, result, dumb = ImageExists(mycontainer_image_name, container.registry)
         if not image_exists:
             if os.path.isfile(build_student):
                 cmd = '%s %s %s %s %s %s %s %s %s' % (build_student, labname, name, container.user, container.password, False, 
@@ -1550,7 +1562,7 @@ def BaseImageTime(dockerfile):
     if image_name is None:
         logger.ERROR('no base image found in %s' % dockerfile)
         exit(1)
-    image_exists, result, dumb = ImageExists(image_name, 'some base', None)
+    image_exists, result, dumb = ImageExists(image_name, None)
     if image_exists:
         parts = result.strip().split('.')
         #time_string = parts[0]
@@ -1603,7 +1615,7 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
     should_be_exec = ['rc.local', 'fixlocal.sh']
     retval = False
 
-    image_exists, result, dumb = ImageExists(image_name, container_name, container_registry)
+    image_exists, result, dumb = ImageExists(image_name, container_registry)
     if image_exists and not is_redo:
         logger.DEBUG('Container %s image %s exists, not a redo, just return (no need to check build)' % (container_name, image_name))
         return False
@@ -2208,8 +2220,9 @@ def AnyContainersRunning(container):
     return True
 
 def IsContainerRunning(mycontainer_name):
+    cmd = 'docker ps -f name=%s' % mycontainer_name
     try:
-        s = subprocess.check_output('docker ps', shell=True)
+        s = subprocess.check_output(cmd, shell=True)
     except:
         return False
     if mycontainer_name in s:
@@ -2237,7 +2250,7 @@ def DoStopOne(start_config, labtainer_config, lab_path, role, name, container, Z
         container_password    = container.password
         mycontainer_image = container.image_name
         haveContainer     = AllContainersCreated(container)
-        logger.DEBUG("AllContainerCreated result (%s)" % haveContainer)
+        logger.DEBUG("AllContainersCreated for %s result (%s)" % (container.name, haveContainer))
 
         # IsContainerCreated returned FAILURE if container does not exists
         # error: can't stop non-existent container
