@@ -37,7 +37,7 @@ RUN useradd -ms /bin/bash $user_name
 RUN echo "$user_name:$password" | chpasswd
 #RUN adduser $user_name sudo
 # replace above with below for centos/fedora
-#RUN usermod $user_name -a -G wheel
+RUN usermod $user_name -a -G wheel
 
 
 RUN useradd -ms /bin/bash bob
