@@ -37,6 +37,11 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+March 28, 2018
+-  Use explicit tar instead of "docker cp" for system files (Docker does
+   not follow links.) 
+-  Fix backups lab use separate file system and update the manual.
+
 March 26, 2018
 -  Support for multi-user modes (see Lab Designer User Guide).
 -  Removed build dependency on the lab_bin and lab_sys files. Those are now copied
