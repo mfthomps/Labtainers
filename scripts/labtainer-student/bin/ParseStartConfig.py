@@ -59,7 +59,7 @@ class ParseStartConfig():
             self.name       = name
             self.terminals  = 1
             self.xterm      = None
-            self.user       = "user"
+            self.user       = ""
             self.password       = ""
             self.hostname       = ""
             self.image_name = ""
@@ -74,6 +74,7 @@ class ParseStartConfig():
             self.clone_copies = None # Dynamic, number of clones to be created.
             self.clone = None  # Number of clones of this component to create.  
             self.client = None # Used for distributed labtainers, indicates container is a client
+            self.from_image = None
             self.logger = logger
 
         def add_net(self, name, ipaddr):
@@ -261,7 +262,23 @@ class ParseStartConfig():
             else:
                 namestr = "." + name
             full  = self.labname + namestr + "." + self.caller 
-            image = self.labname + namestr + "." + self.caller
+            if self.containers[name].from_image is None:
+                image = self.labname + namestr + "." + self.caller
+            else:
+                image = self.containers[name].from_image + "." + self.caller
+                if self.containers[name].user == '':
+                    try:
+                        from_lab, from_container = self.containers[name].from_image.split('.')
+                    except:
+                        self.logger.ERROR('bad from_image value %s' % self.containers[name].from_image)
+                        exit(1)
+                    if from_lab == self.labname:
+                        self.containers[name].user = self.containers[from_container].user
+                        self.containers[name].password = self.containers[from_container].password
+                        #print('from_lab <%s>, user now %s  bs is %s' %(from_lab, self.containers[name].user, self.containers[from_container].user))
+                    else:
+                        self.logger.ERROR('Use of FROM_IMAGE from different lab requires explicit USER (which must be manually gotten from other lab :{')
+                        exit(1)
             if self.containers[name].full_name == "":
                self.containers[name].full_name = full
             if self.containers[name].image_name == "":
