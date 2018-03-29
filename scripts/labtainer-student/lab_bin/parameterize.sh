@@ -104,6 +104,11 @@ fi
 if [ -f /usr/bin/apt-source.sh ]; then
     echo $CONTAINER_PASSWORD | sudo -S /usr/bin/apt-source.sh
 fi
+
+# hack console type for initd
+touch /sbin/consoletype
+chmod a+rwx /sbin/consoletype
+
 if [ -d $LOCKDIR ]; then
     rmdir $LOCKDIR
 fi
