@@ -30,6 +30,10 @@ ARG apt_source
 ENV APT_SOURCE $apt_source
 RUN /usr/bin/yum-source.sh
 RUN yum install -y aide
+RUN  wget -P /tmp/ https://rpmfind.net/linux/fedora/linux/releases/27/Everything/x86_64/os/Packages/l/leafpad-0.8.18.1-16.fc26.x86_64.rpm
+RUN yum install -y gtk2 libXaw libXmu libXpm libfontenc libxkbfile liberation-fonts-common liberation-sans-fonts xcb-util
+
+RUN rpm -i /tmp/leafpad-0.8.18.1-16.fc26.x86_64.rpm
 #
 # Install the system files found in the _system directory
 #
