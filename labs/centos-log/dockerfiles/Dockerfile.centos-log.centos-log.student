@@ -27,6 +27,10 @@ ARG imagedir
 ARG user_name
 ARG password
 ARG apt_source
+RUN  wget -P /tmp/ https://rpmfind.net/linux/fedora/linux/releases/27/Everything/x86_64/os/Packages/l/leafpad-0.8.18.1-16.fc26.x86_64.rpm
+RUN yum install -y yum install gtk2 libXaw libXmu libXpm libfontenc libxkbfile liberation-fonts-common liberation-sans-fonts xcb-util
+
+RUN rpm -i /tmp/leafpad-0.8.18.1-16.fc26.x86_64.rpm
 #
 # Install the system files found in the _system directory
 #
@@ -37,6 +41,7 @@ RUN useradd -ms /bin/bash $user_name
 RUN echo "$user_name:$password" | chpasswd
 RUN echo "root:badpassword" | chpasswd
 RUN usermod $user_name -a -G wheel 
+#RUN rm -fr /tmp/.X11-unix
 #
 #  **** Perform all root operations, e.g.,           ****
 #  **** "apt-get install" prior to the USER command. ****
