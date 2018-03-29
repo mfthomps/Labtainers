@@ -388,6 +388,7 @@ def CreateSingleContainer(start_config, container, mysubnet_name=None, mysubnet_
                 logger.ERROR('CreateSingleContainer %s' % output[1])
                 retval = False
                 break
+            #print('result of create %s' % output[0])
 
     return retval
 
@@ -630,13 +631,16 @@ def DockerCmd(cmd):
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[1]) > 0:
-        logger.ERROR("Failed copy %s %s %s" % (mycontainer_name, output[1]))
-        sys.exit(1)
+        logger.DEBUG("Failed cmd %s %s" % (cmd, output[1]))
+        return False
+    return True
 
 
 def CopyLabBin(mycontainer_name, container_user, lab_path, name):
     cmd = 'docker cp lab_bin/.  %s:/home/%s/.local/bin/' % (mycontainer_name, container_user)
-    DockerCmd(cmd)
+    if not DockerCmd(cmd):
+        logger.ERROR('failed %s' % cmd)
+        exit(1)
 
     ''' TBD perhaps move lab/_bin to here?  would it save duplicate containers?'''
     #container_bin = os.path.join(lab_path, name,'_bin')
@@ -648,18 +652,16 @@ def CopyLabBin(mycontainer_name, container_user, lab_path, name):
     os.system(cmd)
 
     cmd = 'docker cp /tmp/labsys.tar %s:/tmp/' % (mycontainer_name)
-    DockerCmd(cmd)
+    if not DockerCmd(cmd):
+        logger.ERROR('failed %s' % cmd)
+        exit(1)
 
-    cmd = 'docker exec %s script -q -c "tar xhf /tmp/labsys.tar -C /"' % (mycontainer_name)
-    DockerCmd(cmd)
-
-    #command = 'docker cp lab_sys/.  %s:/' % (mycontainer_name)
-    #logger.DEBUG("Command to execute is (%s)" % command)
-    #result = subprocess.call(command, shell=True)
-    #logger.DEBUG("Result of subprocess.call %s" % (result))
-    #if result == FAILURE:
-    #    logger.ERROR("Failed copy lab_sys %s!\n" % mycontainer_name)
-    #    sys.exit(1)
+    cmd = 'docker exec %s script -q -c "sudo tar xhf /tmp/labsys.tar -C /"' % (mycontainer_name)
+    if not DockerCmd(cmd):
+        cmd = 'docker cp lab_sys/.  %s:/' % (mycontainer_name)
+        if not DockerCmd(cmd):
+            logger.ERROR('failed %s' % cmd)
+            exit(1)
 
 # Copy Students' Artifacts from host to instructor's lab container
 def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_user, container_password, is_regress_test, is_watermark_test):
