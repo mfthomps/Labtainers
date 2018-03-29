@@ -106,8 +106,8 @@ if [ -f /usr/bin/apt-source.sh ]; then
 fi
 
 # hack console type for initd
-touch /sbin/consoletype
-chmod a+rwx /sbin/consoletype
+echo $CONTAINER_PASSWORD | sudo touch /sbin/consoletype
+echo $CONTAINER_PASSWORD | sudo chmod a+rwx /sbin/consoletype
 
 if [ -d $LOCKDIR ]; then
     rmdir $LOCKDIR
