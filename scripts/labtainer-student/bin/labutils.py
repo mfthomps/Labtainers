@@ -931,7 +931,6 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
 
         # Set need_seeds=False first
         need_seeds=False
-
         # IsContainerCreated return False if container does not exists
         if not haveContainer:
             # Container does not exist, create the container
@@ -1250,9 +1249,10 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
         sed_cmd = "sed -e s+LAB_MANUAL+%s+ -e s+LAB_DOCS+%s+" %  (manual, doc_dir)
         sed = subprocess.Popen(sed_cmd.split(), stdin=less.stdout)
         less.stdout.close()
-        output = sed.communicate()[0]
-        less.wait()
-        dumb = raw_input("Press <enter> to start lab")
+        #output = sed.communicate()[0]
+        if not quiet_start: 
+            less.wait()
+            dumb = raw_input("Press <enter> to start lab")
 
     
     # Reach here - Everything is OK - spawn terminal for each container based on num_terminal
