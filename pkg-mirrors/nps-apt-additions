@@ -5,3 +5,14 @@ hexedit
 leafpad
 python-pip
 dnsmasq
+dsniff
+libnetfilter-acct1
+libnetfilter-log1
+ulogd
+ulogd2
+telnetd
+nscd
+netwox
+lynx
+tshark
+snort
