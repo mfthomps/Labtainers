@@ -38,19 +38,35 @@ class SimLab():
         cmd = 'windowactivate --sync %s' % wid
         self.dotool(cmd)
     
-    def type_line(self, string):
+    def typeLine(self, string):
         cmd = "type '%s'" % string
         self.dotool(cmd)
-        cmd = 'key Return'
-        self.dotool(cmd)
+        #cmd = 'key Return'
+        #self.dotool(cmd)
     
     def typeFile(self, fname):
         full = os.path.join(self.sim_path, fname)
         with open(full) as fh:
             for line in fh:
                 if len(line.strip()) > 0:
-                    self.type_line(line)
+                    self.typeLine(line)
                     time.sleep(0.5)
+
+    def addFile(self, params, replace=False):
+        from_file, to_file = params.split()
+        from_file = os.path.join(self.sim_path, from_file) 
+        cmd = 'vi %s' % to_file
+        self.typeLine(cmd) 
+        if replace:
+            cmd = "type '9999dd'"
+            self.dotool(cmd)
+        self.dotool("type 'i'")
+        with open(from_file) as fh:
+            for line in fh:
+                self.typeLine(line)
+        self.dotool("key Escape")
+        self.dotool("type 'ZZ'")
+       
     
     def handleCmd(self, cmd, params):
         if cmd == 'window':
@@ -58,8 +74,13 @@ class SimLab():
             self.activate(wid)
         elif cmd == 'type_file':
             self.typeFile(params)
+        elif cmd == 'add_file':
+            self.addFile(params)
+        elif cmd == 'replace_file':
+            self.addFile(params, True)
     
     def simThis(self):
+        exit(0)
         fname = os.path.join(self.sim_path, 'simthis.txt')
         print('smithThis for %s' % fname)
         with open(fname) as fh:
