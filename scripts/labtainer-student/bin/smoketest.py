@@ -60,14 +60,15 @@ class SmokeTest():
                 retval = False
             if retval:
                 expected = simlab.getExpectedPath()
-                fname = '%s.grades.txt' % lab
-                new = os.path.join(xfer_dir, fname)
-                old = os.path.join(expected, fname)
-                if filecmp.cmp(new, old):
-                    print('%s matches %s' % (new, old))        
-                else:
-                    print('%s DOES NOT MATCH %s' % (new, old))        
-                    retval = False
+                if os.path.isdir(expected):
+                    fname = '%s.grades.txt' % lab
+                    new = os.path.join(xfer_dir, fname)
+                    old = os.path.join(expected, fname)
+                    if filecmp.cmp(new, old):
+                        print('%s matches %s' % (new, old))        
+                    else:
+                        print('%s DOES NOT MATCH %s' % (new, old))        
+                        retval = False
                     
        
         return retval
