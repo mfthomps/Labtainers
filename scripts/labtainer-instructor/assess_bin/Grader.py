@@ -748,14 +748,14 @@ def processBoolean(eachgoal, goal_times, logger):
     # Process all goals_ts_id dictionary
     goals_ts_id = goal_times.getGoalTimeStampId()
     for timestamppart, current_goals in goals_ts_id.iteritems():
-        if timestamppart != default_timestamp:
+        if timestamppart != default_timestamp or len(goals_ts_id)==1:
             logger.DEBUG('eval %s against %s tspart %s' % (t_string, str(current_goals), timestamppart))
             evalBooleanResult = evalBoolean.evaluate_boolean_expression(t_string, current_goals, logger)
             if evalBooleanResult is not None:
                 goal_times.addGoal(goalid, timestamppart, evalBooleanResult)
     # if evalBooleanResult is None - means not found
     if evalBooleanResult is None:
-        logger.DEBUG('processBoolean is None, goalid %s goal_id_ts %s' % (goalid, goals_ts_id))
+        logger.DEBUG('processBoolean evalBooleanResut is None, goalid %s goal_id_ts %s' % (goalid, goals_ts_id))
         goal_times.addGoal(goalid, default_timestamp, False)
 
 class ResultSets():
