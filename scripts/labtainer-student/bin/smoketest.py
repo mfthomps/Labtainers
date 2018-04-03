@@ -40,7 +40,7 @@ class SmokeTest():
             retval = False
         else:
             self.simlab = SimLab.SimLab(lab, self.logger)
-            if self.simlab.hasSim()
+            if self.simlab.hasSim():
                 self.logger.debug('now call simLab')
                 self.simlab.simThis()
         cmd = 'stop.py %s' % lab
@@ -51,7 +51,7 @@ class SmokeTest():
             print('%s' % output[0])
             print('%s' % output[1])
             retval = False
-        if retval and self.simlab.hasSim()
+        if retval and self.simlab.hasSim():
             here = os.getcwd() 
             os.chdir('../labtainer-instructor')
             cmd = 'redo.py %s' % lab
