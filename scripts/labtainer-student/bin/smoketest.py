@@ -22,6 +22,8 @@ class SmokeTest():
         file_log_level = self.labtainer_config.file_log_level
         file_handler.setLevel(file_log_level)
         file_handler.setFormatter(formatter)
+        with open('.tmp/email.txt', 'w') as fh:
+            fh.write('frank@beans.com')
 
     def checkLab(self, lab):
         FAILURE=1
@@ -52,7 +54,7 @@ class SmokeTest():
         if retval and self.simlab is not None:
             here = os.getcwd() 
             os.chdir('../labtainer-instructor')
-            cmd = 'start.py %s' % lab
+            cmd = 'redo.py %s' % lab
             result = subprocess.call(cmd, shell=True, stderr=self.outfile, stdout=self.outfile)
             if result == FAILURE:
                 retval = False
