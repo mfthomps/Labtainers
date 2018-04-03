@@ -35,6 +35,12 @@ class SimLab():
         if not os.path.isdir(self.sim_path):
             return None
 
+    def hasSim(self):
+        if os.path.isdir(self.sim_path):
+            return True
+        else:
+            return False
+
     def getExpectedPath(self):
         return os.path.join(self.sim_path, 'expected')
 
