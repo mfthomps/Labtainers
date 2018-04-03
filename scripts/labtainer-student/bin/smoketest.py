@@ -13,6 +13,7 @@ class SmokeTest():
     def __init__(self):
         labtainer_config_path = os.path.abspath('../../config/labtainer.config')
         self.labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_path, None)
+        self.simlab = None
         self.outfile = open('/tmp/smoke.out', 'w')
         logname = '/tmp/smoke.log'
         self.logger = logging.getLogger(logname)
@@ -26,40 +27,44 @@ class SmokeTest():
         FAILURE=1
         retval = True
         xfer_dir = os.path.join(os.getenv('HOME'), self.labtainer_config.host_home_xfer, lab)
-        print('xfer is %s' % xfer_dir)
+        self.logger.debug('checkLab xfer is %s' % xfer_dir)
         shutil.rmtree(xfer_dir, ignore_errors=True)
         os.mkdir(xfer_dir)
-        cmd = 'start.py -q %s' % lab
+        cmd = 'redo.py %s -q' % lab
         result = subprocess.call(cmd, shell=True, stderr=self.outfile, stdout=self.outfile)
-        print 'result is %d' % result
-        simlab = None
+        self.logger.debug('result is %d' % result)
+        self.simlab = None
         if result == FAILURE:
             retval = False
         else:
-            simlab = SimLab.SimLab(lab)
-            if simlab is not None:
-                simlab.simThis()
+            self.simlab = SimLab.SimLab(lab, self.logger)
+            if self.simlab is not None:
+                self.logger.debug('now call simLab')
+                self.simlab.simThis()
         cmd = 'stop.py %s' % lab
         ps = subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         output = ps.communicate()
+        self.logger.debug('stop.py output %s' % output[0])
         if len(output[1]) > 0:
             print('%s' % output[0])
             print('%s' % output[1])
             retval = False
-        if retval and simlab is not None:
+        if retval and self.simlab is not None:
             here = os.getcwd() 
             os.chdir('../labtainer-instructor')
             cmd = 'start.py %s' % lab
             result = subprocess.call(cmd, shell=True, stderr=self.outfile, stdout=self.outfile)
             if result == FAILURE:
                 retval = False
-            print 'result is %d' % result
+            self.logger.debug('instructor start result is %d' % result)
+            self.simlab.searchWindows('GOAL_RESULTS')
             cmd = 'stop.py %s' % lab
             result = subprocess.call(cmd, shell=True, stderr=self.outfile, stdout=self.outfile)
             if result == FAILURE:
                 retval = False
+            self.logger.debug('instructor stop result is %d' % result)
             if retval:
-                expected = simlab.getExpectedPath()
+                expected = self.simlab.getExpectedPath()
                 if os.path.isdir(expected):
                     fname = '%s.grades.txt' % lab
                     new = os.path.join(xfer_dir, fname)
