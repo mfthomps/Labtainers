@@ -1709,6 +1709,9 @@ Future work would be necessary to include
 artifacts from the Windows system within the framework's automated assessment
 and parameterization.
 
+The user does not see the /etc/fstab file.  Only virtual file systems can be
+mounted (or those mounted when the container is created.)
+
 Within the Ubuntu-based labs, the process tree of the initial Linux process will
 not look like a typical Linux system \textit{init} process.  Within containers that have no
 services, the initial process, i.e., process ID 1, will be a bash shell.
