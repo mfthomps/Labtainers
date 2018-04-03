@@ -64,3 +64,16 @@ When running parameterize.sh, run it as root, and then drop privilges so the con
 
 Add setting network interfaces to promisc mode from parmeterize.sh, parse startconfig from linux host and 
 pass in list of interfaces to be promisc.
+
+Thoughts on running Labtainers on a VM farm, e.g., to support multiple students remotely logging in...
+Use CLONE to create multiple workstations, one per student.  E.g., many kali linux systems.
+Would they ssh to the Linux host and then use "moreterm.py" to get terminals on their assigned workstations?
+How would they run X apps?  Would need Xclient on VM?  Maybe need one VM per student (accessed via vsphere-ish) 
+each running part of the lab, just the workstation, with other parts on another VM(s)?
+Would need utility to selectively recreate clone instances (e.g., if a student forgets his password).
+
+Document reason we do not copy instr\_config at runtime: so not part of student distribution.  Can
+accomidate that when we separate instructor distribution from student dist?
+
+Validate results.config entries that look like system monitoring, e.g., diff.stdout... and ensure they 
+are in checklocal.
