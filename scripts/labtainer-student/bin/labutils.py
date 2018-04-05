@@ -37,6 +37,8 @@ else:
     print('is distrib %s' % os.getcwd())
     sys.path.append('../trunk/scripts/labtainer-student/lab_bin')
 import ParameterParser
+import InspectLocalReg
+import InspectRemoteReg
 
 
 ''' logger is defined in whatever script that invokes the labutils '''
@@ -317,17 +319,22 @@ def GetX11SSH():
     #retval = '--env="DISPLAY" -v %s:%s -e XAUTHORITY="%s"' % (xauth, xauth, xauth)
     return retval 
 
-def CreateSingleContainer(start_config, container, mysubnet_name=None, mysubnet_ip=None):
+def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_name=None, mysubnet_ip=None):
     ''' create a single container -- or all clones of that container per the start.config '''
     logger.DEBUG("Create Single Container for %s" % container.name)
     retval = True
-    image_exists, result, new_image_name = ImageExists(container.image_name, container.registry)
+    #image_exists, result, new_image_name = ImageExists(container.image_name, container.registry)
+    image_info = imageInfo(container.image_name, container.registry, labtainer_config)
         
-    if not image_exists:
+    if image_info is None:
         logger.ERROR('Could not find image for %s' % container.image_name)
         retval = False
     else:
-
+        new_image_name = container.image_name
+        if not image_info.local_build:
+            new_image_name = '%s/%s' % (container.registry, container.image_name) 
+        if not image_info.local:
+            dockerPull(container.registry, container.image_name)
         docker0_IPAddr = getDocker0IPAddr()
         logger.DEBUG("getDockerIPAddr result (%s)" % docker0_IPAddr)
         volume=''
@@ -750,6 +757,60 @@ def GetRunningLabNames(containers_list, role):
                 labnameslist.append(labname)
     return found_lab_role, labnameslist
 
+class ImageInfo():
+    def __init__(self, name, creation, user, local, local_build):
+        self.name = name
+        self.creation = creation
+        self.user = user
+        self.local = local
+        ''' whether a locally built image '''
+        self.local_build = local_build  
+
+def inspectImage(image_name):
+    created = None
+    user = None
+    cmd = "docker inspect -f '{{.Created}}' --type image %s" % image_name
+    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if len(output[0].strip()) > 0:
+        created = output[0].strip()
+    cmd = "docker inspect -f '{{.Config.User}}' --type image %s" % image_name
+    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if len(output[0].strip()) > 0:
+        user = output[0].strip()
+    return created, user
+
+def imageInfo(image_name, registry, labtainer_config):
+    ''' image_name lacks registry info (always) 
+        First look if plain image name exists, suggesting
+        an ongoing build/test situation '''    
+    retval = None
+    created, user = inspectImage(image_name)
+    if created is not None:
+        retval = ImageInfo(image_name, created, user, True, True) 
+        logger.DEBUG('%s local built, ts %s %s' % (image_name, created, user)) 
+    else:
+        ''' next see if there is a local image from the desired registry '''
+        with_registry = '%s/%s' % (registry, image_name)
+        created, user = inspectImage(with_registry)
+        if created is not None:
+            retval = ImageInfo(with_registry, created, user, True, False) 
+            logger.DEBUG('%s local from reg, ts %s %s' % (with_registry, created, user)) 
+        else:
+            ''' See if the image exists in the desired registry '''
+            if registry == labtainer_config.test_registry:
+                created, user = InspectLocalReg.inspectLocal(image_name, registry)
+            else:
+                created, user = InspectRemoteReg.inspectRemote(with_registry)
+            if created is not None:
+                logger.DEBUG('%s only on registry %s, ts %s %s' % (with_registry, registry, created, user)) 
+                retval = ImageInfo(with_registry, created, user, False, False)
+    if retval is None:
+        logger.DEBUG('%s not found anywhere' % image_name)
+
+    return retval
+
 def ImageExists(image_name, registry):
     '''
     determine if a given image exists.
@@ -810,6 +871,17 @@ def RebuildLab(lab_path, role, is_regress_test=None, force_build=False, quiet_st
     DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start, 
             run_container, servers, clone_count)
 
+def dockerPull(registry, image_name):
+    cmd = 'docker pull %s/%s' % (registry, image_name)
+    logger.DEBUG('%s' % cmd)
+    print('pulling %s from %s' % (image_name, registry))
+    ps = subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    output = ps.communicate()
+    if len(output[1]) > 0:
+        return False
+    print('Done with pull')
+    return True
+
 def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False, just_container=None, 
                  start_config=None, labtainer_config=None, run_container=None, servers=None, clone_count=None):
     retval = set()
@@ -855,18 +927,10 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False, just_c
 
         force_this_build = force_build
         logger.DEBUG('force_this_build: %r' % force_this_build)
-        if not force_this_build:
-            image_exists, result, new_image_name = ImageExists(mycontainer_image_name, container.registry)
-            if not image_exists:
-                cmd = 'docker pull %s/%s' % (container.registry, mycontainer_image_name)
-                logger.DEBUG('image did not exist, pull cmd is %s' % cmd)
-                ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-                output = ps.communicate()
-                if len(output[1]) > 0:
-                   logger.DEBUG("Command was (%s), result %s" % (cmd, output[1]))
-                   force_this_build = True
-        else:
-            image_exists = True
+        image_info = imageInfo(mycontainer_image_name, container.registry, labtainer_config)
+        if not force_this_build and image_info is None:
+            logger.DEBUG('image exists nowhere, so force the build')
+            force_this_build = True
         container_dir = os.path.join(lab_path, name)
         try:
             os.mkdir(os.path.join(container_dir, 'home_tar'))
@@ -878,9 +942,8 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False, just_c
             pass
         ''' create sys_tar and home_tar before checking build dependencies '''
         CheckTars.CheckTars(container_dir, name, logger)
-        if force_this_build or CheckBuild(lab_path, mycontainer_image_name, mycontainer_name, name, role, True, container_bin, start_config, container.registry, container.user):
-            logger.DEBUG("Will rebuild %s, Image exists(ignore if force): %s force_this_build: %s" % (mycontainer_name, 
-                image_exists, force_this_build))
+        if force_this_build or CheckBuild(lab_path, mycontainer_image_name, image_info, mycontainer_name, name, role, True, container_bin, start_config, container.registry, container.user):
+            logger.DEBUG("Will rebuild %s,  force_this_build: %s" % (mycontainer_name, force_this_build))
             if os.path.isfile(build_student):
                 cmd = '%s %s %s %s %s %s %s %s %s' % (build_student, labname, name, container.user, 
                       container.password, True, LABS_DIR, labtainer_config.apt_source, container.registry)
@@ -937,10 +1000,10 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
             # Use CreateSingleContainer()
             containerCreated = False
             if len(container.container_nets) == 0:
-                containerCreated = CreateSingleContainer(start_config, container)
+                containerCreated = CreateSingleContainer(labtainer_config, start_config, container)
             else:
                 mysubnet_name, mysubnet_ip = container.container_nets.popitem()
-                containerCreated = CreateSingleContainer(start_config, container, mysubnet_name, mysubnet_ip)
+                containerCreated = CreateSingleContainer(labtainer_config, start_config, container, mysubnet_name, mysubnet_ip)
                 
             logger.DEBUG("CreateSingleContainer result (%s)" % containerCreated)
             if not containerCreated:
@@ -1392,8 +1455,12 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
                 logger.DEBUG("Command was (%s)" % cmd)
                 if len(output[1]) > 0:
                     logger.DEBUG("Error from command = '%s'" % str(output[1]))
-        image_exists, result, dumb = ImageExists(mycontainer_image_name, container.registry)
-        if not image_exists:
+        #image_exists, result, dumb = ImageExists(mycontainer_image_name, container.registry)
+        image_info = imageInfo(mycontainer_image_name, container.registry, labtainer_config)
+        if image_info is not None:
+            if not image_info.local:
+                dockerPull(mycontainer_image_name, container.registry)
+        else:
             if os.path.isfile(build_student):
                 cmd = '%s %s %s %s %s %s %s %s %s' % (build_student, labname, name, container.user, container.password, False, 
                                                   LABS_DIR, labtainer_config.apt_source, container.registry)
@@ -1585,6 +1652,7 @@ def newest_file_in_tree(rootfolder):
         key=lambda fn: os.stat(fn).st_mtime)
 
 def GetImageUser(image_name, container_registry):
+    
     user = None
     password = None
     cmd = 'docker history --no-trunc %s' % image_name
@@ -1606,10 +1674,10 @@ def GetImageUser(image_name, container_registry):
                 return user, password 
     return user, password
                 
-def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, container_bin,
+def CheckBuild(lab_path, image_name, image_info, container_name, name, role, is_redo, container_bin,
                  start_config, container_registry, container_user):
     '''
-    Determine if a container image needs to be rebuilt.
+    Determine if a container image needs to be rebuilt, return true if so.
     '''
     
     container_dir = os.path.join(lab_path, name)
@@ -1617,21 +1685,16 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
     should_be_exec = ['rc.local', 'fixlocal.sh']
     retval = False
 
-    image_exists, result, dumb = ImageExists(image_name, container_registry)
-    if image_exists and not is_redo:
+    #image_exists, result, dumb = ImageExists(image_name, container_registry)
+    if image_info is not None and not is_redo:
         logger.DEBUG('Container %s image %s exists, not a redo, just return (no need to check build)' % (container_name, image_name))
         return False
-    elif not image_exists:
-        if result is None:
-            logger.DEBUG('No image, do rebuild');
-        else:
-            logger.DEBUG('Image query error %s' % result)
+    elif image_info is None:
         return True 
-    parts = result.strip().split('.')
 
-    x=parse(parts[0])
+    x=parse(image_info.creation)
     ts = calendar.timegm(x.timetuple())
-    logger.DEBUG('image ts %s  %s' % (ts, parts[0]))
+    logger.DEBUG('image ts %s  %s' % (ts, image_info.creation))
    
     ''' look at dockerfiles '''
     df_name = 'Dockerfile.%s' % container_name
@@ -1719,7 +1782,7 @@ def CheckBuild(lab_path, image_name, container_name, name, role, is_redo, contai
                    retval = True
                    break
         logger.DEBUG('is instructor')
-    if not retval:
+    if not retval and image_info.local:
         user, password = GetImageUser(image_name, container_registry)
         if user != container_user:
             logger.WARNING('user changed from %s to %s, will build %s' % (user, container_user, name))
@@ -2463,7 +2526,7 @@ def DoTransfer(lab_path, role, container_name, filename, direction):
     if not IsContainerCreated(mycontainer_name):
         logger.ERROR('container %s not found' % mycontainer_name)
         sys.exit(1)
-    if not IsContainerRunning(mycontainter_name):
+    if not IsContainerRunning(mycontainer_name):
         logger.ERROR("Container %s is not running!\n" % (mycontainer_name))
         sys.exit(1)
     container_user = ""
