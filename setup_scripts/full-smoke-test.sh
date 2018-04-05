@@ -1,6 +1,6 @@
 # Assume running from setup_scripts/
 #Clear out docker.
-#./destroy-docker.sh
+./destroy-docker.sh
 
 # Update baseline and framework
 ./update-labtainer.sh -t
