@@ -14,4 +14,3 @@ fi
 EOL
 touch /home/student/labtainer/.doupdate 
 gsettings set org.gnome.settings-daemon.plugins.power button-power 'shutdown'
-cat >>/etc/rc.local <<EOL
