@@ -37,6 +37,10 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+April 5, 2018
+-  Revise Firefox profile to remove "you've not use firefox in a while..." message.
+-  Remove unnessary pulls from registry -- get image dates via docker hub API instead.
+
 March 28, 2018
 -  Use explicit tar instead of "docker cp" for system files (Docker does
    not follow links.) 
