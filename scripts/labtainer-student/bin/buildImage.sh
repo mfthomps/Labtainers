@@ -102,11 +102,6 @@ dfile=Dockerfile.$labimage
 #---------------------------------V
 result=0
 if [ ! -z "$imagecheck" ] && [ $force_build = "False" ]; then 
-#    docker build --pull -f $LAB_DIR/dockerfiles/tmp/$dfile.tmp \
-#                 --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY \
-#                 --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY \
-#                 --build-arg NO_PROXY=$NO_PROXY  --build-arg no_proxy=$NO_PROXY \
-#              -t $labimage .
     echo "use exising image"
 else
     echo docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename \
