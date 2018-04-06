@@ -21,4 +21,4 @@ exec 2>&1
 cd ../scripts/labtainer-student
 echo "start smoke test"
 smoketest.py
-
+sudo poweroff
