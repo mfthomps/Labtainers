@@ -18,3 +18,11 @@ fi
 EOL
 touch $HOME/labtainer/.doupdate 
 gsettings set org.gnome.settings-daemon.plugins.power button-power 'shutdown'
+gsettings set org.gnome.nm-applet disable-disconnected-notifications "true"
+gsettings set org.gnome.nm-applet disable-connected-notifications "true"
+gsettings set org.gnome.desktop.session idle-delay 0
+gsettings set org.gnome.desktop.screensaver lock-enabled false
+
+
+
+
