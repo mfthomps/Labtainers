@@ -1459,7 +1459,7 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
         image_info = imageInfo(mycontainer_image_name, container.registry, labtainer_config)
         if image_info is not None:
             if not image_info.local:
-                dockerPull(mycontainer_image_name, container.registry)
+                dockerPull(container.registry, mycontainer_image_name)
         else:
             if os.path.isfile(build_student):
                 cmd = '%s %s %s %s %s %s %s %s %s' % (build_student, labname, name, container.user, container.password, False, 
