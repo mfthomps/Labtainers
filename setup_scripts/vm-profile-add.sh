@@ -7,10 +7,14 @@
 # to shutdown when the virtual powerbutton is pressed.
 #
 cat >>~/.profile <<EOL
-gnome-terminal --geometry 120x31+150+300 --working-directory=/home/student/labtainer/labtainer-student -e "bash -c \"/bin/cat README; exec bash\"" &
-if [[ -f /home/student/labtainer/.doupdate ]]; then
-    gnome-terminal --geometry 73x31+100+300 --working-directory=/home/student/labtainer -x ./update-labtainer.sh
+gnome-terminal --geometry 120x31+150+300 --working-directory=$HOME/labtainer/labtainer-student -e "bash -c \"/bin/cat README; exec bash\"" &
+if [[ -f $HOME/labtainer/.doupdate ]]; then
+    gnome-terminal --geometry 73x31+100+300 --working-directory=$HOME/labtainer -x ./update-labtainer.sh
 fi
+if [[ -f $HOME/labtainer/.dosmoke ]]; then
+    gnome-terminal --geometry 120x31+150+300 --working-directory=$HOME/labtainer/trunk/setup_scripts -e "bash -c \"exec bash -c ./full-smoke-test.sh \"" &
+fi
+
 EOL
-touch /home/student/labtainer/.doupdate 
+touch $HOME/labtainer/.doupdate 
 gsettings set org.gnome.settings-daemon.plugins.power button-power 'shutdown'
