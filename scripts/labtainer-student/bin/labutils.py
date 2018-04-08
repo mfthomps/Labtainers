@@ -709,24 +709,24 @@ def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_
     for fname in zip_filelist:
         logger.DEBUG("name is %s" % fname)
         base_fname = os.path.basename(fname)
-        # Copy zip file and chown it
+        # Copy zip file 
         command = 'docker cp %s %s:/home/%s/' % (fname, mycontainer_name, container_user)
         logger.DEBUG("Command to execute is (%s)" % command)
         result = subprocess.call(command, shell=True)
         logger.DEBUG("Result of subprocess.call CopyStudentArtifacts copy zipfile (%s) is %s (1=>FAILURE)" % (fname, result))
         if result == FAILURE:
-            logger.ERROR("Failed to set labname in container %s!\n" % mycontainer_name)
+            logger.ERROR("Failed to copy student artifacts into container %s!\n" % mycontainer_name)
             sys.exit(1)
         #command = 'docker exec %s echo "%s\n" | sudo -S chown %s:%s /home/%s/%s' % (mycontainer_name, container_password, 
         #             container_user, container_user, container_user, base_fname)
-        command = 'docker exec %s chown %s:%s /home/%s/%s' % (mycontainer_name, 
-                     container_user, container_user, container_user, base_fname)
-        logger.DEBUG("Command to execute is (%s)" % command)
-        result = subprocess.call(command, shell=True)
-        logger.DEBUG("Result of subprocess.call CopyStudentArtifacts copy zipfile (%s) is %s" % (fname, result))
-        if result == FAILURE:
-            logger.ERROR("Failed to set labname in container %s!\n" % mycontainer_name)
-            sys.exit(1)
+        #command = 'docker exec %s chown %s:%s /home/%s/%s' % (mycontainer_name, 
+        #             container_user, container_user, container_user, base_fname)
+        #logger.DEBUG("Command to execute is (%s)" % command)
+        #result = subprocess.call(command, shell=True)
+        #logger.DEBUG("Result of subprocess.call CopyStudentArtifacts copy zipfile (%s) is %s" % (fname, result))
+        #if result == FAILURE:
+        #    logger.ERROR("Failed to set labname in container %s!\n" % mycontainer_name)
+        #    sys.exit(1)
 
 def GetRunningContainersList():
     cmd = "docker container ls --format {{.Names}}"
