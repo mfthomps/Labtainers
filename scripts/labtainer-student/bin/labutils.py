@@ -1307,15 +1307,15 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
 
     if os.path.isfile(read_first) and role != 'instructor':
         print '\n\n'
-        command = 'less %s' % read_first
+        command = 'cat %s' % read_first
         less = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
         sed_cmd = "sed -e s+LAB_MANUAL+%s+ -e s+LAB_DOCS+%s+" %  (manual, doc_dir)
-        sed = subprocess.Popen(sed_cmd.split(), stdin=less.stdout)
-        less.stdout.close()
-        #output = sed.communicate()[0]
+        sed = subprocess.Popen(sed_cmd.split(), stdin=less.stdout, stdout=subprocess.PIPE)
+        output = sed.communicate()[0]
+        print output
         if not quiet_start: 
             less.wait()
-            dumb = raw_input("Press <enter> to start lab")
+            dumb = raw_input("Press <enter> to start the lab\n")
 
     
     # Reach here - Everything is OK - spawn terminal for each container based on num_terminal
