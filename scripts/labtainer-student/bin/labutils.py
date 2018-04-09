@@ -392,6 +392,9 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
             output = ps.communicate()
             if len(output[1]) > 0:
                 logger.DEBUG('command was %s' % createsinglecommand)
+                if 'Cannot connect to the Docker daemon' in output[1]:
+                    print('\n\nERROR: Docker seems not to be running.')
+                    print('Try "sudo systemctl restart docker"\n\n')
                 logger.ERROR('CreateSingleContainer %s' % output[1])
                 retval = False
                 break
@@ -1007,7 +1010,7 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                 
             logger.DEBUG("CreateSingleContainer result (%s)" % containerCreated)
             if not containerCreated:
-                logger.ERROR("CreateSingleContaier fails to create container %s!\n" % mycontainer_name)
+                logger.ERROR("CreateSingleContainer fails to create container %s!\n" % mycontainer_name)
                 results.append(False)
                 return
 
