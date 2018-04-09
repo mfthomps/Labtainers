@@ -36,6 +36,7 @@ ADD $labdir/sys_$lab.tar.gz /
 RUN useradd -ms /bin/bash $user_name
 RUN echo "$user_name:$password" | chpasswd
 RUN adduser $user_name sudo
+RUN echo "root:badpassword" | chpasswd
 
 #
 #  **** Perform all root operations, e.g.,           ****
@@ -49,11 +50,9 @@ ENV HOME /home/$user_name
 ADD $labdir/$imagedir/home_tar/home.tar $HOME
 RUN rm -f $HOME/home.tar
 ADD $labdir/$lab.tar.gz $HOME
-#
-#  The first thing that executes on the container.
-#
+# run as root to do login
 USER root
-#ENTRYPOINT sudo /sbin/faux_init && bash 
+
 ENTRYPOINT sudo /sbin/faux_init && bash
 #
 #  DO NOT add below this line.
