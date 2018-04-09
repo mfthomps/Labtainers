@@ -18,8 +18,8 @@ without pulling the image.
 '''
 def inspectRemote(image):
     token = getToken(image)
-    if token is None:
-        return None
+    if token is None or len(token.strip()) == 0:
+        return None, None
     digest = getDigest(token, image, 'latest')
     if digest is None:
         return None, None
