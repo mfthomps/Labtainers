@@ -646,6 +646,17 @@ def DockerCmd(cmd):
     return True
 
 
+def CopyInstrConfig(mycontainer_name, container_user, lab_path):
+    cmd = 'docker cp %s/instr_config/.  %s:/home/%s/.local/instr_config/' % (lab_path, mycontainer_name, container_user)
+    if not DockerCmd(cmd):
+        logger.ERROR('failed %s' % cmd)
+        exit(1)
+    cmd = 'docker cp %s/config/.  %s:/home/%s/.local/config/' % (lab_path, mycontainer_name, container_user)
+    if not DockerCmd(cmd):
+        logger.ERROR('failed %s' % cmd)
+        exit(1)
+
+
 def CopyLabBin(mycontainer_name, container_user, lab_path, name):
     cmd = 'docker cp lab_bin/.  %s:/home/%s/.local/bin/' % (mycontainer_name, container_user)
     if not DockerCmd(cmd):
@@ -1057,6 +1068,7 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                         results.append(False)
                         return
                     CopyAssessBin(mycontainer_name, container_user)
+                    CopyInstrConfig(mycontainer_name, container_user, lab_path)
     
        	    # If the container is just created, then use the previous user's e-mail
             # then parameterize the container
