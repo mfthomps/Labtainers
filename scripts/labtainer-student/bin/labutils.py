@@ -1783,20 +1783,6 @@ def CheckBuild(lab_path, image_name, image_info, container_name, name, role, is_
     #           retval = True
     #           break
 
-    ''' instructor-specific files.  NOTE: assess_bin is copied at runtime '''
-    if not retval and role == 'instructor':
-        if container_name == start_config.grade_container:
-            inst_cfg = os.path.join(lab_path,'instr_config')
-            inst_cfg_files = os.listdir(inst_cfg)
-            for f in inst_cfg_files:
-                if f.endswith('.swp'):
-                    continue
-                f_path = os.path.join(inst_cfg, f)
-                if FileModLater(ts, f_path):
-                   logger.WARNING('instr_config %s is later, will build %s' % (f_path, name))
-                   retval = True
-                   break
-        logger.DEBUG('is instructor')
     if not retval and image_info.local:
         user, password = GetImageUser(image_name, container_registry)
         if user != container_user:
