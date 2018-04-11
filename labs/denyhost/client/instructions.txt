@@ -35,7 +35,7 @@ failed login attempts.
      auth.log
      ========
      The first is the /var/log/auth.log file, which reflects
-     the success of login attempts.  What that file using:
+     the success of login attempts.  Watch that file using:
          sudo tail -f /var/log/auth.log
 
      and then ssh to 172.20.0.3 as user "hank" with password "hank21".
@@ -65,7 +65,7 @@ failed login attempts.
      connections from selected IP addresses.  An entry in this file
      will block the connection prior to it reaching the intended service.
      Thus, the SSH daemon will never see connection attempts from these
-     sources, thereby helping to avoid consuming system resource.
+     sources, thereby helping to avoid consuming system resources.
      The denyhosts utility adds entries to this file when the quantity
      of failed login attempts recorded in the /var/log/auth.log exceeds
      the thresholds defined in /etc/denyhosts.config.
