@@ -1,0 +1,1 @@
+[2017-11-16 13:16:48,897 - ERROR : ResultParser.py:137 - ValidateConfigf() ] No container name found in multi container lab entry (getindexhtml =  /var/log/myhttplogfile.txt : CONTAINS : GET /index.html)

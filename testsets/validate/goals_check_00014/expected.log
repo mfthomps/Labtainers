@@ -1,0 +1,1 @@
+[2017-10-24 14:50:28,484 - ERROR : GoalsParser.py:180 - ValidateTag() ] goals.config answer=<string> and goal_type==matchacross is not allowed

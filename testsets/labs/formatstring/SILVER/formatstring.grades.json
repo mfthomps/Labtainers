@@ -1,0 +1,14 @@
+{
+    "tstr_at_tstr.tstr.formatstring": {
+        "grades": {
+            "crash": true, 
+            "leaked_secret": true, 
+            "modify_specific": false, 
+            "modify_value": false, 
+            "leaked_no_scanf": false
+        }, 
+        "parameter": {
+            "SECRET2": "0x43"
+        }
+    }
+}

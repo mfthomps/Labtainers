@@ -1,0 +1,1 @@
+Check goals.config - invalid format/type of boolean for a 4 'tokens' goals

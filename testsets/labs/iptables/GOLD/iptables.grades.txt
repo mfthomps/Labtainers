@@ -1,0 +1,5 @@
+Labname iptables
+
+             Student |      no_telnetx |        own_work |        ports_ok |
+==================== | =============== | =============== | =============== |
+      dog_at_cat.com |               Y |               Y |               Y |

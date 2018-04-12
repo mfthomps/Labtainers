@@ -1,0 +1,15 @@
+Labname httplab
+
+             Student |    get_index_ok |    get_link1_ok |    get_link2_ok |
+==================== | =============== | =============== | =============== |
+testcopy2_at_nps.edu |
+ jkhosali_at_nps.edu |               Y |               Y |               Y |
+ testcopy_at_nps.edu |
+testcopy1_at_nps.edu |
+
+
+             Student | Source
+==================== |====================
+testcopy2_at_nps.edu |  jkhosali_at_nps.edu 
+ testcopy_at_nps.edu | testcopy1_at_nps.edu 
+testcopy1_at_nps.edu | testcopy2_at_nps.edu 

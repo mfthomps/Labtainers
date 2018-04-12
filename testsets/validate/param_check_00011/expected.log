@@ -1,0 +1,1 @@
+[2017-10-27 14:56:44,983 - ERROR : ParameterParser.py:233 - CheckHashReplac() ] HASH_REPLACE (/home/ubuntu/vul_prog.c : SECRET2_VALUE : mystring : 50 : toomany) improper format
