@@ -1,0 +1,21 @@
+#!/bin/sh -e
+#
+# rc.local
+#
+# This script is executed at the end of each multiuser runlevel.
+# Make sure that the script will "exit 0" on success or any other
+# value on error.
+#
+# In order to enable or disable this script just change the execution
+# bits.
+#
+# By default this script does nothing.
+
+
+nohup /usr/bin/rmiregistry >/dev/null 2>&1 &
+nohup /usr/bin/unrealircd &
+rm -f /root/.vnc/*.pid
+HOME=/root LOGNAME=root USER=root nohup /usr/bin/vncserver :0 >/root/vnc.log 2>&1 &
+nohup /usr/sbin/druby_timeserver.rb &
+
+exit 0
