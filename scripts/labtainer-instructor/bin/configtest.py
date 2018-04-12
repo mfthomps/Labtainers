@@ -27,7 +27,7 @@ import labutils
 import logging
 import LabtainerLogging
 
-CONFIGTEST_ROOT = os.path.abspath('../../../testsets/validate')
+CONFIGTEST_ROOT = os.path.abspath('../../testsets/validate')
 
 def usage():
     sys.stderr.write("Usage: configtest.py\n")

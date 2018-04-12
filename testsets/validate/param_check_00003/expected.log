@@ -1,0 +1,1 @@
+[2017-10-27 13:24:53,639 - ERROR : ParameterParser.py:75 - CheckRandReplac() ] RAND_REPLACE (/home/ubuntu/vul_prog.c : SECRET2_VALUE : toofew) improper format

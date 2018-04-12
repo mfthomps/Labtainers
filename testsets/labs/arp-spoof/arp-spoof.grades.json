@@ -1,0 +1,12 @@
+{
+    "frank_at_beans.com.arp-spoof": {
+        "actualwatermark": {}, 
+        "parameter": {}, 
+        "expectedwatermark": {}, 
+        "grades": {
+            "did_spoof": true
+        }, 
+        "firstlevelzip": {}, 
+        "secondlevelzip": {}
+    }
+}

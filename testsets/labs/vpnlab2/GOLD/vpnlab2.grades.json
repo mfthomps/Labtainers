@@ -1,0 +1,11 @@
+{
+    "jkhosali_at_nps.edu.vpnlab2": {
+        "grades": {
+            "tcpdump_encr_link1": true
+        }, 
+        "parameter": {
+            "HTTPSERVERLINK1": "245f6a14a1aa9422ddac014acebc8119", 
+            "HTTPSERVERLINK2": "245f6a14a1aa9422ddac014acebc8119"
+        }
+    }
+}

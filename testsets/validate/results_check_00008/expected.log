@@ -1,0 +1,1 @@
+[2017-10-26 10:24:18,400 - ERROR : ResultParser.py:207 - ValidateConfigf() ] Expected integer following LINE type, got XXXX in  vul_prog.stdout : 6 : LINE : XXXX
