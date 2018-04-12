@@ -1234,11 +1234,31 @@ in the Labtainer exercises distributed with the framework.
 \subsubsection{Assessment Report}
 Evaluation of student results occurs on an instructor container, via a script named {\tt instructor.py}, which runs
 automatically when the instructor starts the lab.  The script can also be run manually, e.g., to
-test changes and additions to grading configuartion files.  It must be run from the HOME directory
+test changes and additions to grading configuaration files.  It must be run from the HOME directory
 on the container identified in the start.config for the lab as being the {\tt GRADE\_CONTAINER}
 By convention, all goals and boolean results whose symbolic names are not prefaced with an
 underscore ({\tt\_}), will have corresponding entries in the assessment report, located in 
 the home directory in a file named {\tt <lab name>.grades.txt>}
+
+\subsubsection{Document the meaning of goals}
+\label{document goals}
+Instructors will see descriptions of lab goals when they start the lab using {\tt start.py}.
+These descriptions are embedded within comments in the goals.config and results.config files.
+The descriptions are associated with symbolic names that immediately follow the documentation
+directives as described below:
+\begin{verbatim}
+    # SUM:  -- The remainder of the line and comment lines that immediately
+               follow are displayed independent of any goal symbols.
+    # DOC:  -- The remainder of the line and comment lines that immediately 
+               follow are displayed for the symbolic name that follows
+               the comment lines.
+    # GROUP:-- The remainder of the line and comment lines that immediately 
+               follow are displayed for the group symbolic names that 
+               follows the comment lines.  The group ends on a blank line, or 
+               new comment.
+   
+\end{verbatim} 
+\noindent See existing labs for examples.
 
 
 \subsection{Assessment examples}
@@ -1396,7 +1416,6 @@ student beneath the directory whose name is prefaced with the student email.
 From there, look in .local/result to find json files reflecting intermediate 
 results of assessing the student results.  The actual student result arifacts
 can be found in \verb!~/[student dir]/[lab].[container].student/.local/result!. 
-
 \section{Networking}
 Most networking is simply a matter of defining networks and assigning them to containers
 as described in \ref{start config}.  
@@ -1763,6 +1782,10 @@ that process tree, e.g., the \texttt{tee} function that generates copies of thos
 All of the containers share the Linux kernel with the Linux host.  Changes to
 kernel configuration settings, e.g., enabling ASLR, will be visible across all
 of the containers.
+
+Programs that are monitored, e.g., via treataslocal, are killed if the student presses ctl-c,
+regardless of the program's trap handling.  Thus programs whose interface definition includes
+such interrupts cannot be monitored without altering the programs behavior.
 
 \section{Notes} \label{Notes}
 \label{Notes}
