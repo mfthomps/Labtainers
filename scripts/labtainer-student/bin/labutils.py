@@ -35,7 +35,7 @@ if student_cwd.endswith('labtainer-student'):
 else:
     # assume from labtainer/distrib
     print('is distrib %s' % os.getcwd())
-    sys.path.append('../trunk/scripts/labtainer-student/lab_bin')
+    sys.path.append('../scripts/labtainer-student/lab_bin')
 import ParameterParser
 import InspectLocalReg
 import InspectRemoteReg
