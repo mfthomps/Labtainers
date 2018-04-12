@@ -51,6 +51,7 @@ append_sym=">>"
 full=$1
 counter=$2
 timestamp=$3
+cmd_path=$4
 #echo "full is $full"
 #
 # Look for redirect, and remove from command
@@ -171,7 +172,7 @@ if [ -f $PRECMD_HOME/.local/bin/precheck.sh ]
 then
     precheckoutfile="$PRECMD_HOME/.local/result/precheck.stdout.$timestamp"
     precheckinfile="$PRECMD_HOME/.local/result/precheck.stdin.$timestamp"
-    $PRECMD_HOME/.local/bin/precheck.sh $PROGNAME > $precheckoutfile 2>/dev/null
+    $PRECMD_HOME/.local/bin/precheck.sh $cmd_path > $precheckoutfile 2>/dev/null
     if [[ ! -s $precheckoutfile ]]; then
         rm -f $precheckoutfile
     fi

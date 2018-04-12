@@ -234,7 +234,7 @@ preexec() {
        result=$?
        if [ $result == 1 ]; then
            #echo "will treat as local"
-           /sbin/capinout.sh "$1" $counter $timestamp
+           /sbin/capinout.sh "$1" $counter $timestamp $cmd_path
            if [[ ! -z "$local_output" ]]; then
                # we are to timestamp a program output file 
                #echo "local output is $local_output"
@@ -253,7 +253,7 @@ preexec() {
           [[ "$cmd_path" != /bin/* ]] && [[ "$cmd_path" != /sbin/* ]] && \
           [[ "$cmd_path" != /etc/* ]]; then
            #echo "would do this command $1"
-           /sbin/capinout.sh "$1" $counter $timestamp
+           /sbin/capinout.sh "$1" $counter $timestamp $cmd_path
            return 1
        fi
    done
