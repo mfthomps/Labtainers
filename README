@@ -47,6 +47,7 @@ April 12, 2018
 -  Incorrect case in lab report file names.
 -  Unncessary chown function caused instructor.py to sometimes crash.
 -  Support for automated testing of labs (see SimLab and smoketest).
+-  Move testsets and distrib under trunk
   
 April 5, 2018
 -  Revise Firefox profile to remove "you've not use firefox in a while..." message.
