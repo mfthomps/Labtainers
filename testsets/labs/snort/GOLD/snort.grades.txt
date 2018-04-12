@@ -1,0 +1,5 @@
+Labname snort
+
+             Student |   proper_config | snort_local_con | snort_local_fir | snort_local_nma | snort_remote_co | snort_remote_fi |
+==================== | =============== | =============== | =============== | =============== | =============== | =============== |
+      dog_at_cat.com |               Y |               Y |               Y |               Y |               Y |               Y |

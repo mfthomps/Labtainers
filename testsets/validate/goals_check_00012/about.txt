@@ -1,0 +1,1 @@
+Check goals.config - parameter ascii not in ASCII range

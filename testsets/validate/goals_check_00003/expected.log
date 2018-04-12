@@ -1,0 +1,1 @@
+[2017-10-24 13:46:54,086 - ERROR : GoalsParser.py:259 - ParseGoals() ] goals.config contains unexpected value ( matchany : string_equal : rootsecret : parameter.roothash : toomany) format

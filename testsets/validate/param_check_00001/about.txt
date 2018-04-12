@@ -1,0 +1,1 @@
+Check parameter.config - invalid operator. valid operators are RAND_REPLACE, HASH_CREATE or HASH_REPLACE.

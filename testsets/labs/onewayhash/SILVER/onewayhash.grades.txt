@@ -1,0 +1,5 @@
+Labname onewayhash
+
+             Student |    did_3_hashes |   hmac_md5_done |  hmac_sha1_done | hmac_sha256_don |        own_work |  random_md5diff | random_sha256di |
+==================== | =============== | =============== | =============== | =============== | =============== | =============== | =============== |
+dwtemple2_at_nps.edu |               Y |               Y |               Y |               Y |               Y |                 |                 |

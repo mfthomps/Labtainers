@@ -88,7 +88,7 @@ def main():
             # 3. Stop the containers to obtain the 'grades.txt'
             # 4. Compare 'grades.txt.GOLD' vs. 'grades.txt'
 	    dir_path = os.path.dirname(os.path.realpath(__file__))
-	    dir_path = dir_path[:dir_path.index("trunk")] 
+	    dir_path = dir_path[:dir_path.index("scripts")] 
 	    dir_path += "testsets/labs/" + labname
             if not os.path.isdir(dir_path):
                 labutils.logger.INFO("no tests found for "+labname)

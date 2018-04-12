@@ -1,0 +1,1 @@
+Check results.config - invalid field_type - see valid_field_types.

@@ -1,0 +1,5 @@
+Labname shellbasics
+
+             Student |      did_task_a |      did_task_b |      did_task_c |      did_task_d |      did_task_e |      did_task_f |        own_work |
+==================== | =============== | =============== | =============== | =============== | =============== | =============== | =============== |
+        dwt_at_email |                 |               Y |               Y |                 |                 |                 |               Y |

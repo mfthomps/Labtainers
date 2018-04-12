@@ -1,0 +1,28 @@
+{
+    "frank_at_beans.com.dmz-lab": {
+        "actualwatermark": "25a75b45b8af94af3cd5a2a8184ae694", 
+        "parameter": {
+            "WEB_IP": "40", 
+            "INNER_DMZ": "97", 
+            "INNER_LAN1": "181", 
+            "INNER_LAN2": "245"
+        }, 
+        "expectedwatermark": "25a75b45b8af94af3cd5a2a8184ae694", 
+        "grades": {
+            "_local_nmap_sql": true, 
+            "_local_nmap_443": true, 
+            "_reach_internet": true, 
+            "_iplog": true, 
+            "remote_nmap_sql": false, 
+            "reach_internet": true, 
+            "local_nmap_443": true, 
+            "local_nmap_sql": true, 
+            "remote_nmap_443": true, 
+            "remote_correct": true, 
+            "_remote_nmap_sql": false, 
+            "_remote_nmap_443": true
+        }, 
+        "firstlevelzip": {}, 
+        "secondlevelzip": {}
+    }
+}

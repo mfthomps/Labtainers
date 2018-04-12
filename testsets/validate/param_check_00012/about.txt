@@ -1,0 +1,1 @@
+Check parameter.config - HASH_REPLACE improper format - too few

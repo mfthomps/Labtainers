@@ -1,0 +1,1 @@
+Check results.config - invalid character in results key (has the '@' character)

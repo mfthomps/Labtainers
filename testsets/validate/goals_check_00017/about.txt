@@ -1,0 +1,1 @@
+Check goals.config - invalid tag format - must use alphanumeric or dash or underscore only

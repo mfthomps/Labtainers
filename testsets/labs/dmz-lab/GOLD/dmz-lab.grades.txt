@@ -1,0 +1,5 @@
+Labname dmz-lab
+
+             Student |  local_nmap_443 |  local_nmap_sql |  reach_internet |  remote_correct | remote_nmap_443 | remote_nmap_sql |
+==================== | =============== | =============== | =============== | =============== | =============== | =============== |
+  frank_at_beans.com |               Y |               Y |               Y |               Y |               Y |                 |
