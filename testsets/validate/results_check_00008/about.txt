@@ -1,0 +1,1 @@
+Check results.config - following line type LINE must be an integer to identify the line number

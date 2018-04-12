@@ -1,0 +1,5 @@
+Labname bufoverflow
+
+             Student |  gain_root_priv |   stack_protect |  while_get_root |
+==================== | =============== | =============== | =============== |
+    dliao_at_npa.wsu |               Y |               Y |                 |

@@ -1,0 +1,1 @@
+[2017-10-24 15:09:55,872 - ERROR : GoalsParser.py:194 - ValidateTag() ] Invalid characters in goals.config's tag (result.orig@secret1value)

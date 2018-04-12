@@ -1,0 +1,16 @@
+{
+    "dog_at_cat.com.snort": {
+        "actualwatermark": {}, 
+        "parameter": {}, 
+        "expectedwatermark": {}, 
+        "grades": {
+            "snort_remote_fire": true, 
+            "proper_config": true, 
+            "snort_local_fire": true, 
+            "snort_local_conf": true, 
+            "snort_remote_conf": true
+        }, 
+        "firstlevelzip": {}, 
+        "secondlevelzip": {}
+    }
+}

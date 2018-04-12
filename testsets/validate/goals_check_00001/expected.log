@@ -1,0 +1,1 @@
+[2017-10-24 13:19:13,198 - ERROR : GoalsParser.py:241 - ParseGoals() ] goal lacks "=" character, gain_root_priv matchany : string_equal : rootsecret : parameter.roothash

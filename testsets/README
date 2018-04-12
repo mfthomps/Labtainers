@@ -1,0 +1,38 @@
+README for Labtainers testsets directory
+
+labs -- the labs directory contains the regression test 'GOLD' files for each lab in the directory.
+        Run the regression test from the labtainer-instructor directory,
+        by invoking regresstest.py script
+
+validate -- the validate directory contains the validation testing for the 'configuration' files
+            (i.e., goals.config, results.config and parameter.config)
+            Run the configuration file validation test from the labtainer-instructor directory,
+            by invoking configtest.py script
+
+watermark -- the watermark directory contains the watermark testing only
+             Run the watermark test from the labtainer-instructor directory,
+             by invoking the watermarktest.py script
+
+simlab -- Lab performance simulation using the SimLab tool.  Requires installation of the xdotool.
+           SimLab consumes files named:
+           testsets/simlab/[lab]/simthis.txt , having a format of:
+               window <name> 
+                  Select the window whose title matches the given name, e.g., ubuntu@onewayhash
+               type_file <fname>
+                  Type lines from the fname file as if they were commands
+               key "<key>"
+                  Type the given key, identified by its X Keysim string.
+               add_file <from> <to>
+                  Add content of <from> to a file named <to>, creating if necessary
+               replace_file <from> <to>
+                  Replace the content of <to> with the content of <from>
+                  
+               sleep <seconds>
+               wait_proc <proc string>
+                  Wait until a "ps -ao <proc string>" finds no process on the linux host.
+           The SimLab is intended to be run from the labtainer-student directory after the 
+           lab has been started.  It is sensitive to the current window focus, so do not try
+           to work in other windows.
+           The smoketest.py utility will start a lab, run its SimLab, and then run the
+           instructor container and compare results to what is found in the testsets/simlab/[lab]/expected 
+           directory.

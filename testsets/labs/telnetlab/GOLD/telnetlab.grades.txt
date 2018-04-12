@@ -1,0 +1,5 @@
+Labname telnetlab
+
+             Student |    failed_login |         sshview |   tcpdump_plain |      telnetview |
+==================== | =============== | =============== | =============== | =============== |
+testing_at_testing.c |               Y |               Y |               Y |               Y |

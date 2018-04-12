@@ -1,0 +1,1 @@
+[2017-11-16 10:57:00,624 - ERROR : ResultParser.py:116 - ValidateConfigf() ] results.config expected XXXX_COUNT to be one of these: ['CHECKSUM', 'LINE_COUNT'].

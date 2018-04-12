@@ -1,0 +1,1 @@
+Check parameter.config - RAND_REPLACE lower bound uses integer, upper bound uses hexadecimal

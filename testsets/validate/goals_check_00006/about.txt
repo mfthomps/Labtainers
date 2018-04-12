@@ -1,0 +1,1 @@
+Check goals.config - invalid operator

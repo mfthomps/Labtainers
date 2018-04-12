@@ -1,0 +1,16 @@
+{
+    "dwtemple2_at_nps.edu.onewayhash": {
+        "grades": {
+            "own_work": true, 
+            "random_md5diff": true, 
+            "hmac_sha1_done": true, 
+            "hmac_sha256_done": true, 
+            "random_sha256diff": true, 
+            "did_3_hashes": true, 
+            "hmac_md5_done": true
+        }, 
+        "parameter": {
+            "DIGESTFILE": "cb0a6a84d5c93d52f277a29640b2d06f"
+        }
+    }
+}

@@ -1,0 +1,20 @@
+{
+    "dog_at_cat.com.iptables": {
+        "actualwatermark": "2434757fbd78ae82909e9e68aa245f7e", 
+        "parameter": {
+            "DIGESTFILE": "884e3b9579a6cf3cd2dbab7d7b113cbb"
+        }, 
+        "expectedwatermark": "2434757fbd78ae82909e9e68aa245f7e", 
+        "grades": {
+            "own_work": true, 
+            "_ssh": true, 
+            "_http": true, 
+            "_telnet": true, 
+            "_telnetx": true, 
+            "no_telnetx": true, 
+            "ports_ok": true
+        }, 
+        "firstlevelzip": {}, 
+        "secondlevelzip": {}
+    }
+}
