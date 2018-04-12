@@ -72,8 +72,10 @@ How would they run X apps?  Would need Xclient on VM?  Maybe need one VM per stu
 each running part of the lab, just the workstation, with other parts on another VM(s)?
 Would need utility to selectively recreate clone instances (e.g., if a student forgets his password).
 
-Document reason we do not copy instr\_config at runtime: so not part of student distribution.  Can
-accomidate that when we separate instructor distribution from student dist?
-
 Validate results.config entries that look like system monitoring, e.g., diff.stdout... and ensure they 
 are in checklocal.
+
+
+update-labtainer.sh will update instr_config.  What if student results tied to previous instr_config?
+
+Catch program name in forcecheck and treatas local.  Former prevents latter from having effect.
