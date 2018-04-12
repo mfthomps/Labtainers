@@ -1,0 +1,7 @@
+# Filename: filetoview.txt
+#
+# Description: This is a pre-created file for each student (victim) container 
+
+# This file is modified when container is created
+# The string below will be replaced with a keyed hash
+My string is: ROOT_STRING
