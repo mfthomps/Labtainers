@@ -37,7 +37,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends sudo \
     man \
     manpages-dev \
     hexedit \
-    xauth
+    xauth \
+    lsof \
+    nfs-common \
+    rpcbind \
+    rsh-client \
+    ruby-dev \
+    libpq-dev \
+    libpcap-dev \
+    libsqlite3-dev
 
 ADD system/etc/sudoers /etc/sudoers
 ADD system/etc/rc.local /etc/rc.local
@@ -49,3 +57,12 @@ ADD system/bin/set_default_gw.sh /usr/bin/
 # enable sshd
 ADD system/var/run/sshd /var/run/sshd
 RUN chmod 0755 /var/run/sshd
+
+# Ruby gems
+RUN gem install nokogiri -v '1.8.2'
+RUN gem install pg -v '0.20.0'
+RUN gem install pcaprub -v '0.12.4'
+RUN gem install sqlite3 -v '1.3.13'
+RUN rm -rf /usr/share/metasploit-framework/.bundle
+RUN cd /usr/share/metasploit-framework && bundle install
+
