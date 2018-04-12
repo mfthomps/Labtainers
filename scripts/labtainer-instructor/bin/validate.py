@@ -514,7 +514,7 @@ def main():
         validatetestsets = True
         validatetestsetsname = sys.argv[2]
         dir_path = os.path.dirname(os.path.realpath(__file__))
-        dir_path = dir_path[:dir_path.index("trunk/scripts")]
+        dir_path = dir_path[:dir_path.index("scripts")]
         validatetestsets_path = os.path.join(dir_path, "testsets", "validate", validatetestsetsname)
         print "current path is (%s)" % validatetestsets_path
         labname_path = os.path.join(validatetestsets_path, "labname")

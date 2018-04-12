@@ -1,0 +1,13 @@
+{
+    "testing_at_testing.com.telnetlab": {
+        "grades": {
+            "telnetview": true, 
+            "failed_login": true, 
+            "sshview": true, 
+            "tcpdump_plain": true
+        }, 
+        "parameter": {
+            "FSTRING": "964572c37865efd16d7b6877dd95b5bc"
+        }
+    }
+}

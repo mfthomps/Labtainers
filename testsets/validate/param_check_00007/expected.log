@@ -1,0 +1,1 @@
+[2017-10-27 13:40:33,695 - ERROR : ParameterParser.py:115 - CheckRandReplac() ] RAND_REPLACE (/home/ubuntu/vul_prog.c : SECRET2_VALUE : 0x5a : 0x41) lowerbound greater than upperbound

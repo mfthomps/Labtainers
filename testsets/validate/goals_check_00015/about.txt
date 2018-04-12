@@ -1,0 +1,1 @@
+Check goals.config - invalid tag format - must be result.<tag> or parameter.<tag> or parameter_ascii.<tag>

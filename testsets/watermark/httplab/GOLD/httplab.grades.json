@@ -1,0 +1,41 @@
+{
+    "jkhosali_at_nps.edu.httplab": {
+        "actualwatermark": "c26ec506f0f2f0d61f201fe0acf537dd", 
+        "parameter": {
+            "HTTPSERVERLINK1": "c78dd16bbdbaeb799b2e41ddcad36f51", 
+            "HTTPSERVERLINK2": "c78dd16bbdbaeb799b2e41ddcad36f51"
+        }, 
+        "expectedwatermark": "c26ec506f0f2f0d61f201fe0acf537dd", 
+        "grades": {
+            "get_index_ok": true, 
+            "get_link2_ok": true, 
+            "get_link1_ok": true
+        }, 
+        "firstlevelzip": {}, 
+        "secondlevelzip": {}
+    }, 
+    "testcopy_at_nps.edu.httplab": {
+        "actualwatermark": {}, 
+        "parameter": {}, 
+        "expectedwatermark": {}, 
+        "grades": {}, 
+        "firstlevelzip": "testcopy1_at_nps.edu.httplab", 
+        "secondlevelzip": {}
+    }, 
+    "testcopy2_at_nps.edu.httplab": {
+        "actualwatermark": "c26ec506f0f2f0d61f201fe0acf537dd", 
+        "parameter": {}, 
+        "expectedwatermark": "a18f8f5b4cfff8b3e541ad76f9a655b4", 
+        "grades": {}, 
+        "firstlevelzip": {}, 
+        "secondlevelzip": {}
+    }, 
+    "testcopy1_at_nps.edu.httplab": {
+        "actualwatermark": "c26ec506f0f2f0d61f201fe0acf537dd", 
+        "parameter": {}, 
+        "expectedwatermark": "a18f8f5b4cfff8b3e541ad76f9a655b4", 
+        "grades": {}, 
+        "firstlevelzip": {}, 
+        "secondlevelzip": "testcopy2_at_nps.edu"
+    }
+}

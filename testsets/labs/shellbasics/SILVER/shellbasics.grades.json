@@ -1,0 +1,31 @@
+{
+    "dwt_at_email.shellbasics": {
+        "grades": {
+            "_did_append": true, 
+            "_did_mv_one": true, 
+            "_did_cal": false, 
+            "_did_touch_one": true, 
+            "own_work": true, 
+            "_did_rm": false, 
+            "_did_more": false, 
+            "_did_cp_two": false, 
+            "_did_mkdir_one": true, 
+            "_did_cp_one": false, 
+            "did_task_b": true, 
+            "did_task_c": true, 
+            "_did_less": false, 
+            "did_task_f": false, 
+            "did_task_d": false, 
+            "did_task_e": false, 
+            "_did_date_one": true, 
+            "_did_ls_one": true, 
+            "did_task_a": false, 
+            "_did_mv_two": false, 
+            "_did_pwd_one": false, 
+            "_did_date_ap": true
+        }, 
+        "parameter": {
+            "secret_value": "0x4e"
+        }
+    }
+}

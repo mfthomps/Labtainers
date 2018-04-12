@@ -1,0 +1,1 @@
+[2017-10-24 14:47:57,657 - ERROR : GoalsParser.py:177 - ValidateTag() ] goals.config only answertag is allowed answer=<string>, resulttag (answer=filetodigest.txt) is not
