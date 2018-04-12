@@ -16,4 +16,3 @@ service rsyslog start
 service rc.local start
 /etc/init.d/mynotify.sh start
 
-
