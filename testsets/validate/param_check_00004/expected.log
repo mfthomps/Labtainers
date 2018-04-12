@@ -1,0 +1,1 @@
+[2017-10-27 13:35:37,655 - ERROR : ParameterParser.py:108 - CheckRandReplac() ] RAND_REPLACE (/home/ubuntu/vul_prog.c : SECRET2_VALUE : 0x41 : 100) inconsistent lowerbound/upperbound format

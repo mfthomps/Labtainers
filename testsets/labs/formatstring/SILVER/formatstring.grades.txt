@@ -1,0 +1,5 @@
+Labname formatstring
+
+             Student |           crash | leaked_no_scanf |   leaked_secret | modify_specific |    modify_value |
+==================== | =============== | =============== | =============== | =============== | =============== |
+   tstr_at_tstr.tstr |               Y |                 |               Y |                 |                 |

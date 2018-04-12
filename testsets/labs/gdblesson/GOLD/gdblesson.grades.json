@@ -1,0 +1,16 @@
+{
+    "dwt_at_email.gdblesson": {
+        "grades": {
+            "gdb_step_task": true, 
+            "gcc_task_one": true, 
+            "correct_check_a": true, 
+            "gdb_run_task": true, 
+            "correct_check_b": true, 
+            "gdb_print_task": true, 
+            "smx_task_b": true, 
+            "smx_task_a": true, 
+            "gdb_list_task": true
+        }, 
+        "parameter": {}
+    }
+}

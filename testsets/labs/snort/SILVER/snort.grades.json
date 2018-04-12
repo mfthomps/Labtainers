@@ -1,0 +1,16 @@
+{
+    "frank_at_beans.com.snort": {
+        "actualwatermark": {}, 
+        "parameter": {}, 
+        "expectedwatermark": {}, 
+        "grades": {
+            "snort_remote_fire": true, 
+            "proper_config": false, 
+            "snort_local_fire": false, 
+            "snort_local_conf": false, 
+            "snort_remote_conf": true
+        }, 
+        "firstlevelzip": {}, 
+        "secondlevelzip": {}
+    }
+}

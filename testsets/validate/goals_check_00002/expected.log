@@ -1,0 +1,1 @@
+[2017-10-24 13:39:33,540 - ERROR : GoalsParser.py:245 - ParseGoals() ] Invalid characters in goals.config's key (gain_@root_priv)

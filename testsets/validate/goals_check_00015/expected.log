@@ -1,0 +1,1 @@
+[2017-10-24 15:08:12,869 - ERROR : GoalsParser.py:191 - ValidateTag() ] goals.config tag=<string> then tag must be:(result,parameter,parameter_ascii), got xxxxlt.origsecret1value

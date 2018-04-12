@@ -1,0 +1,1 @@
+[2017-10-24 14:01:25,914 - ERROR : GoalsParser.py:293 - ParseGoals() ] goals.config contains execute goals with missing exec file (/home/ubuntu/.local/bin/mylocalexec.py)

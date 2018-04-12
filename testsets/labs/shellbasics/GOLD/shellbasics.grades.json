@@ -1,0 +1,16 @@
+{
+    "dwtemple2_at_nps.edu.shellbasics": {
+        "grades": {
+            "own_work": true, 
+            "did_task_b": true, 
+            "did_task_c": true, 
+            "did_task_a": true, 
+            "did_task_f": true, 
+            "did_task_d": true, 
+            "did_task_e": true
+        }, 
+        "parameter": {
+            "secret_value": "0x58"
+        }
+    }
+}
