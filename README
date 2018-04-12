@@ -37,6 +37,17 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+April 12, 2018
+-  Add documentation for the purpose of lab goals, and display this for the instructor
+   when the instructor starts a lab.
+-  Correct use of the precheck function when the program is in treataslocal, pass capintout.sh
+   the full program path.
+-  Copy instr_config files at run time rather than during image build.
+-  Add Designer Guide section on debugging automated assessment.
+-  Incorrect case in lab report file names.
+-  Unncessary chown function caused instructor.py to sometimes crash.
+-  Support for automated testing of labs (see SimLab and smoketest).
+  
 April 5, 2018
 -  Revise Firefox profile to remove "you've not use firefox in a while..." message.
 -  Remove unnessary pulls from registry -- get image dates via docker hub API instead.
