@@ -1,1 +1,1 @@
-Illustrates the telent protocol transmission of plain-text passwords.
+Illustrates the telnet protocol transmission of plain-text passwords.
