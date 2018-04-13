@@ -45,7 +45,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends sudo \
     ruby-dev \
     libpq-dev \
     libpcap-dev \
-    libsqlite3-dev
+    libsqlite3-dev \
+    telnet
 
 ADD system/etc/sudoers /etc/sudoers
 ADD system/etc/rc.local /etc/rc.local
