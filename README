@@ -3,6 +3,8 @@ Labtainers README file     mm/dd/yyyy
 *** INITIAL RELEASE ***
 please send bug reports, questions and
 suggestions to mfthomps@nps.edu
+Alternately, open issues on github at
+https://github.com/mfthomps/Labtainers
 *** Thank You    ****
 Release notes at the end of this file.
 
@@ -12,6 +14,8 @@ necessary to construct, run and grade Labtainers labs.
 Please refer to the "Labtainers Lab Designer User Guide",
 (labdesigner.pdf) for detains on using Labtainers to create
 or modify labs.
+
+Distribution and use limitations are described in README.md.
 
 Quick guide to directories:
 
