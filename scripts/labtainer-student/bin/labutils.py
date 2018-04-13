@@ -22,6 +22,7 @@ import shlex
 import stat
 import traceback
 import CheckTars
+import BigFiles
 import calendar
 try:
     from dateutil.parser import parse
@@ -954,6 +955,8 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False, just_c
             os.mkdir(os.path.join(container_dir, 'sys_tar'))
         except:
             pass
+        ''' make sure big files have been copied before checking tars '''
+        BigFiles.BigFiles(lab_path)
         ''' create sys_tar and home_tar before checking build dependencies '''
         CheckTars.CheckTars(container_dir, name, logger)
         if force_this_build or CheckBuild(lab_path, mycontainer_image_name, image_info, mycontainer_name, name, role, True, container_bin, start_config, container.registry, container.user):
