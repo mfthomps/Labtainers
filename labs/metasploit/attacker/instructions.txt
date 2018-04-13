@@ -2,8 +2,8 @@ Title: Metasploit Lab Exercise
 
 1. Background
 
-This Labtainer exercise explores the use of the metasploit tool
-installed on Kali Linux (attacker) to learn simple penetration skills
+This Labtainer exercise explores the use of metasploit tool
+installed on Kali Linux (attacker) to learn simple penetration skill
 on a purposely vulnerable metasploitable host (victim).
 
 Note: attacker is configured to have IP address 192.168.1.3 while
