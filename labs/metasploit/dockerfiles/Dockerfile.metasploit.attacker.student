@@ -12,8 +12,7 @@
 #   openssl openssh-server openvpn wget tcpdump  update-inetd  xinetd
 #
 ARG registry
-#FROM $registry/labtainer.kali
-FROM labtainer.kali
+FROM $registry/labtainer.kali
 #FROM $registry/labtainer.centos
 #FROM $registry/labtainer.lamp
 #
