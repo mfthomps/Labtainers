@@ -11,7 +11,7 @@ mkdir $ddir
 mkdir $ldir
 cd $ldir
 svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk
-sed -i "s/mm\/dd\/yyyy/$(date '+%m\/%d\/%Y %H:%M')/" trunk/README
+sed -i "s/mm\/dd\/yyyy/$(date '+%m\/%d\/%Y %H:%M')/" trunk/README.md
 cp setup_scripts/install-labtainer.sh .
 cp setup_scripts/update-labtainer.sh .
 cd $ldir/trunk/docs/labdesigner
