@@ -86,7 +86,7 @@ def main():
     parser.add_argument('-l', '--lab', action='store', help='build and publish just this lab')
     parser.add_argument('-s', '--start', action='store', help='all labs starting with this one')
     parser.add_argument('-t', '--test_registry', action='store_true', default=False, help='build and publish with test registry')
-    parser.add_argument('-f', '--force', action='store_true', default=False, help='fore rebuild of all images')
+    parser.add_argument('-f', '--force', action='store_true', default=False, help='force rebuild of all images')
     args = parser.parse_args()
     if args.test_registry:
         if os.getenv('TEST_REGISTRY') is None:
@@ -124,7 +124,7 @@ def main():
         # Do login here and now so we don't wait for lab to build before prompt
         if not args.test_registry:
             os.system('docker login -u %s' % default_registry)
-        DoLab(args.lab, labsdir, args.role, False, logger, False, args.test_registry, default_registry)
+        DoLab(args.lab, labsdir, args.role, args.force, logger, False, args.test_registry, default_registry)
     else:    
         # do them all.  warn of incomplete svn
         mycwd = os.getcwd()
