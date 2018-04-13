@@ -20,5 +20,14 @@ if [[ "$1" != -f ]]; then
 fi
 here=`pwd`
 cd ../
+msf=../../../bigfiles/msf.tar.gz
+if [[ ! -f system/msf.tar.gz ]]; then
+    if [[ ! -f $msf ]]; then
+        echo "Missing labtainers/bigfiles/msf.tar.gz"
+        echo "Get the 05.GB file from http://my.nps.edu/cyberciege/downloads/msf.tar.gz"
+        exit
+    fi
+    cp -a ../../../bigfiles/msf.tar.gz system/
+fi
 docker build -f base_dockerfiles/Dockerfile.labtainer.metasploitable -t labtainer.metasploitable:latest .
 cd $here
