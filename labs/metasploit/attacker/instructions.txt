@@ -2,8 +2,8 @@ Title: Metasploit Lab Exercise
 
 1. Background
 
-This Labtainer exercise explores the use of metasploit tool
-installed on Kali Linux (attacker) to learn simple penetration skill
+This Labtainer exercise explores the use of the metasploit tool
+installed on Kali Linux (attacker) to learn simple penetration skills
 on a purposely vulnerable metasploitable host (victim).
 
 Note: attacker is configured to have IP address 192.168.1.3 while
@@ -17,7 +17,7 @@ From there, issue the command:
     start.py metasploit
 
 The resulting virtual terminals include a display of
-these instructions, a terminal connected to attacker.
+these instructions, and a terminal connected to attacker.
 
 To navigate this instruction, the arrow keys along with 
 with the Space/Home/End/Page-Up/Page-Down keys are usable.
@@ -57,6 +57,9 @@ To exit navigation of this instruction, type 'q'.
 
      Start Metasploit console
      sudo msfconsole
+     [NOTE: When using msfconsole in this lab, use of ctl-c will
+      exit the msfconsole program.  Normally, ctl-c would not
+      terminate msfconsole.  This is a Labtainers limitation.]
 
      search for distccd exploit
      search distccd
@@ -161,7 +164,7 @@ To exit navigation of this instruction, type 'q'.
 
 When the lab is completed, or you'd like to stop working for a while, run
 
-    stop.py sshlab
+    stop.py metasploit
 
 from the host Labtainer working directory.  You can always restart the
 Labtainer to continue your work.  When the Labtainer is stopped, a
