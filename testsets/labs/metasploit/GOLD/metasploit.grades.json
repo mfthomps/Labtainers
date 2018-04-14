@@ -1,0 +1,16 @@
+{
+    "jkhosali_at_nps.edu.metasploit": {
+        "actualwatermark": "9fb514d5a95d713f527e9999007451af", 
+        "parameter": {
+            "FSTRING": "bc83360aa3ac675ff570b450dab259e5"
+        }, 
+        "expectedwatermark": "9fb514d5a95d713f527e9999007451af", 
+        "grades": {
+            "_rlogin": true, 
+            "_rloginview": true, 
+            "rlogin_ok": true
+        }, 
+        "firstlevelzip": {}, 
+        "secondlevelzip": {}
+    }
+}
