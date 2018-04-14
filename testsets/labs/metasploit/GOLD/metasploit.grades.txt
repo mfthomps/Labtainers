@@ -1,0 +1,5 @@
+Labname metasploit
+
+             Student |       rlogin_ok |
+==================== | =============== |
+ jkhosali_at_nps.edu |               Y |
