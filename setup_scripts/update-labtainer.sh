@@ -47,7 +47,7 @@ else
     echo "USING SHARED FILE TAR, NOT PULLING FROM WEB"
 fi
 cd ..
-tar xf labtainer/labtainer.tar
+tar xf labtainer/labtainer.tar --keep-newer-files --warning=none
 cd labtainer/trunk/setup_scripts
 ./pull-all.sh
 cd ../../..
