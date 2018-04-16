@@ -37,7 +37,7 @@ class ParseStartConfig():
         self.clone_count = clone_count
         # COLLECT_DOCS - this optional setting indicates whether to collect lab's docs directory or not
         # default to NO (i.e., do not collect)
-        self.collect_docs = None
+        self.collect_docs = 'yes'
 
         if not os.path.exists(fname):
             self.logger.ERROR("Config file %s does not exists!\n" % fname)
@@ -192,7 +192,6 @@ class ParseStartConfig():
 
         if not self.collect_docs:
             # COLLECT_DOCS - this optional setting indicates whether to collect lab's docs directory or not
-            # default to NO (i.e., do not collect)
             self.collect_docs = "no"
         else:
             if self.collect_docs.lower() != "yes" and self.collect_docs.lower() != "no":
