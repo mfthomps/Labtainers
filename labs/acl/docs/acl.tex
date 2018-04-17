@@ -52,7 +52,7 @@ view and modify ACLs on files.
 In the "alice" terminal, cd to the /shared\_files directory and list
 the files:
 \begin{verbatim}
-   cd /shared_files
+   cd /shared_data
    ls -l
 \end{verbatim}
 \noindent
@@ -75,7 +75,7 @@ ACL permissions on this file using:
 Note how one of the three users has permission to modify that file?  Go to that
 user's virtual terminal and append to the file using:
 \begin{verbatim}
-   echo "more stuff" >> /shared_files/accounting.txt
+   echo "more stuff" >> /shared_data/accounting.txt
 \end{verbatim}
 
 Back in the Alice terminal, try to modify that file to confirm she lacks that access.
