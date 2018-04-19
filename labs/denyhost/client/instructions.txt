@@ -83,6 +83,8 @@ failed login attempts.
      Then start the bot, giving a user of "hank"
          ./bot.py hank
 
+     Watch the output, the program will appear to hang once the 
+     invalid login threshold is met.
      Based on your review of the /etc/denyhosts.config file, at what
      point do you expect the client IP to be added to the hosts.deny
      file?
@@ -101,14 +103,17 @@ failed login attempts.
      not sufficient because deny hosts keeps other databases. 
 
      One option is to "whitelist" the client computer by adding an 
-     entry to the /etc/hosts.allow file, e.g.,
+     entry to the /etc/hosts.allow file on the server, e.g.,
 
          ALL: 172.20.0.2
+     
+     The offending IP address may have also been blocked using "iptables".
+     On the server, you can see if this is that case using:
+         sudo iptables -L -n
+     If the IP address appears the the output, you can remove the block using:
+         sudo  iptables -D INPUT -s 172.20.0.2 -j DROP
 
-     Add that entry and confirm you are now able to ssh from the client.
-     Use vim or nano to add the entry, e.g.,
-    
-         sudo nano /etc/hosts.allow 
+     Now confirm you are now able to ssh from the client.
 
 3.5 Lock out an invalid user
 
