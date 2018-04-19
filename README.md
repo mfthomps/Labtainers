@@ -83,6 +83,8 @@ first time.
 April 19, 2018
 - The acl lab failed to properly assess performance of the trojan horse step.
 - Collect student documents by default. 
+- The denyhost lab changed to reflect that denyhosts (or tcp wrappers?) now
+modifies iptables.  Also, the denyhosts service was failing to start on some occasions.
 - When updating Labtainers, do not overwrite files that are newer than those
   in the archive -- preserve student lab reports.
 
