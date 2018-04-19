@@ -55,21 +55,33 @@ class SimLab():
     
     
     def searchWindows(self, name):
+        ''' find the most recent window whose title matches the given name.
+            The title "Terminal" seems to return most windows, so double check
+            the name against the getWindowname results.
+        '''
         wid = None
         while wid is None or len(wid) == 0:
             time.sleep(1)
             cmd = 'search %s' % name
+            #print('searchWindows %s' % cmd)
             output=self.dotool(cmd)
-            print('searchWindows %s' % cmd)
+            #print('output is %s' % output)
             parts = output.strip().split()
             if len(parts) == 1:
-                print('search out is %s' % output)
-                wid = output.rsplit(' ',1)[0].strip()
+                #print('search out is %s' % output)
+                twid = output.rsplit(' ',1)[0].strip()
+                cmd = 'getwindowname %s' % twid
+                wname = self.dotool(cmd)
+                if name in wname:
+                    wid = output.rsplit(' ',1)[0].strip()
             elif len(parts)>0:
-                last = sorted(parts)[-1]
-                #print('last is %s' % last)
-                wid = last
-            
+                for twid in sorted(parts, reverse=True):
+                    cmd = 'getwindowname %s' % twid
+                    wname = self.dotool(cmd)
+                    if name in wname:
+                        #print('wid: %s  wname is %s' % (twid, wname))
+                        wid = twid
+                        break
         return wid
     
     def activate(self, wid):
