@@ -30,6 +30,8 @@ def pushIt(lab, docker_dir, role, registry, logger):
     #print('would push to %s' % registry)
     df_list = [f for f in os.listdir(docker_dir) if os.path.isfile(os.path.join(docker_dir, f))]
     for df in df_list:
+        if df.endswith('.swp'):
+            continue
         logger.DEBUG('tag and push %s' % df)
         try:
             parts = df.split('.')
