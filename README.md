@@ -80,6 +80,12 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+April 19, 2018
+- The acl lab failed to properly assess performance of the trojan horse step.
+- Collect student documents by default. 
+- When updating Labtainers, do not overwrite files that are newer than those
+  in the archive -- preserve student lab reports.
+
 April 12, 2018
 
 - Add documentation for the purpose of lab goals, and display this for the instructor
