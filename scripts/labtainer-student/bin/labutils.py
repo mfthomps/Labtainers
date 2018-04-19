@@ -1663,11 +1663,17 @@ def BaseImageTime(dockerfile):
     return retval, image_name
  
 def newest_file_in_tree(rootfolder):
-    return max(
-        (os.path.join(dirname, filename)
-        for dirname, dirnames, filenames in os.walk(rootfolder)
-        for filename in filenames),
-        key=lambda fn: os.stat(fn).st_mtime)
+    if len(os.listdir(rootfolder)) > 0:
+        try:
+            return max(
+                (os.path.join(dirname, filename)
+                for dirname, dirnames, filenames in os.walk(rootfolder)
+                for filename in filenames),
+                key=lambda fn: os.stat(fn).st_mtime)
+        except ValueError:
+            return rootfolder
+    else:
+        return rootfolder
 
 def GetImageUser(image_name, container_registry):
     
@@ -1743,7 +1749,7 @@ def CheckBuild(lab_path, image_name, image_info, container_name, name, role, is_
                     check_file = os.path.join(container_dir, f, 'sys.tar')
                 elif f == 'home_tar':
                     check_file = os.path.join(container_dir, f, 'home.tar')
-                elif os.path.isdir(f):
+                elif os.path.isdir(os.path.join(container_dir,f)):
                     check_file = newest_file_in_tree(os.path.join(container_dir, f))
                 else:
                     check_file = os.path.join(container_dir, f)
