@@ -1,1 +1,1 @@
-sudo service denyhosts restart >> /dev/null
+sudo service denyhosts restart &> /dev/null
