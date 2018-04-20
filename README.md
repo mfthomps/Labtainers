@@ -80,6 +80,10 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+April 20, 2018
+- The denyhosts service fails to start the first time, moved start to student\_startup.sh.
+- Move all faux\_init services until after parameterization -- rsyslog was failing to start
+on second boot of container.
 April 19, 2018
 - The acl lab failed to properly assess performance of the trojan horse step.
 - Collect student documents by default. 
