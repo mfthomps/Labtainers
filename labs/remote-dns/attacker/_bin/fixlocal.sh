@@ -7,11 +7,5 @@
 #  not not permit nopassword, then use:
 #  echo $1 | sudo -S the-command
 #
-sudo tee -a /etc/bind/named.conf.local << EOL
-zone "example.com" {
-type master;
-file "/etc/bind/example.com.db";
-};
-EOL
 echo "nameserver 203.0.113.10" | sudo tee /etc/resolv.conf
 
