@@ -3,7 +3,7 @@
 # This will start system logging and will run rc.local
 # Add any other system services here, e.g., starting xinetd
 #
-/usr/sbin/rsyslogd -n &
+/usr/sbin/rsyslog -n &
 service rc.local start
 
 ### Uncomment the while loop below 
