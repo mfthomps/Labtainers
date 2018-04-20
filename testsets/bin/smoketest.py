@@ -96,7 +96,7 @@ class SmokeTest():
        
         return retval
     
-    def checkAll(self):
+    def checkAll(self, startwith):
         
         skip_labs = os.path.abspath('../../../distrib/skip-labs')
         skip = []
@@ -113,6 +113,8 @@ class SmokeTest():
         for lab in sorted(lab_list):
             if lab in skip:
                 continue
+            if startwith is not None and lab < startwith:
+                continue
             print('Start lab: %s' % lab)
             result = self.checkLab(lab)
             if not result:
@@ -122,12 +124,13 @@ class SmokeTest():
 def __main__():
     parser = argparse.ArgumentParser(description='Smoke test all labs')
     parser.add_argument('-l', '--lab', action='store', help='Test just this lab.')
+    parser.add_argument('-s', '--start_with', action='store', help='Test all starting with .')
     args = parser.parse_args()
     smoketest = SmokeTest()
     if args.lab is not None:
         smoketest.checkLab(args.lab)
     else:
-        smoketest.checkAll()
+        smoketest.checkAll(args.start_with)
 
 if __name__=='__main__':
     __main__()
