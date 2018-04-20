@@ -13,7 +13,9 @@ done
 # PUT any daemon start (that need parameterization after while loop)
 
 #/usr/sbin/rsyslogd -n &
-service rsyslog start 
+service rsyslog restart 
 service rc.local start 
+# denyhosts now starts in .local/bin/student_startup.sh
+# fails to start on first boot
+#service denyhosts start
 service xinetd restart
-service denyhosts start 
