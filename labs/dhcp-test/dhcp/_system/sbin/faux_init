@@ -3,30 +3,16 @@
 # This will start system logging and will run rc.local
 # Add any other system services here, e.g., starting xinetd
 #
-echo `date` >> /tmp/faux.log
-echo "start " >> /tmp/faux.log
-/usr/sbin/rsyslogd -n &
-echo `date` >> /tmp/faux.log
-echo "rsyslog done" >> /tmp/faux.log
-service rc.local start
-echo `date` >> /tmp/faux.log
-echo "rc.local done" >> /tmp/faux.log
-/etc/init.d/mynotify.sh start
-echo `date` >> /tmp/faux.log
-echo "mynotify done" >> /tmp/faux.log
-/etc/init.d/dnsmasq restart
-echo `date` >> /tmp/faux.log
-echo "dnsmasq done" >> /tmp/faux.log
-### Uncomment the while loop below 
-### if it is necessary to make sure parameterization has happened
+
 
 # Check the existent of permanent 'did_param' lock directory
-# Sleep until exist
+# Sleep until exists
 PERMLOCKDIR=/var/labtainer/did_param
-###while [ ! -d "$PERMLOCKDIR" ]
-###do
-###    sleep 2
-###done
+while [ ! -d "$PERMLOCKDIR" ]
+do
+   sleep 2
+done
+service rsyslog start
+service rc.local start
 
-# PUT any daemon start (that need parameterization after while loop)
 
