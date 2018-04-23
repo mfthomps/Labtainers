@@ -644,6 +644,8 @@ def DockerCmd(cmd):
     if len(output[1]) > 0:
         logger.DEBUG("Failed cmd %s %s" % (cmd, output[1]))
         return False
+    if len(output[0]) > 0:
+        logger.DEBUG("cmd stdout %s" % (cmd, output[0]))
     return True
 
 
@@ -673,12 +675,12 @@ def CopyLabBin(mycontainer_name, container_user, lab_path, name):
     cmd = 'tar cf /tmp/labsys.tar -C ./lab_sys etc sbin'
     os.system(cmd)
 
-    cmd = 'docker cp /tmp/labsys.tar %s:/tmp/' % (mycontainer_name)
+    cmd = 'docker cp /tmp/labsys.tar %s:/var/tmp/' % (mycontainer_name)
     if not DockerCmd(cmd):
         logger.ERROR('failed %s' % cmd)
         exit(1)
 
-    cmd = 'docker exec %s script -q -c "sudo tar xhf /tmp/labsys.tar -C /"' % (mycontainer_name)
+    cmd = 'docker exec %s script -q -c "sudo tar xhf /var/tmp/labsys.tar -C /"' % (mycontainer_name)
     if not DockerCmd(cmd):
         cmd = 'docker cp lab_sys/.  %s:/' % (mycontainer_name)
         if not DockerCmd(cmd):
