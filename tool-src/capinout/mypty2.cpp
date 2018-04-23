@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <time.h>
 #define __USE_BSD
 #include <termios.h>
 #include <sys/select.h>
@@ -26,6 +27,9 @@ int right_pid = 0;
 int master_stdin = 0; 
 int master_stdout = 1; 
 int the_redirect_fd = -1;
+int count_index = 1;
+int ts_index = 2;
+int cmd_path_index = 3;
 char *trim(char *str)
 {
        int tmp_trim = strlen(str)-1;
@@ -211,6 +215,16 @@ int handleRedirect(char *redirect_filename, char *append_filename){
      }
      return retval;
 }
+int closeUpShop(int stdin_fd, int stdout_fd){
+   time_t rawtime;
+   struct tm * timeinfo;
+   char buffer [80];
+   time (&rawtime);
+   timeinfo = localtime (&rawtime);
+   strftime (buffer,80,"PROGRAM:FINISH %Y%m%d%H%M%S",timeinfo);
+   write(stdin_fd, buffer, strlen(buffer));
+   write(stdout_fd, buffer, strlen(buffer));
+}
 int ioLoop()
 {
      char input[150];
@@ -226,8 +240,9 @@ int ioLoop()
        rc = select(max_fd + 1, &fd_in, NULL, NULL, NULL);
        switch(rc)
        {
-         case -1 : fprintf(stderr, "Error %d on select()\n", errno);
-                   exit(1);
+         case -1 : fprintf(debug, "Error %d on select()\n", errno);
+                   closeUpShop(stdin_fd, stdout_fd);
+                   exit(0);
    
          default :
          {
@@ -241,8 +256,9 @@ int ioLoop()
                    write(stdin_fd, input, rc);
                  } else {
                    if (rc < 0) {
-                     fprintf(stderr, "Error %d on read standard input\n", errno);
-                     exit(1);
+                     fprintf(debug, "Error %d on read standard input\n", errno);
+                     closeUpShop(stdin_fd, stdout_fd);
+                     exit(0);
                    }
                  }
              }
@@ -259,6 +275,7 @@ int ioLoop()
                   } else {
                       if (rc < 0) {
                           fprintf(debug, "Read zip (error %d) on read master PTY\n", errno);
+                          closeUpShop(stdin_fd, stdout_fd);
                           close(stdout_fd);
                           close(stdin_fd);
                           close(master_stdout);
@@ -292,11 +309,56 @@ int ioLoop()
 }
 void sighandler(int signo)
 {
+    fprintf(debug,"got signal %d\n", signo);
     if(signo == SIGINT){
         fprintf(debug,"got SIGINT\n");
         fflush(debug);
     }
     return;
+}
+void getStdInOutFiles(std::vector<std::string> cmd_args, std::vector<std::string> all_args, std::string *stdinfile, std::string *stdoutfile)
+{
+   char *precmd_home = std::getenv("PRECMD_HOME"); 
+   if(precmd_home == NULL || strlen(precmd_home) == 0){
+      fprintf(stderr, "PRECMD_HOME not defined\n");
+      exit(1);
+   }
+   std::string initd_prefix  = "/etc/init.d";
+   std::string time_stamp_in = ".stdin."+all_args[ts_index];
+   std::string time_stamp_out = ".stdout."+all_args[ts_index];
+   int prog_index = 0;  
+   if(cmd_args[0] == "sudo"){
+        //cout << "yep is sudo\n";
+        prog_index = 1;
+   }
+   if(cmd_args[prog_index] == "systemctl"){
+       // systemctl action program
+       fprintf(debug, "is systemctl\n");
+       time_stamp_in = "service."+time_stamp_in;
+       time_stamp_out = "service."+time_stamp_out;
+       prog_index += 2;
+   }else if(cmd_args[prog_index] == "service"){
+       // service program action
+       fprintf(debug, "is service\n");
+       time_stamp_in = "service."+time_stamp_in;
+       time_stamp_out = "service."+time_stamp_out;
+       prog_index ++;
+   }else if(!all_args[cmd_path_index].compare(0, initd_prefix.size(), initd_prefix)){
+       // /etc/init.d/program action
+       fprintf(debug, "is /etc/init.d\n");
+       time_stamp_in = "service."+time_stamp_in;
+       time_stamp_out = "service."+time_stamp_out;
+   }
+       
+   const char *prog_char = cmd_args[prog_index].c_str();
+   char *prog_base = basename((char *)prog_char);
+
+   /* get stdin & stdout capture file names */
+   std::string local_result = "/.local/result/";
+   fprintf(debug, "prog_base is %s precmd_home is %s\n", prog_base, precmd_home);
+   *stdinfile = std::string(precmd_home) + local_result + std::string(prog_base) + time_stamp_in;
+   *stdoutfile = std::string(precmd_home) + local_result + std::string(prog_base) + time_stamp_out;
+   // cout << "stdinfile "+stdinfile+"\n";
 }
 int main(int argc, char *argv[])
 {
@@ -304,15 +366,13 @@ int main(int argc, char *argv[])
    int rc;
    std::string stdinfile;
    std::string stdoutfile;
-   int count_index = 1;
-   int ts_index = 2;
    // Check arguments
    if (argc <= ts_index)
    {
        fprintf(stderr, "Usage: %s cmd_line count timestamp\n", argv[0]);
        exit(1);
    }
-   debug = fopen("debug.out", "w");
+   debug = fopen("/tmp/capinout_debug.out", "w");
    if(signal(SIGINT, sighandler) == SIG_ERR){
        fprintf(stderr, "error setting SIGINT signal handler\n");
    }
@@ -387,29 +447,7 @@ int main(int argc, char *argv[])
        fprintf(debug, "was left side, cmd_args[0] is [%s]\n", cmd_args[0].c_str());
    }
 
-   /* monitored command is on right side of pipe */ 
-   int prog_index = 0;  
-   if(cmd_args[0] == "sudo"){
-        cout << "yep is sudo\n";
-        prog_index = 1;
-   }
-   const char *prog_char = cmd_args[prog_index].c_str();
-   char *prog_base = basename((char *)prog_char);
-   char *precmd_home = std::getenv("PRECMD_HOME"); 
-   if(precmd_home == NULL || strlen(precmd_home) == 0){
-      fprintf(stderr, "PRECMD_HOME not defined\n");
-      exit(1);
-   }
-
-   /* get stdin & stdout capture file names */
-   std::string local_result = "/.local/result/";
-   std::string time_stamp_in = ".stdin."+all_args[ts_index];
-   std::string time_stamp_out = ".stdout."+all_args[ts_index];
-   printf("prog_base is %s precmd_home is %s\n", prog_base, precmd_home);
-   stdinfile = std::string(precmd_home) + local_result + std::string(prog_base) + time_stamp_in;
-   stdoutfile = std::string(precmd_home) + local_result + std::string(prog_base) + time_stamp_out;
-   cout << "stdinfile "+stdinfile+"\n";
-
+   getStdInOutFiles(cmd_args, all_args, &stdinfile, &stdoutfile);
 
    fdm = getMaster();
    if(fdm < 0){
@@ -430,7 +468,13 @@ int main(int argc, char *argv[])
      if(stdin_fd <=0 ){
          fprintf(stderr, "Could not open %s for writing. %d\n", stdinfile.c_str(), errno);
          return 1;
-     }
+     } 
+     char tmp_buf[] = "PROGRAM_ARGUMENTS is ";
+     char newline[] = "\n";
+     write(stdin_fd, tmp_buf, strlen(tmp_buf));
+     write(stdin_fd, argv[1], strlen(argv[1]));
+     write(stdin_fd, newline, 1);
+
      stdout_fd = open(stdoutfile.c_str(), O_RDWR | O_CREAT, 0644);
      if(count == 2){
          pipe(pipe_fd);
