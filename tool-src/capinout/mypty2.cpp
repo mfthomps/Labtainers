@@ -18,10 +18,13 @@
 #include <cstring>
 #include <algorithm>
 #include <climits>
+#include <sstream>
+#include <iterator>
 FILE *debug;
 int fdm;
 int stdout_fd, stdin_fd;
 int pipe_fd[2];
+int cmd_pid = 0;
 int left_pid = 0;
 int right_pid = 0;
 int master_stdin = 0; 
@@ -89,6 +92,21 @@ vector<string> split(const char *str, char c = ' ')
 
     return result;
 }
+std::string join( const std::vector<std::string>& elements, const char* const separator)
+{
+    switch (elements.size())
+    {
+        case 0:
+            return "";
+        case 1:
+            return elements[0];
+        default:
+            std::ostringstream os; 
+            std::copy(elements.begin(), elements.end()-1, std::ostream_iterator<std::string>(os, separator));
+            os << *elements.rbegin();
+            return os.str();
+    }
+}
 int getMaster()
 {
    int rc;
@@ -114,6 +132,14 @@ int getMaster()
    }
    return fdm;
 }
+char **getExecArgs(char *cmd_args){
+     char **my_args = (char **)malloc(sizeof(char *) * (4));
+     my_args[0] = "sh";
+     my_args[1] = "-c";
+     my_args[2] = cmd_args;
+     my_args[3] = 0;
+     return my_args;
+}
 int forkLeft(int *pipe_fd, char *cmd){
        /*
        For use when monitored command is on right side of pipe.
@@ -126,17 +152,9 @@ int forkLeft(int *pipe_fd, char *cmd){
            dup2(pipe_fd[1], 1);
            close(pipe_fd[1]);
            close(pipe_fd[0]);
-           //char string[] = "hey there\n";
-           //write(1, string, (strlen(string)+1));
-           std::vector<char*> left_exec_args;
-           std::transform(left_args.begin(), left_args.end(), std::back_inserter(left_exec_args), convert);   
-           char **my_args = (char **)malloc(sizeof(char *) * left_exec_args.size()+1);
-           for(int i=0; i<left_exec_args.size(); i++){
-               fprintf(debug, "arg %d is %s\n", i, left_exec_args[i]);
-               my_args[i] = left_exec_args[i];
-           }
-           my_args[left_exec_args.size()] = 0;
-           fprintf(debug, "now exec with left_exec_args[0] is %s\n", left_exec_args[0]);
+           char **my_args = getExecArgs(cmd);
+           fprintf(debug, "fork left now exec with [0] %s [1] %s [2] %s\n", my_args[0], my_args[1], my_args[2]);
+           fflush(debug);
            int rc = execvp(my_args[0], &my_args[0]);
            /* would be error if we get here */
            fprintf(debug, "execvp error rc is %d errno %d\n", rc, errno);
@@ -159,17 +177,9 @@ int forkRight(int *pipe_fd, char *cmd){
            dup2(pipe_fd[0], STDIN_FILENO);
            close(pipe_fd[0]);
            close(pipe_fd[1]);
-           //char string[] = "hey there\n";
-           //write(1, string, (strlen(string)+1));
-           std::vector<char*> right_exec_args;
-           std::transform(right_args.begin(), right_args.end(), std::back_inserter(right_exec_args), convert);   
-           char **my_args = (char **)malloc(sizeof(char *) * right_exec_args.size()+1);
-           for(int i=0; i<right_exec_args.size(); i++){
-               fprintf(debug, "arg %d is %s\n", i, right_exec_args[i]);
-               my_args[i] = right_exec_args[i];
-           }
-           my_args[right_exec_args.size()] = 0;
-           fprintf(debug, "now exec with right_exec_args[0] is %s\n", right_exec_args[0]);
+           char **my_args = getExecArgs(cmd);
+           fprintf(debug, "forkRight now exec with [0] %s [1] %s [2] %s\n", my_args[0], my_args[1], my_args[2]);
+           fflush(debug);
            int rc = execvp(my_args[0], &my_args[0]);
            /* would be error if we get here */
            fprintf(debug, "execvp error rc is %d errno %d\n", rc, errno);
@@ -233,6 +243,11 @@ int ioLoop()
      while (1)
      {
        // Wait for data from standard input and master side of PTY
+       if(left_pid != 0){
+          int stat;
+          int wait_left = waitpid(left_pid, &stat, WNOHANG);
+          fprintf(debug, "wait_left got %d stat %d\n", wait_left, stat);
+       }
        FD_ZERO(&fd_in);
        FD_SET(master_stdin, &fd_in);
        FD_SET(fdm, &fd_in);
@@ -241,8 +256,11 @@ int ioLoop()
        switch(rc)
        {
          case -1 : fprintf(debug, "Error %d on select()\n", errno);
-                   closeUpShop(stdin_fd, stdout_fd);
-                   exit(0);
+                   if(errno != 4)
+                   {
+                       closeUpShop(stdin_fd, stdout_fd);
+                       exit(0);
+                   }
    
          default :
          {
@@ -309,11 +327,25 @@ int ioLoop()
 }
 void sighandler(int signo)
 {
-    fprintf(debug,"got signal %d\n", signo);
+    fprintf(debug,"capinout got signal %d\n", signo);
     if(signo == SIGINT){
-        fprintf(debug,"got SIGINT\n");
-        fflush(debug);
+        fprintf(debug,"capinout got SIGINT\n");
     }
+    if(cmd_pid != 0){
+        fprintf(debug, "kill cmd\n");
+        kill(cmd_pid, signo);
+    }
+    if(left_pid != 0){
+        fprintf(debug, "kill left\n");
+        kill(left_pid, signo);
+    }
+    if(right_pid != 0){
+        fprintf(debug, "kill right \n");
+        kill(right_pid, signo);
+    }
+    fprintf(debug, "no do loop again\n");
+    fflush(debug);
+    ioLoop();
     return;
 }
 void getStdInOutFiles(std::vector<std::string> cmd_args, std::vector<std::string> all_args, std::string *stdinfile, std::string *stdoutfile)
@@ -334,20 +366,20 @@ void getStdInOutFiles(std::vector<std::string> cmd_args, std::vector<std::string
    if(cmd_args[prog_index] == "systemctl"){
        // systemctl action program
        fprintf(debug, "is systemctl\n");
-       time_stamp_in = "service."+time_stamp_in;
-       time_stamp_out = "service."+time_stamp_out;
+       time_stamp_in = ".service"+time_stamp_in;
+       time_stamp_out = ".service"+time_stamp_out;
        prog_index += 2;
    }else if(cmd_args[prog_index] == "service"){
        // service program action
        fprintf(debug, "is service\n");
-       time_stamp_in = "service."+time_stamp_in;
-       time_stamp_out = "service."+time_stamp_out;
+       time_stamp_in = ".service"+time_stamp_in;
+       time_stamp_out = ".service"+time_stamp_out;
        prog_index ++;
    }else if(!all_args[cmd_path_index].compare(0, initd_prefix.size(), initd_prefix)){
        // /etc/init.d/program action
        fprintf(debug, "is /etc/init.d\n");
-       time_stamp_in = "service."+time_stamp_in;
-       time_stamp_out = "service."+time_stamp_out;
+       time_stamp_in = ".service"+time_stamp_in;
+       time_stamp_out = ".service"+time_stamp_out;
    }
        
    const char *prog_char = cmd_args[prog_index].c_str();
@@ -413,6 +445,7 @@ int main(int argc, char *argv[])
 
    /* cmd should not be free of redirects.  Look for pipes */
    fprintf(debug, "cmd now %s\n",cmd);
+   char *cmd_exec_args = NULL;
    char *right_side = NULL;
    char *pipe_str = strstr(cmd, "|");
    if(pipe_str != NULL)
@@ -442,9 +475,11 @@ int main(int argc, char *argv[])
        }
        cmd_args = split(right_side);
        fprintf(debug, "was right side, cmd_args[0] is [%s]\n", cmd_args[0].c_str());
+       cmd_exec_args = right_side;
    }else{
        cmd_args = split(cmd);
        fprintf(debug, "was left side, cmd_args[0] is [%s]\n", cmd_args[0].c_str());
+       cmd_exec_args = cmd;
    }
 
    getStdInOutFiles(cmd_args, all_args, &stdinfile, &stdoutfile);
@@ -457,7 +492,8 @@ int main(int argc, char *argv[])
    fds = open(ptsname(fdm), O_RDWR);
    
    // Create the child process
-   if (fork())
+   cmd_pid = fork();
+   if (cmd_pid)
    {
    
      // parent
@@ -544,16 +580,9 @@ int main(int argc, char *argv[])
      /*
      Get the exec arguments
      */
-     std::vector<char*> exec_args;
-     std::transform(cmd_args.begin(), cmd_args.end(), std::back_inserter(exec_args), convert);   
-     char **my_args = (char **)malloc(sizeof(char *) * exec_args.size()+1);
-     for(int i=0; i<exec_args.size(); i++){
-         fprintf(debug, "arg %d is %s\n", i, exec_args[i]);
-         my_args[i] = exec_args[i];
-     }
-     my_args[exec_args.size()] = 0;
-
-     fprintf(debug, "now exec with exec_args[0] is %s\n", exec_args[0]);
+     char **my_args = getExecArgs(cmd_exec_args);
+     fprintf(debug, "fork command, now exec with [0] %s [1] %s [2] %s\n", my_args[0], my_args[1], my_args[2]);
+     fflush(debug);
      rc = execvp(my_args[0], &my_args[0]);
      /* would be error if we get here */
      fprintf(debug, "execvp error rc is %d errno %d\n", rc, errno);
