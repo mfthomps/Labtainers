@@ -645,7 +645,7 @@ def DockerCmd(cmd):
         logger.DEBUG("Failed cmd %s %s" % (cmd, output[1]))
         return False
     if len(output[0]) > 0:
-        logger.DEBUG("cmd stdout %s" % (cmd, output[0]))
+        logger.DEBUG("cmd %s stdout: %s" % (cmd, output[0]))
     return True
 
 
