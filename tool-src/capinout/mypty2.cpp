@@ -1,3 +1,34 @@
+/*
+This software was created by United States Government employees at 
+The Center for the Information Systems Studies and Research (CISR) 
+at the Naval Postgraduate School NPS.  Please note that within the 
+United States, copyright protection is not available for any works 
+created  by United States Government employees, pursuant to Title 17 
+United States Code Section 105.   This software is in the public 
+domain and is not subject to copyright. 
+*/
+
+/*
+Capture stdin and stdout of selected programs into timestamped files.
+Input arguments include:
+    -- A command line, potentially including a pipe and redirection.
+    -- An indication of which command within a piped stream is to be
+       monitored. 0: there are no pipes
+                  1: left side of pipe
+                  2: right side of pipe
+    -- A timestampe string   
+    -- The full path to the command (used to determine if /etc/init.d
+       programs are invoked.)
+The program also detects use of systemctl, service and /etc/init.d to
+monitor services.
+
+When the command line indicates that the program to be monitored is 
+will use the terminal, a pty is created and used by a master to catch
+and record stdin & stdout.  If the program to be monitored is to the
+right of a pipe, then pipes are used so that the pipe used by the
+program to get its stdin can be closed without also closing the pipe
+it uses for its stdout.
+*/
 #define _XOPEN_SOURCE 600
 #include <stdlib.h>
 #include <fcntl.h>
@@ -21,9 +52,12 @@
 #include <sstream>
 #include <iterator>
 FILE *debug;
-int fdm;
+int fdm_in;
+int fdm_out;
 int stdout_fd, stdin_fd;
 int pipe_fd[2];
+int master_pipe_stdin[2];
+int master_pipe_stdout[2];
 int cmd_pid = 0;
 int left_pid = 0;
 int right_pid = 0;
@@ -140,6 +174,19 @@ char **getExecArgs(char *cmd_args){
      my_args[3] = 0;
      return my_args;
 }
+char **getCharFromVector(std::vector<std::string> sv)
+{
+    std::vector<char*> vc;
+    std::transform(sv.begin(), sv.end(), std::back_inserter(vc), convert);
+    char **my_args = (char **)malloc(sizeof(char *) * (vc.size()+1));
+    for(int i=0; i<vc.size(); i++)
+    { 
+        my_args[i] = vc[i];
+    }
+    my_args[vc.size()] = 0;
+    return my_args;
+}
+    
 int forkLeft(int *pipe_fd, char *cmd){
        /*
        For use when monitored command is on right side of pipe.
@@ -155,6 +202,7 @@ int forkLeft(int *pipe_fd, char *cmd){
            char **my_args = getExecArgs(cmd);
            fprintf(debug, "fork left now exec with [0] %s [1] %s [2] %s\n", my_args[0], my_args[1], my_args[2]);
            fflush(debug);
+           //char **my_args = getCharFromVector(left_args);
            int rc = execvp(my_args[0], &my_args[0]);
            /* would be error if we get here */
            fprintf(debug, "execvp error rc is %d errno %d\n", rc, errno);
@@ -172,7 +220,7 @@ int forkRight(int *pipe_fd, char *cmd){
        
        if (retval == 0){
            // child map pipe to stdin
-           std::vector<std::string> right_args = split(cmd);
+           //std::vector<std::string> right_args = split(cmd);
            close(STDIN_FILENO);
            dup2(pipe_fd[0], STDIN_FILENO);
            close(pipe_fd[0]);
@@ -225,7 +273,7 @@ int handleRedirect(char *redirect_filename, char *append_filename){
      }
      return retval;
 }
-int closeUpShop(int stdin_fd, int stdout_fd){
+int closeUpShop(){
    time_t rawtime;
    struct tm * timeinfo;
    char buffer [80];
@@ -234,57 +282,94 @@ int closeUpShop(int stdin_fd, int stdout_fd){
    strftime (buffer,80,"PROGRAM:FINISH %Y%m%d%H%M%S",timeinfo);
    write(stdin_fd, buffer, strlen(buffer));
    write(stdout_fd, buffer, strlen(buffer));
+   close(stdout_fd);
+   close(stdin_fd);
+   close(master_stdout);
+   if(the_redirect_fd > 0){
+      close(the_redirect_fd);
+   }
 }
 int ioLoop()
 {
      char input[150];
      fd_set fd_in;
      int rc;
+     int tmp_count = 0;
+     char eot = 0x04;
      while (1)
      {
        // Wait for data from standard input and master side of PTY
        if(left_pid != 0){
           int stat;
           int wait_left = waitpid(left_pid, &stat, WNOHANG);
-          fprintf(debug, "wait_left got %d stat %d\n", wait_left, stat);
+          fprintf(debug, "left_pid: %d wait_left got %d stat %d\n", left_pid, wait_left, stat);
+          if(wait_left == left_pid)
+          {
+              fprintf(debug, "MATCHED\n");
+              left_pid = 0;
+              close(fdm_in);
+              //sleep(20);
+              //int wait_cmd = waitpid(cmd_pid, &stat,0);
+              //fprintf(debug, "wait_cmd got %d  cmd_pid was %d stat is %d\n", wait_cmd, cmd_pid, stat); 
+              //if(WIFEXITED(stat)){
+              //    fprintf(debug, "exited normally low is %d\n", WEXITSTATUS(stat));
+              //}else{
+              //    fprintf(debug, "no idea why it exited\n");
+              //} 
+              master_stdin = -1;
+          }
+          tmp_count++;
+          if(tmp_count > 100){
+              fprintf(debug, "too much, break\n");
+              break;
+          }
        }
        FD_ZERO(&fd_in);
-       FD_SET(master_stdin, &fd_in);
-       FD_SET(fdm, &fd_in);
-       int max_fd = max(fdm, master_stdin);
+       if(master_stdin >=0 ){
+           FD_SET(master_stdin, &fd_in);
+       }else{
+           fprintf(debug,"master_stdin closed, do not select on it\n");
+       }
+       FD_SET(fdm_out, &fd_in);
+       int max_fd = max(fdm_out, master_stdin);
        rc = select(max_fd + 1, &fd_in, NULL, NULL, NULL);
+       fprintf(debug, "select returns %d\n", rc);
        switch(rc)
        {
          case -1 : fprintf(debug, "Error %d on select()\n", errno);
                    if(errno != 4)
                    {
-                       closeUpShop(stdin_fd, stdout_fd);
+                       closeUpShop();
                        exit(0);
                    }
    
          default :
          {
              // If data on standard input
-             if (FD_ISSET(master_stdin, &fd_in)) {
+             if (master_stdin >= 0 && FD_ISSET(master_stdin, &fd_in)) {
                  rc = read(master_stdin, input, sizeof(input));
+                 fprintf(debug, "read master_stdin rc is %d\n", rc);
                  if (rc > 0) {
                    // Send data on the master side of PTY
                    fprintf(debug, "read master_stdin %s\n", input);
-                   write(fdm, input, rc);
+                   write(fdm_in, input, rc);
                    write(stdin_fd, input, rc);
+                   fprintf(debug, "read master_stdin, wrote to fdm_in %s\n", input);
                  } else {
                    if (rc < 0) {
                      fprintf(debug, "Error %d on read standard input\n", errno);
-                     closeUpShop(stdin_fd, stdout_fd);
+                     closeUpShop();
                      exit(0);
                    }
                  }
              }
      
              // If data on master side of PTY
-             if (FD_ISSET(fdm, &fd_in))
+             if (FD_ISSET(fdm_out, &fd_in))
              {
-                  rc = read(fdm, input, sizeof(input));
+                  rc = read(fdm_out, input, sizeof(input));
+                  fprintf(debug, "read fdm_out rc is %d\n", rc);
+                  fflush(debug);
                   if (rc > 0)
                   {
                       // Send data on standard output
@@ -293,14 +378,7 @@ int ioLoop()
                   } else {
                       if (rc < 0) {
                           fprintf(debug, "Read zip (error %d) on read master PTY\n", errno);
-                          closeUpShop(stdin_fd, stdout_fd);
-                          close(stdout_fd);
-                          close(stdin_fd);
-                          close(master_stdout);
-                          if(the_redirect_fd > 0){
-                              close(the_redirect_fd);
-                          }
-                          close(stdin_fd);
+                          closeUpShop();
                           int status;
                           int cpid;
                           fflush(debug);
@@ -317,6 +395,10 @@ int ioLoop()
                           close(1);
                           return 0;
                          
+                      }else{
+                          fprintf(debug,"read zero from fdm_out, assume pipe closed, and clean up\n");
+                          closeUpShop();
+                          exit(0);
                       }
                   }
               }
@@ -394,7 +476,7 @@ void getStdInOutFiles(std::vector<std::string> cmd_args, std::vector<std::string
 }
 int main(int argc, char *argv[])
 {
-   int fds;
+   int fds_in, fds_out;
    int rc;
    std::string stdinfile;
    std::string stdoutfile;
@@ -483,13 +565,33 @@ int main(int argc, char *argv[])
    }
 
    getStdInOutFiles(cmd_args, all_args, &stdinfile, &stdoutfile);
+   if(count != 2)
+   {
 
-   fdm = getMaster();
-   if(fdm < 0){
-       return 1;
-   }   
-   // Open the slave side ot the PTY
-   fds = open(ptsname(fdm), O_RDWR);
+      fdm_in = getMaster();
+      if(fdm_in < 0){
+          return 1;
+      }   
+      fdm_out = fdm_in;
+      // Open the slave side ot the PTY
+      fds_in = open(ptsname(fdm_in), O_RDWR);
+      fds_out = fds_in;
+   }else{
+      // master write stdin to this for slave to consume
+      pipe(master_pipe_stdin);
+      // master reads stdout from slave
+      pipe(master_pipe_stdout);
+
+      // master writes stdin to slave
+      fdm_in = master_pipe_stdin[1]; 
+      // master reads stdout from slave
+      fdm_out = master_pipe_stdout[0]; 
+
+      // slave reads stdin from master
+      fds_in = master_pipe_stdin[0]; 
+      // slave write stdout to master
+      fds_out = master_pipe_stdout[1]; 
+   }
    
    // Create the child process
    cmd_pid = fork();
@@ -498,8 +600,14 @@ int main(int argc, char *argv[])
    
      // parent
    
-     // Close the slave side of the PTY
-     close(fds);
+     // Close the slave side of the PTY or pipe
+     if(count != 2){
+        close(fds_in);
+     }else{
+        close(fds_in);
+        close(fds_out);
+     }
+
      stdin_fd = open(stdinfile.c_str(), O_RDWR | O_CREAT, 0644);
      if(stdin_fd <=0 ){
          fprintf(stderr, "Could not open %s for writing. %d\n", stdinfile.c_str(), errno);
@@ -544,36 +652,43 @@ int main(int argc, char *argv[])
      struct termios new_term_settings; // Current terminal settings
    
      // CHILD
+     if(count != 2)
+     { 
+        // Close the master side of the PTY
+        close(fdm_in);
+        // Save the defaults parameters of the slave side of the PTY
+        rc = tcgetattr(fds_in, &slave_orig_term_settings);
    
-     // Close the master side of the PTY
-     close(fdm);
-   
-     // Save the defaults parameters of the slave side of the PTY
-     rc = tcgetattr(fds, &slave_orig_term_settings);
-   
-     // Set RAW mode on slave side of PTY
-     new_term_settings = slave_orig_term_settings;
-     cfmakeraw (&new_term_settings);
-     tcsetattr (fds, TCSANOW, &new_term_settings);
+        // Set RAW mode on slave side of PTY
+        new_term_settings = slave_orig_term_settings;
+        cfmakeraw (&new_term_settings);
+        tcsetattr (fds_in, TCSANOW, &new_term_settings);
+     }else{
+        close(fdm_in);
+        close(fdm_out);
+     }
    
      // The slave side of the PTY becomes the standard input and outputs of the child process
      close(0); // Close standard input (current terminal)
      close(1); // Close standard output (current terminal)
      close(2); // Close standard error (current terminal)
    
-     dup(fds); // PTY becomes standard input (0)
-     dup(fds); // PTY becomes standard output (1)
-     dup(fds); // PTY becomes standard error (2)
+     dup(fds_in); // PTY becomes standard input (0)
+     dup(fds_out); // PTY becomes standard output (1)
+     dup(fds_out); // PTY becomes standard error (2)
+  
+     if(count != 2)
+     { 
+        // Now the original file descriptor is useless
+        close(fds_in);
    
-     // Now the original file descriptor is useless
-     close(fds);
+        // Make the current process a new session leader
+        setsid();
    
-     // Make the current process a new session leader
-     setsid();
-   
-     // As the child is a session leader, set the controlling terminal to be the slave side of the PTY
-     // (Mandatory for programs like the shell to make them manage correctly their outputs)
-     ioctl(0, TIOCSCTTY, 1);
+        // As the child is a session leader, set the controlling terminal to be the slave side of the PTY
+        // (Mandatory for programs like the shell to make them manage correctly their outputs)
+        ioctl(0, TIOCSCTTY, 1);
+     }
    
      // Execution of the program
 
@@ -583,7 +698,11 @@ int main(int argc, char *argv[])
      char **my_args = getExecArgs(cmd_exec_args);
      fprintf(debug, "fork command, now exec with [0] %s [1] %s [2] %s\n", my_args[0], my_args[1], my_args[2]);
      fflush(debug);
+     //char **mft_args = (char **)malloc(sizeof(char *) * (2));
+     //mft_args[0] = cmd_exec_args;
+     //mft_args[1] = 0;
      rc = execvp(my_args[0], &my_args[0]);
+     //rc = execvp(mft_args[0], &mft_args[0]);
      /* would be error if we get here */
      fprintf(debug, "execvp error rc is %d errno %d\n", rc, errno);
 
