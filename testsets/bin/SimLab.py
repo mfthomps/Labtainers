@@ -60,7 +60,12 @@ class SimLab():
             the name against the getWindowname results.
         '''
         wid = None
+        count = 0
         while wid is None or len(wid) == 0:
+            count += 1
+            if count > 20:
+                print('searchWindows failed to find %s after 20 seconds, exit' % name)
+                exit(1)
             time.sleep(1)
             cmd = 'search %s' % name
             #print('searchWindows %s' % cmd)
