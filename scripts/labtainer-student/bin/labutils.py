@@ -2069,7 +2069,7 @@ def CreateCopyChownZip(start_config, labtainer_config, name, container_name, con
     #    logger.DEBUG('output of Student.py is %s' % out_string)
     username = getpass.getuser()
 
-    tmp_dir=os.path.join('/tmp/labtainers', container_name)
+    tmp_dir=os.path.join('/var/tmp/labtainers', container_name)
     shutil.rmtree(tmp_dir, ignore_errors=True)
     try:
         os.makedirs(tmp_dir)
