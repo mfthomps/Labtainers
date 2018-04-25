@@ -80,6 +80,9 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+April 25, 2018
+- Put labsys.tar into /var/tmp instead of /tmp, sometimes would get deleted before expanded
+
 April 20, 2018
 - The denyhosts service fails to start the first time, moved start to student\_startup.sh.
 - Move all faux\_init services until after parameterization -- rsyslog was failing to start
