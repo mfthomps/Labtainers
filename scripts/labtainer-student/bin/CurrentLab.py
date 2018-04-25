@@ -10,6 +10,10 @@ class CurrentLab():
             with open(clab_file) as fh: 
                 self.data = json.load(fh)
     def save(self):
+        try:
+            os.mkdir('./.tmp')
+        except:
+            pass
         with open(clab_file, 'w') as fh:
             json.dump(self.data, fh)
     def add(self, key, value):
