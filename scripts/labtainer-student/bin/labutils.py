@@ -2436,7 +2436,7 @@ def DoStop(start_config, labtainer_config, lab_path, role, ignore_stop_error, is
             logger.DEBUG("Zipping docs directory to %s" % docs_zip_file)
 
             docs_path = '%s/docs' % lab_path
-            if os.path.isfile(docs_path):
+            if os.path.isdir(docs_path):
                 docs_zip_filelist = glob.glob('%s/*' % docs_path)
                 logger.DEBUG(docs_zip_filelist)
 
@@ -2452,6 +2452,8 @@ def DoStop(start_config, labtainer_config, lab_path, role, ignore_stop_error, is
 
                 # Add docs.zip into the ZipFileList
                 ZipFileList.append(docs_zip_file)
+            else:
+                logger.DEBUG('no docs at %s' % docs_path)
 
         # Combine all the zip files
         logger.DEBUG("ZipFileList is ")
