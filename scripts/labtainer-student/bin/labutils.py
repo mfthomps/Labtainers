@@ -1375,7 +1375,7 @@ def terminalCounter(terminal_count):
 def terminalWideCounter(terminal_count):
     x_coordinate = 100 + ( 50 * terminal_count )
     y_coordinate = 75 + ( 50 * terminal_count)
-    terminal_location = "--geometry 180x25+%d+%d" % (x_coordinate, y_coordinate)
+    terminal_location = "--geometry 160x35+%d+%d" % (x_coordinate, y_coordinate)
     return terminal_location
 
 # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
