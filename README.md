@@ -80,8 +80,10 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
-April 25, 2018
+April 26, 2018
 - Put labsys.tar into /var/tmp instead of /tmp, sometimes would get deleted before expanded
+- Running X applications as root fails after reboot of VM.
+- Add "User Command" man pages to CentOS based labs
 
 April 20, 2018
 - The denyhosts service fails to start the first time, moved start to student\_startup.sh.
