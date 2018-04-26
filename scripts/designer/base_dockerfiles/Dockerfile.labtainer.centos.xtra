@@ -1,0 +1,5 @@
+ARG registry
+FROM $registry/labtainer.centos
+LABEL description="This is the extended base Docker image for Labtainer CentOS images"
+RUN yum install -y ghex leafpad liberation-sans-fonts xcb-util
+ADD system/usr/share/man/man1.tar /usr/share/man
