@@ -13,6 +13,10 @@ domain and is not subject to copyright.
 # Description: Grade the student lab work
 
 import collections
+try:
+   from collections import OrderedDict
+except:
+   OrderedDict = dict
 import filecmp
 import json
 import glob
@@ -923,7 +927,7 @@ def processLabExercise(studentlabdir, labidname, grades, goals, bool_results, go
 def ProcessStudentLab(studentlabdir, labidname, logger):
     # Goals
     goal_times = GoalTimes()
-    grades = {}
+    grades = OrderedDict()
     resultsdir = os.path.join(studentlabdir, '.local','result')
     try:
         os.makedirs(resultsdir)

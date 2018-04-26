@@ -12,11 +12,13 @@ import os
 import sys
 import argparse
 import pydoc
+import saki
 
 instructor_cwd = os.getcwd()
 student_cwd = instructor_cwd.replace('labtainer-instructor', 'labtainer-student')
 # Append Student CWD to sys.path
 sys.path.append(student_cwd+"/bin")
+sys.path.append(os.path.join(instructor_cwd, 'assess_bin'))
 import labutils
 import logging
 import LabtainerLogging
@@ -61,10 +63,12 @@ def main():
         sys.stderr.write("ERROR: Lab named %s was not found!\n" % labname)
         sys.exit(1)
 
-    docgoals.displayGoalInfo(labname)
+    saki.checkBulkSaki(bulk_path=None, lab=labname)
+    lab_path = os.path.join(os.path.abspath('../../labs'), labname)
+    summary = docgoals.getGoalInfo(os.path.join(lab_path,'instr_config'))
+    print summary
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
     labutils.logger.INFO("Begin logging start.py for %s lab" % labname)
-    lab_path = os.path.join(os.path.abspath('../../labs'), labname)
     labutils.StartLab(lab_path, "instructor")
 
     return 0

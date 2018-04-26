@@ -19,6 +19,7 @@ intended to describe the meaning of each goal.
 '''
 
 def doDoc(fpath):
+  lines = []
   with open(fpath) as fh:
     #for line in fh:
     leftover=False
@@ -35,7 +36,6 @@ def doDoc(fpath):
                 directive, text = rest.split(':', 1) 
                 directive = directive.strip()
                 text = text.strip()
-                #print('dir: %s text: %s' % (directive, text))
                 if directive == 'DOC':
                     #for line in fh:
                     while True:
@@ -49,7 +49,8 @@ def doDoc(fpath):
                             if len(line) > 0:
                                 parts = line.split()
                                 sym = parts[0]
-                                print('\t%s: %s' % (sym, text)) 
+                                #print('\t%s: %s' % (sym, text)) 
+                                lines.append('\t%s: %s' % (sym, text)) 
                                 break
                 elif directive == 'GROUP':
                     symbols = []
@@ -73,7 +74,8 @@ def doDoc(fpath):
                             else:
                                 break
                     symlist = ', '.join(symbols) 
-                    print('\t%s: %s' % (symlist, text))
+                    #print('\t%s: %s' % (symlist, text))
+                    lines.append('\t%s: %s' % (symlist, text))
                 elif directive == 'SUM':
                     #for line in fh:
                     while True:
@@ -83,16 +85,19 @@ def doDoc(fpath):
                         if line.startswith('#') and len(line.strip())>1:
                             text = text + '\n\t\t'+ line[1:].strip()
                         else:
-                            print('\t'+text)
+                            #print('\t'+text)
+                            lines.append('\t'+text)
                             break 
-def displayGoalInfo(labname):
-    print('What is automatically assessed for this lab:')
-    lab_path = os.path.join(os.path.abspath('../../labs'), labname)
-    results_path = os.path.join(lab_path,'instr_config', 'results.config')
+    return "\n".join(lines)
+
+def getGoalInfo(instr_config_path):
+    header='What is automatically assessed for this lab:\n'
+    results_path = os.path.join(instr_config_path, 'results.config')
     doDoc(results_path)
-    goals_path = os.path.join(lab_path,'instr_config', 'goals.config')
-    doDoc(goals_path)
+    goals_path = os.path.join(instr_config_path, 'goals.config')
+    summary = doDoc(goals_path)
+    return header+summary+'\n'
 
 if __name__ == "__main__":
     labname = sys.argv[1]
-    displayGoalInfo(labname)
+    print getGoalInfo(labname)
