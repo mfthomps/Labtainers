@@ -349,7 +349,6 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
             #volume = '-e DISPLAY -v /tmp/.Xll-unix:/tmp/.X11-unix --net=host -v$HOME/.Xauthority:/home/developer/.Xauthority'
             volume = '--env="DISPLAY"  --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw"'
             logger.DEBUG('container using X11')
-            SetXhost()
         add_hosts = ''     
         for item in container.add_hosts:
             if ':' not in item:
@@ -1260,6 +1259,8 @@ def SkipContainer(run_container, name, start_config, servers):
 def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start, run_container, servers, clone_count):
     labname = os.path.basename(lab_path)
     logger.DEBUG("DoStart Multiple Containers and/or multi-home networking")
+    ''' make sure root can access Xserver '''
+    SetXhost()
 
     apps2start = []
     has_multi_container = CheckLabContainerApps(start_config, lab_path, apps2start)
