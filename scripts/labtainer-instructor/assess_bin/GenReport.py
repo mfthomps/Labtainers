@@ -15,12 +15,18 @@ domain and is not subject to copyright.
 import json
 import os
 import sys
+import docgoals
+import collections
+try:
+   from collections import OrderedDict
+except:
+   OrderedDict = dict
 
 fifteenequal = "="*15
 twentyequal = "="*20
 goalprintformat = ' %15s |'
 goalprintformat_int = ' %15d |'
-emailprintformat = '%20s |'
+emailprintformat = '%-20s |'
 cheateremailprintformat = ' %20s '
 
 # Check to make sure E-mail is OK and watermark matches
@@ -43,7 +49,7 @@ def ValidateLabGrades(labgrades):
     storedlabname = ""
     storedgoalsline = ""
     storedbarline = ""
-    for emaillabname, keyvalue in labgrades.iteritems():
+    for emaillabname, keyvalue in sorted(labgrades.iteritems()):
         email, labname = emaillabname.rsplit('.', 1)
         #print "emaillabname is (%s) email is (%s) labname is (%s)" % (emaillabname, email, labname)
         if storedlabname == "":
@@ -67,7 +73,7 @@ def ValidateLabGrades(labgrades):
             if key == 'grades':
                 # Do 'grades' portion - skip 'parameter' portion for now
                 #print "value is (%s)" % value
-                for goalid, goalresult in sorted(value.iteritems()):
+                for goalid, goalresult in value.iteritems():
                     if goalid.startswith('_'):
                         continue
                     #print "goalid is (%s)" % goalid
@@ -131,7 +137,7 @@ def PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, wat
     gradestxtoutput.write("Labname %s" % labname)
     gradestxtoutput.write("\n\n" + headerline + "\n" + barline + "\n")
 
-    for emaillabname, keyvalue in labgrades.iteritems():
+    for emaillabname, keyvalue in sorted(labgrades.iteritems()):
         email, labname = emaillabname.rsplit('.', 1)
         #print "emaillabname is (%s) email is (%s) labname is (%s)" % (emaillabname, email, labname)
         # Get the first 20 characters of the student's e-mail only
@@ -143,7 +149,7 @@ def PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, wat
             if key == 'grades':
                 # Do 'grades' portion - skip 'parameter' portion for now
                 #print "value is (%s)" % value
-                for goalid, goalresult in sorted(value.iteritems()):
+                for goalid, goalresult in value.iteritems():
                     if goalid.startswith('_'):
                         continue
                     #print "goalid is (%s)" % goalid
@@ -156,6 +162,8 @@ def PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, wat
                     elif type(goalresult) is int:
                         curline = curline + goalprintformat_int % goalresult 
         gradestxtoutput.write(curline + "\n")
+    summary = docgoals.getGoalInfo('.local/instr_config')
+    gradestxtoutput.write(summary)
 
     if watermark_test:
         # Create 'Source' watermark
@@ -195,7 +203,7 @@ def CreateReport(gradesjsonfile, gradestxtfile, watermark_test):
         sys.stderr.write("ERROR: missing grades.json file (%s)\n" % gradesjsonfile)
         sys.exit(1)
     labgradesjson = open(gradesjsonfile, "r")
-    labgrades = json.load(labgradesjson)
+    labgrades = json.load(labgradesjson, object_pairs_hook=OrderedDict)
     labgradesjson.close()
 
     #print "Lab Grades JSON is"
