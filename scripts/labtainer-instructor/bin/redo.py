@@ -17,13 +17,16 @@ domain and is not subject to copyright.
 
 import sys
 import os
+import saki
 instructor_cwd = os.getcwd()
 student_cwd = instructor_cwd.replace('labtainer-instructor', 'labtainer-student')
 # Append Student CWD to sys.path
 sys.path.append(student_cwd+"/bin")
+sys.path.append(os.path.join(instructor_cwd, 'assess_bin'))
 import labutils
 import logging
 import LabtainerLogging
+import docgoals
 
 # Usage: redo.py <labname> [-f]
 # Arguments:
@@ -38,10 +41,13 @@ def main():
     if len(sys.argv) == 3 and sys.argv[2] == '-f':
         force_build = True 
     labname = sys.argv[1]
+    saki.checkBulkSaki(bulk_path=None, lab=labname)
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
     labutils.logger.INFO("Begin logging redo.py for %s lab" % labname)
     labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
     lab_path = os.path.join(os.path.abspath('../../labs'), labname)
+    summary = docgoals.getGoalInfo(os.path.join(lab_path,'instr_config'))
+    print summary
     labutils.RedoLab(lab_path, "instructor", force_build=force_build)
 
     return 0
