@@ -833,7 +833,7 @@ def ImageExists(image_name, registry):
     determine if a given image exists.
     '''
     retval = True
-    #logger.DEBUG('check existence of container %s image %s registry %s' % (container_name, image_name, registry))
+    logger.DEBUG('check existence of image %s registry %s' % (image_name, registry))
     cmd = "docker inspect -f '{{.Created}}' --type image %s" % image_name
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
@@ -1639,7 +1639,7 @@ def FileModLater(ts, fname):
     #logger.DEBUG('df ts %s' % df_time)
     return retval
 
-def BaseImageTime(dockerfile):
+def BaseImageTime(dockerfile, registry):
     image_name = None
     retval = 0
     with open(dockerfile) as fh:
@@ -1647,6 +1647,7 @@ def BaseImageTime(dockerfile):
             if line.strip().startswith('FROM'):
                 parts = line.strip().split()
                 image_name = parts[1]
+                image_name = image_name.replace("$registry", registry)
                 break
     if image_name is None:
         logger.ERROR('no base image found in %s' % dockerfile)
@@ -1729,7 +1730,7 @@ def CheckBuild(lab_path, image_name, image_info, container_name, name, role, is_
          df = df.replace('instructor', 'student')
 
     ''' get ts of base image '''
-    ts_base, bname = BaseImageTime(df)
+    ts_base, bname = BaseImageTime(df, container_registry)
     if ts_base > ts:
         logger.WARNING('Base image %s changed, will build %s' % (bname, name))
         retval = True
@@ -2069,7 +2070,7 @@ def CreateCopyChownZip(start_config, labtainer_config, name, container_name, con
     #    logger.DEBUG('output of Student.py is %s' % out_string)
     username = getpass.getuser()
 
-    tmp_dir=os.path.join('/var/tmp/labtainers', container_name)
+    tmp_dir=os.path.join('/tmp/labtainers', container_name)
     shutil.rmtree(tmp_dir, ignore_errors=True)
     try:
         os.makedirs(tmp_dir)
@@ -2085,10 +2086,10 @@ def CreateCopyChownZip(start_config, labtainer_config, name, container_name, con
     error_string = child.stderr.read().strip()
     if len(error_string) > 0:
         if ignore_stop_error:
-            logger.DEBUG("Container %s fail on executing cp zip file!\n" % container_name)
+            logger.DEBUG("Container %s fail on executing cp zip file: %s\n" % (container_name, error_string))
             logger.DEBUG("Command was (%s)" % command)
         else:
-            logger.ERROR("Container %s fail on executing cp zip file!\n" % container_name)
+            logger.ERROR("Container %s fail on executing cp zip file: %s\n" % (container_name, error_string))
             logger.ERROR("Command was (%s)" % command)
         clone_names = GetContainerCloneNames(start_config.containers[name])
         for clone_full in clone_names:
