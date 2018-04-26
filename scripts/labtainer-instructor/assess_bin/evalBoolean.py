@@ -67,15 +67,10 @@ def bool_eval(token_lst):
     if token_lst[0] == 'not':
         #print('is not, will pop!!!!')
         is_not = token_lst.pop(0)
+        token_lst[0] = not token_lst[0]
     #print('%s(%s, %s)' % (token_lst[1], token_lst[0], token_lst[2]))
     tmp = token_lst[1](token_lst[0], token_lst[2])
     #print('bool_eval evaluates to %r' % tmp)
-    if is_not is not None:
-        if is_not == 'not':
-            tmp = not tmp
-        else:
-            print('ERROR: unknown token in boolean expression %s' % is_not)
-            exit(1)
     token_lst.pop(0)
     token_lst.pop(0)
     token_lst.pop(0)
