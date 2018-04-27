@@ -81,6 +81,8 @@ so you may want to logout/login, or start a new bash shell before using Labtaine
 first time.
 
 April 26, 2018
+- Add log\_ts and log\_range result types, and time\_not\_during goal operators.
+Revamp the centos-log and sys-log grading to use these features.
 - Put labsys.tar into /var/tmp instead of /tmp, sometimes would get deleted before expanded
 - Running X applications as root fails after reboot of VM.
 - Add "User Command" man pages to CentOS based labs
