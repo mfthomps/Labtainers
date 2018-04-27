@@ -53,6 +53,7 @@ def main():
     dirs = os.listdir(path)
     parser = argparse.ArgumentParser(description='Start a Labtainers lab.  Provide no arguments see a list of labs.')
     parser.add_argument('labname', help='The lab to run')
+    parser.add_argument('-r', '--redo', action='store_true', help='Creates new instance of the lab, previous work will be lost.')
     num_args = len(sys.argv)
     if num_args < 2: 
         showLabs(dirs, path)
@@ -69,7 +70,10 @@ def main():
     print summary
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
     labutils.logger.INFO("Begin logging start.py for %s lab" % labname)
-    labutils.StartLab(lab_path, "instructor")
+    if not args.redo:
+        labutils.StartLab(lab_path, "instructor")
+    else:
+        labutils.RedoLab(lab_path, "instructor", force_build=force_build)
 
     return 0
 if __name__ == '__main__':
