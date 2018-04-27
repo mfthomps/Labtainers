@@ -38,7 +38,6 @@ cd trunk
 svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/README.md
 sed -i "s/mm\/dd\/yyyy/$(date '+%m\/%d\/%Y %H:%M')/" README.md
 sed -i "s/^Revision:/Revision: $revision/" README.md
-exit
 svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/config
 svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/setup_scripts
 svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/docs
