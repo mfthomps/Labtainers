@@ -13,7 +13,7 @@ Labtainers provide controlled and consistent execution environments in which stu
 The Labtainers website, and the downloads are at https://my.nps.edu/web/c3o/labtainers.
 
 Distribution created: mm/dd/yyyy
-Version: 
+Revision: 
 
 ## Content
 [Distribution and Use](#distribution-and-use)
@@ -82,6 +82,8 @@ so you may want to logout/login, or start a new bash shell before using Labtaine
 first time.
 
 April 26, 2018
+- Transition to use of "labtainer" to start lab, and "stoplab" to stop it.
+- Add --version option to labtainer command.
 - Add log\_ts and log\_range result types, and time\_not\_during goal operators.
 Revamp the centos-log and sys-log grading to use these features.
 - Put labsys.tar into /var/tmp instead of /tmp, sometimes would get deleted before expanded
