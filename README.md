@@ -13,6 +13,7 @@ Labtainers provide controlled and consistent execution environments in which stu
 The Labtainers website, and the downloads are at https://my.nps.edu/web/c3o/labtainers.
 
 Distribution created: mm/dd/yyyy
+Version: 
 
 ## Content
 [Distribution and Use](#distribution-and-use)
