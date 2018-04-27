@@ -90,12 +90,14 @@ class SmokeTest():
                     fname = '%s.grades.txt' % lab
                     new = os.path.join(xfer_dir, fname)
                     old = os.path.join(expected, fname)
-                    #if filecmp.cmp(new, old):
-                    if self.cmpStudent(new, old, email):
-                        print('%s matches %s' % (new, old))        
+                    if os.path.isfile(old):
+                        if self.cmpStudent(new, old, email):
+                            print('%s matches %s' % (new, old))        
+                        else:
+                            print('%s DOES NOT MATCH %s' % (new, old))        
+                            retval = False
                     else:
-                        print('%s DOES NOT MATCH %s' % (new, old))        
-                        retval = False
+                        print('no expected results for %s' % lab)
             os.chdir(here)
                     
        
