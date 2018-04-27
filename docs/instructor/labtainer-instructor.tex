@@ -41,10 +41,10 @@ change directory to wherever you untarred the tarball.
 
 \subsection{Assigning a Lab}
 Student instructions for using Labtainers are in the \underline{Labtainer Student Guide}.  Available labs are
-listed via the start.py script:
+listed via the {\tt labtainer} script:
 \begin{verbatim}
     cd labtainer/trunk/scripts/labtainer-instructor
-    start.py
+    labtainer
 \end{verbatim}
 
 \subsection{Assessing a Lab}
@@ -59,7 +59,7 @@ All labs are assessed from the same Labtainer instructor workspace:
 \end{verbatim}
 \noindent Start the lab containers to initiate automated assessment of a lab:
 \begin{verbatim}
-    start.py <labname>
+    labtainer <labname>
 \end{verbatim}
 \noindent You will see a summary of what is assessed for the named lab, and the framework
 will then start the containers, one of which will perform automated assessment.
@@ -84,9 +84,9 @@ home directory content.  And container-specific artifacts are found in:
 
 \noindent When you are finished, or wish to stop working, type:
 \begin{verbatim}
-    stop.py 
+    stoplab
 \end{verbatim}
-The stop.py command will terminate the containers.  This is recommended to avoid network
+The stoplab command will terminate the containers.  This is recommended to avoid network
 name conflicts when assessing other labs.
 
 \end{document}
