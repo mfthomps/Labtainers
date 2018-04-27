@@ -995,6 +995,11 @@ Directives within the results.config file each have the following format:
                              contains the string represented in field_id.
                FILE_REGEX -- The result value is set to TRUE if the file 
                              contains the regular expression represented in field_id.
+               LOG_TS     -- Used with timestamped log files, this results in a 
+                             timestamped set of results for each log line that
+                             contains the string represented in the field_id.
+               LOG_RANGE  -- Similar to LOG_TS, except the timestamped entries
+                             are ranges delimited by the matching log entries.
                STRING_COUNT--The result value is set to the quantity of
                              occurances of the string represented in field_id.
                PARAM      -- The result value is set to nth parameter
@@ -1149,7 +1154,7 @@ in the Labtainer exercises distributed with the framework.
                          list exceeds the given value.  The subgoals are 
                          summed across all timestamps.  The subgoal list is 
                          comma-separated within parenthesis.
-         time_before -   Both goal1 and goal2 must be goal_ids from previous 
+         time_before - Both goal1 and goal2 must be goal_ids from previous 
                          matchany, or boolean values from results.config
                          A timestamped goal is created for each goal2 
                          timestamped instance whose timestamp is proceeded 
@@ -1168,6 +1173,10 @@ in the Labtainer exercises distributed with the framework.
                          goal2 instance is TRUE, and at least one goal1 instance
                          is TRUE. These timestamped goals can then be
                          evaluated within boolean goals.
+         time_not_during Similar to time_during, but timestamped goals are
+                         always created for each goal2.  Each such goal is True
+                         unless one or more goal1 times occur within a True goal2
+                         range.
          execute     - The <operator> is treated as a file name of a script to 
                          execute, with the resulttag and answertag passed to the 
                          script as arguments.  The resulttag is expected to be 
@@ -1387,6 +1396,19 @@ the {\tt time\_during} operation, e.g.,
 \end{verbatim}
 The success goal would only then be TRUE if the two goals each occurred during a single instance
 of the web server configuration, as delimited by use of {\tt systemctl restart httpd}.
+
+\subsubsection{Delimiting time using log file entries}
+An alternate way to create groupings of log file entries is to use the log\_range 
+result type. For example, a result.config directive of:
+\begin{verbatim}  
+   syslog_slices = /var/log/messages : LOG_RANGE : Started System Logging Service
+\end{verbatim}
+\noindent would create a set of timestamped values whose ranges are based on occurrences
+of the system logging service being started.  The use of {\tt time\_during}
+and/or {\tt time\_not\_during} and {\tt boolean} in the goals.config could then be used to assess whether
+two or more events occurred during a given system log configuration.  See the centos-log lab
+for an example. 
+
 
 \subsection{Debugging automated assessment in labs}
 Developing automated assessment for a new lab typically requires some
