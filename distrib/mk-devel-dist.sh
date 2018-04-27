@@ -1,5 +1,6 @@
 #!/bin/bash
 #myshare=/home/mike/sf_SEED/
+revision=`svn info --show-item revision`
 myshare=/media/sf_SEED/
 here=`pwd`
 cd ../
@@ -12,6 +13,7 @@ mkdir $ldir
 cd $ldir
 svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk
 sed -i "s/mm\/dd\/yyyy/$(date '+%m\/%d\/%Y %H:%M')/" trunk/README.md
+sed -i "s/^Revision:/Revision: $revision/" README.md
 cp setup_scripts/install-labtainer.sh .
 cp setup_scripts/update-labtainer.sh .
 cd $ldir/trunk/docs/labdesigner
