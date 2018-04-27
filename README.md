@@ -84,6 +84,8 @@ April 26, 2018
 - Put labsys.tar into /var/tmp instead of /tmp, sometimes would get deleted before expanded
 - Running X applications as root fails after reboot of VM.
 - Add "User Command" man pages to CentOS based labs
+- Fix recent bug that prevented collection of docs files from students
+- Modify smoke-tests to only compare student-specific result line, void of whitespace
 
 April 20, 2018
 - The denyhosts service fails to start the first time, moved start to student\_startup.sh.
