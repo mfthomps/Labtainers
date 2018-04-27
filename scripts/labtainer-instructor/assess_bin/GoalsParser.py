@@ -302,7 +302,7 @@ def ParseGoals(homedir, studentdir, logger_in):
                 elif numvalues == 3:
                     ''' <type> : <goal1tag> : <goal2tag> '''
                     goal_type = values[0].strip()
-                    if goal_type == 'time_before' or goal_type == 'time_during':
+                    if goal_type == 'time_before' or goal_type == 'time_during' or goal_type == 'time_not_during':
                         goal1tag = values[1].strip()
                         goal2tag = values[2].strip()
                         nametags.append(MyGoal(each_key, goal_type, goal1tag=goal1tag, goal2tag=goal2tag))
