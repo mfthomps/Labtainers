@@ -3,14 +3,14 @@ README for Labtainers trunk/scripts/labtainers-student
 This is the Labtainers workspace from which all student
 labs are started using:
 
-    start.py <labname>
+    labtainer <labname>
 
 Leaving out the labname will result in display of a
 list of labs.
 
 Use
 
-    stop.py <labname>
+    stoplab <labname>
 
 to stop a lab and collect its results.  Note, it is
 good practice to stop labs before transitioning to
@@ -20,4 +20,4 @@ may be networking name conflicts.
 If you wish to restart a lab from scratch, wiping out
 all previous data and work in the lab, use:
 
-    redo.py <labname>
+    labtainer <labname> -r
