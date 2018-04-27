@@ -60,7 +60,7 @@ All labs are run from the same Labtainer workspace directory, which is typically
 
 Then run the lab:
 \begin{verbatim}
-    start.py <labname>
+    labtainer <labname>
 \end{verbatim}
 \noindent where \textit{labname} is the name of the lab to run.  Leaving this out will 
 display a list of available labs.  
@@ -92,9 +92,9 @@ next section.
 \subsection{Stopping Labtainers}
 When you are finished, or wish to stop working, type:
 \begin{verbatim}
-    stop.py 
+    stoplab
 \end{verbatim}
-\noindent The stop.py command will display the directory containing a zip file that should be provided to your instructor.
+\noindent The stoplab command will display the directory containing a zip file that should be provided to your instructor.
 \subsection{Networking}
 In addition to network properties defined for the lab,
 each component \texttt{/etc/host} file includes a ``my\_host entry'' that names
@@ -158,11 +158,11 @@ commands being executed.
 The following labtainer commands are available from the \texttt{labtainer/labtainer-student}
 directory:
 \begin{itemize}
-\item \texttt{start.py <lab> --}
+\item \texttt{labtainer <lab> --}
 Start the named lab.  If no name is given, a list of available labs will be displayed.
-\item \texttt{stop.py  --} Stop the currently running lab.
+\item \texttt{stoplab  --} Stop the currently running lab.
 \item \texttt{moreterm.py <lab> <container> --} create a new virtual terminal for the container.
-\item \texttt{redo.py <lab> --}
+\item \texttt{labtainer <lab> -r --}
 Delete any previous containers associated with this lab and start it fresh.  \textbf{Warning}: this will lose any
 previous data from the named lab.
 \end{itemize}
