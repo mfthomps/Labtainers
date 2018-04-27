@@ -10,6 +10,7 @@ import shutil
 import filecmp
 sys.path.append('./bin')
 import ParseLabtainerConfig
+import labutils
 
 class SmokeTest():
     def __init__(self):
@@ -62,6 +63,9 @@ class SmokeTest():
         ps = subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         output = ps.communicate()
         self.logger.debug('stop.py output %s' % output[0])
+        email = labutils.getLastEmail()
+        if email is not None:
+            email = email.replace("@","_at_")
         if len(output[1]) > 0:
             print('%s' % output[0])
             print('%s' % output[1])
@@ -86,7 +90,8 @@ class SmokeTest():
                     fname = '%s.grades.txt' % lab
                     new = os.path.join(xfer_dir, fname)
                     old = os.path.join(expected, fname)
-                    if filecmp.cmp(new, old):
+                    #if filecmp.cmp(new, old):
+                    if self.cmpStudent(new, old, email):
                         print('%s matches %s' % (new, old))        
                     else:
                         print('%s DOES NOT MATCH %s' % (new, old))        
@@ -95,6 +100,24 @@ class SmokeTest():
                     
        
         return retval
+
+    def cmpStudent(self, new, old, email):
+        new_line = None
+        old_line = None
+        with open(new) as new_fh:
+            for line in new_fh:
+                if line.strip().startswith(email):
+                    new_line = line.strip().replace(" ", "")
+                    break;
+        with open(old) as old_fh:
+            for line in old_fh:
+                if line.strip().startswith(email):
+                    old_line = line.strip().replace(" ", "")
+                    break;
+        if new_line != old_line:
+            print('new: %s does not match\nold: %s' % (new_line, old_line))
+            return False
+        return True
     
     def checkAll(self, startwith):
         
@@ -106,7 +129,6 @@ class SmokeTest():
                     f = os.path.basename(line).strip()
                     print('adding [%s]' % f)
                     skip.append(f)
-
         
         lab_parent = os.path.abspath('../../labs')
         lab_list = os.listdir(lab_parent)
@@ -122,6 +144,7 @@ class SmokeTest():
             print('Finished lab: %s' % lab)
 
 def __main__():
+
     parser = argparse.ArgumentParser(description='Smoke test all labs')
     parser.add_argument('-l', '--lab', action='store', help='Test just this lab.')
     parser.add_argument('-s', '--start_with', action='store', help='Test all starting with .')
