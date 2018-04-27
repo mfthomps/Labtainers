@@ -115,6 +115,35 @@ def evalTimeDuring(goals_tag1, goals_tag2, logger):
 
     return retval
 
+def evalTimeNotDuring(goals_tag1, goals_tag2, logger):
+    ''' Return a dictionary of booleans keyed with all goals_tag2 time ranges.
+        The boolean will be true if the goals_tag2 is true, and there exist
+        not true values from goals_tag1 for that range.
+        
+    ''' 
+
+    retval = {}
+    ''' make sure dictionary contains entry for each goals_tag2 time range within which
+        there exists at least one goals_tag1 time -- independent of the boolean values. '''
+    for goal2timestamp, goal2value in goals_tag2.iteritems():
+        #logger.DEBUG("Goal2 timestamp is (%s) and value is (%s)" % (goal2timestamp, goal2value))
+        found_one = False
+        ''' only can be true if goalvalue2 is true '''
+        if goals_tag1 is not None and goal2value:
+            for goal1timestamp, goal1value in goals_tag1.iteritems():
+                #logger.DEBUG("Goal1 timestamp is (%s) and value is (%s)" % (goal1timestamp, goal1value))
+                if goal1value:
+                    eval_time_during_result = compare_time_during(goal1timestamp, goal2timestamp)
+                    if eval_time_during_result:
+                        #logger.DEBUG("is during Goal1 timestamp is (%s) and value is (%s)" % (goal1timestamp, goal1value))
+                        found_one = True
+        if found_one:
+            retval[goal2timestamp] = False
+        else:
+            retval[goal2timestamp] = True
+
+    return retval
+
 class GoalTimes():
     def __init__(self):
         self.goals_id_ts = {}
@@ -128,7 +157,10 @@ class GoalTimes():
             return False
 
     def getGoal(self, goal_id):
-        return self.goals_id_ts[goal_id]
+        if goal_id in self.goals_id_ts:
+            return self.goals_id_ts[goal_id]
+        else:
+            return None
 
     def getGoalIdTimeStamp(self):
         return self.goals_id_ts
@@ -715,7 +747,7 @@ def processTemporal(eachgoal, goal_times, logger):
     goalid = eachgoal['goalid']
     logger.DEBUG("goal1tag is (%s) and goal2tag is (%s)" % (goal1tag, goal2tag))
     # Make sure goal1tag and goal2tag is in goals_id_ts
-    if not goal_times.hasGoal(goal1tag):
+    if not goal_times.hasGoal(goal1tag) and eachgoal['goaltype'] != 'time_not_during':
         logger.DEBUG("warning: goal1tag (%s) does not exist in goalTimes\n" % (goal1tag))
         return
     if not goal_times.hasGoal(goal2tag):
@@ -743,6 +775,11 @@ def processTemporal(eachgoal, goal_times, logger):
         # if eval_time_result is False - that means, can't find the following condition:
         # (1) goals_tag1 is True and goals_tag2 is True
         # (2) goal2start (%s) <= goal1start (%s) <= goal2end (%s)
+    elif eachgoal['goaltype'] == "time_not_during":
+        logger.DEBUG('eval time_not_during for %s %s' % (goals_tag1, goals_tag2))
+        eval_time_result = evalTimeNotDuring(goals_tag1, goals_tag2, logger)
+        for ts in eval_time_result:
+            goal_times.addGoal(goalid, ts, eval_time_result[ts])
 
 
 def processBoolean(eachgoal, goal_times, logger):
@@ -883,7 +920,8 @@ def processLabExercise(studentlabdir, labidname, grades, goals, bool_results, go
         elif eachgoal['goaltype'] == "boolean":
             processBoolean(eachgoal, goal_times, logger)
         elif eachgoal['goaltype'] == "time_before" or \
-             eachgoal['goaltype'] == "time_during":
+             eachgoal['goaltype'] == "time_during" or \
+             eachgoal['goaltype'] == "time_not_during":
             processTemporal(eachgoal, goal_times, logger)
         elif eachgoal['goaltype'] == "count_greater":
             processCountGreater(eachgoal, goal_times)

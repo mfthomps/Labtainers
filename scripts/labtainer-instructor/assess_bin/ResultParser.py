@@ -30,7 +30,7 @@ container_exec_proglist = {}
 stdoutfnameslist = []
 timestamplist = {}
 line_types = ['CHECKSUM', 'CONTAINS', 'FILE_REGEX', 'FILE_REGEX_TS', 'LINE', 'STARTSWITH', 'NEXT_STARTSWITH', 'HAVESTRING', 
-              'HAVESTRING_TS', 'REGEX', 'REGEX_TS', 'LINE_COUNT', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT']
+              'HAVESTRING_TS', 'LOG_TS', 'LOG_RANGE', 'REGEX', 'REGEX_TS', 'LINE_COUNT', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT']
 just_field_type = ['CHECKSUM', 'LINE_COUNT']
 logger = None
 resultidlist = {}
@@ -385,7 +385,8 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                 # If not found - set to None
                 if found_lookupstring == False:
                     linerequested = None
-            elif command == 'HAVESTRING_TS' or command == 'REGEX_TS' or command == 'FILE_REGEX_TS':
+            elif command == 'HAVESTRING_TS' or command == 'LOG_RANGE' or \
+                 command == 'REGEX_TS' or command == 'FILE_REGEX_TS' or command == 'LOG_TS':
                 return None
             elif command == 'LINE_COUNT':
                 return targetfilelen
@@ -694,6 +695,58 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
                             ts_nametags[ts]['PROGRAM_ENDTIME'] = 0
                         token = getToken(currentline, field_type, token_id, logger)
                         ts_nametags[ts][result_key] = token
+
+            if command == 'LOG_TS':
+                if not os.path.isfile(targetfile):
+                    continue
+                with open(targetfile, "r") as fh:
+                    targetlines = fh.readlines()
+                for currentline in targetlines:
+                    if lookupstring in currentline:
+                        time_val = getTS(currentline)
+                        if time_val is None:
+                            continue
+                        ts = str(time_val)
+                        if ts not in ts_nametags:
+                            ts_nametags[ts] = {}
+                            ts_nametags[ts]['PROGRAM_ENDTIME'] = 0
+                        ts_nametags[ts][result_key] = True
+
+            if command == 'LOG_RANGE':
+                if not os.path.isfile(targetfile):
+                    continue
+                with open(targetfile, "r") as fh:
+                    targetlines = fh.readlines()
+                prev_time_val = None
+                last_time_val = None
+                for currentline in targetlines:
+                    time_val = getTS(currentline)
+                    if time_val is None:
+                        continue
+                    if prev_time_val is None:
+                        prev_time_val = time_val
+                    if lookupstring in currentline:
+                        last_time_val = time_val
+                        prev_ts = str(prev_time_val)
+                        end_ts = str(time_val)
+                        if prev_ts not in ts_nametags:
+                            ts_nametags[prev_ts] = {}
+                            ts_nametags[prev_ts]['PROGRAM_ENDTIME'] = end_ts 
+                        elif ts_nametags[prev_ts]['PROGRAM_ENDTIME'] == 0:
+                            ts_nametags[prev_ts]['PROGRAM_ENDTIME'] = end_ts 
+                        ts_nametags[prev_ts][result_key] = True
+                        prev_time_val = time_val
+                if last_time_val is not None:
+                    prev_ts = str(prev_time_val)
+                    end_ts = str(last_time_val)
+                    if prev_ts not in ts_nametags:
+                        ts_nametags[prev_ts] = {}
+                        ts_nametags[prev_ts]['PROGRAM_ENDTIME'] = end_ts 
+                    elif ts_nametags[prev_ts]['PROGRAM_ENDTIME'] == 0:
+                        ts_nametags[prev_ts]['PROGRAM_ENDTIME'] = end_ts 
+                    ts_nametags[prev_ts][result_key] = True
+                 
+
             elif command == 'REGEX_TS':
                 if not os.path.isfile(targetfile):
                     continue
