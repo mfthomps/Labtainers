@@ -56,7 +56,11 @@ for lab in $llist; do
         svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/labs/$lab/instr_config
         svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/labs/$lab/docs
         if [[ -d docs ]]; then
+            echo "lab is $lab"
             cd docs
+            if [[ $lab == centos-log/ ]]; then
+                rm centos-log-Template.docx
+            fi
             cp -p /tmp/labtainer_pdf/$lab/*.pdf .
             if [[ -f Makefile ]]; then
                 make
