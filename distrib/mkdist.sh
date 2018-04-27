@@ -11,6 +11,7 @@ function contains() {
     echo "n"
     return 1
 }
+revision=`svn info --show-item revision`
 skip="skip-labs"
 skiplist=""
 lines=`cat $skip`
@@ -36,7 +37,8 @@ mkdir trunk
 cd trunk
 svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/README.md
 sed -i "s/mm\/dd\/yyyy/$(date '+%m\/%d\/%Y %H:%M')/" README.md
-sed -i "s/^Version:/version: $(svn info --show-item revision)/" README.md
+sed -i "s/^Revision:/Revision: $revision/" README.md
+exit
 svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/config
 svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/setup_scripts
 svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/docs
