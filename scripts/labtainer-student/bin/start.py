@@ -38,15 +38,30 @@ def showLabs(dirs, path):
     pydoc.pager(description)
     print('Use "-h" for help.')
 
+def getRev():
+    with open('../../README.md') as fh:
+        for line in fh:
+            if line.strip().startswith('Revision:'):
+                parts = line.split(':')
+                if len(parts) == 2 and len(parts[1].strip())>0:
+                    return 'revision: '+parts[1].strip()
+                else:
+                    return "no revision, build environment"
+    return '??'
+
 def main():
     dir_path = os.path.dirname(os.path.realpath(__file__))
     dir_path = dir_path[:dir_path.index("scripts/labtainer-student")]	
     path = dir_path + "labs/"
     dirs = os.listdir(path)
-    parser = argparse.ArgumentParser(description='Start a Labtainers lab.  Provide no arguments see a list of labs.')
-    parser.add_argument('labname', help='The lab to run')
+    rev = getRev()
+    #revision='%(prog)s %s' % rev
+    parser = argparse.ArgumentParser(prog='labtainer', description='Start a Labtainers lab.  Provide no arguments see a list of labs.')
+    parser.add_argument('labname', default=None, help='The lab to run')
     parser.add_argument('-q', '--quiet', action='store_true', help='Do not prompt for email, use previoulsy supplied email.')
     parser.add_argument('-r', '--redo', action='store_true', help='Creates new instance of the lab, previous work will be lost.')
+    parser.add_argument('-v', '--version', action='version', version='%(prog)s '+rev)
+    #parser.add_argument('-v', '--version', action='version', version=revision)
     parser.add_argument('-s', '--servers', action='store_true', help='Intended for distributed Labtainers, start the containers that are not clients.')
     parser.add_argument('-w', '--workstation', action='store_true', help='Intended for distributed Labtainers, start the client workstation.')
     parser.add_argument('-n', '--client_count', action='store', help='Number of clones of client components to create, itended for multi-user labs')
@@ -57,9 +72,15 @@ def main():
         exit(0)
     args = parser.parse_args()
     labname = args.labname
+    if labname is None:
+        if not args.version:
+            parser.usage()
+            exit(1)
     if labname not in dirs:
         sys.stderr.write("ERROR: Lab named %s was not found!\n" % labname)
         sys.exit(1)
+    if args.version:
+        print('version is ....')
 
     
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
