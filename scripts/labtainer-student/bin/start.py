@@ -46,6 +46,7 @@ def main():
     parser = argparse.ArgumentParser(description='Start a Labtainers lab.  Provide no arguments see a list of labs.')
     parser.add_argument('labname', help='The lab to run')
     parser.add_argument('-q', '--quiet', action='store_true', help='Do not prompt for email, use previoulsy supplied email.')
+    parser.add_argument('-r', '--redo', action='store_true', help='Creates new instance of the lab, previous work will be lost.')
     parser.add_argument('-s', '--servers', action='store_true', help='Intended for distributed Labtainers, start the containers that are not clients.')
     parser.add_argument('-w', '--workstation', action='store_true', help='Intended for distributed Labtainers, start the client workstation.')
     parser.add_argument('-n', '--client_count', action='store', help='Number of clones of client components to create, itended for multi-user labs')
@@ -80,7 +81,11 @@ def main():
     if distributed is not None and args.client_count is not None:
         print('Cannot specify --server or --client if a --client_count is provided')
         exit(1)
-    labutils.StartLab(lab_path, "student", quiet_start=args.quiet, run_container=args.only_container, servers=distributed, clone_count=args.client_count)
+    if not args.redo:
+        labutils.StartLab(lab_path, "student", quiet_start=args.quiet, run_container=args.only_container, servers=distributed, clone_count=args.client_count)
+    else:
+        labutils.RedoLab(lab_path, "student", quiet_start=args.quiet, 
+                     run_container=args.only_container, servers=distributed, clone_count=args.client_count)
     current_lab = CurrentLab.CurrentLab()
     current_lab.add('lab_name', args.labname)
     current_lab.add('clone_count', args.client_count)
