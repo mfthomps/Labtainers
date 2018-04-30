@@ -79,9 +79,6 @@ def main():
     if labname not in dirs:
         sys.stderr.write("ERROR: Lab named %s was not found!\n" % labname)
         sys.exit(1)
-    if args.version:
-        print('version is ....')
-
     
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
     labutils.logger.INFO("Begin logging start.py for %s lab" % labname)
