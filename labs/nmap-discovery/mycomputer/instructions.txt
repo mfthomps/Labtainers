@@ -11,7 +11,7 @@ This Labtainer exercise explores Nmap.
 The lab is started from the Labtainer working directory on your 
 Docker-enabled host, e.g., a Linux VM.  From there, issue the command:
 
-	start.py nmap-discovery
+	labtainer nmap-discovery
 
 The resulting virtual terminals will include a display of these 
 instructions, and bash shell. Nmap is pre-installed on the container.
@@ -39,9 +39,9 @@ default, use "ssh -p <port> <host>".
 
 When the lab is completed, or you'd like to stop working for a while, run
 
-	stop.py nmap-discovery
+	stoplab nmap-discovery
 
 from the host Labtainer working directory. You can always restart the 
 Labtainer to continue your work. When the Labtainer is stopped, a zip 
-file is created and copied to a location displayed by the stop.py command. 
+file is created and copied to a location displayed by the stoplab command. 
 When the lab is completed, send that zip file to the instructor.
