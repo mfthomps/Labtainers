@@ -46,13 +46,14 @@ prompt.  Login to these as three different users:
 
 \section{Lab Tasks}
 In this lab, you will use the {\tt getfacl} and {\tt setfacl} commands to 
-view and modify ACLs on files.
+view and modify ACLs on files. Use the -h option to learn about these
+commands, e.g., {\tt getfacl -h}.
 
 \subsection{Review existing file permissions}
 In the "alice" terminal, cd to the /shared\_files directory and list
 the files:
 \begin{verbatim}
-   cd /shared_files
+   cd /shared_data
    ls -l
 \end{verbatim}
 \noindent
@@ -75,14 +76,14 @@ ACL permissions on this file using:
 Note how one of the three users has permission to modify that file?  Go to that
 user's virtual terminal and append to the file using:
 \begin{verbatim}
-   echo "more stuff" >> /shared_files/accounting.txt
+   echo "more stuff" >> /shared_data/accounting.txt
 \end{verbatim}
 
 Back in the Alice terminal, try to modify that file to confirm she lacks that access.
 
 
 \subsection{Task 2: Set an ACL on a single file}
-As the Bob user, use the setfacl command to allow Alice to read the
+As the Bob user, use the {\tt setfacl} command to allow Alice to read the
 {\tt /shared\_files/bob/bobstuff.txt file}.  Then, as the Alice user,
 confirm her ability to read the file.  And as the Harry user, confirm
 he lacks permission to read the file.

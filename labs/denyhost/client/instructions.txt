@@ -52,10 +52,10 @@ failed login attempts.
      The denyhosts utility observes events in the auth.log to detect
      failed login attempts.
 
-     denyhosts.config
-     ================
-     Review the content of /etc/denyhosts.config:
-         sudo less /etc/denyhosts.config
+     denyhosts.conf
+     ==============
+     Review the content of /etc/denyhosts.conf:
+         sudo less /etc/denyhosts.conf
      Note in particular the description and values for 
      DENY_THRESHOLD_INVALID and DENY_THRESHOLD_VALID
 
@@ -68,7 +68,7 @@ failed login attempts.
      sources, thereby helping to avoid consuming system resources.
      The denyhosts utility adds entries to this file when the quantity
      of failed login attempts recorded in the /var/log/auth.log exceeds
-     the thresholds defined in /etc/denyhosts.config.
+     the thresholds defined in /etc/denyhosts.conf.
 
 3.2. Lock out a valid user using the bot
      The bot.py program in the client home directory is a crude bot
@@ -83,13 +83,15 @@ failed login attempts.
      Then start the bot, giving a user of "hank"
          ./bot.py hank
 
-     Based on your review of the /etc/denyhosts.config file, at what
+     Watch the output, the program will appear to hang once the 
+     invalid login threshold is met.
+     Based on your review of the /etc/denyhosts.conf file, at what
      point do you expect the client IP to be added to the hosts.deny
      file?
 
      Did the connection get denied at the point you expected?  If not
      consider the implications of the DAEMON_SLEEP value in the 
-     denyhosts.config file.
+     denyhosts.conf file.
      
 3.3 Restore login ability of the valid user
      View the /etc/hosts.deny file, and note the entry for your
@@ -101,14 +103,17 @@ failed login attempts.
      not sufficient because deny hosts keeps other databases. 
 
      One option is to "whitelist" the client computer by adding an 
-     entry to the /etc/hosts.allow file, e.g.,
+     entry to the /etc/hosts.allow file on the server, e.g.,
 
          ALL: 172.20.0.2
+     
+     The offending IP address may have also been blocked using "iptables".
+     On the server, you can see if this is that case using:
+         sudo iptables -L -n
+     If the IP address appears the the output, you can remove the block using:
+         sudo  iptables -D INPUT -s 172.20.0.2 -j DROP
 
-     Add that entry and confirm you are now able to ssh from the client.
-     Use vim or nano to add the entry, e.g.,
-    
-         sudo nano /etc/hosts.allow 
+     Now confirm you are now able to ssh from the client.
 
 3.5 Lock out an invalid user
 

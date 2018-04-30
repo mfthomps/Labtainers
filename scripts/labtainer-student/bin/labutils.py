@@ -22,6 +22,7 @@ import shlex
 import stat
 import traceback
 import CheckTars
+import BigFiles
 import calendar
 try:
     from dateutil.parser import parse
@@ -348,7 +349,6 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
             #volume = '-e DISPLAY -v /tmp/.Xll-unix:/tmp/.X11-unix --net=host -v$HOME/.Xauthority:/home/developer/.Xauthority'
             volume = '--env="DISPLAY"  --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw"'
             logger.DEBUG('container using X11')
-            SetXhost()
         add_hosts = ''     
         for item in container.add_hosts:
             if ':' not in item:
@@ -643,6 +643,8 @@ def DockerCmd(cmd):
     if len(output[1]) > 0:
         logger.DEBUG("Failed cmd %s %s" % (cmd, output[1]))
         return False
+    if len(output[0]) > 0:
+        logger.DEBUG("cmd %s stdout: %s" % (cmd, output[0]))
     return True
 
 
@@ -672,12 +674,12 @@ def CopyLabBin(mycontainer_name, container_user, lab_path, name):
     cmd = 'tar cf /tmp/labsys.tar -C ./lab_sys etc sbin'
     os.system(cmd)
 
-    cmd = 'docker cp /tmp/labsys.tar %s:/tmp/' % (mycontainer_name)
+    cmd = 'docker cp /tmp/labsys.tar %s:/var/tmp/' % (mycontainer_name)
     if not DockerCmd(cmd):
         logger.ERROR('failed %s' % cmd)
         exit(1)
 
-    cmd = 'docker exec %s script -q -c "sudo tar xhf /tmp/labsys.tar -C /"' % (mycontainer_name)
+    cmd = 'docker exec %s script -q -c "sudo tar xhf /var/tmp/labsys.tar -C /"' % (mycontainer_name)
     if not DockerCmd(cmd):
         cmd = 'docker cp lab_sys/.  %s:/' % (mycontainer_name)
         if not DockerCmd(cmd):
@@ -830,7 +832,7 @@ def ImageExists(image_name, registry):
     determine if a given image exists.
     '''
     retval = True
-    #logger.DEBUG('check existence of container %s image %s registry %s' % (container_name, image_name, registry))
+    logger.DEBUG('check existence of image %s registry %s' % (image_name, registry))
     cmd = "docker inspect -f '{{.Created}}' --type image %s" % image_name
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
@@ -954,6 +956,8 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False, just_c
             os.mkdir(os.path.join(container_dir, 'sys_tar'))
         except:
             pass
+        ''' make sure big files have been copied before checking tars '''
+        BigFiles.BigFiles(lab_path)
         ''' create sys_tar and home_tar before checking build dependencies '''
         CheckTars.CheckTars(container_dir, name, logger)
         if force_this_build or CheckBuild(lab_path, mycontainer_image_name, image_info, mycontainer_name, name, role, True, container_bin, start_config, container.registry, container.user):
@@ -1255,6 +1259,8 @@ def SkipContainer(run_container, name, start_config, servers):
 def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start, run_container, servers, clone_count):
     labname = os.path.basename(lab_path)
     logger.DEBUG("DoStart Multiple Containers and/or multi-home networking")
+    ''' make sure root can access Xserver '''
+    SetXhost()
 
     apps2start = []
     has_multi_container = CheckLabContainerApps(start_config, lab_path, apps2start)
@@ -1369,7 +1375,7 @@ def terminalCounter(terminal_count):
 def terminalWideCounter(terminal_count):
     x_coordinate = 100 + ( 50 * terminal_count )
     y_coordinate = 75 + ( 50 * terminal_count)
-    terminal_location = "--geometry 180x25+%d+%d" % (x_coordinate, y_coordinate)
+    terminal_location = "--geometry 160x35+%d+%d" % (x_coordinate, y_coordinate)
     return terminal_location
 
 # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
@@ -1634,7 +1640,7 @@ def FileModLater(ts, fname):
     #logger.DEBUG('df ts %s' % df_time)
     return retval
 
-def BaseImageTime(dockerfile):
+def BaseImageTime(dockerfile, registry):
     image_name = None
     retval = 0
     with open(dockerfile) as fh:
@@ -1642,6 +1648,7 @@ def BaseImageTime(dockerfile):
             if line.strip().startswith('FROM'):
                 parts = line.strip().split()
                 image_name = parts[1]
+                image_name = image_name.replace("$registry", registry)
                 break
     if image_name is None:
         logger.ERROR('no base image found in %s' % dockerfile)
@@ -1660,11 +1667,17 @@ def BaseImageTime(dockerfile):
     return retval, image_name
  
 def newest_file_in_tree(rootfolder):
-    return max(
-        (os.path.join(dirname, filename)
-        for dirname, dirnames, filenames in os.walk(rootfolder)
-        for filename in filenames),
-        key=lambda fn: os.stat(fn).st_mtime)
+    if len(os.listdir(rootfolder)) > 0:
+        try:
+            return max(
+                (os.path.join(dirname, filename)
+                for dirname, dirnames, filenames in os.walk(rootfolder)
+                for filename in filenames),
+                key=lambda fn: os.stat(fn).st_mtime)
+        except ValueError:
+            return rootfolder
+    else:
+        return rootfolder
 
 def GetImageUser(image_name, container_registry):
     
@@ -1718,7 +1731,7 @@ def CheckBuild(lab_path, image_name, image_info, container_name, name, role, is_
          df = df.replace('instructor', 'student')
 
     ''' get ts of base image '''
-    ts_base, bname = BaseImageTime(df)
+    ts_base, bname = BaseImageTime(df, container_registry)
     if ts_base > ts:
         logger.WARNING('Base image %s changed, will build %s' % (bname, name))
         retval = True
@@ -1740,7 +1753,7 @@ def CheckBuild(lab_path, image_name, image_info, container_name, name, role, is_
                     check_file = os.path.join(container_dir, f, 'sys.tar')
                 elif f == 'home_tar':
                     check_file = os.path.join(container_dir, f, 'home.tar')
-                elif os.path.isdir(f):
+                elif os.path.isdir(os.path.join(container_dir,f)):
                     check_file = newest_file_in_tree(os.path.join(container_dir, f))
                 else:
                     check_file = os.path.join(container_dir, f)
@@ -2074,10 +2087,10 @@ def CreateCopyChownZip(start_config, labtainer_config, name, container_name, con
     error_string = child.stderr.read().strip()
     if len(error_string) > 0:
         if ignore_stop_error:
-            logger.DEBUG("Container %s fail on executing cp zip file!\n" % container_name)
+            logger.DEBUG("Container %s fail on executing cp zip file: %s\n" % (container_name, error_string))
             logger.DEBUG("Command was (%s)" % command)
         else:
-            logger.ERROR("Container %s fail on executing cp zip file!\n" % container_name)
+            logger.ERROR("Container %s fail on executing cp zip file: %s\n" % (container_name, error_string))
             logger.ERROR("Command was (%s)" % command)
         clone_names = GetContainerCloneNames(start_config.containers[name])
         for clone_full in clone_names:
@@ -2423,21 +2436,24 @@ def DoStop(start_config, labtainer_config, lab_path, role, ignore_stop_error, is
             logger.DEBUG("Zipping docs directory to %s" % docs_zip_file)
 
             docs_path = '%s/docs' % lab_path
-            docs_zip_filelist = glob.glob('%s/*' % docs_path)
-            logger.DEBUG(docs_zip_filelist)
+            if os.path.isdir(docs_path):
+                docs_zip_filelist = glob.glob('%s/*' % docs_path)
+                logger.DEBUG(docs_zip_filelist)
 
-            # docs.zip file
-            docs_zipoutput = zipfile.ZipFile(docs_zip_file, "w")
-            # Go to the docs_path
-            os.chdir(docs_path)
-            for docs_fname in docs_zip_filelist:
-                docs_basefname = os.path.basename(docs_fname)
-                docs_zipoutput.write(docs_basefname, compress_type=zipfile.ZIP_DEFLATED)
-                # Note: DO NOT remove after the file is zipped
-            docs_zipoutput.close()
+                # docs.zip file
+                docs_zipoutput = zipfile.ZipFile(docs_zip_file, "w")
+                # Go to the docs_path
+                os.chdir(docs_path)
+                for docs_fname in docs_zip_filelist:
+                    docs_basefname = os.path.basename(docs_fname)
+                    docs_zipoutput.write(docs_basefname, compress_type=zipfile.ZIP_DEFLATED)
+                    # Note: DO NOT remove after the file is zipped
+                docs_zipoutput.close()
 
-            # Add docs.zip into the ZipFileList
-            ZipFileList.append(docs_zip_file)
+                # Add docs.zip into the ZipFileList
+                ZipFileList.append(docs_zip_file)
+            else:
+                logger.DEBUG('no docs at %s' % docs_path)
 
         # Combine all the zip files
         logger.DEBUG("ZipFileList is ")

@@ -34,8 +34,8 @@ mkdir $ldir
 cd $ldir
 mkdir trunk
 cd trunk
-svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/README
-sed -i "s/mm\/dd\/yyyy/$(date '+%m\/%d\/%Y %H:%M')/" README
+svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/README.md
+sed -i "s/mm\/dd\/yyyy/$(date '+%m\/%d\/%Y %H:%M')/" README.md
 svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/config
 svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/setup_scripts
 svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/docs

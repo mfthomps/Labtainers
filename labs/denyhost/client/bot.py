@@ -25,7 +25,7 @@ def doLogin(uid, passwd):
     if 'Permission denied' in got:
         #print('login incorrect')
         retval = False
-    elif 'Connection closed' in got or 'Connection reset by peer' in got:
+    elif 'Connection closed' in got or 'Connection reset by peer' in got or 'Connection t' in got:
         #print('Connection closed triggered')
         retval = True
     else:

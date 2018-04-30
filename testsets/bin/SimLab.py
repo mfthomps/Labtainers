@@ -22,7 +22,7 @@ def isProcRunning(proc_string):
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output = ps.communicate()
     for line in output[0].splitlines():
-        print('is %s in %s' % (proc_string, line))
+        #print('is %s in %s' % (proc_string, line))
         if proc_string in output[0]:
             return True
     return False
@@ -55,21 +55,38 @@ class SimLab():
     
     
     def searchWindows(self, name):
+        ''' find the most recent window whose title matches the given name.
+            The title "Terminal" seems to return most windows, so double check
+            the name against the getWindowname results.
+        '''
         wid = None
+        count = 0
         while wid is None or len(wid) == 0:
+            count += 1
+            if count > 20:
+                print('searchWindows failed to find %s after 20 seconds, exit' % name)
+                exit(1)
             time.sleep(1)
             cmd = 'search %s' % name
+            #print('searchWindows %s' % cmd)
             output=self.dotool(cmd)
-            print('searchWindows %s' % cmd)
+            #print('output is %s' % output)
             parts = output.strip().split()
             if len(parts) == 1:
-                print('search out is %s' % output)
-                wid = output.rsplit(' ',1)[0].strip()
+                #print('search out is %s' % output)
+                twid = output.rsplit(' ',1)[0].strip()
+                cmd = 'getwindowname %s' % twid
+                wname = self.dotool(cmd)
+                if name in wname:
+                    wid = output.rsplit(' ',1)[0].strip()
             elif len(parts)>0:
-                last = sorted(parts)[-1]
-                #print('last is %s' % last)
-                wid = last
-            
+                for twid in sorted(parts, reverse=True):
+                    cmd = 'getwindowname %s' % twid
+                    wname = self.dotool(cmd)
+                    if name in wname:
+                        #print('wid: %s  wname is %s' % (twid, wname))
+                        wid = twid
+                        break
         return wid
     
     def activate(self, wid):
@@ -79,7 +96,7 @@ class SimLab():
     
     def typeLine(self, string):
         #cmd = "type --window %d '%s'" % (self.current_wid, string)
-        cmd = 'type "%s"' % (string)
+        cmd = 'type "%s\n"' % (string)
         self.dotool(cmd)
         #cmd = 'key Return'
         #self.dotool(cmd)
@@ -89,7 +106,7 @@ class SimLab():
         with open(full) as fh:
             for line in fh:
                 if len(line.strip()) > 0:
-                    self.typeLine(line)
+                    self.typeLine(line.strip())
                     while isProcRunning(line.strip()):
                         print('%s running, wait' % params)
                         time.sleep(1)
@@ -99,7 +116,7 @@ class SimLab():
         with open(full) as fh:
             for line in fh:
                 if len(line.strip()) > 0:
-                    self.typeLine(line)
+                    self.typeLine(line.strip())
                     time.sleep(1.1)
                 else:
                     #print 'sleep 2'
@@ -109,7 +126,7 @@ class SimLab():
         from_file, to_file = params.split()
         from_file = os.path.join(self.sim_path, from_file) 
         cmd = 'vi %s' % to_file
-        self.typeLine(cmd) 
+        self.typeLine(cmd.strip()) 
         if replace:
             cmd = "type '9999dd'"
             self.dotool(cmd)
@@ -118,7 +135,7 @@ class SimLab():
         self.dotool("type 'i'")
         with open(from_file) as fh:
             for line in fh:
-                self.typeLine(line)
+                self.typeLine(line.strip())
         self.dotool("key Escape")
         self.dotool("type 'ZZ'")
        
@@ -131,6 +148,8 @@ class SimLab():
             self.activate(wid)
         elif cmd == 'type_file':
             self.typeFile(params)
+        elif cmd == 'type_line':
+            self.typeLine(params.strip())
         elif cmd == 'command_file':
             self.commandFile(params)
         elif cmd == 'add_file':
@@ -156,10 +175,14 @@ class SimLab():
             self.logger.debug('smithThis for %s' % fname)
         with open(fname) as fh:
             for line in fh:
-                if line.strip().startswith('#'):
+                if line.strip().startswith('#') or len(line.strip()) == 0:
                     continue
                 #print line
-                cmd, params = line.split(' ', 1)
+                try:
+                    cmd, params = line.split(' ', 1)
+                except:
+                    print('bad SimLab line: %s' % line)
+                    exit
                 #print('cmd: %s params %s' % (cmd, params))
                 self.handleCmd(cmd.strip(), params.strip())
                 #print('back from handleCmd')
