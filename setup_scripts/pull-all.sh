@@ -22,4 +22,4 @@ docker pull $registry/labtainer.lamp
 #
 # hacky cleanup functions that are not part of main update (since that is not replaced until after running update...)
 #
-rm -f ../scripts/labtainer-instructor/bin/docgoals.pyc
+rm -f ../scripts/labtainer-instructor/bin/docgoals.py*
