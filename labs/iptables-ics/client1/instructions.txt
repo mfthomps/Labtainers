@@ -26,7 +26,7 @@ The lab is started from the Labtainer working
 directory on your Linux host, e.g., a Linux VM.
 From there, issue the command:
 
-    ./start.py iptables
+    labtainer iptables-ics
 
 The resulting virtual terminals will include a display of
 these instructions, and bash shells on three components:
@@ -61,10 +61,10 @@ b.  Client 2 can only access the PLC via MODBUS TCP and HTTP
 
 When the lab is completed, or you'd like to stop working for a while, run
 
-    ./stop.py iptables
+    stoplab iptables-ics
 
 from the host Labtainer working directory.  You can always restart the
 Labtainer to continue your work.  When the Labtainer is stopped, a
-zip file is created and copied to a location displayed by the stop.py
+zip file is created and copied to a location displayed by the stoplab
 command.  When the lab is completed, send that zip file to the instructor.
 

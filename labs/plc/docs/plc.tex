@@ -45,7 +45,7 @@ The lab is started from the Labtainer working
 directory on your Docker-enabled host, e.g., a Linux VM.
 From there, issue the command:
 \begin{verbatim}
-    ./start.py plc
+    ./labtainer plc
 \end{verbatim}
 \noindent The resulting virtual terminals will include: 
 \begin{itemize}
@@ -74,7 +74,7 @@ poke around a bit.
 \renewcommand\thesubsubsection{}
 \subsubsection{Hints:}
 \begin{itemize}
-\item Use "./stop.py plc" and "./start.py plc" from your Linux host to stop and restart the lab -- this is the
+\item Use "stoplab plc" and "./labtainer plc" from your Linux host to stop and restart the lab -- this is the
 best way to restart the lab or reset the PLC if it becomes corrupt.  Any files saved on the components will be preserved.
 \item The manage\_plc.py tool lets your retrieve the code/data from the PLC.  Are those the files you loaded?
 \item The sys\_management computer includes the openssl utility that you used in the onewayhash lab, might that
