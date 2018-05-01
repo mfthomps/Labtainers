@@ -53,7 +53,8 @@ def checkBulkSaki(bulk_path = None, lab = None):
         if os.path.isfile(bulk_path):
             extract(bulk_path, xfer, lab)
         else:
-            print('no bulk file at %s' % bulk_path)
+            #print('no bulk file at %s' % bulk_path)
+            pass
     else:
         if os.path.isfile(bulk_path):
             extract(bulk_path, xfer, lab)
