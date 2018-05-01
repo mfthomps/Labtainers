@@ -1,5 +1,15 @@
 Labname metasploit
 
-             Student |       rlogin_ok |
-==================== | =============== |
- jkhosali_at_nps.edu |               Y |
+Student              |       rlogin_ok |   ingreslock_ok |      distccd_ok |          irc_ok |       vsftpd_ok |        samba_ok |      httpphp_ok |     postgres_ok |
+==================== | =============== | =============== | =============== | =============== | =============== | =============== | =============== | =============== |
+jkhosali_at_nps.edu  |               Y |               Y |               Y |               Y |               Y |               Y |               Y |               Y |
+What is automatically assessed for this lab:
+
+	rlogin_ok: Ran nmap and used rlogin to achieve root privilege and view root file
+	ingreslock_ok: Ran nmap and used telnet (to ingreslock service) to achieve root privilege and view root file
+	distccd_ok: Ran nmap and used msfconsole (use distccd exploit) to achieve root privilege and view root file
+	irc_ok: Ran nmap and used msfconsole (use ircd exploit) to achieve root privilege and view root file
+	vsftpd_ok: Ran nmap and used msfconsole (use vsftpd exploit) to achieve root privilege and view root file
+	samba_ok: Ran nmap and used msfconsole (use samba exploit) to achieve root privilege and view root file
+	httpphp_ok: Ran nmap and used msfconsole (use HTTP PHP exploit) to achieve root privilege and view root file
+	postgres_ok: Ran nmap and used msfconsole (use Postgres exploit) to achieve root privilege and view root file
