@@ -637,14 +637,22 @@ def CopyAssessBin(mycontainer_name, container_user):
         sys.exit(1)
 
 def DockerCmd(cmd):
-    logger.DEBUG("Command to execute is (%s)" % cmd)
-    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    output = ps.communicate()
-    if len(output[1]) > 0:
-        logger.DEBUG("Failed cmd %s %s" % (cmd, output[1]))
-        return False
-    if len(output[0]) > 0:
-        logger.DEBUG("cmd %s stdout: %s" % (cmd, output[0]))
+    ok = False
+    count = 0
+    while not ok:
+        logger.DEBUG("Command to execute is (%s)" % cmd)
+        ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        output = ps.communicate()
+        if len(output[1]) > 0:
+            count += 1
+            logger.DEBUG("Failed cmd %s %s" % (cmd, output[1]))
+            if count > 1:
+                return False
+            time.sleep(1)
+        else:
+           ok = True
+        if len(output[0]) > 0:
+            logger.DEBUG("cmd %s stdout: %s" % (cmd, output[0]))
     return True
 
 
@@ -999,7 +1007,8 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False, just_c
             #    exit(1)
     return retval
 
-def DoStartOne(labname, name, container, start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, student_email, quiet_start, results):
+def DoStartOne(labname, name, container, start_config, labtainer_config, lab_path, role, 
+               is_regress_test, is_watermark_test, student_email, quiet_start, results, auto_grade):
         retval = True
         mycontainer_name       = container.full_name
         mycontainer_image_name = container.image_name
@@ -1245,7 +1254,7 @@ def ContainerTerminals(lab_path, start_config, container, role, terminal_count, 
 
 def SkipContainer(run_container, name, start_config, servers):
     container = start_config.containers[name]
-    if run_container is not None and name != run_container:
+    if run_container is not None and container.full_name != run_container:
         return True
     if servers is not None:
         if servers == 'server':
@@ -1256,7 +1265,8 @@ def SkipContainer(run_container, name, start_config, servers):
                 return True
     return False
 
-def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start, run_container, servers, clone_count):
+def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, 
+            quiet_start, run_container, servers, clone_count, auto_grade=False, debug_grade=False):
     labname = os.path.basename(lab_path)
     logger.DEBUG("DoStart Multiple Containers and/or multi-home networking")
     ''' make sure root can access Xserver '''
@@ -1295,6 +1305,7 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
         if is_regress_test and container.full_name != start_config.grade_container:
             continue
         if SkipContainer(run_container, name, start_config, servers):
+            #print('gonna skip %s' % run_container)
             continue
 
         if has_multi_container and container_warning_printed == False:
@@ -1302,7 +1313,7 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
             container_warning_printed = True
 
         t = threading.Thread(target=DoStartOne, args=(labname, name, container, start_config, labtainer_config, lab_path, 
-              role, is_regress_test, is_watermark_test, student_email, quiet_start, results))
+              role, is_regress_test, is_watermark_test, student_email, quiet_start, results, auto_grade))
         threads.append(t)
         t.setName(name)
         t.start()
@@ -1316,7 +1327,24 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
         logger.ERROR('DoStartOne has at least one failure!')
         sys.exit(1)
 
+    
+    if auto_grade and not debug_grade:
+             
+        cmd = "docker exec %s bash -c 'cd;.local/bin/instructor.py'" % (run_container)
+        if not DockerCmd(cmd):
+            logger.ERROR('trouble with %s' % cmd)
+        result_xfer = StopLab(lab_path, role, False, is_regress_test=False, run_container=run_container)
+        if not quiet_start: 
+            fglob = glob.glob(result_xfer+'/*grades.txt')
+            if len(fglob) == 0:
+                print('No grades.txt file')
+            else:
+                with open(fglob[0]) as fh:
+                    for line in fh:
+                        print line
+            
       
+        return 0  
 
     #
     #  If a read_first.txt file exists in the lab's config directory, less it before the student continues.
@@ -1442,7 +1470,7 @@ def CopyChownGradesFile(start_config, labtainer_config, name, container_name, co
         return
 
 def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=False, is_watermark_test=True, quiet_start=False,
-             run_container=None, servers=None, clone_count=None):
+             run_container=None, servers=None, clone_count=None, auto_grade=False, debug_grade=False):
     labname = os.path.basename(lab_path)
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
@@ -1460,8 +1488,12 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
     didfix = False
     ''' hackey assumption about running from labtainers-student or labtainers-instructor '''
     container_bin = './bin'
+    if auto_grade and role == 'instructor':
+        run_container = start_config.grade_container
+        print('run just %s' % run_container)
     for name, container in start_config.containers.items():
         if SkipContainer(run_container, name, start_config, servers):
+            #print('skipping name %s %s' % (name, start_config.containers[name]))
             continue
         mycontainer_name       = container.full_name
         mycontainer_image_name = container.image_name
@@ -1500,7 +1532,8 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
     host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
     CreateHostHomeXfer(host_xfer_dir)
 
-    DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start, run_container, servers=servers, clone_count=clone_count)
+    DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start, 
+            run_container, servers=servers, clone_count=clone_count, auto_grade=auto_grade, debug_grade=debug_grade)
 
 def DateIsLater(df_utc_string, ts, local=False, debug=False):
     parts = df_utc_string.split('.')
@@ -1810,7 +1843,7 @@ def dumb():
     '''
     '''
 def RedoLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=False, is_watermark_test=True, quiet_start=False,
-             run_container=None, servers=None, clone_count=None):
+             run_container=None, servers=None, clone_count=None, auto_grade=False, debug_grade=False):
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
     # Pass 'True' to ignore_stop_error (i.e., ignore certain error encountered during StopLab
@@ -1818,7 +1851,7 @@ def RedoLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fal
     StopLab(lab_path, role, True, is_regress_test=is_regress_test)
     is_redo = True
     StartLab(lab_path, role, is_regress_test, force_build, is_redo=is_redo, is_watermark_test=is_watermark_test, quiet_start=quiet_start,
-             run_container=run_container, servers=servers, clone_count=clone_count)
+             run_container=run_container, servers=servers, clone_count=clone_count, auto_grade=auto_grade, debug_grade=False)
 
 def CheckShutdown(lab_path, name, container_name, container_user, ignore_stop_error):
     ''' NOT USED at the moment '''
@@ -2392,8 +2425,8 @@ def DoStop(start_config, labtainer_config, lab_path, role, ignore_stop_error, is
     threads = []
     results = []
     for name, container in start_config.containers.items():
-        if run_container is not None and name != run_container:
-            print('not for me %s ' % run_container)
+        if run_container is not None and container.full_name != run_container:
+            #print('not for me %s ' % run_container)
             continue
         mycontainer_name = '%s.%s.%s' % (labname, container.name, role)
         if is_regress_test and mycontainer_name != start_config.grade_container:
