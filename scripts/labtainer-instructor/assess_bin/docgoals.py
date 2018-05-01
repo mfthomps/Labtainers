@@ -93,10 +93,10 @@ def doDoc(fpath):
 def getGoalInfo(instr_config_path):
     header='What is automatically assessed for this lab:\n'
     results_path = os.path.join(instr_config_path, 'results.config')
-    doDoc(results_path)
+    results_summary = doDoc(results_path)
     goals_path = os.path.join(instr_config_path, 'goals.config')
     summary = doDoc(goals_path)
-    return header+summary+'\n'
+    return header+results_summary+'\n'+summary+'\n'
 
 if __name__ == "__main__":
     labname = sys.argv[1]
