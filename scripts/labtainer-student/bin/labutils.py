@@ -695,7 +695,7 @@ def CopyLabBin(mycontainer_name, container_user, lab_path, name):
             exit(1)
 
 # Copy Students' Artifacts from host to instructor's lab container
-def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_user, container_password, is_regress_test, is_watermark_test):
+def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_user, container_password, is_regress_test, check_watermark):
     # Set the lab name 
     command = 'docker exec %s script -q -c "echo %s > /home/%s/.local/.labname" /dev/null' % (mycontainer_name, labname, container_user)
     logger.DEBUG("Command to execute is (%s)" % command)
@@ -719,7 +719,7 @@ def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_
     if not is_regress_test == None:
         xfer_dir = ""
         # then check if it is watermark test required
-        if is_watermark_test:
+        if check_watermark:
             xfer_dir = os.path.join(labtainer_config.watermark_root, labname)
         else:
             xfer_dir = os.path.join(labtainer_config.testsets_root, labname)
@@ -891,8 +891,8 @@ def RebuildLab(lab_path, role, is_regress_test=None, force_build=False, quiet_st
     myhomedir = os.environ['HOME']
     host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
     CreateHostHomeXfer(host_xfer_dir)
-    is_watermark_test = True
-    DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start, 
+    check_watermark = True
+    DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, check_watermark, quiet_start, 
             run_container, servers, clone_count)
 
 def dockerPull(registry, image_name):
@@ -1008,7 +1008,7 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False, just_c
     return retval
 
 def DoStartOne(labname, name, container, start_config, labtainer_config, lab_path, role, 
-               is_regress_test, is_watermark_test, student_email, quiet_start, results, auto_grade):
+               is_regress_test, check_watermark, student_email, quiet_start, results, auto_grade):
         retval = True
         mycontainer_name       = container.full_name
         mycontainer_image_name = container.image_name
@@ -1075,7 +1075,7 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                     InstDocsToHostDir(start_config, labtainer_config, lab_path, role, quiet_start)
                     logger.DEBUG('do CopyStudentArtifacts for %s, labname: %s regress: %s' % (mycontainer_name, labname, is_regress_test))
                     copy_result = CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, 
-                                     container_user, container_password, is_regress_test, is_watermark_test)
+                                     container_user, container_password, is_regress_test, check_watermark)
                     if copy_result == FAILURE:
                         logger.ERROR("Failed to copy students' artifacts to container %s!\n" % mycontainer_name)
                         results.append(False)
@@ -1265,7 +1265,7 @@ def SkipContainer(run_container, name, start_config, servers):
                 return True
     return False
 
-def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, 
+def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, check_watermark, 
             quiet_start, run_container, servers, clone_count, auto_grade=False, debug_grade=False):
     labname = os.path.basename(lab_path)
     logger.DEBUG("DoStart Multiple Containers and/or multi-home networking")
@@ -1313,7 +1313,7 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_
             container_warning_printed = True
 
         t = threading.Thread(target=DoStartOne, args=(labname, name, container, start_config, labtainer_config, lab_path, 
-              role, is_regress_test, is_watermark_test, student_email, quiet_start, results, auto_grade))
+              role, is_regress_test, check_watermark, student_email, quiet_start, results, auto_grade))
         threads.append(t)
         t.setName(name)
         t.start()
@@ -1469,7 +1469,7 @@ def CopyChownGradesFile(start_config, labtainer_config, name, container_name, co
                 logger.WARNING("Container %s fail on executing cp %s.grades.json file!\n" % (container_name, labname))
         return
 
-def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=False, is_watermark_test=True, quiet_start=False,
+def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=False, check_watermark=True, quiet_start=False,
              run_container=None, servers=None, clone_count=None, auto_grade=False, debug_grade=False):
     labname = os.path.basename(lab_path)
     mycwd = os.getcwd()
@@ -1532,7 +1532,7 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
     host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
     CreateHostHomeXfer(host_xfer_dir)
 
-    DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, is_watermark_test, quiet_start, 
+    DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, check_watermark, quiet_start, 
             run_container, servers=servers, clone_count=clone_count, auto_grade=auto_grade, debug_grade=debug_grade)
 
 def DateIsLater(df_utc_string, ts, local=False, debug=False):
@@ -1842,7 +1842,7 @@ def dumb():
     pass
     '''
     '''
-def RedoLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=False, is_watermark_test=True, quiet_start=False,
+def RedoLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=False, check_watermark=True, quiet_start=False,
              run_container=None, servers=None, clone_count=None, auto_grade=False, debug_grade=False):
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
@@ -1850,7 +1850,7 @@ def RedoLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fal
     #                                         since it might not even be an error)
     StopLab(lab_path, role, True, is_regress_test=is_regress_test)
     is_redo = True
-    StartLab(lab_path, role, is_regress_test, force_build, is_redo=is_redo, is_watermark_test=is_watermark_test, quiet_start=quiet_start,
+    StartLab(lab_path, role, is_regress_test, force_build, is_redo=is_redo, check_watermark=check_watermark, quiet_start=quiet_start,
              run_container=run_container, servers=servers, clone_count=clone_count, auto_grade=auto_grade, debug_grade=False)
 
 def CheckShutdown(lab_path, name, container_name, container_user, ignore_stop_error):
@@ -1954,15 +1954,15 @@ def CopyAbsToResult(container_name, fname, container_user, ignore_stop_error):
             logger.ERROR('command was %s' % command)
 
 # RunInstructorCreateGradeFile
-def RunInstructorCreateGradeFile(container_name, container_user, labname, is_watermark_test):
+def RunInstructorCreateGradeFile(container_name, container_user, labname, check_watermark):
     # Run 'instructor.py' - This will create '<labname>.grades.txt' 
     logger.DEBUG("About to call instructor.py container_name: %s container_user: %s" % (container_name, container_user))
     cmd_path = '/home/%s/.local/bin/instructor.py' % (container_user)
-    if is_watermark_test:
-        watermark_test = "True"
+    if check_watermark:
+        check_watermark_argument = "True"
     else:
-        watermark_test = "False"
-    command=['docker', 'exec', '-i',  container_name, cmd_path, watermark_test]
+        check_watermark_argument = "False"
+    command=['docker', 'exec', '-i',  container_name, cmd_path, check_watermark_argument]
     logger.DEBUG('cmd: %s' % str(command))
     child = subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     error_string = child.stderr.read().strip()
@@ -1992,12 +1992,12 @@ def WatermarkTest(lab_path, role, standard, isFirstRun=False):
     logger.DEBUG("GradesGold is %s - Grades is %s" % (GradesGold, Grades))
 
     is_regress_test = standard
-    is_watermark_test = True
+    check_watermark = True
     if isFirstRun:   
         # just to stop previous lab?
-	RedoLab(lab_path, role, is_regress_test, is_watermark_test=is_watermark_test)
+	RedoLab(lab_path, role, is_regress_test, check_watermark=check_watermark)
     else: 
-	StartLab(lab_path, role, is_regress_test, is_watermark_test=is_watermark_test, is_redo=True)
+	StartLab(lab_path, role, is_regress_test, check_watermark=check_watermark, is_redo=True)
 
     for name, container in start_config.containers.items():
         mycontainer_name       = container.full_name
@@ -2005,7 +2005,7 @@ def WatermarkTest(lab_path, role, standard, isFirstRun=False):
 
         if mycontainer_name == start_config.grade_container:
             logger.DEBUG('about to RunInstructorCreateDradeFile for container %s' % start_config.grade_container)
-            RunInstructorCreateGradeFile(start_config.grade_container, container_user, labname, is_watermark_test)
+            RunInstructorCreateGradeFile(start_config.grade_container, container_user, labname, check_watermark)
 
     # Pass 'False' to ignore_stop_error (i.e., do not ignore error)
     result_xfer = StopLab(lab_path, role, False, is_regress_test=is_regress_test)
@@ -2044,11 +2044,11 @@ def RegressTest(lab_path, role, standard, isFirstRun=False):
     logger.DEBUG("GradesGold is %s - Grades is %s" % (GradesGold, Grades))
 
     is_regress_test = standard
-    is_watermark_test = False
+    check_watermark = False
     if isFirstRun:   
-	RedoLab(lab_path, role, is_regress_test, is_watermark_test=is_watermark_test)
+	RedoLab(lab_path, role, is_regress_test, check_watermark=check_watermark)
     else: 
-	StartLab(lab_path, role, is_regress_test, is_watermark_test=is_watermark_test, is_redo=True)
+	StartLab(lab_path, role, is_regress_test, check_watermark=check_watermark, is_redo=True)
 
     for name, container in start_config.containers.items():
         mycontainer_name       = container.full_name
@@ -2056,7 +2056,7 @@ def RegressTest(lab_path, role, standard, isFirstRun=False):
 
         if mycontainer_name == start_config.grade_container:
             logger.DEBUG('about to RunInstructorCreateDradeFile for container %s' % start_config.grade_container)
-            RunInstructorCreateGradeFile(start_config.grade_container, container_user, labname, is_watermark_test)
+            RunInstructorCreateGradeFile(start_config.grade_container, container_user, labname, check_watermark)
 
     # Pass 'False' to ignore_stop_error (i.e., do not ignore error)
     result_xfer = StopLab(lab_path, role, False, is_regress_test=is_regress_test)
