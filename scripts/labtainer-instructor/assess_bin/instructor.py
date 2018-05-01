@@ -184,7 +184,7 @@ def Check_SecondLevel_EmailWatermark_OK(gradesjson, email_labname, student_id, z
 
 # Usage: Instructor.py
 # Arguments:
-#   watermark_test - whether to do watermark checks or not
+#   check_watermark - whether to do watermark checks or not
 def main():
     #print "Running Instructor.py"
     #
@@ -193,8 +193,8 @@ def main():
 
     logger.INFO("Begin logging instructor.py")
 
-    # Default to watermark_test to True
-    watermark_test = True
+    # Default to check_watermark to True
+    check_watermark = True
     logger.DEBUG('MYHOME is %s' % MYHOME)
     os.chdir(MYHOME)
     lab_name_dir = os.path.join(MYHOME,'.local','.labname')
@@ -204,14 +204,14 @@ def main():
 
     with open(lab_name_dir) as fh:
         LabIDName = fh.read().strip()
-    watermark_test_argument=None
+    check_watermark_argument=None
     if len(sys.argv) > 1:
-        watermark_test_argument = str(sys.argv[1]).upper()
+        check_watermark_argument = str(sys.argv[1]).upper()
 
-        if watermark_test_argument == "TRUE":
-            watermark_test = True
-        elif watermark_test_argument == "FALSE":
-            watermark_test = False
+        if check_watermark_argument == "TRUE":
+            check_watermark = True
+        elif check_watermark_argument == "FALSE":
+            check_watermark = False
         else:
             logger.ERROR('Usage: instructor.py "[True|False]"')
             exit(1)
@@ -309,8 +309,8 @@ def main():
 
         zipoutput = zipfile.ZipFile(OutputName, "r")
 
-        # Do Watermark checks only if watermark_test is True
-        if watermark_test:
+        # Do Watermark checks only if check_watermark is True
+        if check_watermark:
             # If e-mail mismatch, do not further extract the zip file
             if not Check_SecondLevel_EmailWatermark_OK(gradesjson, email_labname, student_id, zipoutput):
                 # continue with next one
@@ -426,7 +426,7 @@ def main():
 
     # Output <labname>.grades.txt
     gradestxtname = os.path.join(MYHOME, "%s.grades.txt" % LabIDName)
-    GenReport.CreateReport(gradesjsonname, gradestxtname, watermark_test)
+    GenReport.CreateReport(gradesjsonname, gradestxtname, check_watermark)
     if do_unique:
         GenReport.UniqueReport(uniquejsonname, gradestxtname)
 

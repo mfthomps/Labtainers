@@ -129,7 +129,7 @@ def ReportCheater(gradestxtoutput, watermark_source, email, keyvalue, found_chea
     else:
         gradestxtoutput.write("\n")
 
-def PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, watermark_test):
+def PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, check_watermark):
 
     gradestxtoutput = open(gradestxtfile, "w")
     headerline = emailprintformat % 'Student' + goalsline
@@ -165,7 +165,7 @@ def PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, wat
     summary = docgoals.getGoalInfo('.local/instr_config')
     gradestxtoutput.write(summary)
 
-    if watermark_test:
+    if check_watermark:
         # Create 'Source' watermark
         watermark_source = {}
         for emaillabname, keyvalue in labgrades.iteritems():
@@ -193,12 +193,12 @@ def PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, wat
 
     gradestxtoutput.close()
 
-# Usage: CreateReport <gradesjsonfile> <gradestxtfile> <watermark_test>
+# Usage: CreateReport <gradesjsonfile> <gradestxtfile> <check_watermark>
 # Arguments:
 #     <gradesjsonfile> - This is the input file <labname>.grades.json
 #     <gradestxtfile> - This is the output file <labname>.grades.txt
-#     <watermark_test> - Whether to do watermark checks or not
-def CreateReport(gradesjsonfile, gradestxtfile, watermark_test):
+#     <check_watermark> - Whether to do watermark checks or not
+def CreateReport(gradesjsonfile, gradestxtfile, check_watermark):
     if not os.path.exists(gradesjsonfile):
         sys.stderr.write("ERROR: missing grades.json file (%s)\n" % gradesjsonfile)
         sys.exit(1)
@@ -211,7 +211,7 @@ def CreateReport(gradesjsonfile, gradestxtfile, watermark_test):
 
     labname, goalsline, barline = ValidateLabGrades(labgrades)
 
-    PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, watermark_test)
+    PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, check_watermark)
 
 # Usage: UniqueReport <uniquejsonfile> <gradestxtfile>
 # Arguments:
@@ -275,8 +275,8 @@ def main():
 
     gradesjsonfile = sys.argv[1]
     gradestxtfile = sys.argv[2]
-    watermark_test = True
-    CreateReport(gradesjsonfile, gradestxtfile, watermark_test)
+    check_watermark = True
+    CreateReport(gradesjsonfile, gradestxtfile, check_watermark)
 
 if __name__ == '__main__':
     sys.exit(main())
