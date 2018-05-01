@@ -4,7 +4,7 @@
 #  Runs as bash -c argument to gnome-terminal.  unable to get it to inherit bashrc defined env.
 #
 export TEST_REGISTRY=TRUE
-export PATH="${PATH}:./bin:$HOME/labtainer/trunk/scripts/designer/bin:$HOME/labtainer/testsets/bin"
+export PATH="${PATH}:./bin:$HOME/labtainer/trunk/scripts/designer/bin:$HOME/labtainer/trunk/testsets/bin"
 
 now=`date +"%s"`
 exec > /media/sf_SEED/smokelogs/log-$now.log
