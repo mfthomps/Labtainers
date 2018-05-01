@@ -1,5 +1,9 @@
 Labname arp-spoof
 
-             Student |       did_spoof |
+Student              |       did_spoof |
 ==================== | =============== |
-  frank_at_beans.com |               Y |
+frank_at_beans.com   |               Y |
+What is automatically assessed for this lab:
+
+	did_spoof: Student captured at least 10 packets sent between the client
+		and the web server, presumebly using arp spoofing.
