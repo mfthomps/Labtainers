@@ -163,10 +163,10 @@ class SimLab():
             while isProcRunning(params):
                 print('%s running, wait' % params)
                 time.sleep(1)
- 
-            
         elif cmd == 'sleep':
             time.sleep(int(params))
+        else:
+            print('Unknown command %s %s' % (cmd, params))
 
     
     def simThis(self):
