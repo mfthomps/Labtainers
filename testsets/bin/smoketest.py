@@ -59,10 +59,10 @@ class SmokeTest():
             if self.simlab.hasSim():
                 self.logger.debug('now call simLab')
                 self.simlab.simThis()
-        cmd = 'stop.py %s' % lab
+        cmd = 'stoplab %s' % lab
         ps = subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         output = ps.communicate()
-        self.logger.debug('stop.py output %s' % output[0])
+        self.logger.debug('stoplab output %s' % output[0])
         email = labutils.getLastEmail()
         if email is not None:
             email = email.replace("@","_at_")
@@ -73,17 +73,19 @@ class SmokeTest():
         if retval and self.simlab.hasSim():
             here = os.getcwd() 
             os.chdir('../labtainer-instructor')
-            cmd = 'redo.py %s' % lab
+            cmd = 'gradelab %s' % lab
             result = subprocess.call(cmd, shell=True, stderr=self.outfile, stdout=self.outfile)
             if result == FAILURE:
                 retval = False
             self.logger.debug('instructor start result is %d' % result)
+            '''
             self.simlab.searchWindows('GOAL_RESULTS')
             cmd = 'stop.py %s' % lab
             result = subprocess.call(cmd, shell=True, stderr=self.outfile, stdout=self.outfile)
             if result == FAILURE:
                 retval = False
             self.logger.debug('instructor stop result is %d' % result)
+            '''
             if retval:
                 expected = self.simlab.getExpectedPath()
                 if os.path.isdir(expected):
