@@ -1,5 +1,13 @@
 Labname formatstring
 
-             Student |           crash | leaked_no_scanf |   leaked_secret | modify_specific |    modify_value |
+Student              |           crash |    modify_value | modify_specific |   leaked_secret | leaked_no_scanf |
 ==================== | =============== | =============== | =============== | =============== | =============== |
-   tstr_at_tstr.tstr |               Y |               Y |               Y |               Y |               Y |
+tstr_at_tstr.tstr    |               Y |               Y |               Y |               Y |               Y |
+What is automatically assessed for this lab:
+
+	crash: whether the student crashed the program
+	_leaked_secret: was the secret2 value leaked?
+	modify_value: was the secret2 value modified?
+	modify_specific: was the secret2 value modified to a specific value?
+	leaked_secret: secret leaked with ASLR enabled?
+	leaked_no_scanf: secret leaked with ASLR no scanf, and ASLR disabled?
