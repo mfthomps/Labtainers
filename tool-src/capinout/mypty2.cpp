@@ -323,6 +323,9 @@ int ioLoop()
      int tmp_count = 0;
      char eot = 0x04;
      struct termios attr; 
+     struct timeval tv;
+     tv.tv_sec = 0;
+     tv.tv_usec = 500000;
      while (1)
      {
        int stat;
@@ -363,7 +366,7 @@ int ioLoop()
        fflush(debug);
        FD_SET(fdm_out, &fd_in);
        int max_fd = max(fdm_out, master_stdin);
-       rc = select(max_fd + 1, &fd_in, NULL, NULL, NULL);
+       rc = select(max_fd + 1, &fd_in, NULL, NULL, &tv);
        fprintf(debug, "select returns %d\n", rc);
        fflush(debug);
        tcgetattr(fds_in, &attr);
