@@ -64,9 +64,13 @@ int right_pid = 0;
 int master_stdin = 0; 
 int master_stdout = 1; 
 int the_redirect_fd = -1;
+int fds_in, fds_out;
 int count_index = 1;
 int ts_index = 2;
 int cmd_path_index = 3;
+struct termios orig_termios; 
+struct termios latest_termios; 
+bool use_pty = false;
 char *trim(char *str)
 {
        int tmp_trim = strlen(str)-1;
@@ -166,14 +170,6 @@ int getMaster()
    }
    return fdm;
 }
-char **getExecArgs(char *cmd_args){
-     char **my_args = (char **)malloc(sizeof(char *) * (4));
-     my_args[0] = "sh";
-     my_args[1] = "-c";
-     my_args[2] = cmd_args;
-     my_args[3] = 0;
-     return my_args;
-}
 char **getCharFromVector(std::vector<std::string> sv)
 {
     std::vector<char*> vc;
@@ -185,6 +181,27 @@ char **getCharFromVector(std::vector<std::string> sv)
     }
     my_args[vc.size()] = 0;
     return my_args;
+}
+char **getExecArgs(char *cmd_args){
+     char **my_args = (char **)malloc(sizeof(char *) * (4));
+     my_args[0] = "sh";
+     my_args[1] = cmd_args;
+     my_args[2] = 0;
+     return my_args;
+}
+char **getExecCmdArgs(char *cmd_args){
+     std::vector<std::string> cmd_v = split(cmd_args);
+     char **cmd_args_array = getCharFromVector(cmd_v);
+     char **my_args = (char **)malloc(sizeof(char *) * (cmd_v.size()+2));
+     fprintf(debug, "cmd size is %d\n", cmd_v.size());
+     my_args[0] = "/sbin/exec_wrap.sh";
+     for(int i=1; i<cmd_v.size()+1; i++){
+         my_args[i] = cmd_args_array[i-1];
+         fprintf(debug, "assigned myargs[%d] with %s\n", i, my_args[i]);
+     }
+     my_args[cmd_v.size()+1] = 0;
+     fprintf(debug, "return my_args[1] is %s\n", my_args[1]);
+     return my_args;
 }
     
 int forkLeft(int *pipe_fd, char *cmd){
@@ -199,10 +216,9 @@ int forkLeft(int *pipe_fd, char *cmd){
            dup2(pipe_fd[1], 1);
            close(pipe_fd[1]);
            close(pipe_fd[0]);
-           char **my_args = getExecArgs(cmd);
-           fprintf(debug, "fork left now exec with [0] %s [1] %s [2] %s\n", my_args[0], my_args[1], my_args[2]);
+           char **my_args = getExecCmdArgs(cmd);
+           fprintf(debug, "fork left now exec with [0] %s [1] %s \n", my_args[0], my_args[1]);
            fflush(debug);
-           //char **my_args = getCharFromVector(left_args);
            int rc = execvp(my_args[0], &my_args[0]);
            /* would be error if we get here */
            fprintf(debug, "execvp error rc is %d errno %d\n", rc, errno);
@@ -225,8 +241,8 @@ int forkRight(int *pipe_fd, char *cmd){
            dup2(pipe_fd[0], STDIN_FILENO);
            close(pipe_fd[0]);
            close(pipe_fd[1]);
-           char **my_args = getExecArgs(cmd);
-           fprintf(debug, "forkRight now exec with [0] %s [1] %s [2] %s\n", my_args[0], my_args[1], my_args[2]);
+           char **my_args = getExecCmdArgs(cmd);
+           fprintf(debug, "fork right now exec with [0] %s [1] %s \n", my_args[0], my_args[1]);
            fflush(debug);
            int rc = execvp(my_args[0], &my_args[0]);
            /* would be error if we get here */
@@ -251,7 +267,7 @@ int handleRedirect(char *redirect_filename, char *append_filename){
          close(1);
          dup2(redirect_fd, 1);
          //close(redirect_fd);
-         char string[] = "wtf, over?\n";
+         char string[] = "handleRedirect, wtf, over?\n";
          write(1, string, (strlen(string)+1));
          fprintf(debug, "redirect stdout to %s fd: %d\n", redirect_filename, redirect_fd);
          retval = redirect_fd;
@@ -273,6 +289,15 @@ int handleRedirect(char *redirect_filename, char *append_filename){
      }
      return retval;
 }
+bool termsEqual(const struct termios one, const struct termios two)
+{
+  if(one.c_iflag != two.c_iflag || one.c_oflag != two.c_oflag || one.c_lflag != two.c_lflag)
+  {
+      return false;
+  }else{
+      return true;
+  }
+}
 int closeUpShop(){
    time_t rawtime;
    struct tm * timeinfo;
@@ -288,6 +313,7 @@ int closeUpShop(){
    if(the_redirect_fd > 0){
       close(the_redirect_fd);
    }
+   tcsetattr (0, TCSANOW, &orig_termios);
 }
 int ioLoop()
 {
@@ -296,11 +322,22 @@ int ioLoop()
      int rc;
      int tmp_count = 0;
      char eot = 0x04;
+     struct termios attr; 
      while (1)
      {
-       // Wait for data from standard input and master side of PTY
+       int stat;
+       //if(use_pty && cmd_pid != 0){
+       if(cmd_pid != 0){
+          int wait_cmd = waitpid(cmd_pid, &stat, WNOHANG);
+          fprintf(debug, "cmd_pid: %d wait_cmd got %d stat %d\n", cmd_pid, wait_cmd, stat);
+          if(wait_cmd == cmd_pid)
+          {
+              fprintf(debug, "MATCHED, cmd_pid gone \n");
+              close(fds_in);
+       
+          }
+       }
        if(left_pid != 0){
-          int stat;
           int wait_left = waitpid(left_pid, &stat, WNOHANG);
           fprintf(debug, "left_pid: %d wait_left got %d stat %d\n", left_pid, wait_left, stat);
           if(wait_left == left_pid)
@@ -308,14 +345,6 @@ int ioLoop()
               fprintf(debug, "MATCHED\n");
               left_pid = 0;
               close(fdm_in);
-              //sleep(20);
-              //int wait_cmd = waitpid(cmd_pid, &stat,0);
-              //fprintf(debug, "wait_cmd got %d  cmd_pid was %d stat is %d\n", wait_cmd, cmd_pid, stat); 
-              //if(WIFEXITED(stat)){
-              //    fprintf(debug, "exited normally low is %d\n", WEXITSTATUS(stat));
-              //}else{
-              //    fprintf(debug, "no idea why it exited\n");
-              //} 
               master_stdin = -1;
           }
           tmp_count++;
@@ -324,16 +353,27 @@ int ioLoop()
               break;
           }
        }
+       // Wait for data from standard input and master side of PTY
        FD_ZERO(&fd_in);
        if(master_stdin >=0 ){
            FD_SET(master_stdin, &fd_in);
        }else{
            fprintf(debug,"master_stdin closed, do not select on it\n");
        }
+       fflush(debug);
        FD_SET(fdm_out, &fd_in);
        int max_fd = max(fdm_out, master_stdin);
        rc = select(max_fd + 1, &fd_in, NULL, NULL, NULL);
        fprintf(debug, "select returns %d\n", rc);
+       fflush(debug);
+       tcgetattr(fds_in, &attr);
+       if(use_pty && !termsEqual(latest_termios, attr))
+       {
+           fprintf(debug,"pty terminal settings changed, change ours\n");
+           tcsetattr (0, TCSANOW, &attr);
+           latest_termios = attr;
+           fprintf(debug, "term iflag %d oflag %d cflag %d lflag %d\n", attr.c_iflag, attr.c_oflag, attr.c_cflag, attr.c_lflag);
+       }
        switch(rc)
        {
          case -1 : fprintf(debug, "Error %d on select()\n", errno);
@@ -351,6 +391,7 @@ int ioLoop()
                  fprintf(debug, "read master_stdin rc is %d\n", rc);
                  if (rc > 0) {
                    // Send data on the master side of PTY
+                   input[rc] = 0;
                    fprintf(debug, "read master_stdin %s\n", input);
                    write(fdm_in, input, rc);
                    write(stdin_fd, input, rc);
@@ -375,9 +416,12 @@ int ioLoop()
                       // Send data on standard output
                       write(master_stdout, input, rc);
                       write(stdout_fd, input, rc);
+                      input[rc] = 0;
+                      fprintf(debug, "fdm_out got %s\n", input);
                   } else {
                       if (rc < 0) {
                           fprintf(debug, "Read zip (error %d) on read master PTY\n", errno);
+                          //sleep(2);
                           closeUpShop();
                           int status;
                           int cpid;
@@ -409,12 +453,14 @@ int ioLoop()
 }
 void sighandler(int signo)
 {
+    char etx = 0x03;
     fprintf(debug,"capinout got signal %d\n", signo);
     if(signo == SIGINT){
         fprintf(debug,"capinout got SIGINT\n");
     }
     if(cmd_pid != 0){
         fprintf(debug, "kill cmd\n");
+        //write(fdm_in, &etx, 1);
         kill(cmd_pid, signo);
     }
     if(left_pid != 0){
@@ -476,7 +522,6 @@ void getStdInOutFiles(std::vector<std::string> cmd_args, std::vector<std::string
 }
 int main(int argc, char *argv[])
 {
-   int fds_in, fds_out;
    int rc;
    std::string stdinfile;
    std::string stdoutfile;
@@ -490,6 +535,7 @@ int main(int argc, char *argv[])
    if(signal(SIGINT, sighandler) == SIG_ERR){
        fprintf(stderr, "error setting SIGINT signal handler\n");
    }
+   tcgetattr(0, &orig_termios);
 
    std::string first_arg;
    std::vector<std::string> all_args;
@@ -527,6 +573,7 @@ int main(int argc, char *argv[])
 
    /* cmd should not be free of redirects.  Look for pipes */
    fprintf(debug, "cmd now %s\n",cmd);
+   fflush(debug);
    char *cmd_exec_args = NULL;
    char *right_side = NULL;
    char *pipe_str = strstr(cmd, "|");
@@ -567,7 +614,7 @@ int main(int argc, char *argv[])
    getStdInOutFiles(cmd_args, all_args, &stdinfile, &stdoutfile);
    if(count != 2)
    {
-
+      use_pty = true;
       fdm_in = getMaster();
       if(fdm_in < 0){
           return 1;
@@ -577,6 +624,7 @@ int main(int argc, char *argv[])
       fds_in = open(ptsname(fdm_in), O_RDWR);
       fds_out = fds_in;
    }else{
+      use_pty = false;
       // master write stdin to this for slave to consume
       pipe(master_pipe_stdin);
       // master reads stdout from slave
@@ -592,22 +640,27 @@ int main(int argc, char *argv[])
       // slave write stdout to master
       fds_out = master_pipe_stdout[1]; 
    }
+   if(count == 2){
+         pipe(pipe_fd);
+         left_pid = forkLeft(pipe_fd, cmd);
+         master_stdin = pipe_fd[0];
+         fprintf(debug, "back from forkLeft, pid is %d  master_stdin is %d\n", left_pid, master_stdin);
+   }
    
    // Create the child process
    cmd_pid = fork();
    if (cmd_pid)
    {
-   
      // parent
-   
-     // Close the slave side of the PTY or pipe
-     if(count != 2){
-        close(fds_in);
-     }else{
-        close(fds_in);
-        close(fds_out);
+     if(!use_pty){ 
+        // Close the slave side of the PTY or pipe
+        if(count != 2){
+           close(fds_in);
+        }else{
+           close(fds_in);
+           close(fds_out);
+        }
      }
-
      stdin_fd = open(stdinfile.c_str(), O_RDWR | O_CREAT, 0644);
      if(stdin_fd <=0 ){
          fprintf(stderr, "Could not open %s for writing. %d\n", stdinfile.c_str(), errno);
@@ -620,12 +673,6 @@ int main(int argc, char *argv[])
      write(stdin_fd, newline, 1);
 
      stdout_fd = open(stdoutfile.c_str(), O_RDWR | O_CREAT, 0644);
-     if(count == 2){
-         pipe(pipe_fd);
-         left_pid = forkLeft(pipe_fd, cmd);
-         master_stdin = pipe_fd[0];
-         fprintf(debug, "back from forkLeft, pid is %d  master_stdin is %d\n", left_pid, master_stdin);
-     }
      /* redirect stdout if needed */
      if((count == 0 || count == 2) && (redirect_filename != NULL || append_filename != NULL)){
         /* no pipe or monitored command is on right of pipe */
@@ -648,21 +695,16 @@ int main(int argc, char *argv[])
      fprintf(debug, "about to loop, master_stdin: %d  master_stdout: %d\n", master_stdin, master_stdout);
      return(ioLoop());
    } else {
-     struct termios slave_orig_term_settings; // Saved terminal settings
-     struct termios new_term_settings; // Current terminal settings
    
      // CHILD
      if(count != 2)
      { 
         // Close the master side of the PTY
         close(fdm_in);
-        // Save the defaults parameters of the slave side of the PTY
-        rc = tcgetattr(fds_in, &slave_orig_term_settings);
    
-        // Set RAW mode on slave side of PTY
-        new_term_settings = slave_orig_term_settings;
-        cfmakeraw (&new_term_settings);
-        tcsetattr (fds_in, TCSANOW, &new_term_settings);
+        // match the pty to our original terminal settings
+        tcsetattr (fds_in, TCSANOW, &orig_termios);
+        latest_termios = orig_termios;
      }else{
         close(fdm_in);
         close(fdm_out);
@@ -695,14 +737,12 @@ int main(int argc, char *argv[])
      /*
      Get the exec arguments
      */
-     char **my_args = getExecArgs(cmd_exec_args);
-     fprintf(debug, "fork command, now exec with [0] %s [1] %s [2] %s\n", my_args[0], my_args[1], my_args[2]);
+     char **my_args = getExecCmdArgs(cmd_exec_args);
+     //fprintf(debug, "fork command, now exec with [0] %s [1] %s [2] %s\n", my_args[0], my_args[1], my_args[2]);
+     fprintf(debug, "fork command, now exec with [0] %s \n", my_args[0]);
      fflush(debug);
-     //char **mft_args = (char **)malloc(sizeof(char *) * (2));
-     //mft_args[0] = cmd_exec_args;
-     //mft_args[1] = 0;
      rc = execvp(my_args[0], &my_args[0]);
-     //rc = execvp(mft_args[0], &mft_args[0]);
+
      /* would be error if we get here */
      fprintf(debug, "execvp error rc is %d errno %d\n", rc, errno);
 
