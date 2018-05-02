@@ -1,5 +1,8 @@
 Labname gdblesson
 
-             Student | correct_check_a | correct_check_t |    gcc_task_one |   gdb_list_task |  gdb_print_task |    gdb_run_task |   gdb_step_task |      smx_task_a |      smx_task_b |
+Student              |    gcc_task_one |      smx_task_a |      smx_task_b | correct_check_a |    gdb_run_task |   gdb_list_task |  gdb_print_task |   gdb_step_task | correct_check_t |
 ==================== | =============== | =============== | =============== | =============== | =============== | =============== | =============== | =============== | =============== |
-        dwt_at_email |               Y |               Y |               Y |               Y |               Y |               Y |               Y |               Y |               Y |
+dwt_at_email         |               Y |               Y |               Y |               Y |               Y |               Y |               Y |               Y |               Y |
+What is automatically assessed for this lab:
+
+
