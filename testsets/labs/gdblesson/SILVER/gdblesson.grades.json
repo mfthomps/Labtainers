@@ -1,16 +1,20 @@
 {
     "dwt_at_email.gdblesson": {
+        "actualwatermark": {}, 
+        "parameter": {}, 
+        "expectedwatermark": {}, 
         "grades": {
-            "gdb_step_task": true, 
             "gcc_task_one": true, 
+            "smx_task_a": true, 
+            "smx_task_b": false, 
             "correct_check_a": true, 
             "gdb_run_task": false, 
-            "correct_check_b": false, 
+            "gdb_list_task": true, 
             "gdb_print_task": true, 
-            "smx_task_b": false, 
-            "smx_task_a": true, 
-            "gdb_list_task": true
+            "gdb_step_task": true, 
+            "correct_check_two": false
         }, 
-        "parameter": {}
+        "firstlevelzip": {}, 
+        "secondlevelzip": {}
     }
 }
