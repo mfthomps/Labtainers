@@ -1,15 +1,25 @@
 {
     "jkhosali_at_nps.edu.vpnlab": {
-        "grades": {
-            "tcpdump_open_link1": true, 
-            "get_index_ok": true, 
-            "get_link2_ok": true, 
-            "get_link1_ok": true, 
-            "tcpdump_encr_link1": true
-        }, 
+        "actualwatermark": {}, 
         "parameter": {
             "HTTPSERVERLINK1": "b0fcbce570a5f3f163e933a39fe0c4bb", 
             "HTTPSERVERLINK2": "b0fcbce570a5f3f163e933a39fe0c4bb"
-        }
+        }, 
+        "expectedwatermark": {}, 
+        "grades": {
+            "get_index_ok": true, 
+            "get_link1_ok": true, 
+            "get_link2_ok": true, 
+            "_routertcpdumpon": true, 
+            "_wgetlink1openok": true, 
+            "tcpdump_open_link1": true, 
+            "_wgetlink1encryptedok": true, 
+            "tcpdump_encr_link1": true, 
+            "getindexhtml": true, 
+            "getlink1html": true, 
+            "getlink2html": true
+        }, 
+        "firstlevelzip": {}, 
+        "secondlevelzip": {}
     }
 }
