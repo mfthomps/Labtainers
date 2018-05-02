@@ -9,18 +9,18 @@
         }, 
         "expectedwatermark": "25a75b45b8af94af3cd5a2a8184ae694", 
         "grades": {
-            "_local_nmap_sql": true, 
-            "_local_nmap_443": true, 
-            "_reach_internet": true, 
-            "_iplog": true, 
+            "remote_nmap_443": true, 
             "remote_nmap_sql": false, 
-            "reach_internet": true, 
             "local_nmap_443": true, 
             "local_nmap_sql": true, 
-            "remote_nmap_443": true, 
+            "reach_internet": true, 
             "remote_correct": true, 
+            "_iplog": true, 
+            "_remote_nmap_443": true, 
             "_remote_nmap_sql": false, 
-            "_remote_nmap_443": true
+            "_local_nmap_443": true, 
+            "_local_nmap_sql": true, 
+            "_reach_internet": true
         }, 
         "firstlevelzip": {}, 
         "secondlevelzip": {}
