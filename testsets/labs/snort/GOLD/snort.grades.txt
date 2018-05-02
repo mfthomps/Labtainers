@@ -1,5 +1,12 @@
 Labname snort
 
-             Student |   proper_config | snort_local_con | snort_local_fir | snort_local_nma | snort_remote_co | snort_remote_fi |
+Student              | snort_local_con | snort_remote_co | snort_remote_fi | snort_local_fir |   proper_config | snort_local_nma |
 ==================== | =============== | =============== | =============== | =============== | =============== | =============== |
-      dog_at_cat.com |               Y |               Y |               Y |               Y |               Y |               Y |
+dog_at_cat.com       |               Y |               Y |               Y |               Y |               Y |               Y |
+What is automatically assessed for this lab:
+
+	snort_local_conf: Snort alerts for CONFIDENTIAL access from local
+	snort_remote_conf: Snort alerts for CONFIDENTIAL access from remote
+	snort_remote_fire, snort_local_fire: the httpd log entries that occured during specific snort sessions
+	proper_config: Was there a snort session with remote alarm, no local alarm, and a local nmap alarm
+		during which the plan was accessed locally & remotely?
