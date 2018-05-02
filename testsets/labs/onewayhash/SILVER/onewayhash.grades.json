@@ -1,16 +1,30 @@
 {
     "dwtemple2_at_nps.edu.onewayhash": {
+        "actualwatermark": {}, 
+        "parameter": {
+            "DIGESTFILE": "cb0a6a84d5c93d52f277a29640b2d06f"
+        }, 
+        "expectedwatermark": {}, 
         "grades": {
-            "own_work": true, 
-            "random_md5diff": false, 
+            "_md5done": true, 
+            "_sha1done": true, 
+            "_shadone": false, 
+            "_sha256done": true, 
+            "_sha224done": false, 
+            "_sha384done": false, 
+            "_sha512done": false, 
+            "_md4done": false, 
+            "_whirlpooldone": false, 
+            "_rmd160done": false, 
+            "did_3_hashes": true, 
+            "hmac_md5_done": true, 
             "hmac_sha1_done": true, 
             "hmac_sha256_done": true, 
             "random_sha256diff": false, 
-            "did_3_hashes": true, 
-            "hmac_md5_done": true
+            "random_md5diff": false, 
+            "own_work": true
         }, 
-        "parameter": {
-            "DIGESTFILE": "cb0a6a84d5c93d52f277a29640b2d06f"
-        }
+        "firstlevelzip": {}, 
+        "secondlevelzip": {}
     }
 }
