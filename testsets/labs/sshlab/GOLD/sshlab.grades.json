@@ -1,11 +1,16 @@
 {
     "jkhosali_at_nps.edu.sshlab": {
-        "grades": {
-            "sshlogin_nopsw": true, 
-            "sshview": true
-        }, 
+        "actualwatermark": {}, 
         "parameter": {
             "FSTRING": "83f400f8bdff07f8f0859edc832a1fac"
-        }
+        }, 
+        "expectedwatermark": {}, 
+        "grades": {
+            "sshview": true, 
+            "sshlogin_nopsw": true, 
+            "sshlogin": true
+        }, 
+        "firstlevelzip": {}, 
+        "secondlevelzip": {}
     }
 }
