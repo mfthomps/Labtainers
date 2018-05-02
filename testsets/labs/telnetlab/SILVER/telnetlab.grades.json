@@ -1,13 +1,17 @@
 {
     "testing_at_testing.com.telnetlab": {
-        "grades": {
-            "telnetview": false, 
-            "failed_login": true, 
-            "sshview": false, 
-            "tcpdump_plain": true
-        }, 
+        "actualwatermark": {}, 
         "parameter": {
             "FSTRING": "964572c37865efd16d7b6877dd95b5bc"
-        }
+        }, 
+        "expectedwatermark": {}, 
+        "grades": {
+            "telnetview": false, 
+            "sshview": false, 
+            "tcpdump_plain": true, 
+            "failed_login": true
+        }, 
+        "firstlevelzip": {}, 
+        "secondlevelzip": {}
     }
 }
