@@ -1,5 +1,9 @@
 Labname sshlab
 
-             Student |        sshlogin |  sshlogin_nopsw |         sshview |
+Student              |         sshview |  sshlogin_nopsw |        sshlogin |
 ==================== | =============== | =============== | =============== |
- jkhosali_at_nps.edu |               Y |               Y |               Y |
+jkhosali_at_nps.edu  |               Y |               Y |               Y |
+What is automatically assessed for this lab:
+
+	sshview: Used ssh to view the file
+	sshlogin_nopsw: Was able to ssh without use of a passwork (used ssh keys)
