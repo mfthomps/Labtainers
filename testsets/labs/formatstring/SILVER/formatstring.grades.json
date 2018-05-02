@@ -1,14 +1,23 @@
 {
     "tstr_at_tstr.tstr.formatstring": {
-        "grades": {
-            "crash": true, 
-            "leaked_secret": true, 
-            "modify_specific": false, 
-            "modify_value": false, 
-            "leaked_no_scanf": false
-        }, 
+        "actualwatermark": {}, 
         "parameter": {
             "SECRET2": "0x43"
-        }
+        }, 
+        "expectedwatermark": {}, 
+        "grades": {
+            "crash": true, 
+            "_leaked_secret": true, 
+            "modify_value": false, 
+            "modify_specific": false, 
+            "_in_lines_2": false, 
+            "_aslr_on": true, 
+            "leaked_secret": true, 
+            "leaked_no_scanf": false, 
+            "_crash_sig": true, 
+            "_crash_smash": false
+        }, 
+        "firstlevelzip": {}, 
+        "secondlevelzip": {}
     }
 }
