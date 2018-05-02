@@ -1,5 +1,10 @@
 Labname onewayhash
 
-             Student |    did_3_hashes |   hmac_md5_done |  hmac_sha1_done | hmac_sha256_don |        own_work |  random_md5diff | random_sha256di |
+Student              |    did_3_hashes |   hmac_md5_done |  hmac_sha1_done | hmac_sha256_don | random_sha256di |  random_md5diff |        own_work |
 ==================== | =============== | =============== | =============== | =============== | =============== | =============== | =============== |
-dwtemple2_at_nps.edu |               Y |               Y |               Y |               Y |               Y |                 |                 |
+dwtemple2_at_nps.edu |               Y |               Y |               Y |               Y |                 |                 |               Y |
+What is automatically assessed for this lab:
+
+	did_3_hashes: Did the student try 3 different has algorithms?
+	hmac_md5_done, hmac_sha1_done, hmac_sha256_done: Three prescribed algorithms for HMAC operations
+	random_sha256diff, random_md5diff: Two prescribed algorithms for observing changes in hash due to file modification
