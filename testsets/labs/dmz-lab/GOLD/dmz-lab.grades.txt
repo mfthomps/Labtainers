@@ -1,5 +1,11 @@
 Labname dmz-lab
 
-             Student |  local_nmap_443 |  local_nmap_sql |  reach_internet |  remote_correct | remote_nmap_443 | remote_nmap_sql |
+Student              | remote_nmap_443 | remote_nmap_sql |  local_nmap_443 |  local_nmap_sql |  reach_internet |  remote_correct |
 ==================== | =============== | =============== | =============== | =============== | =============== | =============== |
-  frank_at_beans.com |               Y |               Y |               Y |               Y |               Y |                 |
+frank_at_beans.com   |               Y |                 |               Y |               Y |               Y |               Y |
+What is automatically assessed for this lab:
+
+	remote_nmap_443, remote_nmap_sql: nmap results from remote workstation
+	local_nmap_443, local_nmap_sql: nmap results from local workstation
+	reach_internet: Reach the internet from local workstation?
+	remote_correct: Did nmap from the local and remote workstations indicate a correct iptables setting?
