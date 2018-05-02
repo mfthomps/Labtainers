@@ -1,5 +1,8 @@
 Labname vpnlab2
 
-             Student | tcpdump_encr_li |
+Student              | tcpdump_encr_li |
 ==================== | =============== |
- jkhosali_at_nps.edu |               Y |
+jkhosali_at_nps.edu  |               Y |
+What is automatically assessed for this lab:
+
+	tcpdump_encr_link1: Ran tcpdump while using wget over an encrypted link
