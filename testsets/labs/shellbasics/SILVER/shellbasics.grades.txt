@@ -1,5 +1,8 @@
 Labname shellbasics
 
-             Student |      did_task_a |      did_task_b |      did_task_c |      did_task_d |      did_task_e |      did_task_f |        own_work |
+Student              |      did_task_a |      did_task_b |      did_task_c |      did_task_d |      did_task_e |      did_task_f |        own_work |
 ==================== | =============== | =============== | =============== | =============== | =============== | =============== | =============== |
-        dwt_at_email |                 |               Y |               Y |                 |                 |                 |               Y |
+dwt_at_email         |                 |               Y |               Y |                 |                 |                 |               Y |
+What is automatically assessed for this lab:
+
+	Lab created by interns, rough idea of student interaction with the shell
