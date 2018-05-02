@@ -1,14 +1,17 @@
 {
     "frank_at_beans.com.snort": {
-        "actualwatermark": {}, 
+        "actualwatermark": "00f4f0b4153d975e67bdacfb39680a14", 
         "parameter": {}, 
-        "expectedwatermark": {}, 
+        "expectedwatermark": "00f4f0b4153d975e67bdacfb39680a14", 
         "grades": {
-            "snort_remote_fire": true, 
-            "proper_config": false, 
-            "snort_local_fire": false, 
             "snort_local_conf": false, 
-            "snort_remote_conf": true
+            "snort_remote_conf": true, 
+            "snort_remote_fire": true, 
+            "snort_local_fire": false, 
+            "proper_config": false, 
+            "_log_plan_local": false, 
+            "_log_plan_remote": true, 
+            "snort_local_nmap": true
         }, 
         "firstlevelzip": {}, 
         "secondlevelzip": {}
