@@ -1,5 +1,10 @@
 Labname bufoverflow
 
-             Student |  gain_root_priv |   stack_protect |  while_get_root |
+Student              |  gain_root_priv |  while_get_root |   stack_protect |
 ==================== | =============== | =============== | =============== |
-    dliao_at_npa.wsu |               Y |               Y |               Y |
+dliao_at_npa.wsu     |               Y |               Y |               Y |
+What is automatically assessed for this lab:
+
+	gain_root_priv: Did the student get a root shell & display the /root/.secret file?
+	while_get_root: Did the student get a root shell with ASLR enabled?
+	stack_protect: Experimented with enabling stack guard?
