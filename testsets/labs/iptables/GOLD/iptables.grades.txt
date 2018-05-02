@@ -1,5 +1,9 @@
 Labname iptables
 
-             Student |      no_telnetx |        own_work |        ports_ok |
+Student              |        ports_ok |        own_work |      no_telnetx |
 ==================== | =============== | =============== | =============== |
-      dog_at_cat.com |               Y |               Y |               Y |
+dog_at_cat.com       |               Y |               Y |               Y |
+What is automatically assessed for this lab:
+
+	ports_ok: ssh & http were open, telnet closed
+	no_telnetx: blocked other, unknown ports

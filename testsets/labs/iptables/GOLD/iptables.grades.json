@@ -6,13 +6,13 @@
         }, 
         "expectedwatermark": "2434757fbd78ae82909e9e68aa245f7e", 
         "grades": {
-            "own_work": true, 
             "_ssh": true, 
             "_http": true, 
             "_telnet": true, 
             "_telnetx": true, 
-            "no_telnetx": true, 
-            "ports_ok": true
+            "ports_ok": true, 
+            "own_work": true, 
+            "no_telnetx": true
         }, 
         "firstlevelzip": {}, 
         "secondlevelzip": {}
