@@ -1,14 +1,17 @@
 {
     "dog_at_cat.com.snort": {
-        "actualwatermark": {}, 
+        "actualwatermark": "c22912027b86e41284bb5fce933fcc2b", 
         "parameter": {}, 
-        "expectedwatermark": {}, 
+        "expectedwatermark": "c22912027b86e41284bb5fce933fcc2b", 
         "grades": {
-            "snort_remote_fire": true, 
-            "proper_config": true, 
-            "snort_local_fire": true, 
             "snort_local_conf": true, 
-            "snort_remote_conf": true
+            "snort_remote_conf": true, 
+            "snort_remote_fire": true, 
+            "snort_local_fire": true, 
+            "proper_config": true, 
+            "_log_plan_local": true, 
+            "_log_plan_remote": true, 
+            "snort_local_nmap": true
         }, 
         "firstlevelzip": {}, 
         "secondlevelzip": {}
