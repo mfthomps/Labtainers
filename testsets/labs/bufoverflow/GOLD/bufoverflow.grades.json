@@ -1,14 +1,20 @@
 {
     "dliao_at_npa.wsu.bufoverflow": {
-        "grades": {
-            "stack_protect": true, 
-            "gain_root_priv": true, 
-            "while_get_root": true
-        }, 
+        "actualwatermark": {}, 
         "parameter": {
             "roothash": "b2391441dfc80a1890f4db0af61e0f28", 
             "userhash": "e49ea895dc7ccf8768f32c0a2b383dc0", 
             "rand1": "144"
-        }
+        }, 
+        "expectedwatermark": {}, 
+        "grades": {
+            "gain_root_priv": true, 
+            "_aslron": true, 
+            "_looproot": true, 
+            "while_get_root": true, 
+            "stack_protect": true
+        }, 
+        "firstlevelzip": {}, 
+        "secondlevelzip": {}
     }
 }
