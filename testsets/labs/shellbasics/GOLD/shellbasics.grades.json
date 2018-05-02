@@ -1,16 +1,33 @@
 {
     "dwtemple2_at_nps.edu.shellbasics": {
-        "grades": {
-            "own_work": true, 
-            "did_task_b": true, 
-            "did_task_c": true, 
-            "did_task_a": true, 
-            "did_task_f": true, 
-            "did_task_d": true, 
-            "did_task_e": true
-        }, 
+        "actualwatermark": {}, 
         "parameter": {
             "secret_value": "0x58"
-        }
+        }, 
+        "expectedwatermark": {}, 
+        "grades": {
+            "_did_mkdir_one": true, 
+            "_did_touch_one": true, 
+            "_did_pwd_one": true, 
+            "did_task_a": true, 
+            "did_task_b": true, 
+            "_did_ls_one": true, 
+            "_did_mv_one": true, 
+            "did_task_c": true, 
+            "_did_cp_one": true, 
+            "_did_cp_two": true, 
+            "did_task_d": true, 
+            "_did_cal": true, 
+            "_did_append": true, 
+            "did_task_e": true, 
+            "_did_more": true, 
+            "_did_less": true, 
+            "_did_rm": true, 
+            "did_task_f": true, 
+            "own_work": true, 
+            "_did_date": true
+        }, 
+        "firstlevelzip": {}, 
+        "secondlevelzip": {}
     }
 }
