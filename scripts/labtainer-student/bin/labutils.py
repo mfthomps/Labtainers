@@ -2025,6 +2025,43 @@ def WatermarkTest(lab_path, role, standard, isFirstRun=False):
         CompareResult = filecmp.cmp(GradesGold, Grades)
     return CompareResult
 
+def compareGrades(GradesGold, Grades):
+    GradesGoldLines = {}
+    GradesLines = {}
+    with open(GradesGold) as gradesgoldfile:
+        for line in gradesgoldfile:
+            linestrip = line.strip()
+            if not linestrip or linestrip.startswith("#"):
+                continue
+            linetoken = linestrip.split()
+            student_email = linetoken[0]
+            if "_at_" in student_email:
+                if student_email in GradesGoldLines:
+                    logger.ERROR("GradesGold file error: Multiple entries for the same student's e-mail %s" % student_email)
+                    return False
+                else:
+                    new_line = line.strip().replace(" ", "")
+                    GradesGoldLines[student_email] = new_line
+    with open(Grades) as gradesfile:
+        for line in gradesfile:
+            linestrip = line.strip()
+            if not linestrip or linestrip.startswith("#"):
+                continue
+            linetoken = linestrip.split()
+            student_email = linetoken[0]
+            if "_at_" in student_email:
+                if student_email in GradesLines:
+                    logger.ERROR("Grades file error: Multiple entries for the same student's e-mail %s" % student_email)
+                    return False
+                else:
+                    new_line = line.strip().replace(" ", "")
+                    GradesLines[student_email] = new_line
+    if GradesGoldLines == GradesLines:
+        return True
+    else:
+        return False
+
+
 
 def RegressTest(lab_path, role, standard, isFirstRun=False):
     labname = os.path.basename(lab_path)
@@ -2045,21 +2082,24 @@ def RegressTest(lab_path, role, standard, isFirstRun=False):
 
     is_regress_test = standard
     check_watermark = False
+    auto_grade = True
+    debug_grade = False
+    run_container = start_config.grade_container
     if isFirstRun:   
-	RedoLab(lab_path, role, is_regress_test, check_watermark=check_watermark)
+	RedoLab(lab_path, role, is_regress_test, check_watermark=check_watermark, auto_grade=auto_grade, debug_grade=debug_grade)
     else: 
-	StartLab(lab_path, role, is_regress_test, check_watermark=check_watermark, is_redo=True)
+	StartLab(lab_path, role, is_regress_test, check_watermark=check_watermark, is_redo=True, auto_grade=auto_grade, debug_grade=debug_grade)
 
-    for name, container in start_config.containers.items():
-        mycontainer_name       = container.full_name
-        container_user         = container.user
+#    for name, container in start_config.containers.items():
+#        mycontainer_name       = container.full_name
+#        container_user         = container.user
+#
+#        if mycontainer_name == start_config.grade_container:
+#            logger.DEBUG('about to RunInstructorCreateDradeFile for container %s' % start_config.grade_container)
+#            RunInstructorCreateGradeFile(start_config.grade_container, container_user, labname, check_watermark)
 
-        if mycontainer_name == start_config.grade_container:
-            logger.DEBUG('about to RunInstructorCreateDradeFile for container %s' % start_config.grade_container)
-            RunInstructorCreateGradeFile(start_config.grade_container, container_user, labname, check_watermark)
-
-    # Pass 'False' to ignore_stop_error (i.e., do not ignore error)
-    result_xfer = StopLab(lab_path, role, False, is_regress_test=is_regress_test)
+    # Pass 'True' to ignore_stop_error (i.e., ignore stop error)
+    result_xfer = StopLab(lab_path, role, True, is_regress_test=is_regress_test, run_container=run_container)
     logger.DEBUG('result_xfer is %s' % result_xfer)
 
     # Give the container some time to copy the result out -- just in case
@@ -2073,7 +2113,7 @@ def RegressTest(lab_path, role, standard, isFirstRun=False):
     elif not os.path.exists(Grades):
         logger.ERROR("Grades %s file does not exist!" % Grades)
     else:
-        CompareResult = filecmp.cmp(GradesGold, Grades)
+        CompareResult = compareGrades(GradesGold, Grades)
     return CompareResult
 
 
