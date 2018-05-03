@@ -665,7 +665,9 @@ int main(int argc, char *argv[])
    getStdInOutFiles(cmd_args, all_args, &stdinfile, &stdoutfile);
    if(count != 2)
    {
-      use_pty = true;
+      if(count == 0) {
+         use_pty = true;
+      }
       fdm_in = getMaster();
       if(fdm_in < 0){
           return 1;
