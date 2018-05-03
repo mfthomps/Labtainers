@@ -28,6 +28,8 @@ and record stdin & stdout.  If the program to be monitored is to the
 right of a pipe, then pipes are used so that the pipe used by the
 program to get its stdin can be closed without also closing the pipe
 it uses for its stdout.
+
+Derived from samples found at http://rachid.koucha.free.fr/tech_corner/pty_pdip.html
 */
 #define _XOPEN_SOURCE 600
 #include <stdlib.h>
@@ -68,9 +70,13 @@ int fds_in, fds_out;
 int count_index = 1;
 int ts_index = 2;
 int cmd_path_index = 3;
+bool ctrl_c_hack = false;
 struct termios orig_termios; 
 struct termios latest_termios; 
 bool use_pty = false;
+
+sigset_t mysigset, oldset;
+
 char *trim(char *str)
 {
        int tmp_trim = strlen(str)-1;
@@ -267,8 +273,6 @@ int handleRedirect(char *redirect_filename, char *append_filename){
          close(1);
          dup2(redirect_fd, 1);
          //close(redirect_fd);
-         char string[] = "handleRedirect, wtf, over?\n";
-         write(1, string, (strlen(string)+1));
          fprintf(debug, "redirect stdout to %s fd: %d\n", redirect_filename, redirect_fd);
          retval = redirect_fd;
      }else if(append_filename != NULL){
@@ -323,16 +327,16 @@ int ioLoop()
      int tmp_count = 0;
      char eot = 0x04;
      struct termios attr; 
-     struct timeval tv;
-     tv.tv_sec = 0;
-     tv.tv_usec = 500000;
+     struct timespec tv;
+     tv.tv_sec = 1;
+     tv.tv_nsec = 0;
      while (1)
      {
        int stat;
        //if(use_pty && cmd_pid != 0){
        if(cmd_pid != 0){
           int wait_cmd = waitpid(cmd_pid, &stat, WNOHANG);
-          fprintf(debug, "cmd_pid: %d wait_cmd got %d stat %d\n", cmd_pid, wait_cmd, stat);
+          //fprintf(debug, "cmd_pid: %d wait_cmd got %d stat %d\n", cmd_pid, wait_cmd, stat);
           if(wait_cmd == cmd_pid)
           {
               fprintf(debug, "MATCHED, cmd_pid gone \n");
@@ -342,7 +346,7 @@ int ioLoop()
        }
        if(left_pid != 0){
           int wait_left = waitpid(left_pid, &stat, WNOHANG);
-          fprintf(debug, "left_pid: %d wait_left got %d stat %d\n", left_pid, wait_left, stat);
+          //fprintf(debug, "left_pid: %d wait_left got %d stat %d\n", left_pid, wait_left, stat);
           if(wait_left == left_pid)
           {
               fprintf(debug, "MATCHED\n");
@@ -366,9 +370,16 @@ int ioLoop()
        fflush(debug);
        FD_SET(fdm_out, &fd_in);
        int max_fd = max(fdm_out, master_stdin);
-       rc = select(max_fd + 1, &fd_in, NULL, NULL, &tv);
-       fprintf(debug, "select returns %d\n", rc);
+       //fprintf(debug, "now select\n");
        fflush(debug);
+       int select_errno = 0;
+       //rc = select(max_fd + 1, &fd_in, NULL, NULL, &tv);
+       rc = pselect(max_fd + 1, &fd_in, NULL, NULL, &tv, &oldset);
+       if(rc != 0){ 
+          fprintf(debug, "select returns %d errno %d\n", rc, errno);
+          fflush(debug);
+          select_errno = errno;
+       }
        tcgetattr(fds_in, &attr);
        if(use_pty && !termsEqual(latest_termios, attr))
        {
@@ -377,50 +388,58 @@ int ioLoop()
            latest_termios = attr;
            fprintf(debug, "term iflag %d oflag %d cflag %d lflag %d\n", attr.c_iflag, attr.c_oflag, attr.c_cflag, attr.c_lflag);
        }
-       switch(rc)
+       if(rc < 0 && select_errno != 4)
        {
-         case -1 : fprintf(debug, "Error %d on select()\n", errno);
-                   if(errno != 4)
-                   {
-                       closeUpShop();
-                       exit(0);
-                   }
+           fprintf(debug, "Error %d on select()\n", errno);
+           closeUpShop();
+           exit(0);
    
-         default :
-         {
-             // If data on standard input
-             if (master_stdin >= 0 && FD_ISSET(master_stdin, &fd_in)) {
-                 rc = read(master_stdin, input, sizeof(input));
-                 fprintf(debug, "read master_stdin rc is %d\n", rc);
-                 if (rc > 0) {
-                   // Send data on the master side of PTY
-                   input[rc] = 0;
-                   fprintf(debug, "read master_stdin %s\n", input);
-                   write(fdm_in, input, rc);
-                   write(stdin_fd, input, rc);
-                   fprintf(debug, "read master_stdin, wrote to fdm_in %s\n", input);
-                 } else {
-                   if (rc < 0) {
-                     fprintf(debug, "Error %d on read standard input\n", errno);
-                     closeUpShop();
-                     exit(0);
-                   }
-                 }
-             }
+       }else if(rc >= 0 || select_errno != 4){ 
+           // If data on standard input
+          if (master_stdin >= 0 && FD_ISSET(master_stdin, &fd_in)) {
+              fprintf(debug, "read master_stdin\n");
+              fflush(debug);
+              rc = read(master_stdin, input, sizeof(input));
+              fprintf(debug, "read master_stdin rc is %d\n", rc);
+              if (rc > 0) {
+                // Send data on the master side of PTY
+                input[rc] = 0;
+                fprintf(debug, "read master_stdin %s\n", input);
+                write(fdm_in, input, rc);
+                write(stdin_fd, input, rc);
+                fprintf(debug, "read master_stdin, wrote to fdm_in %s\n", input);
+              } else {
+                if (rc < 0) {
+                  fprintf(debug, "Error %d on read standard input\n", errno);
+                  closeUpShop();
+                  exit(0);
+                }
+              }
+          }
      
-             // If data on master side of PTY
-             if (FD_ISSET(fdm_out, &fd_in))
-             {
+          // If data on master side of PTY
+          if (FD_ISSET(fdm_out, &fd_in))
+          {
+              fprintf(debug, "read fdm_out\n");
+              fflush(debug);
                   rc = read(fdm_out, input, sizeof(input));
                   fprintf(debug, "read fdm_out rc is %d\n", rc);
                   fflush(debug);
                   if (rc > 0)
                   {
-                      // Send data on standard output
-                      write(master_stdout, input, rc);
-                      write(stdout_fd, input, rc);
                       input[rc] = 0;
-                      fprintf(debug, "fdm_out got %s\n", input);
+                      char *tmp = input;
+                      if(tmp[0] == '^' && tmp[1] == 'C' && ctrl_c_hack){
+                          fprintf(debug, "hack the control c\n");
+                          ctrl_c_hack = false;
+                          tmp = tmp+2;
+                      }else{ 
+                          // Send data on standard output
+                          write(master_stdout, tmp, rc);
+                          write(stdout_fd, tmp, rc);
+                      }
+                      fprintf(debug, "fdm_out got %s\n", tmp);
+                      fflush(debug);
                   } else {
                       if (rc < 0) {
                           fprintf(debug, "Read zip (error %d) on read master PTY\n", errno);
@@ -450,7 +469,6 @@ int ioLoop()
                   }
               }
            }
-       } // End switch
      } // End while
      return 0;
 }
@@ -462,9 +480,10 @@ void sighandler(int signo)
         fprintf(debug,"capinout got SIGINT\n");
     }
     if(cmd_pid != 0){
-        fprintf(debug, "kill cmd\n");
-        //write(fdm_in, &etx, 1);
-        kill(cmd_pid, signo);
+        fprintf(debug, "write ctrl C to  %d\n", cmd_pid);
+        write(fdm_in, &etx, 1);
+        ctrl_c_hack = true;
+        //kill(cmd_pid, signo);
     }
     if(left_pid != 0){
         fprintf(debug, "kill left\n");
@@ -474,9 +493,10 @@ void sighandler(int signo)
         fprintf(debug, "kill right \n");
         kill(right_pid, signo);
     }
-    fprintf(debug, "no do loop again\n");
+    fprintf(debug, "now do loop again\n");
     fflush(debug);
-    ioLoop();
+    //signal(SIGINT, sighandler);
+    //ioLoop();
     return;
 }
 void getStdInOutFiles(std::vector<std::string> cmd_args, std::vector<std::string> all_args, std::string *stdinfile, std::string *stdoutfile)
@@ -535,10 +555,20 @@ int main(int argc, char *argv[])
        exit(1);
    }
    debug = fopen("/tmp/capinout_debug.out", "w");
-   if(signal(SIGINT, sighandler) == SIG_ERR){
-       fprintf(stderr, "error setting SIGINT signal handler\n");
-   }
    tcgetattr(0, &orig_termios);
+ 
+   struct sigaction s;
+   s.sa_handler = sighandler;
+   sigemptyset(&s.sa_mask);
+   s.sa_flags = 0;
+   sigaction(SIGINT, &s, NULL);
+   sigemptyset(&mysigset);
+   sigaddset(&mysigset, SIGTERM);
+   sigprocmask(SIG_BLOCK, &mysigset, &oldset);
+
+//   if(signal(SIGINT, sighandler) == SIG_ERR){
+//        fprintf(stderr, "error setting SIGINT signal handler\n");
+ //  }
 
    std::string first_arg;
    std::vector<std::string> all_args;
@@ -552,14 +582,26 @@ int main(int argc, char *argv[])
    char *append_filename = NULL;
    char *redirect_filename = NULL;
    char* append_str = strstr(argv[1],">>");
+   bool redirect_stderr = false;
    if(append_str != NULL)
    {
        int append_index = append_str - argv[1];
        cmd = strdup(argv[1]);
-       cmd[append_index] = 0;
-       append_filename = argv[1]+append_index+1; 
+       fprintf(debug, "now do append\n");
+       fflush(debug);
+       fprintf(debug, "cmd %s  append_index %d min1 %c\n", cmd, append_index, cmd[append_index-1]);
+       //fprintf(debug, "cmd %s  append_index %d \n", cmd, append_index);
+       fflush(debug);
+       if(cmd[append_index-1] == '&'){
+          fprintf(debug, "yep, include stderr\n");
+          redirect_stderr = true;
+          cmd[append_index-1] = 0;
+       }else{
+          cmd[append_index] = 0;
+       }
+       append_filename = argv[1]+append_index+2;
        append_filename = trim(append_filename);
-       fprintf(debug, "append_filename %s\n", append_filename);
+       fprintf(debug, "append_filename x %s\n", append_filename);
    }else{ 
        /* look for redirect */
        char* redirect_str = strstr(argv[1],">");
@@ -567,6 +609,12 @@ int main(int argc, char *argv[])
        {
            int redirect_index = redirect_str - argv[1];
            cmd = strdup(argv[1]);
+           if(cmd[redirect_index-1] == '&'){
+              redirect_stderr = true;
+              cmd[redirect_index-1] = 0;
+           }else{
+              cmd[redirect_index] = 0;
+           }
            cmd[redirect_index] = 0;
            redirect_filename = argv[1]+redirect_index+1; 
            redirect_filename = trim(redirect_filename);
@@ -708,6 +756,16 @@ int main(int argc, char *argv[])
         // match the pty to our original terminal settings
         tcsetattr (fds_in, TCSANOW, &orig_termios);
         latest_termios = orig_termios;
+
+        //struct termios slave_orig_term_settings; // Saved terminal settings
+        //struct termios new_term_settings; // Current terminal settings
+        //new_term_settings = slave_orig_term_settings;
+        //cfmakeraw (&new_term_settings);
+        //tcsetattr (fds_in, TCSANOW, &new_term_settings);
+        //latest_termios = new_term_settings;
+
+
+
      }else{
         close(fdm_in);
         close(fdm_out);
@@ -716,11 +774,15 @@ int main(int argc, char *argv[])
      // The slave side of the PTY becomes the standard input and outputs of the child process
      close(0); // Close standard input (current terminal)
      close(1); // Close standard output (current terminal)
-     close(2); // Close standard error (current terminal)
+     if(redirect_stderr || (redirect_filename == NULL && append_filename == NULL)){
+        close(2); // Close standard error (current terminal)
+     }
    
      dup(fds_in); // PTY becomes standard input (0)
      dup(fds_out); // PTY becomes standard output (1)
-     dup(fds_out); // PTY becomes standard error (2)
+     if(redirect_stderr || (redirect_filename == NULL && append_filename == NULL)){
+        dup(fds_out); // PTY becomes standard error (2)
+     }
   
      if(count != 2)
      { 
