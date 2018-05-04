@@ -311,6 +311,18 @@ int closeUpShop(){
    }
    tcsetattr (0, TCSANOW, &orig_termios);
 }
+void waitRightDie()
+{
+   int status;
+   int cpid;
+   while((cpid=wait(&status)) != right_pid){
+       fprintf(debug, "wait for right to die, got cpid of %d, status %d\n", cpid, status);
+       fflush(debug);
+       sleep(1);
+   } 
+   fprintf(debug, "right side finished\n");
+   fflush(debug);
+}
 int ioLoop()
 {
      char input[150];
@@ -332,7 +344,22 @@ int ioLoop()
           if(wait_cmd == cmd_pid)
           {
               fprintf(debug, "MATCHED, cmd_pid gone \n");
-              close(fds_in);
+              if(use_pty){
+                  close(fds_in);
+              }
+              if(master_stdout != 1){
+                  close(master_stdout);
+                  fprintf(debug,"closed master_stdout\n");
+                  fflush(debug);
+              }
+              cmd_pid = 0;
+              waitRightDie();
+              closeUpShop();
+              fprintf(debug, "closed  up, now return\n");
+              fflush(debug);
+              close(0);
+              close(1);
+              return 0;
           }
        }
        if(left_pid != 0){
@@ -342,10 +369,15 @@ int ioLoop()
           {
               fprintf(debug, "MATCHED wait_left\n");
               left_pid = 0;
-              if(right_pid == 0){
-                 fprintf(debug, "nothing on right, close fdm_in\n");
-                 close(fdm_in);
-              }
+              //if(right_pid == 0){
+              //   fprintf(debug, "nothing on right, close fdm_in\n");
+             // }
+              fprintf(debug, "close fdm_in\n");
+              char crap[] = "this is the end";
+              char etx = 0x03;
+              write(fdm_in, crap, 9);
+              write(fdm_in, &etx, 1);
+              close(fdm_in);
               master_stdin = -1;
           }
           tmp_count++;
@@ -364,7 +396,7 @@ int ioLoop()
        fflush(debug);
        FD_SET(fdm_out, &fd_in);
        int max_fd = max(fdm_out, master_stdin);
-       //fprintf(debug, "now select\n");
+       fprintf(debug, "now select\n");
        fflush(debug);
        int select_errno = 0;
        //rc = select(max_fd + 1, &fd_in, NULL, NULL, &tv);
@@ -397,13 +429,25 @@ int ioLoop()
                 // Send data on the master side of PTY
                 input[rc] = 0;
                 fprintf(debug, "read master_stdin [%s]\n", input);
-                write(fdm_in, input, rc);
+                int wc = write(fdm_in, input, rc);
+                if(wc != rc){
+                    fprintf(debug,"write to fdm_in only wrote %d, expected %d\n", wc, rc);
+                    fflush(debug);
+                }
                 write(stdin_fd, input, rc);
               } else {
                 if (rc < 0) {
                   fprintf(debug, "Error %d on read standard input\n", errno);
                   closeUpShop();
                   exit(0);
+                }else{
+                  // got zero on master_stdin.  pipe must be closed
+                  // clse fdm_in
+                  close(fdm_in);
+                  close(master_stdin);
+                  master_stdin = -1;
+                  fprintf(debug, "close fdm_in and master_stdin\n");
+                  fflush(debug);
                 }
               }
           }
@@ -412,57 +456,53 @@ int ioLoop()
           if (FD_ISSET(fdm_out, &fd_in))
           {
               fflush(debug);
-                  rc = read(fdm_out, input, sizeof(input));
-                  fprintf(debug, "read fdm_out rc is %d\n", rc);
-                  fflush(debug);
-                  if (rc > 0)
-                  {
-                      input[rc] = 0;
-                      char *tmp = input;
-                      if(tmp[0] == '^' && tmp[1] == 'C' && ctrl_c_hack){
-                          fprintf(debug, "hack the control c\n");
-                          ctrl_c_hack = false;
-                          tmp = tmp+2;
-                      }
-                      // Send data on standard output
-                      write(master_stdout, tmp, rc);
-                      write(stdout_fd, tmp, rc);
-                      fprintf(debug, "fdm_out got [%s]\n", tmp);
-                      fflush(debug);
-                  } else {
-                      if (rc <= 0) {
-                          fprintf(debug, "Read zip (error %d) on read master PTY\n", errno);
-                          fflush(debug);
-                          //sleep(2);
-                          int status;
-                          int cpid;
-                          if(right_pid != 0){
-                              close(master_stdout);
-                              fprintf(debug, "closed master_stdout, wait for right side? pid %d\n", right_pid);
-                              fflush(debug);
-                              while((cpid=wait(&status)) != right_pid){
-                                  fprintf(debug, "wait for right to die, got cpid of %d, status %d\n", cpid, status);
-                                  fflush(debug);
-                                  sleep(1);
-                              } 
-                              fprintf(debug, "right side finished\n");
-                              fflush(debug);
-                          }
-                          closeUpShop();
-                          fprintf(debug, "closed  up, now return\n");
-                          fflush(debug);
-                          close(0);
-                          close(1);
-                          return 0;
-                      }   
-                      //}else{
-                      //    fprintf(debug,"read zero from fdm_out, assume pipe closed, and clean up\n");
-                      //    closeUpShop();
-                      //    exit(0);
-                      //}
+              rc = read(fdm_out, input, sizeof(input));
+              fprintf(debug, "read fdm_out rc is %d\n", rc);
+              fflush(debug);
+              if (rc > 0)
+              {
+                  input[rc] = 0;
+                  char *tmp = input;
+                  if(tmp[0] == '^' && tmp[1] == 'C' && ctrl_c_hack){
+                      fprintf(debug, "hack the control c\n");
+                      ctrl_c_hack = false;
+                      tmp = tmp+2;
                   }
+                  // Send data on standard output
+                  int wc = write(master_stdout, tmp, rc);
+                  if(wc != rc){
+                      fprintf(debug,"write to fdm_in only wrote %d, expected %d\n", wc, rc);
+                      fflush(debug);
+                  }
+                  write(stdout_fd, tmp, rc);
+                  fprintf(debug, "fdm_out got [%s]\n", tmp);
+                  fflush(debug);
+              } else {
+                  if (rc <= 0) {
+                      fprintf(debug, "Read zip (error %d) on read master PTY\n", errno);
+                      fflush(debug);
+                      //sleep(2);
+                      close(master_stdout);
+                      fprintf(debug, "closed master_stdout, wait for right side? pid %d\n", right_pid);
+                      fflush(debug);
+                      if(right_pid != 0){
+                          waitRightDie();
+                      }
+                      closeUpShop();
+                      fprintf(debug, "closed  up, now return\n");
+                      fflush(debug);
+                      close(0);
+                      close(1);
+                      return 0;
+                  }   
+                  //}else{
+                  //    fprintf(debug,"read zero from fdm_out, assume pipe closed, and clean up\n");
+                  //    closeUpShop();
+                  //    exit(0);
+                  //}
               }
-           }
+          }
+       }
      } // End while
      return 0;
 }
@@ -721,6 +761,7 @@ int main(int argc, char *argv[])
       // Open the slave side ot the PTY
       fds_in = open(ptsname(fdm_in), O_RDWR);
       fds_out = fds_in;
+      fprintf(debug,"Using pty, fdm_in/out: %d\n", fdm_in);
    }else{
       use_pty = false;
       // master writes stdin to this for slave to consume
@@ -732,19 +773,14 @@ int main(int argc, char *argv[])
       fdm_in = master_pipe_stdin[1]; 
       // master reads stdout from slave
       fdm_out = master_pipe_stdout[0]; 
+      fprintf(debug,"Using master_pipes, fdm_in: %d  fdm_out: %d\n", fdm_in, fdm_out);
 
       // slave reads stdin from master
       fds_in = master_pipe_stdin[0]; 
       // slave writes stdout to master
       fds_out = master_pipe_stdout[1]; 
    }
-   if(count >= 2){
-         // master stdin will be from pipe_left
-         pipe(pipe_left_fd);
-         left_pid = forkLeft(pipe_left_fd, left_side);
-         master_stdin = pipe_left_fd[0];
-         fprintf(debug, "back from forkLeft, pid is %d  master_stdin read from pipe %d\n", left_pid, master_stdin);
-   }
+   fflush(debug);
    
    // Create the child process
    cmd_pid = fork();
@@ -761,6 +797,19 @@ int main(int argc, char *argv[])
            close(fds_in);
            close(fds_out);
         }
+     }
+     if(count >= 2){
+         // master stdin will be from pipe_left
+         pipe(pipe_left_fd);
+         left_pid = forkLeft(pipe_left_fd, left_side);
+         master_stdin = pipe_left_fd[0];
+         fprintf(debug, "back from forkLeft, pid is %d  master_stdin read from pipe %d\n", left_pid, master_stdin);
+     }
+     if(right_side != NULL){
+            pipe(pipe_right_fd);
+            right_pid = forkRight(pipe_right_fd, right_side);     
+            master_stdout = pipe_right_fd[1];
+            fprintf(debug, "Forked right pid is %d, master std out should go to pipe %d\n", right_pid, master_stdout);
      }
      stdin_fd = open(stdinfile.c_str(), O_RDWR | O_CREAT, 0644);
      if(stdin_fd <=0 ){
@@ -787,12 +836,6 @@ int main(int argc, char *argv[])
         }
         master_stdout = the_redirect_fd; 
      }
-     if(right_side != NULL){
-        pipe(pipe_right_fd);
-        right_pid = forkRight(pipe_right_fd, right_side);     
-        master_stdout = pipe_right_fd[1];
-        fprintf(debug, "Forked right pid is %d, master std out should go to pipe %d\n", right_pid, master_stdout);
-     }
      fprintf(debug, "about to loop, master_stdin: %d  master_stdout: %d\n", master_stdin, master_stdout);
      return(ioLoop());
    } else {
@@ -813,9 +856,6 @@ int main(int argc, char *argv[])
         //cfmakeraw (&new_term_settings);
         //tcsetattr (fds_in, TCSANOW, &new_term_settings);
         //latest_termios = new_term_settings;
-
-
-
      }else{
         close(fdm_in);
         close(fdm_out);
