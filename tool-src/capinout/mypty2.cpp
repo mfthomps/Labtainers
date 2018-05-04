@@ -54,17 +54,16 @@ Derived from samples found at http://rachid.koucha.free.fr/tech_corner/pty_pdip.
 #include <sstream>
 #include <iterator>
 FILE *debug;
-int fdm_in;
-int fdm_out;
+int fdm_in;   // master writes to this to provide cmd stdin
+int fdm_out;  // master reads from this to get stdout of the cmd
 int stdout_fd, stdin_fd;
-int pipe_fd[2];
 int master_pipe_stdin[2];
 int master_pipe_stdout[2];
 int cmd_pid = 0;
 int left_pid = 0;
 int right_pid = 0;
-int master_stdin = 0; 
-int master_stdout = 1; 
+int master_stdin = 0; // master reads its stdin from here
+int master_stdout = 1;  // master writes its stdout here
 int the_redirect_fd = -1;
 int fds_in, fds_out;
 int count_index = 1;
@@ -187,13 +186,6 @@ char **getCharFromVector(std::vector<std::string> sv)
     }
     my_args[vc.size()] = 0;
     return my_args;
-}
-char **getExecArgs(char *cmd_args){
-     char **my_args = (char **)malloc(sizeof(char *) * (4));
-     my_args[0] = "sh";
-     my_args[1] = cmd_args;
-     my_args[2] = 0;
-     return my_args;
 }
 char **getExecCmdArgs(char *cmd_args){
      std::vector<std::string> cmd_v = split(cmd_args);
@@ -328,7 +320,7 @@ int ioLoop()
      char eot = 0x04;
      struct termios attr; 
      struct timespec tv;
-     tv.tv_sec = 1;
+     tv.tv_sec = 4;
      tv.tv_nsec = 0;
      while (1)
      {
@@ -341,7 +333,6 @@ int ioLoop()
           {
               fprintf(debug, "MATCHED, cmd_pid gone \n");
               close(fds_in);
-       
           }
        }
        if(left_pid != 0){
@@ -349,16 +340,19 @@ int ioLoop()
           //fprintf(debug, "left_pid: %d wait_left got %d stat %d\n", left_pid, wait_left, stat);
           if(wait_left == left_pid)
           {
-              fprintf(debug, "MATCHED\n");
+              fprintf(debug, "MATCHED wait_left\n");
               left_pid = 0;
-              close(fdm_in);
+              if(right_pid == 0){
+                 fprintf(debug, "nothing on right, close fdm_in\n");
+                 close(fdm_in);
+              }
               master_stdin = -1;
           }
           tmp_count++;
-          if(tmp_count > 100){
-              fprintf(debug, "too much, break\n");
-              break;
-          }
+          //if(tmp_count > 100){
+          //    fprintf(debug, "too much, break\n");
+          //    break;
+         // }
        }
        // Wait for data from standard input and master side of PTY
        FD_ZERO(&fd_in);
@@ -397,17 +391,14 @@ int ioLoop()
        }else if(rc >= 0 || select_errno != 4){ 
            // If data on standard input
           if (master_stdin >= 0 && FD_ISSET(master_stdin, &fd_in)) {
-              fprintf(debug, "read master_stdin\n");
-              fflush(debug);
               rc = read(master_stdin, input, sizeof(input));
               fprintf(debug, "read master_stdin rc is %d\n", rc);
               if (rc > 0) {
                 // Send data on the master side of PTY
                 input[rc] = 0;
-                fprintf(debug, "read master_stdin %s\n", input);
+                fprintf(debug, "read master_stdin [%s]\n", input);
                 write(fdm_in, input, rc);
                 write(stdin_fd, input, rc);
-                fprintf(debug, "read master_stdin, wrote to fdm_in %s\n", input);
               } else {
                 if (rc < 0) {
                   fprintf(debug, "Error %d on read standard input\n", errno);
@@ -420,7 +411,6 @@ int ioLoop()
           // If data on master side of PTY
           if (FD_ISSET(fdm_out, &fd_in))
           {
-              fprintf(debug, "read fdm_out\n");
               fflush(debug);
                   rc = read(fdm_out, input, sizeof(input));
                   fprintf(debug, "read fdm_out rc is %d\n", rc);
@@ -433,39 +423,43 @@ int ioLoop()
                           fprintf(debug, "hack the control c\n");
                           ctrl_c_hack = false;
                           tmp = tmp+2;
-                      }else{ 
-                          // Send data on standard output
-                          write(master_stdout, tmp, rc);
-                          write(stdout_fd, tmp, rc);
                       }
-                      fprintf(debug, "fdm_out got %s\n", tmp);
+                      // Send data on standard output
+                      write(master_stdout, tmp, rc);
+                      write(stdout_fd, tmp, rc);
+                      fprintf(debug, "fdm_out got [%s]\n", tmp);
                       fflush(debug);
                   } else {
-                      if (rc < 0) {
+                      if (rc <= 0) {
                           fprintf(debug, "Read zip (error %d) on read master PTY\n", errno);
+                          fflush(debug);
                           //sleep(2);
-                          closeUpShop();
                           int status;
                           int cpid;
-                          fflush(debug);
                           if(right_pid != 0){
-                              fprintf(debug, "wait for right side?\n");
+                              close(master_stdout);
+                              fprintf(debug, "closed master_stdout, wait for right side? pid %d\n", right_pid);
                               fflush(debug);
                               while((cpid=wait(&status)) != right_pid){
-                                  fprintf(debug, "got cpid of %d, status %d\n", cpid, status);
+                                  fprintf(debug, "wait for right to die, got cpid of %d, status %d\n", cpid, status);
+                                  fflush(debug);
+                                  sleep(1);
                               } 
                               fprintf(debug, "right side finished\n");
                               fflush(debug);
                           }
+                          closeUpShop();
+                          fprintf(debug, "closed  up, now return\n");
+                          fflush(debug);
                           close(0);
                           close(1);
                           return 0;
-                         
-                      }else{
-                          fprintf(debug,"read zero from fdm_out, assume pipe closed, and clean up\n");
-                          closeUpShop();
-                          exit(0);
-                      }
+                      }   
+                      //}else{
+                      //    fprintf(debug,"read zero from fdm_out, assume pipe closed, and clean up\n");
+                      //    closeUpShop();
+                      //    exit(0);
+                      //}
                   }
               }
            }
@@ -543,8 +537,74 @@ void getStdInOutFiles(std::vector<std::string> cmd_args, std::vector<std::string
    *stdoutfile = std::string(precmd_home) + local_result + std::string(prog_base) + time_stamp_out;
    // cout << "stdinfile "+stdinfile+"\n";
 }
+int strpos(char *in_string, char *find, int nth)
+{
+    fprintf(debug,"strpos find %d %s in %s\n", nth, find, in_string);
+    fflush(debug);
+    char *res = in_string;
+    for(int i = 1; i <= nth; i++)
+    {
+        res = strstr(res, find);
+        if (!res)
+            return -1;
+        else if(i != nth)
+            res++;
+    }
+    return res - in_string;
+}
+char *getPipeParts(char *cmd, char **left_side, char **right_side, int count)
+{
+   if(count == 0){
+       return cmd;
+   }
+   /*
+   parse cmd for pipe grouping based on the given count.
+   */
+   int nth_pipe = 1;
+   if(count > 2){
+       nth_pipe = count -1;
+   }
+   int pipe_index = strpos(cmd, "|", nth_pipe);
+   if(pipe_index < 0)
+   {
+       fprintf(debug, "could not find %d pipes in %s\n", count, cmd);
+       exit(1);
+   }
+        
+   fprintf(debug, "getPipeParts cmd: %s pipe_index %d\n", cmd, pipe_index);
+   char *left = strdup(cmd); 
+   left[pipe_index] = 0;
+   char *right = strdup(cmd+pipe_index+1); 
+   right = trim(right);
+   left = trim(left);
+   if(count == 1){
+       cmd = left;
+       *right_side = right;
+       fprintf(debug, "count is 1 cmd: [%s], right [%s]\n", cmd, right);
+   }else{
+       cmd = right;
+       *left_side = left;
+       fprintf(debug, "cmd on right of pipe(s) left: [%s], cmd [%s]\n", *left_side, cmd);
+       char *pipe_str = strstr(cmd, "|");
+       if(pipe_str != NULL){
+           // pipe to the right of the cmd
+           pipe_index = pipe_str - cmd;
+           cmd = strdup(cmd);
+           cmd[pipe_index] = 0;
+           *right_side = cmd+pipe_index+1; 
+           *right_side = trim(*right_side);
+           cmd = trim(cmd);
+           fprintf(debug, "pipe on right side of cmd: [%s], right [%s]\n", cmd, *right_side);
+       }
+   }
+   return cmd;        
+}
+
+
 int main(int argc, char *argv[])
 {
+   int pipe_left_fd[2];
+   int pipe_right_fd[2];
    int rc;
    std::string stdinfile;
    std::string stdoutfile;
@@ -621,50 +681,35 @@ int main(int argc, char *argv[])
            fprintf(debug, "redirect_filename %s\n", redirect_filename);
        } 
    }
+   // get vector of command args.  
+   std::vector<std::string> cmd_args;
+   const char *count_str = all_args[count_index].c_str();
+   // count param from caller identifies cmd position among
+   // pipes (zero means no pipes).
+   int count;
+   rc = str2int(count, all_args[count_index].c_str()); 
+   fprintf(debug, "count is %d\n", count);
 
-   /* cmd should not be free of redirects.  Look for pipes */
+   /* cmd should now be free of redirects.  Look for pipes */
    fprintf(debug, "cmd now %s\n",cmd);
    fflush(debug);
    char *cmd_exec_args = NULL;
    char *right_side = NULL;
-   char *pipe_str = strstr(cmd, "|");
-   if(pipe_str != NULL)
+   char *left_side = NULL;
+   cmd = getPipeParts(cmd, &left_side, &right_side, count);
+   fprintf(debug, "after getPipeParts, cmd is %s\n", cmd);
+   if(left_side != NULL)
    {
-       int pipe_index = pipe_str - cmd;
-       cmd = strdup(cmd);
-       cmd[pipe_index] = 0;
-       right_side = cmd+pipe_index+1; 
-       right_side = trim(right_side);
-       cmd = trim(cmd);
-       fprintf(debug, "right side: [%s], left [%s]\n", right_side, cmd);
+       fprintf(debug, "left is %s\n", left_side);
    }
-   /* cmd is left side of pipe, right_side is right (if any) */
-   std::vector<std::string> cmd_args;
-
-   int count;
-   const char *count_str = all_args[count_index].c_str();
-   rc = str2int(count, all_args[count_index].c_str()); 
-   fprintf(debug, "count is %d\n", count);
-
-   if(count == 2)
-   {
-       /* cmd is on right of pipe.  exec left side wth new pipe as stdout */
-       if(right_side == NULL){
-           fprintf(stderr, "Got pipe count of two, but no pipe %s\n", cmd);
-           return 1;
-       }
-       cmd_args = split(right_side);
-       fprintf(debug, "was right side, cmd_args[0] is [%s]\n", cmd_args[0].c_str());
-       cmd_exec_args = right_side;
-   }else{
-       cmd_args = split(cmd);
-       fprintf(debug, "was left side, cmd_args[0] is [%s]\n", cmd_args[0].c_str());
-       cmd_exec_args = cmd;
-   }
+   fflush(debug);
+   cmd_args = split(cmd);
+   cmd_exec_args = cmd;
 
    getStdInOutFiles(cmd_args, all_args, &stdinfile, &stdoutfile);
-   if(count != 2)
+   if(count < 2)
    {
+      // using a pty.  fdm_in and fdm_out are same
       if(count == 0) {
          use_pty = true;
       }
@@ -678,7 +723,7 @@ int main(int argc, char *argv[])
       fds_out = fds_in;
    }else{
       use_pty = false;
-      // master write stdin to this for slave to consume
+      // master writes stdin to this for slave to consume
       pipe(master_pipe_stdin);
       // master reads stdout from slave
       pipe(master_pipe_stdout);
@@ -690,14 +735,15 @@ int main(int argc, char *argv[])
 
       // slave reads stdin from master
       fds_in = master_pipe_stdin[0]; 
-      // slave write stdout to master
+      // slave writes stdout to master
       fds_out = master_pipe_stdout[1]; 
    }
-   if(count == 2){
-         pipe(pipe_fd);
-         left_pid = forkLeft(pipe_fd, cmd);
-         master_stdin = pipe_fd[0];
-         fprintf(debug, "back from forkLeft, pid is %d  master_stdin is %d\n", left_pid, master_stdin);
+   if(count >= 2){
+         // master stdin will be from pipe_left
+         pipe(pipe_left_fd);
+         left_pid = forkLeft(pipe_left_fd, left_side);
+         master_stdin = pipe_left_fd[0];
+         fprintf(debug, "back from forkLeft, pid is %d  master_stdin read from pipe %d\n", left_pid, master_stdin);
    }
    
    // Create the child process
@@ -708,8 +754,10 @@ int main(int argc, char *argv[])
      if(!use_pty){ 
         // Close the slave side of the PTY or pipe
         if(count != 2){
+           fprintf(debug, "parent close fds_in\n");
            close(fds_in);
         }else{
+           fprintf(debug, "parent close fds_in and fds_out\n");
            close(fds_in);
            close(fds_out);
         }
@@ -726,23 +774,23 @@ int main(int argc, char *argv[])
      write(stdin_fd, newline, 1);
 
      stdout_fd = open(stdoutfile.c_str(), O_RDWR | O_CREAT, 0644);
+
+
      /* redirect stdout if needed */
-     if((count == 0 || count == 2) && (redirect_filename != NULL || append_filename != NULL)){
-        /* no pipe or monitored command is on right of pipe */
+     if((count == 0 || count >= 2) && (redirect_filename != NULL || append_filename != NULL)){
+        /* Redirect or append AND 
+              no pipe or monitored command is on right of pipe */
         the_redirect_fd = handleRedirect(redirect_filename, append_filename);
         if(the_redirect_fd < 0){
             fprintf(stderr, "error from handleRedirect, exit\n");
             return 1;
         }
         master_stdout = the_redirect_fd; 
-     }else if(count == 1){
-        pipe(pipe_fd);
-        right_pid = forkRight(pipe_fd, right_side);     
-        if(strstr(right_side, "less") == right_side)
-        {
-            fprintf(debug, "IS LESS\n");
-        }
-        master_stdout = pipe_fd[1];
+     }
+     if(right_side != NULL){
+        pipe(pipe_right_fd);
+        right_pid = forkRight(pipe_right_fd, right_side);     
+        master_stdout = pipe_right_fd[1];
         fprintf(debug, "Forked right pid is %d, master std out should go to pipe %d\n", right_pid, master_stdout);
      }
      fprintf(debug, "about to loop, master_stdin: %d  master_stdout: %d\n", master_stdin, master_stdout);
@@ -750,7 +798,7 @@ int main(int argc, char *argv[])
    } else {
    
      // CHILD
-     if(count != 2)
+     if(count < 2)
      { 
         // Close the master side of the PTY
         close(fdm_in);
@@ -786,7 +834,7 @@ int main(int argc, char *argv[])
         dup(fds_out); // PTY becomes standard error (2)
      }
   
-     if(count != 2)
+     if(count < 2)
      { 
         // Now the original file descriptor is useless
         close(fds_in);
@@ -806,7 +854,7 @@ int main(int argc, char *argv[])
      */
      char **my_args = getExecCmdArgs(cmd_exec_args);
      //fprintf(debug, "fork command, now exec with [0] %s [1] %s [2] %s\n", my_args[0], my_args[1], my_args[2]);
-     fprintf(debug, "fork command, now exec with [0] %s \n", my_args[0]);
+     fprintf(debug, "fork command, now exec with [0] %s [1] %s \n", my_args[0], my_args[1]);
      fflush(debug);
      rc = execvp(my_args[0], &my_args[0]);
 
