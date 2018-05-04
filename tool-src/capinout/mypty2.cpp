@@ -209,6 +209,8 @@ int forkLeft(int *pipe_fd, char *cmd){
        int retval = fork();
        if (retval == 0){
            std::vector<std::string> left_args = split(cmd);
+           close(fdm_in);
+           close(fdm_out);
            // child map pipe to stdout
            close(1);
            dup2(pipe_fd[1], 1);
@@ -224,6 +226,7 @@ int forkLeft(int *pipe_fd, char *cmd){
            // parent.  master should read stdin from pipe
            close(pipe_fd[1]);
        }
+       fflush(debug);
        return retval;
 }
 int forkRight(int *pipe_fd, char *cmd){
@@ -233,8 +236,11 @@ int forkRight(int *pipe_fd, char *cmd){
        int retval = fork();
        
        if (retval == 0){
-           // child map pipe to stdin
-           //std::vector<std::string> right_args = split(cmd);
+           // child
+           // close master fds
+           close(fdm_in);
+           close(fdm_out);
+           // map pipe to stdin
            close(STDIN_FILENO);
            dup2(pipe_fd[0], STDIN_FILENO);
            close(pipe_fd[0]);
@@ -251,6 +257,7 @@ int forkRight(int *pipe_fd, char *cmd){
            // close unused read side
            close(pipe_fd[0]);
        }
+       fflush(debug);
        return retval;
 }
 int handleRedirect(char *redirect_filename, char *append_filename){
@@ -353,7 +360,9 @@ int ioLoop()
                   fflush(debug);
               }
               cmd_pid = 0;
-              waitRightDie();
+              if(right_pid != 0){
+                 waitRightDie();
+              }
               closeUpShop();
               fprintf(debug, "closed  up, now return\n");
               fflush(debug);
