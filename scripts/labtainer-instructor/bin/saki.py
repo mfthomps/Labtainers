@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import os
 import sys
+import time
 import zipfile
 import shutil
 instructor_cwd = os.getcwd()
@@ -10,13 +11,22 @@ sys.path.append(student_cwd+"/bin")
 import ParseLabtainerConfig
 import labutils
 import LabtainerLogging
-
+'''
+Extract individual zip files from a saki bulk download
+'''
 
 def extract(zip_fname, xfer, expect_lab):
+    results_dir = os.path.join(xfer, expect_lab, 'reports')
+    try:
+        os.makedirs(results_dir)
+    except OSError:
+        pass
     count = 0
     unexpected = 0
     with zipfile.ZipFile(zip_fname) as zip_file:
-        for member in zip_file.namelist():
+        for member_info in zip_file.infolist():
+            member = member_info.filename
+            date_time = time.mktime(member_info.date_time + (0, 0, -1))
             filename = os.path.basename(member)
             if filename.endswith('.zip'):
                 parts = filename.split('.')
@@ -35,6 +45,25 @@ def extract(zip_fname, xfer, expect_lab):
                 target = file(os.path.join(lab_xfer, filename), "wb")
                 with source, target:
                     shutil.copyfileobj(source, target)
+            else:
+                fname, ext = os.path.splitext(filename)
+                if (ext == '.docx' or ext == '.odg'): 
+                    source = zip_file.open(member)
+                    parts = member.split('/')
+                    student = parts[1]
+                
+                    target_dir = os.path.join(results_dir, student)
+                    print('target_dir is %s' % target_dir)
+                    try:
+                        os.makedirs(target_dir)
+                    except OSError:
+                        pass
+                    #zip_file.extract(member, target_dir)
+                    target = file(os.path.join(target_dir, filename), "wb")
+      
+                    print('copied %s to %s' % (source, target))
+                    shutil.copyfileobj(source, target)
+                    os.utime(os.path.join(target_dir, filename), (date_time, date_time))
     if count > 0:
         print('Extracted %d student zip files' % count)
     if unexpected > 0:
