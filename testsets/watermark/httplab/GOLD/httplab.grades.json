@@ -8,8 +8,11 @@
         "expectedwatermark": "c26ec506f0f2f0d61f201fe0acf537dd", 
         "grades": {
             "get_index_ok": true, 
+            "get_link1_ok": true, 
             "get_link2_ok": true, 
-            "get_link1_ok": true
+            "getindexhtml": true, 
+            "getlink1html": true, 
+            "getlink2html": true
         }, 
         "firstlevelzip": {}, 
         "secondlevelzip": {}
