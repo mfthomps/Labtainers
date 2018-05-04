@@ -89,7 +89,7 @@ def main():
             # 4. Compare 'grades.txt.GOLD' vs. 'grades.txt'
 	    dir_path = os.path.dirname(os.path.realpath(__file__))
 	    dir_path = dir_path[:dir_path.index("trunk")] 
-	    dir_path += "testsets/watermark/" + labname
+	    dir_path += "trunk/testsets/watermark/" + labname
             if not os.path.isdir(dir_path):
                 labutils.logger.INFO("no tests found for "+labname)
                 continue
