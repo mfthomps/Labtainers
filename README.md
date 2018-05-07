@@ -93,6 +93,7 @@ the results, but include note in the table reflecting *cheating*.  Require to re
 cases where student enters garbage for an email address.
 - Change telnetlab grading to not look at tcpdump output for passwords -- capinout fix
 leads to correct character-at-a-time transmission to server.
+- Fix typo in install-docker.sh and use sudo to alter docker dns setting in that script.
 
 April 26, 2018
 - Transition to use of "labtainer" to start lab, and "stoplab" to stop it.
