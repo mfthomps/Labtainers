@@ -48,8 +48,10 @@ On the server, start tcpdump to display TCP network traffic with this command:
     sudo tcpdump -i eth0 -X tcp
 
 On the client, start a telnet session, but when prompted for the password, 
-type "mydoghasfleas".  Observe that string in the tcpdump
-of traffic.
+type "mydoghasfleas".  As you type each letter of the password, observe
+the tcpdump of the traffic.  Keeping in mind that evey other packet is an "ack",
+do you see the password characters in the network traffic, at the end of
+each data packet?
 
 3.4 Use ssh to protect communications with the server
 Use the ssh command to access the server using its IP address:
