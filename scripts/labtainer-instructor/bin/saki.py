@@ -4,6 +4,7 @@ import sys
 import time
 import zipfile
 import shutil
+import glob
 from io import BytesIO
 instructor_cwd = os.getcwd()
 student_cwd = instructor_cwd.replace('labtainer-instructor', 'labtainer-student')
@@ -12,11 +13,70 @@ sys.path.append(student_cwd+"/bin")
 import ParseLabtainerConfig
 import labutils
 import LabtainerLogging
+''' Report on students submission of reports '''
+def reportSum(zip_fname, xfer, expect_lab): 
+    lab_xfer = os.path.join(xfer, expect_lab)
+    reports_dir = os.path.join(lab_xfer, 'reports')
+    sum_report = os.path.join(lab_xfer, 'missing_submits.txt')
+    sum_fh = open(sum_report, 'w')
+    ziplist = glob.glob(lab_xfer+'/*.zip')
+    labs_dir = os.path.abspath('../../labs')
+    lab_doc_dir = os.path.join(labs_dir, expect_lab, 'docs')
+    orig_doc = glob.glob(lab_doc_dir+'/*emplate*docx')
+    orig_size = None
+    if len(orig_doc) > 0:
+        orig_size = os.path.getsize(orig_doc[0])
+   
+    ''' get student list '''
+    student_list = []
+    with zipfile.ZipFile(zip_fname) as zip_file:
+        for member_info in zip_file.infolist():
+            member = member_info.filename
+            parts = member.split('/')
+            student = parts[1].strip()
+            if student not in student_list:
+                student_list.append(student)
+    sum_fh.write('%-50s %-10s %-10s\n' % ('STUDENT', 'ZIP',  'REPORT'))
+    sum_fh.write('%-50s %-10s %-10s\n' % ('=======', '===',  '======'))
+    for student in student_list:
+        gotreport = False
+        email_pref = student[student.find("(")+1:student.find(")")]
+        sdir = os.path.join(reports_dir, student)
+        try:
+            os.makedirs(sdir)
+        except OSError:
+            pass
+        if os.path.isdir(sdir):
+            rfiles = os.listdir(sdir)
+            for report in rfiles:
+                rpath = os.path.join(sdir, report)
+                rsize = os.path.getsize(rpath)
+                if orig_size is None or rsize != orig_size:
+                    gotreport = True
+        else:
+            print("NO RESULTS FOR %s" % student)
+
+        gotzip = False
+        for zfile in ziplist:
+            bname = os.path.basename(zfile)
+            #print('does %s start with %s?' % (bname, email_pref))
+            if bname.startswith(email_pref):
+                gotzip = True
+        zip_line = ' '
+        if not gotzip:
+            zip_line = 'MISSING'       
+        rep_line = ' '
+        if not gotreport:
+            rep_line = 'MISSING' 
+        sum_fh.write('%-50s %-10s %-10s\n' % (student.strip(), zip_line, rep_line))
+    sum_fh.close()
+
 '''
 Extract individual zip files from a saki bulk download
 '''
 
 def extract(zip_fname, xfer, expect_lab):
+    ''' zip_fname is assumed a saki bulk zip file  of all student attachments for this assignment'''
     results_dir = os.path.join(xfer, expect_lab, 'reports')
     try:
         os.makedirs(results_dir)
@@ -27,6 +87,9 @@ def extract(zip_fname, xfer, expect_lab):
     with zipfile.ZipFile(zip_fname) as zip_file:
         for member_info in zip_file.infolist():
             member = member_info.filename
+            parts = member.split('/')
+            student = parts[1]
+            #print('STUDENT %s fname %s' % (student, member))
             date_time = time.mktime(member_info.date_time + (0, 0, -1))
             filename = os.path.basename(member)
             if filename.endswith('.zip'):
@@ -48,8 +111,6 @@ def extract(zip_fname, xfer, expect_lab):
                     shutil.copyfileobj(source, target)
 
                 # copy reports
-                parts = member.split('/')
-                student = parts[1]
                 target_dir = os.path.join(results_dir, student)
                 zip_file_data = BytesIO(zip_file.read(member))
                 with zipfile.ZipFile(zip_file_data) as zip_zips:
@@ -60,19 +121,23 @@ def extract(zip_fname, xfer, expect_lab):
                                for zdoc_info in zip_docs.infolist():
                                    zdoc = zdoc_info.filename     
                                    doc_date_time = time.mktime(zdoc_info.date_time + (0, 0, -1))
-                                   print('look for report in %s' % zdoc)
+                                   #print('look for report in %s' % zdoc)
                                    fname, ext = os.path.splitext(zdoc)
-                                   if (ext == '.docx' or ext == '.odg') and (fname+'.pdf' not in zip_docs.namelist()):
+                                   if (ext == '.docx' or ext == '.odt') and (fname+'.pdf' not in zip_docs.namelist()):
                                        if not os.path.isfile(os.path.join(target_dir, zdoc)):
-                                           zip_docs.extract(zdoc, target_dir)
-                                           print('extracted report %s to %s' % (zdoc, target_dir))
+                                           source = zip_docs.open(zdoc)
+                                           target = file(os.path.join(target_dir, os.path.basename(zdoc)), "wb")
+                                           #zip_docs.extract(zdoc, target_dir)
+                                           shutil.copyfileobj(source, target)
+                                           #print('copied report %s to %s' % (zdoc, target_dir))
                                            os.utime(os.path.join(target_dir, zdoc), (doc_date_time, doc_date_time))
                                        else:
                                            print('found doc at %s, do not overwrite' % os.path.join(target_dir, zdoc))
 
             else:
                 fname, ext = os.path.splitext(filename)
-                if (ext == '.docx' or ext == '.odg'): 
+                #print('fname is %s' % fname)
+                if (ext == '.docx' or ext == '.odt'): 
                     source = zip_file.open(member)
                     parts = member.split('/')
                     student = parts[1]
@@ -92,7 +157,8 @@ def extract(zip_fname, xfer, expect_lab):
         print('Extracted %d student zip files' % count)
     if unexpected > 0:
         print('Extracted %d for other labs' % unexpected)
-    
+    reportSum(zip_fname, xfer, expect_lab)
+   
                
 
 def checkBulkSaki(bulk_path = None, lab = None):
