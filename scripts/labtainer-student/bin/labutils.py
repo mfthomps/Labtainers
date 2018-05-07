@@ -1341,7 +1341,7 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, che
             else:
                 with open(fglob[0]) as fh:
                     for line in fh:
-                        print line
+                        print line.rstrip()
             
       
         return 0  
