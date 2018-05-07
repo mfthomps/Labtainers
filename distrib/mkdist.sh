@@ -41,6 +41,7 @@ sed -i "s/^Revision:/Revision: $revision/" README.md
 svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/config
 svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/setup_scripts
 svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/docs
+svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/tool-src
 mkdir scripts
 cd scripts
 svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/scripts/labtainer-student
@@ -92,6 +93,9 @@ cd $ldir/trunk/docs/instructor
 make
 cp labtainer-instructor.pdf ../../../
 cp labtainer-instructor.pdf $myshare
+
+cd $ldir/trunk/tool-src/capinout
+./mkit.sh
 cd $ddir
 tar -cz -X $here/skip-labs -f $here/labtainer.tar labtainer
 cd $here
