@@ -24,6 +24,7 @@ import traceback
 import CheckTars
 import BigFiles
 import calendar
+import string
 try:
     from dateutil.parser import parse
 except:
@@ -1108,16 +1109,23 @@ def GetUserEmail(quiet_start):
         if quiet_start and prev_email is not None:
             user_email = prev_email
         else:
-            user_email = raw_input(eprompt)
-
-        #user_email = raw_input(eprompt)
-        if len(user_email.strip()) == 0:
-            if prev_email is None:
-                done = False
+            user_input = raw_input(eprompt)
+            if not all(c in string.printable for c in user_input):
+                print('Bad characters detected.  Please re-enter email')
             else:
-                user_email = prev_email
-        else:
-            putLastEmail(user_email)
+                user_email = user_input 
+        if user_email is not None:
+            #user_email = raw_input(eprompt)
+            if len(user_email.strip()) == 0:
+                if prev_email is None:
+                    print('You have provided an empty email address, which may cause your results to not be graded.')
+                    confirm = str(raw_input('Use the empty address? (y/n)')).lower().strip()
+                    if confirm != 'y':
+                        user_email = None
+                else:
+                    user_email = prev_email
+            else:
+                putLastEmail(user_email)
     return user_email
 
 def CheckLabContainerApps(start_config, lab_path, apps2start):
