@@ -17,8 +17,8 @@ class SmokeTest():
         labtainer_config_path = os.path.abspath('../../config/labtainer.config')
         self.labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_path, None)
         self.simlab = None
-        self.outfile = open('/tmp/smoke.out', 'w')
-        logfilename = '/tmp/smokex.log'
+        self.outfile = open('./smoke.out', 'w')
+        logfilename = './smokex.log'
         logname = "smoketest"
 
         file_log_level = self.labtainer_config.file_log_level
