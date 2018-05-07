@@ -330,6 +330,7 @@ void waitRightDie()
    fprintf(debug, "right side finished\n");
    fflush(debug);
 }
+
 int ioLoop()
 {
      char input[150];
@@ -340,7 +341,8 @@ int ioLoop()
      struct termios attr; 
      struct timespec tv;
      tv.tv_sec = 0;
-     tv.tv_nsec = 500000000000;
+     tv.tv_nsec = 3000000;
+     //tv.tv_nsec = 0;
      while (1)
      {
        int stat;
