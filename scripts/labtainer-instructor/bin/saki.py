@@ -57,9 +57,9 @@ def reportSum(zip_fname, xfer, expect_lab):
             print("NO RESULTS FOR %s" % student)
 
         gotzip = False
+        #print('email %s' % email_pref)
         for zfile in ziplist:
             bname = os.path.basename(zfile)
-            #print('does %s start with %s?' % (bname, email_pref))
             if bname.startswith(email_pref):
                 gotzip = True
         zip_line = ' '
@@ -106,6 +106,10 @@ def extract(zip_fname, xfer, expect_lab):
 
                 # copy file (taken from zipfile's extract) into xfer for lab
                 source = zip_file.open(member)
+                #print("filename <%s>  lab_xfer is %s" % (filename, lab_xfer))
+                if not os.path.isdir(lab_xfer):
+                    print('ERROR ******: no such xfer directory. student: %s, file %s' % (student, member))
+                    continue 
                 target = file(os.path.join(lab_xfer, filename), "wb")
                 with source, target:
                     shutil.copyfileobj(source, target)
@@ -126,11 +130,12 @@ def extract(zip_fname, xfer, expect_lab):
                                    if (ext == '.docx' or ext == '.odt') and (fname+'.pdf' not in zip_docs.namelist()):
                                        if not os.path.isfile(os.path.join(target_dir, zdoc)):
                                            source = zip_docs.open(zdoc)
-                                           target = file(os.path.join(target_dir, os.path.basename(zdoc)), "wb")
-                                           #zip_docs.extract(zdoc, target_dir)
-                                           shutil.copyfileobj(source, target)
-                                           #print('copied report %s to %s' % (zdoc, target_dir))
-                                           os.utime(os.path.join(target_dir, zdoc), (doc_date_time, doc_date_time))
+                                           if os.path.isdir(target_dir):
+                                               target = file(os.path.join(target_dir, os.path.basename(zdoc)), "wb")
+                                               #zip_docs.extract(zdoc, target_dir)
+                                               shutil.copyfileobj(source, target)
+                                               #print('copied report %s to %s' % (zdoc, target_dir))
+                                               os.utime(os.path.join(target_dir, zdoc), (doc_date_time, doc_date_time))
                                        else:
                                            print('found doc at %s, do not overwrite' % os.path.join(target_dir, zdoc))
 
@@ -168,7 +173,7 @@ def checkBulkSaki(bulk_path = None, lab = None):
     home = os.getenv('HOME')
     xfer = os.path.join(home, labtainer_config.host_home_xfer)
     if bulk_path is None:
-        bulk_path = os.path.join(xfer, 'bulk_download.zip') 
+        bulk_path = os.path.join(xfer, lab, 'bulk_download.zip') 
         if os.path.isfile(bulk_path):
             extract(bulk_path, xfer, lab)
         else:
