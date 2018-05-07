@@ -33,9 +33,10 @@ covered in the \textit {Labtainers Lab Designer User Guide}.
 
 \section{Getting Labtainers from Subversion}
 svn co https://tor.ern.nps.edu/svn/proj/labtainer
-Change directory to trunk/setup-scripts and run ./build-docs.sh to build the PDF lab
+Change directory to trunk/setup-scripts and run ./after-checkout.sh. The will build the PDF lab
 manuals so that you can reference the manuals while you test or otherwise reference
 existing labs.  (Please follow the lab manual and report discrepancies!)
+It will also create any executables required by the framework.
 Then run ./pull-all.sh to pull all the baseline images (so that your running of 
 existing labs is more akin to what students and instructors do so we can better test that).
 
