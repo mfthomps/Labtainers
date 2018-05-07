@@ -1,10 +1,9 @@
 Labname telnetlab
 
-Student              |      telnetview |         sshview |   tcpdump_plain |    failed_login |
-==================== | =============== | =============== | =============== | =============== |
-testing_at_testing.c |                 |                 |               Y |               Y |
+Student              |      telnetview |         sshview |     failed_login |
+==================== | =============== | =============== | ===============  |
+testing_at_testing.c |                 |                 |               Y  |
 What is automatically assessed for this lab:
-	tcpdump_plain: viewed plain text password via tcpdump
 	failed_login: Failed login as expected.
 	telnetview: viewed file from telnet
 	sshview: viewed file from ssh
