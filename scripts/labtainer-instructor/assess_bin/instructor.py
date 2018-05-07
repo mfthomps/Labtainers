@@ -29,6 +29,7 @@ import GoalsParser
 import ResultParser
 import UniqueCheck
 import InstructorLogging
+import string
 
 MYHOME=os.getenv('HOME')
 logger = InstructorLogging.InstructorLogging("/tmp/instructor.log")
@@ -151,11 +152,13 @@ def Check_SecondLevel_EmailWatermark_OK(gradesjson, email_labname, student_id, z
     with open(TempEmailFile) as fh:
         student_id_from_file = fh.read().strip().replace("@","_at_")
 
-    # Student ID obtained from ZipFileName must match the one from E-mail file
+    # Student ID obtained from zip_file_name must match the one from E-mail file
+    if not all(c in string.printable for c in student_id_from_file): 
+        student_id_from_file = 'not_printable'
     if student_id != student_id_from_file:
-        #print "mismatch student_id is (%s) student_id_from_file is (%s)" % (student_id, student_id_from_file)
+        print "mismatch student_id is (%s) student_id_from_file is (%s)" % (student_id, student_id_from_file)
         store_student_secondlevelzip(gradesjson, email_labname, student_id_from_file)
-        check_result = False
+        #check_result = False
 
     if os.path.exists(TempWatermarkFile):
         with open(TempWatermarkFile) as fh:
@@ -247,10 +250,12 @@ def main():
     zip_files = glob.glob(MYHOME+'/*.zip')
     first_level_zip = []
     for zfile in zip_files:
-        ZipFileName = os.path.basename(zfile)
-        orig_email_labname, orig_zipext = ZipFileName.rsplit('.', 1)
-        first_level_zip.append(ZipFileName)
-        OutputName = os.path.join(MYHOME, ZipFileName)
+        zip_file_name = os.path.basename(zfile)
+        if zip_file_name.startswith('bulk_download'):
+            continue
+        orig_email_labname, orig_zipext = zip_file_name.rsplit('.', 1)
+        first_level_zip.append(zip_file_name)
+        OutputName = os.path.join(MYHOME, zip_file_name)
         zipoutput = zipfile.ZipFile(OutputName, "r")
         ''' retain dates of student files '''
         for zi in zipoutput.infolist():
@@ -262,6 +267,7 @@ def main():
             if orig_email_labname != second_email_labname:
                 store_student_firstlevelzip(gradesjson, orig_email_labname, second_email_labname)
                 # DO NOT process that student's zip file any further, i.e., DO NOT extract
+                print('DO NOT process that students zip file any further, i.e., DO NOT extract')
                 continue
             zipoutput.extract(zi, TMPDIR)
             date_time = time.mktime(zi.date_time + (0, 0, -1))
@@ -274,12 +280,12 @@ def main():
     ''' Second level unzip '''
     zip_files = glob.glob(TMPDIR+'/*.zip')
     for zfile in zip_files:
-        ZipFileName = os.path.basename(zfile)
+        zip_file_name = os.path.basename(zfile)
         # Skip first level zip files
-        if ZipFileName in first_level_zip:
+        if zip_file_name in first_level_zip:
             continue
-        #print('zipfile is %s' % ZipFileName)
-        DestinationDirName = os.path.splitext(ZipFileName)[0]
+        #print('zipfile is %s' % zip_file_name)
+        DestinationDirName = os.path.splitext(zip_file_name)[0]
         if '=' in DestinationDirName:
             # NOTE: New format has DestinationDirName as:
             #       e-mail+labname '=' containername
@@ -295,7 +301,7 @@ def main():
         student_id = email_labname.rsplit('.', 1)[0]
         #print "student_id is %s" % student_id
         logger.DEBUG("student_id is %s" % student_id)
-        OutputName = '%s/%s' % (TMPDIR, ZipFileName)
+        OutputName = '%s/%s' % (TMPDIR, zip_file_name)
         LabDirName = os.path.join(MYHOME, email_labname)
         DestDirName = os.path.join(MYHOME, DestinationDirName)
         InstDirName = os.path.join(InstructorBaseDir, DestinationDirName)
