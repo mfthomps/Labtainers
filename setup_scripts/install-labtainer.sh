@@ -61,10 +61,10 @@ case "$distrib" in
 esac
 if [[ "$RESULT" -eq 0 ]]; then
     /usr/bin/newgrp docker <<EONG
-    /usr/bin/newgrp $USER <<EONG
+    /usr/bin/newgrp $USER 
     source ./pull-all.sh
 EONG
-    ./dns-add.py
+    sudo ./dns-add.py
     ./getinfo.py
     sudo reboot
 else
