@@ -172,7 +172,7 @@ forcecheck(){
     return 0
 }
 #
-# Invoke the command in $1 using the capinout.sh script, 
+# Invoke the command in $1 using capinout,
 # but only if it is not a system command.  Checks the
 # ~/.local/bin/treataslocal for exceptions.
 # If the command includes a pipe, look at both sides of the pipe.
@@ -201,7 +201,9 @@ preexec() {
        # track whether target is left or right of pipe
        # TBD test for only one pipe
        # 
-       counter=$[$counter +1]
+       if [[ $1 == *"|"* ]]; then
+           counter=$[$counter +1]
+       fi
        cmd_line_array=($command)
        if [ ${cmd_line_array[0]} == "sudo" ]; then
           cmd_path=`which ${cmd_line_array[1]} 2>/dev/null`
@@ -234,7 +236,19 @@ preexec() {
        result=$?
        if [ $result == 1 ]; then
            #echo "will treat as local"
-           /sbin/capinout.sh "$1" $counter $timestamp $cmd_path
+           # If file $PRECMD_HOME/.local/bin/precheck.sh exist, run it
+           if [ -f $PRECMD_HOME/.local/bin/precheck.sh ]
+           then
+               precheckoutfile="$PRECMD_HOME/.local/result/precheck.stdout.$timestamp"
+               precheckinfile="$PRECMD_HOME/.local/result/precheck.stdin.$timestamp"
+               $PRECMD_HOME/.local/bin/precheck.sh $cmd_path > $precheckoutfile 2>/dev/null
+               if [[ ! -s $precheckoutfile ]]; then
+                   rm -f $precheckoutfile
+               fi
+               # For now, there is nothing (i.e., no stdin) for precheck
+               #echo "" >> $precheckinfile
+           fi
+           /sbin/capinout "$1" $counter $timestamp $cmd_path
            if [[ ! -z "$local_output" ]]; then
                # we are to timestamp a program output file 
                #echo "local output is $local_output"
@@ -253,7 +267,19 @@ preexec() {
           [[ "$cmd_path" != /bin/* ]] && [[ "$cmd_path" != /sbin/* ]] && \
           [[ "$cmd_path" != /etc/* ]]; then
            #echo "would do this command $1"
-           /sbin/capinout.sh "$1" $counter $timestamp $cmd_path
+           # If file $PRECMD_HOME/.local/bin/precheck.sh exist, run it
+           if [ -f $PRECMD_HOME/.local/bin/precheck.sh ]
+           then
+               precheckoutfile="$PRECMD_HOME/.local/result/precheck.stdout.$timestamp"
+               precheckinfile="$PRECMD_HOME/.local/result/precheck.stdin.$timestamp"
+               $PRECMD_HOME/.local/bin/precheck.sh $cmd_path > $precheckoutfile 2>/dev/null
+               if [[ ! -s $precheckoutfile ]]; then
+                   rm -f $precheckoutfile
+               fi
+               # For now, there is nothing (i.e., no stdin) for precheck
+               #echo "" >> $precheckinfile
+           fi
+           /sbin/capinout "$1" $counter $timestamp $cmd_path
            return 1
        fi
    done
