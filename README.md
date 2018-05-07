@@ -81,6 +81,19 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+May 7, 2018
+- Use C-based capinout program instead of the old capinout.sh to capture stdin and
+stdout. See trunk/src-tool/capinout.  Removes limitations associated with use ctrl-C 
+to break monitored programs and the display of passwords in telnet and ssh.
+- Include support for saki bulk\_download zip processing to extract seperatly submitted
+reports, and summarizes missing submits.
+- Add checks to user-provided email to ensure they are printable characters.
+- While grading, if user-supplied email does not match zip file name, proceed to grade
+the results, but include note in the table reflecting *cheating*.  Require to recover from
+cases where student enters garbage for an email address.
+- Change telnetlab grading to not look at tcpdump output for passwords -- capinout fix
+leads to correct character-at-a-time transmission to server.
+
 April 26, 2018
 - Transition to use of "labtainer" to start lab, and "stoplab" to stop it.
 - Add --version option to labtainer command.
