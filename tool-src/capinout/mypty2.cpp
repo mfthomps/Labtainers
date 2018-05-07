@@ -339,8 +339,8 @@ int ioLoop()
      char eot = 0x04;
      struct termios attr; 
      struct timespec tv;
-     tv.tv_sec = 4;
-     tv.tv_nsec = 0;
+     tv.tv_sec = 0;
+     tv.tv_nsec = 500000000000;
      while (1)
      {
        int stat;
@@ -405,13 +405,13 @@ int ioLoop()
        fflush(debug);
        FD_SET(fdm_out, &fd_in);
        int max_fd = max(fdm_out, master_stdin);
-       fprintf(debug, "now select\n");
+       //fprintf(debug, "now select\n");
        fflush(debug);
        int select_errno = 0;
        //rc = select(max_fd + 1, &fd_in, NULL, NULL, &tv);
        rc = pselect(max_fd + 1, &fd_in, NULL, NULL, &tv, &oldset);
        if(rc != 0){ 
-          fprintf(debug, "select returns %d errno %d\n", rc, errno);
+          //fprintf(debug, "select returns %d errno %d\n", rc, errno);
           fflush(debug);
           select_errno = errno;
        }
@@ -433,10 +433,10 @@ int ioLoop()
            // If data on standard input
           if (master_stdin >= 0 && FD_ISSET(master_stdin, &fd_in)) {
               rc = read(master_stdin, input, sizeof(input));
-              fprintf(debug, "read master_stdin rc is %d\n", rc);
+              //fprintf(debug, "read master_stdin rc is %d\n", rc);
               if (rc > 0) {
                 // Send data on the master side of PTY
-                input[rc] = 0;
+                //input[rc] = 0;
                 fprintf(debug, "read master_stdin [%s]\n", input);
                 int wc = write(fdm_in, input, rc);
                 if(wc != rc){
@@ -466,7 +466,7 @@ int ioLoop()
           {
               fflush(debug);
               rc = read(fdm_out, input, sizeof(input));
-              fprintf(debug, "read fdm_out rc is %d\n", rc);
+              //fprintf(debug, "read fdm_out rc is %d\n", rc);
               fflush(debug);
               if (rc > 0)
               {
@@ -484,7 +484,7 @@ int ioLoop()
                       fflush(debug);
                   }
                   write(stdout_fd, tmp, rc);
-                  fprintf(debug, "fdm_out got [%s]\n", tmp);
+                  //fprintf(debug, "fdm_out got [%s]\n", tmp);
                   fflush(debug);
               } else {
                   if (rc <= 0) {
