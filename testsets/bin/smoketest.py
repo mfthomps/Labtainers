@@ -73,7 +73,7 @@ class SmokeTest():
         if retval and self.simlab.hasSim():
             here = os.getcwd() 
             os.chdir('../labtainer-instructor')
-            cmd = 'gradelab %s' % lab
+            cmd = 'gradelab %s -r' % lab
             result = subprocess.call(cmd, shell=True, stderr=self.outfile, stdout=self.outfile)
             if result == FAILURE:
                 retval = False
