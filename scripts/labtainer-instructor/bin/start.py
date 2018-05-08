@@ -84,7 +84,7 @@ def main():
     if not args.redo:
         labutils.StartLab(lab_path, "instructor", auto_grade=auto_grade, debug_grade=args.debug_grade, quiet_start=args.quiet)
     else:
-        labutils.RedoLab(lab_path, "instructor", force_build=force_build, auto_grade=auto_grade, debug_grade=args.debug_grade, quiet_start=args.quiet)
+        labutils.RedoLab(lab_path, "instructor", force_build=False, auto_grade=auto_grade, debug_grade=args.debug_grade, quiet_start=args.quiet)
 
     return 0
 if __name__ == '__main__':
