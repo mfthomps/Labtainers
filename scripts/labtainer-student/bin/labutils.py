@@ -1231,7 +1231,17 @@ def ContainerTerminals(lab_path, start_config, container, role, terminal_count, 
                     #print spawn_command
                     os.system(spawn_command)
                     # race condition, gnome may beat xterm to the startup.sh script
-                    time.sleep(1)
+                    if command == 'startup.sh':
+                        done = False
+                        while not done:
+                            cmd = 'docker exec -it %s ls -l /tmp/.mylockdir' % mycontainer_name
+                            ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+                            output = ps.communicate()
+                            if 'No such file or directory' not in output[0]:
+                                done = True
+                            else:
+                                time.sleep(0.2)
+                    
         # If the number of terminal is -1 or zero -- do not spawn
         if not (num_terminal == 0 or num_terminal == -1):
             for x in range(num_terminal):
