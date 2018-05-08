@@ -18,6 +18,7 @@ a simthis.txt file
 '''
 def isProcRunning(proc_string):
     ''' return True if given string in ps -ao args '''
+    time.sleep(0.5)
     cmd = 'ps -ao args'
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output = ps.communicate()
@@ -115,6 +116,8 @@ class SimLab():
         full = os.path.join(self.sim_path, fname)
         with open(full) as fh:
             for line in fh:
+                if line.strip().startswith('#'):
+                    continue
                 if len(line.strip()) > 0:
                     self.typeLine(line.strip())
                     time.sleep(1.1)
