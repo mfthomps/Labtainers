@@ -516,7 +516,7 @@ def getLastEmail():
     if os.path.isfile(EMAIL_TMP):
         with open(EMAIL_TMP) as fh:
             retval = fh.read()
-    return retval
+    return retval.strip()
 
 def putLastEmail(email):
     try:
