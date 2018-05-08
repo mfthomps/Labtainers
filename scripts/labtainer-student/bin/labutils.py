@@ -2426,7 +2426,7 @@ def DoStopOne(start_config, labtainer_config, lab_path, role, name, container, Z
         # error: can't stop non-existent container
         if not haveContainer:
             if ShouldBeRunning(start_config, container):
-                if ignore_stop_error:
+                if ignore_stop_error or role == 'instructor':
                     logger.DEBUG("Container %s does not exist!\n" % mycontainer_name)
                 else:
                     logger.ERROR("Container %s does not exist!\n" % mycontainer_name)
