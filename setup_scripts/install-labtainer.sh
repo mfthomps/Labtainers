@@ -36,7 +36,7 @@ case "$distrib" in
         ./install-docker-ubuntu.sh
         RESULT=$?
         ;;
-    Debian)
+    Debian|\"Debian*)
         echo is debian
         ./install-docker-debian.sh
         RESULT=$?
