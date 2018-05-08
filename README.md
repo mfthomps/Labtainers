@@ -82,6 +82,13 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+May 8, 2018
+- Handle race condition to prevent gnome-terminal from executing its docker command
+before an xterm instruction terminal runs its command.  
+- Don't display errors when instuctor stops a lab started with "-d".
+- Change grading of nmap-ssh to better reflect intent of the lab.
+- Several document and script fixes suggested by olberger on github.
+
 May 7, 2018
 - Use C-based capinout program instead of the old capinout.sh to capture stdin and
 stdout. See trunk/src-tool/capinout.  Removes limitations associated with use ctrl-C 
