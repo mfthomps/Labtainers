@@ -25,6 +25,7 @@ import CheckTars
 import BigFiles
 import calendar
 import string
+import errno
 try:
     from dateutil.parser import parse
 except:
@@ -1187,6 +1188,28 @@ def CheckEmailReloadStartConfig(start_config, quiet_start, is_regress_test, lab_
     start_config = ReloadStartConfig(lab_path, labtainer_config, start_config, student_email, role, logger, servers, clone_count)
     return start_config, student_email
 
+def pidExists(pid):
+    """Check whether pid exists in the current process table.
+    UNIX only.
+    """
+    if pid <= 0:
+        return False
+    try:
+        os.kill(pid, 0)
+    except OSError as err:
+        if err.errno == errno.ESRCH:
+            # ESRCH == No such process
+            return False
+        elif err.errno == errno.EPERM:
+            # EPERM clearly means there's a process to deny access to
+            return True
+        else:
+            # According to "man 2 kill" possible error values are
+            # (EINVAL, EPERM, ESRCH)
+            raise
+    else:
+        return True
+
 def ContainerTerminals(lab_path, start_config, container, role, terminal_count, terminal_groups):
     num_terminal = int(container.terminals)
     clone_names = GetContainerCloneNames(container)
@@ -1229,11 +1252,13 @@ def ContainerTerminals(lab_path, start_config, container, role, terminal_count, 
                          title, mycontainer_name, cmd)
                     logger.DEBUG("xterm spawn: %s" % spawn_command)
                     #print spawn_command
-                    os.system(spawn_command)
+                    #os.system(spawn_command)
+                    xterm_pid = subprocess.Popen(spawn_command, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE, close_fds=True).pid
+
                     # race condition, gnome may beat xterm to the startup.sh script
                     if command == 'startup.sh':
                         done = False
-                        while not done:
+                        while pidExists(xterm_pid) and not done:
                             cmd = 'docker exec -it %s ls -l /tmp/.mylockdir' % mycontainer_name
                             ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
                             output = ps.communicate()
