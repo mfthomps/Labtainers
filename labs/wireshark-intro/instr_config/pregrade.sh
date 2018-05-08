@@ -26,4 +26,4 @@ cd $homedir/$destdir
 # Note: the invalid password for user john is entered/captured on frame 204
 #       telnet.data shows 'john-password'
 # Extract using editcap frame 204 from telnet.pcap and store as frame204.pcap
-editcap -F pcap telnet.pcap frame204.pcap 1-203 205-
+editcap -F pcap -r telnet.pcap frame204.pcap 204
