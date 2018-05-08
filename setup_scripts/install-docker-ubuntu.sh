@@ -12,6 +12,8 @@ END
 # Install Docker on an Ubuntu system, along with other packages required by Labtainers
 #
 
+type sudo >/dev/null 2>&1 || { echo >&2 "Please install sudo.  Aborting."; exit 1; }
+sudo -v || { echo >&2 "Please make sure user is sudoer.  Aborting."; exit 1; }
 #---needed packages for install
 sudo apt-get update
 # gdf ubuntu
