@@ -16,8 +16,8 @@ if [[ result -ne 0 ]];then
 EOT
 fi
 
-ln -s trunk/scripts/labtainer-student
-ln -s trunk/scripts/labtainer-instructor
+if [ ! -h labtainer-student ]; then ln -s trunk/scripts/labtainer-student; fi
+if [ ! -h labtainer-instructor ]; then ln -s trunk/scripts/labtainer-instructor; fi
 cd trunk/setup_scripts
 found_distrib=`cat /etc/*-release | grep "^DISTRIB_ID" | awk -F "=" '{print $2}'`
 if [[ -z "$1" ]]; then
