@@ -161,6 +161,8 @@ def PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, che
                             curline = curline + goalprintformat % ''
                     elif type(goalresult) is int:
                         curline = curline + goalprintformat_int % goalresult 
+                    else:
+                        curline = curline + goalprintformat % ''
         gradestxtoutput.write(curline + "\n")
     summary = docgoals.getGoalInfo('.local/instr_config')
     gradestxtoutput.write(summary)
