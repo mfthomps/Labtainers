@@ -300,6 +300,8 @@ def lineHasCommand(line, look_for):
     retval = 0
     if not look_for.startswith('time ') and line.startswith('time'):
         line = line[5:].strip()
+    if not look_for.startswith('sudo ') and line.startswith('sudo'):
+        line = line[5:].strip()
     commands = line.split(';')
     for c in commands:
         c = c.strip()
