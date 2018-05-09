@@ -11,7 +11,7 @@ sudo chown student mnt
 for i in `seq 0 RND_MAX`; do
     fname="mnt/fillerfile"
     fname+=$i
-    echo “dumb filler” > fname
+    echo “dumb filler” > $fname
 done
 echo “First file created” > mnt/file1
 echo “Second file created” > mnt/file2
