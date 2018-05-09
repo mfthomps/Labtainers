@@ -9,7 +9,7 @@ mkfs.ext2 -F myfs.img
 sudo mount -o loop myfs.img mnt
 sudo chown student mnt
 for i in `seq 0 RND_MAX`; do
-    fname="mnt/fillerfile"
+    fname="mnt/fillerf"
     fname+=$i
     echo “dumb filler” > $fname
 done
