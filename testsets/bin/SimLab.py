@@ -109,7 +109,7 @@ class SimLab():
                 if len(line.strip()) > 0:
                     self.typeLine(line.strip())
                     while isProcRunning(line.strip()):
-                        print('%s running, wait' % params)
+                        print('%s running, wait' % line.strip())
                         time.sleep(1)
                     
     def typeFile(self, fname):
