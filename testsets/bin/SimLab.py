@@ -111,6 +111,8 @@ class SimLab():
                     while isProcRunning(line.strip()):
                         print('%s running, wait' % line.strip())
                         time.sleep(1)
+                # at least one to avoid timestamp collisions
+                time.sleep(1)
                     
     def typeFile(self, fname):
         full = os.path.join(self.sim_path, fname)
