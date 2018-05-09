@@ -125,6 +125,20 @@ class SimLab():
                     #print 'sleep 2'
                     time.sleep(2)
 
+    def keyFile(self, fname):
+        full = os.path.join(self.sim_path, fname)
+        with open(full) as fh:
+            for line in fh:
+                if line.strip().startswith('#'):
+                    continue
+                if len(line.strip()) > 0:
+                    send = "key %s" % line.strip()
+                    self.dotool(send)
+                    time.sleep(1.1)
+                else:
+                    #print 'sleep 2'
+                    time.sleep(2)
+
     def addFile(self, params, replace=False):
         from_file, to_file = params.split()
         from_file = os.path.join(self.sim_path, from_file) 
@@ -151,6 +165,8 @@ class SimLab():
             self.activate(wid)
         elif cmd == 'type_file':
             self.typeFile(params)
+        elif cmd == 'key_file':
+            self.keyFile(params)
         elif cmd == 'type_line':
             self.typeLine(params.strip())
         elif cmd == 'command_file':
