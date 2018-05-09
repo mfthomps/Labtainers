@@ -82,6 +82,9 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+May 9, 2018
+- Fix parameterization of the file-deletion lab.  Correct error its lab manual.
+
 May 8, 2018
 - Handle race condition to prevent gnome-terminal from executing its docker command
 before an xterm instruction terminal runs its command.  
