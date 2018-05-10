@@ -601,6 +601,8 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
     containername, targetfile, result_key, command, field_type, token_id, lookupstring, result_home = getConfigItems(labidname, line, studentlabdir, container_list, logger)
     if targetfile is None:
         nametags[result_key]=None
+        logger.ERROR('No target file in %s' % line)
+        return retval
     logger.DEBUG('command %s, field_type %s, token_id %s' % (command, field_type, token_id))
     targetfname_list = []
     if targetfile.startswith('*'):
