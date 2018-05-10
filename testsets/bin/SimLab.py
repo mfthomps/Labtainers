@@ -224,50 +224,53 @@ class SimLab():
 
     def reset_dconf_hud_settting(self):
         result = 0
-        if self.dconf_orig_hud_string_set:
-            command = "/usr/bin/dconf write /org/compiz/integrated/show-hud %s" % self.dconf_hud_string
-        else:
-            command = "/usr/bin/dconf write /org/compiz/integrated/show-hud"
-        #self.logger.debug("Command is (%s)" % command)
-        ps = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        output = ps.communicate()
-        if len(output[1]) > 0:
-            result = 1
-            #self.logger.debug("Failed to set hud_string to %s" % self.dconf_hud_string)
-        #else:
-        #    self.logger.debug("Set hud_string to %s is successful" % self.dconf_hud_string)
+        if self.dconf_enable:
+            if self.dconf_orig_hud_string_set:
+                command = "/usr/bin/dconf write /org/compiz/integrated/show-hud %s" % self.dconf_hud_string
+            else:
+                command = "/usr/bin/dconf write /org/compiz/integrated/show-hud"
+            #self.logger.debug("Command is (%s)" % command)
+            ps = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            output = ps.communicate()
+            if len(output[1]) > 0:
+                result = 1
+                #self.logger.debug("Failed to set hud_string to %s" % self.dconf_hud_string)
+            #else:
+            #    self.logger.debug("Set hud_string to %s is successful" % self.dconf_hud_string)
         return result
 
     def change_dconf_hud_setting(self):
-        command = "/usr/bin/dconf write /org/compiz/integrated/show-hud '[\"\"]'"
-        #self.logger.debug("Command is (%s)" % command)
-        ps = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        output = ps.communicate()
         result = 0
-        if len(output[1]) > 0:
+        if self.dconf_enable:
+            command = "/usr/bin/dconf write /org/compiz/integrated/show-hud '[\"\"]'"
+            #self.logger.debug("Command is (%s)" % command)
+            ps = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            output = ps.communicate()
+            if len(output[1]) > 0:
             result = 1
-            #self.logger.debug("Failed to set hud_string to '[\"\"]'")
-        #else:
-        #    self.logger.debug("Set hud_string to '[\"\"]' is successful")
+                #self.logger.debug("Failed to set hud_string to '[\"\"]'")
+            #else:
+            #    self.logger.debug("Set hud_string to '[\"\"]' is successful")
         return result
 
     def get_orig_dconf_hud_setting(self):
-        command = "/usr/bin/dconf read /org/compiz/integrated/show-hud"
-        #self.logger.debug("Command is (%s)" % command)
-        ps = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        output = ps.communicate()
         result = 0
-        if len(output[0]) > 0:
-            self.dconf_orig_hud_string_set = True
-            print "output[0] is (%s)" % output[0].strip()
-            self.dconf_hud_string = output[0].strip()
-        else:
-            self.dconf_orig_hud_string_set = False
-            result = 1
-        #if self.dconf_orig_hud_string_set:
-        #    print "hud_string is (%s)" % self.dconf_hud_string
-        #else:
-        #    print "hud_string is not SET!"
+        if self.dconf_enable:
+            command = "/usr/bin/dconf read /org/compiz/integrated/show-hud"
+            #self.logger.debug("Command is (%s)" % command)
+            ps = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            output = ps.communicate()
+            if len(output[0]) > 0:
+                self.dconf_orig_hud_string_set = True
+                print "output[0] is (%s)" % output[0].strip()
+                self.dconf_hud_string = output[0].strip()
+            else:
+                self.dconf_orig_hud_string_set = False
+                result = 1
+            #if self.dconf_orig_hud_string_set:
+            #    print "hud_string is (%s)" % self.dconf_hud_string
+            #else:
+            #    print "hud_string is not SET!"
         return result
 
     def test_for_program(self, myprogram):
