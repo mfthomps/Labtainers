@@ -22,19 +22,11 @@ homedir=$1
 destdir=$2
 dbg=/tmp/pregrade.log
 cd $homedir/$destdir
-is_sqlite=`which sqlite3`
-echo $is_sqlite
-here=`pwd`
-places=$here/.mozilla/firefox/*default/places.sqlite
-for fname in $(ls $places); do
-    if [[ -f $fname ]]; then
-        outpath=$here/.local/result
-        outfile=$outpath/moz_places.txt
-        mkdir -p "$outpath"
-        sqlite3 "$fname" "SELECT moz_places.* FROM moz_places;" >"$outfile"
-    fi
-done
-
-#
-#  Add other processing below.
-#
+sniff_file=sniff.pcapng
+if [[ -f $sniff_file ]]; then
+    # put output in results to not confuse content of student home
+    outpath=.local/result
+    outfile=$outpath/sniff.txt
+    mkdir -p "$outpath"
+    tcpdump -nvveS dst 172.25.0.2 -r $sniff_file > "$outfile"
+fi
