@@ -262,7 +262,7 @@ class SimLab():
             output = ps.communicate()
             if len(output[0]) > 0:
                 self.dconf_orig_hud_string_set = True
-                print "output[0] is (%s)" % output[0].strip()
+                #print "output[0] is (%s)" % output[0].strip()
                 self.dconf_hud_string = output[0].strip()
             else:
                 self.dconf_orig_hud_string_set = False
