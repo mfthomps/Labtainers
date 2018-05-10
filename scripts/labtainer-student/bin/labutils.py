@@ -1897,7 +1897,7 @@ def RedoLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fal
     StopLab(lab_path, role, True, is_regress_test=is_regress_test)
     is_redo = True
     StartLab(lab_path, role, is_regress_test, force_build, is_redo=is_redo, check_watermark=check_watermark, quiet_start=quiet_start,
-             run_container=run_container, servers=servers, clone_count=clone_count, auto_grade=auto_grade, debug_grade=False)
+             run_container=run_container, servers=servers, clone_count=clone_count, auto_grade=auto_grade, debug_grade=debug_grade)
 
 def CheckShutdown(lab_path, name, container_name, container_user, ignore_stop_error):
     ''' NOT USED at the moment '''
