@@ -24,14 +24,17 @@ dbg=/tmp/pregrade.log
 cd $homedir/$destdir
 is_sqlite=`which sqlite3`
 echo $is_sqlite
-if [[ ! -z $is_sqlite ]]; then
-    for fname in .mozilla/firefox/*default/places.sqlite; do
-        outpath=.local/result
+here=`pwd`
+places=$here/.mozilla/firefox/*default/places.sqlite
+for fname in $(ls $places); do
+    if [[ -f $fname ]]; then
+        outpath=$here/.local/result
         outfile=$outpath/moz_places.txt
         mkdir -p "$outpath"
         sqlite3 "$fname" "SELECT moz_places.* FROM moz_places;" >"$outfile"
-    done
-fi
+    fi
+done
+
 #
 #  Add other processing below.
 #
