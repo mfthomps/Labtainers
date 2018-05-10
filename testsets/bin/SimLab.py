@@ -84,7 +84,7 @@ class SimLab():
                 for twid in sorted(parts, reverse=True):
                     cmd = 'getwindowname %s' % twid
                     wname = self.dotool(cmd)
-                    if name in wname:
+                    if name.strip('"') in wname:
                         #print('wid: %s  wname is %s' % (twid, wname))
                         wid = twid
                         break
