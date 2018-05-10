@@ -247,7 +247,7 @@ class SimLab():
             ps = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             output = ps.communicate()
             if len(output[1]) > 0:
-            result = 1
+                result = 1
                 #self.logger.debug("Failed to set hud_string to '[\"\"]'")
             #else:
             #    self.logger.debug("Set hud_string to '[\"\"]' is successful")
