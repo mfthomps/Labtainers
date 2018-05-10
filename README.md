@@ -84,6 +84,8 @@ first time.
 
 May 9, 2018
 - Fix parameterization of the file-deletion lab.  Correct error its lab manual.
+- Replace use of shell=True in python scripts to reduce processes and allow tracking PIDs
+- Clean up manuals for backups, pass-crack and macs-hash.
 
 May 8, 2018
 - Handle race condition to prevent gnome-terminal from executing its docker command
