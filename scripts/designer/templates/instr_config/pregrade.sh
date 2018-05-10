@@ -25,9 +25,9 @@ cd $homedir/$destdir
 is_sqlite=`which sqlite3`
 echo $is_sqlite
 if [[ ! -z $is_sqlite ]]; then
-    for fname in .mozilla/firefox/*default/places.sqlite; do
+    for fname in $(ls $HOME/.mozilla/firefox/*default/places.sqlite); do
         if [[ -f $fname ]]; then
-            outpath=.local/result
+            outpath=$HOME/.local/result
             outfile=$outpath/moz_places.txt
             mkdir -p "$outpath"
             sqlite3 "$fname" "SELECT moz_places.* FROM moz_places;" >"$outfile"
