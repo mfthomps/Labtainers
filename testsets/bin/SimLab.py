@@ -78,7 +78,7 @@ class SimLab():
                 twid = output.rsplit(' ',1)[0].strip()
                 cmd = 'getwindowname %s' % twid
                 wname = self.dotool(cmd)
-                if name in wname:
+                if name.strip('"') in wname:
                     wid = output.rsplit(' ',1)[0].strip()
             elif len(parts)>0:
                 for twid in sorted(parts, reverse=True):
