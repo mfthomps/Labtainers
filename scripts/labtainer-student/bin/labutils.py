@@ -681,6 +681,7 @@ def CopyLabBin(mycontainer_name, container_user, lab_path, name):
         logger.ERROR('failed %s' % cmd)
         exit(1)
 
+    ''' TBD DO NOT move lab/config here -- would not catch the tar_list.txt files (skip list) '''
     ''' TBD perhaps move lab/_bin to here?  would it save duplicate containers?'''
     #container_bin = os.path.join(lab_path, name,'_bin')
     #if os.path.isdir(container_bin):
@@ -1435,7 +1436,7 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, che
         os.system(spawn_command)
 
                 
-    if apps2start != []:
+    if apps2start != [] and not auto_grade:
         print "Please wait for the apps (%s) to launch" % apps2start
 
     return 0
