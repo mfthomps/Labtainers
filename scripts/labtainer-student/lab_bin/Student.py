@@ -21,7 +21,7 @@ import zipfile
 
 
 def killMonitoredProcess():
-    cmd = "ps x -o \"%r %c\" | grep [c]apinout.sh | awk '{print $1}' | uniq"
+    cmd = "ps x -o \"%r %c\" | grep [c]apinout | awk '{print $1}' | uniq"
     child = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     done = False
     print("cmd was %s" % cmd)
