@@ -12,6 +12,9 @@ import os
 import subprocess
 import argparse
 import time
+import shlex
+import signal
+import sys
 '''
 Use xdotool to simulate a lab being performed, as driven by
 a simthis.txt file
@@ -33,6 +36,12 @@ class SimLab():
         self.sim_path = os.path.abspath(os.path.join('../../../simlab', lab))
         self.current_wid = None
         self.logger = logger
+
+        # For dconf - HUD setting
+        self.dconf_enable = None
+        self.dconf_orig_hud_string_set = None
+        self.dconf_hud_string = ""
+
         if not os.path.isdir(self.sim_path):
             return None
 
@@ -158,6 +167,22 @@ class SimLab():
         self.dotool("key Escape")
         self.dotool("type 'ZZ'")
        
+    def includeFile(self, fname):
+        full = os.path.join(self.sim_path, fname)
+        with open(full) as fh:
+            for line in fh:
+                if line.strip().startswith('#') or len(line.strip()) == 0:
+                    continue
+                #print line
+                try:
+                    cmd, params = line.split(' ', 1)
+                except:
+                    print('bad SimLab line: %s' % line)
+                    exit
+                #print('cmd: %s params %s' % (cmd, params))
+                self.handleCmd(cmd.strip(), params.strip())
+                #print('back from handleCmd')
+
     
     def handleCmd(self, cmd, params):
         if self.logger is not None:
@@ -165,6 +190,8 @@ class SimLab():
         if cmd == 'window':
             wid = self.searchWindows(params)
             self.activate(wid)
+        elif cmd == 'include':
+            self.includeFile(params)
         elif cmd == 'type_file':
             self.typeFile(params)
         elif cmd == 'key_file':
@@ -189,11 +216,87 @@ class SimLab():
         else:
             print('Unknown command %s %s' % (cmd, params))
 
+    def signal_handler(self, signum, frame):
+        #self.logger.debug("Signal handle called with signal", signum)
+        self.reset_dconf_hud_settting()
+        # Caught a SIGTERM signal exiting after reset dconf HUD setting
+        sys.exit(1)
+
+    def reset_dconf_hud_settting(self):
+        result = 0
+        if self.dconf_orig_hud_string_set:
+            command = "/usr/bin/dconf write /org/compiz/integrated/show-hud %s" % self.dconf_hud_string
+        else:
+            command = "/usr/bin/dconf write /org/compiz/integrated/show-hud"
+        #self.logger.debug("Command is (%s)" % command)
+        ps = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output = ps.communicate()
+        if len(output[1]) > 0:
+            result = 1
+            #self.logger.debug("Failed to set hud_string to %s" % self.dconf_hud_string)
+        #else:
+        #    self.logger.debug("Set hud_string to %s is successful" % self.dconf_hud_string)
+        return result
+
+    def change_dconf_hud_setting(self):
+        command = "/usr/bin/dconf write /org/compiz/integrated/show-hud '[\"\"]'"
+        #self.logger.debug("Command is (%s)" % command)
+        ps = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output = ps.communicate()
+        result = 0
+        if len(output[1]) > 0:
+            result = 1
+            #self.logger.debug("Failed to set hud_string to '[\"\"]'")
+        #else:
+        #    self.logger.debug("Set hud_string to '[\"\"]' is successful")
+        return result
+
+    def get_orig_dconf_hud_setting(self):
+        command = "/usr/bin/dconf read /org/compiz/integrated/show-hud"
+        #self.logger.debug("Command is (%s)" % command)
+        ps = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output = ps.communicate()
+        result = 0
+        if len(output[0]) > 0:
+            self.dconf_orig_hud_string_set = True
+            print "output[0] is (%s)" % output[0].strip()
+            self.dconf_hud_string = output[0].strip()
+        else:
+            self.dconf_orig_hud_string_set = False
+            result = 1
+        #if self.dconf_orig_hud_string_set:
+        #    print "hud_string is (%s)" % self.dconf_hud_string
+        #else:
+        #    print "hud_string is not SET!"
+        return result
+
+    def test_for_program(self, myprogram):
+        command = "which %s > /dev/null" % myprogram
+        if os.system(command) == 0:
+            #self.logger.debug("program (%s) exists/installed" % myprogram)
+            return 0
+        else:
+            #self.logger.debug("program (%s) does not exists/not installed" % myprogram)
+            return 1
     
     def simThis(self):
         fname = os.path.join(self.sim_path, 'simthis.txt')
         if self.logger is not None:
             self.logger.debug('smithThis for %s' % fname)
+
+        # Test for dconf first
+        if self.test_for_program("dconf") != 0:
+            #self.logger.debug("NO dconf support")
+            self.dconf_enable = False
+            self.dconf_orig_hud_string_set = False
+        else:
+            self.dconf_enable = True
+            self.get_orig_dconf_hud_setting()
+            self.change_dconf_hud_setting()
+
+        # Setup signal handler for SIGINT
+        signal.signal(signal.SIGINT, self.signal_handler)
+
         with open(fname) as fh:
             for line in fh:
                 if line.strip().startswith('#') or len(line.strip()) == 0:
@@ -208,6 +311,8 @@ class SimLab():
                 self.handleCmd(cmd.strip(), params.strip())
                 #print('back from handleCmd')
 
+        # Finish processing, reset dconf HUD setting
+        self.reset_dconf_hud_settting()
 
 def __main__():
     parser = argparse.ArgumentParser(description='Simulate student performing lab')
