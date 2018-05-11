@@ -31,6 +31,7 @@ for fname in $(ls $places); do
         outpath=$here/.local/result
         outfile=$outpath/moz_places.txt
         mkdir -p "$outpath"
+        sqlite3 "$fname" "PRAGMA wal_checkpoint;"
         sqlite3 "$fname" "SELECT moz_places.* FROM moz_places;" >"$outfile"
     fi
 done
