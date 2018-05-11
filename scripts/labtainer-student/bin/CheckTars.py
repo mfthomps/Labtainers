@@ -175,11 +175,11 @@ def CheckTars(container_dir, image_name, logger):
     #print('look for %s' % noskip_file)
     if os.path.isfile(noskip_file):
         ''' files from home_tar that we want to collect from student -- normally home_tar files are not collected '''
-        print('is a skip')
+        #print('is a skip')
         with open(noskip_file) as fh:
             for line in fh:
                 line = line.strip()
-                print('check for %s' % line)
+                #print('check for %s' % line)
                 if len(line) > 0:
                     cmd = 'sed -i /%s$/d %s' % (line, manifest)
                     os.system(cmd)
