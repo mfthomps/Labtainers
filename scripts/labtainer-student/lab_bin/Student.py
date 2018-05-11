@@ -18,22 +18,29 @@ import os
 import subprocess
 import sys
 import zipfile
+import datetime
 
 
-def killMonitoredProcess():
+def killMonitoredProcess(homeLocal):
     cmd = "ps x -o \"%r %c\" | grep [c]apinout | awk '{print $1}' | uniq"
     child = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     done = False
-    print("cmd was %s" % cmd)
+    #print("cmd was %s" % cmd)
     while not done:
         line = child.stdout.readline().strip()
-        print('got line %s' % line)
+        #print('got line %s' % line)
         if len(line)>0:
             cmd = 'kill -TERM -%s' % line
             print('cmd is %s' % cmd)
             os.system(cmd)
         else:
             done = True
+    kill_proc = os.path.join(homeLocal, 'bin', 'killproc')
+    if os.path.isfile(kill_proc):
+        with open(kill_proc) as fh:
+            for line in fh:
+                cmd = 'pkill %s' % line
+                os.system(cmd)
 
 def main():
     #print "Running Student.py"
@@ -41,15 +48,15 @@ def main():
         sys.stderr.write("Usage: Student.py <username> <image_name>\n")
         return 1
 
-    killMonitoredProcess()
 
     user_name = sys.argv[1]
     container_image = sys.argv[2].split('.')[1]
-    StudentHomeDir = os.path.join('/home',user_name)
-    HomeLocal= os.path.join(StudentHomeDir, '.local')
-    os.chdir(StudentHomeDir)
-    student_email_file=os.path.join(HomeLocal, '.email')
-    lab_name_file=os.path.join(HomeLocal, '.labname')
+    studentHomeDir = os.path.join('/home',user_name)
+    homeLocal= os.path.join(studentHomeDir, '.local')
+    killMonitoredProcess(homeLocal)
+    os.chdir(studentHomeDir)
+    student_email_file=os.path.join(homeLocal, '.email')
+    lab_name_file=os.path.join(homeLocal, '.labname')
     if not os.path.isfile(student_email_file):
         print('No email file at %s, exit.' % student_email_file)
         return 1
@@ -61,46 +68,79 @@ def main():
     fh.close()
     # NOTE: Always store as e-mail+lab_name.zip
     #       e-mail+lab_name.zip will be renamed by stop.py (add containername)
-    ZipFileName = '%s.%s.zip' % (student_email.replace("@","_at_"), lab_name)
+    zipFileName = '%s.%s.zip' % (student_email.replace("@","_at_"), lab_name)
 
     #print 'The lab name is (%s)' % LabName
-    #print 'Output ZipFileName is (%s)' % ZipFileName
-    HomeLocalZip = os.path.join(HomeLocal, 'zip')
-    if not os.path.isdir(HomeLocalZip):
-        os.makedirs(HomeLocalZip)
-    OutputName=os.path.join(HomeLocalZip, ZipFileName)
-    TempOutputName=os.path.join("/tmp/", ZipFileName)
-    # Remove temp zip file and any zip file in HomeLocal
+    #print 'Output zipFileName is (%s)' % zipFileName
+    homeLocal = os.path.join(homeLocal, 'zip')
+    if not os.path.isdir(homeLocal):
+        os.makedirs(homeLocal)
+    OutputName=os.path.join(homeLocal, zipFileName)
+    TempOutputName=os.path.join("/tmp/", zipFileName)
+    # Remove temp zip file and any zip file in homeLocal
     if os.path.exists(TempOutputName):
         os.remove(TempOutputName)
-    zip_filenames = glob.glob('%s*.zip' % HomeLocalZip)
+    if os.path.exists(OutputName):
+        os.remove(OutputName)
+    zip_filenames = glob.glob('%s*.zip' % homeLocal)
     for zip_file in zip_filenames:
         #print "Removing %s" % zip_file
         os.remove(zip_file)
     
     # Note: Use /tmp to temporary store the zip file first
-    # Create temp zip file and zip everything under StudentHomeDir
+    # Create temp zip file and zip everything under studentHomeDir
     zipoutput = zipfile.ZipFile(TempOutputName, "w")
     udir = "/home/"+user_name
     skip_list = []
     manifest = '%s-home_tar.list' % container_image
+
+    no_skip = os.path.join(udir,'.local','bin', 'noskip')
+    no_skip_list = []
+    if os.path.isfile(no_skip):
+        with open(no_skip) as fh:
+            for line in fh:
+                no_skip_list.append(line.strip())
+
     skip_file = os.path.join(udir,'.local','config', manifest)
     if os.path.isfile(skip_file):
         fh = open(skip_file) 
         for line in fh:
-            skip_list.append(line.strip())
+            if os.path.basename(line.strip()) not in no_skip_list:
+                skip_list.append(line.strip())
         fh.close()
-    for rootdir, subdirs, files in os.walk(StudentHomeDir):
+    dt_skip_list = {}
+    dt_skip_file = os.path.join(udir,'.local','config', 'mytar_list.txt')
+    if os.path.isfile(dt_skip_file):
+        fh = open(dt_skip_file) 
+        for line in fh:
+            parts = line.split()
+            if len(parts) < 6:
+                print('Bad mytar_list entry %s' % line)
+                continue
+            fname = parts[5]
+            if os.path.basename(fname).strip() not in no_skip_list:
+                dt_string = parts[3]+' '+parts[4]
+                dt = datetime.datetime.strptime(dt_string, "%Y-%m-%d %H:%M")
+                dt_skip_list[fname] = dt
+    for rootdir, subdirs, files in os.walk(studentHomeDir):
         newdir = rootdir.replace(udir, ".")
-        for file in files:
-            savefname = os.path.join(newdir, file)
+        for fname in files:
+            savefname = os.path.join(newdir, fname)
             #print "savefname is %s" % savefname
-            if savefname[2:] not in skip_list:
-                try:
-                    zipoutput.write(savefname, compress_type=zipfile.ZIP_DEFLATED)
-                except:
-                    # do not die if ephemeral files go away
-                    pass
+            try:
+                local_time = datetime.datetime.fromtimestamp(os.path.getmtime(savefname))
+            except OSError:
+                ''' ephemeral '''
+                continue 
+            local_time = local_time.replace(minute=0)
+            ckname = savefname[2:]
+            if ckname not in skip_list:
+                if ckname not in dt_skip_list or dt_skip_list[ckname] < local_time: 
+                    try:
+                        zipoutput.write(savefname, compress_type=zipfile.ZIP_DEFLATED)
+                    except:
+                        # do not die if ephemeral files go away
+                        pass
     zipoutput.close()
    
     os.chmod(TempOutputName, 0666)
@@ -109,7 +149,7 @@ def main():
     os.rename(TempOutputName, OutputName)
     '''
     # Store 'OutputName' into 'zip.flist' 
-    zip_fname = os.path.join(HomeLocal, 'zip.flist')
+    zip_fname = os.path.join(homeLocal, 'zip.flist')
     zip_flist = open(zip_fname, "w")
     zip_flist.write('%s ' % OutputName)
     zip_flist.close()
