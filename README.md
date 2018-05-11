@@ -82,6 +82,14 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+May 11, 2018
+- Add "noskip" file to force collection of files otherwise found in home.tar, needed
+for retrieving Firefox places.sqlite.
+- Merge sqlite database with write ahead buffer before extracting.
+- Corrections to lab manual for the symkeylab
+- Grading additions for symkeylab and pubkey
+- Improvements to simlab tool: support include, fix window naming.
+
 May 9, 2018
 - Fix parameterization of the file-deletion lab.  Correct error its lab manual.
 - Replace use of shell=True in python scripts to reduce processes and allow tracking PIDs
