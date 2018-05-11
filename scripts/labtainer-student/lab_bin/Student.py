@@ -37,10 +37,11 @@ def killMonitoredProcess(homeLocal):
             done = True
     kill_proc = os.path.join(homeLocal, 'bin', 'killproc')
     if os.path.isfile(kill_proc):
-        with open(kill_proc) as fh:
-            for line in fh:
-                cmd = 'pkill %s' % line
-                os.system(cmd)
+        fh = open(kill_proc) as fh:
+        for line in fh:
+            cmd = 'pkill %s' % line
+            os.system(cmd)
+        fh.close()
 
 def main():
     #print "Running Student.py"
@@ -97,9 +98,10 @@ def main():
     no_skip = os.path.join(udir,'.local','bin', 'noskip')
     no_skip_list = []
     if os.path.isfile(no_skip):
-        with open(no_skip) as fh:
-            for line in fh:
-                no_skip_list.append(line.strip())
+        fh = open(no_skip)
+        for line in fh:
+            no_skip_list.append(line.strip())
+        fh.close()
 
     skip_file = os.path.join(udir,'.local','config', manifest)
     if os.path.isfile(skip_file):
@@ -122,6 +124,7 @@ def main():
                 dt_string = parts[3]+' '+parts[4]
                 dt = datetime.datetime.strptime(dt_string, "%Y-%m-%d %H:%M")
                 dt_skip_list[fname] = dt
+        fh.close()
     for rootdir, subdirs, files in os.walk(studentHomeDir):
         newdir = rootdir.replace(udir, ".")
         for fname in files:
