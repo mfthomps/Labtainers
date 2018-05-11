@@ -172,7 +172,7 @@ def CheckTars(container_dir, image_name, logger):
                         logger.DEBUG(cmd)
         os.chdir(here)
     noskip_file = os.path.join(container_dir,'_bin', 'noskip')
-    print('look for %s' % noskip_file)
+    #print('look for %s' % noskip_file)
     if os.path.isfile(noskip_file):
         ''' files from home_tar that we want to collect from student -- normally home_tar files are not collected '''
         print('is a skip')
