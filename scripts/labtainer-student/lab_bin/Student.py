@@ -37,7 +37,7 @@ def killMonitoredProcess(homeLocal):
             done = True
     kill_proc = os.path.join(homeLocal, 'bin', 'killproc')
     if os.path.isfile(kill_proc):
-        fh = open(kill_proc) as fh:
+        fh = open(kill_proc):
         for line in fh:
             cmd = 'pkill %s' % line
             os.system(cmd)
