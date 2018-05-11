@@ -499,8 +499,21 @@ can save considerable time and space, e.g., on the instructor's computer that mu
 all student artifacts.
 The individual files should exist in the home\_tar directory, and the framework automatically
 creates the tar file for transfer to the Docker image, (and will do so if an existing tar file
-is older than any file in the directory).
+is older than any file in the directory).  Manifests can be used for the home\_tar content
+as described in \ref{manifest}.  You can force collection of selected files from the home\_tar
+by putting the filename into a file at:
+\begin{verbatim}
+    $LABTAINER_DIR/labs/[labname]/[container_name]/_bin/noskip
+\end{verbatim}
+\noindent  Files whose basenames match any found in {\tt noskip} will be collected.
 
+Alternately, a file at /var/tmp/home.tar will be expanded into the user home directory.
+Use the Docker {\tt COPY} directive to place a file here.  See the 
+\begin{verbatim}
+$LABTAINER_DIR/scripts/designer/base_dockerfiles/Dockerfile.labtainer.firefox
+\end{verbatim}
+for an example.  These files will not be collected unless they are newer than the original file,
+or if the base file name appears in the {\tt noskip} list described above.
 
 \subsection{Lab-specific system files}
 All files in the
@@ -1570,7 +1583,7 @@ It is easy to set up a registry (it is a container!), \url{https://docs.docker.c
 
 \subsection{Reuse of large file sets}
 \label{manifest}
-The use of ``sys\_tar'' described in \ref{large files} facilitates sharing of common
+The use of ``sys\_tar'' and ``home\_tar'' described in \ref{large files} facilitates sharing of common
 baselines of large or numerous files.  New labs can incorporate tar files from existing
 labs through the use of ``external-manifest'' files, (see the xsite/victim/home\_tar as
 an example).   The syntax of the external-manifest is shown below, and it may contain
@@ -1819,6 +1832,8 @@ welcome pages and privacy statements.  The labtainer.firefox image includes a
 customized /usr/bin/firefox that starts the browswer in a new instance so it does share existing browsers. 
 The {\tt about:config}
 was altered to disabled insecure field warnings for the labs that do not use SSL connections to web servers.
+If you wish to assess places a browser has visited, e.g., use a pregrade.sh to extract sites from the
+firefox places.sqlite file, put {\tt places.sqlite} into the lab's /\_bin/noskip file.
 
 \subsection{Wireshark}
 Wireshark will not run as root in Labtainer containers.  
