@@ -31,11 +31,35 @@ def isProcRunning(proc_string):
             return True
     return False
 
+def DockerCmd(cmd):
+    ok = False
+    count = 0
+    while not ok:
+        #print("Command to execute is (%s)" % cmd)
+        ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        output = ps.communicate()
+        if len(output[1]) > 0:
+            count += 1
+            #print("Failed cmd %s %s" % (cmd, output[1]))
+            if count > 1:
+                return False, ""
+            time.sleep(1)
+        else:
+            if len(output[0]) > 0:
+                #print("cmd %s stdout: %s" % (cmd, output[0]))
+                return True, output[0]
+            else:
+                #print("cmd %s stdout: ''" % cmd)
+                ok = True
+    return True, ""
+
 class SimLab():
-    def __init__(self, lab, logger=None):
+    def __init__(self, lab, verbose_level, logger=None):
         self.sim_path = os.path.abspath(os.path.join('../../../simlab', lab))
+        self.labname = lab
         self.current_wid = None
         self.logger = logger
+        self.verbose_level = verbose_level
 
         # For dconf - HUD setting
         self.dconf_enable = None
@@ -128,8 +152,12 @@ class SimLab():
         with open(full) as fh:
             for line in fh:
                 if line.strip().startswith('#'):
+                    if self.verbose_level > 1:
+                        print('%s' % line.strip())
                     continue
                 if len(line.strip()) > 0:
+                    if self.verbose_level == 2:
+                        print('cmd: %s' % line.strip())
                     self.typeLine(line.strip())
                     time.sleep(1.1)
                 else:
@@ -141,8 +169,12 @@ class SimLab():
         with open(full) as fh:
             for line in fh:
                 if line.strip().startswith('#'):
+                    if self.verbose_level > 1:
+                        print('%s' % line.strip())
                     continue
                 if len(line.strip()) > 0:
+                    if self.verbose_level == 2:
+                        print('key: %s' % line.strip())
                     send = "key %s" % line.strip()
                     self.dotool(send)
                     time.sleep(1.1)
@@ -172,21 +204,54 @@ class SimLab():
         with open(full) as fh:
             for line in fh:
                 if line.strip().startswith('#') or len(line.strip()) == 0:
+                    if line.strip().startswith('#'):
+                        if self.verbose_level > 1:
+                            print('%s' % line.strip())
                     continue
                 #print line
                 try:
                     cmd, params = line.split(' ', 1)
                 except:
                     print('bad SimLab line: %s' % line)
-                    exit
+                    exit(1)
                 #print('cmd: %s params %s' % (cmd, params))
                 self.handleCmd(cmd.strip(), params.strip())
                 #print('back from handleCmd')
 
+    def execNetStat_On_Container(self, labname, container_hosturl):
+        waitNetURL_string = container_hosturl.split(':')
+        if len(waitNetURL_string) != 2:
+            print("Invalid wait_net container_hosturl string format!")
+            exit(1)
+        else:
+            container = waitNetURL_string[0]
+            full_containername = "%s.%s.student" % (labname, container)
+            hosturl = waitNetURL_string[1]
+
+        netstat_cmd = "netstat -put -W | grep %s" % hosturl
+        cmd = 'docker exec %s script -q -c "%s" /dev/null' % (full_containername, netstat_cmd)
+        #print "cmd is (%s)" % cmd
+        result, output_str = DockerCmd(cmd)
+        if not result:
+            print('failed %s' % cmd)
+            exit(1)
+        if result and output_str == "":
+            #print "After DockerCmd, return False"
+            return False
+        else:
+            #print "After DockerCmd, return True"
+            return True
+
+    def waitNetURL(self, labname, container_hosturl):
+        while self.execNetStat_On_Container(labname, container_hosturl):
+            #self.logger.debug('waiting for execNetStat_On_Container')
+            time.sleep(1)
     
     def handleCmd(self, cmd, params):
         if self.logger is not None:
             self.logger.debug('cmd %s  params: %s' % (cmd, params))
+        if self.verbose_level == 2:
+            print('%s: %s' % (cmd, params))
         if cmd == 'window':
             wid = self.searchWindows(params)
             self.activate(wid)
@@ -207,6 +272,8 @@ class SimLab():
         elif cmd == 'key':
             send = "key %s" % params
             self.dotool(send)
+        elif cmd == 'wait_net':
+            self.waitNetURL(self.labname, params)
         elif cmd == 'wait_proc':
             while isProcRunning(params):
                 print('%s running, wait' % params)
@@ -303,13 +370,16 @@ class SimLab():
         with open(fname) as fh:
             for line in fh:
                 if line.strip().startswith('#') or len(line.strip()) == 0:
+                    if line.strip().startswith('#'):
+                        if self.verbose_level > 1:
+                            print('%s' % line.strip())
                     continue
                 #print line
                 try:
                     cmd, params = line.split(' ', 1)
                 except:
                     print('bad SimLab line: %s' % line)
-                    exit
+                    exit(1)
                 #print('cmd: %s params %s' % (cmd, params))
                 self.handleCmd(cmd.strip(), params.strip())
                 #print('back from handleCmd')
@@ -320,9 +390,16 @@ class SimLab():
 def __main__():
     parser = argparse.ArgumentParser(description='Simulate student performing lab')
     parser.add_argument('labname', help='The lab to simulate')
+    parser.add_argument('-v', '--verbose', action='count', default=0)
     args = parser.parse_args()
     lab = args.labname
-    simlab = SimLab(lab)
+    verbose_level = int(args.verbose)
+    #print("lab is (%s)" % lab)
+    #print("verbose_level is (%d)" % verbose_level)
+    if verbose_level > 2:
+        print("Verbose level up to 2 only!")
+        exit(1)
+    simlab = SimLab(lab, verbose_level)
     simlab.simThis() 
 
 if __name__=="__main__":
