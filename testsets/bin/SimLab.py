@@ -253,7 +253,7 @@ class SimLab():
         time.sleep(1)
         while self.execNetStat_On_Container(labname, container_hosturl):
             #self.logger.debug('waiting for execNetStat_On_Container')
-            time.sleep(1)
+            time.sleep(2)
     
     def handleCmd(self, cmd, params):
         if self.logger is not None:
