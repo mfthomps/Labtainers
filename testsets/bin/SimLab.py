@@ -54,11 +54,12 @@ def DockerCmd(cmd):
     return True, ""
 
 class SimLab():
-    def __init__(self, lab, verbose_level, logger=None):
+    def __init__(self, lab, verbose_level=0, logger=None):
         self.sim_path = os.path.abspath(os.path.join('../../../simlab', lab))
         self.labname = lab
         self.current_wid = None
         self.logger = logger
+        print('set verbose to %s' % verbose_level)
         self.verbose_level = verbose_level
 
         # For dconf - HUD setting
@@ -152,7 +153,8 @@ class SimLab():
         with open(full) as fh:
             for line in fh:
                 if line.strip().startswith('#'):
-                    if self.verbose_level > 1:
+                    print('verbose level %d' % self.verbose_level)
+                    if self.verbose_level >= 1:
                         print('%s' % line.strip())
                     continue
                 if len(line.strip()) > 0:
@@ -169,7 +171,7 @@ class SimLab():
         with open(full) as fh:
             for line in fh:
                 if line.strip().startswith('#'):
-                    if self.verbose_level > 1:
+                    if self.verbose_level >= 1:
                         print('%s' % line.strip())
                     continue
                 if len(line.strip()) > 0:
@@ -205,7 +207,7 @@ class SimLab():
             for line in fh:
                 if line.strip().startswith('#') or len(line.strip()) == 0:
                     if line.strip().startswith('#'):
-                        if self.verbose_level > 1:
+                        if self.verbose_level >= 1:
                             print('%s' % line.strip())
                     continue
                 #print line
@@ -219,6 +221,7 @@ class SimLab():
                 #print('back from handleCmd')
 
     def execNetStat_On_Container(self, labname, container_hosturl):
+        ''' return True if the container_hosturl is found in netstat output '''
         waitNetURL_string = container_hosturl.split(':')
         if len(waitNetURL_string) != 2:
             print("Invalid wait_net container_hosturl string format!")
@@ -228,10 +231,11 @@ class SimLab():
             full_containername = "%s.%s.student" % (labname, container)
             hosturl = waitNetURL_string[1]
 
-        netstat_cmd = "netstat -put -W | grep %s" % hosturl
+        netstat_cmd = "sudo netstat -put -W | grep %s" % hosturl
         cmd = 'docker exec %s script -q -c "%s" /dev/null' % (full_containername, netstat_cmd)
         #print "cmd is (%s)" % cmd
         result, output_str = DockerCmd(cmd)
+        #print('wait_net %r out is %s' % (result, output_str))
         if not result:
             print('failed %s' % cmd)
             exit(1)
@@ -239,10 +243,14 @@ class SimLab():
             #print "After DockerCmd, return False"
             return False
         else:
-            #print "After DockerCmd, return True"
-            return True
+            for line in output_str.splitlines():
+                if container_hosturl in line and "TIME_WAIT" not in line:
+                    return True
+            return False
 
     def waitNetURL(self, labname, container_hosturl):
+        # wait for connection to establish
+        time.sleep(1)
         while self.execNetStat_On_Container(labname, container_hosturl):
             #self.logger.debug('waiting for execNetStat_On_Container')
             time.sleep(1)
@@ -265,6 +273,8 @@ class SimLab():
             self.typeLine(params.strip())
         elif cmd == 'command_file':
             self.commandFile(params)
+        elif cmd == 'command':
+            self.dotool(params)
         elif cmd == 'add_file':
             self.addFile(params)
         elif cmd == 'replace_file':
@@ -272,6 +282,14 @@ class SimLab():
         elif cmd == 'key':
             send = "key %s" % params
             self.dotool(send)
+        elif cmd == 'rep_key':
+            parts = params.split()
+            quant = int(parts[0])
+            the_key = parts[1]
+            send = "key %s" % the_key
+            for i in range(quant):
+                self.dotool(send)
+                time.sleep(0.3)
         elif cmd == 'wait_net':
             self.waitNetURL(self.labname, params)
         elif cmd == 'wait_proc':
@@ -371,7 +389,7 @@ class SimLab():
             for line in fh:
                 if line.strip().startswith('#') or len(line.strip()) == 0:
                     if line.strip().startswith('#'):
-                        if self.verbose_level > 1:
+                        if self.verbose_level >= 1:
                             print('%s' % line.strip())
                     continue
                 #print line
@@ -390,7 +408,7 @@ class SimLab():
 def __main__():
     parser = argparse.ArgumentParser(description='Simulate student performing lab')
     parser.add_argument('labname', help='The lab to simulate')
-    parser.add_argument('-v', '--verbose', action='count', default=0)
+    parser.add_argument('-v', '--verbose', action='count', default=0, help="Use -v to see comments as they are encountered, -vv to see each line")
     args = parser.parse_args()
     lab = args.labname
     verbose_level = int(args.verbose)

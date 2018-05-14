@@ -13,7 +13,8 @@ import ParseLabtainerConfig
 import labutils
 
 class SmokeTest():
-    def __init__(self):
+    def __init__(self, verbose_level):
+        self.verbose_level = verbose_level
         labtainer_config_path = os.path.abspath('../../config/labtainer.config')
         self.labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_path, None)
         self.simlab = None
@@ -55,7 +56,7 @@ class SmokeTest():
         if result == FAILURE:
             retval = False
         else:
-            self.simlab = SimLab.SimLab(lab, self.logger)
+            self.simlab = SimLab.SimLab(lab, verbose_level=self.verbose_level, logger=self.logger)
             if self.simlab.hasSim():
                 self.logger.debug('now call simLab')
                 self.simlab.simThis()
@@ -152,8 +153,9 @@ def __main__():
     parser = argparse.ArgumentParser(description='Smoke test all labs')
     parser.add_argument('-l', '--lab', action='store', help='Test just this lab.')
     parser.add_argument('-s', '--start_with', action='store', help='Test all starting with .')
+    parser.add_argument('-v', '--verbose', action='count', default=0, help="Use -v to see comments as they are encountered, -vv to see each line")
     args = parser.parse_args()
-    smoketest = SmokeTest()
+    smoketest = SmokeTest(args.verbose)
     if args.lab is not None:
         smoketest.checkLab(args.lab)
     else:
