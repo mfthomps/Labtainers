@@ -253,7 +253,8 @@ class SimLab():
         time.sleep(1)
         while self.execNetStat_On_Container(labname, container_hosturl):
             #self.logger.debug('waiting for execNetStat_On_Container')
-            time.sleep(2)
+            time.sleep(1)
+        time.sleep(1)
     
     def handleCmd(self, cmd, params):
         if self.logger is not None:
@@ -282,6 +283,7 @@ class SimLab():
         elif cmd == 'key':
             send = "key %s" % params
             self.dotool(send)
+            time.sleep(0.2)
         elif cmd == 'rep_key':
             parts = params.split()
             quant = int(parts[0])
