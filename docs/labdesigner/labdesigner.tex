@@ -1031,6 +1031,8 @@ Directives within the results.config file each have the following format:
                              contains the string represented in field_id.
                FILE_REGEX -- The result value is set to TRUE if the file 
                              contains the regular expression represented in field_id.
+                             The python findall function is used on the entire file.
+                             See the acl lab for an example of multi-line expressions.
                LOG_TS     -- Used with timestamped log files, this results in a 
                              timestamped set of results for each log line that
                              contains the string represented in the field_id.
