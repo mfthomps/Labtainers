@@ -1537,7 +1537,7 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
     container_bin = './bin'
     if auto_grade and role == 'instructor':
         run_container = start_config.grade_container
-        print('run just %s' % run_container)
+        #print('run just %s' % run_container)
     for name, container in start_config.containers.items():
         if SkipContainer(run_container, name, start_config, servers):
             #print('skipping name %s %s' % (name, start_config.containers[name]))
