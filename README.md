@@ -82,6 +82,13 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+May 15, 2018
+- Add appendix on use of the SimLab tool to simulate user performance of labs for
+regression testing and lab development.
+- Add wait\_net function to SimLab to pause until selected network connections terminate.
+- Change acl automated assessment to use FILE\_REGEX for multiline matching.
+- SimLab test for xsite lab.
+
 May 11, 2018
 - Add "noskip" file to force collection of files otherwise found in home.tar, needed
 for retrieving Firefox places.sqlite.
