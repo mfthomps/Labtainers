@@ -26,7 +26,7 @@ is_sqlite=`which sqlite3`
 echo $is_sqlite
 here=`pwd`
 places=$here/.mozilla/firefox/*default/places.sqlite
-for fname in $(ls $places); do
+for fname in $(ls $places 2> /dev/null); do
     if [[ -f $fname ]]; then
         outpath=$here/.local/result
         outfile=$outpath/moz_places.txt
