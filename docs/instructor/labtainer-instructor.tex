@@ -4,6 +4,7 @@
 \usepackage[colorlinks=true,linkcolor=blue,urlcolor=black]{hyperref}
 \usepackage{bookmark}
 \usepackage[autostyle, english = american]{csquotes}
+\usepackage{appendix}
 \begin{document}
 \title {Labtainer Instructor Guide\vspace{-4ex}}
 \maketitle
@@ -11,69 +12,86 @@
 \section {Introduction}
 This manual is intended for use by instructors who assign and/or grade
 labs using Labtainers.
-Labtainers assume you have a Linux system, e.g., a virtual machine.  Refer to
-in Appendix A of the \underline{Labtainer Student Guide} for installation of VirtualBox and a Linux system.
+Labtainers assume you have a Linux system, e.g., a virtual machine (VM).  
+The easiest path is to use our pre-built VM available at the Labtainer
+website \url{https://my.nps.edu/web/c3o/virtual-machine-images}.
+Alternately, refer to
+in Appendix A of the \underline{Labtainer Student Guide} for installation of VirtualBox 
+and a Linux system.
 Note that any Linux system can be used as long as it supports Docker.
+If Labtainers is to be used on a Linux system other than the pre-built VM,
+refer to the \underline{Labtainer Student Guide} for information on
+installing Labtainers.
 
 Labtainers provide a consistent execution environment for performing
-laboratory exercises, and can simulate the execution of several different
-computers interconnected via virtual networks.   
-
-\subsection{Obtaining Labtainers and installing Docker}
-The Labtainer framework is distributed as a tarball from:
-\url{https://my.nps.edu/web/cisr/labtainers}
-Untar this file into a permanent directory on your Linux system,
-e.g., \verb ~/home.  From the directory into which you untarred the
-tarball:
-\begin{verbatim}
-   cd labtainer
-   ./install-labtainer.sh
-\end{verbatim}
-
-This script will install the latest version of Docker and packages required
-by the Labtainer framework.  It will cause your Linux host to reboot when it
-completes.
-Note that older Linux distributions, e.g., Ubuntu 14.* lack the
-\textit{realpath} package, which should be installed prior to using Labtainers.
-
-After the Linux host reboots, open a terminal to your Linux host and
-change directory to wherever you untarred the tarball.
+laboratory exercises, and can include execution of several different
+computers interconnected via virtual networks.  Refer to our published
+papers at \url{https://my.nps.edu/web/c3o/labtainers} for additional information
+on the use of Labtainers.  And see the \underline{Lab Designer User Guide}"
+at \url{https://my.nps.edu/documents/107523844/109121513/labdesigner.pdf} for 
+information on creating and maintaining Labtainer exercises.
 
 \subsection{Assigning a Lab}
-Student instructions for using Labtainers are in the \underline{Labtainer Student Guide}.  Available labs are
-listed via the {\tt labtainer} script:
+Student instructions for using Labtainers are in the \underline{Labtainer Student Guide}.  
+Students work from the {\tt labtainer-student} directory, i.e.,
 \begin{verbatim}
-    cd labtainer/trunk/scripts/labtainer-instructor
+    cd ~labtainer/trunk/scripts/labtainer-student
+\end{verbatim}
+Available labs are listed via the {\tt labtainer} script:
+\begin{verbatim}
     labtainer
 \end{verbatim}
+\noindent Start a lab by providing its name as an argument to the {\tt labtainer} command.
+This will typically display a link to a lab manual, or will display a lab manual in one of
+the resulting virtual terminals.  You can interact with the resulting computers just as a
+student would.
 
 \subsection{Assessing a Lab}
-Collect all of the lab zip files from each student into the Labtainer xfer directory, which
+
+Collect all of the lab zip files from each student into the Labtainer transfer directory, which
 is typically at
 \begin{verbatim}
     ~/labtainer_xfer/<labname>
 \end{verbatim}
-All labs are assessed from the same Labtainer instructor workspace:
+\noindent where labname is the name of the lab.  Do not unzip the files.  Alternately student
+assignments can be bulk-collected from a learning management system (LMS) per Appendix \ref{lms collection}
+and the resulting file, e.g., the bulk\_download.zip for Sakai, would be copied into the
+Labtainer transfer directory.
+Instructor assessment of labs takes place from the {\tt labtainer-instructor} directory, i.e.,
 \begin{verbatim}
-    labtainer/trunk/scripts/labtainer-instructor
+    cd ~labtainer/trunk/scripts/labtainer-instructor
 \end{verbatim}
-\noindent Start the lab containers to initiate automated assessment of a lab:
+
+\noindent Use the {\tt gradelab} command to assess results for a given lab:
 \begin{verbatim}
     gradelab <labname>
 \end{verbatim}
-\noindent You will see a summary of what is assessed for the named lab, and the framework
-will then start the containers, one of which will perform automated assessment.
+\noindent A table of lab results with one row per student and
+a column for each goal will be displayed.  A description of the goals follows the table.
 
-One of the resulting virtual terminals, titled ``GOAL\_RESULTS'' will display the assessment results.
-These same results can also be generated by running this command in a virtual terminal:
+Student reports (if any) are  copied into 
 \begin{verbatim}
-    instructor.py
+    ~/labtainer_xfer/<labname>/docs
 \end{verbatim}
-\noindent This will generate the grading output file and display the file name.  In
-addition to the grading output, a directory is created that will contain each student's
-home directory content.  And container-specific artifacts are found in:
+\noindent on the Linux host.  If LMS assignment collection is used, then student reports should
+be looked for in 
 \begin{verbatim}
-    <student_dir>/<container>/.local/result
+    ~/labtainer_xfer/<labname>/reports
+\end{verbatim}
+\noindent which also includes reports separately uploaded into the LMS.
+
+\subsubsection{Review artifact details}
+You can view all student results, including their original artifacts by using the {\tt -d} flag
+with the {\tt gradelab} command.  This results in a virtual terminal connected to a computer
+that contains all student artifacts and results.  Student artifacts are found in 
+\begin{verbatim}
+<student email>/<lab>.<container>.student/.local/result
+\end{verbatim}
+
+You can create all of the computers within the lab, reproducing the student environment
+by using the {\tt labtainer} command.  These same results can also be generated by running this command in a virtual terminal:
+\begin{verbatim}
+    labtainer <lab>
 \end{verbatim}
 
 \noindent While running the lab, if you require more virtual terminals, use:
@@ -88,5 +106,19 @@ home directory content.  And container-specific artifacts are found in:
 \end{verbatim}
 The stoplab command will terminate the containers.  This is recommended to avoid network
 name conflicts when assessing other labs.
+
+\newpage
+\appendix
+\section{\\LMS Assignment Collection}
+\label{lms collection}
+\subsection{Sakai}
+In the Sakai Assignments section, select the ``In / New'' entry for the appropriate assignment.
+The resulting page should enumerate each student who has submitted an assignment.  In the upper right,
+click the ``Download All'' link, and then click the ``Student submission attachment(s)'' option and
+click the ``Download'' button.  Copy the resulting bulk\_download.zip into the lab transfer directory 
+on the Linux host, i.e.,
+\begin{verbatim}
+    ~/labtainer_xfer/<labname>
+\end{verbatim}
 
 \end{document}
