@@ -127,7 +127,7 @@ def extract(zip_fname, xfer, expect_lab):
                                    doc_date_time = time.mktime(zdoc_info.date_time + (0, 0, -1))
                                    #print('look for report in %s' % zdoc)
                                    fname, ext = os.path.splitext(zdoc)
-                                   if (ext == '.docx' or ext == '.odt') and (fname+'.pdf' not in zip_docs.namelist()):
+                                   if (ext == '.docx' or ext == '.odt' or ext == '.xlsx') and (fname+'.pdf' not in zip_docs.namelist()):
                                        if not os.path.isfile(os.path.join(target_dir, zdoc)):
                                            source = zip_docs.open(zdoc)
                                            if os.path.isdir(target_dir):
@@ -142,7 +142,7 @@ def extract(zip_fname, xfer, expect_lab):
             else:
                 fname, ext = os.path.splitext(filename)
                 #print('fname is %s' % fname)
-                if (ext == '.docx' or ext == '.odt'): 
+                if (ext == '.docx' or ext == '.odt' or ext == '.xlsx'): 
                     source = zip_file.open(member)
                     parts = member.split('/')
                     student = parts[1]
