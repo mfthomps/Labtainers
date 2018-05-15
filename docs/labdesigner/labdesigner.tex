@@ -5,6 +5,7 @@
 \usepackage{bookmark}
 \usepackage{graphicx}
 \usepackage[autostyle, english = american]{csquotes}
+\usepackage{appendix}
 \begin{document}
 \begin{titlepage}
 \title {Labtainer Lab Designer User Guide}
@@ -79,7 +80,46 @@ single iptables configuration during which the student used nmap to demonstrate 
 \item The local workstation could reach the HTTPS port and the SQL port.''
 \end{itemize}
 
+\subsection {Obtaining the Labtainer development kit}
+Installation of Labtainers is described in in the \textit{Labtainer Student Guide},  
+which also includes instructions for installing an Ubuntu VM (if you do not already have a Linux system),
+and the Labtainer framework.  Our website also distributes pre-packaged VM appliances that already have
+Labtainers installed. Labtainers will work with any Linux
+distribution that supports Docker containers.  If you already have Docker installed on a Linux system, 
+reference the Student Guide for other dependencies. 
+
+The difference between the development kit and the standard Labtainer distribution is primarily
+just the lab definition files, which are withheld from the general distribution for efficiency.
+If you have a Labtainer installation, you can get the developer files by going to your
+labtainers directory, e.g., {\tt \~{}/labtainers/} and running {\tt ./update-designer.sh}
+You may then want to logout and login again, or run a new {\tt bash} shell because that script
+sets some environment variables.
+
+It is suggested that you periodically run that update script to get the latest lab definition files,
+and to update framework software.   
+
+\subsection{Content of this guide}
+This guide describes how to build new labs, but first, section \ref{student environment}
+gives an overview of how students interact with Labtainers.  The steps taken to
+create a new lab are provided in section \ref{sec:new_labs}, and the mechanics of defining
+the lab execution environment are in section \ref{execution environment}.
+
+Individualizing labs to discourage sharing of solutions is described in \ref{parameterize}.
+Section \ref{assessment} then describes how to define criteria to enable automated assessment
+of student work.  
+
+Networking considerations are described in \ref{networking}.  Section \ref{publishing} covers
+the process of building, publishing and maintaining labs.
+
+Strategies for creating mulit-user Labtainer exercises are discussed in section \ref{multi user}.
+Section \ref{limitations} identifies limitations of the framework and section \ref{Notes} includes
+application-specific notes, e.g., notes relavent to including Firefox in a lab.
+
+Automated testing of labs is supported using our SimLab tool as described in Appendix \ref{testing}.
+
+
 \section {Overview of the student environment and workflow}
+\label{student environment}
 Labtainers support laboratory exercises designed for Linux environments,
 ranging from interaction with individual programs to labs that include
 what appear to be multiple components and networks.  Students see and interact with Linux
@@ -142,23 +182,6 @@ are intended to augment, rather than supplant this type of reporting.  The frame
 mechanisms for automating the collection of student lab reports into the artifact archive files
 that are collected by instructors. 
 
-\section {Obtaining the labtainer development kit}
-Installation of Labtainers is described in in the \textit{Labtainer Student Guide},  
-which also includes instructions for installing an Ubuntu VM (if you do not already have a Linux system),
-and the Labtainer framework.  Our website also distributes pre-packaged VM appliances that already have
-Labtainers installed. Labtainers will work with any Linux
-distribution that supports Docker containers.  If you already have Docker installed on a Linux system, 
-reference the Student Guide for other dependencies. 
-
-The difference between the development kit and the standard Labtainer distribution is primarily
-just the lab definition files, which are withheld from the general distribution for efficiency.
-If you have a Labtainer installation, you can get the developer files by going to your
-labtainers directory, e.g., {\tt \~{}/labtainers/} and running {\tt ./update-designer.sh}
-You may then want to logout and login again, or run a new {\tt bash} shell because that script
-sets some environment variables.
-
-It is suggested that you periodically run that update script to get the latest lab definition files,
-and to update framework software.   
 
 \section {Creating new labs}
 \label{sec:new_labs}
@@ -167,7 +190,7 @@ is the design of the lab itself, i.e., identifying learning objectives and
 organizing exercises to achieve those objectives.  The Labtainer framework
 does not specifically address any of that.  Rather, the framework is intended
 to allow you to focus more time on the design of the lab and less time on mitigating and
-explaining system administration and provisioning burdens you are placing on 
+explaining system administration and provisioning burdens you would otherwise place on 
 students and instructors.
 
 Typical steps for developing a new lab are:
@@ -1454,7 +1477,11 @@ student beneath the directory whose name is prefaced with the student email.
 From there, look in .local/result to find json files reflecting intermediate 
 results of assessing the student results.  The actual student result arifacts
 can be found in \verb!~/[student dir]/[lab].[container].student/.local/result!. 
-\section{Networking}
+
+The mechanics of performing the lab (so that you can test grading for different outcomes)
+can be automated using the SimLab tool described in Appendix \ref{testing}.
+
+\section{Networking} \label{networking}
 Most networking is simply a matter of defining networks and assigning them to containers
 as described in \ref{start config}.  
 
@@ -1786,7 +1813,7 @@ PASSWD : CLONE_REPLACE : .local/bin/fixlocal.sh : CLONE_NUM : CLONE
 
 \end{itemize}
 
-\section{Limitations}
+\section{Limitations} \label{limitations}
 The labtainers framework limits labs to the Linux execution environment.
 However, a lab designer could prescribe the inclusion of a separate
 VM, e.g., a Windows system, and that VM could be networked with the Linux
@@ -1955,4 +1982,84 @@ isolated, i.e., local to the container. These do get reset in ways that are
 hard to predict, so it is suggested that sysctl tuning be done in rc.local
 scripts so that they happen on each boot.
 
+Note also, that the Docker group (in which containers execute) is root 
+equivalent, and thus a hostile container can do damage to the Linux host.
+\newpage
+\appendix
+\section{\\SimLab for testing labs}
+\label{testing}
+SimLab is a testing tool used to simulate a user performing a lab.  
+It utilizes the xdotool utility to
+generate keyboard input and window selections.  The SimLab tool is driven by a 
+sequence of directives stored in a file at this location:
+\begin{verbatim}
+labtainer/simlab/<labname>/simthis.txt
+\end{verbatim}
+Note that simlab files are not in the svn trunk or in the github repository.  These
+files essentially contain lab solutions, and thus should not be openly published.
+\footnote{If you require simlab files for existing labs, contact me and try to convince
+me you actually need them (mfthomps@nps.edu).}
+
+With SimLab, you can fully automate the performance of a lab, including the use of GUIs.
+This facilitates regression testing, and the initial development of labs -- particularly
+the debugging of automated assessment.   
+
+Full automation of regression testing is achieved using the {\tt smoketest.py} utlity
+described below in \ref{smoketest}
+
+\subsection {SimLab Directives}
+Directives within a {\tt simthis.txt} file name windows to select, (i.e., gain focus),
+and keystrokes to generate as described in the list below.  The SimLab utility includes
+limited synchronization features to pause the input stream.  These currently include a
+directive to wait until some named process has completed execution; and a directive to wait
+until network connections with a given host have terminated.
+
+The SimLab directives are as follows:
+\begin{itemize}
+\item \textbf{window} $<$text$>$ -- Selects the window having a title that contains
+the given text.
+\item \textbf{type\_line} $<$text$>$ -- Types the given text.
+\item \textbf{key} $<$keysym$>$ -- Performs a keypress for the given X11 keysim, see
+\url{http://xahlee.info/linux/linux\_show\_keycode\_keysym.html}
+\item \textbf{rep\_key} $<$count$>$ $<$keysym$>$ -- Repeats a keypress for the given X11 keysim $<$count$>$ times.
+\item \textbf{sleep} $<$seconds$>$ -- Sleeps for the given number of seconds.
+\item \textbf{wait\_proc} $<$text$>$ -- Delays until a {\tt ps au $<$text$>$} returns nothing.
+Intended for use to wait for a command to complete.  This runs on the Linux host, so
+do not be vauge, or it may never return.
+\item \textbf{wait\_net} $<$container$>$:$<$text$>$ -- Delays until network connections to a given remote
+host have terminated.  The given $<$text$>$ is searched for as a substring within the host name ouput
+from a {\tt netstat} command run on the given container.
+\item \textbf{type\_file} $<$file name$>$ -- Reads and types each line in the named file.
+Blank lines will cause a 2 second sleep.
+\item \textbf{command\_file} $<$file name$>$ -- Intended for use in issuing a series of
+commands from the shell.  This reads and types each line in the named file.
+A {\tt wait\_proc} function is then automatically performed on the line.
+\item \textbf{key\_file} $<$file name$>$ -- Reads each line in the named file, and performs
+a keypress.  The lines should contain X11 keysims.  Blank lines cause a 2 second sleep.
+\item \textbf{replace\_file} $<$source file$>$ $<$dest file$>$ -- Copies content of a source
+file on the Linux host to a file on the currently selected container.  Uses a cheezy vi
+scheme that assumes you have selected the proper window.
+\item \textbf{add\_file} $<$source file$>$ $<$dest file$>$ -- Like {\tt replace\_file}, but
+will append text from the source to the end of the destination.
+\item \textbf{include} $<$file$>$ Reads the named file and treats each line as a SimLab directive,
+and then continues processing the next directive in the source file.  This is similar to the C
+include directive.
+
+\end{itemize}
+
+\subsection{Regression testing with smoketest.py} \label{smoketest}
+The {\tt smoketest.py} utility automates regression testing of labs.  It will automatically:
+\begin{itemize}
+\item Start a lab
+\item Use SimLab to perform the lab
+\item Stop the lab
+\item Use {\tt gradelab} to assess the lab
+\item Compare the results of gradelab to those stored in the directory at:
+\begin{verbatim}
+labtainer/simlab/<labname>/expected/
+\end{verbatim}
+\end{itemize}
+If {\tt smoketest.py} is started with no parameters, it will iterate through each lab in the labs
+directory.  The that lab lacks {\tt simthis.txt} file, then the lab is simply started and stopped
+(hence the tool's name).  The tool will stop upon encountering the first error.
 \end{document}
