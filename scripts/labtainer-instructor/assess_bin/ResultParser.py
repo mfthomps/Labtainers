@@ -819,7 +819,7 @@ def ParseConfigForTimeDelim(studentlabdir, labidname, configfilelines, ts_jsonfn
         linestrip = line.rstrip()
         if linestrip is not None and not linestrip.startswith('#') and len(line.strip())>0:
             containername, targetfile, result_key, command, field_type, token_id, lookupstring, result_home = getConfigItems(labidname, linestrip, studentlabdir, container_list, logger)
-            if ':' in targetfile:
+            if targetfile is not None and ':' in targetfile:
                 fname, delim_prog = targetfile.split(':')
                 logger.DEBUG('targetfile is time delim %s delim_prog %s fname %s' % (targetfile, delim_prog, fname))
                 look_for = os.path.join(result_home,'%s.stdout.*' % delim_prog)
