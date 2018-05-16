@@ -131,7 +131,11 @@ class SimLab():
     
     def typeLine(self, string):
         #cmd = "type --window %d '%s'" % (self.current_wid, string)
-        cmd = 'type "%s\n"' % (string)
+        if '"' in string:
+            cmd = "type '%s\n'" % (string)
+            print('cmd is %s' % cmd)
+        else:
+            cmd = 'type "%s\n"' % (string)
         self.dotool(cmd)
         #cmd = 'key Return'
         #self.dotool(cmd)
@@ -184,6 +188,21 @@ class SimLab():
                     #print 'sleep 2'
                     time.sleep(2)
 
+    def cpFile(self, labname, params):
+        ''' add_file src container:dest '''
+        parts = params.strip().split()
+        if len(parts) != 2:
+            print('syntax error, too many fields (%d) for add_file: %s' % (len(parts), params))
+            exit(1)
+        if ':' not in parts[1]:
+            print('syntax error on add_file: %s' % params)
+            exit(1)
+        src_path = os.path.join(self.sim_path, parts[0])
+        container, dst_path = parts[1].split(':')
+        full_containername = "%s.%s.student" % (labname, container)
+        cmd = 'docker cp %s %s:%s' % (src_path, full_containername, dst_path)
+        os.system(cmd)
+
     def addFile(self, params, replace=False):
         from_file, to_file = params.split()
         from_file = os.path.join(self.sim_path, from_file) 
@@ -197,7 +216,7 @@ class SimLab():
         self.dotool("type 'i'")
         with open(from_file) as fh:
             for line in fh:
-                self.typeLine(line.strip())
+                self.typeLine(line.rstrip())
         self.dotool("key Escape")
         self.dotool("type 'ZZ'")
        
@@ -279,7 +298,8 @@ class SimLab():
         elif cmd == 'add_file':
             self.addFile(params)
         elif cmd == 'replace_file':
-            self.addFile(params, True)
+            #self.addFile(params, True)
+            self.cpFile(self.labname, params)
         elif cmd == 'key':
             send = "key %s" % params
             self.dotool(send)
