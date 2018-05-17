@@ -2,6 +2,7 @@
 import ctypes
 import mmap
 import os
+import sys
 import struct
 import time
 import curses
@@ -115,18 +116,28 @@ def main(screen):
              water_level.value -= out_flow_rate 
              #print('pump running')
              screen.addstr(8,1, "Pump: running")
+             sys.stdout.write('\x1b]2;Physical_World: Pump running\x07')
+             sys.stdout.flush()
          else:
              screen.addstr(8,1, "Pump: stopped")
+             sys.stdout.write('\x1b]2;Physical_World: Pump stopped\x07')
+             sys.stdout.flush()
          if water_level.value < 42:
              water_level.value += in_flow_rate
          screen.addstr(11,1, "Pond water level: %4d" % water_level.value)
          #print('current level is %s' % water_level.value)
          if water_level.value > 40:
              screen.addstr(15,1, flood) 
+             sys.stdout.write('\x1b]2;Physical_World: Fields Flooded\x07')
+             sys.stdout.flush()
          elif water_level.value < 5:
              screen.addstr(15,1, dry) 
+             sys.stdout.write('\x1b]2;Physical_World: Pond Dry\x07')
+             sys.stdout.flush()
          elif lab_success:
              screen.addstr(15, 1, success)
+             sys.stdout.write('\x1b]2;Physical_World: Success\x07')
+             sys.stdout.flush()
          else:
              screen.addstr(15,1,clear)
          screen.refresh()
