@@ -89,7 +89,7 @@ class SimLab():
         return output[0].strip()
     
     
-    def searchWindows(self, name):
+    def searchWindows(self, name, wait=False):
         ''' find the most recent window whose title matches the given name.
             The title "Terminal" seems to return most windows, so double check
             the name against the getWindowname results.
@@ -98,7 +98,7 @@ class SimLab():
         count = 0
         while wid is None or len(wid) == 0:
             count += 1
-            if count > 20:
+            if count > 20 and not wait:
                 print('searchWindows failed to find %s after 20 seconds, exit' % name)
                 exit(1)
             time.sleep(1)
@@ -291,6 +291,9 @@ class SimLab():
             sys.stdout.flush()
         if cmd == 'window':
             wid = self.searchWindows(params)
+            self.activate(wid)
+        if cmd == 'window_wait':
+            wid = self.searchWindows(params, True)
             self.activate(wid)
         elif cmd == 'include':
             self.includeFile(params)
