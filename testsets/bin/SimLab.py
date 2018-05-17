@@ -160,10 +160,12 @@ class SimLab():
                     print('verbose level %d' % self.verbose_level)
                     if self.verbose_level >= 1:
                         print('%s' % line.strip())
+                        sys.stdout.flush()
                     continue
                 if len(line.strip()) > 0:
                     if self.verbose_level == 2:
                         print('cmd: %s' % line.strip())
+                        sys.stdout.flush()
                     self.typeLine(line.strip())
                     time.sleep(1.1)
                 else:
@@ -177,10 +179,12 @@ class SimLab():
                 if line.strip().startswith('#'):
                     if self.verbose_level >= 1:
                         print('%s' % line.strip())
+                        sys.stdout.flush()
                     continue
                 if len(line.strip()) > 0:
                     if self.verbose_level == 2:
                         print('key: %s' % line.strip())
+                        sys.stdout.flush()
                     send = "key %s" % line.strip()
                     self.dotool(send)
                     time.sleep(1.1)
@@ -228,6 +232,7 @@ class SimLab():
                     if line.strip().startswith('#'):
                         if self.verbose_level >= 1:
                             print('%s' % line.strip())
+                            sys.stdout.flush()
                     continue
                 #print line
                 try:
@@ -258,6 +263,9 @@ class SimLab():
         if not result:
             print('failed %s' % cmd)
             exit(1)
+        if self.verbose_level > 1:
+            print(output_str)
+            sys.stdout.flush()
         if result and output_str == "":
             #print "After DockerCmd, return False"
             return False
@@ -280,6 +288,7 @@ class SimLab():
             self.logger.debug('cmd %s  params: %s' % (cmd, params))
         if self.verbose_level == 2:
             print('%s: %s' % (cmd, params))
+            sys.stdout.flush()
         if cmd == 'window':
             wid = self.searchWindows(params)
             self.activate(wid)
@@ -413,6 +422,7 @@ class SimLab():
                     if line.strip().startswith('#'):
                         if self.verbose_level >= 1:
                             print('%s' % line.strip())
+                            sys.stdout.flush()
                     continue
                 #print line
                 try:
