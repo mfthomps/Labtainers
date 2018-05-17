@@ -1,6 +1,6 @@
 Buffer Overflow Lab -- Read this first
 
 The lab manual for this lab is at: 
-LAB_DOCS/bufoverflow.pdf
+file://LAB_DOCS/bufoverflow.pdf
 Right click on the above link to open the lab manual.
 
