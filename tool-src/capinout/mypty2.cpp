@@ -353,6 +353,29 @@ int ioLoop()
           if(wait_cmd == cmd_pid)
           {
               fprintf(debug, "MATCHED, cmd_pid gone \n");
+              /* See if death rattle on stdout */
+              int flags = fcntl(fdm_out, F_GETFL, 0);
+              fcntl(fdm_out, F_SETFL, flags | O_NONBLOCK);
+              rc = read(fdm_out, input, sizeof(input));
+              if (rc > 0) {
+                // Send data on the master side of PTY
+                //input[rc] = 0;
+                fprintf(debug, "deathbed read master_stdin [%s]\n", input);
+                input[rc] = 0;
+                char *tmp = input;
+                if(tmp[0] == '^' && tmp[1] == 'C' && ctrl_c_hack){
+                      fprintf(debug, "hack the control c\n");
+                      ctrl_c_hack = false;
+                      tmp = tmp+2;
+                }
+                // Send data on standard output
+                int wc = write(master_stdout, tmp, rc);
+                if(wc != rc){
+                    fprintf(debug,"write to fdm_in only wrote %d, expected %d\n", wc, rc);
+                    fflush(debug);
+                }
+                write(stdout_fd, tmp, rc);
+              }
               if(use_pty){
                   close(fds_in);
               }
@@ -876,12 +899,14 @@ int main(int argc, char *argv[])
      close(0); // Close standard input (current terminal)
      close(1); // Close standard output (current terminal)
      if(redirect_stderr || (redirect_filename == NULL && append_filename == NULL)){
+        fprintf(debug,"cmd child closed stderr\n");
         close(2); // Close standard error (current terminal)
      }
    
      dup(fds_in); // PTY becomes standard input (0)
      dup(fds_out); // PTY becomes standard output (1)
      if(redirect_stderr || (redirect_filename == NULL && append_filename == NULL)){
+        fprintf(debug,"cmd child dup fds_out for stderr\n");
         dup(fds_out); // PTY becomes standard error (2)
      }
   
