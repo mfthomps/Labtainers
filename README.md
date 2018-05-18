@@ -82,6 +82,17 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+May 18, 2018
+- Mask signal message from exec\_wrap so that segv error message looks right.
+- Fix grading of formatstring to catch segmentation fault message.
+- Add type\_function feature to SimLab to type stdout of a script. 
+- Remove SimLab limitation on combining single/double quotes.
+- Add window\_wait directive to SimLab to pause until window with given title
+can be found.
+- Modify plc lab to alter titles on physical world terminal to reflect status,
+this also makes testing easier.
+- Fix bufoverflow lab manual link.
+
 May 15, 2018
 - Add appendix on use of the SimLab tool to simulate user performance of labs for
 regression testing and lab development.
