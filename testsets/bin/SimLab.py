@@ -317,6 +317,11 @@ class SimLab():
             self.keyFile(params)
         elif cmd == 'type_line':
             self.typeLine(params.strip())
+        elif cmd == 'type_command':
+            self.typeLine(params.strip())
+            while isProcRunning(params):
+                print('%s running, wait' % params)
+                time.sleep(1)
         elif cmd == 'command_file':
             self.commandFile(params)
         elif cmd == 'command':
