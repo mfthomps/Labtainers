@@ -84,8 +84,9 @@ first time.
 
 May 18, 2018
 - Mask signal message from exec\_wrap so that segv error message looks right.
+- The capinout was sometimes losing stdout, check command stdout on death of cmd.
 - Fix grading of formatstring to catch segmentation fault message.
-- Add type\_function feature to SimLab to type stdout of a script. 
+- Add type\_function feature to SimLab to type stdout of a script (see formatstring simlab). 
 - Remove SimLab limitation on combining single/double quotes.
 - Add window\_wait directive to SimLab to pause until window with given title
 can be found.
