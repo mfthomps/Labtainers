@@ -355,7 +355,7 @@ class SimLab():
             fun_cmd = os.path.join(self.sim_path, params)
             ps = subprocess.Popen(shlex.split(fun_cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             output = ps.communicate()
-            self.typeLine(output[0])
+            self.typeLine(output[0].strip())
            
         else:
             print('Unknown command %s %s' % (cmd, params))
