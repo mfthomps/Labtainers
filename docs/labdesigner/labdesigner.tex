@@ -2019,7 +2019,9 @@ until network connections with a given host have terminated.
 The SimLab directives are as follows:
 \begin{itemize}
 \item \textbf{window} $<$text$>$ -- Selects the window having a title that contains
-the given text.
+the given text.  Will timeout and fail after 20 seconds.
+\item \textbf{window\_wait} $<$text$>$ -- Like window, but no timeout.  Intended for
+use when the xterm title is changed by a program.
 \item \textbf{type\_line} $<$text$>$ -- Types the given text.
 \item \textbf{key} $<$keysym$>$ -- Performs a keypress for the given X11 keysim, see
 \url{http://xahlee.info/linux/linux\_show\_keycode\_keysym.html}
