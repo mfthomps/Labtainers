@@ -2042,11 +2042,12 @@ a keypress.  The lines should contain X11 keysims.  Blank lines cause a 2 second
 file on the Linux host relative the simlab directory, to a destination path on the named selected container.  
 \item \textbf{add\_file} $<$source file$>$ $<$dest file$>$ -- Will append text from the source file to the 
 end of the destination file.  The destination file will be accessed from the currently selected virtual
-terminal.  This uses a simple VI scheme to append text.  No text line can include both a single quote and
-a double quote (a limitation of the xdotool).
+terminal.  This uses a simple VI scheme to append text, and thus assumes the window and cwd are as needed.
 \item \textbf{include} $<$file$>$ Reads the named file and treats each line as a SimLab directive,
 and then continues processing the next directive in the source file.  This is similar to the C
 include directive.
+\item \textbf{type\_function} $<$command$>$ -- Will execute the given command, read stdout from the 
+command and then type that.
 
 \end{itemize}
 
