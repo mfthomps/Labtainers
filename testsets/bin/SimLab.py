@@ -346,6 +346,12 @@ class SimLab():
                 time.sleep(1)
         elif cmd == 'sleep':
             time.sleep(int(params))
+        elif cmd == 'type_function':
+            fun_cmd = os.path.join(self.sim_path, params)
+            ps = subprocess.Popen(shlex.split(fun_cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            output = ps.communicate()
+            self.typeLine(output[0])
+           
         else:
             print('Unknown command %s %s' % (cmd, params))
 
