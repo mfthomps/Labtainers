@@ -133,7 +133,7 @@ class SimLab():
         #cmd = "type --window %d '%s'" % (self.current_wid, string)
         if '"' in string:
             cmd = "type '%s\n'" % (string)
-            print('cmd is %s' % cmd)
+            #print('cmd is %s' % cmd)
         else:
             cmd = 'type "%s\n"' % (string)
         self.dotool(cmd)
@@ -292,7 +292,7 @@ class SimLab():
         if cmd == 'window':
             wid = self.searchWindows(params)
             self.activate(wid)
-        if cmd == 'window_wait':
+        elif cmd == 'window_wait':
             wid = self.searchWindows(params, True)
             self.activate(wid)
         elif cmd == 'include':
