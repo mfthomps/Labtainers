@@ -82,6 +82,12 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+May 21, 2018
+- Fix retlibc grading to remove duplicate goal, was failing automated assessment
+- Remove copies of mynotify.py from individual labs and lab template, it is 
+has been part of lab\_sys/sbin, but had not been updated to reflect fixes made
+for acl lab.
+
 May 18, 2018
 - Mask signal message from exec\_wrap so that segv error message looks right.
 - The capinout was sometimes losing stdout, check command stdout on death of cmd.
