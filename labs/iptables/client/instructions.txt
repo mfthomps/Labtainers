@@ -13,6 +13,13 @@ You will configure the firewall within this topology:
 such that the client can only access ssh and http
 services on the server.
 
+It is assumed that you have learned about iptables elsewhere,
+e.g., in a course or independent study.  You can learn about 
+the iptables command via the manpage:
+    man iptables
+
+There are also plenty of resources on the internet.  
+
 2. Performing the lab
 The lab is started from the Labtainer working 
 directory on your Linux host, e.g., a Linux VM.
@@ -41,6 +48,7 @@ on the client:
 
 The resulting display should indicate that ssh and http are
 the only ports that are open.
+
 
 4. Stop the Labtainer
 
