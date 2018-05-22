@@ -20,7 +20,7 @@ RUN /usr/bin/apt-source.sh
 RUN apt-get update && apt-get install -y --no-install-recommends telnetd
 ADD $labdir/sys_$lab.tar.gz /
 RUN useradd -ms /bin/bash $user_name
-RUN echo "$user_name:$user_name" | chpasswd
+RUN echo "$user_name:gummybear" | chpasswd
 RUN adduser $user_name sudo
 
 USER $user_name
