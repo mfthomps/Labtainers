@@ -7,4 +7,4 @@
 #     precheck.stdout.timestamp file
 #
 # Run nmap on port 2023 - the 'other' telnet
-nmap -p2023 172.25.0.3
+nmap -n -p2023 172.25.0.3
