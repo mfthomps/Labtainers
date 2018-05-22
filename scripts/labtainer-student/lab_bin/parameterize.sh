@@ -86,6 +86,8 @@ then
         su -c "$HOME/.local/bin/fixlocal.sh $CONTAINER_PASSWORD $CONTAINER_USER 2>>/tmp/fixlocal.output" $CONTAINER_USER
     fi
 fi
+# keep rsyslog from hanging 10 seconds on the xconsole
+echo $CONTAINER_PASSWORD | sudo -S sed -i '/^daemon...mail/,+3 d' /etc/rsyslog.d/50-default.conf
 
 if [ -f /var/tmp/home.tar ]; then
    cd $HOME
