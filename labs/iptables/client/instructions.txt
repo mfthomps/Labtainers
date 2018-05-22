@@ -44,7 +44,7 @@ to the server other than ssh and http sessions.
 Demonstrate that you have achieved this by running this command
 on the client:
 
-    nmap 172.25.0.3
+    nmap -n 172.25.0.3
 
 The resulting display should indicate that ssh and http are
 the only ports that are open.
