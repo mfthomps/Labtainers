@@ -37,8 +37,6 @@ do_stop () {
     log_end_msg $?
 }
 
-sleep 10
-
 case "$1" in
 
     start|stop)
