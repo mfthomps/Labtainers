@@ -83,6 +83,9 @@ so you may want to logout/login, or start a new bash shell before using Labtaine
 first time.
 
 May 21, 2018
+- Remove 10 second sleeps from various services.  Was delaying xinetd responses.
+
+May 21, 2018
 - Fix retlibc grading to remove duplicate goal, was failing automated assessment
 - Remove copies of mynotify.py from individual labs and lab template, it is 
 has been part of lab\_sys/sbin, but had not been updated to reflect fixes made
