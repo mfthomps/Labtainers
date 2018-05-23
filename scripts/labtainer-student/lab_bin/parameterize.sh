@@ -87,7 +87,9 @@ then
     fi
 fi
 # keep rsyslog from hanging 10 seconds on the xconsole
-echo $CONTAINER_PASSWORD | sudo -S sed -i '/^daemon...mail/,+3 d' /etc/rsyslog.d/50-default.conf
+if [ -f /etc/rsyslog.d/50-default.conf ]; then
+   echo $CONTAINER_PASSWORD | sudo -S sed -i '/^daemon...mail/,+3 d' /etc/rsyslog.d/50-default.conf
+fi
 
 if [ -f /var/tmp/home.tar ]; then
    cd $HOME
