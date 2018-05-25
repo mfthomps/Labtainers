@@ -82,8 +82,13 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
-May 21, 2018
-- Remove 10 second sleeps from various services.  Was delaying xinetd responses.
+May 25, 2018
+- Remove 10 second sleeps from various services.  Was delaying xinetd responses, breaking
+automated tests.
+- Fix snort lab grading to only require "CONFIDENTIAL" in the alarm.  Remove unused
+files from lab.
+- Program finish times were not recorded if the program was running when the lab
+was stopped.
 
 May 21, 2018
 - Fix retlibc grading to remove duplicate goal, was failing automated assessment
