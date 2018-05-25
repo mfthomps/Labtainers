@@ -19,6 +19,7 @@ import subprocess
 import sys
 import zipfile
 import datetime
+import time
 
 
 def killMonitoredProcess(homeLocal):
@@ -30,9 +31,10 @@ def killMonitoredProcess(homeLocal):
         line = child.stdout.readline().strip()
         #print('got line %s' % line)
         if len(line)>0:
-            cmd = 'kill -TERM -%s' % line
+            cmd = 'kill -INT -%s' % line
             print('cmd is %s' % cmd)
             os.system(cmd)
+            time.sleep(2)
         else:
             done = True
     kill_proc = os.path.join(homeLocal, 'bin', 'killproc')
