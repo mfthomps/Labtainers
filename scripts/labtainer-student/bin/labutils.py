@@ -2178,14 +2178,14 @@ def CreateCopyChownZip(start_config, labtainer_config, name, container_name, con
     command=['docker', 'exec', '-i',  container_name, '/usr/bin/sudo', cmd_path, container_user, container_image]
     logger.DEBUG('cmd: %s' % str(command))
     child = subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    error_string = child.stderr.read().strip()
-    if len(error_string) > 0:
+    output = child.communicate()
+    if len(output[1].strip()) > 0:
         if ignore_stop_error:
-            logger.DEBUG("Container %s fail on executing Student.py %s \n" % (container_name, error_string))
+            logger.DEBUG("Container %s fail on executing Student.py %s \n" % (container_name, output[1]))
         else:
-            logger.ERROR("Container %s fail on executing Student.py %s \n" % (container_name, error_string))
+            logger.ERROR("Container %s fail on executing Student.py %s \n" % (container_name, output[1]))
         return None, None
-    logger.DEBUG("results from Student.py: %s" % child.stdout.read().strip())
+    logger.DEBUG("results from Student.py: %s" % output[0])
     
     #out_string = output[0].strip()
     #if len(out_string) > 0:
