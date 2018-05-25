@@ -793,6 +793,7 @@ def processBoolean(eachgoal, goal_times, logger):
             logger.DEBUG('eval %s against %s tspart %s' % (t_string, str(current_goals), timestamppart))
             evalBooleanResult = evalBoolean.evaluate_boolean_expression(t_string, current_goals, logger)
             if evalBooleanResult is not None:
+                logger.DEBUG('bool evaluated to %r' % evalBooleanResult)
                 goal_times.addGoal(goalid, timestamppart, evalBooleanResult)
     # if evalBooleanResult is None - means not found
     if evalBooleanResult is None:
