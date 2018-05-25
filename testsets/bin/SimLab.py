@@ -54,11 +54,12 @@ def DockerCmd(cmd):
     return True, ""
 
 class SimLab():
-    def __init__(self, lab, verbose_level=0, logger=None):
+    def __init__(self, lab, verbose_level=0, in_file='simthis.txt', logger=None):
         self.sim_path = os.path.abspath(os.path.join('../../../simlab', lab))
         self.labname = lab
         self.current_wid = None
         self.logger = logger
+        self.in_file = in_file
         print('set verbose to %s' % verbose_level)
         self.verbose_level = verbose_level
 
@@ -102,6 +103,8 @@ class SimLab():
                 print('searchWindows failed to find %s after 20 seconds, exit' % name)
                 exit(1)
             time.sleep(1)
+            if '"' not in name:
+                name = '"'+name+'"'
             cmd = 'search %s' % name
             #print('searchWindows %s' % cmd)
             output=self.dotool(cmd)
@@ -427,7 +430,7 @@ class SimLab():
             return 1
     
     def simThis(self):
-        fname = os.path.join(self.sim_path, 'simthis.txt')
+        fname = os.path.join(self.sim_path, self.in_file)
         if self.logger is not None:
             self.logger.debug('smithThis for %s' % fname)
 
@@ -469,6 +472,7 @@ def __main__():
     parser = argparse.ArgumentParser(description='Simulate student performing lab')
     parser.add_argument('labname', help='The lab to simulate')
     parser.add_argument('-v', '--verbose', action='count', default=0, help="Use -v to see comments as they are encountered, -vv to see each line")
+    parser.add_argument('-f', '--file', action='store', default='simthis.txt', help='Directives file, default is simthis.txt.')
     args = parser.parse_args()
     lab = args.labname
     verbose_level = int(args.verbose)
@@ -477,7 +481,7 @@ def __main__():
     if verbose_level > 2:
         print("Verbose level up to 2 only!")
         exit(1)
-    simlab = SimLab(lab, verbose_level)
+    simlab = SimLab(lab, verbose_level, in_file=args.file)
     simlab.simThis() 
 
 if __name__=="__main__":
