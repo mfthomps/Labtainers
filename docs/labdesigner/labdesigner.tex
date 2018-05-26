@@ -65,13 +65,21 @@ a common Linux execution environment.   These benefits can be realized
 whether or not labs are configured for automatic assessment, 
 or are parameterized for each student.
 
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.4\textwidth,natwidth=621,natheight=403]{dmz-lab.jpg}
+\caption{Example Labtainers network topology}
+\label{fig:dmz}
+\end{figure}
+
 Exercises that include multiple networked computers illustrate an advantage 
 of using containers over VMs, namely, containers require significantly less resources
 than do VMs.  A student laptop that struggles to run two or more VMs can readily 
 run multiple containers simultaneously, as shown in this 50 second demonstration: \url{https://youtu.be/JDV6jGF3Szw} 
 
 Lab designers enhance labs to include automated assessment using directives built into the famework.
-For example, ten rather simple directives can evaluate the following question:
+For example, ten rather simple directives can evaluate the following question regarding a student'
+work on a lab depicted in Figure \ref{fig:dmz}:
 
 ``Was there any
 single iptables configuration during which the student used nmap to demonstrate that:
