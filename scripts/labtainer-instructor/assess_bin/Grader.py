@@ -933,7 +933,7 @@ def processLabExercise(studentlabdir, labidname, grades, goals, bool_results, go
         elif eachgoal['goaltype'].startswith('is_'):
             processTrueFalse(result_sets, eachgoal, goal_times)
         else:
-            sys.stdout.write("Error: Invalid goal type!\n")
+            sys.stdout.write("Error: Invalid goal type: %s\n eachgoal is %s", (eachgoal['goaltype'], str(eachgoal)))
             sys.exit(1)
 
 
