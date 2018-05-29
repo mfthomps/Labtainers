@@ -69,7 +69,17 @@ def handle_delete_container(tdir, deletecontainer):
             start_config_file.write(line)
     start_config_file.close()
 
-def handle_add_container(tdir, newcontainer):
+def add_container(start_config_filename, newcontainer, basename):
+    # Open start.config with append
+    start_config_file = open(start_config_filename, 'a')
+    start_config_file.write('CONTAINER %s\n' % newcontainer)
+    start_config_file.write('\tUSER ubuntu\n')
+    if basename == 'centos':
+        start_config_file.write('\tSCRIPT NONE\n')
+        start_config_file.write('\tX11 YES\n')
+    start_config_file.close()
+
+def handle_add_container(tdir, newcontainer, basename='base'):
     # This assumes directories 'config', 'dockerfiles' and 'instr_config'
     # have been properly populated
     if newcontainer != newcontainer.lower():
@@ -104,27 +114,11 @@ def handle_add_container(tdir, newcontainer):
     if not (os.path.exists(start_config_filename) and os.path.isfile(start_config_filename)):
         print('Configuration file start.config does not exist!')
         sys.exit(1)
-
-    # Open start.config with append
-    start_config_file = open(start_config_filename, 'a')
-    config_template_file = os.path.join(tdir, 'config', 'start.config.template')
-    container_default_line_found = False
-    default_string = 'default'
-    with open(config_template_file) as fh:
-        config_template_filelines = fh.readlines()
-    for line in config_template_filelines:
-        if line.startswith('CONTAINER'):
-            container_default_line_found = True
-        if container_default_line_found:
-            new_line = line.replace(default_string, newcontainer)
-            if "XTERM" in line:
-                new_line = new_line.replace("XTERM", "#XTERM")
-            start_config_file.write(new_line)
-    start_config_file.close()
+    add_container(start_config_filename, newcontainer, basename)
 
     # Now copy dockerfiles/Dockerfile.template.template.student as
     #          dockerfiles/Dockerfile.<labname>.<newcontainer>.student
-    dockerfile_template = os.path.join(tdir, 'dockerfiles', 'Dockerfile.template.template.student')
+    dockerfile_template = os.path.join(tdir, 'dockerfiles', 'Dockerfile.template.%s.student' % basename)
     newcontainer_dockerfilename = 'Dockerfile.%s.%s.student' % (labname, newcontainer)
     newcontainer_dockerfile = os.path.join(here, 'dockerfiles', newcontainer_dockerfilename)
     shutil.copy(dockerfile_template, newcontainer_dockerfile)
@@ -218,6 +212,7 @@ def handle_clone_lab(tdir, newlabname):
     for name in newlabname_olddockerfiles:
         fname = os.path.basename(name)
         # Replace only the first occurence to prevent replacing the container name portion
+        #print('fname is  %s oldlabname is %s, new is %s' % (fname, oldlabname, newlabname))
         newfname = fname.replace(oldlabname, newlabname, 1)
         newname = os.path.join(os.path.dirname(name), newfname)
         #print "name is (%s) newname is (%s)" % (name, newname)
@@ -252,10 +247,16 @@ def handle_clone_lab(tdir, newlabname):
         newlabname_olddockerfilename = os.path.join(newlabpath, 'dockerfiles')
         newlabname_olddockerfiles = glob.glob('%s/*' % newlabname_olddockerfilename)
         for name in newlabname_olddockerfiles:
-            newname = name.replace(oldlabname, newlabname)
+            # rsplit(old, new, 1)
+            newname = newlabname.join(name.rsplit(oldlabname, 1))
+            #print('name: %s oldlabname: %s newlabname %s  newname: %s' % (name, oldlabname, newlabname, newname))
             #print "name is (%s) newname is (%s)" % (name, newname)
             # Rename dockerfiles as new labname dockerfiles
-            os.rename(name, newname)
+            try:
+                os.rename(name, newname)
+            except:
+                print "ERROR, could not rename, name is (%s) newname is (%s)" % (name, newname)
+                exit(1)
 
         # Read start.config, replace 'oldlabname' as 'newlabname' into start.config
         start_config_file = open(start_config_filename, 'r')
@@ -344,7 +345,7 @@ def handle_replace_container(tdir, oldcontainer, newcontainer):
     start_config_file.close()
 
 
-def copy_from_template(tdir):
+def copy_from_template(tdir, basename):
     '''
     Copy a set of initial lab configuration files into a new lab and
     adjust their names and content to reflect the lab name.
@@ -361,6 +362,10 @@ def copy_from_template(tdir):
             except:
                 print('error copying %s to %s, expected %s to be empty' % (source, here, here))
                 exit(1)
+        elif source == 'dockerfiles':
+                dfile = 'Dockerfile.template.%s.student' % basename
+                docker_template = os.path.join(tdir,dfile)
+                shutil.copyfile(docker_template, os.path.join(here, 'Dockerfile.template.template.student'))
         else:        
             try:
                 shutil.copytree(os.path.join(tdir, source), os.path.join(here, source)) 
@@ -391,6 +396,7 @@ def copy_from_template(tdir):
             else:
                 out_fh.write(line)
     os.remove(start_config_template) 
+    add_container(start_config_file, labname, basename):
 
 def check_valid_lab(current_dir):
     is_valid = True
@@ -452,6 +458,8 @@ def main():
     parser.add_argument('-r', '--rename_container', action='store', nargs = 2, help='Rename container in the lab, e.g., "-r old new"', metavar='')
     parser.add_argument('-m', '--rename_lab', action='store',  help='Rename the current lab to the given name. Warning: may break subversion!"', metavar='')
     parser.add_argument('-d', '--delete_container', action='store', help='Delete a container from this lab', metavar='')
+    parser.add_argument('-b', '--base_name', action='store', help='Identify labtainer base dockerfile', 
+                          metavar='', default='base')
 
     args = parser.parse_args()
 
@@ -472,13 +480,13 @@ def main():
             print("This already appears to be a lab directory!\n")
             parser.print_help()
         else:
-            copy_from_template(tdir)
+            copy_from_template(tdir, args.base_name)
             print('New lab created.  Use "new_lab_setup.py -h" to see')
             print('options for adding components to the lab.')
     else:
         if args.add_container is not None:
             newcontainer = args.add_container
-            handle_add_container(tdir, newcontainer)
+            handle_add_container(tdir, newcontainer, args.base_name)
             print("Added new container %s." % newcontainer)
         elif args.clone_container is not None:
             oldlabname = handle_clone_lab(tdir, args.clone_container)
