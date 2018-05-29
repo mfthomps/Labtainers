@@ -284,7 +284,7 @@ def validate_goals(parameter_list, resultidlist, goals, bool_results):
         elif jsongoaltype == "boolean":
             boolean_string = eachgoal['boolean_string']
             found_error = check_boolean(parameter_list, bool_results, goals, jsongoalid, boolean_string)
-        elif jsongoaltype == "time_before" or jsongoaltype == "time_during":
+        elif jsongoaltype == "time_before" or jsongoaltype == "time_during" or jsongoaltype == "time_not_during":
             goal1tag = eachgoal['goal1tag']
             goal2tag = eachgoal['goal2tag']
             found_error = check_temporal(parameter_list, resultidlist, goals, jsongoalid, goal1tag, goal2tag)
@@ -302,7 +302,7 @@ def validate_goals(parameter_list, resultidlist, goals, bool_results):
                 found_error = True
                 labutils.logger.ERROR("ERROR: Goals goalid (%s) has invalid resulttag (%s)" % (jsongoalid, jsonresulttag))
         else:
-            sys.stdout.write("Error: Invalid goal type!\n")
+            sys.stdout.write("Error: Invalid goal type: %s\n eachgoal is %s" % (jsongoaltype, str(eachgoal)))
             sys.exit(1)
 
         # Found an error - break for loop
