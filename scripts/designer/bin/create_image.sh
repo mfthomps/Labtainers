@@ -11,7 +11,7 @@ END
 source ./set_reg.sh
 if [[ "$2" != -f ]]; then
    echo "This will build the labtainer $1 image.  "
-   echo "Confirm that the labtainer.centos has been published."
+   echo "Confirm that the dependent images have been published."
    echo "registry is $LABTAINER_REGISTRY"
    read -p "Continue? (y/n)"
    if [[ ! $REPLY =~ ^[Yy]$ ]]
