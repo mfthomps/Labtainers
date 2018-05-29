@@ -1,0 +1,5 @@
+NOTE: It can be rude to modify baseline images because it may cause a 
+2 GB update on some systems.
+
+Instead, use the .xtra strategy where we chain images.  Then alter the 
+individual labs to draw from the .xtra image.
