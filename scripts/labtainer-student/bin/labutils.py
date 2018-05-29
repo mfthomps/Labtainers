@@ -134,7 +134,18 @@ def isalphadashscore(name):
 
 # get docker0 IP address
 def getDocker0IPAddr():
-    return get_ip_address('docker0')
+    #return get_ip_address('docker0')
+    cmd = "docker inspect -f '{{ .NetworkSettings.IPAddress }}' docker0"
+    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if len(output[1].strip()) == 0:
+        ''' is a docker0 master container '''
+        if len(output[0].strip()) > 0:
+            return output[0].strip()
+        else:
+            return None
+    else:
+        return get_ip_address('docker0')
 
 # Parameterize my_container_name container
 def ParameterizeMyContainer(mycontainer_name, container_user, container_password, lab_instance_seed, user_email, labname, lab_path, name):
