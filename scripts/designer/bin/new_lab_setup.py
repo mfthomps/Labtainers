@@ -249,7 +249,7 @@ def handle_clone_lab(tdir, newlabname):
         for name in newlabname_olddockerfiles:
             # rsplit(old, new, 1)
             newname = newlabname.join(name.rsplit(oldlabname, 1))
-            #print('name: %s oldlabname: %s newlabname %s  newname: %s' % (name, oldlabname, newlabname, newname))
+            print('name: %s oldlabname: %s newlabname %s  newname: %s' % (name, oldlabname, newlabname, newname))
             #print "name is (%s) newname is (%s)" % (name, newname)
             # Rename dockerfiles as new labname dockerfiles
             try:
@@ -364,8 +364,13 @@ def copy_from_template(tdir, basename):
                 exit(1)
         elif source == 'dockerfiles':
                 dfile = 'Dockerfile.template.%s.student' % basename
-                docker_template = os.path.join(tdir,dfile)
-                shutil.copyfile(docker_template, os.path.join(here, 'Dockerfile.template.template.student'))
+                docker_template = os.path.join(tdir, 'dockerfiles', dfile)
+                dockerfiles = os.path.join(here, 'dockerfiles')
+                try:
+                    os.mkdir(dockerfiles)
+                except:
+                    pass
+                shutil.copyfile(docker_template, os.path.join(dockerfiles, 'Dockerfile.template.template.student'))
         else:        
             try:
                 shutil.copytree(os.path.join(tdir, source), os.path.join(here, source)) 
@@ -396,7 +401,7 @@ def copy_from_template(tdir, basename):
             else:
                 out_fh.write(line)
     os.remove(start_config_template) 
-    add_container(start_config_file, labname, basename):
+    add_container(start_config_file, labname, basename)
 
 def check_valid_lab(current_dir):
     is_valid = True
