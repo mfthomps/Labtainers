@@ -82,6 +82,12 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+May 30, 2018
+- Extended new\_lab\_setup.py to permit identification of the base image to use
+- Create new version of centos-log that includes centralized logging.
+- Assessment validation was not accepting "time\_not\_during" option.
+- Begin to integrate Labtainer Master for managing Labtainers from a Docker container.
+
 May 25, 2018
 - Remove 10 second sleeps from various services.  Was delaying xinetd responses, breaking
 automated tests.
