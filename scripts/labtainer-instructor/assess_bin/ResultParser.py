@@ -305,10 +305,13 @@ def lineHasCommand(line, look_for):
     commands = line.split(';')
     for c in commands:
         c = c.strip()
-        if c.startswith('('):
-            c = c[1:]
-        if c.startswith(look_for):
-            retval += 1
+        pipes = c.split('|')
+        for p in pipes:
+            p = p.strip()
+            if p.startswith('('):
+                p = p[1:]
+            if p.startswith(look_for):
+                retval += 1
     return retval
 
 def getTS(line):
