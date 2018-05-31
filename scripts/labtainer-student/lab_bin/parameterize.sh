@@ -74,6 +74,8 @@ if [[ -f /etc/sudoers.new ]]; then
     echo $CONTAINER_PASSWORD | sudo -S mv /etc/sudoers.new /etc/sudoers
 fi
 
+echo $CONTAINER_PASSWORD | sudo rm -f /run/nologin
+
 # call ParameterParser.py (passing $LAB_INSTANCE_SEED)
 echo $CONTAINER_PASSWORD | sudo -S $HOME/.local/bin/ParameterParser.py $CONTAINER_USER $LAB_INSTANCE_SEED $CONTAINER_NAME $LAB_PARAMCONFIGFILE
 
