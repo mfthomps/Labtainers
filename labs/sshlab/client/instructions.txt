@@ -30,18 +30,23 @@ To exit navigation of this instruction, type 'q'.
 On the client computer: ssh-keygen -t rsa
 Note: when prompted, DO NOT enter a passphrase
 
+This will create a private key and its corresponding public
+key and place them in your .ssh directory.
+
 3.2. Setup SSH on server for user to use authentication keys
 
-Obtain the server's IP address <server_ip> 
-The following commands assume the user on the server is 'ubuntu':
+The server's IP address is 172.20.0.3.  The user is "ubuntu",
+and the user's password is also "ubuntu".
+
 On the client computer:
-     Note: for all commands below, when prompted, enter the user's password
-     a. ssh ubuntu@<server_ip> mkdir -p .ssh
-     b. scp .ssh/id_rsa.pub ubuntu@<server_ip>:.ssh/authorized_keys
-     c. scp .ssh/id_rsa.pub ubuntu@<server_ip>:.ssh/authorized_keys2
-     d. ssh ubuntu@<server_ip> chmod 700 .ssh
-     e. ssh ubuntu@<server_ip> chmod 640 .ssh/authorized_keys
-     f. ssh ubuntu@<server_ip> chmod 640 .ssh/authorized_keys2
+     ssh-copy-id -i ~/.ssh/id_rsa.pub 172.20.0.3
+     When prompted to "...continue connecting (yes/no):, type "yes".
+     Provide the user password when prompted.
+
+The above step will copy the public key to the ~/.ssh/authorized_keys
+file on the remote sever.
+
+And that is it!
 
 3.3. Connect using SSH and display a file on the server
 
