@@ -82,6 +82,14 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+May 31, 2018
+- Work around Docker bug that caused text to wrap in a terminal without a line feed.
+- Extend COMMAND\_COUNT to account for pipes
+- Create new version of backups lab that includes backups to a remote server and 
+backs up an entire partition.
+- Alter sshlab instructions to use ssh-copy-id utility
+- Delte /run/nologin file from parameterize.sh to permit ssh login on CentOS
+
 May 30, 2018
 - Extended new\_lab\_setup.py to permit identification of the base image to use
 - Create new version of centos-log that includes centralized logging.
