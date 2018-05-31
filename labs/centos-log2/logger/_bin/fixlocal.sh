@@ -5,5 +5,3 @@
 #
 # avoid error message in syslog
 echo $1 | sudo -S chown syslog:adm /dev/xconsole
-# allow login on centos
-echo $1 | sudo -S rm /run/nologin
