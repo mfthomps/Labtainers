@@ -116,6 +116,10 @@ def extract(zip_fname, xfer, expect_lab):
 
                 # copy reports
                 target_dir = os.path.join(results_dir, student)
+                try:
+                    os.makedirs(target_dir)
+                except OSError:
+                    pass
                 zip_file_data = BytesIO(zip_file.read(member))
                 with zipfile.ZipFile(zip_file_data) as zip_zips:
                    for zi in zip_zips.namelist():
@@ -125,7 +129,7 @@ def extract(zip_fname, xfer, expect_lab):
                                for zdoc_info in zip_docs.infolist():
                                    zdoc = zdoc_info.filename     
                                    doc_date_time = time.mktime(zdoc_info.date_time + (0, 0, -1))
-                                   #print('look for report in %s' % zdoc)
+                                   #print('student %s look for report in %s' % (student, zdoc))
                                    fname, ext = os.path.splitext(zdoc)
                                    if (ext == '.docx' or ext == '.odt' or ext == '.xlsx') and (fname+'.pdf' not in zip_docs.namelist()):
                                        if not os.path.isfile(os.path.join(target_dir, zdoc)):
@@ -136,6 +140,8 @@ def extract(zip_fname, xfer, expect_lab):
                                                shutil.copyfileobj(source, target)
                                                #print('copied report %s to %s' % (zdoc, target_dir))
                                                os.utime(os.path.join(target_dir, zdoc), (doc_date_time, doc_date_time))
+                                           else:
+                                               print('no dir at %s' % target_dir)
                                        else:
                                            print('found doc at %s, do not overwrite' % os.path.join(target_dir, zdoc))
 
