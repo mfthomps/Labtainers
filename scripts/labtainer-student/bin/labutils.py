@@ -1263,7 +1263,7 @@ def ContainerTerminals(lab_path, start_config, container, role, terminal_count, 
                     exit(1)
                 if command is not None:
                     cmd =  'sh -c "cd /home/%s && .local/bin/%s"' % (container.user, command)
-                    terminal_location = terminalCounter(terminal_count)
+                    terminal_location, columns, lines = terminalCounter(terminal_count)
                     terminal_count += 1
                     # note hack to change --geometry to -geometry
                     spawn_command = "xterm %s -title %s -sb -rightbar -fa 'Monospace' -fs 11 -e docker exec -it %s %s  & 2>/tmp/xterm.out" % (terminal_location[1:], 
@@ -1286,7 +1286,7 @@ def ContainerTerminals(lab_path, start_config, container, role, terminal_count, 
         if not (num_terminal == 0 or num_terminal == -1):
             for x in range(num_terminal):
                 #sys.stderr.write("%d \n" % terminal_count)
-                terminal_location = terminalCounter(terminal_count)
+                terminal_location, columns, lines = terminalCounter(terminal_count)
                 #sys.stderr.write("%s \n" % terminal_location)
                 #sys.stderr.write("%s \n" % mycontainer_name)
                 if role == 'instructor':
@@ -1303,8 +1303,8 @@ def ContainerTerminals(lab_path, start_config, container, role, terminal_count, 
                     terminal_groups[container.terminal_group].append(group_command)
                 else:
                     terminal_count += 1
-                    spawn_command = 'gnome-terminal %s -- docker exec -it %s %s &' % (terminal_location,
-                       mycontainer_name, cmd)
+                    spawn_command = 'gnome-terminal %s -- docker exec -it --env COLUMNS=%d --env LINES=%d %s %s &' % (terminal_location,
+                       columns, lines, mycontainer_name, cmd)
                     logger.DEBUG("gnome spawn: %s" % spawn_command)
                     #print spawn_command
                     os.system(spawn_command)
@@ -1440,7 +1440,7 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, che
         tab_commands = ''
         for command in terminal_groups[tg]:
             tab_commands = tab_commands+' --tab -e %s' % command
-        terminal_location = terminalCounter(terminal_count)
+        terminal_location, columns, lines = terminalCounter(terminal_count)
         terminal_count += 1
         spawn_command = 'gnome-terminal %s %s' % (terminal_location, tab_commands)
         logger.DEBUG("gnome spawn: %s" % spawn_command)
@@ -1453,10 +1453,12 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, che
     return 0
 
 def terminalCounter(terminal_count):
-    x_coordinate = 100 + ( 50 * terminal_count )
+    columns = 100
+    lines = 25
+    x_coordinate = columns + ( 50 * terminal_count )
     y_coordinate = 75 + ( 50 * terminal_count)
-    terminal_location = "--geometry 100x25+%d+%d" % (x_coordinate, y_coordinate)
-    return terminal_location
+    terminal_location = "--geometry %dx%d+%d+%d" % (columns, lines, x_coordinate, y_coordinate)
+    return terminal_location, columns, lines
 
 def terminalWideCounter(terminal_count):
     x_coordinate = 100 + ( 50 * terminal_count )
