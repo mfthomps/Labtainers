@@ -8,5 +8,3 @@
 #  echo $1 | sudo -S the-command
 #
 echo "nameserver 198.18.0.1" | sudo tee /etc/resolv.conf
-# remove the dns route so as to not confuse student
-sudo route del -host 172.17.0.1
