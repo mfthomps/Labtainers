@@ -1173,19 +1173,26 @@ def CheckLabContainerApps(start_config, lab_path, apps2start):
     return has_multi_container
 
 def ReloadStartConfig(lab_path, labtainer_config, start_config, student_email, role, logger, servers, clone_count):
-    config_path       = os.path.join(lab_path,"config") 
-    start_config_path = os.path.join(config_path,"start.config")
-    param_path = os.path.join(config_path,"parameter.config")
-    tmp_config = '/tmp/start.config'
-    shutil.copyfile(start_config_path, tmp_config)
-    lab_instance_seed = GetLabSeed(start_config.lab_master_seed, student_email)
-    pp = ParameterParser.ParameterParser(None, None, lab_instance_seed, logger)
-    pp.ParseParameterConfig(param_path)
-    pp.DoReplace()
+    
     labname = os.path.basename(lab_path)
-    start_config = ParseStartConfig.ParseStartConfig(tmp_config, labname, role, labtainer_config, logger, skip_networks=False,
+    my_start_config = os.path.join('./.tmp',labname, 'start.config')
+    if not os.path.isfile(my_start_config):
+        config_path       = os.path.join(lab_path,"config") 
+        start_config_path = os.path.join(config_path,"start.config")
+        param_path = os.path.join(config_path,"parameter.config")
+        try:
+            os.makedirs(os.path.dirname(my_start_config))
+        except os.error:
+            pass
+        shutil.copyfile(start_config_path, my_start_config)
+        lab_instance_seed = GetLabSeed(start_config.lab_master_seed, student_email)
+        logger.DEBUG("lab_instance_seed for <%s> <%s> is %s" % (start_config.lab_master_seed, student_email, lab_instance_seed))
+        pp = ParameterParser.ParameterParser(None, None, lab_instance_seed, logger, lab=labname)
+        pp.ParseParameterConfig(param_path)
+        pp.DoReplace()
+    start_config = ParseStartConfig.ParseStartConfig(my_start_config, labname, role, labtainer_config, logger, skip_networks=False,
                          servers=servers, clone_count=clone_count)
-    logger.DEBUG('did start.config reload from %s' % tmp_config)
+    logger.DEBUG('did start.config reload from %s' % my_start_config)
     return start_config
 
 
@@ -1203,6 +1210,8 @@ def CheckEmailReloadStartConfig(start_config, quiet_start, is_regress_test, lab_
                 student_email = 'instructor@here.there'
             else:
                 student_email = GetUserEmail(True)
+    if student_email == None:
+        student_email = GetUserEmail(True)
     start_config = ReloadStartConfig(lab_path, labtainer_config, start_config, student_email, role, logger, servers, clone_count)
     return start_config, student_email
 
@@ -1551,6 +1560,11 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
     if auto_grade and role == 'instructor':
         run_container = start_config.grade_container
         #print('run just %s' % run_container)
+    if is_redo:
+        my_start_config = os.path.join('./.tmp',labname, 'start.config')
+        if os.path.isfile(my_start_config):
+            os.remove(my_start_config)
+        
     for name, container in start_config.containers.items():
         if SkipContainer(run_container, name, start_config, servers):
             #print('skipping name %s %s' % (name, start_config.containers[name]))
@@ -2209,7 +2223,7 @@ def CreateCopyChownZip(start_config, labtainer_config, name, container_name, con
     shutil.rmtree(tmp_dir, ignore_errors=True)
     try:
         os.makedirs(tmp_dir)
-    except:
+    except os.error:
         logger.ERROR("did not expect to find dir %s" % tmp_dir)
     source_dir = os.path.join('/home', container_user, '.local', 'zip')
     cont_source = '%s:%s' % (container_name, source_dir)
