@@ -24,3 +24,6 @@ iptables -P FORWARD ACCEPT
 #
 /etc/init.d/dnsmasq restart
 
+echo "nameserver 198.18.1.3" > /etc/resolv.conf
+route del -host 172.17.0.1
+
