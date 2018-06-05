@@ -21,7 +21,7 @@ import sys
 import ParameterizeLogging
 
 class ParameterParser():
-    def __init__(self, container_name, container_user, lab_instance_seed, logger=None):    
+    def __init__(self, container_name, container_user, lab_instance_seed, logger=None, lab=None):    
         ''' NOTE: container_name is none if running on Linux host vice a container, e.g., for start.config '''
         self.randreplacelist = {}
         self.unique_values = {}
@@ -32,6 +32,7 @@ class ParameterParser():
         self.container_user = container_user
         self.container_name = container_name
         self.lab_instance_seed = lab_instance_seed
+        self.lab = lab
         if logger is None:
             self.logger = ParameterizeLogging.ParameterizeLogging("/tmp/parameterize.log")
         else:
@@ -388,7 +389,7 @@ class ParameterParser():
                     self.logger.DEBUG('running on host, not start.config')
                     continue
                 else:
-                    filename = '/tmp/start.config'
+                    filename = os.path.join('./.tmp', self.lab, 'start.config')
             elif ':' in listfilename:
                 # listfilename has the containername also
                 if self.container_name != "" and listfilename.startswith(self.container_name+':'):
