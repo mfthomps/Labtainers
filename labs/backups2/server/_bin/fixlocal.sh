@@ -15,6 +15,4 @@ sudo mount /dev/loop2 /lab_mnt
 sudo mkdir /lab_mnt/usr
 sudo cp -R /usr/bin /lab_mnt/usr/
 sudo cp /lab_mnt/usr/bin/who /lab_mnt/usr/bin/cheese
-sudo route delete default
-sudo route add -host 172.25.3.3 gw 172.25.0.3
 
