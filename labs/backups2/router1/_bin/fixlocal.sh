@@ -7,5 +7,3 @@
 #  not not permit nopassword, then use:
 #  echo $1 | sudo -S the-command
 #
-sudo route delete default
-sudo route add -host 172.25.3.3 gw 172.25.2.4
