@@ -13,7 +13,7 @@ do
    sleep 2
 done
 service rsyslog start
-service rc.local start
+/etc/rc.local
 
 
 
