@@ -1,3 +1,4 @@
+#!bin/bash
 #
 # Simulate the linux init process for Labtainers
 # This will start system logging and will run rc.local
@@ -14,6 +15,5 @@ do
 done
 service rsyslog start
 service rc.local start
-
-
+/etc/init.d/dnsmasq start
 
