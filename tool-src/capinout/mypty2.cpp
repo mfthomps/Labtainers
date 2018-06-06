@@ -688,7 +688,9 @@ int main(int argc, char *argv[])
        fprintf(stderr, "Usage: %s cmd_line count timestamp\n", argv[0]);
        exit(1);
    }
-   debug = fopen("/tmp/capinout_debug.out", "w");
+   char dbname[80];
+   sprintf(dbname, "/tmp/capinout_%d_debug.out", geteuid());
+   debug = fopen(dbname, "w");
    tcgetattr(0, &orig_termios);
  
    struct sigaction s;
