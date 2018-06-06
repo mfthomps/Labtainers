@@ -1,0 +1,3 @@
+route delete default
+
+route add -host 172.25.3.3 gw 172.25.2.4
