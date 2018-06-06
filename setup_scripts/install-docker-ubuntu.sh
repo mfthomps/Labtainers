@@ -24,17 +24,25 @@ if [ $RESULT -ne 0 ];then
     echo "problem fetching packages, exit"
     exit 1
 fi
+version=$(lsb_release -a | grep Release: | cut -f 2)
+docker_package=docker-ce
+if [[ $version != 18.* ]]; then
+   #---adds docker<92>s official GPG key
+   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 
-#---adds docker’s official GPG key
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - 
+   #---sets up stable repository
+   sudo apt-get update
+   sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 
-#---sets up stable repository
-sudo apt-get update
-sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-
-#---installs Docker: Community Edition
-sudo apt-get update
-sudo apt-get -y install docker-ce 
+   #---installs Docker: Community Edition
+   sudo apt-get update
+   sudo apt-get -y install docker-ce
+else
+   docker_package=docker.io
+   echo "Installing docker.io for version 18 of Ubuntu"
+   sudo apt-get update
+   sudo apt-get -y install docker.io
+fi
 
 #---starts and enables docker
 sudo systemctl start docker
@@ -51,7 +59,7 @@ sudo -H pip install netaddr parse python-dateutil
 sudo apt-get -y install openssh-server
 
 #---Checking if packages have been installed. If not, the system will not reboot and allow the user to investigate.
-declare -a packagelist=("apt-transport-https" "ca-certificates" "curl" "software-properties-common" "docker-ce" "python-pip" "openssh-server")
+declare -a packagelist=("apt-transport-https" "ca-certificates" "curl" "software-properties-common" "$docker_package" "python-pip" "openssh-server")
 packagefail="false"
 
 for i in "${packagelist[@]}"
@@ -60,7 +68,7 @@ do
 packagecheck=$(dpkg -s $i 2> /dev/null | grep Status)
 #echo $packagecheck
     if [ "$packagecheck" != "Status: install ok installed" ]; then
-       if [ $i = docker-ce ];then 
+       if [ $i = $docker_package ];then 
            echo "ERROR: '$i' package did not install properly. Please check the terminal output above for any errors related to the pacakge installation. If the issue persists, go to docker docs and follow the instructions for installing docker. (Make sure the instructions is CE and is for your Linux distribution,e.g., Ubuntu and Fedora.)"
        else
            echo "ERROR: '$i' package did not install properly. Please check the terminal output above for any errors related to the pacakge installation. Try installing the '$i' package individually by executing this in the command line: 'sudo apt-get install $i" 
