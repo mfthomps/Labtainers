@@ -7,5 +7,4 @@
 #  not not permit nopassword, then use:
 #  echo $1 | sudo -S the-command
 #
-echo "nameserver 203.0.113.10" | sudo tee /etc/resolv.conf
 
