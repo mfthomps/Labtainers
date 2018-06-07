@@ -5,8 +5,7 @@ The Center for the Information Systems Studies and Research (CISR)
 at the Naval Postgraduate School NPS.  Please note that within the 
 United States, copyright protection is not available for any works 
 created  by United States Government employees, pursuant to Title 17 
-United States Code Section 105.   This software is in the public 
-domain and is not subject to copyright. 
+United States Code Section 105.   This software is in the public domain and is not subject to copyright. 
 '''
 import sys
 import labutils
@@ -17,25 +16,73 @@ import pydoc
 import platform
 import argparse
 import stat
+import subprocess
 import CurrentLab
 '''
 Start a Labtainers exercise.
 '''
-def showLabs(dirs, path):
+def getLabVersion(path):
+    if os.path.isfile(path):
+        with open(path) as fh:
+            line = fh.read().strip()
+            lname, version = line.split()
+        return lname, version
+    return None, None
+
+def getVerList(dirs, path):
+    vlist = {}
+    for lab in sorted(dirs):
+        lpath = os.path.join(path, lab, 'config', 'version')
+        lname, version = getLabVersion(lpath)
+        if lname is not None: 
+            if lname not in vlist:
+                vlist[lname] = {}
+            vlist[lname][lab] = int(version)
+    return vlist
+
+def hasLabInstalled(lab):
+    cmd = 'docker ps -a | grep %s' % lab
+    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if len(output[0]) > 0: 
+        for line in output[0].splitlines():
+            print line
+            name = line.split()[1]
+            thislab = os.path.basename(name.split('.')[0])
+            if thislab == lab:
+                return True
+    return False
+
+def isLatestVersion(versions, lab):
+    if versions is not None:
+        if lab in versions:
+            this_version = versions[lab]
+            for l in versions:
+               if versions[l] > this_version:
+                   if not hasLabInstalled(lab):
+                       return False
+    return True
+        
+
+def showLabs(dirs, path, versions):
     description = ''
     description += 'Start a Labtainers lab\n'
     description+="List of available labs:\n\n"
     for loc in sorted(dirs):
-        description = description+'\n  '+loc
-	aboutFile = path + loc + "/config/about.txt"
-	if(os.path.isfile(aboutFile)):
-            description += ' - '
-	    with open(aboutFile) as fh:
-	        for line in fh:
-                    description += line
-        else:
-            description += "\n"
-            #sys.stderr.write(description)
+    	versionfile = os.path.join(path, loc, "config", "version")
+        lname, dumb = getLabVersion(versionfile)
+        if lname is None or isLatestVersion(versions[lname], loc):
+            description = description+'\n  '+loc
+    	    aboutfile = os.path.join(path, loc, "config", "about.txt")
+	
+	    if(os.path.isfile(aboutfile)):
+                description += ' - '
+	        with open(aboutfile) as fh:
+	            for line in fh:
+                        description += line
+            else:
+                description += "\n"
+                #sys.stderr.write(description)
     pydoc.pager(description)
     print('Use "-h" for help.')
 
@@ -76,8 +123,9 @@ def main():
     parser.add_argument('-o', '--only_container', action='store', help='Run only the named container')
     parser.add_argument('-t', '--test_registry', action='store_true', default=False, help='Run with images from the test registry')
     num_args = len(sys.argv)
+    versions = getVerList(dirs, path)
     if num_args < 2: 
-        showLabs(dirs, path)
+        showLabs(dirs, path, versions)
         exit(0)
     args = parser.parse_args()
     labname = args.labname
