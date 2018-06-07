@@ -1,1 +1,4 @@
 /usr/bin/set_default_gw.sh 203.0.113.1
+echo "nameserver 203.0.113.1" > /etc/resolv.conf
+route del -host 172.17.0.1
+

@@ -36,3 +36,4 @@ iptables -A FORWARD -j DROP
 echo "nameserver 198.18.0.1" > /etc/resolv.conf
 route del -host 172.17.0.1
 
+echo "nameserver 198.18.0.1" > /etc/resolv.conf

@@ -14,6 +14,4 @@ do
 done
 service rsyslog start
 service rc.local start
-
-
-
+sleep 2
