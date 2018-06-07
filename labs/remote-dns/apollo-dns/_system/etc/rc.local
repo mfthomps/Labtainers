@@ -1,1 +1,2 @@
 /usr/bin/set_default_gw.sh 192.168.0.1
+echo "192.168.0.1" > /etc/resolv.conf

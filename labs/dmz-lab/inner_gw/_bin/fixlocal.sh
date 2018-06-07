@@ -8,5 +8,4 @@
 #  echo $1 | sudo -S the-command
 #
 #
-echo "nameserver 198.18.1.3" | sudo tee /etc/resolv.conf
 

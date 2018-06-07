@@ -7,9 +7,7 @@
 #  not not permit nopassword, then use:
 #  echo $1 | sudo -S the-command
 #
-sudo route del -host 172.17.0.1
 sudo sed -i '/directory/a  dump-file "/var/cache/bind/dump.db";\nforwarders {\n198.18.1.2;\n};\nquery-source port 33333;' /etc/bind/named.conf.options
-echo "198.18.1.2" | sudo tee /etc/resolv.conf
 # define example.com
 echo "include \"/etc/bind/example.conf\";" | sudo tee -a /etc/bind/named.conf.local
 sudo chown bind:bind /var/cache/bind/*
