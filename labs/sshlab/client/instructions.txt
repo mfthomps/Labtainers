@@ -17,8 +17,7 @@ From there, issue the command:
     labtainer sshlab
 
 The resulting virtual terminals include a display of
-these instructions, a terminal connected to a client,
-and a terminal connected to a server.
+these instructions, and a terminal connected to a client.
 
 To navigate this instruction, the arrow keys along with 
 with the Space/Home/End/Page-Up/Page-Down keys are usable.
