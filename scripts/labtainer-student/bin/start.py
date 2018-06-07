@@ -73,7 +73,8 @@ def main():
     parser.add_argument('-s', '--servers', action='store_true', help='Intended for distributed Labtainers, start the containers that are not clients.')
     parser.add_argument('-w', '--workstation', action='store_true', help='Intended for distributed Labtainers, start the client workstation.')
     parser.add_argument('-n', '--client_count', action='store', help='Number of clones of client components to create, itended for multi-user labs')
-    parser.add_argument('-o', '--only_container', action='store', help='run only the named container')
+    parser.add_argument('-o', '--only_container', action='store', help='Run only the named container')
+    parser.add_argument('-t', '--test_registry', action='store_true', default=False, help='Run with images from the test registry')
     num_args = len(sys.argv)
     if num_args < 2: 
         showLabs(dirs, path)
@@ -112,6 +113,17 @@ def main():
     if distributed is not None and args.client_count is not None:
         print('Cannot specify --server or --client if a --client_count is provided')
         exit(1)
+    if args.test_registry:
+        if os.getenv('TEST_REGISTRY') is None:
+            #print('use putenv to set it')
+            os.putenv("TEST_REGISTRY", "TRUE")
+            ''' why does putenv not set the value? '''
+            os.environ['TEST_REGISTRY'] = 'TRUE'
+        else:
+            #print('exists, set it true')
+            os.environ['TEST_REGISTRY'] = 'TRUE'
+        print('set TEST REG to %s' % os.getenv('TEST_REGISTRY'))
+
     if not args.redo:
         labutils.StartLab(lab_path, "student", quiet_start=args.quiet, run_container=args.only_container, servers=distributed, clone_count=args.client_count)
     else:
