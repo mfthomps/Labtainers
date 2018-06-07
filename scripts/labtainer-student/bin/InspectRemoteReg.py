@@ -19,12 +19,12 @@ without pulling the image.
 def inspectRemote(image):
     token = getToken(image)
     if token is None or len(token.strip()) == 0:
-        return None, None
+        return None, None, None
     digest = getDigest(token, image, 'latest')
     if digest is None:
-        return None, None
-    created, user = getCreated(token, image, digest)
-    return created, user
+        return None, None, None
+    created, user, version = getCreated(token, image, digest)
+    return created, user, version
 
 def getToken(image):
     cmd = 'curl --silent "https://auth.docker.io/token?scope=repository:%s:pull&service=registry.docker.io"' % (image) 
@@ -57,7 +57,7 @@ def getCreated(token, image, digest):
     output = ps.communicate()
     if len(output[0].strip()) > 0:
         j = json.loads(output[0])
-        return j['created'], j['container_config']['User']
+        return j['created'], j['container_config']['User'], j['container_config']['Labels']['version']
     else:
-        return None, None
+        return None, None, None
 
