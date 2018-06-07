@@ -12,7 +12,9 @@ while [ ! -d "$PERMLOCKDIR" ]
 do
    sleep 2
 done
-service rsyslog start
-service rc.local start
-
-
+service rsyslog start 
+service rc.local start 
+#
+# docker bug?  race condition?  without sleep, the container exits
+#
+sleep 2
