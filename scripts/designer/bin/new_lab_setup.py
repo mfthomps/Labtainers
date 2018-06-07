@@ -249,7 +249,7 @@ def handle_clone_lab(tdir, newlabname):
         for name in newlabname_olddockerfiles:
             # rsplit(old, new, 1)
             newname = newlabname.join(name.rsplit(oldlabname, 1))
-            print('name: %s oldlabname: %s newlabname %s  newname: %s' % (name, oldlabname, newlabname, newname))
+            #print('name: %s oldlabname: %s newlabname %s  newname: %s' % (name, oldlabname, newlabname, newname))
             #print "name is (%s) newname is (%s)" % (name, newname)
             # Rename dockerfiles as new labname dockerfiles
             try:
