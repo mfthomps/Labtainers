@@ -23,9 +23,9 @@ def do_lab(lab_dir, lab, role, source_reg, dest_reg):
         except:
             print('could not get image from %s' % df);
             continue
-        local_created, local_user = InspectLocalReg.inspectLocal(image, dest_reg)
+        local_created, local_user, version = InspectLocalReg.inspectLocal(image, dest_reg)
         if local_created is not None:
-            remote_created, remote_user = InspectRemoteReg.inspectRemote(image)
+            remote_created, remote_user, version = InspectRemoteReg.inspectRemote(image)
         if local_created is None or remote_created > local_created:
             cmd = 'docker pull %s/%s' % (source_reg, image)
             #print cmd
