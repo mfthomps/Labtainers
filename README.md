@@ -82,6 +82,13 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+June 2, 2018
+- When installing on Ubuntu 18, use docker.io instead of docker-ce
+- The capinout caused a crash when a "sudo su" monitored command is followed by
+a non-elevated user command.
+- Move routing and resolv.conf settings into /etc/rc.local instead of fixlocal.sh
+so they persist across start/stop of the containers.
+
 May 31, 2018
 - Work around Docker bug that caused text to wrap in a terminal without a line feed.
 - Extend COMMAND\_COUNT to account for pipes
