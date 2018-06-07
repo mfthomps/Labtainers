@@ -62,10 +62,11 @@ SUCCESS=0
 FAILURE=1
 
 ''' 
- Version number embeded as a label into each docker image
- current framework version (per below) must be at least
- this.   
-
+ Version number embeded as a label into each docker image.
+ Current framework version (per below) must be at least
+ what is found in the image.  This is only used for 
+ framework/image compatibility, to tell a user that a given
+ lab cannot be run without doing an update.
 ''' 
 framework_version = 1
 
