@@ -20,9 +20,9 @@ the test registry.
 def inspectLocal(image, test_registry):
     digest = getDigest(image, 'latest', test_registry)
     if digest is None:
-        return None, None
-    created, user = getCreated(image, digest, test_registry)
-    return created, user
+        return None, None, None
+    created, user, version = getCreated(image, digest, test_registry)
+    return created, user, version
     
 def getDigest(image, tag, test_registry):
     cmd =   'curl --silent --header "Accept: application/vnd.docker.distribution.manifest.v2+json"  "http://%s/v2/%s/manifests/%s"' % (test_registry, image, tag)
@@ -44,7 +44,7 @@ def getCreated(image, digest, test_registry):
     if len(output[0].strip()) > 0:
         j = json.loads(output[0])
         #print j['container_config']['User']
-        return j['created'], j['container_config']['User']
+        return j['created'], j['container_config']['User'], j['container_config']['Labels']['version']
 
 #created, user = inspectLocal('onewayhash.onewayhash.student', 'testregistry:5000')
 #print '%s  user: %s' % (created, user)
