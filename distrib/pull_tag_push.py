@@ -3,9 +3,10 @@ import os
 import sys
 sys.path.append('../scripts/labtainer-student/bin')
 import InspectLocalReg
+import InspectRemoteReg
 '''
 Pull all labtainer container images from the docker hub, retag them, and push to a 
-local registry.
+local registry.  Only replace the local registry if its image is older than the remote.
 '''
 
 def do_lab(lab_dir, lab, role, source_reg, dest_reg):
@@ -22,9 +23,10 @@ def do_lab(lab_dir, lab, role, source_reg, dest_reg):
         except:
             print('could not get image from %s' % df);
             continue
-        created, user = InspectLocalReg.inspectLocal(image, dest_reg)
-        print created
-        if created is None:
+        local_created, local_user = InspectLocalReg.inspectLocal(image, dest_reg)
+        if local_created is not None:
+            remote_created, remote_user = InspectRemoteReg.inspectRemote(image)
+        if local_created is None or remote_created > local_created:
             cmd = 'docker pull %s/%s' % (source_reg, image)
             #print cmd
             os.system(cmd)
@@ -34,6 +36,8 @@ def do_lab(lab_dir, lab, role, source_reg, dest_reg):
             cmd = 'docker push %s/%s' % (dest_reg, image)
             #print cmd
             os.system(cmd)
+        else:
+            print('local registry for %s is up to date.' % image)
 
 skip = []
 with open('skip-labs') as fh:
@@ -55,7 +59,7 @@ if len(sys.argv) > 1:
 else:
     #print('commented out for now')
     testregistry = 'testregistry:5000'
-    for lab in lab_list:
+    for lab in sorted(lab_list):
         if lab not in skip:
             do_lab(labdir, lab, 'student', 'mfthomps', testregistry)
             do_lab(labdir, lab, 'instructor', 'mfthomps', testregistry)
