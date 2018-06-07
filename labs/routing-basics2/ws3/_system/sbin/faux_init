@@ -14,6 +14,5 @@ do
 done
 service rsyslog start
 /etc/rc.local
-
-
-
+# docker bug?
+sleep 2
