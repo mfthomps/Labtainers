@@ -21,13 +21,15 @@ force_build=$5
 LAB_TOP=$6 
 APT_SOURCE=$7 
 REGISTRY=$8 
+VERSION=$9 
 #------------------------------------V
-if [ "$#" -ne 8 ]; then
+if [ "$#" -ne 9 ]; then
     echo "Usage: buildImage.sh <labname> <imagename> <user_name> <user_password> <force_build> <LAB_TOP> <apt_source> <registry>"
     echo "   <force_build> is either true or false"
     echo "   <LAB_TOP> is a path to the trunk/labs directory"
     echo "   <apt_source> is the host to use in apt/sources.list"
     echo "   <registry> is a docker registry"
+    echo "   <version> is the framework version needed to run this lab"
     exit
 fi
 
@@ -109,14 +111,14 @@ else
                  --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY \
                  --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY \
                  --build-arg NO_PROXY=$NO_PROXY  --build-arg no_proxy=$NO_PROXY \
-                 --build-arg registry=$REGISTRY \
+                 --build-arg registry=$REGISTRY --build-arg version=$VERSION \
                --pull -f $LAB_DIR/dockerfiles/$dfile -t $labimage .
     docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename \
                  --build-arg user_name=$user_name --build-arg password=$user_password --build-arg apt_source=$APT_SOURCE \
                  --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY \
                  --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY \
                  --build-arg NO_PROXY=$NO_PROXY  --build-arg no_proxy=$NO_PROXY \
-                 --build-arg registry=$REGISTRY \
+                 --build-arg registry=$REGISTRY --build-arg version=$VERSION \
                --pull -f $LAB_DIR/dockerfiles/$dfile -t $labimage .
     result=$?
 fi

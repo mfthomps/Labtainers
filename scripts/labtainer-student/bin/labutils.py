@@ -61,6 +61,14 @@ domain and is not subject to copyright.
 SUCCESS=0
 FAILURE=1
 
+''' 
+ Version number embeded as a label into each docker image
+ current framework version (per below) must be at least
+ this.   
+
+''' 
+framework_version = 1
+
 # Create a directory path based on input path
 # Note: Do not create if the input path already exists as a directory
 #       If input path is a file, remove the file then create directory
@@ -802,17 +810,23 @@ def GetRunningLabNames(containers_list, role):
     return found_lab_role, labnameslist
 
 class ImageInfo():
-    def __init__(self, name, creation, user, local, local_build):
+    def __init__(self, name, creation, user, local, local_build, version):
         self.name = name
         self.creation = creation
         self.user = user
         self.local = local
         ''' whether a locally built image '''
         self.local_build = local_build  
+        if version is not None and version != 'null':
+            version = version.replace('"', '')
+            self.version = int(version)
+        else:
+            self.version =  None
 
 def inspectImage(image_name):
     created = None
     user = None
+    version = None
     cmd = "docker inspect -f '{{.Created}}' --type image %s" % image_name
     ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
@@ -823,33 +837,38 @@ def inspectImage(image_name):
     output = ps.communicate()
     if len(output[0].strip()) > 0:
         user = output[0].strip()
-    return created, user
+    cmd = "docker inspect --format='{{json .Config.Labels.version}}' --type image %s" % image_name
+    ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if len(output[0].strip()) > 0:
+        version = output[0].strip()
+    return created, user, version
 
 def imageInfo(image_name, registry, labtainer_config):
     ''' image_name lacks registry info (always) 
         First look if plain image name exists, suggesting
         an ongoing build/test situation '''    
     retval = None
-    created, user = inspectImage(image_name)
+    created, user, version = inspectImage(image_name)
     if created is not None:
-        retval = ImageInfo(image_name, created, user, True, True) 
+        retval = ImageInfo(image_name, created, user, True, True, version) 
         logger.DEBUG('%s local built, ts %s %s' % (image_name, created, user)) 
     else:
         ''' next see if there is a local image from the desired registry '''
         with_registry = '%s/%s' % (registry, image_name)
-        created, user = inspectImage(with_registry)
+        created, user, version = inspectImage(with_registry)
         if created is not None:
-            retval = ImageInfo(with_registry, created, user, True, False) 
+            retval = ImageInfo(with_registry, created, user, True, False, version) 
             logger.DEBUG('%s local from reg, ts %s %s' % (with_registry, created, user)) 
         else:
             ''' See if the image exists in the desired registry '''
             if registry == labtainer_config.test_registry:
-                created, user = InspectLocalReg.inspectLocal(image_name, registry)
+                created, user, version = InspectLocalReg.inspectLocal(image_name, registry)
             else:
-                created, user = InspectRemoteReg.inspectRemote(with_registry)
+                created, user, version = InspectRemoteReg.inspectRemote(with_registry)
             if created is not None:
                 logger.DEBUG('%s only on registry %s, ts %s %s' % (with_registry, registry, created, user)) 
-                retval = ImageInfo(with_registry, created, user, False, False)
+                retval = ImageInfo(with_registry, created, user, False, False, version)
     if retval is None:
         logger.DEBUG('%s not found anywhere' % image_name)
 
@@ -991,11 +1010,11 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False, just_c
         if force_this_build or CheckBuild(lab_path, mycontainer_image_name, image_info, mycontainer_name, name, role, True, container_bin, start_config, container.registry, container.user):
             logger.DEBUG("Will rebuild %s,  force_this_build: %s" % (mycontainer_name, force_this_build))
             if os.path.isfile(build_student):
-                cmd = '%s %s %s %s %s %s %s %s %s' % (build_student, labname, name, container.user, 
-                      container.password, True, LABS_DIR, labtainer_config.apt_source, container.registry)
+                cmd = '%s %s %s %s %s %s %s %s %s %s' % (build_student, labname, name, container.user, 
+                      container.password, True, LABS_DIR, labtainer_config.apt_source, container.registry, framework_version)
             elif os.path.isfile(build_instructor):
-                cmd = '%s %s %s %s %s %s %s %s %s' % (build_instructor, labname, name, container.user, 
-                      container.password, True, LABS_DIR, labtainer_config.apt_source, container.registry)
+                cmd = '%s %s %s %s %s %s %s %s %s %s' % (build_instructor, labname, name, container.user, 
+                      container.password, True, LABS_DIR, labtainer_config.apt_source, container.registry, framework_version)
             else:
                 logger.ERROR("no image rebuild script\n")
                 exit(1)
@@ -1585,15 +1604,21 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
         #image_exists, result, dumb = ImageExists(mycontainer_image_name, container.registry)
         image_info = imageInfo(mycontainer_image_name, container.registry, labtainer_config)
         if image_info is not None:
+            if image_info.version is not None and image_info.version > framework_version:
+                print('**** Labtainer update required *****')
+                print('This lab requires that you update your labtainers installation.')
+                print('Please type:  update-labtainer.sh')
+                print('and then try starting the lab again.') 
+                exit(0)
             if not image_info.local:
                 dockerPull(container.registry, mycontainer_image_name)
         else:
             if os.path.isfile(build_student):
-                cmd = '%s %s %s %s %s %s %s %s %s' % (build_student, labname, name, container.user, container.password, False, 
-                                                  LABS_DIR, labtainer_config.apt_source, container.registry)
+                cmd = '%s %s %s %s %s %s %s %s %s %s' % (build_student, labname, name, container.user, container.password, False, 
+                                                  LABS_DIR, labtainer_config.apt_source, container.registry, framework_version)
             elif os.path.isfile(build_instructor):
-                cmd = '%s %s %s %s %s %s %s %s %s' % (build_instructor, labname, name, container.user, container.password, False, 
-                                                  LABS_DIR, labtainer_config.apt_source, container.registry)
+                cmd = '%s %s %s %s %s %s %s %s %s %s' % (build_instructor, labname, name, container.user, container.password, False, 
+                                                  LABS_DIR, labtainer_config.apt_source, container.registry, framework_version)
             else:
                 logger.ERROR("no image rebuild script\n")
                 exit(1)
