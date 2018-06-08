@@ -1613,6 +1613,12 @@ baseline images, it is suggested that all local images be purged from the develo
 All new images should be first built and pushed onto the test registry, i.e., using the 
 {\tt ./publish\_image.sh <image> -t}
 
+Framework modifications made to support changed or new functions within container images
+must be evaluated with respect to their impact on compatibility. If a new lab image requires
+an updated Labtainers framework, then the "framework\_version" must be incremented within the
+bin/labutils.py script \textbf{before} the image is built and published.  This will prompt users
+to run update-labtainer.sh prior to running any newer lab image. 
+
 \subsection{Alternate registry for testing}
 If the environment variable {\tt TEST\_REGISTRY}, is set to YES, labs to be pulled and pushed
 into an alternate registry defined in the trunk/config/labtainer.config file test\_registry entry entry.
@@ -1636,7 +1642,7 @@ when creating an archive for the new lab.  This allows the sys\_tar to include l
 as well as files from other labs.  Designers should avoid adding duplicate tar files to the SVN repository.
 This will avoid duplication of the files when a new distribution is created.
 
-\subsection{Package Sources for apt and yum}
+\subsection{Package sources for apt and yum}
 \label{package sources}
 Labtainer base images include configuration files to use local NPS mirrors when creating derivative
 images.  The original apt or yum sources are restored to an image if it is built without an environment
@@ -1652,13 +1658,54 @@ overridden via the trunk/config/labtainer.config file apt\_source entry, and hav
 RUN sed -i s/archive.ubuntu.com/$apt_source/ /etc/apt/sources.list
 \end{verbatim}
 
-\subsection{Locale Settings}
+\subsection{Locale settings}
 The locale settings, (e.g., used when interpreting character encodings) are set to en\_US.utf-8 
 as can be seen in 
 \begin{verbatim}
 trunk/scripts/labdesigner/base_dockerfiles/Dockerfile.labtainer.base
 \end{verbatim}
 Similar Dockerfile entries in new or existing labs can provide alternate locale settings.
+
+\subsection{Lab versions}
+Substantive changes to an existing published lab should be made in
+a new named lab.  A \textit{substantive} change is defined as one that would
+break any existing installation in a manner that could not be corrected
+with a framework update.  Issues with compatibility between two
+lab versions is often due to there being lab-specific files on the framework,
+(i.e., from where the lab is run) as well as within the Docker images that
+make up the lab.  When a newer version of a lab image is published, it must 
+be able to work with existing installations.  If that requires an update to the
+framework, then that update cannot break any existing labs present in that
+installation, i.e., labs that have already been started.
+
+For example, \textbf{never} change container names for existing labs.  If such
+a change is needed, create a new lab, and assign version numbers to
+it and the old lab.  
+
+Lab version numbers are kept in the optional {\tt labs/[lab]/config/version} file.
+There is no need to have such a file until there are two or more versions of the
+same lab.  (Note if you want two versions of a given lab to runnable and to appear
+in the list of labs, then they are not versions of the same lab.  They are different
+labs.)  The format of a lab version file is:
+\begin{verbatim}
+    lab-base version
+\end{verbatim}
+where {\tt lab-base} is a name to associate with the multiple versions.  It can be
+anything and does not appear at the user interface.  The {\tt version} is an integer.
+
+To create a new version of a lab:
+\begin{itemize}
+\item Create a new lab using {\tt new\_lab\_setup.py} (perhaps with the clone option).
+\item Create a version file for the old lab (if it does not already have one). 
+\item Create a version file for the new lab, giving it a version numerically greater than
+the old version.
+\item Add the old lab name to the trunk/publish/skip-labs list.
+\end{itemize}
+
+When the user types the {\tt labtainer} command with no arguments, the list will then
+only include the latest version of that lab.  An exception is if the old lab already
+has been run in this installation, in which case both lab versions will display.
+
 
 \section {Multi-user Labtainers}
 \label{multi user}
