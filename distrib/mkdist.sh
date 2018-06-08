@@ -61,9 +61,6 @@ for lab in $llist; do
         if [[ -d docs ]]; then
             echo "lab is $lab"
             cd docs
-            if [[ $lab == centos-log/ ]]; then
-                rm centos-log-Template.docx
-            fi
             cp -p /tmp/labtainer_pdf/$lab/*.pdf .
             if [[ -f Makefile ]]; then
                 make
@@ -75,6 +72,8 @@ for lab in $llist; do
             fi
             cp -p *pdf /tmp/labtainer_pdf/$lab/
             cd ../
+        else
+            cp */instructions.txt /tmp/labtainer_pdf/$lab/
         fi
         cd ../
     fi
@@ -98,5 +97,8 @@ cd $ldir/trunk/tool-src/capinout
 ./mkit.sh
 cd $ddir
 tar -cz -X $here/skip-labs -f $here/labtainer.tar labtainer
+cd /tmp/
+tar -czf $here/labtainer_pdf.tar labtainer_pdf
 cd $here
 cp labtainer.tar $myshare
+cp labtainer_pdf.tar $myshare
