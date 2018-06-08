@@ -49,10 +49,15 @@ for lab in $llist; do
             fi
             cp -p *pdf /tmp/labtainer_pdf/$lab/
             cd ../
+        else
+            cp */instructions.txt /tmp/labtainer_pdf/$lab/
         fi
         cd ../
 done
 cd $ddir
 tar -cz -X $here/skip-labs -f $here/labtainer-developer.tar labtainer
+cd /tmp/
+tar -czf $here/labtainer_pdf.tar labtainer_pdf
 cd $here
 cp labtainer-developer.tar $myshare
+cp labtainer_pdf.tar $myshare
