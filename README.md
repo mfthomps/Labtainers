@@ -82,6 +82,10 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+June 11, 2018
+- Add version checking to compare images to the framework.
+- Clarify various lab manuals
+
 June 2, 2018
 - When installing on Ubuntu 18, use docker.io instead of docker-ce
 - The capinout caused a crash when a "sudo su" monitored command is followed by
