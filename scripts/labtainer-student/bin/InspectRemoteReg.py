@@ -57,7 +57,10 @@ def getCreated(token, image, digest):
     output = ps.communicate()
     if len(output[0].strip()) > 0:
         j = json.loads(output[0])
-        return j['created'], j['container_config']['User'], j['container_config']['Labels']['version']
+        version = None
+        if 'version' in j['container_config']['Labels']:
+            verstion = j['container_config']['Labels']['version'] 
+        return j['created'], j['container_config']['User'], version
     else:
         return None, None, None
 
