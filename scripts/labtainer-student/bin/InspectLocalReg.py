@@ -44,7 +44,10 @@ def getCreated(image, digest, test_registry):
     if len(output[0].strip()) > 0:
         j = json.loads(output[0])
         #print j['container_config']['User']
-        return j['created'], j['container_config']['User'], j['container_config']['Labels']['version']
+        version = None
+        if 'version' in j['container_config']['Labels']:
+            verstion = j['container_config']['Labels']['version'] 
+        return j['created'], j['container_config']['User'], version
 
 #created, user = inspectLocal('onewayhash.onewayhash.student', 'testregistry:5000')
 #print '%s  user: %s' % (created, user)
