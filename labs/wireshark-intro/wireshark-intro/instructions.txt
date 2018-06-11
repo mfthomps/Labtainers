@@ -4,11 +4,14 @@ Title: Wireshark PCAP Analysis Lab Exercise
 
 This lab introduces analysis of PCAP files using the
 wireshark tool.  You will analyze an existing PCAP, looking
-for a specific invalid login attempt.
+for a specific invalid login attempt.  PCAP files contain
+copies of network traffic stored in a format that can be processed
+by various network analysis tools such as Wireshark and
+tcpdump.  "PCAP" is short for "packet capture".
 
 2. Performing the lab
 The lab is started from the Labtainer working 
-directory on your Docker-enabled host, e.g., a Linux VM.
+directory (labtainer-student) on your Linux host.
 From there, issue the command:
 
     labtainer wireshark-intro
