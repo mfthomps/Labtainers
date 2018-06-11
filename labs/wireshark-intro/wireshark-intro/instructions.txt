@@ -34,12 +34,16 @@ To exit navigation of this instruction, type 'q'.
            File->Open
            select the 'telnet.pcap' file then click Open
 
+Telnet is a communications protocol that allows a user to 
+issue shell commands to a remote host. Telnet network 
+traffic is not encrypted. Refer to the telnet lab for further background.
+
 3.2. Search for the packet containing the invalid user "john" password inside a telnet data
 
     Locate the single frame which contains the password provided when the user
     attempted to login as the "john" user. 
 
-    Note: one way is to apply telnet.data filter
+    Note: one way is to apply a telnet.data filter
 
     Save the specified packet/frame as 'invalidpassword.pcap'.
 
