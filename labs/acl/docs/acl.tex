@@ -50,7 +50,7 @@ view and modify ACLs on files. Use the -h option to learn about these
 commands, e.g., {\tt getfacl -h}.
 
 \subsection{Review existing file permissions}
-In the "alice" terminal, cd to the /shared\_files directory and list
+In the "alice" terminal, cd to the /shared\_data directory and list
 the files:
 \begin{verbatim}
    cd /shared_data
@@ -84,20 +84,20 @@ Back in the Alice terminal, try to modify that file to confirm she lacks that ac
 
 \subsection{Task 2: Set an ACL on a single file}
 As the Bob user, use the {\tt setfacl} command to allow Alice to read the
-{\tt /shared\_files/bob/bobstuff.txt file}.  Then, as the Alice user,
+{\tt /shared\_data/bob/bobstuff.txt file}.  Then, as the Alice user,
 confirm her ability to read the file.  And as the Harry user, confirm
 he lacks permission to read the file.
 
 
 \subsection{Task 2: Set an default ACL for a directory}
 As the Alice user, we want to define a default ACL such that, whenever
-Alice creates a new file in the {\tt /shared\_files/alice} directory,
+Alice creates a new file in the {\tt /shared\_data/alice} directory,
 that new file will be readable by Bob, but not by users other than
 Bob and Alice.  Consider doing this systematically:
 \begin{itemize}
-\item Create a file in {\tt /shared\_files/alice} and check its permissions
+\item Create a file in {\tt /shared\_data/alice} and check its permissions
 \item Set the default ACL on the alice directory to permit bob to read newly created files. 
-\item Create another new file in {\tt /shared\_files/alice} and check its permissions.  Are they what you expect?
+\item Create another new file in {\tt /shared\_data/alice} and check its permissions.  Are they what you expect?
 \item Revise your default ACL on the alice directory if necessary
 \item Confirm permissions on a newly created file are as desired.
 \end{itemize}
