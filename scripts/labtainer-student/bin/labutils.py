@@ -920,6 +920,11 @@ def RebuildLab(lab_path, role, is_regress_test=None, force_build=False, quiet_st
     #                                         since it might not even be an error)
     StopLab(lab_path, role, True, run_container=run_container, servers=servers, clone_count=clone_count)
     logger.DEBUG('Back from StopLab clone_count was %s' % clone_count)
+    labname = os.path.basename(lab_path)
+    my_start_config = os.path.join('./.tmp',labname, 'start.config')
+    if os.path.isfile(my_start_config):
+        logger.DEBUG('Cached start.config removed %s' % my_start_config)
+        os.remove(my_start_config)
     labtainer_config, start_config = GetBothConfigs(lab_path, role, logger, servers, clone_count)
     
     DoRebuildLab(lab_path, role, is_regress_test=is_regress_test, force_build=force_build, 
@@ -1580,9 +1585,10 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
     if auto_grade and role == 'instructor':
         run_container = start_config.grade_container
         #print('run just %s' % run_container)
-    if is_redo:
+    if is_redo or force_build:
         my_start_config = os.path.join('./.tmp',labname, 'start.config')
         if os.path.isfile(my_start_config):
+            logger.DEBUG('Cached start.config removed %s' % my_start_config)
             os.remove(my_start_config)
         
     for name, container in start_config.containers.items():
