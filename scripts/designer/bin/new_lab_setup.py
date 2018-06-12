@@ -464,7 +464,7 @@ def main():
     parser.add_argument('-m', '--rename_lab', action='store',  help='Rename the current lab to the given name. Warning: may break subversion!"', metavar='')
     parser.add_argument('-d', '--delete_container', action='store', help='Delete a container from this lab', metavar='')
     parser.add_argument('-b', '--base_name', action='store', help='Identify labtainer base dockerfile', 
-                          metavar='', default='base')
+                          metavar='', default=None)
 
     args = parser.parse_args()
 
@@ -479,19 +479,23 @@ def main():
         sys.stderr.write('Lab directories must be below the labs parent directory.\n')
         sys.exit(1)
 
+    if args.base_name is None:
+        base_name = 'base'
+    else:
+        base_name = args.base_name
     is_valid = check_valid_lab(current_dir)
-    if num_arg == 1:
+    if num_arg == 1 or (num_arg == 3 and args.base_name is not None):
         if is_valid:
             print("This already appears to be a lab directory!\n")
             parser.print_help()
         else:
-            copy_from_template(tdir, args.base_name)
+            copy_from_template(tdir, base_name)
             print('New lab created.  Use "new_lab_setup.py -h" to see')
             print('options for adding components to the lab.')
     else:
         if args.add_container is not None:
             newcontainer = args.add_container
-            handle_add_container(tdir, newcontainer, args.base_name)
+            handle_add_container(tdir, newcontainer, base_name)
             print("Added new container %s." % newcontainer)
         elif args.clone_container is not None:
             oldlabname = handle_clone_lab(tdir, args.clone_container)
@@ -507,6 +511,9 @@ def main():
             handle_rename_lab(args.rename_lab)
             print("Container %s renamed to %s." % (was, args.rename_lab))
             print('PLEASE  cd ../%s' % args.rename_lab)
+        else:
+            print('Did not handle request.')
+            parser.print_help()
 
     return 0
 
