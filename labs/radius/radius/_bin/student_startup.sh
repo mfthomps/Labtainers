@@ -1,0 +1,1 @@
+sudo radiusd -X
