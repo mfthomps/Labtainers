@@ -18,7 +18,7 @@ sudo -v || { echo >&2 "Please make sure user is sudoer.  Aborting."; exit 1; }
 sudo apt-get update
 # gdf ubuntu
 #sudo apt-get install libcurl3-gnutls=7.47.0-1ubuntu2
-sudo apt-get -y install apt-transport-https ca-certificates curl software-properties-common 
+sudo apt-get -y install apt-transport-https ca-certificates curl software-properties-common  xterm
 RESULT=$?
 if [ $RESULT -ne 0 ];then
     echo "problem fetching packages, exit"
