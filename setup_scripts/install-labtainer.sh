@@ -18,6 +18,9 @@ fi
 
 if [ ! -h labtainer-student ]; then ln -s trunk/scripts/labtainer-student; fi
 if [ ! -h labtainer-instructor ]; then ln -s trunk/scripts/labtainer-instructor; fi
+# add link to update script
+full=`realpath trunk/setup_scripts/update-labtainer.sh`
+ln -sf $full trunk/scripts/labtainer-student/bin/update-labtainer.sh
 cd trunk/setup_scripts
 found_distrib=`cat /etc/*-release | grep "^DISTRIB_ID" | awk -F "=" '{print $2}'`
 if [[ -z "$1" ]]; then
