@@ -1472,14 +1472,18 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, che
 
     for tg in terminal_groups:
         tab_commands = ''
+        tab = '--window'
         for command in terminal_groups[tg]:
-            tab_commands = tab_commands+' --tab -e %s' % command
+            tab_commands = tab_commands+' %s -e %s' % (tab, command)
+            tab = '--tab'
+            #tab_commands = tab_commands+' --tab %s --' % command
         terminal_location, columns, lines = terminalCounter(terminal_count)
         terminal_count += 1
         spawn_command = 'gnome-terminal %s %s' % (terminal_location, tab_commands)
+        FNULL = open(os.devnull, 'w')
+        result = subprocess.Popen(shlex.split(spawn_command), close_fds=True, stdout=FNULL, stderr=subprocess.STDOUT)
         logger.DEBUG("gnome spawn: %s" % spawn_command)
-        os.system(spawn_command)
-
+        #os.system(spawn_command)
                 
     if apps2start != [] and not auto_grade:
         print "Please wait for the apps (%s) to launch" % apps2start
