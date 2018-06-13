@@ -82,6 +82,10 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+June 13, 2018
+- Install xterm on Ubuntu 18 systems
+- Work around breakage in new versions of gnome-terminal tab handling
+
 June 11, 2018
 - Add version checking to compare images to the framework.
 - Clarify various lab manuals
