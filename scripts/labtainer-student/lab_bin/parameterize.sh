@@ -10,7 +10,8 @@ domain and is not subject to copyright.
 END
 # parameterize.sh
 #
-
+exec &> /tmp/parameterize.sh.log
+echo "start parameterize.sh"
 # Configuration variables
 LAB_SEEDFILE="$HOME/.local/.seed"
 USER_EMAILFILE="$HOME/.local/.email"
@@ -121,5 +122,6 @@ if [ -d $LOCKDIR ]; then
 fi
 # Added a permanent 'did_param' lock directory
 PERMLOCKDIR=/var/labtainer/did_param
-echo $CONTAINER_PASSWORD | sudo -S mkdir -p "$PERMLOCKDIR" >/dev/null 2>&1
+echo $CONTAINER_PASSWORD | sudo -S mkdir -p "$PERMLOCKDIR" 
+echo "done with parameterize.sh"
 
