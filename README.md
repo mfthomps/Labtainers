@@ -84,6 +84,8 @@ first time.
 
 June 14, 2018
 - Add diagnostics to parameterizing, track down why some install seem to fail on that.
+- If a container is already created, make sure it is parameterized, otherwise bail to avoid corrupt or half-baked containers.
+- Fix program version number to use svn HEAD
 
 June 13, 2018
 - Install xterm on Ubuntu 18 systems
