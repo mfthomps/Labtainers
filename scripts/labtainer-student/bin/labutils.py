@@ -1084,7 +1084,7 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                 return
 
             # Give the container some time -- just in case
-            time.sleep(3)
+            #time.sleep(3)
             # If we just create it, then set need_seeds=True
             need_seeds=True
 
@@ -1097,7 +1097,7 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
             logger.ERROR("Container %s still not created!\n" % mycontainer_name)
             results.append(False)
             return
-        
+       
         clone_names = GetContainerCloneNames(container)
         for mycontainer_name in clone_names:
             for mysubnet_name, mysubnet_ip in container.container_nets.items():
@@ -1108,6 +1108,18 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                 logger.ERROR("Container %s failed to start!\n" % mycontainer_name)
                 results.append(False)
                 return
+
+            if role != 'instructor':
+                clone_need_seeds = need_seeds
+                if not clone_need_seeds:
+                    cmd = "docker exec %s bash -c 'ls -l /var/labtainer/did_param'" % (mycontainer_name)
+                    if not DockerCmd(cmd):
+                       print('One or more containers exists but not parameterized.')
+                       print('Please restart this lab with the "-r" option.')
+                       DoStop(start_config, labtainer_config, lab_path, role, False)
+                       logger.ERROR('One or more containers exists but not parameterized.')
+                       sys.exit(1)
+                       
     
             if role == 'instructor':
                 '''
@@ -1130,10 +1142,10 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
     
        	    # If the container is just created, then use the previous user's e-mail
             # then parameterize the container
-            elif quiet_start and need_seeds and role == 'student':
+            elif quiet_start and clone_need_seeds and role == 'student':
                 ParamForStudent(start_config.lab_master_seed, mycontainer_name, container_user, container_password, labname, student_email, lab_path, name)
             
-            elif need_seeds and role == 'student':
+            elif clone_need_seeds and role == 'student':
                 ParamForStudent(start_config.lab_master_seed, mycontainer_name, container_user, 
                                                  container_password, labname, student_email, lab_path, name)
     
