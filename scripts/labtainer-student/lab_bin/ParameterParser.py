@@ -37,6 +37,7 @@ class ParameterParser():
             self.logger = ParameterizeLogging.ParameterizeLogging("/tmp/parameterize.log")
         else:
             self.logger = logger
+        self.logger.DEBUG('start parsing parameters')
     
     def WatermarkCreate(self):
         watermarkcreatelist = {}
@@ -564,6 +565,7 @@ class ParameterParser():
         self.Perform_HASH_REPLACE()
         # Perform CLONE_REPLACE
         self.Perform_CLONE_REPLACE()
+        self.logger.DEBUG('done parsing parameters')
     
     def ParseParameterConfig(self, configfilename):
         # Seed random with lab seed
@@ -609,6 +611,7 @@ def main():
     try:
         container_name = sys.argv[3].split('.')[1]
     except:
+        logger = ParameterizeLogging.ParameterizeLogging("/tmp/parameterize.log")
         logger.ERROR('Could not parse container name from %s' % sys.argv[3])
         sys.exit(1)
         
