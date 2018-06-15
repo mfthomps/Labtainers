@@ -691,9 +691,11 @@ def CopyAssessBin(mycontainer_name, container_user):
         logger.ERROR("Failed copy assess_bin %s!\n" % mycontainer_name)
         sys.exit(1)
 
-def DockerCmd(cmd):
+def DockerCmd(cmd, noloop=False):
     ok = False
     count = 0
+    if noloop:
+        count = 1000
     while not ok:
         logger.DEBUG("Command to execute is (%s)" % cmd)
         ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
@@ -1328,6 +1330,14 @@ def ContainerTerminals(lab_path, start_config, container, role, terminal_count, 
             num_terminal = 1
         else:
             CopyFilesToHost(lab_path, container.name, mycontainer_name, container.user)
+        ''' HACK remove after a while....  catch case where framework updated to remove XTERM Instructions, but still using image
+            that includes instructions, which then consumes a window '''
+        if container.xterm is None:
+            cmd = "docker exec %s bash -c 'ls -l $HOME/instructions.txt'" % (mycontainer_name)
+            if DockerCmd(cmd, noloop=True):
+                logger.DEBUG('Found instructions, force xterm')
+                container.xterm = 'instructions'
+
         if container.xterm is not None:
                 parts = container.xterm.split()
                 title = parts[0]
