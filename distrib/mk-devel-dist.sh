@@ -1,6 +1,6 @@
 #!/bin/bash
 #myshare=/home/mike/sf_SEED/
-revision=`svn info --show-item revision`
+revision=`svn info -r HEAD --show-item revision`
 myshare=/media/sf_SEED/
 here=`pwd`
 cd ../
