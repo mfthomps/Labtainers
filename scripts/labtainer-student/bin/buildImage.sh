@@ -9,8 +9,6 @@ United States Code Section 105.   This software is in the public
 domain and is not subject to copyright. 
 END
 
-# Usage: buildImage.sh <labname> <imagename> <user_name> <user_password> <force_build> <lab_top>
-#        <force_build> is either true or false
 
 lab=$1
 imagename=$2
