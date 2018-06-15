@@ -68,7 +68,7 @@ FAILURE=1
  framework/image compatibility, to tell a user that a given
  lab cannot be run without doing an update.
 ''' 
-framework_version = 1
+framework_version = 2
 
 # Create a directory path based on input path
 # Note: Do not create if the input path already exists as a directory
@@ -868,7 +868,7 @@ def imageInfo(image_name, registry, labtainer_config):
             else:
                 created, user, version = InspectRemoteReg.inspectRemote(with_registry)
             if created is not None:
-                logger.DEBUG('%s only on registry %s, ts %s %s' % (with_registry, registry, created, user)) 
+                logger.DEBUG('%s only on registry %s, ts %s %s version %s' % (with_registry, registry, created, user, version)) 
                 retval = ImageInfo(with_registry, created, user, False, False, version)
     if retval is None:
         logger.DEBUG('%s not found anywhere' % image_name)
@@ -1114,7 +1114,7 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                 if not clone_need_seeds:
                     cmd = "docker exec %s bash -c 'ls -l /var/labtainer/did_param'" % (mycontainer_name)
                     if not DockerCmd(cmd):
-                       print('One or more containers exists but not parameterized.')
+                       print('One or more containers exists but are not parameterized.')
                        print('Please restart this lab with the "-r" option.')
                        DoStop(start_config, labtainer_config, lab_path, role, False)
                        logger.ERROR('One or more containers exists but not parameterized.')
@@ -1627,6 +1627,7 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
         #image_exists, result, dumb = ImageExists(mycontainer_image_name, container.registry)
         image_info = imageInfo(mycontainer_image_name, container.registry, labtainer_config)
         if image_info is not None:
+            logger.DEBUG('Image version %s  framework_version %s' % (image_info.version, framework_version))
             if image_info.version is not None and image_info.version > framework_version:
                 print('**** Labtainer update required *****')
                 print('This lab requires that you update your labtainers installation.')
@@ -1720,6 +1721,11 @@ def FileModLater(ts, fname):
                     df_time = os.path.getmtime(file_path)
                     #parent = os.path.dirname(line.split()[1])
                     #df_time = os.path.getmtime(parent)
+                elif line.startswith('D'):
+                    file_path = line.split()[1]
+                    if '/' in file_path:
+                        file_dir = os.path.dirname(file_path)
+                        df_time = os.path.getmtime(file_dir)
                 else:
                     file_path = '/'+line.split('/', 1)[1].strip()
                     #logger.DEBUG('not an "M", get dftime for %s' % file_path)
