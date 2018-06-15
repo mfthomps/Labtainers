@@ -1,0 +1,9 @@
+[Unit]
+Description=mynotify
+
+[Service]
+ExecStartPre=/usr/bin/wait_param.sh
+ExecStart=/sbin/mynotify.py
+
+[Install]
+WantedBy=multi-user.target
