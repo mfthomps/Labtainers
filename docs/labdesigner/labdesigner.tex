@@ -1042,15 +1042,16 @@ Directives within the results.config file each have the following format:
                              The python findall function is used on the entire file.
                              See the acl lab for an example of multi-line expressions.
                LOG_TS     -- Used with timestamped log files, this results in a 
-                             timestamped set of results for each log line that
-                             contains the string represented in the field_id.
+                             timestamped set of boolean results with a value
+                             of TRUE for each log line that contains the string 
+                             represented in the field_id.
                LOG_RANGE  -- Similar to LOG_TS, except the timestamped entries
                              are ranges delimited by the matching log entries.
                STRING_COUNT--The result value is set to the quantity of
                              occurances of the string represented in field_id.
                COMMAND_COUNT-Intended for use with bash_history files, counts
                              the occurances of the command given in the field_id.
-                             occurances of the string represented in field_id.
+                             Commands are evaluatd considering use of sudo, time, etc.
                PARAM      -- The result value is set to nth parameter
                              (0 is the program name), provided in the 
                              program invocation.  
@@ -1618,11 +1619,21 @@ must be evaluated with respect to their impact on compatibility. If a new lab im
 an updated Labtainers framework, then the "framework\_version" must be incremented within the
 bin/labutils.py script \textbf{before} the image is built and published.  This will prompt users
 to run update-labtainer.sh prior to running any newer lab image. 
+Also insure that these lines are present in the container dockerfile:
+\begin{verbatim}
+ARG version
+LABEL version=$version
+\end{verbatim}
+\noindent And, be sure to publish the revised framework before publishing the revised lab(s).
 
 \subsection{Alternate registry for testing}
 If the environment variable {\tt TEST\_REGISTRY}, is set to YES, labs to be pulled and pushed
 into an alternate registry defined in the trunk/config/labtainer.config file test\_registry entry entry.
+Also, the {\tt build\_lab.py}, {\tt labtainer}, and {\tt publish.sh} scripts include {\tt -t} flags to
+force the system to reference the test registry instead of the Docker Hub.
 It is easy to set up a registry (it is a container!), \url{https://docs.docker.com/registry/deploying/}
+Use the {\tt trunk/setup\_scripts/prep-testregistry.sh} script to
+prepare a test system to use a test registry.
 
 \subsection{Reuse of large file sets}
 \label{manifest}
@@ -1684,7 +1695,7 @@ it and the old lab.
 
 Lab version numbers are kept in the optional {\tt labs/[lab]/config/version} file.
 There is no need to have such a file until there are two or more versions of the
-same lab.  (Note if you want two versions of a given lab to runnable and to appear
+same lab.  (Note if you want two versions of a given lab to be runnable and to appear
 in the list of labs, then they are not versions of the same lab.  They are different
 labs.)  The format of a lab version file is:
 \begin{verbatim}
