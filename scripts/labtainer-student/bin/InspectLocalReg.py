@@ -46,7 +46,7 @@ def getCreated(image, digest, test_registry):
         #print j['container_config']['User']
         version = None
         if 'version' in j['container_config']['Labels']:
-            verstion = j['container_config']['Labels']['version'] 
+            version = j['container_config']['Labels']['version'] 
         return j['created'], j['container_config']['User'], version
 
 #created, user = inspectLocal('onewayhash.onewayhash.student', 'testregistry:5000')
