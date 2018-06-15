@@ -40,4 +40,18 @@ of the lab, e.g., lab names need not incorporate a "v2".  Version numbers are in
 Lab basnames are ONLY used to distinguish versions of the same lab.   Students and
 instructors name labs using their lab name, not their basename.
 
+\subsection{Images dependent on framework versions}
+The sole exception to the requirement for compatability of lab versions is the
+case where we can request the user to update the labtainers framework in order
+to run the new labs.  This concept is not limited to versions of the same lab,
+it also pertains to changes to scripts in images that require corresponding
+support from the framework.  An example might be a new argument to the
+parameterize.sh script.  If new images expect this parameter, then the framework
+must provide it, i.e., it must be updated.  (Backward compatability must still be
+supported, i.e., old images MUST run with all new frameworks.)
 
+These versions relationships will be managed crudely.  Once any new lab requires an
+updated framework, all subsequent labs will require at least that framework version,
+(whether it needs it or not).
+
+These versions are managed by a version number imbedded in the build process.

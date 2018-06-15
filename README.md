@@ -86,6 +86,12 @@ June 14, 2018
 - Add diagnostics to parameterizing, track down why some install seem to fail on that.
 - If a container is already created, make sure it is parameterized, otherwise bail to avoid corrupt or half-baked containers.
 - Fix program version number to use svn HEAD
+June 15, 2018
+- Convert plain text instructions that appeared in xterms into pdf file.
+- Fix bug in version handling of images that have not yet been pulled.
+- Detect occurance of a container that was created, but not parameterized,
+and prompt the user to restart the lab with the "-r" option.
+- Add designer utility: rm\_svn.py so that removed files trigger an image rebuild.
 
 June 13, 2018
 - Install xterm on Ubuntu 18 systems
