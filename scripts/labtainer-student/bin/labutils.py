@@ -818,9 +818,15 @@ class ImageInfo():
         self.local = local
         ''' whether a locally built image '''
         self.local_build = local_build  
-        if version is not None and version != 'null':
+        if version is not None and version != 'null' and len(version.strip()) > 0:
             version = version.replace('"', '')
-            self.version = int(version)
+            try:
+                self.version = int(version)
+            except:
+                logger.ERROR('failed getting version from string %s' % version)
+                traceback.print_exc()
+                traceback.print_stack()
+                exit(1)
         else:
             self.version =  None
 
