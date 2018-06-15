@@ -98,25 +98,23 @@ def is_valid_lab(lab_path):
         #traceback.print_stack()
         sys.exit(1)
 
-def GetLabCount(my_labname_count):
+def getLabCount(my_labname_count):
     current_count = {}
     if os.path.exists(my_labname_count) and os.path.isfile(my_labname_count):
-        logger.DEBUG("File %s exist!" % my_labname_count)
         with open(my_labname_count) as f:
             current_count = json.load(f)
     else:
-        logger.DEBUG("File %s does not exist!" % my_labname_count)
         current_count['normal'] = []
         current_count['redo'] = []
 
     return current_count
 
-def WriteLabCount(my_labname_count, is_redo, current_count, current_time_string):
+def writeLabCount(my_labname_count, is_redo, current_count, current_time_string):
     if is_redo:
         current_count['redo'].append(current_time_string)
     else:
         current_count['normal'].append(current_time_string)
-
+         
     my_labname_file = open(my_labname_count, "w")
     try:
         jsondumpsoutput = json.dumps(current_count, indent=4)
@@ -1626,9 +1624,12 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
 
     current_time_string = str(datetime.datetime.now())
     logger.DEBUG("current time is %s" % current_time_string)
-    my_labname_count = os.path.join('./.tmp',labname, 'count.json')
-    current_count = GetLabCount(my_labname_count)
-    WriteLabCount(my_labname_count, is_redo, current_count, current_time_string)
+    my_labname_dir = os.path.join('./.tmp',labname)
+    if not os.path.isdir(my_labname_dir):
+       os.makedirs(my_labname_dir) 
+    my_labname_count = os.path.join(my_labname_dir, 'count.json')
+    current_count = getLabCount(my_labname_count)
+    writeLabCount(my_labname_count, is_redo, current_count, current_time_string)
 
     labtainer_config, start_config = GetBothConfigs(lab_path, role, logger, servers, clone_count)
     host_home_xfer = os.path.join(labtainer_config.host_home_xfer, labname)
