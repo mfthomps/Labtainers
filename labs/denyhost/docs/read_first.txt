@@ -2,6 +2,6 @@ The lab manual is at
    file://LAB_DOCS/denyhosts.pdf
 
 
-You may open those files by right clicking
+You may open that manual by right clicking
 and select "Open Link".
 
