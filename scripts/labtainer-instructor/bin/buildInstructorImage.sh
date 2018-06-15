@@ -23,12 +23,13 @@ LAB_TOP=$6
 APT_SOURCE=$7 
 REGISTRY=$8 
 #------------------------------------V
-if [ "$#" -ne 8 ]; then
+if [ "$#" -ne 9 ]; then
     echo "Usage: buildImage.sh <labname> <imagename> <user_name> <user_password> <force_build> <LAB_TOP> <apt_source> <registry>"
     echo "   <force_build> is either true or false"
     echo "   <LAB_TOP> is a path to the trunk/labs directory"
     echo "   <apt_source> is the host to use in apt/sources.list"
     echo "   <registry> is a docker registry"
+    echo "   <version> is the framework version needed to run this lab"
     exit
 fi
 echo "LAB_TOP is $LAB_TOP"
