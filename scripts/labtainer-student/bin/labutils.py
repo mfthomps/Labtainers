@@ -98,6 +98,35 @@ def is_valid_lab(lab_path):
         #traceback.print_stack()
         sys.exit(1)
 
+def GetLabCount(my_labname_count):
+    current_count = {}
+    if os.path.exists(my_labname_count) and os.path.isfile(my_labname_count):
+        logger.DEBUG("File %s exist!" % my_labname_count)
+        with open(my_labname_count) as f:
+            current_count = json.load(f)
+    else:
+        logger.DEBUG("File %s does not exist!" % my_labname_count)
+        current_count['normal'] = []
+        current_count['redo'] = []
+
+    return current_count
+
+def WriteLabCount(my_labname_count, is_redo, current_count, current_time_string):
+    if is_redo:
+        current_count['redo'].append(current_time_string)
+    else:
+        current_count['normal'].append(current_time_string)
+
+    my_labname_file = open(my_labname_count, "w")
+    try:
+        jsondumpsoutput = json.dumps(current_count, indent=4)
+    except:
+        logger.ERROR('json dumps failed on %s' % current_count)
+        exit(1)
+    my_labname_file.write(jsondumpsoutput)
+    my_labname_file.write('\n')
+    my_labname_file.close()
+
 def getFirstUnassignedIface(n=1):
     ''' get the nth network iterface that lacks an assigned IP address '''
     iflist = os.listdir('/sys/class/net')
@@ -1594,6 +1623,12 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
     logger.DEBUG("current user's home directory for %s" % myhomedir)
     logger.DEBUG("ParseStartConfig for %s" % labname)
     is_valid_lab(lab_path)
+
+    current_time_string = str(datetime.datetime.now())
+    logger.DEBUG("current time is %s" % current_time_string)
+    my_labname_count = os.path.join('./.tmp',labname, 'count.json')
+    current_count = GetLabCount(my_labname_count)
+    WriteLabCount(my_labname_count, is_redo, current_count, current_time_string)
 
     labtainer_config, start_config = GetBothConfigs(lab_path, role, logger, servers, clone_count)
     host_home_xfer = os.path.join(labtainer_config.host_home_xfer, labname)
