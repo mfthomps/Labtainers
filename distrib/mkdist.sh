@@ -11,7 +11,7 @@ function contains() {
     echo "n"
     return 1
 }
-revision=`svn info --show-item revision`
+revision=`svn info -r HEAD --show-item revision`
 skip="skip-labs"
 skiplist=""
 lines=`cat $skip`
