@@ -8,10 +8,10 @@ import sys
 import time
 if len(sys.argv) != 2:
     print('svn_rm.py path')
-
 path = sys.argv[1]
 cmd = 'svn rm %s' % path
 print cmd
+os.system(cmd)
 if '/' in path:
     parent = os.path.dirname(path)
 else:
@@ -20,3 +20,4 @@ else:
 print('parent is %s' % parent)
 cmd = "svn propset file_rm_date '%s' %s" % (time.time(), parent)
 print cmd
+os.system(cmd)
