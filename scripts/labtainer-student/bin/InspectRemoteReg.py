@@ -59,7 +59,7 @@ def getCreated(token, image, digest):
         j = json.loads(output[0])
         version = None
         if 'version' in j['container_config']['Labels']:
-            verstion = j['container_config']['Labels']['version'] 
+            version = j['container_config']['Labels']['version'] 
         return j['created'], j['container_config']['User'], version
     else:
         return None, None, None
