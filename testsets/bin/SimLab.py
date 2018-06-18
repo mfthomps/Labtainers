@@ -31,6 +31,7 @@ def isProcRunning(proc_string):
             return True
     return False
 
+
 def DockerCmd(cmd):
     ok = False
     count = 0
@@ -156,18 +157,31 @@ class SimLab():
             self.dotool(cmd)
         #cmd = 'key Return'
         #self.dotool(cmd)
-    
+   
+
+    def multilineCommand(self, line, fh):
+        cmd = line
+        while line.strip().endswith('\\'):
+            line = fh.readline() 
+            cmd = cmd+line
+        #print('cmd: %s' % cmd)
+        return cmd
+             
     def commandFile(self, fname):
         full = os.path.join(self.sim_path, fname)
         with open(full) as fh:
-            for line in fh:
-                if len(line.strip()) > 0:
-                    self.typeLine(line.strip())
-                    while isProcRunning(line.strip()):
-                        print('%s running, wait' % line.strip())
-                        time.sleep(1)
-                # at least one to avoid timestamp collisions
-                time.sleep(1)
+            line = ' '
+            while line is not None and len(line) > 0:
+                line = fh.readline()
+                if line is not None and len(line) > 0:
+                    cmd = self.multilineCommand(line, fh)
+                    if len(cmd.strip()) > 0:
+                        self.typeLine(cmd.strip())
+                        while isProcRunning(cmd.strip()):
+                            print('%s running, wait' % cmd.strip())
+                            time.sleep(1)
+                    # at least one to avoid timestamp collisions
+                    time.sleep(1)
                     
     def typeFile(self, fname):
         full = os.path.join(self.sim_path, fname)
