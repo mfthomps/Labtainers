@@ -1,1 +1,1 @@
-A simple DMZ implementation example for exploration and reference.
+Set up a DMZ for an enterprise using iptables. 
