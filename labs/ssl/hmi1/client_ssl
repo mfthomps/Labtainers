@@ -1,0 +1,42 @@
+#!/usr/bin/env python
+'''
+Simulate an hmi client interacting with a plc
+'''
+import socket
+import sys
+try:
+    import ssl
+except ImportError:
+    pass
+else:
+    SERVICE_PORT = 10023
+    if len(sys.argv) < 3:
+        print('./client.py <plc name> <instruction>')
+        exit(1)
+    server_host = sys.argv[1]+'.example.com'
+    instruction = ' '.join(sys.argv[2:])
+    this_host = socket.gethostname()
+    ''' default ssl context '''
+    context = ssl.create_default_context()
+    ''' certificate chain store for validating the plc's certificate '''
+    context.load_verify_locations('certs/ca-chain.cert.pem')
+    ''' certificate and key for authenticating to the server '''
+    context.load_cert_chain(certfile=("certs/%s.cert.pem" % this_host), 
+                            keyfile=("private/%s.key.pem" % this_host))
+    ''' connect to the plc '''
+    try:
+        conn = context.wrap_socket(socket.socket(socket.AF_INET), server_hostname=server_host)
+    except ssl.SSLERROR as se:
+        print('ERROR: %s' % str(se))
+        exit(1)
+    try:
+        conn.connect((server_host, SERVICE_PORT))
+    except socket.error as ss:
+        print('ERROR: %s' % str(ss))
+        exit(1)
+    cert = conn.getpeercert()
+    print('Connected to %s' % server_host)
+    print('Sending instruction %s' % instruction)
+    conn.sendall('%s\n' % instruction)
+    print('bye')
+    conn.close()
