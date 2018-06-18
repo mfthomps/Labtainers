@@ -16,6 +16,7 @@ from netaddr import *
 import LabtainerLogging
 import ParseLabtainerConfig
 import labutils
+import collections
 
 def isalphadashscore(name):
     # check name - alphanumeric,dash,underscore
@@ -23,7 +24,7 @@ def isalphadashscore(name):
 
 class ParseStartConfig():
     def __init__(self, fname, labname, caller, labtainer_config, logger, skip_networks=True, servers=None, clone_count=None):
-        self.containers = {} # dictionary of containers
+        self.containers = collections.OrderedDict()
         self.subnets    = {} # dictionary of subnets 
         self.labname = labname
         self.caller = caller
