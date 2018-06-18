@@ -1,0 +1,19 @@
+#
+# Simulate the linux init process for Labtainers
+# This will start system logging and will run rc.local
+# Add any other system services here, e.g., starting xinetd
+#
+
+# Check the existent of permanent 'did_param' lock directory
+# Sleep until exist
+PERMLOCKDIR=/var/labtainer/did_param
+while [ ! -d "$PERMLOCKDIR" ]
+do
+    sleep 2
+done
+
+# PUT any daemon start (that need parameterization after while loop)
+/usr/sbin/rsyslogd -n &
+service rc.local start
+/etc/init.d/mynotify.sh start
+

@@ -1,0 +1,28 @@
+#!/usr/bin/env python
+'''
+Simulate an hmi client interacting with a plc
+'''
+import socket
+import sys
+try:
+    import ssl
+except ImportError:
+    pass
+else:
+    SERVICE_PORT = 10023
+    if len(sys.argv) < 3:
+        print('./client.py <plc name> <instruction>')
+        exit(1)
+    server_host = sys.argv[1]+'.example.com'
+    instruction = ' '.join(sys.argv[2:])
+    this_host = socket.gethostname()
+    conn = socket.socket(socket.AF_INET)
+    try:
+        conn.connect((server_host, SERVICE_PORT))
+    except socket.error as ss:
+        print('ERROR: %s' % str(ss))
+        exit(1)
+    print('Sending instruction %s' % instruction)
+    conn.sendall('%s\n' % instruction)
+    print('bye')
+    conn.close()
