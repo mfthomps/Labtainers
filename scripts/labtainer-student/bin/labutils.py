@@ -847,17 +847,17 @@ class ImageInfo():
         self.local = local
         ''' whether a locally built image '''
         self.local_build = local_build  
-        if version is not None and version != 'null' and len(version.strip()) > 0:
+        self.version =  None
+        if version is not None:
             version = version.replace('"', '')
-            try:
-                self.version = int(version)
-            except:
-                logger.ERROR('failed getting version from string %s' % version)
-                traceback.print_exc()
-                traceback.print_stack()
-                exit(1)
-        else:
-            self.version =  None
+            if version != 'null' and len(version.strip()) > 0:
+                try:
+                    self.version = int(version)
+                except:
+                    logger.ERROR('failed getting version from string <%s>' % version)
+                    traceback.print_exc()
+                    traceback.print_stack()
+                    exit(1)
 
 def inspectImage(image_name):
     created = None
@@ -1282,7 +1282,7 @@ def CheckEmailReloadStartConfig(start_config, quiet_start, is_regress_test, lab_
                 student_email = 'instructor@here.there'
             else:
                 student_email = GetUserEmail(True)
-    if student_email == None:
+    if student_email == None and role != 'instructor':
         student_email = GetUserEmail(True)
     start_config = ReloadStartConfig(lab_path, labtainer_config, start_config, student_email, role, logger, servers, clone_count)
     return start_config, student_email
@@ -1313,7 +1313,7 @@ def ContainerTerminals(lab_path, start_config, container, role, terminal_count, 
     num_terminal = int(container.terminals)
     clone_names = GetContainerCloneNames(container)
     for mycontainer_name in clone_names:
-        logger.DEBUG("Number of terminal is %d" % num_terminal)
+        logger.DEBUG("container: %s  Number of terminals: %d" % (mycontainer_name, num_terminal))
         # If this is instructor - spawn 2 terminal for 'grader' container otherwise 1 terminal
         if role == 'instructor':
             if mycontainer_name == start_config.grade_container:
@@ -1371,7 +1371,7 @@ def ContainerTerminals(lab_path, start_config, container, role, terminal_count, 
                             else:
                                 time.sleep(0.2)
                     
-        # If the number of terminal is -1 or zero -- do not spawn
+        # If the number of terminals is -1 or zero -- do not spawn
         if not (num_terminal == 0 or num_terminal == -1):
             for x in range(num_terminal):
                 #sys.stderr.write("%d \n" % terminal_count)
