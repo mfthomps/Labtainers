@@ -111,7 +111,7 @@ if [ ! -z "$imagecheck" ] && [ $force_build = "False" ]; then
 #                 --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY \
 #                 --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY \
 #                 --build-arg NO_PROXY=$NO_PROXY  --build-arg no_proxy=$NO_PROXY \
-#                 --build-arg registry=$REGISTRY \
+#                 --build-arg registry=$REGISTRY --build-arg version=$VERSION \
 #                 -t $labimage .
 else
     docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename \
@@ -119,7 +119,7 @@ else
                  --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY \
                  --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY \
                  --build-arg NO_PROXY=$NO_PROXY  --build-arg no_proxy=$NO_PROXY \
-                 --build-arg registry=$REGISTRY \
+                 --build-arg registry=$REGISTRY --build-arg version=$VERSION \
                  --pull -f $full_dfile -t $labimage .
 fi
 #--------------------------------^
