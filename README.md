@@ -76,16 +76,25 @@ Also see <https://my.nps.edu/web/c3o/support1>
 ## Release notes
 
 The standard Labtainers distribution does not include files required for development
-of new labs.  For those, run ./update-designer.sh from the labtainer directory.
+of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup\_scripts directory.
 
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+June 19, 2018
+- Retain order of containers defined in start.conf when creating terminal with multiple tabs
+- Clarify designer manual to identify path to assessment configuration files.
+- Remove prompt for instructor to provide email
+- Botched error checking when testing for version number
+- Include timestamps of lab starts and redos in the assessment json
+- Add an SSL lab that includes bi-directional authentication and creation of certificates.
+
 June 14, 2018
 - Add diagnostics to parameterizing, track down why some install seem to fail on that.
 - If a container is already created, make sure it is parameterized, otherwise bail to avoid corrupt or half-baked containers.
 - Fix program version number to use svn HEAD
+
 June 15, 2018
 - Convert plain text instructions that appeared in xterms into pdf file.
 - Fix bug in version handling of images that have not yet been pulled.
