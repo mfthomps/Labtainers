@@ -969,7 +969,11 @@ invocation.  Again, see the {\tt acl} lab for an example.
 The automated assessment functions encourage labs to be organized into a set of distinct ``goals''.
 For each goal, the lab designer identifies one or more specific fields or attributes of artifact files that
 could be compared to ``expected'' values.  These lab-specific artifacts are identified within the
-\texttt{instr\_config/results.config file}.  Artifact files are identified in terms of:
+file at:
+\begin{verbatim}
+ labtainer/trunk/labs/<lab>/instr_config/results.config file
+\end{verbatim}
+\noindent Artifact files are identified in terms of:
 \begin{enumerate}
 \item The program that was invoked
 \item Whether the artifact is in stdin or stdout or is program output (prgout) as descrbed in section \ref{program output}
@@ -1242,7 +1246,7 @@ in the Labtainer exercises distributed with the framework.
                          quantity of timestamped files having results
                          that satisfy the given operator and arguments.
          value       - The goal value is assigned the given resulttag value from
-                         the most recent timestamped file that satisfies the resulttag.
+                         the most recent timestamped file that contains the resulttag.
  
 <operator> - the following operators evaluate to TRUE as described below:
    string_equal -  The strings derived from <answertag> and <resulttag>
@@ -2084,7 +2088,9 @@ until network connections with a given host have terminated.
 
 The SimLab directives are as follows:
 \begin{itemize}
-\item \textbf{window} $<$text$>$ -- Selects the window having a title that contains
+\item \textbf{window} $<$text$>$ -- Selects the window having a title that contains.  Note that
+tabs within windows are selected by first selecting the window, and then use {\tt key "ctrl+Next"}
+to tab over to the desired terminal tab.
 the given text.  Will timeout and fail after 20 seconds.
 \item \textbf{window\_wait} $<$text$>$ -- Like window, but no timeout.  Intended for
 use when the xterm title is changed by a program.
