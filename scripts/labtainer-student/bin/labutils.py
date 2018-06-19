@@ -2698,19 +2698,14 @@ def DoStop(start_config, labtainer_config, lab_path, role, ignore_stop_error, is
         count_path = LabCount.getPath('./', labname)
         #print "count_path is %s" % count_path
         if os.path.exists(count_path):
-            print "count_path %s EXISTS!" % count_path
             parent = os.path.dirname(count_path)
-            print('parent %s' % parent)
             os.chdir(mycwd)
             os.chdir(parent)
             fname = os.path.join('./', os.path.basename(count_path))
-            print('fname %s' % fname)
             zipoutput.write(fname, compress_type=zipfile.ZIP_DEFLATED)
         os.chdir(mycwd)
         my_labtainer_log = os.path.join('./', 'labtainer.log')
-        #print "my_labtainer_log is %s" % my_labtainer_log
         if os.path.exists(my_labtainer_log):
-            #print "my_labtainer_log %s EXISTS!" % my_labtainer_log
             zipoutput.write(my_labtainer_log, compress_type=zipfile.ZIP_DEFLATED)
 
         zipoutput.close()
