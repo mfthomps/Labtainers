@@ -18,6 +18,7 @@ import fcntl
 import struct
 import threading
 import LabtainerLogging
+import LabCount
 import shlex
 import stat
 import traceback
@@ -98,32 +99,6 @@ def is_valid_lab(lab_path):
         #traceback.print_stack()
         sys.exit(1)
 
-def getLabCount(my_labname_count):
-    current_count = {}
-    if os.path.exists(my_labname_count) and os.path.isfile(my_labname_count):
-        with open(my_labname_count) as f:
-            current_count = json.load(f)
-    else:
-        current_count['normal'] = []
-        current_count['redo'] = []
-
-    return current_count
-
-def writeLabCount(my_labname_count, is_redo, current_count, current_time_string):
-    if is_redo:
-        current_count['redo'].append(current_time_string)
-    else:
-        current_count['normal'].append(current_time_string)
-         
-    my_labname_file = open(my_labname_count, "w")
-    try:
-        jsondumpsoutput = json.dumps(current_count, indent=4)
-    except:
-        logger.ERROR('json dumps failed on %s' % current_count)
-        exit(1)
-    my_labname_file.write(jsondumpsoutput)
-    my_labname_file.write('\n')
-    my_labname_file.close()
 
 def getFirstUnassignedIface(n=1):
     ''' get the nth network iterface that lacks an assigned IP address '''
@@ -682,6 +657,7 @@ def CopyAssessBin(mycontainer_name, container_user):
     except:
         logger.ERROR("did not expect to find dir %s" % tmp_dir)
     shutil.copytree('assess_bin', os.path.join(tmp_dir, 'bin'))
+    shutil.copyfile('../labtainer-student/bin/LabCount.py', os.path.join(tmp_dir, 'bin', 'LabCount.py'))
     
     command = 'docker cp /tmp/assess_bin/bin  %s:/home/%s/.local/' % (mycontainer_name, container_user)
     logger.DEBUG("Command to execute is (%s)" % command)
@@ -1339,6 +1315,7 @@ def ContainerTerminals(lab_path, start_config, container, role, terminal_count, 
                 container.xterm = 'instructions'
 
         if container.xterm is not None:
+                logger.DEBUG('container.xterm is <%s>' % container.xterm)
                 parts = container.xterm.split()
                 title = parts[0]
                 command = None
@@ -1632,15 +1609,8 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
     logger.DEBUG("ParseStartConfig for %s" % labname)
     is_valid_lab(lab_path)
 
-    current_time_string = str(datetime.datetime.now())
-    logger.DEBUG("current time is %s" % current_time_string)
-    my_labname_dir = os.path.join('./.tmp',labname)
-    if not os.path.isdir(my_labname_dir):
-       os.makedirs(my_labname_dir) 
-    my_labname_count = os.path.join(my_labname_dir, 'count.json')
-    current_count = getLabCount(my_labname_count)
-    writeLabCount(my_labname_count, is_redo, current_count, current_time_string)
-
+    if role == 'student':
+        LabCount.addCount('./', labname, is_redo, logger)
     labtainer_config, start_config = GetBothConfigs(lab_path, role, logger, servers, clone_count)
     host_home_xfer = os.path.join(labtainer_config.host_home_xfer, labname)
 
@@ -2723,7 +2693,28 @@ def DoStop(start_config, labtainer_config, lab_path, role, ignore_stop_error, is
             zipoutput.write(basefname, compress_type=zipfile.ZIP_DEFLATED)
             # Remove after the file is zipped
             os.remove(basefname)
+
+        # Add count.json and labtainer.log (if they exist) to the zip file
+        count_path = LabCount.getPath('./', labname)
+        #print "count_path is %s" % count_path
+        if os.path.exists(count_path):
+            print "count_path %s EXISTS!" % count_path
+            parent = os.path.dirname(count_path)
+            print('parent %s' % parent)
+            os.chdir(mycwd)
+            os.chdir(parent)
+            fname = os.path.join('./', os.path.basename(count_path))
+            print('fname %s' % fname)
+            zipoutput.write(fname, compress_type=zipfile.ZIP_DEFLATED)
+        os.chdir(mycwd)
+        my_labtainer_log = os.path.join('./', 'labtainer.log')
+        #print "my_labtainer_log is %s" % my_labtainer_log
+        if os.path.exists(my_labtainer_log):
+            #print "my_labtainer_log %s EXISTS!" % my_labtainer_log
+            zipoutput.write(my_labtainer_log, compress_type=zipfile.ZIP_DEFLATED)
+
         zipoutput.close()
+
 
     os.chdir(mycwd)
     return retval
