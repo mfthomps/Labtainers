@@ -30,89 +30,74 @@ import ResultParser
 import UniqueCheck
 import InstructorLogging
 import string
+import LabCount
 
 MYHOME=os.getenv('HOME')
 logger = InstructorLogging.InstructorLogging("/tmp/instructor.log")
 
+
+def newStudentJson():
+        student_json = {}
+        student_json['parameter'] = {}
+        student_json['grades'] = {}
+        student_json['firstlevelzip'] = {}
+        student_json['secondlevelzip'] = {}
+        student_json['actualwatermark'] = {}
+        student_json['expectedwatermark'] = {}
+        student_json['labcount'] = {}
+        return student_json
+
+    
+
+def store_student_labcount(gradesjson, email_labname, student_lab_count):
+    logger.DEBUG('store_student_labcount email_labname %s' % (email_labname))
+    if email_labname not in gradesjson:
+        gradesjson[email_labname] = newStudentJson()
+    else:
+        if gradesjson[email_labname]['labcount'] != {}:
+            # Already have that student's labcount stored
+            logger.ERROR("instructor.py store_student_labcount: duplicate email_labname %s labcount %s" % (email_labname, labcount))
+            sys.exit(1)
+    gradesjson[email_labname]['labcount'] = copy.deepcopy(student_lab_count)
+
 def store_student_watermark(gradesjson, email_labname, actual_watermark, expected_watermark):
     logger.DEBUG('store_student_watermal email_labname %s actual %s expected %s' % (email_labname, actual_watermark, expected_watermark))
     if email_labname not in gradesjson:
-        gradesjson[email_labname] = {}
-        gradesjson[email_labname]['parameter'] = {}
-        gradesjson[email_labname]['grades'] = {}
-        gradesjson[email_labname]['firstlevelzip'] = {}
-        gradesjson[email_labname]['secondlevelzip'] = {}
-        gradesjson[email_labname]['actualwatermark'] = {}
-        gradesjson[email_labname]['actualwatermark'] = actual_watermark
-        gradesjson[email_labname]['expectedwatermark'] = {}
-        gradesjson[email_labname]['expectedwatermark'] = expected_watermark
-    else:
-        gradesjson[email_labname]['actualwatermark'] = actual_watermark
-        gradesjson[email_labname]['expectedwatermark'] = expected_watermark
+        gradesjson[email_labname] = newStudentJson()
+    gradesjson[email_labname]['actualwatermark'] = actual_watermark
+    gradesjson[email_labname]['expectedwatermark'] = expected_watermark
 
 def store_student_firstlevelzip(gradesjson, email_labname, first_zip_name):
     logger.DEBUG('store_student_firstlevelzip email_labname %s first_zip_name %s' % (email_labname, first_zip_name))
     if email_labname not in gradesjson:
-        gradesjson[email_labname] = {}
-        gradesjson[email_labname]['parameter'] = {}
-        gradesjson[email_labname]['grades'] = {}
-        gradesjson[email_labname]['firstlevelzip'] = {}
-        gradesjson[email_labname]['firstlevelzip'] = first_zip_name
-        gradesjson[email_labname]['secondlevelzip'] = {}
-        gradesjson[email_labname]['actualwatermark'] = {}
-        gradesjson[email_labname]['expectedwatermark'] = {}
-    else:
-        gradesjson[email_labname]['firstlevelzip'] = first_zip_name
+        gradesjson[email_labname] = newStudentJson()
+    gradesjson[email_labname]['firstlevelzip'] = first_zip_name
 
 def store_student_secondlevelzip(gradesjson, email_labname, second_zip_name):
     logger.DEBUG('store_student_secondlevelzip email_labname %s second_zip_name %s' % (email_labname, second_zip_name))
     if email_labname not in gradesjson:
-        gradesjson[email_labname] = {}
-        gradesjson[email_labname]['parameter'] = {}
-        gradesjson[email_labname]['grades'] = {}
-        gradesjson[email_labname]['firstlevelzip'] = {}
-        gradesjson[email_labname]['secondlevelzip'] = {}
-        gradesjson[email_labname]['secondlevelzip'] = second_zip_name
-        gradesjson[email_labname]['actualwatermark'] = {}
-        gradesjson[email_labname]['expectedwatermark'] = {}
-    else:
-        gradesjson[email_labname]['secondlevelzip'] = second_zip_name
+        gradesjson[email_labname] = newStudentJson()
+    gradesjson[email_labname]['secondlevelzip'] = second_zip_name
 
 def store_student_parameter(gradesjson, email_labname, student_parameter):
     logger.DEBUG('store_student_parameter email_labname %s student_parameter %s' % (email_labname, student_parameter))
     if email_labname not in gradesjson:
-        gradesjson[email_labname] = {}
-        gradesjson[email_labname]['parameter'] = copy.deepcopy(student_parameter)
-        gradesjson[email_labname]['grades'] = {}
-        gradesjson[email_labname]['firstlevelzip'] = {}
-        gradesjson[email_labname]['secondlevelzip'] = {}
-        gradesjson[email_labname]['actualwatermark'] = {}
-        gradesjson[email_labname]['expectedwatermark'] = {}
-    else:
+        gradesjson[email_labname] = newStudentJson()
         if gradesjson[email_labname]['parameter'] != {}:
             # Already have that student's parameter stored
             logger.ERROR("instructor.py store_student_parameter: duplicate email_labname %s student_parameter %s" % (email_labname, student_parameter))
             sys.exit(1)
-        else:
-            gradesjson[email_labname]['parameter'] = copy.deepcopy(student_parameter)
+    gradesjson[email_labname]['parameter'] = copy.deepcopy(student_parameter)
 
 def store_student_grades(gradesjson, email_labname, grades):
     logger.DEBUG('store_student_grades email_labname %s grades %s' % (email_labname, grades))
     if email_labname not in gradesjson:
-        gradesjson[email_labname] = {}
-        gradesjson[email_labname]['parameter'] = {}
-        gradesjson[email_labname]['grades'] = copy.deepcopy(grades)
-        gradesjson[email_labname]['firstlevelzip'] = {}
-        gradesjson[email_labname]['secondlevelzip'] = {}
-        gradesjson[email_labname]['actualwatermark'] = {}
-        gradesjson[email_labname]['expectedwatermark'] = {}
-    else:
+        gradesjson[email_labname] = newStudentJson()
         if gradesjson[email_labname]['grades'] != {}:
             # Already have that student's grades stored
             logger.ERROR("instructor.py store_student_grades: duplicate email_labname %s grades %s" % (email_labname, grades))
             sys.exit(1)
-        else:
-            gradesjson[email_labname]['grades'] = copy.deepcopy(grades)
+    gradesjson[email_labname]['grades'] = copy.deepcopy(grades)
 
 def store_student_unique(uniquejson, email_labname, uniquevalues):
     logger.DEBUG('store_student_unique email_labname %s unique %s' % (email_labname, uniquevalues))
@@ -206,7 +191,7 @@ def main():
         sys.exit(1)
 
     with open(lab_name_dir) as fh:
-        LabIDName = fh.read().strip()
+        lab_id_name = fh.read().strip()
     check_watermark_argument=None
     if len(sys.argv) > 1:
         check_watermark_argument = str(sys.argv[1]).upper()
@@ -260,15 +245,18 @@ def main():
         ''' retain dates of student files '''
         for zi in zipoutput.infolist():
             zname = zi.filename
-            if not zname.endswith('.zip') or zname == 'docs.zip':
+            if not (zname.endswith('.zip') or \
+               zname.endswith('.log') or \
+               zname.endswith('.json')):
                 continue
-            second_email_labname, second_containername = zname.rsplit('=', 1)
-            # Mismatch e-mail name at first level
-            if orig_email_labname != second_email_labname:
-                store_student_firstlevelzip(gradesjson, orig_email_labname, second_email_labname)
-                # DO NOT process that student's zip file any further, i.e., DO NOT extract
-                print('DO NOT process that students zip file any further, i.e., DO NOT extract')
-                continue
+            if '=' in zname:
+                second_email_labname, second_containername = zname.rsplit('=', 1)
+                # Mismatch e-mail name at first level
+                if orig_email_labname != second_email_labname:
+                    store_student_firstlevelzip(gradesjson, orig_email_labname, second_email_labname)
+                    # DO NOT process that student's zip file any further, i.e., DO NOT extract
+                    print('DO NOT process that students zip file any further, i.e., DO NOT extract')
+                    continue
             zipoutput.extract(zi, TMPDIR)
             date_time = time.mktime(zi.date_time + (0, 0, -1))
             dest = os.path.join(TMPDIR, zi.filename)
@@ -302,9 +290,21 @@ def main():
         #print "student_id is %s" % student_id
         logger.DEBUG("student_id is %s" % student_id)
         OutputName = '%s/%s' % (TMPDIR, zip_file_name)
-        LabDirName = os.path.join(MYHOME, email_labname)
+        lab_dir_name = os.path.join(MYHOME, email_labname)
         DestDirName = os.path.join(MYHOME, DestinationDirName)
         InstDirName = os.path.join(InstructorBaseDir, DestinationDirName)
+        src_count_path = os.path.join(TMPDIR, 'count.json')
+        dst_count_path = LabCount.getPath(lab_dir_name, lab_id_name) 
+        print('dst_count_path is %s' % dst_count_path)
+        if os.path.isfile(src_count_path):
+            parent = os.path.dirname(dst_count_path)
+            print('parent %s' % parent)
+            try:
+                os.makedirs(parent)
+            except:
+                pass
+            print('found count.json')
+            shutil.copyfile(src_count_path, dst_count_path)
 
         #print "Student Lab list : "
         #print studentslablist
@@ -375,10 +375,10 @@ def main():
                 shutil.move(cl, newname)
 
         # Call ResultParser script to parse students' result
-        LabDirName = os.path.join(MYHOME, email_labname)
+        lab_dir_name = os.path.join(MYHOME, email_labname)
         #print('call ResultParser for %s %s' % (email_labname, student_list[email_labname]))
         logger.DEBUG('call ResultParser for %s %s' % (email_labname, student_list[email_labname]))
-        ResultParser.ParseStdinStdout(MYHOME, LabDirName, student_list[email_labname], InstDirName, LabIDName, logger)
+        ResultParser.ParseStdinStdout(MYHOME, lab_dir_name, student_list[email_labname], InstDirName, lab_id_name, logger)
 
         # Add student's parameter
         store_student_parameter(gradesjson, email_labname, student_parameter)
@@ -386,25 +386,29 @@ def main():
         if do_unique:
             #print('call UniqueCheck for %s %s' % (email_labname, student_list[email_labname]))
             logger.DEBUG('call UniqueCheck for %s %s' % (email_labname, student_list[email_labname]))
-            uniquevalues = UniqueCheck.UniqueCheck(MYHOME, LabDirName, student_list[email_labname], InstDirName, LabIDName, logger)
+            uniquevalues = UniqueCheck.UniqueCheck(MYHOME, lab_dir_name, student_list[email_labname], InstDirName, lab_id_name, logger)
             # Add student's unique check
             store_student_unique(uniquejson, email_labname, uniquevalues)
 
     ''' assess the results and generate simple report '''
     for email_labname in student_list:
-        LabDirName = os.path.join(MYHOME, email_labname)
-        grades = Grader.ProcessStudentLab(LabDirName, LabIDName, logger)
+        lab_dir_name = os.path.join(MYHOME, email_labname)
+        grades = Grader.ProcessStudentLab(lab_dir_name, lab_id_name, logger)
         student_id = email_labname.rsplit('.', 1)[0]
-        LabIDStudentName = '%s : %s : ' % (LabIDName, student_id)
+        LabIDStudentName = '%s : %s : ' % (lab_id_name, student_id)
 
         # Add student's grades
         store_student_grades(gradesjson, email_labname, grades)
+
+        # Add student's lab counter (if exists)
+        student_lab_count = LabCount.getLabCount(lab_dir_name, lab_id_name, logger)
+        store_student_labcount(gradesjson, email_labname, student_lab_count)
 
     #print "grades (in JSON) is "
     #print gradesjson
 
     # Output <labname>.grades.json
-    gradesjsonname = os.path.join(MYHOME, "%s.grades.json" % LabIDName)
+    gradesjsonname = os.path.join(MYHOME, "%s.grades.json" % lab_id_name)
     gradesjsonoutput = open(gradesjsonname, "w")
     try:
         jsondumpsoutput = json.dumps(gradesjson, indent=4)
@@ -418,7 +422,7 @@ def main():
 
     if do_unique:
         # Output <labname>.unique.json
-        uniquejsonname = os.path.join(MYHOME, "%s.unique.json" % LabIDName)
+        uniquejsonname = os.path.join(MYHOME, "%s.unique.json" % lab_id_name)
         uniquejsonoutput = open(uniquejsonname, "w")
         try:
             jsondumpsoutput = json.dumps(uniquejson, indent=4)
@@ -431,7 +435,7 @@ def main():
         uniquejsonoutput.close()
 
     # Output <labname>.grades.txt
-    gradestxtname = os.path.join(MYHOME, "%s.grades.txt" % LabIDName)
+    gradestxtname = os.path.join(MYHOME, "%s.grades.txt" % lab_id_name)
     GenReport.CreateReport(gradesjsonname, gradestxtname, check_watermark)
     if do_unique:
         GenReport.UniqueReport(uniquejsonname, gradestxtname)
