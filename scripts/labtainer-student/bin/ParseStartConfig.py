@@ -172,7 +172,11 @@ class ParseStartConfig():
                     self.add_if_new(val, self.subnets, self.Subnet(val, self.logger))
                     active = self.subnets[val]
                 elif key == "container":
-                    self.add_if_new(val, self.containers, self.Container(val, self.logger))
+                    if val in self.containers:
+                        self.logger.ERROR('Container %s already defined' % val)
+                        exit(1)
+                    self.containers[val] = self.Container(val, self.logger)
+                    self.logger.DEBUG('added container %s' % val)
                     active = self.containers[val]
                 elif key == 'add-host':
                     active.add_hosts.append(val)
