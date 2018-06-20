@@ -2697,7 +2697,7 @@ def DoStop(start_config, labtainer_config, lab_path, role, ignore_stop_error, is
         # Add count.json and labtainer.log (if they exist) to the zip file
         count_path = LabCount.getPath('./', labname)
         #print "count_path is %s" % count_path
-        if os.path.exists(count_path):
+        if os.path.isfile(count_path):
             parent = os.path.dirname(count_path)
             os.chdir(mycwd)
             os.chdir(parent)
