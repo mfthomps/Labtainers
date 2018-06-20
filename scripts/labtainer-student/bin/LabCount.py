@@ -7,7 +7,7 @@ Keep a count of lab starts and redos.
 def getPath(start_path, labname):
     count_path = os.path.join(start_path, '.tmp', labname, 'count.json')
     if not os.path.isdir(os.path.dirname(count_path)):
-       os.makedirs(count_path) 
+       os.makedirs(os.path.dirname(count_path)) 
     return count_path
 
 def addCount(start_path, labname, is_redo, logger):
