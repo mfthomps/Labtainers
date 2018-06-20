@@ -295,15 +295,19 @@ def main():
         InstDirName = os.path.join(InstructorBaseDir, DestinationDirName)
         src_count_path = os.path.join(TMPDIR, 'count.json')
         dst_count_path = LabCount.getPath(lab_dir_name, lab_id_name) 
-        print('dst_count_path is %s' % dst_count_path)
+        #print('dst_count_path is %s' % dst_count_path)
         if os.path.isfile(src_count_path):
+            #  ad-hoc fix to remnants of old bug, remove this
+            if os.path.isdir(dst_count_path):
+                logger.WARNING('removing errored directory %s' % dst_count_path)
+                shutil.rmtree(dst_count_path)
             parent = os.path.dirname(dst_count_path)
-            print('parent %s' % parent)
+            #print('parent %s' % parent)
             try:
                 os.makedirs(parent)
             except:
                 pass
-            print('found count.json')
+            #print('found count.json')
             shutil.copyfile(src_count_path, dst_count_path)
 
         #print "Student Lab list : "
