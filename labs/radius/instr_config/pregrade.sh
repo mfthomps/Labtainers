@@ -24,7 +24,7 @@ dbg=/tmp/pregrade.log
 cd $homedir/$destdir
 is_sqlite=`which sqlite3`
 if [ ! -z $is_sqlite ]; then
-   echo $is_sqlite
+   #echo $is_sqlite
    here=`pwd`
    places=$here/.mozilla/firefox/*default/places.sqlite
    for fname in $(ls $places 2> /dev/null); do
