@@ -1,4 +1,1 @@
-Simple radius server example that uses radius for authenticating to an
-ssh server.  User bob password is hello.
-
-The ssh server has its PAM module configured to use the radius server.
+A Radius authentication service is used to authenticate network devices.
