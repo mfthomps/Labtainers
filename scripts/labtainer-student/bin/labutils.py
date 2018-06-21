@@ -1739,17 +1739,17 @@ def FileModLater(ts, fname):
                     continue
                 #logger.DEBUG('svn status found something for fname %s, line %s' % (fname, line))
                 if line.startswith('M'):
-                    file_path = line.split()[1]
+                    file_path = line.split()[-1]
                     df_time = os.path.getmtime(file_path)
                     #parent = os.path.dirname(line.split()[1])
                     #df_time = os.path.getmtime(parent)
                 elif line.startswith('D'):
-                    file_path = line.split()[1]
+                    file_path = line.split()[-1]
                     if '/' in file_path:
                         file_dir = os.path.dirname(file_path)
                         df_time = os.path.getmtime(file_dir)
                 else:
-                    file_path = '/'+line.split('/', 1)[1].strip()
+                    file_path = '/'+line.split('/', 1)[-1].strip()
                     #logger.DEBUG('not an "M", get dftime for %s' % file_path)
                     if not os.path.exists(file_path):
                         continue
