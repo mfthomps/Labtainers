@@ -14,6 +14,7 @@ import pwd
 import shutil
 import sys
 import argparse
+import subprocess
 
 # Filename: new_lab_setup.py
 # Description:
@@ -74,7 +75,7 @@ def add_container(start_config_filename, newcontainer, basename):
     start_config_file = open(start_config_filename, 'a')
     start_config_file.write('CONTAINER %s\n' % newcontainer)
     start_config_file.write('\tUSER ubuntu\n')
-    if basename == 'centos':
+    if basename == 'centos' or basename == 'centos.xtra':
         start_config_file.write('\tSCRIPT NONE\n')
         start_config_file.write('\tX11 YES\n')
     start_config_file.close()
@@ -123,6 +124,20 @@ def handle_add_container(tdir, newcontainer, basename='base'):
     newcontainer_dockerfile = os.path.join(here, 'dockerfiles', newcontainer_dockerfilename)
     shutil.copy(dockerfile_template, newcontainer_dockerfile)
 
+def renameSVN(old, new):
+    cmd = 'svn status %s' % old
+    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if 'was not found' in output[1]:
+        os.rename(old, new)
+    else:
+
+        cmd = 'svn mv %s %s' % (old, new)
+        ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        output = ps.communicate()
+        if len(output[1]) > 0:
+            print("Error from svn mv: %s" % output[1])
+ 
 def handle_rename_lab(newlabname):
     here = os.getcwd()
     oldlabname = os.path.basename(here)
@@ -143,7 +158,7 @@ def handle_rename_lab(newlabname):
         #print "name is (%s) newname is (%s)" % (name, newname)
         # Rename dockerfiles as new labname dockerfiles
         try:
-            os.rename(name, newname)
+            renameSVN(name, newname)
         except Exception as e:
             print('error renaming %s to %s %s' % (name, newname, str(e)))
             exit(1)
@@ -162,7 +177,7 @@ def handle_rename_lab(newlabname):
         oldcontainerpath = os.path.join(newlabpath, oldlabname)
         newcontainerpath = os.path.join(newlabpath, newlabname)
         # Move the single old container as new container as the new labname container
-        os.rename(oldcontainerpath, newcontainerpath)
+        renameSVN(oldcontainerpath, newcontainerpath)
 
         # Also rename dockerfile again (this should take care of the container name portion)
         newlabname_olddockerfilename = os.path.join(newlabpath, 'dockerfiles')
@@ -171,7 +186,7 @@ def handle_rename_lab(newlabname):
             newname = name.replace(oldlabname, newlabname)
             #print "name is (%s) newname is (%s)" % (name, newname)
             # Rename dockerfiles as new labname dockerfiles
-            os.rename(name, newname)
+            renameSVN(name, newname)
 
         # Read start.config, replace 'oldlabname' as 'newlabname' into start.config
         start_config_file = open(start_config_filename, 'r')
@@ -218,7 +233,7 @@ def handle_clone_lab(tdir, newlabname):
         #print "name is (%s) newname is (%s)" % (name, newname)
         # Rename dockerfiles as new labname dockerfiles
         try:
-            os.rename(name, newname)
+            renameSVN(name, newname)
         except Exception as e:
             print('error renaming %s to %s %s' % (name, newname, str(e)))
             exit(1)
@@ -241,7 +256,7 @@ def handle_clone_lab(tdir, newlabname):
         oldcontainerpath = os.path.join(newlabpath, oldlabname)
         newcontainerpath = os.path.join(newlabpath, newlabname)
         # Move the single old container as new container as the new labname container
-        os.rename(oldcontainerpath, newcontainerpath)
+        renameSVN(oldcontainerpath, newcontainerpath)
 
         # Also rename dockerfile again (this should take care of the container name portion)
         newlabname_olddockerfilename = os.path.join(newlabpath, 'dockerfiles')
@@ -253,7 +268,7 @@ def handle_clone_lab(tdir, newlabname):
             #print "name is (%s) newname is (%s)" % (name, newname)
             # Rename dockerfiles as new labname dockerfiles
             try:
-                os.rename(name, newname)
+                renameSVN(name, newname)
             except:
                 print "ERROR, could not rename, name is (%s) newname is (%s)" % (name, newname)
                 exit(1)
@@ -329,10 +344,10 @@ def handle_replace_container(tdir, oldcontainer, newcontainer):
         sys.exit(1)
 
     # Rename oldcontainer as newcontainer
-    os.rename(oldcontainer, newcontainer)
+    renameSVN(oldcontainer, newcontainer)
 
     # Rename oldcontainer dockerfile as newcontainer dockerfile
-    os.rename(olddockerfile, newdockerfile)
+    renameSVN(olddockerfile, newdockerfile)
     
     # Read start.config, replace 'oldcontainer' as 'newcontainer' into start.config
     start_config_file = open(start_config_filename, 'r')
@@ -483,6 +498,8 @@ def main():
         base_name = 'base'
     else:
         base_name = args.base_name
+        if base_name = 'centos':
+            base_name = 'centos.xtra'
     is_valid = check_valid_lab(current_dir)
     if num_arg == 1 or (num_arg == 3 and args.base_name is not None):
         if is_valid:
