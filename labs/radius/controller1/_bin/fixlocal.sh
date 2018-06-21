@@ -14,6 +14,6 @@ sudo /etc/init.d/xinetd restart
 
 me=$(hostname)
 cat >> $HOME/.profile << EOL
-echo "Welcome to the $me shambang controller."
-echo "Use 'exit' to terminate your session"
+echo "Welcome to the $me shambang PDU controller."
+echo "Type 'help' to terminate your session"
 EOL
