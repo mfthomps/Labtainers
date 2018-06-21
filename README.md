@@ -82,6 +82,13 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+June 21, 2018
+- Set DISPLAY env for root
+- Fix to build dependency handling of svn status output
+- Add radius lab
+- Bug in SimLab append corrected
+- Use svn, where appropriate, to change file names with new\_lab\_setup.py
+
 June 19, 2018
 - Retain order of containers defined in start.conf when creating terminal with multiple tabs
 - Clarify designer manual to identify path to assessment configuration files.
