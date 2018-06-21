@@ -630,6 +630,18 @@ See the sql-inject lab and the centos-log lab examples, with the latter
 running the login program to require students to login prior to getting a shell prompt.
 \footnote{On CentOS systems, copy the login program from labs/centos-log/centos-log/\_system/sbin/login
 to your container's \_system/sbin directory. The login program from Ubuntu works as is.}
+Note that on CentOS systems, the student\_startup.sh script will be executed twice: first
+as root and then as the default user.  Use constructs such as the following to avoid repeating
+operations:
+\begin{verbatim}
+    id | grep root >>/dev/null
+    result=$?
+    if [[ $result -eq 0 ]]; then
+       # stuff to do as root
+    else
+       # stuff to do as default user
+    fi
+\end{verbatim}
 
 
 \subsection{Final lab environment fixup}
@@ -641,10 +653,13 @@ this could be used to compile lab-specific programs afer they have been paramete
 that cannot be easily performed by the Dockerfile.  These scripts are per-container
 and reside at:
 \begin{verbatim}
-    $LABTAINER_DIR/labs/[labname]/[container name]/_bin
+    $LABTAINER_DIR/labs/[labname]/[container name]/_bin/fixlocal.sh
 \end{verbatim}
 \noindent Note the fixlocal.sh script runs as the user defined in the start.config for the container, 
 regardless of whether root is set as the user in the Dockerfile.
+
+\textbf{NOTE:} Use of {\tt sed -i ...} to modify configuration files (e.g., in etc), might result in overwriting symbolic links.
+Use {\tt sed -i --follow-symlinks ...} to avoid that pit.
 
 \subsection{Automatic copying files from containers to the host}
 This feature no longer has an intended use, but it is available if you have one.
@@ -1203,7 +1218,9 @@ in the Labtainer exercises distributed with the framework.
                          TRUE if the boolen expression evaluates to TRUE for any
                          of the timestamped sets of goal_ids, (see the 'matchany' 
                          discussion above).  The goal_id's cannot include any 
-                         "matchacross" goals.
+                         "matchacross" goals.  NOTE: evaluation is within 
+                         timestamped sets.  If you want to evaluate across 
+                         timestamps, use the count_greater_operator below.
          count_greater The goal is TRUE if the count of TRUE subgoals in the 
                          list exceeds the given value.  The subgoals are 
                          summed across all timestamps.  The subgoal list is 
@@ -1340,9 +1357,14 @@ The first non-comment line defines a result having the symbolic name ``\_crash\_
 the vul\_prog program in which the file contains the string ``program exit, segmentation''.
 The goals.config includes this goal:
 \begin{verbatim}
-   crash =  boolean : ( _crash_smash or _crash_sig )
+   crash =  boolean : ( _crash_smash or  _crash_sig )
 \end{verbatim}
-\noindent The value of the crash goal is TRUE if either result is TRUE.
+\noindent The value of the crash goal is TRUE if either result was ever true.
+Use of the {\tt count\_greater} operator in the above example would also provide
+the desired assessment.  Note that the boolean operator only assesses values within
+timestamped sets. For example, if the result values came from different program
+outputs, then they may not be within the same timestamp, and thus would not compare.
+In such a case, the {\tt count\_greater} operator should be used. 
 
 \subsubsection{Compare value of a field from a selected line in an artifact file}
 Again refrence the labs/formatstring/instr\_config/results.config file.  The third non-comment line
