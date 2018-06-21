@@ -14,17 +14,21 @@ END
 MYHOME=$1
 if [[ -f $MYHOME/.profile ]]; then
     target=$MYHOME/.profile
+    root_target=/root/.profile
 elif [[ -f $MYHOME/.bash_profile ]]; then
     target=$MYHOME/.bash_profile
+    root_target=/root/.bash_profile
 else
     echo "no profile, use .profile anyway?"
     target=$MYHOME/.profile
+    root_target=/root/.bash_profile
 fi
 if grep --quiet startup.sh $target; then
     echo "already hooked" >>/dev/null
 else
     #echo "hook not enabled, fix this"
     cat $MYHOME/.local/bin/profile-add >> $target
+    echo "export DISPLAY=:0" >> $root_target
     cat $MYHOME/.local/bin/bashrc-add  |  sed 's@PRECMD_HOME_REPLACE_ME@'"$MYHOME"'@' >> $MYHOME/.bashrc
     cat $MYHOME/.local/bin/bashrc-add  |  sed 's@PRECMD_HOME_REPLACE_ME@'"$MYHOME"'@' >> /root/.bashrc
 fi
