@@ -9,3 +9,9 @@ if [[ ! -z "$image_list" ]]; then
 else
     echo "No images for $1"
 fi
+image_list=$(docker images | grep "^$1\." | awk '{print $1}')
+if [[ ! -z "$image_list" ]]; then
+    docker rmi -f $image_list
+else
+    echo "No images for $1"
+fi
