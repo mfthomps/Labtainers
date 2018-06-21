@@ -498,7 +498,7 @@ def main():
         base_name = 'base'
     else:
         base_name = args.base_name
-        if base_name = 'centos':
+        if base_name == 'centos':
             base_name = 'centos.xtra'
     is_valid = check_valid_lab(current_dir)
     if num_arg == 1 or (num_arg == 3 and args.base_name is not None):
