@@ -39,7 +39,7 @@ From your labtainer-student directory start the lab using:
 \noindent A link to this lab manual will be displayed.  
 
 \section{Network Configuration}
-This lab includes two simulated industrial control devices that
+This lab includes two simulated power distribution control devices that
 are configured to authenticate users via the Radius protocol.  There
 are also to client computers from which users are expected to administer
 the control devices, which requires that the users be authenticated.
@@ -89,6 +89,11 @@ controller2, again using a password of: {\tt hardcoded\_password}:
 \noindent What do you observe at the radius service?  And in wireshark?
 
 \subsection{Configure radius for controller2}
+The controller2 device has been pre-configured to use your Radius server for 
+authentication of users.  That means it has the shared secret used by Radius
+to encrypt user passwords, and it knows the IP address of the radius server.
+However, the Radius server is not configured to serve controller2.  You must
+change the Radius server configuration to recognize controller2.
 Use Ctrl-c at the radius server to stop the service.
 Edit the {\tt /etc/raddb/clients.conf} file to allow controller2 to authenticate
 via the radius service, and then restart the radius service.
@@ -97,7 +102,7 @@ Try again to access controller2 from one of the clients.
 
 \subsection{Change the cadmin password}
 Stop the radius service and edit the {\tt /etc/raddb/users} file to change the 
-password to something other than {\tt hardcoded\_password}.  Then test your abilty
+password of the cadmin user to something other than {\tt hardcoded\_password}.  Then test your abilty
 use the config\_admin  utility to access the controllers with the new password.
 
 \section{Submission}
