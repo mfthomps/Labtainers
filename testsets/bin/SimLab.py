@@ -248,7 +248,7 @@ class SimLab():
             self.dotool(cmd)
         else:
             self.dotool("type 'G'")
-        self.dotool("type 'i'")
+        self.dotool("type 'o'")
         with open(from_file) as fh:
             for line in fh:
                 self.typeLine(line.rstrip())
