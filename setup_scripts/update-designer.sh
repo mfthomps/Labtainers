@@ -56,4 +56,4 @@ sudo trunk/setup_scripts/dns-add.py
 sudo systemctl restart docker
 cd ..
 tar xf labtainer/labtainer-developer.tar
-grep README labtainer/trunk/README | awk '{print "Updated to designer release of: ", $4, $5}'
+grep "^Distribution created:" labtainer/trunk/README.md | awk '{print "Updated to release of: ", $3, $4}'
