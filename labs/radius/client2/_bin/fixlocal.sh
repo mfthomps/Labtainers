@@ -7,16 +7,3 @@
 #  not not permit nopassword, then use:
 #  echo $1 | sudo -S the-command
 #
-sudo tee -a /etc/raddb/clients.conf << EOT
-client controller1 {
-        ipaddr = 172.25.0.10
-        secret = testing123
-}
-EOT
-
-sudo sudo tee -a /etc/raddb/users << EOT
-
-cadmin     Cleartext-Password := "hardcoded_password"
-        Reply-Message := "Hello, %{User-Name}"
-
-EOT

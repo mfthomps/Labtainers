@@ -1,0 +1,6 @@
+#!/bin/bash
+if [ "$#" -ne 1 ]; then
+    echo "./control_admin <controller>"
+    exit
+fi
+ssh -o StrictHostKeyChecking=no cadmin@$1
