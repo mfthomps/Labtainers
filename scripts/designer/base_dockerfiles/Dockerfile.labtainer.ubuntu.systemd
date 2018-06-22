@@ -1,5 +1,5 @@
-FROM ubuntu:xenial
-LABEL description="This is base Docker image for Parameterized labs"
+FROM solita/ubuntu-systemd
+LABEL description="This is base Labtainer image for Ubuntu systemd containers"
 ARG lab
 RUN mv /etc/apt/sources.list /var/tmp/
 ADD system/etc/nps.sources.list /etc/apt/sources.list
