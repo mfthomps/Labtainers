@@ -5,8 +5,8 @@
 #
 #
 if [[ "$APT_SOURCE" != NPS ]]; then
-    if [ -f /tmp/sources.list ]; then
-        mv /tmp/sources.list /etc/apt/sources.list
+    if [ -f /var/tmp/sources.list ]; then
+        mv /var/tmp/sources.list /etc/apt/sources.list
     fi
 fi
 
