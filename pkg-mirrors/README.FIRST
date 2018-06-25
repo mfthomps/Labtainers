@@ -1,3 +1,12 @@
+The NPS Labtainers package mirror is at centosmirror.uc.nps.edu (or ubuntumirror.uc.nps.edu)
+
+The /etc/nps-apt-additions and nps-rpm-additions identify packages other than the core
+packages that are to be included in the NPS mirror.  Also see the cron job that ensures the
+NPS packages stay up to date.  Manually keep the files on the mirror in sync with the files
+in this directory.
+
+The AddPackage.py is in /usr/local/bin, which is dumb because it has to be run as sudo.
+Use the full path for now.
 
 2018-03-15
     The 'AddPackage.py' and corresponding scripts will install package (and its dependency only)
