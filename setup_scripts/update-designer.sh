@@ -55,5 +55,8 @@ fi
 sudo trunk/setup_scripts/dns-add.py
 sudo systemctl restart docker
 cd ..
+# ad-hoc clean up.  remove after a while
+rm -f labtainer/trunk/scripts/labtainer-student/bin/SimLab*
+
 tar xf labtainer/labtainer-developer.tar
 grep "^Distribution created:" labtainer/trunk/README.md | awk '{print "Updated to release of: ", $3, $4}'
