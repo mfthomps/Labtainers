@@ -348,6 +348,28 @@ def GetX11SSH():
     #retval = '--env="DISPLAY" -v %s:%s -e XAUTHORITY="%s"' % (xauth, xauth, xauth)
     return retval 
 
+def isUbuntuSystemd(image_name):
+    done = False
+    while not done:
+        cmd = "docker inspect -f '{{json .Parent}}|{{json .Config.Labels.description}}' --type image %s" % image_name
+        ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        output = ps.communicate()
+        if len(output[0].strip()) > 0:
+            print output[0]
+            parent, description = output[0].split('|')
+            if 'base Labtainer image for Ubuntu systemd' in description:
+                print('is systemd')
+                return True
+        if len(output[1].strip()) > 0:
+            logger.ERROR(output[1])
+            exit(1)
+        if description is "null" and parent is not "null":
+            image_name = parent
+        else:
+            done = True
+    
+    return False
+
 def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_name=None, mysubnet_ip=None):
     ''' create a single container -- or all clones of that container per the start.config '''
     logger.DEBUG("Create Single Container for %s" % container.name)
@@ -367,15 +389,22 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
         docker0_IPAddr = getDocker0IPAddr()
         logger.DEBUG("getDockerIPAddr result (%s)" % docker0_IPAddr)
         volume=''
-        if container.script == 'NONE':
+        if container.script == '':
             ''' a systemd container, centos or ubuntu? '''
-            if IsUbuntuSystemd(container.image_name):
-                volume='--security-opt seccomp=confined --tmpfs /run --tmpfs /run/lock -v /sys/fs/cgroup:/sys/fs/cgroup:ro'
+            if isUbuntuSystemd(new_image_name):
+                #volume='--security-opt seccomp=confined --tmpfs /run --tmpfs /run/lock -v /sys/fs/cgroup:/sys/fs/cgroup:ro'
+                volume='--security-opt seccomp=unconfined --tmpfs /run --tmpfs /run/lock -v /sys/fs/cgroup:/sys/fs/cgroup:ro'
+                cmd = 'docker run --rm --privileged -v /:/host %s setup' % new_image_name
+                ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+                output = ps.communicate()
+                print(output[0])
+                print(output[1])
+                
             else:
                 volume='-v /sys/fs/cgroup:/sys/fs/cgroup:ro'
-        elif container.x11.lower() == 'yes':
+        if container.x11.lower() == 'yes':
             #volume = '-e DISPLAY -v /tmp/.Xll-unix:/tmp/.X11-unix --net=host -v$HOME/.Xauthority:/home/developer/.Xauthority'
-            volume = '--env="DISPLAY"  --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw"'
+            volume = volume+' --env="DISPLAY"  --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw"'
             logger.DEBUG('container using X11')
         add_hosts = ''     
         for item in container.add_hosts:
