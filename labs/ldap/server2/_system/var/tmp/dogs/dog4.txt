@@ -1,0 +1,25 @@
+# You are using the editor-based debconf frontend to configure your system. See the end of this document for detailed instructions.
+###################################################################################################################################################
+
+# This account will be used when root changes a password.
+# 
+# Note: This account has to be a privileged account.
+# 
+# LDAP account for root:
+ldap-auth-config/rootbinddn="cn=admin,dc=example,dc=com"
+
+# Please enter the password to use when ldap-auth-config tries to login to the LDAP directory using the LDAP account for root.
+# 
+# The password will be stored in a separate file /etc/ldap.secret which will be made readable to root only.
+# 
+# Entering an empty password will re-use the old password.
+# 
+# LDAP root account password:
+ldap-auth-config/rootbindpw="adminpass"
+
+
+###################################################################################################################################################
+# The editor-based debconf frontend presents you with one or more text files to edit. This is one such text file. If you are familiar with standard
+# unix configuration files, this file will look familiar to you -- it contains comments interspersed with configuration items. Edit the file,
+# changing any items as necessary, and then save it and exit. At that point, debconf will read the edited file, and use the values you entered to
+# configure the system.

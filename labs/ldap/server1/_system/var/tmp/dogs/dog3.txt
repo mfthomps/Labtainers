@@ -1,0 +1,27 @@
+# You are using the editor-based debconf frontend to configure your system. See the end of this document for detailed instructions.
+###################################################################################################################################################
+
+# This option will allow you to make password utilities that use pam to behave like you would be changing local passwords.
+# 
+# The password will be stored in a separate file which will be made readable to root only.
+# 
+# If you are using NFS mounted /etc or any other custom setup, you should disable this.
+# 
+# (Choices: yes, no)
+# Make local root Database admin:
+ldap-auth-config/dbrootlogin="yes"
+
+# Choose this option if you are required to login to the database to retrieve entries.
+# 
+# Note: Under a normal setup, this is not needed.
+# 
+# (Choices: yes, no)
+# Does the LDAP database require login?
+ldap-auth-config/dblogin="no"
+
+
+###################################################################################################################################################
+# The editor-based debconf frontend presents you with one or more text files to edit. This is one such text file. If you are familiar with standard
+# unix configuration files, this file will look familiar to you -- it contains comments interspersed with configuration items. Edit the file,
+# changing any items as necessary, and then save it and exit. At that point, debconf will read the edited file, and use the values you entered to
+# configure the system.

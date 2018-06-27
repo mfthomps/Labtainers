@@ -1,0 +1,15 @@
+# You are using the editor-based debconf frontend to configure your system. See the end of this document for detailed instructions.
+###################################################################################################################################################
+
+# Saying yes will allow future upgrades to use these settings. This is the recommended option.
+# 
+# (Choices: yes, no)
+# Should debconf manage LDAP configuration?
+ldap-auth-config/override="yes"
+
+
+###################################################################################################################################################
+# The editor-based debconf frontend presents you with one or more text files to edit. This is one such text file. If you are familiar with standard
+# unix configuration files, this file will look familiar to you -- it contains comments interspersed with configuration items. Edit the file,
+# changing any items as necessary, and then save it and exit. At that point, debconf will read the edited file, and use the values you entered to
+# configure the system.
