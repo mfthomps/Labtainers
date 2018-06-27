@@ -1,8 +1,8 @@
 #!/bin/bash
-echo -e 'slapd slapd/internal/adminpw password password' | debconf-set-selections
-echo -e 'slapd slapd/internal/generated_adminpw password password'| debconf-set-selections
-echo -e 'slapd slapd/password2 password password' | debconf-set-selections
-echo -e 'slapd slapd/password1 password password' | debconf-set-selections
+echo -e 'slapd slapd/internal/adminpw password adminpass' | debconf-set-selections
+echo -e 'slapd slapd/internal/generated_adminpw password adminpass'| debconf-set-selections
+echo -e 'slapd slapd/password2 password adminpass' | debconf-set-selections
+echo -e 'slapd slapd/password1 password adminpass' | debconf-set-selections
 echo -e 'slapd slapd/domain string example.com' |debconf-set-selections
 echo -e 'slapd shared/organization string example' |debconf-set-selections
 echo -e 'slapd slapd/backend string MDB' |debconf-set-selections

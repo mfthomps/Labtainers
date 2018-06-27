@@ -1,0 +1,29 @@
+# You are using the editor-based debconf frontend to configure your system. See the end of this document for detailed instructions.
+###################################################################################################################################################
+
+# Please enter the URI of the LDAP server to use. This is a string in the form of ldap://<hostname or IP>:<port>/. ldaps:// or ldapi:// can also be
+# used. The port number is optional.
+# 
+# Note: It is usually a good idea to use an IP address because it reduces risks of failure in the event name service problems.
+# 
+# LDAP server Uniform Resource Identifier:
+ldap-auth-config/ldapns/ldap-server="ldap://172.25.0.2"
+
+# Please enter the distinguished name of the LDAP search base. Many sites use the components of their domain names for this purpose. For example,
+# the domain "example.net" would use "dc=example,dc=net" as the distinguished name of the search base.
+# 
+# Distinguished name of the search base:
+ldap-auth-config/ldapns/base-dn="dc=example,dc=com"
+
+# Please enter which version of the LDAP protocol should be used by ldapns. It is usually a good idea to set this to the highest available version.
+# 
+# (Choices: 3, 2)
+# LDAP version to use:
+ldap-auth-config/ldapns/ldap_version="3"
+
+
+###################################################################################################################################################
+# The editor-based debconf frontend presents you with one or more text files to edit. This is one such text file. If you are familiar with standard
+# unix configuration files, this file will look familiar to you -- it contains comments interspersed with configuration items. Edit the file,
+# changing any items as necessary, and then save it and exit. At that point, debconf will read the edited file, and use the values you entered to
+# configure the system.
