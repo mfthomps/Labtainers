@@ -355,10 +355,10 @@ def isUbuntuSystemd(image_name):
         ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         output = ps.communicate()
         if len(output[0].strip()) > 0:
-            print output[0]
+            #print output[0]
             parent, description = output[0].split('|')
             if 'base Labtainer image for Ubuntu systemd' in description:
-                print('is systemd')
+                #print('is systemd')
                 return True
         if len(output[1].strip()) > 0:
             logger.ERROR(output[1])
