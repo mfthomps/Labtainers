@@ -7,3 +7,6 @@
 #  not not permit nopassword, then use:
 #  echo $1 | sudo -S the-command
 #
+#  Configure the ldap client
+sudo /var/tmp/configure-ldap-client.sh
+
