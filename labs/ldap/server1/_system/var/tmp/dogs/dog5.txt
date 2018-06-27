@@ -1,0 +1,30 @@
+# You are using the editor-based debconf frontend to configure your system. See the end of this document for detailed instructions.
+###################################################################################################################################################
+
+# The PAM module can set the password crypt locally when changing the passwords, which is usually a good choice. Specifying something other than
+# clear ensures that the password gets crypted in some way.
+# 
+# The meanings for selections are:
+# 
+# clear - Don't set any encryptions. This is useful with servers that automatically encrypt userPassword entry.
+# 
+# crypt - (Default) make userPassword use the same format as the flat filesystem. This will work for most configurations.
+# 
+# nds - Use Novell Directory Services-style updating by first removing the old password and then update with a cleartext password.
+# 
+# ad - Active Directory-style. Create a Unicode password and update the unicodePwd attribute.
+# 
+# exop - Use the OpenLDAP password change extended operation to update the password.
+# 
+# md5 - Use the stronger md5 algorithm instead of standard crypt.
+# 
+# (Choices: clear, crypt, nds, ad, exop, md5)
+# Local crypt to use when changing passwords:
+ldap-auth-config/pam_password="md5"
+
+
+###################################################################################################################################################
+# The editor-based debconf frontend presents you with one or more text files to edit. This is one such text file. If you are familiar with standard
+# unix configuration files, this file will look familiar to you -- it contains comments interspersed with configuration items. Edit the file,
+# changing any items as necessary, and then save it and exit. At that point, debconf will read the edited file, and use the values you entered to
+# configure the system.
