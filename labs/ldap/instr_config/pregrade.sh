@@ -20,23 +20,11 @@ END
 homedir=$1
 # destdir includes the container 
 destdir=$2
-dbg=/tmp/pregrade.log
-cd $homedir/$destdir
-is_sqlite=`which sqlite3`
-if [ ! -z $is_sqlite ]; then
-   #echo $is_sqlite
-   here=`pwd`
-   places=$here/.mozilla/firefox/*default/places.sqlite
-   for fname in $(ls $places 2> /dev/null); do
-     if [[ -f $fname ]]; then
-        outpath=$here/.local/result
-        outfile=$outpath/moz_places.txt
-        mkdir -p "$outpath"
-        sqlite3 "$fname" "SELECT moz_places.* FROM moz_places;" >"$outfile"
-     fi
-   done
+if [[ $destdir == *ldap.ldap.student ]]; then
+   cd $homedir/$destdir
+   #
+   # extract strings from pcap.  will use number of lines and content
+   # to determine if user selected the proper packet
+   #
+   strings password.pcapng >> strings.txt
 fi
-
-#
-#  Add other processing below.
-#
