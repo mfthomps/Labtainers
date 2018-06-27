@@ -82,6 +82,14 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+June 27, 2018
+- Add support for Ubuntu systemd images
+- Remove old copy of SimLab.py from labtainer-student/bin
+- Move apt and yum sources to /var/tmp
+- Clarify differences between use of "boolean" and "count\_greater" in assessments
+- Extend Add-HOST in start.config to include all components on a network.
+- Add option to new\_lab\_setup.py to add a container based on a copy of an existing container.
+
 June 21, 2018
 - Set DISPLAY env for root
 - Fix to build dependency handling of svn status output
