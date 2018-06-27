@@ -409,12 +409,17 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
         add_hosts = ''     
         for item in container.add_hosts:
             if ':' not in item:
-               print('ADD-HOST entry in start.config missing colon: %s' % item)
-               print('sytax: ADD-HOST <host>:<ip>')
-               return
-            ip, host = item.split(':')
-            add_this = '--add-host %s ' % item
-            add_hosts += add_this
+               if item in start_config.lan_hosts:
+                   for entry in start_config.lan_hosts[item]:
+                       add_this = '--add-host %s ' % entry
+                       add_hosts += add_this
+               else:
+                   logger.ERROR('ADD-HOST entry in start.config missing colon: %s' % item)
+                   logger.ERROR('sytax: ADD-HOST <host>:<ip>')
+                   return
+            else:
+               add_this = '--add-host %s ' % item
+               add_hosts += add_this
         add_host_param = '--add-host my_host:%s %s' % (docker0_IPAddr, add_hosts)
         dns_param = GetDNS()
         priv_param = ''
