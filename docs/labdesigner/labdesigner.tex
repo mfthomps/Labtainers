@@ -476,8 +476,9 @@ those of the host network interface.  When stated as a multi-user lab with all c
 \item If {\tt AUTO} is provided as the address, an address is chosen for you from the subnet range.  
 \end{itemize}
 \item SCRIPT [script] -- Optional script to provide to the Docker create command, defaults to ``bash''.  This must be set to
-``NONE'' for CentOS-based labs or other images that run a true Linux init process.).
-\item ADD-HOST [host:ip] -- Optional addition to the /etc/host file, a container may have multiple ADD-HOST entries.
+``NONE'' for CentOS-based components, Ubuntu systemd components, or other images that run a true Linux init process.).
+\item ADD-HOST [host:ip | network] -- Optional addition to the /etc/hosts file, a container may have multiple ADD-HOST entries.
+If a network name is provided, then every component on that network will get an entry in the hosts file.
 \item X11 [YES/NO] -- Optional, defaults to NO.  If YES, the container mounts the TCP socket used by the hosts X11 server,
 enabling the container to run applications with GUIs, e.g., browsers or wireshark.  See sql-inject as an example.  See the
 Notes section (\ref{Notes}) at the end of this manual for tips on using Firefox and Wireshark.
@@ -1047,7 +1048,7 @@ Directives within the results.config file each have the following format:
             field_type - Optional, defaults to "TOKEN", possible values include:
                TOKEN      -- Treat the line as space-delimited tokens
                PARENS     -- The desired value is contained in parenthesis
-               QUOTES     -- The desired value is contained in parenthesis
+               QUOTES     -- The desired value is contained in quotes
                SLASH      -- The desired value is contained within slashes, 
                              e.g., /foo/
                LINE_COUNT -- The quantity of lines in the file. Remaining fields 
