@@ -37,8 +37,17 @@ RUN /usr/bin/apt-source.sh
 #RUN /usr/bin/yum-source.sh
 #
 #  put package installation here
-#RUN export DEBIAN_FRONTEND='non-interactive'
-#RUN apt-get update && apt-get install -y ldap-auth-client nscd
+ENV DEBIAN_FRONTEND noninteractive
+RUN echo -e 'ldap-auth-config ldap-auth-config/bindpw password password' | debconf-set-selections
+RUN echo -e 'ldap-auth-config ldap-auth-config/rootbindpw password password' | debconf-set-selections
+RUN echo -e 'ldap-auth-config ldap-auth-config/rootbinddn string cn=admin,dc=example,dc=com' | debconf-set-selections
+RUN echo -e 'ldap-auth-config ldap-auth-config/override boolean true' | debconf-set-selections
+RUN echo -e 'ldap-auth-config ldap-auth-config/dblogin boolean false' | debconf-set-selections
+RUN echo -e 'ldap-auth-config ldap-auth-config/dbrootlogin boolean true' | debconf-set-selections
+RUN echo -e 'ldap-auth-config ldap-auth-config/ldapns/ldap-server string ldap://172.25.0.2' | debconf-set-selections
+RUN echo -e 'ldap-auth-config ldap-auth-config/ldapns/base-dn string dc=example,dc=com' | debconf-set-selections
+RUN echo -e 'ldap-auth-config ldap-auth-config/ldapns/ldap_version string 3' | debconf-set-selections
+RUN apt-get update && apt-get install -y  libnss-ldap libpam-ldap ldap-utils nscd
 #
 #
 # Install the system files found in the _system directory
