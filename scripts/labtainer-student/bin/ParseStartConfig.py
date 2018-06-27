@@ -39,6 +39,7 @@ class ParseStartConfig():
         # COLLECT_DOCS - this optional setting indicates whether to collect lab's docs directory or not
         # default to NO (i.e., do not collect)
         self.collect_docs = 'yes'
+        self.lan_hosts = {}
 
         if not os.path.exists(fname):
             self.logger.ERROR("Config file %s does not exists!\n" % fname)
@@ -171,6 +172,7 @@ class ParseStartConfig():
                 elif key == "network":
                     self.add_if_new(val, self.subnets, self.Subnet(val, self.logger))
                     active = self.subnets[val]
+                    self.lan_hosts[val] = []
                 elif key == "container":
                     if val in self.containers:
                         self.logger.ERROR('Container %s already defined' % val)
@@ -185,6 +187,8 @@ class ParseStartConfig():
                 else:
                     try:
                         active.add_net(key,val)
+                        lan_host = '%s:%s' % (active.name, val)
+                        self.lan_hosts[key].append(lan_host)
                     except:
                         self.logger.ERROR("Fatal. Can't understand config setting: %s" % line)
                         exit(1)
