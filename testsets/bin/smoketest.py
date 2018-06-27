@@ -126,7 +126,7 @@ class SmokeTest():
     
     def checkAll(self, startwith):
         
-        skip_labs = os.path.abspath('../../../distrib/skip-labs')
+        skip_labs = os.path.abspath('../../distrib/skip-labs')
         skip = []
         if os.path.isfile(skip_labs):
             with open(skip_labs) as fh:
