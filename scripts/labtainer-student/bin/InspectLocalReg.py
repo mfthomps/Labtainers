@@ -12,6 +12,7 @@ import os
 import sys
 import json
 import subprocess
+import VersionInfo
 '''
 Return creation date and user of a given image from a local registry, i.e.,
 the test registry.
@@ -27,34 +28,30 @@ def inspectLocal(image, test_registry):
     created, user, version, base = getCreated(image, digest, test_registry)
     print('base is %s' % base)
     base_image, base_id = base.rsplit('.', 1)
-    cmd = 'docker images -f=reference="%s" -q ' % base_image
-    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    output = ps.communicate()
-    if len(output[0].strip()) > 0:
-        my_id = output[0].strip()
-        if my_id == base_id:
-            pass
-            #print('got correct base_id')
+    my_id = VersionInfo.getImageId(base_image)
+    if my_id == base_id:
+        pass
+        #print('got correct base_id')
+    else:
+        #print('got WRONG base_id')
+        tlist = getTags(image, test_registry)
+        need_tag = 'base_image%s' % my_id
+        if need_tag in tlist:
+            use_tag = need_tag
         else:
-            #print('got WRONG base_id')
-            tlist = getTags(image, test_registry)
-            need_tag = 'base_image%s' % my_id
-            if need_tag in tlist:
-                use_tag = need_tag
+            print('**************************************************')
+            print('*  This lab will require a download of           *')
+            print('*  several hundred megabytes.                    *')
+            print('**************************************************')
+            confirm = str(raw_input('Continue? (y/n)')).lower().strip()
+            if confirm != 'y':
+                print('Exiting lab')
+                exit(0)
             else:
-                print('**************************************************')
-                print('*  This lab will require a download of           *')
-                print('*  several hundred megabytes.                    *')
-                print('**************************************************')
-                confirm = str(raw_input('Continue? (y/n)')).lower().strip()
-                if confirm != 'y':
-                    print('Exiting lab')
-                    exit(0)
-                else:
-                    print('Please wait for download to complete...')
-                    cmd = 'docker pull %s' % base_image
-                    os.system(cmd)
-                    print('Download has completed.  Wait for lab to start.')
+                print('Please wait for download to complete...')
+                cmd = 'docker pull %s' % base_image
+                os.system(cmd)
+                print('Download has completed.  Wait for lab to start.')
 
     return created, user, version, use_tag
     
