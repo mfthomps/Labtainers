@@ -69,7 +69,7 @@ FAILURE=1
  framework/image compatibility, to tell a user that a given
  lab cannot be run without doing an update.
 ''' 
-framework_version = 2
+framework_version = 3
 
 # Create a directory path based on input path
 # Note: Do not create if the input path already exists as a directory
@@ -850,7 +850,7 @@ def GetRunningLabNames(containers_list, role):
     return found_lab_role, labnameslist
 
 class ImageInfo():
-    def __init__(self, name, creation, user, local, local_build, version):
+    def __init__(self, name, creation, user, local, local_build, version, use_tag):
         self.name = name
         self.creation = creation
         self.user = user
@@ -858,6 +858,7 @@ class ImageInfo():
         ''' whether a locally built image '''
         self.local_build = local_build  
         self.version =  None
+        self.use_tag = use_tag
         if version is not None:
             version = version.replace('"', '')
             if version != 'null' and len(version.strip()) > 0:
@@ -895,26 +896,27 @@ def imageInfo(image_name, registry, labtainer_config):
         First look if plain image name exists, suggesting
         an ongoing build/test situation '''    
     retval = None
+    use_tag = 'latest'
     created, user, version = inspectImage(image_name)
     if created is not None:
-        retval = ImageInfo(image_name, created, user, True, True, version) 
+        retval = ImageInfo(image_name, created, user, True, True, version, use_tag) 
         logger.DEBUG('%s local built, ts %s %s' % (image_name, created, user)) 
     else:
         ''' next see if there is a local image from the desired registry '''
         with_registry = '%s/%s' % (registry, image_name)
         created, user, version = inspectImage(with_registry)
         if created is not None:
-            retval = ImageInfo(with_registry, created, user, True, False, version) 
+            retval = ImageInfo(with_registry, created, user, True, False, version, use_tag) 
             logger.DEBUG('%s local from reg, ts %s %s' % (with_registry, created, user)) 
         else:
             ''' See if the image exists in the desired registry '''
             if registry == labtainer_config.test_registry:
-                created, user, version = InspectLocalReg.inspectLocal(image_name, registry)
+                created, user, version, use_tag = InspectLocalReg.inspectLocal(image_name, registry)
             else:
-                created, user, version = InspectRemoteReg.inspectRemote(with_registry)
+                created, user, version, use_tag = InspectRemoteReg.inspectRemote(with_registry)
             if created is not None:
-                logger.DEBUG('%s only on registry %s, ts %s %s version %s' % (with_registry, registry, created, user, version)) 
-                retval = ImageInfo(with_registry, created, user, False, False, version)
+                logger.DEBUG('%s only on registry %s, ts %s %s version %s use_tag %s' % (with_registry, registry, created, user, version, use_tag)) 
+                retval = ImageInfo(with_registry, created, user, False, False, version, use_tag)
     if retval is None:
         logger.DEBUG('%s not found anywhere' % image_name)
 
