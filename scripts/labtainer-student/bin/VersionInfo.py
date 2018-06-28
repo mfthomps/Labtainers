@@ -5,8 +5,11 @@ def getFrom(dockerfile, registry):
             if line.strip().startswith('FROM'):
                 parts = line.strip().split()
                 image_name = parts[1]
-                image_name = image_name.replace("$registry", registry)
+                image_name = image_name.replace("$registry", registry).strip()
+                if image_name.endswith('.xtra'):
+                    image_name = image_name[:len(image_name)-5]
                 break
+    ''' Remove xtra suffix if it exists.  We are only interested in the big base '''
     return image_name
 
 def getImageId(image):
