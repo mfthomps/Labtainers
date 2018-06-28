@@ -9,7 +9,7 @@ def getFrom(dockerfile, registry):
     return image_name
 
 def getImageId(image):
-    cmd = 'docker images | grep %s' % image
+    cmd = 'docker images | grep %s | grep latest' % image
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[1]) > 0:
