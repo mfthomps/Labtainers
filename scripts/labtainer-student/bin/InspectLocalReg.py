@@ -17,13 +17,60 @@ Return creation date and user of a given image from a local registry, i.e.,
 the test registry.
 '''
 
+
+
 def inspectLocal(image, test_registry):
+    use_tag = 'latest'
     digest = getDigest(image, 'latest', test_registry)
     if digest is None:
         return None, None, None
-    created, user, version = getCreated(image, digest, test_registry)
-    return created, user, version
+    created, user, version, base = getCreated(image, digest, test_registry)
+    print('base is %s' % base)
+    base_image, base_id = base.rsplit('.', 1)
+    cmd = 'docker images -f=reference="%s" -q ' % base_image
+    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if len(output[0].strip()) > 0:
+        my_id = output[0].strip()
+        if my_id == base_id:
+            pass
+            #print('got correct base_id')
+        else:
+            #print('got WRONG base_id')
+            tlist = getTags(image, test_registry)
+            need_tag = 'base_image%s' % my_id
+            if need_tag in tlist:
+                use_tag = need_tag
+            else:
+                print('**************************************************')
+                print('*  This lab will require a download of           *')
+                print('*  several hundred megabytes.                    *')
+                print('**************************************************')
+                confirm = str(raw_input('Continue? (y/n)')).lower().strip()
+                if confirm != 'y':
+                    print('Exiting lab')
+                    exit(0)
+                else:
+                    print('Please wait for download to complete...')
+                    cmd = 'docker pull %s' % base_image
+                    os.system(cmd)
+                    print('Download has completed.  Wait for lab to start.')
+
+    return created, user, version, use_tag
     
+def getTags(image, test_registry):
+    cmd =   'curl --silent --header "Accept: application/vnd.docker.distribution.manifest.v2+json"  "http://%s/v2/%s/tags/list"' % (test_registry, image)
+    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if len(output[0].strip()) > 0:
+        j = json.loads(output[0])
+        if 'tags' in j:
+            return j['tags']
+        else:
+            return None
+    else:
+        return None
+
 def getDigest(image, tag, test_registry):
     cmd =   'curl --silent --header "Accept: application/vnd.docker.distribution.manifest.v2+json"  "http://%s/v2/%s/manifests/%s"' % (test_registry, image, tag)
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
@@ -45,9 +92,12 @@ def getCreated(image, digest, test_registry):
         j = json.loads(output[0])
         #print j['container_config']['User']
         version = None
+        base = None
         if 'version' in j['container_config']['Labels']:
             version = j['container_config']['Labels']['version'] 
-        return j['created'], j['container_config']['User'], version
+        if 'base' in j['container_config']['Labels']:
+            base = j['container_config']['Labels']['base'] 
+        return j['created'], j['container_config']['User'], version, base
 
-#created, user = inspectLocal('onewayhash.onewayhash.student', 'testregistry:5000')
-#print '%s  user: %s' % (created, user)
+created, user, version, use_tag = inspectLocal('onewayhash.onewayhash.student', 'testregistry:5000')
+print '%s  user: %s version: %s use_tag %s' % (created, user, version, use_tag)
