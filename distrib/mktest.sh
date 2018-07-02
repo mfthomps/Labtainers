@@ -8,6 +8,7 @@ cd $tmp_dir
 mkdir trunk
 cd trunk
 svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/testsets
+svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/distrib
 cd ../
 svn export https://tor.ern.nps.edu/svn/proj/labtainer/simlab
 tar czf /tmp/labtainer-tests.tar trunk simlab
