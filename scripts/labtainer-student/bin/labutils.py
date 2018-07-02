@@ -889,7 +889,7 @@ class ImageInfo():
             version = version.replace('"', '')
             if version != 'null' and len(version.strip()) > 0:
                 try:
-                    self.version = int(version)
+                    self.version = version
                 except:
                     logger.ERROR('failed getting version from string <%s>' % version)
                     traceback.print_exc()
