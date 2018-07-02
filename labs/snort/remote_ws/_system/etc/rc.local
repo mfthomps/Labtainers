@@ -1,3 +1,4 @@
+#!/bin/bash
 route delete default 
 route add default gw 172.16.0.10 
 echo "nameserver 172.16.0.10" > /etc/resolv.conf

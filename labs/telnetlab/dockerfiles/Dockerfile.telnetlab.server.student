@@ -6,9 +6,6 @@ ARG imagedir
 ARG apt_source
 ARG user_name
 #
-# Example of installing xinetd to manage inetd type system services
-# And, installation of rsyslog to cause system logging local to the
-# container.
 #
 ENV APT_SOURCE $apt_source
 RUN /usr/bin/apt-source.sh
@@ -25,7 +22,5 @@ USER $user_name
 ENV HOME /home/$user_name
 ADD $labdir/$lab.tar.gz $HOME
 
-#
-# the faux_init script starts the rsyslog daemon & the xinetd
-#
-ENTRYPOINT sudo /sbin/faux_init && bash
+USER root
+CMD ["/bin/bash", "-c", "exec /sbin/init --log-target=journal 3>&1"]
