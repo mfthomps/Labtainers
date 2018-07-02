@@ -74,7 +74,6 @@ RUN systemctl enable rc-local
 RUN systemctl enable postgresql
 CMD ["/sbin/init"]
 # replace below with four above for centos
-#ENTRYPOINT sudo /sbin/faux_init && bash
 #
 #  DO NOT add below this line.
 #

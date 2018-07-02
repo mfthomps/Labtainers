@@ -1,5 +1,7 @@
+#!/bin/bash
 # Use gateway as the name server
 #
+date >/tmp/rc.log
 echo "nameserver 198.18.1.3" > /etc/resolv.conf
 /usr/bin/set_default_gw.sh 198.18.1.INNER_LAN1
 # remove the dns route so as to not confuse student

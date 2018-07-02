@@ -1,3 +1,4 @@
+#!/bin/bash
 /usr/bin/set_default_gw.sh 192.168.2.10
 route delete default
 route add default gw 192.168.2.10

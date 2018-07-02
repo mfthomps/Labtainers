@@ -1,3 +1,4 @@
+#!/bin/bash
 /usr/bin/set_default_gw.sh 198.18.0.1
 #
 # get ethernet device names for the three interfaces
