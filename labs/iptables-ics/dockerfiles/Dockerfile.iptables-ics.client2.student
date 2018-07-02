@@ -39,4 +39,5 @@ ADD $labdir/$imagedir/home_tar/home.tar $HOME
 RUN rm -f $HOME/home.tar
 
 ADD $labdir/$lab.tar.gz $HOME
-ENTRYPOINT sudo /sbin/faux_init && bash
+USER root
+CMD ["/bin/bash", "-c", "exec /sbin/init --log-target=journal 3>&1"]

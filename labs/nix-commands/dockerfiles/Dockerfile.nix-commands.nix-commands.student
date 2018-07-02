@@ -51,7 +51,5 @@ RUN rm -f $HOME/home.tar
 #
 #  The first thing that executes on the container.
 #
-ENTRYPOINT sudo /sbin/faux_init && bash
-#
-#  DO NOT add below this line.
-#
+USER root
+CMD ["/bin/bash", "-c", "exec /sbin/init --log-target=journal 3>&1"]

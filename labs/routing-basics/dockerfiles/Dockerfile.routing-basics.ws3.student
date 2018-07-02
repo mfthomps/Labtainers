@@ -56,10 +56,5 @@ ADD $labdir/$lab.tar.gz $HOME
 #
 #  The first thing that executes on the container.
 #
-#USER root
-#CMD ["/usr/sbin/init"]
-# replace below with two above for centos
-ENTRYPOINT sudo /sbin/faux_init && bash
-#
-#  DO NOT add below this line.
-#
+USER root
+CMD ["/bin/bash", "-c", "exec /sbin/init --log-target=journal 3>&1"]
