@@ -26,7 +26,7 @@ mkdir "$LOCKDIR" >/dev/null 2>&1
 #echo "number of argument is $#"
 #echo "argument is $@"
 
-if [ $# -ne 6 ]
+if [ $# -ne 7 ]
 then
     echo "Usage: parameterize.sh <CONTAINER_USER> <LAB_INSTANCE_SEED> <USER_EMAIL> <LAB_NAME> <CONTAINER_NAME>"
     echo "       <CONTAINER_USER> -- username of the container"
@@ -35,6 +35,7 @@ then
     echo "       <USER_EMAIL> -- user's e-mail"
     echo "       <LAB_NAME> -- name of the lab"
     echo "       <CONTAINER_NAME> -- name of the container"
+    echo "       <version> -- version of container image"
     exit 1
 fi
 
@@ -44,6 +45,7 @@ LAB_INSTANCE_SEED=$3
 USER_EMAIL=$4
 LAB_NAME=$5
 CONTAINER_NAME=$6
+IMAGE_VERSION=$7
 
 # Laboratory instance seed is always stored in $LAB_SEEDFILE
 echo "$LAB_INSTANCE_SEED" > $LAB_SEEDFILE
@@ -78,7 +80,7 @@ fi
 echo $CONTAINER_PASSWORD | sudo rm -f /run/nologin
 
 # call ParameterParser.py (passing $LAB_INSTANCE_SEED)
-echo $CONTAINER_PASSWORD | sudo -S $HOME/.local/bin/ParameterParser.py $CONTAINER_USER $LAB_INSTANCE_SEED $CONTAINER_NAME $LAB_PARAMCONFIGFILE
+echo $CONTAINER_PASSWORD | sudo -S $HOME/.local/bin/ParameterParser.py $CONTAINER_USER $LAB_INSTANCE_SEED $CONTAINER_NAME $LAB_PARAMCONFIGFILE 
 
 # If file $HOME/.local/bin/fixlocal.sh exists, run it
 if [ -f $HOME/.local/bin/fixlocal.sh ]
@@ -116,6 +118,11 @@ fi
 # hack console type for initd
 echo $CONTAINER_PASSWORD | sudo touch /sbin/consoletype
 echo $CONTAINER_PASSWORD | sudo chmod a+rwx /sbin/consoletype
+echo "image version is $IMAGE_VERSION" >/tmp/mft.out
+if [[ "$IMAGE_VERSION" -eq -1 ]] || [[ "$IMAGE_VERSION" -gt 2 ]]; then
+    systemctl enable mynotify.service
+    systemctl start mynotify.service
+fi
 
 if [ -d $LOCKDIR ]; then
     rmdir $LOCKDIR

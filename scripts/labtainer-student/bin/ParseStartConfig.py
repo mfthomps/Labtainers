@@ -77,6 +77,8 @@ class ParseStartConfig():
             self.clone = None  # Number of clones of this component to create.  
             self.client = None # Used for distributed labtainers, indicates container is a client
             self.from_image = None
+            self.enable = None
+            self.disable = None
             self.logger = logger
 
         def add_net(self, name, ipaddr):
