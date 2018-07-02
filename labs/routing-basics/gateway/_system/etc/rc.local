@@ -1,3 +1,4 @@
+#!/bin/bash
 route delete default
 route add default gw 203.0.113.1
 #

@@ -23,4 +23,5 @@ ADD $labdir/$lab.tar.gz $HOME
 RUN echo "# This secret file is generated when container is created" >> $HOME/.secret
 RUN echo "# The user secret string below will be replaced with a keyed hash" >> $HOME/.secret
 RUN echo "My Ubuntu secret string is: UBUNTU_SECRET" >> $HOME/.secret
-ENTRYPOINT sudo /sbin/faux_init && bash
+USER root
+CMD ["/bin/bash", "-c", "exec /sbin/init --log-target=journal 3>&1"]
