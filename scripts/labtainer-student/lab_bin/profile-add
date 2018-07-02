@@ -12,4 +12,4 @@ fi
 export DISPLAY=:0
 # mask GTK accessibility bus errors
 export NO_AT_BRIDGE=1
-
+export PATH="$PATH:/sbin"
