@@ -8,6 +8,7 @@ sys.path.append('../scripts/labtainer-student/bin')
 import LabtainerLogging
 import ParseLabtainerConfig
 import labutils
+import VersionInfo
 
 def rebuild(labname, labsdir, role, force, logger):
     mycwd = os.getcwd()
@@ -41,10 +42,16 @@ def pushIt(lab, docker_dir, role, registry, logger):
             continue
         image_exists, dumb, dumb1 = labutils.ImageExists(image, None)
         if image_exists:
-            cmd = 'docker tag %s %s/%s' % (image, registry, image)
+            dfile_path = os.path.join(docker_dir,df)
+            image_base = VersionInfo.getFrom(dfile_path, registry)
+            base_id = VersionInfo.getImageId(image_base)
+            framework_version = labutils.framework_version
+            cmd = './relabel.sh %s %s %s %s %s' % (registry, framework_version , image, image_base, base_id)
             os.system(cmd)
-            cmd = 'docker push %s/%s' % (registry, image)
-            os.system(cmd)
+            #cmd = 'docker tag %s %s/%s' % (image, registry, image)
+            #os.system(cmd)
+            #cmd = 'docker push %s/%s' % (registry, image)
+            #os.system(cmd)
             ''' Delete the image. Two reasons: 1) ensure we run authoritative copy,
                 which is from the dockerhub.  2) don't push on a rebuild if not rebuilt. '''
             cmd = './remove-container.sh %s' % (image)
