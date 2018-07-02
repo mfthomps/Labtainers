@@ -1,3 +1,4 @@
+import subprocess
 def getFrom(dockerfile, registry):
     image_name = None
     with open(dockerfile) as fh:

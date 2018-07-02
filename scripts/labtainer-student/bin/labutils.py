@@ -159,14 +159,23 @@ def getDocker0IPAddr():
         return get_ip_address('docker0')
 
 # Parameterize my_container_name container
-def ParameterizeMyContainer(mycontainer_name, container_user, container_password, lab_instance_seed, user_email, labname, lab_path, name):
+def ParameterizeMyContainer(mycontainer_name, container_user, container_password, lab_instance_seed, user_email, labname, lab_path, name, image_info):
     retval = True
     ''' copy lab_bin and lab_sys files into .local/bin and / respectively '''
-    CopyLabBin(mycontainer_name, container_user, lab_path, name)
+    CopyLabBin(mycontainer_name, container_user, lab_path, name, image_info)
     cmd_path = '/home/%s/.local/bin/parameterize.sh' % (container_user)
     if container_password == "":
         container_password = container_user
-    command=['docker', 'exec', '-i',  mycontainer_name, cmd_path, container_user, container_password, lab_instance_seed, user_email, labname, mycontainer_name ]
+
+    version = '0'
+    if image_info is None:
+        ''' is a build, version -1 '''
+        version = '-1'
+    else:
+        print(str(image_info))
+        if image_info.version is not None:
+            version = image_info.version
+    command=['docker', 'exec', '-i',  mycontainer_name, cmd_path, container_user, container_password, lab_instance_seed, user_email, labname, mycontainer_name, version ]
     logger.DEBUG("About to call parameterize.sh with : %s" % str(command))
     #return retval 
     child = subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -350,25 +359,35 @@ def GetX11SSH():
 
 def isUbuntuSystemd(image_name):
     done = False
-    while not done:
+    retval = False
+    logger.DEBUG('check if %s is systemd' % image_name)
+    while not done and len(image_name) > 0:
         cmd = "docker inspect -f '{{json .Parent}}|{{json .Config.Labels.description}}' --type image %s" % image_name
         ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        #logger.DEBUG('cmd is %s' % cmd)
         output = ps.communicate()
         if len(output[0].strip()) > 0:
-            #print output[0]
+            #logger.DEBUG('output %s' % output[0])
             parent, description = output[0].split('|')
-            if 'base Labtainer image for Ubuntu systemd' in description:
-                #print('is systemd')
-                return True
-        if len(output[1].strip()) > 0:
-            logger.ERROR(output[1])
-            exit(1)
-        if description is "null" and parent is not "null":
-            image_name = parent
+            #logger.DEBUG('parent is: <%s>' % parent)
+            if 'Labtainer base image from ubuntu-systemd' in description:
+                logger.DEBUG('is systemd')
+                retval = True
+                done = True
+            else:
+                image_name = parent
         else:
+            logger.DEBUG('no description for image %s' % image_name)
+            done = True
+        if len(output[1].strip()) > 0 and 'cannot unmarshal' not in output[1]:
+            logger.ERROR(output[1])
+            done = True
+        if description is "null" and parent is not "null" and len(parent.strip())>0:
+            image_name = parent
+        elif parent is None or len(parent.strip())==0:
             done = True
     
-    return False
+    return retval
 
 def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_name=None, mysubnet_ip=None):
     ''' create a single container -- or all clones of that container per the start.config '''
@@ -376,7 +395,7 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
     retval = True
     #image_exists, result, new_image_name = ImageExists(container.image_name, container.registry)
     image_info = imageInfo(container.image_name, container.registry, labtainer_config)
-        
+    start_script = container.script     
     if image_info is None:
         logger.ERROR('Could not find image for %s' % container.image_name)
         retval = False
@@ -389,16 +408,21 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
         docker0_IPAddr = getDocker0IPAddr()
         logger.DEBUG("getDockerIPAddr result (%s)" % docker0_IPAddr)
         volume=''
-        if container.script == '':
+        ubuntu_systemd = isUbuntuSystemd(new_image_name)
+        if container.script == '' or ubuntu_systemd:
+            logger.DEBUG('is systemd')
             ''' a systemd container, centos or ubuntu? '''
-            if isUbuntuSystemd(new_image_name):
+            if ubuntu_systemd:
+                start_script = ''
                 #volume='--security-opt seccomp=confined --tmpfs /run --tmpfs /run/lock -v /sys/fs/cgroup:/sys/fs/cgroup:ro'
                 volume='--security-opt seccomp=unconfined --tmpfs /run --tmpfs /run/lock -v /sys/fs/cgroup:/sys/fs/cgroup:ro'
                 cmd = 'docker run --rm --privileged -v /:/host %s setup' % new_image_name
+                logger.DEBUG('cmd is %s' % cmd)
                 ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
                 output = ps.communicate()
-                print(output[0])
-                print(output[1])
+                logger.DEBUG('back from docker run, output %s' % (output[0]))
+                if len(output[1]) > 0:
+                    logger.DEBUG('back from docker run, error %s' % (output[1]))
                 
             else:
                 volume='-v /sys/fs/cgroup:/sys/fs/cgroup:ro'
@@ -407,6 +431,7 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
             volume = volume+' --env="DISPLAY"  --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw"'
             logger.DEBUG('container using X11')
         add_hosts = ''     
+        logger.DEBUG('dumb debug message')
         for item in container.add_hosts:
             if ':' not in item:
                if item in start_config.lan_hosts:
@@ -448,7 +473,7 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
                 subnet_ip, mac = GetNetParam(start_config, mysubnet_name, mysubnet_ip, clone_fullname)
             createsinglecommand = "docker create -t %s --cap-add NET_ADMIN %s %s %s %s %s --name=%s --hostname %s %s %s %s %s" % (dns_param, 
                     network_param, subnet_ip, mac, priv_param, add_host_param,  clone_fullname, clone_host, volume, 
-                    multi_user, new_image_name, container.script)
+                    multi_user, new_image_name, start_script)
             logger.DEBUG("Command to execute was (%s)" % createsinglecommand)
             ps = subprocess.Popen(shlex.split(createsinglecommand), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             output = ps.communicate()
@@ -600,12 +625,12 @@ def GetLabSeed(lab_master_seed, student_email):
 
 #def ParamStartConfig(lab_seed):
     
-def ParamForStudent(lab_master_seed, mycontainer_name, container_user, container_password, labname, student_email, lab_path, name):
+def ParamForStudent(lab_master_seed, mycontainer_name, container_user, container_password, labname, student_email, lab_path, name, image_info):
     mymd5_hex_string = GetLabSeed(lab_master_seed, student_email)
     logger.DEBUG(mymd5_hex_string)
 
     if not ParameterizeMyContainer(mycontainer_name, container_user, container_password, mymd5_hex_string,
-                                                          student_email, labname, lab_path, name):
+                                                          student_email, labname, lab_path, name, image_info):
         logger.ERROR("Failed to parameterize lab container %s!\n" % mycontainer_name)
         sys.exit(1)
     logger.DEBUG('back from ParameterizeMyContainer for %s' % mycontainer_name)
@@ -734,7 +759,7 @@ def CopyInstrConfig(mycontainer_name, container_user, lab_path):
         exit(1)
 
 
-def CopyLabBin(mycontainer_name, container_user, lab_path, name):
+def CopyLabBin(mycontainer_name, container_user, lab_path, name, image_info):
     cmd = 'docker cp lab_bin/.  %s:/home/%s/.local/bin/' % (mycontainer_name, container_user)
     if not DockerCmd(cmd):
         logger.ERROR('failed %s' % cmd)
@@ -747,7 +772,7 @@ def CopyLabBin(mycontainer_name, container_user, lab_path, name):
     #    cmd = 'docker cp %s/.  %s:/home/%s/.local/bin/' % (container_bin, mycontainer_name, container_user)
     #    DockerCmd(cmd)
 
-    cmd = 'tar cf /tmp/labsys.tar -C ./lab_sys etc sbin'
+    cmd = 'tar cf /tmp/labsys.tar -C ./lab_sys etc sbin lib'
     os.system(cmd)
 
     cmd = 'docker cp /tmp/labsys.tar %s:/var/tmp/' % (mycontainer_name)
@@ -841,6 +866,7 @@ def GetRunningLabNames(containers_list, role):
     labnameslist = []
     found_lab_role = False
     for each_container in containers_list:
+        print each_container
         if each_container.endswith(role):
             splitstring = each_container.split('.')
             labname = splitstring[0]
@@ -891,7 +917,7 @@ def inspectImage(image_name):
         version = output[0].strip()
     return created, user, version
 
-def imageInfo(image_name, registry, labtainer_config):
+def imageInfo(image_name, registry, labtainer_config, is_rebuild=False):
     ''' image_name lacks registry info (always) 
         First look if plain image name exists, suggesting
         an ongoing build/test situation '''    
@@ -911,9 +937,9 @@ def imageInfo(image_name, registry, labtainer_config):
         else:
             ''' See if the image exists in the desired registry '''
             if registry == labtainer_config.test_registry:
-                created, user, version, use_tag = InspectLocalReg.inspectLocal(image_name, registry)
+                created, user, version, use_tag = InspectLocalReg.inspectLocal(image_name, registry, is_rebuild)
             else:
-                created, user, version, use_tag = InspectRemoteReg.inspectRemote(with_registry)
+                created, user, version, use_tag = InspectRemoteReg.inspectRemote(with_registry, is_rebuild)
             if created is not None:
                 logger.DEBUG('%s only on registry %s, ts %s %s version %s use_tag %s' % (with_registry, registry, created, user, version, use_tag)) 
                 retval = ImageInfo(with_registry, created, user, False, False, version, use_tag)
@@ -1043,7 +1069,7 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False, just_c
 
         force_this_build = force_build
         logger.DEBUG('force_this_build: %r' % force_this_build)
-        image_info = imageInfo(mycontainer_image_name, container.registry, labtainer_config)
+        image_info = imageInfo(mycontainer_image_name, container.registry, labtainer_config, is_rebuild=True)
         if not force_this_build and image_info is None:
             logger.DEBUG('image exists nowhere, so force the build')
             force_this_build = True
@@ -1100,7 +1126,7 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False, just_c
     return retval
 
 def DoStartOne(labname, name, container, start_config, labtainer_config, lab_path, role, 
-               is_regress_test, check_watermark, student_email, quiet_start, results, auto_grade):
+               is_regress_test, check_watermark, student_email, quiet_start, results, auto_grade, image_info):
         retval = True
         mycontainer_name       = container.full_name
         mycontainer_image_name = container.image_name
@@ -1190,11 +1216,12 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
        	    # If the container is just created, then use the previous user's e-mail
             # then parameterize the container
             elif quiet_start and clone_need_seeds and role == 'student':
-                ParamForStudent(start_config.lab_master_seed, mycontainer_name, container_user, container_password, labname, student_email, lab_path, name)
+                ParamForStudent(start_config.lab_master_seed, mycontainer_name, container_user, container_password, 
+                                labname, student_email, lab_path, name, image_info)
             
             elif clone_need_seeds and role == 'student':
                 ParamForStudent(start_config.lab_master_seed, mycontainer_name, container_user, 
-                                                 container_password, labname, student_email, lab_path, name)
+                                                 container_password, labname, student_email, lab_path, name, image_info)
     
         results.append(retval)
 
@@ -1426,7 +1453,7 @@ def SkipContainer(run_container, name, start_config, servers):
     return False
 
 def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, check_watermark, 
-            quiet_start, run_container, servers, clone_count, auto_grade=False, debug_grade=False):
+            quiet_start, run_container, servers, clone_count, auto_grade=False, debug_grade=False, container_images=None):
     labname = os.path.basename(lab_path)
     logger.DEBUG("DoStart Multiple Containers and/or multi-home networking")
     ''' make sure root can access Xserver '''
@@ -1471,9 +1498,11 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, che
         if has_multi_container and container_warning_printed == False:
             print "Starting the lab, this may take a moment..."
             container_warning_printed = True
-
+        image_info = None
+        if container_images is not None:
+            image_info = container_images[name]
         t = threading.Thread(target=DoStartOne, args=(labname, name, container, start_config, labtainer_config, lab_path, 
-              role, is_regress_test, check_watermark, student_email, quiet_start, results, auto_grade))
+              role, is_regress_test, check_watermark, student_email, quiet_start, results, auto_grade, image_info))
         threads.append(t)
         t.setName(name)
         t.start()
@@ -1664,7 +1693,8 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
         if os.path.isfile(my_start_config):
             logger.DEBUG('Cached start.config removed %s' % my_start_config)
             os.remove(my_start_config)
-        
+       
+    container_images = {} 
     for name, container in start_config.containers.items():
         if SkipContainer(run_container, name, start_config, servers):
             #print('skipping name %s %s' % (name, start_config.containers[name]))
@@ -1684,6 +1714,7 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
                     logger.DEBUG("Error from command = '%s'" % str(output[1]))
         #image_exists, result, dumb = ImageExists(mycontainer_image_name, container.registry)
         image_info = imageInfo(mycontainer_image_name, container.registry, labtainer_config)
+        container_images[name] = image_info
         if image_info is not None:
             logger.DEBUG('Image version %s  framework_version %s' % (image_info.version, framework_version))
             if image_info.version is not None and image_info.version > framework_version:
@@ -1714,7 +1745,8 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
     CreateHostHomeXfer(host_xfer_dir)
 
     DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, check_watermark, quiet_start, 
-            run_container, servers=servers, clone_count=clone_count, auto_grade=auto_grade, debug_grade=debug_grade)
+            run_container, servers=servers, clone_count=clone_count, auto_grade=auto_grade, 
+            debug_grade=debug_grade, container_images=container_images)
 
 def DateIsLater(df_utc_string, ts, local=False, debug=False):
     parts = df_utc_string.split('.')
