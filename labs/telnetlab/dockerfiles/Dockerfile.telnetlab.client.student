@@ -1,6 +1,5 @@
 ARG registry 
 FROM $registry/labtainer.base
-MAINTAINER jkhosali@nps.edu
 ARG lab
 ARG labdir
 ARG imagedir
@@ -18,4 +17,5 @@ RUN adduser $user_name sudo
 USER $user_name
 ENV HOME /home/$user_name
 ADD $labdir/$lab.tar.gz $HOME
-ENTRYPOINT sudo /sbin/faux_init && bash
+USER root
+CMD ["/bin/bash", "-c", "exec /sbin/init --log-target=journal 3>&1"]

@@ -1,0 +1,12 @@
+[Unit]
+Description=HTTP Service
+
+[Service]
+Type=simple
+WorkingDirectory=/var/www
+ExecStart=/bin/MyHTTPServer.py
+StandardOutput=null
+
+[Install]
+WantedBy=multi-user.target
+Alias=httpserver.service
