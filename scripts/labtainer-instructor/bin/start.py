@@ -57,6 +57,7 @@ def main():
     parser.add_argument('-a', '--all_containers', action='store_true', help='Create all containers as seen by the student.')
     parser.add_argument('-d', '--debug_grade', action='store_true', help='Create the grading container leave it running with a terminal')
     parser.add_argument('-q', '--quiet', action='store_true', help='Do not display results.')
+    parser.add_argument('-t', '--test_registry', action='store_true', default=False, help='build from images in the test registry')
     num_args = len(sys.argv)
     if num_args < 2: 
         showLabs(dirs, path)
@@ -66,6 +67,16 @@ def main():
     if labname not in dirs:
         sys.stderr.write("ERROR: Lab named %s was not found!\n" % labname)
         sys.exit(1)
+    if args.test_registry:
+        if os.getenv('TEST_REGISTRY') is None:
+            #print('use putenv to set it')
+            os.putenv("TEST_REGISTRY", "TRUE")
+            ''' why does putenv not set the value? '''
+            os.environ['TEST_REGISTRY'] = 'TRUE'
+        else:
+            #print('exists, set it true')
+            os.environ['TEST_REGISTRY'] = 'TRUE'
+        print('set TEST REG to %s' % os.getenv('TEST_REGISTRY'))
 
     saki.checkBulkSaki(bulk_path=None, lab=labname)
     lab_path = os.path.join(os.path.abspath('../../labs'), labname)

@@ -39,8 +39,19 @@ def main():
     parser.add_argument('-p', '--prompt', action='store_true', help='prompt for email, otherwise use stored')
     parser.add_argument('-c', '--container', action='store', help='force rebuild just this container')
     parser.add_argument('-i', '--ignore_validate', action='store', help='ignore validation errors', default=False)
+    parser.add_argument('-t', '--test_registry', action='store_true', default=False, help='build from images in the test registry')
 
     args = parser.parse_args()
+    if args.test_registry:
+        if os.getenv('TEST_REGISTRY') is None:
+            #print('use putenv to set it')
+            os.putenv("TEST_REGISTRY", "TRUE")
+            ''' why does putenv not set the value? '''
+            os.environ['TEST_REGISTRY'] = 'TRUE'
+        else:
+            #print('exists, set it true')
+            os.environ['TEST_REGISTRY'] = 'TRUE'
+        print('set TEST REG to %s' % os.getenv('TEST_REGISTRY'))
     quiet_start = True
     if args.prompt == True:
         quiet_start = False
