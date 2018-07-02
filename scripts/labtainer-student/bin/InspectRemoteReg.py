@@ -16,16 +16,19 @@ import subprocess
 Return creation date and user of a given image from the Docker Hub
 without pulling the image.
 '''
-def inspectRemote(image):
+def inspectRemote(image, is_rebuild=False):
     use_tag = 'latest'
     token = getToken(image)
     if token is None or len(token.strip()) == 0:
-        return None, None, None
+        return None, None, None, None
     digest = getDigest(token, image, 'latest')
     if digest is None:
-        return None, None, None
+        return None, None, None, None
     created, user, version, base = getCreated(token, image, digest)
-    print('base is %s' % base)
+    if base is None:
+        print('Remote image %s is lacking a base version, it needs to be retagged with trunk/distrib/retag_all.py' % image)
+        exit(1) 
+    #print('base is %s' % base)
     base_image, base_id = base.rsplit('.', 1)
     my_id = VersionInfo.getImageId(base_image)
     if my_id == base_id:
@@ -35,7 +38,7 @@ def inspectRemote(image):
         #print('got WRONG base_id')
         tlist = getTags(image, test_registry)
         need_tag = 'base_image%s' % my_id
-        if need_tag in tlist:
+        if is_rebuild or need_tag in tlist:
             use_tag = need_tag
         else:
             print('**************************************************')
