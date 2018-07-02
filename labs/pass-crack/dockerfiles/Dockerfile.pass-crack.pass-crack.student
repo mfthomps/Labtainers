@@ -54,7 +54,8 @@ RUN sudo chown -R $user_name:$user_name /home/$user_name
 #
 #  The first thing that executes on the container.
 #
-ENTRYPOINT sudo /sbin/faux_init && bash
+USER root
+CMD ["/bin/bash", "-c", "exec /sbin/init --log-target=journal 3>&1"]
 #
 #  DO NOT add below this line.
 #

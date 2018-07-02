@@ -21,7 +21,5 @@ USER $user_name
 ENV HOME /home/$user_name
 ADD $labdir/$lab.tar.gz $HOME
 
-#
-# the faux_init script starts the rsyslog daemon & the xinetd
-#
-ENTRYPOINT sudo /sbin/faux_init && bash
+USER root
+CMD ["/bin/bash", "-c", "exec /sbin/init --log-target=journal 3>&1"]
