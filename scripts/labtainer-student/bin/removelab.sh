@@ -1,5 +1,5 @@
 #!/bin/bash
-cont_list=$(docker ps -a | grep " $1\." | awk '{ print $1":"$2 }')
+cont_list=$(docker ps -a | grep " $1\." | awk '{print $1}')
 if [[ ! -z "$cont_list" ]]; then
     docker rm $cont_list
 fi

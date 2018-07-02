@@ -20,23 +20,23 @@ the test registry.
 
 
 
-def inspectLocal(image, test_registry):
+def inspectLocal(image, test_registry, is_rebuild=False):
     use_tag = 'latest'
     digest = getDigest(image, 'latest', test_registry)
     if digest is None:
-        return None, None, None
+        return None, None, None, None
     created, user, version, base = getCreated(image, digest, test_registry)
-    print('base is %s' % base)
+    #print('base is %s' % base)
     base_image, base_id = base.rsplit('.', 1)
     my_id = VersionInfo.getImageId(base_image)
     if my_id == base_id:
         pass
         #print('got correct base_id')
     else:
-        #print('got WRONG base_id')
+        print('got WRONG base_id my: %s  base: %s' % (my_id, base_id))
         tlist = getTags(image, test_registry)
         need_tag = 'base_image%s' % my_id
-        if need_tag in tlist:
+        if is_rebuild or need_tag in tlist:
             use_tag = need_tag
         else:
             print('**************************************************')
@@ -96,5 +96,5 @@ def getCreated(image, digest, test_registry):
             base = j['container_config']['Labels']['base'] 
         return j['created'], j['container_config']['User'], version, base
 
-created, user, version, use_tag = inspectLocal('onewayhash.onewayhash.student', 'testregistry:5000')
-print '%s  user: %s version: %s use_tag %s' % (created, user, version, use_tag)
+#created, user, version, use_tag = inspectLocal('onewayhash.onewayhash.student', 'testregistry:5000')
+#print '%s  user: %s version: %s use_tag %s' % (created, user, version, use_tag)
