@@ -42,14 +42,17 @@ class SmokeTest():
 
         self.logger.debug('Begin smoke test')
 
-    def checkLab(self, lab):
+    def checkLab(self, lab, test_registry):
         FAILURE=1
         retval = True
         xfer_dir = os.path.join(os.getenv('HOME'), self.labtainer_config.host_home_xfer, lab)
         self.logger.debug('checkLab xfer is %s' % xfer_dir)
         shutil.rmtree(xfer_dir, ignore_errors=True)
         os.mkdir(xfer_dir)
-        cmd = 'redo.py %s -q' % lab
+        test_flag = ''
+        if test_registry:
+            test_flag = '-t'
+        cmd = 'labtainer %s -q -r %s' % (lab, test_flag)
         result = subprocess.call(cmd, shell=True, stderr=self.outfile, stdout=self.outfile)
         self.logger.debug('result is %d' % result)
         self.simlab = None
@@ -124,7 +127,7 @@ class SmokeTest():
             return False
         return True
     
-    def checkAll(self, startwith):
+    def checkAll(self, startwith, test_registry):
         
         skip_labs = os.path.abspath('../../distrib/skip-labs')
         skip = []
@@ -143,7 +146,7 @@ class SmokeTest():
             if startwith is not None and lab < startwith:
                 continue
             print('Start lab: %s' % lab)
-            result = self.checkLab(lab)
+            result = self.checkLab(lab, test_registry)
             if not result:
                 exit(1)
             print('Finished lab: %s' % lab)
@@ -154,12 +157,14 @@ def __main__():
     parser.add_argument('-l', '--lab', action='store', help='Test just this lab.')
     parser.add_argument('-s', '--start_with', action='store', help='Test all starting with .')
     parser.add_argument('-v', '--verbose', action='count', default=0, help="Use -v to see comments as they are encountered, -vv to see each line")
+    parser.add_argument('-t', '--test_registry', action='store_true', default=False, help='Run with images from the test registry')
+
     args = parser.parse_args()
     smoketest = SmokeTest(args.verbose)
     if args.lab is not None:
-        smoketest.checkLab(args.lab)
+        smoketest.checkLab(args.lab, args.test_registry)
     else:
-        smoketest.checkAll(args.start_with)
+        smoketest.checkAll(args.start_with, args.test_registry)
 
 if __name__=='__main__':
     __main__()

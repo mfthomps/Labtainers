@@ -132,7 +132,20 @@ class SimLab():
         self.current_wid = int(wid)
         cmd = 'windowactivate --sync %s' % wid
         self.dotool(cmd)
-    
+     
+    def typeLit(self, string):
+        for c in string:
+            key = c
+            if key == '`':
+                key = 'grave' 
+            elif key == '-':
+                key = 'minus'
+            elif key == ' ':
+                key = 'space'
+            cmd = 'key %s' % key
+            self.dotool(cmd)
+        self.dotool('key Return')
+
     def typeLine(self, string):
         #cmd = "type --window %d '%s'" % (self.current_wid, string)
         ''' xdotool cannot handle a mix of single/double quotes.  '''
@@ -230,7 +243,7 @@ class SimLab():
             print('syntax error, too many fields (%d) for add_file: %s' % (len(parts), params))
             exit(1)
         if ':' not in parts[1]:
-            print('syntax error on add_file: %s' % params)
+            print('syntax error on add_file -- MISSING container name?: %s' % params)
             exit(1)
         src_path = os.path.join(self.sim_path, parts[0])
         container, dst_path = parts[1].split(':')
@@ -334,6 +347,8 @@ class SimLab():
             self.keyFile(params)
         elif cmd == 'type_line':
             self.typeLine(params.strip())
+        elif cmd == 'type_lit':
+            self.typeLit(params.strip())
         elif cmd == 'type_command':
             self.typeLine(params.strip())
             while isProcRunning(params):
