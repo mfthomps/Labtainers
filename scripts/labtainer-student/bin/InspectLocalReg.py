@@ -33,7 +33,7 @@ def inspectLocal(image, test_registry, is_rebuild=False):
         pass
         #print('got correct base_id')
     else:
-        print('got WRONG base_id my: %s  base: %s' % (my_id, base_id))
+        print('got WRONG base_id for base %s used in  %s my: %s  base: %s' % (base_image, image, my_id, base_id))
         tlist = getTags(image, test_registry)
         need_tag = 'base_image%s' % my_id
         if is_rebuild or need_tag in tlist:
@@ -53,7 +53,7 @@ def inspectLocal(image, test_registry, is_rebuild=False):
                 os.system(cmd)
                 print('Download has completed.  Wait for lab to start.')
 
-    return created, user, version, use_tag
+    return created, user, version, use_tag, base
     
 def getTags(image, test_registry):
     cmd =   'curl --silent --header "Accept: application/vnd.docker.distribution.manifest.v2+json"  "http://%s/v2/%s/tags/list"' % (test_registry, image)
@@ -96,5 +96,5 @@ def getCreated(image, digest, test_registry):
             base = j['container_config']['Labels']['base'] 
         return j['created'], j['container_config']['User'], version, base
 
-#created, user, version, use_tag = inspectLocal('onewayhash.onewayhash.student', 'testregistry:5000')
+#created, user, version, use_tag = inspectLocal('radius.radius.student', 'testregistry:5000', True)
 #print '%s  user: %s version: %s use_tag %s' % (created, user, version, use_tag)
