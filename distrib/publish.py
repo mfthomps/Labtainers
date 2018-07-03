@@ -54,7 +54,7 @@ def pushIt(lab, docker_dir, role, registry, logger):
             #os.system(cmd)
             ''' Delete the image. Two reasons: 1) ensure we run authoritative copy,
                 which is from the dockerhub.  2) don't push on a rebuild if not rebuilt. '''
-            cmd = './remove-container.sh %s' % (image)
+            cmd = '../scripts/labtainer-student/bin/removelab.sh %s' % (image)
             os.system(cmd)
         else: 
             logger.DEBUG('Have not built %s, nothing to push' % image)
