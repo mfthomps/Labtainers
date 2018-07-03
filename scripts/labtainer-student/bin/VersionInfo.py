@@ -25,5 +25,17 @@ def getImageId(image):
         return output[0].strip()
     else:
         print('VersionInfo, getImageId: no image found for %s' % image)
-        exit(1)
+        print('**************************************************')
+        print('*  This lab will require a download of           *')
+        print('*  several hundred megabytes.                    *')
+        print('**************************************************')
+        confirm = str(raw_input('Continue? (y/n)')).lower().strip()
+        if confirm != 'y':
+            print('Exiting lab')
+            exit(0)
+        else:
+            print('Please wait for download to complete...')
+            cmd = 'docker pull %s' % base_image
+            os.system(cmd)
+            print('Download has completed.  Wait for lab to start.')
 
