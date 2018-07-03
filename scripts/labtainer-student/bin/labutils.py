@@ -937,7 +937,7 @@ def imageInfo(image_name, registry, labtainer_config, is_rebuild=False):
         else:
             ''' See if the image exists in the desired registry '''
             if registry == labtainer_config.test_registry:
-                created, user, version, use_tag = InspectLocalReg.inspectLocal(image_name, registry, is_rebuild)
+                created, user, version, use_tag, base = InspectLocalReg.inspectLocal(image_name, registry, is_rebuild)
             else:
                 created, user, version, use_tag = InspectRemoteReg.inspectRemote(with_registry, is_rebuild)
             if created is not None:
@@ -1717,7 +1717,7 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
         container_images[name] = image_info
         if image_info is not None:
             logger.DEBUG('Image version %s  framework_version %s' % (image_info.version, framework_version))
-            if image_info.version is not None and image_info.version > framework_version:
+            if image_info.version is not None and int(image_info.version) > framework_version:
                 print('**** Labtainer update required *****')
                 print('This lab requires that you update your labtainers installation.')
                 print('Please type:  update-labtainer.sh')
