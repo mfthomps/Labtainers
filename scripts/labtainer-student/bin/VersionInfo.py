@@ -35,7 +35,7 @@ def getImageId(image):
             exit(0)
         else:
             print('Please wait for download to complete...')
-            cmd = 'docker pull %s' % base_image
+            cmd = 'docker pull %s' % image
             os.system(cmd)
             print('Download has completed.  Wait for lab to start.')
 
