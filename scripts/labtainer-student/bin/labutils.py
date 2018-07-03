@@ -172,7 +172,7 @@ def ParameterizeMyContainer(mycontainer_name, container_user, container_password
         ''' is a build, version -1 '''
         version = '-1'
     else:
-        print(str(image_info))
+        #print(str(image_info))
         if image_info.version is not None:
             version = image_info.version
     command=['docker', 'exec', '-i',  mycontainer_name, cmd_path, container_user, container_password, lab_instance_seed, user_email, labname, mycontainer_name, version ]
