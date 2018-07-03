@@ -22,11 +22,11 @@ if args.test_registry is None:
     env = os.getenv('TEST_REGISTRY')
     if env is not None and env.lower() == 'true':
         test_registry = True
-if args.test_registry is not None or test_registry:
+if args.test_registry or test_registry:
     registry = labtainer_config.test_registry
 else:
     registry = labtainer_config.default_registry
-
+print('registry is: %s' % registry)
 config_list = ['base', 'network', 'firefox', 'wireshark', 'java', 'centos', 'lamp']
 for config in config_list:
     image_name = '%s/labtainer.%s' % (registry, config)
