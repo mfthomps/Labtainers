@@ -24,6 +24,6 @@ def getImageId(image):
     if len(output[0]) > 0:
         return output[0].strip()
     else:
-        print('no image found for %s' % image)
+        print('VersionInfo, getImageId: no image found for %s' % image)
         exit(1)
 
