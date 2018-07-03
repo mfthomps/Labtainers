@@ -1,5 +1,5 @@
-FROM ubuntu:xenial
-LABEL description="This is base Docker image for Parameterized labs"
+FROM solita/ubuntu-systemd
+LABEL description="Labtainer base image from ubuntu-systemd"
 ARG lab
 RUN mv /etc/apt/sources.list /var/tmp/
 ADD system/etc/nps.sources.list /etc/apt/sources.list
@@ -45,4 +45,6 @@ ADD system/bin/funbuffer /usr/bin/
 # manage default gateways
 ADD system/bin/togglegw.sh /usr/bin/
 ADD system/bin/set_default_gw.sh /usr/bin/
-
+ADD system/sbin/waitparam.sh /sbin/waitparam.sh
+ADD system/lib/systemd/system/waitparam.service /lib/systemd/system/waitparam.service
+RUN systemctl enable waitparam.service

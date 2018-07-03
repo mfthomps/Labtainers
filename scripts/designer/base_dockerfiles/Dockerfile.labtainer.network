@@ -21,3 +21,6 @@ RUN sudo mv /usr/sbin/tcpdump /usr/bin/tcpdump
 # ssh server fu, otherwise it won't run
 ADD system/var/run/sshd /var/run/sshd
 RUN sudo chmod 0755 /var/run/sshd
+RUN systemctl disable dnsmasq
+RUN rm /etc/systemd/system/multi-user.target.wants/openvpn.service 
+RUN rm /etc/systemd/system/multi-user.target.wants/ssh.service 
