@@ -12,6 +12,7 @@ import os
 import sys
 import json
 import subprocess
+import VersionInfo
 '''
 Return creation date and user of a given image from the Docker Hub
 without pulling the image.
