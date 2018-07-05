@@ -37,7 +37,7 @@ def inspectRemote(image, is_rebuild=False):
         #print('got correct base_id')
     else:
         #print('got WRONG base_id')
-        tlist = getTags(image, test_registry)
+        tlist = getTags(image, token)
         need_tag = 'base_image%s' % my_id
         if is_rebuild or need_tag in tlist:
             use_tag = need_tag
@@ -57,8 +57,8 @@ def inspectRemote(image, is_rebuild=False):
                 print('Download has completed.  Wait for lab to start.')
     return created, user, version, use_tag
 
-def getTags(image, test_registry):
-    cmd =   'curl --silent --header "Accept: application/vnd.docker.distribution.manifest.v2+json"  "https://registry-1.docker.io/v2/%s/tags/list"' % (image)
+def getTags(image, token):
+    cmd =   'curl --silent --header "Accept: application/vnd.docker.distribution.manifest.v2+json" --header "Authorization: Bearer %s"  "https://registry-1.docker.io/v2/%s/tags/list"' % (token, image)
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[0].strip()) > 0:
