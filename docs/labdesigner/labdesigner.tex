@@ -577,21 +577,13 @@ In general, files modified and maintained by the designer should go into the
 The Dockerfile ``ENTRYPOINT'' command can be used to start a system service.  The general Docker 
 model is that a single Docker container runs a single service, with logging being forwarded to 
 the host.  Labtainers disregards this model because our goal is to make a container look more like a Linux
-system rather than a conformant Docker container.  The Ubuntu-based Labtainer Dockerfiles include an
+system rather than a conformant Docker container.  Labtainer Dockerfiles for Ubuntu and Centos containers
+use systemd based images that run the /usr/sbin/init process.  \footnote {Now deprecated Ubuntu-based Labtainer Dockerfiles included an
 ENTRYPOINT command that launches a \textit{faux\_init} script that starts rsyslog, (so that system logs
-appear in /var/log), and runs rc.local.  The network configuration of the baseline Dockerfile also starts xinetd,
-which will then fork services, e.g., the sshd, per the /etc/xinet.d/ configuration files.  The faux\_init script
-can be extended (or replaced) as needed by the lab.  The example telnetlab illustrates the use of this script
-to provide network services.
+appear in /var/log), and runs rc.local.}  The labtainer.network configuration of the baseline Dockerfile also starts xinetd,
+which will then fork services, e.g., the sshd, per the /etc/xinet.d/ configuration files.  
 
-The CentOS-based Labtainer containers, exemplified by centos-log, do not use the \textit{faux\_init}, rather they
-use a Docker image built to run systemd and the /usr/sbin/init process.  The Dockerfile template includes
-commented options for CentOS.  The config/start.config file must also include the 
-\begin{verbatim}
-    SCRIPT NONE
-\end{verbatim}
-\noindent line for the container.  The centos-log also provides an example of forcing 
-the student to login using the traditional
+The centos-logs lab provides an example of forcing the student to login using the traditional
 login program, as described in section \ref{student start}.
 
 
@@ -783,8 +775,12 @@ The parameter\_id fields may be referenced during the automated grading function
 in section \ref{goals.config}. 
 
 Parameterizing occurs subsequent to container ``boot'', but prior to running the fixlocal.sh script.
-The Ubuntu based images {\tt /sbin/faux\_init.sh}  script includes logic to delay the starting of 
-selected services until after parameterization occurs (see commented sections at the end of that script).
+The Ubuntu based images include a {\tt waitparam.service} that delays reporting its initialization to
+systemd until parameterization has completed.  That service is configured to run prior to rc.local.
+The service unit file is at:
+\begin{verbatim}
+trunk/scripts/designer/system/lib/systemd/system
+\end{verbatim}
 
 Parameterizing of the start.config file occurs prior to Docker container creation.  The framework 
 modifies a copy of the file stored in {\tt /tmp/start.config} and uses that when assigning attributes to containers,
@@ -1194,7 +1190,7 @@ in the Labtainer exercises distributed with the framework.
     <goal_id> - An identifer for the goal. It must be alphanumeric 
                 (underscores permitted).
     <type> - must be one of the following:
-         matchany'    - Results from all timestamped sets are evaluated.
+         matchany    - Results from all timestamped sets are evaluated.
                          If the answertag names a result, then both that 
                          result and the resulttag must occur in the same 
                          timestamped set.  The 'matchany' goals are treated 
@@ -1862,9 +1858,7 @@ than the clone instance number.
 
 \item Include a dhcp server as one of your containers, e.g., per the dhcp-client lab.  
 The labtainer.network base includes the dnsmasq service, which includes a DHCP
-server.  Start the service on that container, e.g., by editing the 
-{\tt \_system/sbin/faux\_init}
-file.  
+server.  Reconfigure dnsmasq to start the DHCP service, e.g., in your fixlocal.sh script.
 \item Edit the dhcp container's {\tt \_system/etc/dnsmasq.conf} file to include the
 range of DHCP addresses you wish to allocate to the clients.  When multiple instances
 of Labtainers are run, then ``client'' is the per-student Labtainer workstation.  When
@@ -1919,16 +1913,6 @@ and parameterization.
 
 The user does not see the /etc/fstab file.  Only virtual file systems can be
 mounted (or those mounted when the container is created.)
-
-Within the Ubuntu-based labs, the process tree of the initial Linux process will
-not look like a typical Linux system \textit{init} process.  Within containers that have no
-services, the initial process, i.e., process ID 1, will be a bash shell.
-Containers having services and logging will have an initial process that is
-the script that launches the services, e.g., the \textit{faux\_init} script.  However,
-other process tree's will appear as they
-do in Linux system, and this includes inetd services.
-
-The CentOS-based labs have the true /usr/sbin/init process and systemd structure.
 
 The available Docker network drivers do not permit IP address overlap between virtual networks.
 For example, you cannot define two 192.168.1.0/24 LANs.
