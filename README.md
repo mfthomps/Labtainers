@@ -82,6 +82,17 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+July 6, 2018
+- All Ubuntu base images replaced with versions based on systemd
+- Labtainer container images in registry now tagged with base image ID & have labels reflecting 
+the base image.
+- A given installation will pull and use images that are consistent with the base images it possesses.
+- If you are using a VM image,  you may want to replace that with a newer VM image from our website.
+- New labs will not run without downloading newer base images; which can lead to your VM storing multiple
+versions of large base images (> 500 MB each).
+- Was losing artifacts from processes that were running when lab was stopped -- was not properly killing capinout
+processes.
+
 June 27, 2018
 - Add support for Ubuntu systemd images
 - Remove old copy of SimLab.py from labtainer-student/bin
