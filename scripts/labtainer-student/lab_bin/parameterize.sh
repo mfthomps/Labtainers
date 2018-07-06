@@ -123,6 +123,8 @@ if [[ "$IMAGE_VERSION" -eq -1 ]] || [[ "$IMAGE_VERSION" -gt 2 ]]; then
     systemctl enable mynotify.service
     systemctl start mynotify.service
 fi
+# just for ubuntu, tbd limit to that?
+touch ~/.sudo_as_admin_successful
 
 if [ -d $LOCKDIR ]; then
     rmdir $LOCKDIR
