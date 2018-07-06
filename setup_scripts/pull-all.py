@@ -18,7 +18,7 @@ labutils.logger = LabtainerLogging.LabtainerLogging("pull.log", 'pull-all', "../
 logger = labutils.logger
 labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(lab_config_file, logger)
 test_registry = False
-if args.test_registry is None:
+if not args.test_registry:
     env = os.getenv('TEST_REGISTRY')
     if env is not None and env.lower() == 'true':
         test_registry = True
