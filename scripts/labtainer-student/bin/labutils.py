@@ -360,33 +360,22 @@ def GetX11SSH():
 def isUbuntuSystemd(image_name):
     done = False
     retval = False
-    logger.DEBUG('check if %s is systemd' % image_name)
-    while not done and len(image_name) > 0:
-        cmd = "docker inspect -f '{{json .Parent}}|{{json .Config.Labels.description}}' --type image %s" % image_name
-        ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-        #logger.DEBUG('cmd is %s' % cmd)
-        output = ps.communicate()
-        if len(output[0].strip()) > 0:
-            #logger.DEBUG('output %s' % output[0])
-            parent, description = output[0].split('|')
-            #logger.DEBUG('parent is: <%s>' % parent)
-            if 'Labtainer base image from ubuntu-systemd' in description:
-                logger.DEBUG('is systemd')
-                retval = True
-                done = True
-            else:
-                image_name = parent
-        else:
-            logger.DEBUG('no description for image %s' % image_name)
-            done = True
-        if len(output[1].strip()) > 0 and 'cannot unmarshal' not in output[1]:
-            logger.ERROR(output[1])
-            done = True
-        if description is "null" and parent is not "null" and len(parent.strip())>0:
-            image_name = parent
-        elif parent is None or len(parent.strip())==0:
-            done = True
-    
+    #print('check if %s is systemd' % image_name)
+    cmd = "docker inspect -f '{{json .Config.Labels.base}}' --type image %s" % image_name
+    #print('lab container cmd is %s' % cmd)
+    ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if len(output[0].strip()) > 0:
+            logger.DEBUG('base %s' % output[0])
+            base = output[0].rsplit('.', 1)[0]+'"'
+            cmd = "docker history --no-trunc %s" % base
+            ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            output = ps.communicate()
+            for line in output[0].splitlines():
+                if 'Labtainer base image from ubuntu-systemd' in line:
+                    retval = True
+                    break
+
     return retval
 
 def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_name=None, mysubnet_ip=None):
@@ -410,7 +399,7 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
         volume=''
         ubuntu_systemd = isUbuntuSystemd(new_image_name)
         if container.script == '' or ubuntu_systemd:
-            logger.DEBUG('is systemd')
+            logger.DEBUG('Container %s is systemd' % (new_image_name))
             ''' a systemd container, centos or ubuntu? '''
             if ubuntu_systemd:
                 start_script = ''
