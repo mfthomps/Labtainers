@@ -760,11 +760,18 @@ def CopyLabBin(mycontainer_name, container_user, lab_path, name, image_info):
     #if os.path.isdir(container_bin):
     #    cmd = 'docker cp %s/.  %s:/home/%s/.local/bin/' % (container_bin, mycontainer_name, container_user)
     #    DockerCmd(cmd)
+    tmp_dir=os.path.join('/tmp/labtainers', mycontainer_name)
+    shutil.rmtree(tmp_dir, ignore_errors=True)
+    try:
+        os.makedirs(tmp_dir)
+    except os.error:
+        logger.ERROR("did not expect to find dir %s" % tmp_dir)
 
-    cmd = 'tar cf /tmp/labsys.tar -C ./lab_sys etc sbin lib'
+    dest_tar = os.path.join(tmp_dir, 'labsys.tar')
+    cmd = 'tar cf %s -C ./lab_sys etc sbin lib' % dest_tar
     os.system(cmd)
 
-    cmd = 'docker cp /tmp/labsys.tar %s:/var/tmp/' % (mycontainer_name)
+    cmd = 'docker cp %s %s:/var/tmp/' % (dest_tar, mycontainer_name)
     if not DockerCmd(cmd):
         logger.ERROR('failed %s' % cmd)
         exit(1)
