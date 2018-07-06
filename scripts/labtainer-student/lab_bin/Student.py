@@ -20,19 +20,20 @@ import sys
 import zipfile
 import datetime
 import time
+import logging
 
 
-def killMonitoredProcess(homeLocal):
-    cmd = "ps x -o \"%r %c\" | grep [c]apinout | awk '{print $1}' | uniq"
+def killMonitoredProcess(homeLocal, logger):
+    cmd = "ps ax -o \"%r %c\" | grep [c]apinout | awk '{print $1}' | uniq"
     child = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     done = False
-    #print("cmd was %s" % cmd)
+    logger.debug("cmd was %s" % cmd)
     while not done:
         line = child.stdout.readline().strip()
-        #print('got line %s' % line)
+        logger.debug('got line %s' % line)
         if len(line)>0:
             cmd = 'kill -INT -%s' % line
-            print('cmd is %s' % cmd)
+            logger.debug('cmd is %s' % cmd)
             os.system(cmd)
             time.sleep(2)
         else:
@@ -42,6 +43,7 @@ def killMonitoredProcess(homeLocal):
         fh = open(kill_proc)
         for line in fh:
             cmd = 'pkill %s' % line
+            logger.debug('pkill_proc cmd is %s' % cmd)
             os.system(cmd)
         fh.close()
 
@@ -51,12 +53,31 @@ def main():
         sys.stderr.write("Usage: Student.py <username> <image_name>\n")
         return 1
 
+    file_log_level = logging.DEBUG
+    console_log_level = logging.WARNING
+
+    logger = logging.getLogger('student.log')
+    logger.setLevel(file_log_level)
+    formatter = logging.Formatter('[%(asctime)s - %(levelname)s : %(message)s')
+
+    file_handler = logging.FileHandler('/var/tmp/cleanup.log')
+    file_handler.setLevel(file_log_level)
+    file_handler.setFormatter(formatter)
+
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(console_log_level)
+    console_handler.setFormatter(formatter)
+
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+    logger.debug('begin')
+
 
     user_name = sys.argv[1]
     container_image = sys.argv[2].split('.')[1]
     studentHomeDir = os.path.join('/home',user_name)
     homeLocal= os.path.join(studentHomeDir, '.local')
-    killMonitoredProcess(homeLocal)
+    killMonitoredProcess(homeLocal, logger)
     os.chdir(studentHomeDir)
     student_email_file=os.path.join(homeLocal, '.email')
     lab_name_file=os.path.join(homeLocal, '.labname')
