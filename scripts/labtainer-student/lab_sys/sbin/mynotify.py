@@ -120,6 +120,10 @@ while True:
         notifyoutfile_ts = '%s.%s' % (notifyoutfile, ts)
         #notifyoutfile = os.path.join(results, 'notify.stdin.%s' % ts)
         hist_file = '/home/%s/.bash_history' % first_user
+        root_hist_file = '/root/.bash_history'
+        if not (os.path.isfile(hist_file) or os.path.isfile(root_hist_file)):
+            ''' no user yet, must be system startup, ignore '''
+            continue
         cmd_time_history = os.path.getmtime(hist_file)
         root_hist_file = '/root/.bash_history'
         cmd_user = first_user
