@@ -14,7 +14,7 @@ for line in output[0].splitlines():
     if lab_container in line:
         container_list.append(line.split()[0]) 
 if len(container_list) > 0:
-    cmd = 'docker rmi -f %s' % ' '.join(container_list)
+    cmd = 'docker rm %s' % ' '.join(container_list)
     print cmd
     os.system(cmd)
 
@@ -29,7 +29,9 @@ image_list = []
 for line in output[0].splitlines():
     #print line
     if (image_find in line or line.startswith(image_find2)) and ' <none> ' not in line:
-        image_list.append(line.split()[0]) 
+        parts = line.split()
+        image = '%s:%s' % (parts[0], parts[1])
+        image_list.append(image)
 if len(image_list) > 0:
     cmd = 'docker rmi -f %s' % ' '.join(image_list)
     print cmd
