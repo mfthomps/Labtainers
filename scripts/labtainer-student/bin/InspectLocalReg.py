@@ -24,7 +24,7 @@ def inspectLocal(image, test_registry, is_rebuild=False):
     use_tag = 'latest'
     digest = getDigest(image, 'latest', test_registry)
     if digest is None:
-        return None, None, None, None
+        return None, None, None, None, None
     created, user, version, base = getCreated(image, digest, test_registry)
     #print('base is %s' % base)
     if base is not None:

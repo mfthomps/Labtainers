@@ -36,7 +36,13 @@ def writeLabCount(start_path, labname, is_redo, current_count, current_time_stri
     if is_redo:
         current_count['redo'].append(current_time_string)
     else:
-        current_count['start'].append(current_time_string)
+        if 'normal' in current_count:
+            current_count['normal'].append(current_time_string)
+        else:
+            try:
+                current_count['start'].append(current_time_string)
+            except:
+                return
      
     count_path = getPath(start_path, labname)
     labname_file = open(count_path, "w")
