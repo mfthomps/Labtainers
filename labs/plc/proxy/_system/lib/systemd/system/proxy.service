@@ -1,0 +1,14 @@
+[Unit]
+Description=Proxy Service
+
+[Service]
+Type=simple
+ExecStart=/home/ubuntu/proxy.py
+StandardOutput=null
+WorkingDirectory=/home/ubuntu
+User=ubuntu
+
+[Install]
+WantedBy=multi-user.target
+Alias=proxy.service
+
