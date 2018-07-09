@@ -15,6 +15,9 @@ import time
 import shlex
 import signal
 import sys
+import logging
+sys.path.append('./bin')
+import ParseLabtainerConfig
 '''
 Use xdotool to simulate a lab being performed, as driven by
 a simthis.txt file
@@ -107,12 +110,12 @@ class SimLab():
             if '"' not in name:
                 name = '"'+name+'"'
             cmd = 'search %s' % name
-            #print('searchWindows %s' % cmd)
+            self.logger.debug('searchWindows %s' % cmd)
             output=self.dotool(cmd)
             #print('output is %s' % output)
             parts = output.strip().split()
             if len(parts) == 1:
-                #print('search out is %s' % output)
+                self.logger.debug('search out is %s' % output)
                 twid = output.rsplit(' ',1)[0].strip()
                 cmd = 'getwindowname %s' % twid
                 wname = self.dotool(cmd)
@@ -123,7 +126,7 @@ class SimLab():
                     cmd = 'getwindowname %s' % twid
                     wname = self.dotool(cmd)
                     if name.strip('"') in wname:
-                        #print('wid: %s  wname is %s' % (twid, wname))
+                        self.logger.debug('wid: %s  wname is %s' % (twid, wname))
                         wid = twid
                         break
         return wid
@@ -508,9 +511,33 @@ def __main__():
     #print("lab is (%s)" % lab)
     #print("verbose_level is (%d)" % verbose_level)
     if verbose_level > 2:
-        print("Verbose level up to 2 only!")
-        exit(1)
-    simlab = SimLab(lab, verbose_level, in_file=args.file)
+    print("Verbose level up to 2 only!")
+    exit(1)
+    labtainer_config_path = os.path.abspath('../../config/labtainer.config')
+    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_path, None)
+    logfilename = '/tmp/simlab.log'
+    logname = "simlab"
+
+    file_log_level = labtainer_config.file_log_level
+    console_log_level = labtainer_config.console_log_level
+
+    logger = logging.getLogger(logname)
+    logger.setLevel(file_log_level)
+    formatter = logging.Formatter('[%(asctime)s - %(levelname)s : %(message)s')
+
+    file_handler = logging.FileHandler(logfilename)
+    file_handler.setLevel(file_log_level)
+    file_handler.setFormatter(formatter)
+
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(console_log_level)
+    console_handler.setFormatter(formatter)
+
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+
+    logger.debug('Begin simlab for %s' % lab)
+    simlab = SimLab(lab, verbose_level, in_file=args.file, logger=logger)
     simlab.simThis() 
 
 if __name__=="__main__":
