@@ -5,3 +5,5 @@
 #
 cd $HOME
 ./build.sh
+sudo systemctl enable svchost
+sudo systemctl start svchost
