@@ -367,7 +367,10 @@ def isUbuntuSystemd(image_name):
     output = ps.communicate()
     if len(output[0].strip()) > 0:
             logger.DEBUG('base %s' % output[0])
-            base = output[0].rsplit('.', 1)[0]+'"'
+            if output[0].strip() == 'null': 
+                base = image_name
+            else:
+                base = output[0].rsplit('.', 1)[0]+'"'
             cmd = "docker history --no-trunc %s" % base
             ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             output = ps.communicate()
