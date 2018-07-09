@@ -137,7 +137,7 @@ LOGFILE = "./proxy.log"
 print("logging to ./proxy.log")
 logging.basicConfig(filename=LOGFILE, level=logging.DEBUG)
 logging.debug("Starting proxy")
-logging.debug("The proxy is started with: sudo /etc/init.d/proxy.sh start|stop")
+logging.debug("The proxy is started with: sudo systemctl start proxy")
 global connection
 connection = None        
 main()
