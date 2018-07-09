@@ -511,8 +511,8 @@ def __main__():
     #print("lab is (%s)" % lab)
     #print("verbose_level is (%d)" % verbose_level)
     if verbose_level > 2:
-    print("Verbose level up to 2 only!")
-    exit(1)
+        print("Verbose level up to 2 only!")
+        exit(1)
     labtainer_config_path = os.path.abspath('../../config/labtainer.config')
     labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_path, None)
     logfilename = '/tmp/simlab.log'
