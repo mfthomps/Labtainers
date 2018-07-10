@@ -82,6 +82,11 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+July 10, 2018
+- Add an LDAP lab
+- Complete transition to systemd based Ubuntu images, remove unused files
+- Move lab\_sys tar file to per-container tmp directory for concurrency.
+
 July 6, 2018
 - All Ubuntu base images replaced with versions based on systemd
 - Labtainer container images in registry now tagged with base image ID & have labels reflecting 
