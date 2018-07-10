@@ -10,7 +10,8 @@ import InspectLocalReg
 import InspectRemoteReg
 parser = argparse.ArgumentParser(description='Pull all base images if they do not yet exist')
 parser.add_argument('-f', '--force', action='store_true', default=False, help='always pull latest')
-parser.add_argument('-t', '--test_registry', action='store_true', default=False, help='build and publish with test registry')
+parser.add_argument('-t', '--test_registry', action='store_true', default=False, help='pull all Labtainer base images')
+parser.add_argument('-m', '--metasploit', action='store_true', default=False, help='include metasploitable and kali images')
 args = parser.parse_args()
 
 lab_config_file = os.path.join('../config', 'labtainer.config')
@@ -28,6 +29,9 @@ else:
     registry = labtainer_config.default_registry
 print('registry is: %s' % registry)
 config_list = ['base', 'network', 'firefox', 'wireshark', 'java', 'centos', 'lamp']
+if args.metasploit:
+    config_list.append('metasploitable')
+    config_list.append('kali')
 for config in config_list:
     image_name = '%s/labtainer.%s' % (registry, config)
     local_created, local_user, local_version = labutils.inspectImage(image_name)
