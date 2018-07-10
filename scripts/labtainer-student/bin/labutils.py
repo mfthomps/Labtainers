@@ -2089,6 +2089,15 @@ def CheckShutdown(lab_path, name, container_name, container_user, ignore_stop_er
         if count > 5:
            done = True
 
+def PreStop(container_name, ts):
+    logger.DEBUG("About to call prestop")
+    cmd_path = '$HOME/.local/bin/prestop'
+    cmd = "docker exec %s bash -c 'ls -l %s'" % (container_name, cmd_path)
+
+    if DockerCmd(cmd, noloop=True):
+        cmd = "docker exec %s bash -c '%s >$HOME/.local/result/prestop.stdout.%s'" % (container_name, cmd_path, ts)
+        DockerCmd(cmd, noloop=True)
+
 def GatherOtherArtifacts(lab_path, name, container_name, container_user, container_password, ignore_stop_error):
     '''
     Parse the results.config file looking for files named by absolute paths,
@@ -2669,13 +2678,33 @@ def DoStopOne(start_config, labtainer_config, lab_path, role, name, container, Z
 
         results.append(retval)
 
+def SynchStop(start_config, run_container=None):
+    threads = []
+    now = datetime.datetime.now()
+    ts = now.strftime('%Y%m%d%H%M%S')
+    for name, container in start_config.containers.items():
+        if run_container is not None and container.full_name != run_container:
+            #print('not for me %s ' % run_container)
+            continue
+        clone_names = GetContainerCloneNames(container)
+        for mycontainer_name in clone_names:
+            t = threading.Thread(target=PreStop, args=[mycontainer_name, ts])
+            threads.append(t)
+            t.setName(name)
+            t.start()
+      
+        logger.DEBUG('prestop started on all')
+        for t in threads:
+            t.join()
+            logger.DEBUG('joined %s' % t.getName())
+
 def DoStop(start_config, labtainer_config, lab_path, role, ignore_stop_error, is_regress_test=None, run_container=None, servers=None, clone_count=None):
     mycwd = os.getcwd()
     retval = True
     labname = os.path.basename(lab_path)
     host_home_xfer  = os.path.join(labtainer_config.host_home_xfer, labname)
     logger.DEBUG("DoStop Multiple Containers and/or multi-home networking")
-
+    SynchStop(start_config, run_container)
     username = getpass.getuser()
 
     baseZipFilename = ""
