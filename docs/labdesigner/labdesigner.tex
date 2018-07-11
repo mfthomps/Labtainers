@@ -976,6 +976,23 @@ file that was created up to two seconds prior to the {\tt notify} event.  Inclus
 one timestamped file allows the designer to identify events that occured as part of a single program
 invocation.  Again, see the {\tt acl} lab for an example.
 
+\subsubsection{Generating results upon stopping the lab}
+The lab designer can cause a script to run on selected containers whenever the student stops a lab.
+This is achieved by creating an script or executable program at:
+\begin{verbatim}
+trunk/labtainers/lab/<lab>/_bin/prestop
+\end{verbatim}
+The stdout of any such program will be written to a timestamped file named {\tt prestop.stdout.timestamp}
+The framework ensures that all such scripts on all of the lab containers will complete prior to
+shutting down any of the containers, and all the timestamps
+will be the same.  Note the Labtainers framework generally allows students to acheive their goals at any
+point in their exploration, and the labs typically do not require the student to leave the system in any
+particular state.  In other words, students should be free to continue experimenting subsequent to getting
+the correct results.  Thus, any use of the prestop feature should be accompanied by a lab manual entry
+advising the student that they may restart a lab after issuing the {\tt stoplab} command. \footnote{Perhaps a
+{\tt goalsmet} type of command should be added that does nothing but record prestop results without actually
+stopping the lab?}
+
 \subsection{Artifact result values}
 \label{results.config}
 The automated assessment functions encourage labs to be organized into a set of distinct ``goals''.
