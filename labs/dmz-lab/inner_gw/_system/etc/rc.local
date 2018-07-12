@@ -19,12 +19,11 @@ iptables -P OUTPUT ACCEPT
 iptables -P FORWARD ACCEPT
 
 
+echo "nameserver 198.18.1.3" > /etc/resolv.conf
+route del -host 172.17.0.1
+
 #
 # restart the DNS forwarder (rely on DNS provided by ISP)
 #
 /etc/init.d/dnsmasq restart
 
-echo "nameserver 198.18.1.3" > /etc/resolv.conf
-route del -host 172.17.0.1
-
-echo "nameserver 198.18.1.3" > /etc/resolv.conf
