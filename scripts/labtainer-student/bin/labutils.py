@@ -168,7 +168,7 @@ def ParameterizeMyContainer(mycontainer_name, container_user, container_password
         container_password = container_user
 
     version = '0'
-    if image_info is None:
+    if image_info is None or image_info.version is None:
         ''' is a build, version -1 '''
         version = '-1'
     else:
@@ -932,7 +932,7 @@ def imageInfo(image_name, registry, labtainer_config, is_rebuild=False):
         created, user, version = inspectImage(with_registry)
         if created is not None:
             retval = ImageInfo(with_registry, created, user, True, False, version, use_tag) 
-            logger.DEBUG('%s local from reg, ts %s %s' % (with_registry, created, user)) 
+            logger.DEBUG('%s local from reg, ts %s %s version: %s' % (with_registry, created, user, version)) 
         else:
             ''' See if the image exists in the desired registry '''
             if registry == labtainer_config.test_registry:
