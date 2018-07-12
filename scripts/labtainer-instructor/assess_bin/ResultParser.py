@@ -454,7 +454,7 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                     allofit = ''.join(targetlines)
                     #print('%s' % allofit)
                     #print('look for %s' % remain)
-                    sobj = re.findall(remain, allofit, re.MULTILINE)
+                    sobj = re.findall(remain, allofit, re.MULTILINE | re.DOTALL)
                     if sobj is not None and len(sobj)>0:
                         tagstring = True
                     return tagstring
