@@ -87,6 +87,8 @@ July 12, 2018
 selected components prior to lab shutdown.  
 - Correct host naming in the ssl lab, it was breaking automated assessment.
 - Fix dmz-lab initial state to permit DNS resolutions from inner network.
+- FILE\REGEX processing was not properly handling multiline searches.
+- Framework version derived from newly rebuilt images had incorrect default value.
  
 July 10, 2018
 - Add an LDAP lab
