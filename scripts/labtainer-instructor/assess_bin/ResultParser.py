@@ -380,7 +380,7 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                 for currentline in targetlines:
                     if found_lookupstring == False:
                         sobj = re.search(lookupstring, currentline)
-                        if sobj is not None and len(sobj)>0:
+                        if sobj is not None:
                             found_lookupstring = True
                             if field_type == 'GROUP':
                                 linerequested = sobj
@@ -761,7 +761,7 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
                     targetlines = fh.readlines()
                 for currentline in targetlines:
                     sobj = re.search(lookupstring, currentline)
-                    if sobj is not None and len(sobj)>0:
+                    if sobj is not None:
                         time_val = getTS(currentline)
                         if time_val is None:
                             continue
@@ -784,7 +784,7 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
                     targetlines = fh.readlines()
                 for currentline in targetlines:
                     sobj = re.search(lookupstring, currentline)
-                    if sobj is not None and len(sobj)>0:
+                    if sobj is not None:
                         time_val = getTS(currentline)
                         if time_val is None:
                             continue
@@ -861,7 +861,7 @@ def ParseConfigForTimeDelim(studentlabdir, labidname, configfilelines, ts_jsonfn
                             remain = line.split(command,1)[1]
                             remain = remain.split(':', 1)[1].strip()
                             sobj = re.search(remain, currentline)
-                            if sobj is not None and len(sobj)>0:
+                            if sobj is not None:
                                 if ts not in ts_nametags:
                                     ts_nametags[ts] = {}
                                     ts_nametags[ts]['PROGRAM_ENDTIME'] = end_times
