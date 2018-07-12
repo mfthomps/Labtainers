@@ -82,6 +82,12 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+July 12, 2018
+- Add prestop feature to allow execution of designer-specified scripts on
+selected components prior to lab shutdown.  
+- Correct host naming in the ssl lab, it was breaking automated assessment.
+- Fix dmz-lab initial state to permit DNS resolutions from inner network.
+ 
 July 10, 2018
 - Add an LDAP lab
 - Complete transition to systemd based Ubuntu images, remove unused files
