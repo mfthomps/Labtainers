@@ -1,4 +1,13 @@
 #!/usr/bin/env python
+'''
+This software was created by United States Government employees at 
+The Center for the Information Systems Studies and Research (CISR) 
+at the Naval Postgraduate School NPS.  Please note that within the 
+United States, copyright protection is not available for any works 
+created  by United States Government employees, pursuant to Title 17 
+United States Code Section 105.   This software is in the public 
+domain and is not subject to copyright. 
+'''
 import sys
 import os
 import subprocess
@@ -9,6 +18,31 @@ import LabtainerLogging
 import ParseLabtainerConfig
 import labutils
 import VersionInfo
+import removelab
+'''
+Build and publish labtainer images.  Use -h option for help.
+'''
+def relabel(image, version, base_image, base_id, registry):
+    with open('./dfile', 'w') as fh:
+        fh.write('FROM %s\n' % image)
+        fh.write('ARG version\n')
+        fh.write('LABEL version=%s\n' % version)
+        fh.write('LABEL base=%s.%s' % (base_image, base_id))
+
+    cmd = 'docker build -f dfile -t %s.tmp .' % image
+    os.system(cmd)
+    cmd = 'docker tag %s.tmp %s/%s' % (image, registry, image)
+    print cmd
+    os.system(cmd)
+    cmd = 'docker push %s/%s' % (registry, image)
+    print cmd
+    os.system(cmd)
+    cmd = 'docker tag %s.tmp %s/%s:base_image%s' % (image, registry, image, base_id)
+    print cmd
+    os.system(cmd)
+    cmd = 'docker push %s/%s:base_image%s' % (registry, image, base_id)
+    print cmd
+    os.system(cmd)
 
 def rebuild(labname, labsdir, role, force, logger):
     mycwd = os.getcwd()
@@ -28,7 +62,9 @@ def rebuild(labname, labsdir, role, force, logger):
     return retval
 
 def pushIt(lab, docker_dir, role, registry, logger):
-    #print('would push to %s' % registry)
+    '''
+    Set the label and tags on any newly built image and push it to the given registry.
+    '''
     df_list = [f for f in os.listdir(docker_dir) if os.path.isfile(os.path.join(docker_dir, f))]
     for df in df_list:
         if df.endswith('.swp'):
@@ -46,16 +82,11 @@ def pushIt(lab, docker_dir, role, registry, logger):
             image_base = VersionInfo.getFrom(dfile_path, registry)
             base_id = VersionInfo.getImageId(image_base)
             framework_version = labutils.framework_version
-            cmd = './relabel.sh %s %s %s %s %s' % (registry, framework_version , image, image_base, base_id)
-            os.system(cmd)
-            #cmd = 'docker tag %s %s/%s' % (image, registry, image)
-            #os.system(cmd)
-            #cmd = 'docker push %s/%s' % (registry, image)
-            #os.system(cmd)
+            relabel(image, framework_version, image_base, base_id, registry)
             ''' Delete the image. Two reasons: 1) ensure we run authoritative copy,
                 which is from the dockerhub.  2) don't push on a rebuild if not rebuilt. '''
-            cmd = '../scripts/labtainer-student/bin/removelab.sh %s' % (image)
-            os.system(cmd)
+            removelab.removeLab(lab)
+
         else: 
             logger.DEBUG('Have not built %s, nothing to push' % image)
 
