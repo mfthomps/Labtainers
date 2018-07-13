@@ -42,6 +42,7 @@ svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/config
 svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/setup_scripts
 svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/docs
 svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/tool-src
+svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/distrib/skip-labs
 mkdir scripts
 cd scripts
 svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/scripts/labtainer-student
