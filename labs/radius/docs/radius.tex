@@ -41,13 +41,13 @@ From your labtainer-student directory start the lab using:
 \section{Network Configuration}
 This lab includes two simulated power distribution control devices that
 are configured to authenticate users via the Radius protocol.  There
-are also to client computers from which users are expected to administer
+are also two client computers from which users are expected to administer
 the control devices, which requires that the users be authenticated.
 And the network includes a Radius server.  NOTE: the control devices
 do not have virtual terminals connected to them, so they only way to 
 access them is through the client computers.  The network is
 illustrated in Figure~\ref{fig:topology}.
-When the lab starts, you will get several three terminals, one connected to each
+When the lab starts, you will get three terminals, one connected to each
 of the client computers and one connected to the Radius server.
 
 The host names of each component are per the diagram.  The /etc/hosts files
@@ -79,10 +79,13 @@ On client1, connect to controller1:
     ./control_admin controller1
 \end{verbatim}
 \noindent When prompted, provide {\tt hardcoded\_password} as the password.
-Observe the traffic in wireshark.
+\footnote{If the control\_admin program
+repeatedly informs you that the password is not correct, that may be
+due to the radius service not running.}
+Observe the traffic in wireshark. 
 
 Then use {\tt exit} to exit from controller1.  And now try to access
-controller2, again using a password of: {\tt hardcoded\_password}:
+controller2, again using a password of: {\tt hardcoded\_password}
 \begin{verbatim}
     ./control_admin controller2
 \end{verbatim}
