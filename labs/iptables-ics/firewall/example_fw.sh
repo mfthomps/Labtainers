@@ -2,6 +2,7 @@
 #
 #  This example IPTABLES firewall will only allow SSH traffic
 #  to be forwarded from 172.24.0.2.
+#  NOTE: your IP addresses may vary
 #
 IPTABLES=/sbin/iptables
 
