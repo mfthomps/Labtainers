@@ -64,11 +64,13 @@ def isLatestVersion(versions, lab):
     return True
         
 
-def showLabs(dirs, path, versions):
+def showLabs(dirs, path, versions, skip):
     description = ''
     description += 'Start a Labtainers lab\n'
     description+="List of available labs:\n\n"
     for loc in sorted(dirs):
+        if loc in skip: 
+            continue
     	versionfile = os.path.join(path, loc, "config", "version")
         lname, dumb = getLabVersion(versionfile)
         if lname is None or isLatestVersion(versions[lname], loc):
@@ -125,7 +127,14 @@ def main():
     num_args = len(sys.argv)
     versions = getVerList(dirs, path)
     if num_args < 2: 
-        showLabs(dirs, path, versions)
+        skip_labs = os.path.join(dir_path, 'distrib', 'skip-labs')
+        skip = []
+        if os.path.isfile(skip_labs):
+            with open(skip_labs) as fh:
+                for line in fh:
+                    f = os.path.basename(line).strip()
+                    skip.append(f)
+        showLabs(dirs, path, versions, skip)
         exit(0)
     args = parser.parse_args()
     labname = args.labname
