@@ -2704,7 +2704,7 @@ def DoStop(start_config, labtainer_config, lab_path, role, ignore_stop_error, is
     labname = os.path.basename(lab_path)
     host_home_xfer  = os.path.join(labtainer_config.host_home_xfer, labname)
     logger.DEBUG("DoStop Multiple Containers and/or multi-home networking")
-    if role == 'student:
+    if role == 'student':
         SynchStop(start_config, run_container)
     username = getpass.getuser()
 
