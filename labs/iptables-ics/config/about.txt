@@ -1,1 +1,1 @@
-Configure a "firewall" component using iptables to only forward selected services
+Use iptables to configure a firewall to limit network traffic in an Operational Technology environment.
