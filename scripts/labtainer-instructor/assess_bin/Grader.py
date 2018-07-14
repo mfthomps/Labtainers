@@ -150,6 +150,13 @@ class GoalTimes():
         self.goals_ts_id = {}
         self.time_stamps = []
         self.singletons = {}
+
+    def getGoalList(self):
+        retval = []
+        for goal_id in self.goals_id_ts:
+            retval.append(goal_id) 
+        return retval
+
     def hasGoal(self, goal_id):
         if goal_id in self.goals_id_ts:
             return True
@@ -783,6 +790,7 @@ def processTemporal(eachgoal, goal_times, logger):
 
 
 def processBoolean(eachgoal, goal_times, logger):
+    glist = goal_times.getGoalList()
     t_string = eachgoal['boolean_string']
     evalBooleanResult = None
     goalid = eachgoal['goalid']
@@ -791,13 +799,14 @@ def processBoolean(eachgoal, goal_times, logger):
     for timestamppart, current_goals in goals_ts_id.iteritems():
         if timestamppart != default_timestamp or len(goals_ts_id)==1:
             logger.DEBUG('eval %s against %s tspart %s' % (t_string, str(current_goals), timestamppart))
-            evalBooleanResult = evalBoolean.evaluate_boolean_expression(t_string, current_goals, logger)
+            evalBooleanResult = evalBoolean.evaluate_boolean_expression(t_string, current_goals, logger, glist)
             if evalBooleanResult is not None:
                 logger.DEBUG('bool evaluated to %r' % evalBooleanResult)
                 goal_times.addGoal(goalid, timestamppart, evalBooleanResult)
     # if evalBooleanResult is None - means not found
     if evalBooleanResult is None:
-        logger.DEBUG('processBoolean evalBooleanResut is None, goalid %s goal_id_ts %s' % (goalid, goals_ts_id))
+        #logger.DEBUG('processBoolean evalBooleanResult is None, goalid %s goal_id_ts %s' % (goalid, goals_ts_id))
+        logger.DEBUG('processBoolean evalBooleanResult is None, goalid %s ' % (goalid))
         goal_times.addGoal(goalid, default_timestamp, False)
 
 class ResultSets():
@@ -906,7 +915,6 @@ def processLabExercise(studentlabdir, labidname, grades, goals, bool_results, go
     result_sets = ResultSets(outjsonfnames, goal_times)
 
     # Go through each goal for each student
-    # Do the goaltype of non 'boolean' first
     for eachgoal in goals:
         logger.DEBUG('goal is %s type %s' % (eachgoal['goalid'], eachgoal['goaltype']))
 
