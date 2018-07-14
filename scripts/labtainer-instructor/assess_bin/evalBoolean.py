@@ -112,7 +112,7 @@ def nested_bool_eval(s):
     """
     return formatted_bool_eval(create_token_lst(s))
 
-def evaluate_boolean_expression(s, the_dict, logger):
+def evaluate_boolean_expression(s, the_dict, logger, goals):
     left = s.count('(')
     right = s.count(')')
     if left != right:
@@ -131,12 +131,20 @@ def evaluate_boolean_expression(s, the_dict, logger):
             #print('s %s item %s value %s' % (s, item, value))
             s = s.replace(item, value)
 
-    tokens = ['(',')','and_not', 'AND_NOT', 'or_not', 'OR_NOT', 'not','NOT','and','AND','or','OR','True','False'] 
+    tokens = ['(',')',' and_not ', ' AND_NOT ', ' or_not ', ' OR_NOT ', ' not ',' NOT ',' and ',' AND ',
+              ' or ',' OR ',' True ',' False ', 'True ', ' True', 'False ', ' False'] 
     remains = s
     for t in tokens:
-        remains = remains.replace(t,'')
+        remains = remains.replace(t,' ')
+    #print('goals is %s' % str(goals))
     if len(remains.strip()) > 0:
-        logger.DEBUG('maybe error? likely not: boolean expression %s, unknown token(s): %s' % (s, remains))
+        got_unknown = False
+        for rem in remains.split():
+           if rem not in goals: 
+               logger.DEBUG('***  unknown token <%s>' % rem)
+               got_unknown = True
+        if not got_unknown:
+            logger.DEBUG('goal values not set for this timestamp %s' % (remains))
         return None
     
     return nested_bool_eval(s) 
