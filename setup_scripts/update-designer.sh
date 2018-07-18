@@ -31,14 +31,15 @@ else
    echo "Please run this script from the labtainer or labtainer-student directory"
    exit
 fi
+labtainer_root=`pwd`
 target=~/.bashrc
 grep ":scripts/designer/bin:" $target | grep PATH >>/dev/null
 result=$?
 if [[ result -ne 0 ]];then
    cat <<EOT >>$target
    if [[ ":\$PATH:" != *":scripts/designer/bin:"* ]]; then 
-       export PATH="\${PATH}:$here/trunk/scripts/designer/bin"
-       export LABTAINER_DIR=$here/trunk
+       export PATH="\${PATH}:$labtainer_root/trunk/scripts/designer/bin"
+       export LABTAINER_DIR=$labtainer_root/trunk
    fi
 EOT
 fi
