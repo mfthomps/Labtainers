@@ -33,6 +33,7 @@ ARG apt_source
 ARG version
 LABEL version=$version
 ENV APT_SOURCE $apt_source
+RUN /usr/bin/apt-source.sh
 #
 #  put package installation here
 #
