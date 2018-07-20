@@ -112,7 +112,7 @@ def getCreated(token, image, digest):
         except ValueError:
             with open('/tmp/docker_error.txt', 'w') as fh:
                 fh.write(cmd+'\n'+output[0])
-            print('Error getting blob for image: %s tag: %s' % (image, tag))
+            print('Error getting blob for image: %s digest: %s' % (image, digest))
             print('please email the file at /tmp/docker_error.txt to mfthomps@nps.edu')
             exit(1)
         version = None
