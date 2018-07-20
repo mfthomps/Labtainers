@@ -40,6 +40,7 @@ def main():
     parser.add_argument('-s', '--servers', action='store_true', help='Start containers that are not clients -- intended for distributed Labtainers')
     parser.add_argument('-w', '--workstation', action='store_true', help='Intended for distributed Labtainers, start the client workstation.')
     parser.add_argument('-n', '--client_count', action='store', help='Number of clones of client containers to create, intended for multi-user labs')
+    parser.add_argument('-L', '--no_pull', action='store_true', default=False, help='Local building, do not pull from internet')
 
     args = parser.parse_args()
     quiet_start = True
@@ -72,7 +73,7 @@ def main():
     elif args.workstation:
         distributed = 'client'
     labutils.RebuildLab(lab_path, "student", force_build=force_build, quiet_start=quiet_start, 
-          just_container=args.force_container, run_container=args.only_container, servers=distributed, clone_count=args.client_count)
+          just_container=args.force_container, run_container=args.only_container, servers=distributed, clone_count=args.client_count, no_pull=args.no_pull)
     current_lab = CurrentLab.CurrentLab()
     current_lab.add('lab_name', args.labname)
     current_lab.add('clone_count', args.client_count)
