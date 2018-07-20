@@ -40,6 +40,7 @@ def main():
     parser.add_argument('-c', '--container', action='store', help='force rebuild just this container')
     parser.add_argument('-i', '--ignore_validate', action='store', help='ignore validation errors', default=False)
     parser.add_argument('-t', '--test_registry', action='store_true', default=False, help='build from images in the test registry')
+    parser.add_argument('-L', '--no_pull', action='store_true', default=False, help='Local building, do not pull from internet')
 
     args = parser.parse_args()
     if args.test_registry:
@@ -66,7 +67,7 @@ def main():
     if not ok and not args.ignore_validate:
         print('validation failed, exiting')
         exit(1)
-    labutils.RebuildLab(lab_path, "instructor", force_build=force_build, quiet_start=quiet_start, just_container=args.container)
+    labutils.RebuildLab(lab_path, "instructor", force_build=force_build, quiet_start=quiet_start, just_container=args.container, no_pull=args.no_pull)
 
     return 0
 
