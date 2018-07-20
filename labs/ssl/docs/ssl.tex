@@ -141,7 +141,8 @@ Generate certificates and keys for plc2, and then for hmi2.  Note when signing
 the hmi2 certificate, you should not include the ``{\tt -extensions server\_cert}'' option
 because you are signing a client certificate.
 
-Use scp to transfer files from the CA to the appropriate component.
+Use scp \footnote{The user ID is admin, and the password is ``passsword''.} 
+to transfer files from the CA to the appropriate component.
 You will also want to transfer the certificate chain (i.e., the root and intermediate
 certificates) from {\tt intermediate/certs/ca-chain.cert.pem} to the {\tt ~/certs} directory 
 of the two components.  (Note you have plc1 and hmi1 as working examples).
