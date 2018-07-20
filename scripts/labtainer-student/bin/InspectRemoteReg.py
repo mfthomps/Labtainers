@@ -107,6 +107,12 @@ def getCreated(token, image, digest):
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[0].strip()) > 0:
+        ''' Sometimes get redirected, and authentication then fails? '''
+        if 'Temporary Redirect' in output[0]:
+           redirect = output[0].split('"')[1]
+           flare = 'curl --silent %s' % redirect
+           ps = subprocess.Popen(flare, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+           output = ps.communicate()
         try:
             j = json.loads(output[0])
         except ValueError:
