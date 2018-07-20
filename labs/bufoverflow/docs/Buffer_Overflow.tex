@@ -236,8 +236,7 @@ execstack} and {\tt -fno-stack-protector} options to turn off
 the non-executable stack and StackGuard protections):
 
 \begin{verbatim}
-  $ su root 
-    Password (enter root password)
+  $ sudo su
   # gcc -m32 -o stack -z execstack -fno-stack-protector stack.c
   # chmod 4755 stack
   # exit  
