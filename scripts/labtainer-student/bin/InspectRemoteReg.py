@@ -86,7 +86,14 @@ def getDigest(token, image, tag):
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[0].strip()) > 0:
-        j = json.loads(output[0])
+        try:
+            j = json.loads(output[0])
+        except ValueError:
+            with open('/tmp/docker_error.txt') as fh:
+                fh.write(cmd+'\n'+output[0])
+            print('Error getting digest for image: %s tag: %s' % (image, tag))
+            print('please email the file at /tmp/docker_error.txt to mfthomps@nps.edu')
+            exit(1)
         if 'config' in j:
             return j['config']['digest']
         else:
@@ -100,7 +107,14 @@ def getCreated(token, image, digest):
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[0].strip()) > 0:
-        j = json.loads(output[0])
+        try:
+            j = json.loads(output[0])
+        except ValueError:
+            with open('/tmp/docker_error.txt') as fh:
+                fh.write(cmd+'\n'+output[0])
+            print('Error getting blob for image: %s tag: %s' % (image, tag))
+            print('please email the file at /tmp/docker_error.txt to mfthomps@nps.edu')
+            exit(1)
         version = None
         base = None
         if 'version' in j['container_config']['Labels']:
