@@ -20,6 +20,8 @@ LAB_TOP=$6
 APT_SOURCE=$7 
 REGISTRY=$8 
 VERSION=$9 
+shift 1
+NO_PULL=$9
 #------------------------------------V
 if [ "$#" -ne 9 ]; then
     echo "Usage: buildImage.sh <labname> <imagename> <user_name> <user_password> <force_build> <LAB_TOP> <apt_source> <registry>"
@@ -28,6 +30,7 @@ if [ "$#" -ne 9 ]; then
     echo "   <apt_source> is the host to use in apt/sources.list"
     echo "   <registry> is a docker registry"
     echo "   <version> is the framework version needed to run this lab"
+    echo "   <no_pull> is 'True' to avoid pulling images, e.g., no internet acess"
     exit
 fi
 
@@ -101,6 +104,10 @@ cd $LAB_TOP
 dfile=Dockerfile.$labimage
 #---------------------------------V
 result=0
+pull="--pull"
+if [ "$NO_PULL" == "True" ]; then
+    pull=''
+fi
 if [ ! -z "$imagecheck" ] && [ $force_build = "False" ]; then 
     echo "use exising image"
 else
@@ -110,14 +117,14 @@ else
                  --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY \
                  --build-arg NO_PROXY=$NO_PROXY  --build-arg no_proxy=$NO_PROXY \
                  --build-arg registry=$REGISTRY --build-arg version=$VERSION \
-               --pull -f $LAB_DIR/dockerfiles/$dfile -t $labimage .
+               $pull -f $LAB_DIR/dockerfiles/$dfile -t $labimage .
     docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename \
                  --build-arg user_name=$user_name --build-arg password=$user_password --build-arg apt_source=$APT_SOURCE \
                  --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY \
                  --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY \
                  --build-arg NO_PROXY=$NO_PROXY  --build-arg no_proxy=$NO_PROXY \
                  --build-arg registry=$REGISTRY --build-arg version=$VERSION \
-               --pull -f $LAB_DIR/dockerfiles/$dfile -t $labimage .
+               $pull -f $LAB_DIR/dockerfiles/$dfile -t $labimage .
     result=$?
 fi
 #---------------------------------^
