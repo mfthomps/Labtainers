@@ -55,6 +55,7 @@ else
 fi
 sudo trunk/setup_scripts/dns-add.py
 sudo systemctl restart docker
+sudo -H pip install netaddr parse python-dateutil
 cd ..
 # ad-hoc clean up.  remove after a while
 rm -f labtainer/trunk/scripts/labtainer-student/bin/SimLab*
