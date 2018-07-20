@@ -55,3 +55,61 @@ updated framework, all subsequent labs will require at least that framework vers
 (whether it needs it or not).
 
 These versions are managed by a version number imbedded in the build process.
+
+
+\subsection{Base image replacements and changes}
+Transitioning to new base images will force some users to wait for new large downloads
+when starting a new lab.
+
+Can we tell the student how large the download will be?  not likely.
+But we can identify the lack of a base image on the student computer, and notify them
+of that.
+
+MOTIVE:  Reduce cumulative size of all base images needed to perform labs.
+This means always rebuilding all labs whenever a base changes.
+
+OPTIMIZE for size of the VM.
+
+Roadmap:  
+\begin{itemize}
+\item Replace existing images with identical images having new version labels,
+thus forcing an update of the framework.
+\item New framework version will be sensitive to base image versions.
+
+\item Re-tag all lab images to reflect an initial base image version.
+
+\item Before a pull (or a update-labtainer.sh!), the framework will determine its 
+base-image version, and pull the lab image versions consistent with that base image.
+
+\item The tag associated with each lab image will reflect its base image
+dependency.  The "latest" image version implies the latest base image version.
+
+\item The initial base image version is 1.  All images will be tagged to reflect
+that version.
+
+\item Separate logic for ensuring student has necessary base for a lab, and prompt if 
+a big download is needed.
+\end{itemize}
+
+NEVER PULL and old base.  NEVER build from an old base
+
+If a base is updated, you MUST rebuild all labs.  
+
+
+
+PROCEDURE
+publish new framework
+retag all images
+
+rebuild base images and push
+
+rebuild all images
+
+
+HOW to run and test old images?
+
+Keep an old VM!
+
+
+
+
