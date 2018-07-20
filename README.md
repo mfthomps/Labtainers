@@ -84,6 +84,8 @@ first time.
 July 20, 2018
 - Support offline building, optionally skip all image pulling
 - Restore apt/yum repo restoration to Dockerfile templates.
+- Handle redirect URL's from Docker registry blob retrieval to avoid 
+authentication errors (Do not rely on curl --location).
 
 July 12, 2018
 - Add prestop feature to allow execution of designer-specified scripts on
