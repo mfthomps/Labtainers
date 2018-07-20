@@ -18,3 +18,5 @@ tshark
 snort
 phpldapadmin
 sshpass
+libuv1
+nodejs
