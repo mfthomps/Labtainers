@@ -916,7 +916,7 @@ def inspectImage(image_name):
         version = output[0].strip()
     return created, user, version
 
-def imageInfo(image_name, registry, labtainer_config, is_rebuild=False):
+def imageInfo(image_name, registry, labtainer_config, is_rebuild=False, no_pull=False):
     ''' image_name lacks registry info (always) 
         First look if plain image name exists, suggesting
         an ongoing build/test situation '''    
@@ -933,7 +933,7 @@ def imageInfo(image_name, registry, labtainer_config, is_rebuild=False):
         if created is not None:
             retval = ImageInfo(with_registry, created, user, True, False, version, use_tag) 
             logger.DEBUG('%s local from reg, ts %s %s version: %s' % (with_registry, created, user, version)) 
-        else:
+        elif not no_pull:
             ''' See if the image exists in the desired registry '''
             if registry == labtainer_config.test_registry:
                 created, user, version, use_tag, base = InspectLocalReg.inspectLocal(image_name, registry, is_rebuild)
@@ -987,7 +987,7 @@ def GetBothConfigs(lab_path, role, logger, servers=None, clone_count=None):
     return labtainer_config, start_config
 
 def RebuildLab(lab_path, role, is_regress_test=None, force_build=False, quiet_start=False, 
-               just_container=None, run_container=None, servers=None, clone_count=None):
+               just_container=None, run_container=None, servers=None, clone_count=None, no_pull=False):
     # Pass 'True' to ignore_stop_error (i.e., ignore certain error encountered during StopLab
     #                                         since it might not even be an error)
     StopLab(lab_path, role, True, run_container=run_container, servers=servers, clone_count=clone_count)
@@ -1001,7 +1001,8 @@ def RebuildLab(lab_path, role, is_regress_test=None, force_build=False, quiet_st
     
     DoRebuildLab(lab_path, role, is_regress_test=is_regress_test, force_build=force_build, 
                  just_container=just_container, start_config = start_config, 
-                 labtainer_config = labtainer_config, run_container=run_container, servers=servers, clone_count=clone_count)
+                 labtainer_config = labtainer_config, run_container=run_container, 
+                 servers=servers, clone_count=clone_count, no_pull=no_pull)
 
     # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
     host_home_xfer = labtainer_config.host_home_xfer
@@ -1024,7 +1025,8 @@ def dockerPull(registry, image_name):
     return True
 
 def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False, just_container=None, 
-                 start_config=None, labtainer_config=None, run_container=None, servers=None, clone_count=None):
+                 start_config=None, labtainer_config=None, run_container=None, servers=None, 
+                 clone_count=None, no_pull=False):
     retval = set()
     labname = os.path.basename(lab_path)
     is_valid_lab(lab_path)
@@ -1068,7 +1070,7 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False, just_c
 
         force_this_build = force_build
         logger.DEBUG('force_this_build: %r' % force_this_build)
-        image_info = imageInfo(mycontainer_image_name, container.registry, labtainer_config, is_rebuild=True)
+        image_info = imageInfo(mycontainer_image_name, container.registry, labtainer_config, is_rebuild=True, no_pull=no_pull)
         if not force_this_build and image_info is None:
             logger.DEBUG('image exists nowhere, so force the build')
             force_this_build = True
@@ -1088,11 +1090,11 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False, just_c
         if force_this_build or CheckBuild(lab_path, mycontainer_image_name, image_info, mycontainer_name, name, role, True, container_bin, start_config, container.registry, container.user):
             logger.DEBUG("Will rebuild %s,  force_this_build: %s" % (mycontainer_name, force_this_build))
             if os.path.isfile(build_student):
-                cmd = '%s %s %s %s %s %s %s %s %s %s' % (build_student, labname, name, container.user, 
-                      container.password, True, LABS_DIR, labtainer_config.apt_source, container.registry, framework_version)
+                cmd = '%s %s %s %s %s %s %s %s %s %s %s' % (build_student, labname, name, container.user, 
+                      container.password, True, LABS_DIR, labtainer_config.apt_source, container.registry, framework_version, str(no_pull))
             elif os.path.isfile(build_instructor):
-                cmd = '%s %s %s %s %s %s %s %s %s %s' % (build_instructor, labname, name, container.user, 
-                      container.password, True, LABS_DIR, labtainer_config.apt_source, container.registry, framework_version)
+                cmd = '%s %s %s %s %s %s %s %s %s %s %s' % (build_instructor, labname, name, container.user, 
+                      container.password, True, LABS_DIR, labtainer_config.apt_source, container.registry, framework_version, str(no_pull))
             else:
                 logger.ERROR("no image rebuild script\n")
                 exit(1)
@@ -1103,7 +1105,8 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False, just_c
                 line = ps.stdout.readline()
                 if line != '':
                     #if 'Error in docker build result 1' in line:
-                    if 'Error in docker build result 1' in line or 'Error in docker build result 2' in line:
+                    if 'Error in docker build result 1' in line or 'Error in docker build result 2' in line \
+                       or 'syntax error' in line:
                         logger.ERROR(line)
                         fatal_error = True
                     else:
@@ -1113,7 +1116,12 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False, just_c
             while True:
                 line = ps.stderr.readline()
                 if line != '':
-                    logger.DEBUG(line)
+                    if 'Error in docker build result 1' in line or 'Error in docker build result 2' in line \
+                       or 'syntax error' in line:
+                        logger.ERROR(line)
+                        fatal_error = True
+                    else:
+                        logger.DEBUG(line)
                 else:
                     break
             if fatal_error:
