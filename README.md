@@ -81,6 +81,9 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+July 24, 2018
+- Add SSH Agent lab (ssh-agent)
+
 July 20, 2018
 - Support offline building, optionally skip all image pulling
 - Restore apt/yum repo restoration to Dockerfile templates.
