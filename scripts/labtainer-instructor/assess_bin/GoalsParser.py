@@ -283,6 +283,7 @@ def ParseGoals(homedir, studentdir, logger_in):
                             goal_operator == "string_diff" or
                             goal_operator == "string_start" or
                             goal_operator == "string_end" or
+                            goal_operator == "string_contains" or
                             goal_operator == "integer_equal" or
                             goal_operator == "integer_greater" or
                             goal_operator == "integer_lessthan"):
