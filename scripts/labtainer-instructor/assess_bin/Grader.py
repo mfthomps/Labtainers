@@ -293,6 +293,9 @@ def compare_result_answer(current_result, current_answer, operator):
     elif operator == "string_end":
         if current_result.endswith(current_answer):
             found = True
+    elif operator == "string_contains":
+        if current_answer in current_result:
+            found = True
     elif operator == "integer_equal":
         if result_int == answer_int:
             found = True
