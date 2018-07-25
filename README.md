@@ -81,6 +81,11 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+July 25, 2018
+- Add string\_contains operator to goals processing
+- Modify assessment of formatstring lab to account for leaked secret not always being
+at the end of the displayed string.
+
 July 24, 2018
 - Add SSH Agent lab (ssh-agent)
 
