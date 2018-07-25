@@ -1293,6 +1293,8 @@ in the Labtainer exercises distributed with the framework.
                      the string derived from <resulttag>.
            example:  answertag value = 'Sriracha'
                      resulttag value = 'EatMoreFoodWithSriracha'
+   string_contains The string derived from <answertag> is contained within the
+                     string derived from <resulttab>.
    integer_equal - Integers derived from <answertag> and <resulttag>
                      are equal.
    integer_greater - The integer derived from <answertag> is greater than
@@ -2121,7 +2123,8 @@ the given text.  Will timeout and fail after 20 seconds.
 use when the xterm title is changed by a program.
 \item \textbf{type\_line} $<$text$>$ -- Types the given text.
 \item \textbf{key} $<$keysym$>$ -- Performs a keypress for the given X11 keysim, see
-\url{http://xahlee.info/linux/linux\_show\_keycode\_keysym.html}
+\url{http://xahlee.info/linux/linux\_show\_keycode\_keysym.html} and 
+\url{https://www.in-ulm.de/~mascheck/X11/keysyms.txt}
 \item \textbf{rep\_key} $<$count$>$ $<$keysym$>$ -- Repeats a keypress for the given X11 keysim $<$count$>$ times.
 \item \textbf{sleep} $<$seconds$>$ -- Sleeps for the given number of seconds.
 \item \textbf{wait\_proc} $<$text$>$ -- Delays until a {\tt ps au $<$text$>$} returns nothing.
