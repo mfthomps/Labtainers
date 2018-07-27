@@ -1,0 +1,229 @@
+#!/usr/bin/env python
+import socket
+import sys
+import time
+import signal
+import threading
+import hashlib
+import logging
+import argparse
+import os
+import ConfigParser
+import subprocess
+
+def signal_handler(signal, frame):
+    global connection
+    global response_thread
+    logging.debug('got signal, close connection')
+    if connection is not None:
+        connection.close()
+    logging.debug('signal handler, exit')
+    exit(0)
+
+
+def getData(connection, who):
+    '''
+    Read data from the connection based on its initial 4 character size field.
+    The who field is simply for debugging.
+    '''
+    rbytes = ''
+    try:
+        #logging.debug('%s getData get size' % who)
+        size_str = connection.recv(4)
+        if size_str is None or len(size_str) == 0:
+            logging.debug('%s client closed' % who)
+            return None
+        try:
+            size = int(size_str)
+        except:
+             logging.debug('getData could not parse int from <%s>' % size_str)
+             exit(1)
+        #logging.debug('%s getData size is %d' % (who, size))
+        # Receive the data, but only up to size bytes 
+        remaining = size
+        while len(rbytes) < size:
+            data = connection.recv(remaining)
+            remaining = remaining - len(data)
+            #logging.debug('received "%d bytes"' % len(data))
+            if data:
+                rbytes = rbytes + data
+            else:
+                logging.debug('no more data from', client_address)
+                break
+        logging.debug('%s done read, got total of %d bytes' % (who, len(rbytes)))
+    except socket.error:
+        logging.debug('proxy socket error %s' % str(socket.error))
+        connection.close()
+        rbytes = None
+    return rbytes
+
+def sendData(connection, data, who):
+    '''
+    Send data to the connection, prefixed by a four character length field.
+    The who field is simply for debugging
+    '''
+    size = len(data)
+    logging.debug('%s sendData %d bytes' % (who, size))
+    size_str = '%4d' % size
+    connection.sendall(size_str)
+    connection.sendall(data)
+
+def responses(connection, remote_sock):
+    #logging.debug('in responses')
+    rdata = ''
+    while rdata is not None:
+        rdata = getData(remote_sock, 'from-plc')
+        #logging.debug('responses back from getData with %s' % rdata)
+        if rdata is not None:
+            sendData(connection, rdata, 'responses')
+        else:
+            logging.debug('responses got None from-plc')
+    exit()
+ 
+def checkData(data, whitelist):
+    retval = True
+    if data is None:
+        retval = False
+    elif data != 'status:' and data != 'retrieve:' and data != 'reset:':
+         if data.startswith('load'):
+             data = data[5:]
+         m = hashlib.md5()
+         m.update(data)
+         d = m.hexdigest()
+         logging.debug('digest is %s' % d)
+         if d not in whitelist:
+             logging.debug('digest FAILS %s' % d)
+             retval = False
+
+         if 'bad stuff' in data:
+             retval = False
+    return retval
+
+def runProxy(whitelist, config):
+    global connection
+    global response_thread
+    sys.stderr = open('err.txt', 'w')
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+    # Create a TCP/IP socket for proxy server & client
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    local_server_address = ('172.25.0.3', 10000)
+    remote_server_address = ('172.26.0.3', 10000)
+    logging.debug('starting up on %s port %s' % local_server_address)
+    sock.bind(local_server_address)
+    # Listen for incoming connections
+    sock.listen(1)
+    while True:
+        # Wait for a connection
+        logging.debug('waiting for a connection')
+        connection, client_address = sock.accept()
+        connection.setblocking(True)
+        connection.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        remote_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        remote_sock.connect(remote_server_address)
+        remote_sock.setblocking(True)
+        remote_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        response_thread = threading.Thread(target=responses, args=(connection, remote_sock))
+        response_thread.start()
+        rdata = ''
+    
+        while rdata is not None:
+            rdata = getData(connection, 'from-manager')
+            if config.get('DEFAULT', 'enable') == 'yes': 
+                if checkData(rdata, whitelist):
+                    sendData(remote_sock, rdata, 'to-server')
+                elif rdata is not None:
+                    logging.debug('Data failed check, dropping it!')
+                    rdata = None
+                else:
+                    logging.debug('got None from getData from-manager')
+            elif rdata is not None:
+                ''' whitelist checking disabled, just send it '''
+                sendData(remote_sock, rdata, 'to-server')
+        logging.debug('close the connections, we got None') 
+        time.sleep(1)
+        connection.close()
+        try:
+            remote_sock.shutdown(socket.SHUT_RDWR)
+            remote_sock.close()
+        except socket.error, msg:
+            logging.debug('Failed to close remote_sock, client dropped?: %s' % msg)
+
+def checkRunning():
+    cmd = 'systemctl status proxy'
+    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if 'Active: active (running)' not in output[0]:
+        return False
+    else:
+        return True
+
+def main():        
+    LOGFILE = "./proxy.log"
+    whitelist_file = "/etc/proxy_whitelist.txt"
+    proxy_config = "/etc/proxy.config"
+    config = ConfigParser.ConfigParser()
+    config.read(proxy_config)
+    whitelist = []
+    if os.path.isfile(whitelist_file):
+        with open(whitelist_file) as fh:
+            for line in fh:
+                whitelist.append(line.strip()) 
+    logging.basicConfig(filename=LOGFILE, level=logging.DEBUG)
+    global connection
+    connection = None        
+    parser = argparse.ArgumentParser(prog='plcproxy', description='Run or configure the plc proxy.  The proxy can be configured to use \
+       a whitelist of MD5 hashes to validate programs and data destined for the PLC.  Use the "-a" option to add a MD5 digest to the whitelist.\
+       The default state of the proxy disables whitelist \
+       validation, allowing all traffic through the proxy.  Use the "-e" option to enable validation. \
+       Prior to enabling validation, or altering the whitelist, you must stop the proxy from running by using "sudo systemctl stop proxy". \
+       After changing the configuration, restart the proxy using "sudo systemctl start proxy."')
+    parser.add_argument('-l', '--list', action='store_true', help='List the current status and whitelist signatures')
+    parser.add_argument('-a', '--add', action='store', metavar=('digest'), help='Add a MD5 digest to the whitelist')
+    parser.add_argument('-r', '--remove', action='store', metavar=('digest'), help='Remove a whitelist digest')
+    parser.add_argument('-e', '--enable', action='store_true', help='Enable whitelist validation')
+    parser.add_argument('-d', '--disable', action='store_true', help='Disable whitelist validation, permit all traffic.')
+    num_args = len(sys.argv)
+    if num_args == 1:
+        print("logging to ./proxy.log")
+        if len(whitelist) == 0:
+            print('Warning, whitelist is empty')
+            logging.debug('Warning, whitelist is empty')
+        logging.debug("Starting proxy")
+        runProxy(whitelist, config)
+    else:
+        args = parser.parse_args()
+        if args.list:
+            print('Whitelist checking enabled: %s' % config.get('DEFAULT', 'enable'))
+            if len(whitelist) == 0:
+                print('Whitelist is empty')
+            else:
+                print('Current whitelist:')
+                for line in whitelist:
+                    print('\t%s' % line)
+        elif args.add is not None:
+            if checkRunning():
+                print('Use "sudo systemctl stop proxy" prior to changing the configuration')
+            else:
+                whitelist.append(args.add)
+                with open(whitelist_file, 'w') as fh:
+                    for line in whitelist:
+                        fh.write(line+'\n')
+        elif args.enable:
+            if checkRunning():
+                print('Use "sudo systemctl stop proxy" prior to changing the configuration')
+            else:
+                config.set('DEFAULT', 'enable', 'yes')
+                with open(proxy_config, 'w') as fh:
+                    config.write(fh)
+        elif args.disable:
+            if checkRunning():
+                print('Use "sudo systemctl stop proxy" prior to changing the configuration')
+            else:
+                config.set('DEFAULT', 'enable', 'no')
+                with open(proxy_config, 'w') as fh:
+                    config.write(fh)
+
+if __name__ == '__main__':
+    sys.exit(main())
+
