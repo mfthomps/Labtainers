@@ -1,0 +1,10 @@
+The proxy is started with:
+    sudo systemctl start proxy
+and stopped with:
+    sudo systemctl stop proxy
+and restarted with:
+    sudo systemctl restart proxy
+
+Its log is in proxy.log
+
+Use proxy -h to view options for configuring the proxy.
