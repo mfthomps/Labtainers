@@ -1,0 +1,14 @@
+[Unit]
+Description=Heartbeat Service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/heartbeat.py
+StandardOutput=null
+WorkingDirectory=/home/ubuntu
+User=ubuntu
+
+[Install]
+WantedBy=multi-user.target
+Alias=heartbeat.service
+
