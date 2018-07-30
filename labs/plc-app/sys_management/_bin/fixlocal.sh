@@ -5,5 +5,8 @@
 #
 cd $HOME
 ./build.sh
+# unblock the waitparam.service, which is a predicate for svchost
+PERMLOCKDIR=/var/labtainer/did_param
+sudo mkdir -p "$PERMLOCKDIR"
 sudo systemctl enable svchost
 sudo systemctl start svchost
