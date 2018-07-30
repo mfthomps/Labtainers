@@ -81,6 +81,12 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+July 30, 2018
+- Document need to unblock the waitparam.service (by creating flag directory)
+if a fixlocal.sh script is to start a service for which waitparam is a
+prerequisite.
+- Add plc-app lab for PLC application firewall and whitelisting exercise.
+
 July 25, 2018
 - Add string\_contains operator to goals processing
 - Modify assessment of formatstring lab to account for leaked secret not always being
