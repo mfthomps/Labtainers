@@ -140,7 +140,11 @@ def runProxy(whitelist, config, filters):
         #print('wait')
         # Wait for a connection
         logging.debug('waiting for a connection')
-        connection, client_address = sock.accept()
+        try:
+            connection, client_address = sock.accept()
+        except:
+            logging.error('failed accept on %s' % local_server_address)
+            exit(1)
         src_ip, src_port = connection.getpeername()
         #logging.debug('got peer %s' % src_ip)
         connection.setblocking(True)
