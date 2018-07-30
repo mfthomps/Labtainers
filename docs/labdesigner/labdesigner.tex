@@ -651,8 +651,9 @@ and reside at:
 \noindent Note the fixlocal.sh script runs as the user defined in the start.config for the container, 
 regardless of whether root is set as the user in the Dockerfile.
 
-\textbf{NOTE:} Use of {\tt sed -i ...} to modify configuration files (e.g., in etc), might result in overwriting symbolic links.
-Use {\tt sed -i --follow-symlinks ...} to avoid that pit.
+
+\footnote{Use of {\tt sed -i ...} to modify configuration files (e.g., in etc), might result in overwriting symbolic links.
+Use {\tt sed -i --follow-symlinks ...} to avoid that pit.}
 
 \subsection{Automatic copying files from containers to the host}
 This feature no longer has an intended use, but it is available if you have one.
@@ -689,6 +690,7 @@ but before the execution of the \_bin/fixlocal.sh script.  Thus, in the formatst
 lab, the executable program resulting from the fixlocal.sh script will be specific
 to each student (though not necessarily unique).
 
+\subsection{Parameterization configuration file syntax}
 Symbolic parameter replacement operations are defined within the {\tt config/parameter.config} file.
 Each line of that file must start with a \verb!"<parameter_id> : "!, which is any unique string, and
 is followed by one of the following operations:
@@ -774,14 +776,28 @@ is followed by one of the following operations:
 The parameter\_id fields may be referenced during the automated grading function, described below
 in section \ref{goals.config}. 
 
+\subsection{Synchronizing startup and parameterization}
 Parameterizing occurs subsequent to container ``boot'', but prior to running the fixlocal.sh script.
 The Ubuntu based images include a {\tt waitparam.service} that delays reporting its initialization to
 systemd until parameterization has completed.  That service is configured to run prior to rc.local.
 The service unit file is at:
 \begin{verbatim}
-trunk/scripts/designer/system/lib/systemd/system
+    trunk/scripts/designer/system/lib/systemd/system
+\end{verbatim}
+If you have defined system services that should not start until parameterization has occurred, then
+add this to the {\tt[Unit]} section of their service unit file:
+\begin{verbatim}
+    After=waitparam.service
+\end{verbatim}
+\noindent Note that if your {\tt fixlocal.sh} script starts any such service, you must create a flag
+directory from within your {\tt fixlocal.sh} script to unblock the waitparam.service.  The following
+lines would achieve that:
+\begin{verbatim}
+    PERMLOCKDIR=/var/labtainer/did_param
+    sudo mkdir -p "$PERMLOCKDIR"
 \end{verbatim}
 
+\subsection{Parameterizing start.config}
 Parameterizing of the start.config file occurs prior to Docker container creation.  The framework 
 modifies a copy of the file stored in {\tt /tmp/start.config} and uses that when assigning attributes to containers,
 e.g., IP addresses. Currently only IP addresses within the start.config can parameteterized (e.g., not user names).
