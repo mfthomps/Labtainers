@@ -12,6 +12,7 @@ END
 #
 exec &> /tmp/parameterize.sh.log
 echo "start parameterize.sh"
+date
 # Configuration variables
 LAB_SEEDFILE="$HOME/.local/.seed"
 USER_EMAILFILE="$HOME/.local/.email"
@@ -46,7 +47,8 @@ USER_EMAIL=$4
 LAB_NAME=$5
 CONTAINER_NAME=$6
 IMAGE_VERSION=$7
-
+echo "email and watermark"
+date
 # Laboratory instance seed is always stored in $LAB_SEEDFILE
 echo "$LAB_INSTANCE_SEED" > $LAB_SEEDFILE
 # User's e-mail is always stored in $USER_EMAILFILE
@@ -81,7 +83,8 @@ echo $CONTAINER_PASSWORD | sudo rm -f /run/nologin
 
 # call ParameterParser.py (passing $LAB_INSTANCE_SEED)
 echo $CONTAINER_PASSWORD | sudo -S $HOME/.local/bin/ParameterParser.py $CONTAINER_USER $LAB_INSTANCE_SEED $CONTAINER_NAME $LAB_PARAMCONFIGFILE 
-
+echo "back from ParameterParser.py"
+date
 # If file $HOME/.local/bin/fixlocal.sh exists, run it
 if [ -f $HOME/.local/bin/fixlocal.sh ]
 then
@@ -91,6 +94,8 @@ then
         su -c "$HOME/.local/bin/fixlocal.sh $CONTAINER_PASSWORD $CONTAINER_USER 2>>/tmp/fixlocal.output" $CONTAINER_USER
     fi
 fi
+echo "back from fixlocal.sh"
+date
 # keep rsyslog from hanging 10 seconds on the xconsole
 if [ -f /etc/rsyslog.d/50-default.conf ]; then
    echo $CONTAINER_PASSWORD | sudo -S sed -i '/^daemon...mail/,+3 d' /etc/rsyslog.d/50-default.conf
@@ -103,6 +108,8 @@ if [ -f /var/tmp/home.tar ]; then
    echo $CONTAINER_PASSWORD | sudo -S rm /var/tmp/home.tar
    echo "expanded /var/tmp/home.tar to $HOME" >>/tmp/parameterize.out 2>&1
 fi
+echo "back from expand hometar.sh"
+date
 
 echo $CONTAINER_PASSWORD | sudo -S $HOME/.local/bin/hookBash.sh $HOME 2>>/tmp/hookBash.output
 
@@ -119,18 +126,23 @@ fi
 echo $CONTAINER_PASSWORD | sudo touch /sbin/consoletype
 echo $CONTAINER_PASSWORD | sudo chmod a+rwx /sbin/consoletype
 echo "image version is $IMAGE_VERSION" >/tmp/mft.out
+echo "do mynotify service"
+date
 if [[ "$IMAGE_VERSION" -eq -1 ]] || [[ "$IMAGE_VERSION" -gt 2 ]]; then
     systemctl enable mynotify.service
     systemctl start mynotify.service
 fi
+echo "back from mynotify service"
+date
 # just for ubuntu, tbd limit to that?
 touch ~/.sudo_as_admin_successful
 
 if [ -d $LOCKDIR ]; then
     rmdir $LOCKDIR
 fi
-# Added a permanent 'did_param' lock directory
+# Indicate the container has been parameterized
 PERMLOCKDIR=/var/labtainer/did_param
 echo $CONTAINER_PASSWORD | sudo -S mkdir -p "$PERMLOCKDIR" 
 echo "done with parameterize.sh"
+date
 
