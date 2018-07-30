@@ -8,4 +8,7 @@
 #  echo $1 | sudo -S the-command
 #
 sudo systemctl enable heartbeat
+# unblock the waitparam.service, which is a predicate for heartbeat
+PERMLOCKDIR=/var/labtainer/did_param
+sudo mkdir -p "$PERMLOCKDIR"
 sudo systemctl start heartbeat
