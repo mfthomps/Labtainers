@@ -1,0 +1,16 @@
+README for Farmer Jones system management computer.
+The home directory includes:
+   plc  An executable PLC program that is loaded into the PLC using
+        the "manage_plc load" command.
+
+   plc.c The source code for the plc program. 
+
+   config_dry.txt Configuration data to control the PLC for the dry season.  It 
+        is loaded into PLC using the "manage_plc" load command.
+   config_wet.txt Same as config_dry.txt, but used for the rainy season.  This
+        configuration allows the pond to absorb additional runoff from the creek.
+
+
+This computer includes the "sys_management" program, use:
+   sys_management -h 
+to learn what it does.

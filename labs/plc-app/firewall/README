@@ -1,0 +1,10 @@
+The firewall is started with:
+    sudo systemctl start firewall
+and stopped with:
+    sudo systemctl stop firewall
+and restarted with:
+    sudo systemctl restart firewall
+
+Its log is in firewall.log
+
+Use firewall -h to view options for configuring the firewall.
