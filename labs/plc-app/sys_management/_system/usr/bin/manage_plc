@@ -47,7 +47,7 @@ def getData(connection):
                 break
         #print >>sys.stderr, 'done read, got total of %d bytes' % len(rbytes)
     except socket.error:
-        print >>sys.stderr, 'proxy socket error %s' % str(socket.error)
+        print >>sys.stderr, 'firewall socket error %s' % str(socket.error)
         connection.close()
         rbytes = None
     return rbytes
@@ -66,7 +66,7 @@ args = parser.parse_args()
 
 sock = doConnect()
 if sock is None:
-    print('Error connecting to PLC or proxy')
+    print('Error connecting to PLC or firewall')
     exit(0)
 sock.setblocking(True)
 if args.command == 'status':
@@ -88,7 +88,7 @@ elif args.command == 'load':
     if success is not None:
         print success
     else:
-        print 'Error executing load command.  Did the proxy block the load?'
+        print 'Error executing load command.  Did the firewall block the load?'
 elif args.command == 'retrieve':
     code_file = 'plc_code.retrieved'
     config_file = 'plc_config.retrieved'
