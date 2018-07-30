@@ -1,5 +1,6 @@
 [Unit]
 Description=PLC Firewall Service
+After=waitparam.service
 
 [Service]
 Type=simple
