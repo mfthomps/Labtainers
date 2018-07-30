@@ -1,14 +1,14 @@
 [Unit]
-Description=Heartbeat Service
+Description=PLC Firewall Service
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/heartbeat.py
+ExecStart=/usr/bin/firewall
 StandardOutput=null
 WorkingDirectory=/home/admin
 User=admin
 
 [Install]
 WantedBy=multi-user.target
-Alias=heartbeat.service
+Alias=firewall.service
 

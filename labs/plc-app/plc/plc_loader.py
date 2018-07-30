@@ -20,7 +20,8 @@ file. After firmware is loaded, the PLC executes.
 # Create a TCP/IP socket
 LOGFILE = "./plc_loader.log"
 print("logging to %s" % LOGFILE)
-logging.basicConfig(filename=LOGFILE, level=logging.DEBUG)
+logging.basicConfig(filename=LOGFILE, level=logging.DEBUG, 
+                         format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%y-%m-%d %H:%M:%S')
 logging.debug("Starting plc_loader")
 filename='/tmp/iodevice'
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

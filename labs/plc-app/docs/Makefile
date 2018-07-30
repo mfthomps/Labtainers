@@ -1,6 +1,8 @@
-plc-app.pdf: plc-app.docx
-	soffice --convert-to pdf plc-app.docx --headless
+plc-app.pdf: plc-app.tex header.tex plc-app.jpg
+	latex plc-app
+	pdflatex -jobname=plc-app plc-app
+	pdflatex -jobname=plc-app plc-app
 
 clean:
 	rm -fr auto
-	rm -f *.pdf
+	rm -f plc-app.aux plc-app.log plc-app.pdf plc-app.dvi plc-app.out
