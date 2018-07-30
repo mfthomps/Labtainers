@@ -1,1 +1,1 @@
-Simulated example of a vulnerable Programmable Logic Controller system.
+Configure an application firewall and program whitelist to protect a PLC.
