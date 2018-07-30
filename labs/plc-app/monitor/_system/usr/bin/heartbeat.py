@@ -11,9 +11,9 @@ logging.debug("Starting historian")
 
 cmd = 'manage_plc status'
 while True:
+    time.sleep(20)
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[0].strip()) > 0:
          logging.debug('%s' % output[0].strip()) 
-    time.sleep(20)
     
