@@ -205,15 +205,16 @@ def autoGrade(grade_container, lab_path, labtainer_config, labname):
     cmd = "docker exec %s bash -c 'su - instructor -c \"cd;.local/bin/instructor.py\"'" % (grade_container)
     if not labutils.DockerCmd(cmd):
         logger.ERROR('trouble with %s' % cmd)
-    result_xfer = labutils.StopLab(lab_path, 'instructor', False, is_regress_test=False, run_container=grade_container)
-    fglob = glob.glob(result_xfer+'/*grades.txt')
+    copyChownGradesFile(labtainer_config, labname, grade_container, 'instructor')
+    username = getpass.getuser()
+    host_xfer = os.path.join('/home', username, labtainer_config.host_home_xfer, labname)
+    fglob = glob.glob(host_xfer+'/*grades.txt')
     if len(fglob) == 0:
-        print('No grades.txt file at %s' % result_xfer)
+        print('No grades.txt file at %s' % host_xfer)
     else:
         with open(fglob[0]) as fh:
             for line in fh:
                 print line.rstrip()
-    copyChownGradesFile(labtainer_config, labname, grade_container, 'instructor')
     cmd = 'docker stop %s' % grade_container
     labutils.DockerCmd(cmd)
 
