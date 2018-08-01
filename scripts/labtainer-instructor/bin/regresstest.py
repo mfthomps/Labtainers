@@ -31,9 +31,95 @@ def usage():
     sys.stderr.write("       -a <labname> : continue running regression test from <labname>\n")
     sys.exit(1)
 
-# Usage: regresstest.py
-# Arguments: None
 LABS_ROOT = os.path.abspath('../../labs')
+
+
+def compareGrades(GradesGold, Grades):
+    GradesGoldLines = {}
+    GradesLines = {}
+    with open(GradesGold) as gradesgoldfile:
+        for line in gradesgoldfile:
+            linestrip = line.strip()
+            if not linestrip or linestrip.startswith("#"):
+                continue
+            linetoken = linestrip.split()
+            student_email = linetoken[0]
+            if "_at_" in student_email:
+                if student_email in GradesGoldLines:
+                    logger.ERROR("GradesGold file error: Multiple entries for the same student's e-mail %s" % student_email)
+                    return False
+                else:
+                    new_line = line.strip().replace(" ", "")
+                    GradesGoldLines[student_email] = new_line
+    with open(Grades) as gradesfile:
+        for line in gradesfile:
+            linestrip = line.strip()
+            if not linestrip or linestrip.startswith("#"):
+                continue
+            linetoken = linestrip.split()
+            student_email = linetoken[0]
+            if "_at_" in student_email:
+                if student_email in GradesLines:
+                    logger.ERROR("Grades file error: Multiple entries for the same student's e-mail %s" % student_email)
+                    return False
+                else:
+                    new_line = line.strip().replace(" ", "")
+                    GradesLines[student_email] = new_line
+    if GradesGoldLines == GradesLines:
+        return True
+    else:
+        return False
+
+
+def RegressTest(lab_path, role, standard, isFirstRun=False):
+    labname = os.path.basename(lab_path)
+    labtainer_config_dir = os.path.join(os.path.dirname(os.path.dirname(lab_path)), 'config', 'labtainer.config')
+    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_dir, logger)
+
+    labutils.is_valid_lab(lab_path)
+    regresstest_lab_path = os.path.join(labtainer_config.testsets_root, labname, standard)
+    host_home_xfer = os.path.join(labtainer_config.host_home_xfer, labname)
+    logger.DEBUG("Host Xfer directory for labname %s is %s" % (labname, host_home_xfer))
+    logger.DEBUG("Regression Test path for labname %s is %s" % (labname, regresstest_lab_path))
+
+    GradesGold = "%s/%s.grades.txt" % (regresstest_lab_path, labname)
+    Grades = "/home/%s/%s/%s.grades.txt" % (username, host_home_xfer, labname)
+    logger.DEBUG("GradesGold is %s - Grades is %s" % (GradesGold, Grades))
+
+    is_regress_test = standard
+    check_watermark = False
+    auto_grade = True
+    debug_grade = False
+    run_container = start_config.grade_container
+    if isFirstRun:
+        doGrade(labname, False, False, False)
+    else:
+        doGrade(labname, False, False, True)
+
+#    for name, container in start_config.containers.items():
+#        mycontainer_name       = container.full_name
+#        container_user         = container.user
+#
+#        if mycontainer_name == start_config.grade_container:
+#            logger.DEBUG('about to RunInstructorCreateDradeFile for container %s' % start_config.grade_container)
+#            RunInstructorCreateGradeFile(start_config.grade_container, container_user, labname, check_watermark)
+
+    # Pass 'True' to ignore_stop_error (i.e., ignore stop error)
+
+    # Give the container some time to copy the result out -- just in case
+    time.sleep(3)
+
+    CompareResult = False
+    # GradesGold and Grades must exist
+    logger.DEBUG('compare %s to %s' % (GradesGold, Grades))
+    if not os.path.exists(GradesGold):
+        logger.ERROR("GradesGold %s file does not exist!" % GradesGold)
+    elif not os.path.exists(Grades):
+        logger.ERROR("Grades %s file does not exist!" % Grades)
+    else:
+        CompareResult = compareGrades(GradesGold, Grades)
+    return CompareResult
+
 def main():
     labnamelist = []
     num_args = len(sys.argv)
