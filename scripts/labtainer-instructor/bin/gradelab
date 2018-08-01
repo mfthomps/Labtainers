@@ -1,2 +1,263 @@
-#!/bin/bash
-start.py $@
+#!/usr/bin/env python
+import sys
+import os
+import shutil
+import argparse
+import subprocess
+import shlex
+import pydoc
+import getpass
+import glob
+import zipfile
+import time
+import saki
+import ParseLabtainerConfig
+
+instructor_cwd = os.getcwd()
+student_cwd = instructor_cwd.replace('labtainer-instructor', 'labtainer-student')
+# Append Student CWD to sys.path
+sys.path.append(student_cwd+"/bin")
+sys.path.append(os.path.join(instructor_cwd, 'assess_bin'))
+import labutils
+import logging
+import LabtainerLogging
+import docgoals
+FAILURE=1
+# Copy Students' Artifacts from host to instructor's lab container
+def CopyStudentArtifacts(labtainer_config, container_name, labname, is_regress_test, check_watermark):
+    # Set the lab name 
+    command = 'docker exec %s script -q -c "mkdir /home/instructor/.local" /dev/null' % (container_name)
+    logger.DEBUG("Command to execute is (%s)" % command)
+    result = subprocess.call(command, shell=True)
+    logger.DEBUG("Result of subprocess.call CopyStudentArtifacts set labname is %s (1=>FAILURE)" % result)
+    if result == FAILURE:
+        logger.ERROR("Failed to set labname in container %s!\n" % container_name)
+        sys.exit(1)
+
+    command = 'docker exec %s script -q -c "echo %s > /home/instructor/.local/.labname" /dev/null' % (container_name, labname)
+    logger.DEBUG("Command to execute is (%s)" % command)
+    result = subprocess.call(command, shell=True)
+    logger.DEBUG("Result of subprocess.call CopyStudentArtifacts set labname is %s (1=>FAILURE)" % result)
+    if result == FAILURE:
+        logger.ERROR("Failed to set labname in container %s!\n" % container_name)
+        sys.exit(1)
+
+    # Create is_grade_container
+    username = getpass.getuser()
+    # Make sure check for is_regress_test first
+    if not is_regress_test == None:
+        xfer_dir = ""
+        # then check if it is watermark test required
+        if check_watermark:
+            xfer_dir = os.path.join(labtainer_config.watermark_root, labname)
+        else:
+            xfer_dir = os.path.join(labtainer_config.testsets_root, labname)
+	xfer_dir += "/" + is_regress_test
+        zip_filelist = glob.glob('%s/*.zip' % xfer_dir)
+    else:
+        xfer_dir = os.path.join(labtainer_config.host_home_xfer, labname)
+        zip_filelist = glob.glob('/home/%s/%s/*.zip' % (username, xfer_dir))
+    logger.DEBUG("filenames is (%s)" % zip_filelist)
+    # Copy zip files from 'Shared' folder to 'home/$CONTAINER_USER'
+    for fname in zip_filelist:
+        logger.DEBUG("name is %s" % fname)
+        base_fname = os.path.basename(fname)
+        # Copy zip file 
+        command = 'docker cp %s %s:/home/instructor/' % (fname, container_name)
+        logger.DEBUG("Command to execute is (%s)" % command)
+        result = subprocess.call(shlex.split(command))
+        logger.DEBUG("Result of subprocess.call CopyStudentArtifacts copy zipfile (%s) is %s (1=>FAILURE)" % (fname, result))
+        if result == FAILURE:
+            logger.ERROR("Failed to copy student artifacts into container %s!\n" % container_name)
+            sys.exit(1)
+# Do InstDocsToHostDir - extract students' docs.zip if exist
+def InstDocsToHostDir(labname, labtainer_config, lab_path):
+    xfer_dir = os.path.join(labtainer_config.host_home_xfer, labname)
+    username = getpass.getuser()
+    host_home_xfer = '/home/%s/%s' % (username, xfer_dir)
+    logger.DEBUG("path to work with is (%s)" % host_home_xfer)
+    logger.DEBUG("labname is (%s)" % labname)
+    docsdir_created = False
+    docsdir_path = '%s/docs' % host_home_xfer
+
+    # create temporary directory
+    tmpdir = '%s/.tmpdir' % host_home_xfer
+    labutils.createDirectoryPath(tmpdir)
+
+    split_string = '.%s.zip' % labname
+
+    zip_filelist = glob.glob('%s/*.zip' % host_home_xfer)
+    logger.DEBUG("filenames is (%s)" % zip_filelist)
+    tmpdocszip = '%s/docs.zip' % tmpdir
+    # Process each zip file in host_home_xfer
+    for fname in zip_filelist:
+        ZipFileName = os.path.basename(fname)
+        # Note: at this point the ZipFileName should not have the 'containername' yet
+        #       the format should be <student_email>.<labname>.zip
+        logger.DEBUG("ZipFileName is (%s)" % ZipFileName)
+
+        # Try unpacking the zip file into temporary directory to check if docs.zip exist
+        zipoutput = zipfile.ZipFile(fname, "r")
+        ''' retain dates of student files '''
+        for zi in zipoutput.infolist():
+            logger.DEBUG('zi is %s tmpdir is %s' % (zi.filename, tmpdir))
+            zipoutput.extract(zi, tmpdir)
+            date_time = time.mktime(zi.date_time + (0, 0, -1))
+            dest = os.path.join(tmpdir, zi.filename)
+            os.utime(dest, (date_time, date_time))
+        zipoutput.close()
+
+        # If docs.zip exist
+        if os.path.exists(tmpdocszip):
+            # Time to create docs directory if it hasn't been created
+            if not docsdir_created:
+                docsdir_created = True
+                createDirectoryPath(docsdir_path)
+
+            # Note: at this point the ZipFileName should not have the 'containername' yet
+            #       the format should be <student_email>.<labname>.zip
+            splitlist = ZipFileName.split(split_string)
+            student_email = splitlist[0]
+            student_emaildir = '%s/%s' % (docsdir_path, student_email)
+            logger.DEBUG("student_email is (%s)" % student_email)
+            logger.DEBUG("student_emaildir is (%s)" % student_emaildir)
+
+            # Create student's e-mail directory (if it does not exist)
+            createDirectoryPath(student_emaildir)
+            # Unpacking the docs.zip file into student's e-mail directory
+            zipoutput = zipfile.ZipFile(tmpdocszip, "r")
+            ''' retain dates of student files '''
+            for zi in zipoutput.infolist():
+                zipoutput.extract(zi, student_emaildir)
+                date_time = time.mktime(zi.date_time + (0, 0, -1))
+                dest = os.path.join(student_emaildir, zi.filename)
+                os.utime(dest, (date_time, date_time))
+            zipoutput.close()
+
+        # remove and re-create temporary directory for the students' zip file
+        shutil.rmtree(tmpdir, ignore_errors=True)
+        os.makedirs(tmpdir)
+
+    # Finally done for all students' zip file in the host_home_xfer directory
+    # Final removal of temporary directory
+    shutil.rmtree(tmpdir, ignore_errors=True)
+
+def copyAssessBin(container_name):
+    tmp_dir='/tmp/assess_bin'
+    shutil.rmtree(tmp_dir, ignore_errors=True)
+    try:
+        os.makedirs(tmp_dir)
+    except:
+        logger.ERROR("did not expect to find dir %s" % tmp_dir)
+    shutil.copytree('assess_bin', os.path.join(tmp_dir, 'bin'))
+    shutil.copyfile('../labtainer-student/bin/LabCount.py', os.path.join(tmp_dir, 'bin', 'LabCount.py'))
+    shutil.copyfile('../labtainer-student/lab_bin/ParameterParser.py', os.path.join(tmp_dir, 'bin', 'ParameterParser.py'))
+    shutil.copyfile('../labtainer-student/lab_bin/ParameterizeLogging.py', os.path.join(tmp_dir, 'bin', 'ParameterizeLogging.py'))
+    
+    command = 'docker cp /tmp/assess_bin/bin  %s:/home/instructor/.local/' % (container_name)
+    logger.DEBUG("Command to execute is (%s)" % command)
+    result = subprocess.call(shlex.split(command))
+    logger.DEBUG("Result of subprocess.call %s (1=>FAILURE)" % (result))
+    if result == FAILURE:
+        logger.ERROR("Failed copy assess_bin %s!\n" % container_name)
+        sys.exit(1)
+
+def diddleProfile(container_name):
+    command = 'docker exec %s script -q -c "/home/instructor/.local/bin/rootprofile.sh" /dev/null' % (container_name)
+    logger.DEBUG("Command to execute is (%s)" % command)
+    result = subprocess.call(command, shell=True)
+    logger.DEBUG("Result of subprocess.call CopyStudentArtifacts set labname is %s (1=>FAILURE)" % result)
+    if result == FAILURE:
+        logger.ERROR("Failed to set labname in container %s!\n" % container_name)
+        sys.exit(1)
+
+def autoGrade(container_name, lab_path):
+    cmd = "docker exec %s bash -c 'su - instructor -c \"cd;.local/bin/instructor.py\"'" % (container_name)
+    if not labutils.DockerCmd(cmd):
+        logger.ERROR('trouble with %s' % cmd)
+    result_xfer = labutils.StopLab(lab_path, 'instructor', False, is_regress_test=False, run_container=container_name)
+    fglob = glob.glob(result_xfer+'/*grades.txt')
+    if len(fglob) == 0:
+        print('No grades.txt file')
+    else:
+        with open(fglob[0]) as fh:
+            for line in fh:
+                print line.rstrip()
+
+def getGradeImageName(labtainer_config, registry):
+    image_name = 'labtainer.grader'
+    image_info = labutils.imageInfo(image_name , registry, labtainer_config)
+    if image_info is None:
+        logger.ERROR('Could not find image for %s' % image_name)
+        exit(1)
+    else:
+        new_image_name = image_name
+        if not image_info.local_build:
+            new_image_name = '%s/%s' % (registry, image_name)
+        if not image_info.local:
+            labutils.dockerPull(registry, image_name)
+    return new_image_name
+
+def getRegistry(use_test_registry, labtainer_config):
+    if not use_test_registry:
+        env_test_registry = os.getenv('TEST_REGISTRY')
+        if env_test_registry is not None and (env_test_registry.lower() == 'yes' or env_test_registry.lower() == 'true'):
+            use_test_registry = True
+    if use_test_registry:
+        return labtainer_config.test_registry
+    else:
+        return labtainer_config.default_registry
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Grade a Labtainers lab')
+    parser.add_argument('labname', help='The lab to grade')
+    parser.add_argument('-r', '--redo', action='store_true', help='Creates new instance of the lab, previous work will be lost.')
+    parser.add_argument('-d', '--debug', action='store_true', help='Create the grading container leave it running with a terminal')
+    parser.add_argument('-t', '--test_registry', action='store_true', help='Use image from test registry')
+    args = parser.parse_args()
+    labname = args.labname
+    grade_container = '%s-igrader' % labname
+    lab_path = os.path.join(os.path.abspath('../../labs'), labname)
+    labtainer_config_dir = os.path.join(os.path.dirname(os.path.dirname(lab_path)), 'config', 'labtainer.config')
+    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_dir, logger)
+    registry = getRegistry(args.test_registry, labtainer_config)
+    if args.redo:
+        cmd = 'docker stop %s' % grade_container
+        labutils.DockerCmd(cmd)
+        cmd = 'docker rm %s' % grade_container
+        labutils.DockerCmd(cmd)
+
+    grade_image = getGradeImageName(labtainer_config, registry)
+    if not labutils.IsContainerCreated(grade_container):
+        cmd = "docker create -t --name=%s --hostname=%s %s" % (grade_container, grade_container, grade_image)
+        logger.DEBUG("Command to execute was (%s)" % cmd)
+        ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        output = ps.communicate()
+        if len(output[1]) > 0:
+            logger.DEBUG('command was %s' % cmd)
+    else:
+        logger.DEBUG('Container already exists')
+    labutils.StartMyContainer(grade_container)
+    InstDocsToHostDir(labname, labtainer_config, lab_path)
+    logger.DEBUG('do CopyStudentArtifacts for %s, labname: %s ' % (grade_container, labname))
+    copy_result = CopyStudentArtifacts(labtainer_config, grade_container, labname, 
+                     None, False)
+    if copy_result == FAILURE:
+        logger.ERROR("Failed to copy students' artifacts to container %s!\n" % grade_container)
+        exit(1)
+    copyAssessBin(grade_container)
+    labutils.CopyInstrConfig(grade_container, 'instructor', lab_path)
+    diddleProfile(grade_container)
+    if args.debug:
+        spawn_command = "gnome-terminal -- docker exec -it %s bash -l cd /home/instructor &" % 	grade_container
+        logger.DEBUG("spawn_command is (%s)" % spawn_command)
+        os.system(spawn_command)
+    else:
+        autoGrade(grade_container, lab_path)
+    
+labutils.logger = LabtainerLogging.LabtainerLogging("grader.log", 'instructor', "../../config/labtainer.config")
+labutils.logger.INFO("Begin logging") 
+logger = labutils.logger
+if __name__ == '__main__':
+    sys.exit(main())
