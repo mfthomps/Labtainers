@@ -112,7 +112,7 @@ def InstDocsToHostDir(labname, labtainer_config, lab_path):
             # Time to create docs directory if it hasn't been created
             if not docsdir_created:
                 docsdir_created = True
-                createDirectoryPath(docsdir_path)
+                labutils.createDirectoryPath(docsdir_path)
 
             # Note: at this point the ZipFileName should not have the 'containername' yet
             #       the format should be <student_email>.<labname>.zip
@@ -123,7 +123,7 @@ def InstDocsToHostDir(labname, labtainer_config, lab_path):
             logger.DEBUG("student_emaildir is (%s)" % student_emaildir)
 
             # Create student's e-mail directory (if it does not exist)
-            createDirectoryPath(student_emaildir)
+            labutils.createDirectoryPath(student_emaildir)
             # Unpacking the docs.zip file into student's e-mail directory
             zipoutput = zipfile.ZipFile(tmpdocszip, "r")
             ''' retain dates of student files '''
