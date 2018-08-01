@@ -182,9 +182,9 @@ def main():
         print('set TEST REG to %s' % os.getenv('TEST_REGISTRY'))
 
     if not args.redo:
-        labutils.StartLab(lab_path, "student", quiet_start=args.quiet, run_container=args.only_container, servers=distributed, clone_count=args.client_count)
+        labutils.StartLab(lab_path, quiet_start=args.quiet, run_container=args.only_container, servers=distributed, clone_count=args.client_count)
     else:
-        labutils.RedoLab(lab_path, "student", quiet_start=args.quiet, 
+        labutils.RedoLab(lab_path, quiet_start=args.quiet, 
                      run_container=args.only_container, servers=distributed, clone_count=args.client_count)
     current_lab = CurrentLab.CurrentLab()
     current_lab.add('lab_name', args.labname)
