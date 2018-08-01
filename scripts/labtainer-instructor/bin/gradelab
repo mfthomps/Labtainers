@@ -208,26 +208,17 @@ def getRegistry(use_test_registry, labtainer_config):
     else:
         return labtainer_config.default_registry
 
-
-def main():
-    parser = argparse.ArgumentParser(description='Grade a Labtainers lab')
-    parser.add_argument('labname', help='The lab to grade')
-    parser.add_argument('-r', '--redo', action='store_true', help='Creates new instance of the lab, previous work will be lost.')
-    parser.add_argument('-d', '--debug', action='store_true', help='Create the grading container leave it running with a terminal')
-    parser.add_argument('-t', '--test_registry', action='store_true', help='Use image from test registry')
-    args = parser.parse_args()
-    labname = args.labname
+def doGrade(labname, use_test_registry, debug, redo):
     grade_container = '%s-igrader' % labname
-    lab_path = os.path.join(os.path.abspath('../../labs'), labname)
-    labtainer_config_dir = os.path.join(os.path.dirname(os.path.dirname(lab_path)), 'config', 'labtainer.config')
-    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_dir, logger)
-    registry = getRegistry(args.test_registry, labtainer_config)
-    if args.redo:
+    if redo:
         cmd = 'docker stop %s' % grade_container
         labutils.DockerCmd(cmd)
         cmd = 'docker rm %s' % grade_container
         labutils.DockerCmd(cmd)
-
+    lab_path = os.path.join(os.path.abspath('../../labs'), labname)
+    labtainer_config_dir = os.path.join(os.path.dirname(os.path.dirname(lab_path)), 'config', 'labtainer.config')
+    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_dir, logger)
+    registry = getRegistry(use_test_registry, labtainer_config)
     grade_image = getGradeImageName(labtainer_config, registry)
     if not labutils.IsContainerCreated(grade_container):
         cmd = "docker create -t --name=%s --hostname=%s %s" % (grade_container, grade_container, grade_image)
@@ -249,12 +240,25 @@ def main():
     copyAssessBin(grade_container)
     labutils.CopyInstrConfig(grade_container, 'instructor', lab_path)
     diddleProfile(grade_container)
-    if args.debug:
+    if debug:
         spawn_command = "gnome-terminal -- docker exec -it %s bash -l cd /home/instructor &" % 	grade_container
         logger.DEBUG("spawn_command is (%s)" % spawn_command)
         os.system(spawn_command)
     else:
         autoGrade(grade_container, lab_path)
+
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Grade a Labtainers lab')
+    parser.add_argument('labname', help='The lab to grade')
+    parser.add_argument('-r', '--redo', action='store_true', help='Creates new instance of the lab, previous work will be lost.')
+    parser.add_argument('-d', '--debug', action='store_true', help='Create the grading container leave it running with a terminal')
+    parser.add_argument('-t', '--test_registry', action='store_true', help='Use image from test registry')
+    args = parser.parse_args()
+    labname = args.labname
+    doGrade(labname, args.test_registry, args.debug, args.redo)
+
     
 labutils.logger = LabtainerLogging.LabtainerLogging("grader.log", 'instructor', "../../config/labtainer.config")
 labutils.logger.INFO("Begin logging") 
