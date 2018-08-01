@@ -61,7 +61,7 @@ def main():
     if distributed is not None and args.client_count is not None:
         print('Cannot specify --server or --client if a --client_count is provided')
         exit(1)
-    labutils.RedoLab(lab_path, "student", quiet_start=args.quiet, 
+    labutils.RedoLab(lab_path, quiet_start=args.quiet, 
                      run_container=args.only_container, servers=distributed, clone_count=args.client_count)
     current_lab = CurrentLab.CurrentLab()
     current_lab.add('lab_name', args.labname)
