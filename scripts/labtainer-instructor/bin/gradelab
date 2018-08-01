@@ -26,7 +26,7 @@ FAILURE=1
 # Copy Students' Artifacts from host to instructor's lab container
 def CopyStudentArtifacts(labtainer_config, container_name, labname, is_regress_test, check_watermark):
     # Set the lab name 
-    command = 'docker exec %s script -q -c "mkdir /home/instructor/.local" /dev/null' % (container_name)
+    command = 'docker exec %s script -q -c "mkdir -p /home/instructor/.local" /dev/null' % (container_name)
     logger.DEBUG("Command to execute is (%s)" % command)
     result = subprocess.call(command, shell=True)
     logger.DEBUG("Result of subprocess.call CopyStudentArtifacts set labname is %s (1=>FAILURE)" % result)
