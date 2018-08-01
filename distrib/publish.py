@@ -44,24 +44,18 @@ def relabel(image, version, base_image, base_id, registry):
     print cmd
     os.system(cmd)
 
-def rebuild(labname, labsdir, role, force, logger):
+def rebuild(labname, labsdir, force, logger):
     mycwd = os.getcwd()
-    if role == 'student':
-        path = '../scripts/labtainer-student'
-    elif role == 'instructor':
-        path = '../scripts/labtainer-instructor'
-    else:
-        print('unknown role: %s' % role)
-        exit(1)
+    path = '../scripts/labtainer-student'
     os.chdir(path)
     #print('now at %s' % os.getcwd())
     lab_dir = os.path.join(labsdir, labname)
     #print('cwd was %s now %s  lab_dir is %s' % (mycwd, os.getcwd(), lab_dir))
-    retval = labutils.DoRebuildLab(lab_dir, role, is_regress_test=False, force_build=force)
+    retval = labutils.DoRebuildLab(lab_dir, is_regress_test=False, force_build=force)
     os.chdir(mycwd)
     return retval
 
-def pushIt(lab, docker_dir, role, registry, logger):
+def pushIt(lab, docker_dir, registry, logger):
     '''
     Set the label and tags on any newly built image and push it to the given registry.
     '''
@@ -72,7 +66,7 @@ def pushIt(lab, docker_dir, role, registry, logger):
         logger.DEBUG('tag and push %s' % df)
         try:
             parts = df.split('.')
-            image = '%s.%s.%s' % (parts[1], parts[2], role)
+            image = '%s.%s.student' % (parts[1], parts[2])
         except:
             logger.ERROR('could not get image from %s' % df);
             continue
@@ -90,14 +84,10 @@ def pushIt(lab, docker_dir, role, registry, logger):
         else: 
             logger.DEBUG('Have not built %s, nothing to push' % image)
 
-def DoLab(lab, labsdir, role, force, logger, do_login, test_registry, default_registry):
+def DoLab(lab, labsdir, force, logger, do_login, test_registry, default_registry):
     logger.DEBUG('DoLab for %s' % lab)
     lab_dir = os.path.join(labsdir, lab)
-    if role == 'both':
-        registry_set = rebuild(lab, labsdir, 'student', force, logger)
-        dumb = rebuild(lab, labsdir, 'instructor', force, logger)
-    else:
-        registry_set = rebuild(lab, labsdir, role, force, logger)
+    registry_set = rebuild(lab, labsdir, force, logger)
     if len(registry_set) > 1:
         logger.ERROR('no current support for images from multiple registries')
         exit(1)
@@ -114,15 +104,10 @@ def DoLab(lab, labsdir, role, force, logger, do_login, test_registry, default_re
             if do_login:
                 os.system('docker login -u %s' % registry)
     docker_dir = os.path.join(labsdir, lab, 'dockerfiles')
-    if role == 'both':
-        pushIt(lab, docker_dir, 'student', registry, logger)
-        pushIt(lab, docker_dir, 'instructor', registry, logger)
-    else:
-        pushIt(lab, docker_dir, role, registry, logger)
+    pushIt(lab, docker_dir, registry, logger)
 
 def main():
     parser = argparse.ArgumentParser(description='Build the images labs and publish to a registry')
-    parser.add_argument('role', help='student | instructor | both')
     parser.add_argument('-l', '--lab', action='store', help='build and publish just this lab')
     parser.add_argument('-s', '--start', action='store', help='all labs starting with this one')
     parser.add_argument('-t', '--test_registry', action='store_true', default=False, help='build and publish with test registry')
@@ -164,7 +149,7 @@ def main():
         # Do login here and now so we don't wait for lab to build before prompt
         if not args.test_registry:
             os.system('docker login -u %s' % default_registry)
-        DoLab(args.lab, labsdir, args.role, args.force, logger, False, args.test_registry, default_registry)
+        DoLab(args.lab, labsdir, args.force, logger, False, args.test_registry, default_registry)
     else:    
         # do them all.  warn of incomplete svn
         mycwd = os.getcwd()
@@ -197,7 +182,7 @@ def main():
                 cmd = 'svn up'
                 os.system(cmd)
                 os.chdir(mycwd)
-                DoLab(lab, labsdir, args.role, args.force, logger, False, args.test_registry, default_registry)
+                DoLab(lab, labsdir, args.force, logger, False, args.test_registry, default_registry)
 
 if __name__ == '__main__':
     sys.exit(main())
