@@ -72,7 +72,7 @@ def main():
         distributed = 'server' 
     elif args.workstation:
         distributed = 'client'
-    labutils.RebuildLab(lab_path, "student", force_build=force_build, quiet_start=quiet_start, 
+    labutils.RebuildLab(lab_path, force_build=force_build, quiet_start=quiet_start, 
           just_container=args.force_container, run_container=args.only_container, servers=distributed, clone_count=args.client_count, no_pull=args.no_pull)
     current_lab = CurrentLab.CurrentLab()
     current_lab.add('lab_name', args.labname)
