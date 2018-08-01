@@ -23,11 +23,11 @@ def isalphadashscore(name):
     return re.match(r'^[a-zA-Z0-9_-]*$', name)
 
 class ParseStartConfig():
-    def __init__(self, fname, labname, caller, labtainer_config, logger, skip_networks=True, servers=None, clone_count=None):
+    def __init__(self, fname, labname, labtainer_config, logger, skip_networks=True, servers=None, clone_count=None):
         self.containers = collections.OrderedDict()
         self.subnets    = {} # dictionary of subnets 
         self.labname = labname
-        self.caller = caller
+        self.caller = 'student'
         self.host_home_xfer= "" # HOST_HOME_XFER - directory to transfer artifact to/from containers
         self.lab_master_seed= None # LAB_MASTER_SEED - this is the master seed string for to this laboratory
         self.grade_container = None # GRADE_CONTAINER - this is where the instructor performs the grading
@@ -197,9 +197,6 @@ class ParseStartConfig():
 
     def validate(self):
         """ Checks to make sure we have all the info we need from the user."""
-        if self.caller != "student" and self.caller != "instructor":
-            self.logger.ERROR("Unexpected caller of ParseStartConfig module %s\n" % self.caller)
-            exit(1)
 
         if not self.collect_docs:
             # COLLECT_DOCS - this optional setting indicates whether to collect lab's docs directory or not
@@ -213,10 +210,9 @@ class ParseStartConfig():
             self.logger.ERROR("Missing host_home_xfer in start.config!\n")
             exit(1)
         
-        if (self.caller == "student"):
-           if not self.lab_master_seed:
-               self.logger.ERROR("Missing lab_master_seed in start.config!\n")
-               exit(1)
+        if not self.lab_master_seed:
+           self.logger.ERROR("Missing lab_master_seed in start.config!\n")
+           exit(1)
 
         if not self.grade_container:
             self.logger.ERROR("Missing grade_container in start.config!\n")
