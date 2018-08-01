@@ -627,97 +627,6 @@ def ParamForStudent(lab_master_seed, mycontainer_name, container_user, container
         sys.exit(1)
     logger.DEBUG('back from ParameterizeMyContainer for %s' % mycontainer_name)
 
-# Do InstDocsToHostDir - extract students' docs.zip if exist
-def InstDocsToHostDir(start_config, labtainer_config, lab_path, role, quiet_start):
-    labname = start_config.labname
-    xfer_dir = os.path.join(labtainer_config.host_home_xfer, labname)
-    username = getpass.getuser()
-    host_home_xfer = '/home/%s/%s' % (username, xfer_dir)
-    logger.DEBUG("path to work with is (%s)" % host_home_xfer)
-    logger.DEBUG("labname is (%s)" % labname)
-    docsdir_created = False
-    docsdir_path = '%s/docs' % host_home_xfer
-
-    # create temporary directory
-    tmpdir = '%s/.tmpdir' % host_home_xfer
-    createDirectoryPath(tmpdir)
-
-    split_string = '.%s.zip' % labname
-
-    zip_filelist = glob.glob('%s/*.zip' % host_home_xfer)
-    logger.DEBUG("filenames is (%s)" % zip_filelist)
-    tmpdocszip = '%s/docs.zip' % tmpdir
-    # Process each zip file in host_home_xfer
-    for fname in zip_filelist:
-        ZipFileName = os.path.basename(fname)
-        # Note: at this point the ZipFileName should not have the 'containername' yet
-        #       the format should be <student_email>.<labname>.zip
-        logger.DEBUG("ZipFileName is (%s)" % ZipFileName)
-
-        # Try unpacking the zip file into temporary directory to check if docs.zip exist
-        zipoutput = zipfile.ZipFile(fname, "r")
-        ''' retain dates of student files '''
-        for zi in zipoutput.infolist():
-            logger.DEBUG('zi is %s tmpdir is %s' % (zi.filename, tmpdir))
-            zipoutput.extract(zi, tmpdir)
-            date_time = time.mktime(zi.date_time + (0, 0, -1))
-            dest = os.path.join(tmpdir, zi.filename)
-            os.utime(dest, (date_time, date_time))
-        zipoutput.close()
-
-        # If docs.zip exist
-        if os.path.exists(tmpdocszip):
-            # Time to create docs directory if it hasn't been created
-            if not docsdir_created:
-                docsdir_created = True
-                createDirectoryPath(docsdir_path)
-
-            # Note: at this point the ZipFileName should not have the 'containername' yet
-            #       the format should be <student_email>.<labname>.zip
-            splitlist = ZipFileName.split(split_string)
-            student_email = splitlist[0]
-            student_emaildir = '%s/%s' % (docsdir_path, student_email)
-            logger.DEBUG("student_email is (%s)" % student_email)
-            logger.DEBUG("student_emaildir is (%s)" % student_emaildir)
-
-            # Create student's e-mail directory (if it does not exist)
-            createDirectoryPath(student_emaildir)
-            # Unpacking the docs.zip file into student's e-mail directory
-            zipoutput = zipfile.ZipFile(tmpdocszip, "r")
-            ''' retain dates of student files '''
-            for zi in zipoutput.infolist():
-                zipoutput.extract(zi, student_emaildir)
-                date_time = time.mktime(zi.date_time + (0, 0, -1))
-                dest = os.path.join(student_emaildir, zi.filename)
-                os.utime(dest, (date_time, date_time))
-            zipoutput.close()
-
-        # remove and re-create temporary directory for the students' zip file
-        shutil.rmtree(tmpdir, ignore_errors=True)
-        os.makedirs(tmpdir)
-
-    # Finally done for all students' zip file in the host_home_xfer directory
-    # Final removal of temporary directory
-    shutil.rmtree(tmpdir, ignore_errors=True)
-
-def CopyAssessBin(mycontainer_name, container_user):
-    tmp_dir='/tmp/assess_bin'
-    shutil.rmtree(tmp_dir, ignore_errors=True)
-    try:
-        os.makedirs(tmp_dir)
-    except:
-        logger.ERROR("did not expect to find dir %s" % tmp_dir)
-    shutil.copytree('assess_bin', os.path.join(tmp_dir, 'bin'))
-    shutil.copyfile('../labtainer-student/bin/LabCount.py', os.path.join(tmp_dir, 'bin', 'LabCount.py'))
-    
-    command = 'docker cp /tmp/assess_bin/bin  %s:/home/%s/.local/' % (mycontainer_name, container_user)
-    logger.DEBUG("Command to execute is (%s)" % command)
-    result = subprocess.call(shlex.split(command))
-    logger.DEBUG("Result of subprocess.call %s (1=>FAILURE)" % (result))
-    if result == FAILURE:
-        logger.ERROR("Failed copy assess_bin %s!\n" % mycontainer_name)
-        sys.exit(1)
-
 def DockerCmd(cmd, noloop=False):
     ok = False
     count = 0
@@ -787,7 +696,7 @@ def CopyLabBin(mycontainer_name, container_user, lab_path, name, image_info):
             exit(1)
 
 # Copy Students' Artifacts from host to instructor's lab container
-def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_user, container_password, is_regress_test, check_watermark):
+def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_user, container_password):
     # Set the lab name 
     command = 'docker exec %s script -q -c "echo %s > /home/%s/.local/.labname" /dev/null' % (mycontainer_name, labname, container_user)
     logger.DEBUG("Command to execute is (%s)" % command)
@@ -807,19 +716,8 @@ def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_
         sys.exit(1)
 
     username = getpass.getuser()
-    # Make sure check for is_regress_test first
-    if not is_regress_test == None:
-        xfer_dir = ""
-        # then check if it is watermark test required
-        if check_watermark:
-            xfer_dir = os.path.join(labtainer_config.watermark_root, labname)
-        else:
-            xfer_dir = os.path.join(labtainer_config.testsets_root, labname)
-	xfer_dir += "/" + is_regress_test
-        zip_filelist = glob.glob('%s/*.zip' % xfer_dir)
-    else:
-        xfer_dir = os.path.join(labtainer_config.host_home_xfer, labname)
-        zip_filelist = glob.glob('/home/%s/%s/*.zip' % (username, xfer_dir))
+    xfer_dir = os.path.join(labtainer_config.host_home_xfer, labname)
+    zip_filelist = glob.glob('/home/%s/%s/*.zip' % (username, xfer_dir))
     logger.DEBUG("filenames is (%s)" % zip_filelist)
     # Copy zip files from 'Shared' folder to 'home/$CONTAINER_USER'
     for fname in zip_filelist:
@@ -861,12 +759,12 @@ def GetRunningContainersList():
     containers_list = result.split('\n')
     return True, containers_list
 
-def GetRunningLabNames(containers_list, role):
+def GetRunningLabNames(containers_list):
     labnameslist = []
     found_lab_role = False
     for each_container in containers_list:
         print each_container
-        if each_container.endswith(role):
+        if each_container.endswith('.student'):
             splitstring = each_container.split('.')
             labname = splitstring[0]
             found_lab_role = True
@@ -976,30 +874,30 @@ def ImageExists(image_name, registry):
             return False, result, image_name
     return True, result, image_name
 
-def GetBothConfigs(lab_path, role, logger, servers=None, clone_count=None):
+def GetBothConfigs(lab_path, logger, servers=None, clone_count=None):
     labtainer_config_dir = os.path.join(os.path.dirname(os.path.dirname(lab_path)), 'config', 'labtainer.config')
     labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_dir, logger)
     labname = os.path.basename(lab_path)
     config_path       = os.path.join(lab_path,"config") 
     start_config_path = os.path.join(config_path,"start.config")
-    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, role, 
+    start_config = ParseStartConfig.ParseStartConfig(start_config_path, labname, 
                        labtainer_config, logger, servers=servers, clone_count=clone_count)
     return labtainer_config, start_config
 
-def RebuildLab(lab_path, role, is_regress_test=None, force_build=False, quiet_start=False, 
+def RebuildLab(lab_path, force_build=False, quiet_start=False, 
                just_container=None, run_container=None, servers=None, clone_count=None, no_pull=False):
     # Pass 'True' to ignore_stop_error (i.e., ignore certain error encountered during StopLab
     #                                         since it might not even be an error)
-    StopLab(lab_path, role, True, run_container=run_container, servers=servers, clone_count=clone_count)
+    StopLab(lab_path, True, run_container=run_container, servers=servers, clone_count=clone_count)
     logger.DEBUG('Back from StopLab clone_count was %s' % clone_count)
     labname = os.path.basename(lab_path)
     my_start_config = os.path.join('./.tmp',labname, 'start.config')
     if os.path.isfile(my_start_config):
         logger.DEBUG('Cached start.config removed %s' % my_start_config)
         os.remove(my_start_config)
-    labtainer_config, start_config = GetBothConfigs(lab_path, role, logger, servers, clone_count)
+    labtainer_config, start_config = GetBothConfigs(lab_path, logger, servers, clone_count)
     
-    DoRebuildLab(lab_path, role, is_regress_test=is_regress_test, force_build=force_build, 
+    DoRebuildLab(lab_path, force_build=force_build, 
                  just_container=just_container, start_config = start_config, 
                  labtainer_config = labtainer_config, run_container=run_container, 
                  servers=servers, clone_count=clone_count, no_pull=no_pull)
@@ -1009,8 +907,7 @@ def RebuildLab(lab_path, role, is_regress_test=None, force_build=False, quiet_st
     myhomedir = os.environ['HOME']
     host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
     CreateHostHomeXfer(host_xfer_dir)
-    check_watermark = True
-    DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, check_watermark, quiet_start, 
+    DoStart(start_config, labtainer_config, lab_path, quiet_start, 
             run_container, servers, clone_count)
 
 def dockerPull(registry, image_name):
@@ -1024,14 +921,14 @@ def dockerPull(registry, image_name):
     print('Done with pull')
     return True
 
-def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False, just_container=None, 
+def DoRebuildLab(lab_path, force_build=False, just_container=None, 
                  start_config=None, labtainer_config=None, run_container=None, servers=None, 
                  clone_count=None, no_pull=False):
     retval = set()
     labname = os.path.basename(lab_path)
     is_valid_lab(lab_path)
     if start_config is None:
-        labtainer_config, start_config = GetBothConfigs(lab_path, role, logger, servers, clone_count)
+        labtainer_config, start_config = GetBothConfigs(lab_path, logger, servers, clone_count)
     host_home_xfer = labtainer_config.host_home_xfer
 
     build_student = 'bin/buildImage.sh'
@@ -1039,11 +936,7 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False, just_c
     LABS_DIR = os.path.abspath('../../labs')
     didfix = False
     ''' hackey assumption about running from labtainers-student or labtainers-instructor '''
-    if role == 'instructor':
-        ''' asses_bin is copied on each startup '''
-        container_bin = None
-    else:
-        container_bin = './lab_bin'
+    container_bin = './lab_bin'
     for name, container in start_config.containers.items():
         logger.DEBUG('this container name %s just_container %s' % (name, just_container))
         if just_container is not None and just_container != name:
@@ -1087,7 +980,7 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False, just_c
         BigFiles.BigFiles(lab_path)
         ''' create sys_tar and home_tar before checking build dependencies '''
         CheckTars.CheckTars(container_dir, name, logger)
-        if force_this_build or CheckBuild(lab_path, mycontainer_image_name, image_info, mycontainer_name, name, role, True, container_bin, start_config, container.registry, container.user):
+        if force_this_build or CheckBuild(lab_path, mycontainer_image_name, image_info, mycontainer_name, name, True, container_bin, start_config, container.registry, container.user):
             logger.DEBUG("Will rebuild %s,  force_this_build: %s" % (mycontainer_name, force_this_build))
             if os.path.isfile(build_student):
                 cmd = '%s %s %s %s %s %s %s %s %s %s %s' % (build_student, labname, name, container.user, 
@@ -1132,8 +1025,8 @@ def DoRebuildLab(lab_path, role, is_regress_test=None, force_build=False, just_c
             #    exit(1)
     return retval
 
-def DoStartOne(labname, name, container, start_config, labtainer_config, lab_path, role, 
-               is_regress_test, check_watermark, student_email, quiet_start, results, auto_grade, image_info):
+def DoStartOne(labname, name, container, start_config, labtainer_config, lab_path,  
+               student_email, quiet_start, results, auto_grade, image_info):
         retval = True
         mycontainer_name       = container.full_name
         mycontainer_image_name = container.image_name
@@ -1189,44 +1082,23 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                 results.append(False)
                 return
 
-            if role != 'instructor':
-                clone_need_seeds = need_seeds
-                if not clone_need_seeds:
-                    cmd = "docker exec %s bash -c 'ls -l /var/labtainer/did_param'" % (mycontainer_name)
-                    if not DockerCmd(cmd):
-                       print('One or more containers exists but are not parameterized.')
-                       print('Please restart this lab with the "-r" option.')
-                       DoStop(start_config, labtainer_config, lab_path, role, False)
-                       logger.ERROR('One or more containers exists but not parameterized.')
-                       sys.exit(1)
-                       
-    
-            if role == 'instructor':
-                '''
-                Copy students' artifacts only to the container where 'Instructor.py' is
-                to be run - where <labname>.grades.txt will later reside also (i.e., don't copy to all containers)
-                Copy to container named start_config.grade_container
-                '''
-                if mycontainer_name == start_config.grade_container:
-                    # Do InstDocsToHostDir - extract students' docs.zip if exist
-                    InstDocsToHostDir(start_config, labtainer_config, lab_path, role, quiet_start)
-                    logger.DEBUG('do CopyStudentArtifacts for %s, labname: %s regress: %s' % (mycontainer_name, labname, is_regress_test))
-                    copy_result = CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, 
-                                     container_user, container_password, is_regress_test, check_watermark)
-                    if copy_result == FAILURE:
-                        logger.ERROR("Failed to copy students' artifacts to container %s!\n" % mycontainer_name)
-                        results.append(False)
-                        return
-                    CopyAssessBin(mycontainer_name, container_user)
-                    CopyInstrConfig(mycontainer_name, container_user, lab_path)
+            clone_need_seeds = need_seeds
+            if not clone_need_seeds:
+                cmd = "docker exec %s bash -c 'ls -l /var/labtainer/did_param'" % (mycontainer_name)
+                if not DockerCmd(cmd):
+                   print('One or more containers exists but are not parameterized.')
+                   print('Please restart this lab with the "-r" option.')
+                   DoStop(start_config, labtainer_config, lab_path, False)
+                   logger.ERROR('One or more containers exists but not parameterized.')
+                   sys.exit(1)
     
        	    # If the container is just created, then use the previous user's e-mail
             # then parameterize the container
-            elif quiet_start and clone_need_seeds and role == 'student':
+            elif quiet_start and clone_need_seeds:
                 ParamForStudent(start_config.lab_master_seed, mycontainer_name, container_user, container_password, 
                                 labname, student_email, lab_path, name, image_info)
             
-            elif clone_need_seeds and role == 'student':
+            elif clone_need_seeds:
                 ParamForStudent(start_config.lab_master_seed, mycontainer_name, container_user, 
                                                  container_password, labname, student_email, lab_path, name, image_info)
     
@@ -1290,7 +1162,7 @@ def CheckLabContainerApps(start_config, lab_path, apps2start):
 
     return has_multi_container
 
-def ReloadStartConfig(lab_path, labtainer_config, start_config, student_email, role, logger, servers, clone_count):
+def ReloadStartConfig(lab_path, labtainer_config, start_config, student_email, logger, servers, clone_count):
     
     labname = os.path.basename(lab_path)
     my_start_config = os.path.join('./.tmp',labname, 'start.config')
@@ -1308,29 +1180,25 @@ def ReloadStartConfig(lab_path, labtainer_config, start_config, student_email, r
         pp = ParameterParser.ParameterParser(None, None, lab_instance_seed, logger, lab=labname)
         pp.ParseParameterConfig(param_path)
         pp.DoReplace()
-    start_config = ParseStartConfig.ParseStartConfig(my_start_config, labname, role, labtainer_config, logger, skip_networks=False,
+    start_config = ParseStartConfig.ParseStartConfig(my_start_config, labname, labtainer_config, logger, skip_networks=False,
                          servers=servers, clone_count=clone_count)
     logger.DEBUG('did start.config reload from %s' % my_start_config)
     return start_config
 
 
-def CheckEmailReloadStartConfig(start_config, quiet_start, is_regress_test, lab_path, role, labtainer_config, logger, servers, clone_count):
+def CheckEmailReloadStartConfig(start_config, quiet_start, lab_path, labtainer_config, logger, servers, clone_count):
     student_email = None
     for name, container in start_config.containers.items():
-        if is_regress_test and container.full_name != start_config.grade_container:
-            continue
         # Obscure means of making sure we have an email and getting one if
         # a container has not yet been created.
         if not AllContainersCreated(container) and student_email is None:
-            if student_email == None and role == 'student':
+            if student_email == None:
                 student_email = GetUserEmail(quiet_start)
-            elif role == 'instructor':
-                student_email = 'instructor@here.there'
             else:
                 student_email = GetUserEmail(True)
-    if student_email == None and role != 'instructor':
+    if student_email == None:
         student_email = GetUserEmail(True)
-    start_config = ReloadStartConfig(lab_path, labtainer_config, start_config, student_email, role, logger, servers, clone_count)
+    start_config = ReloadStartConfig(lab_path, labtainer_config, start_config, student_email, logger, servers, clone_count)
     return start_config, student_email
 
 def pidExists(pid):
@@ -1355,27 +1223,12 @@ def pidExists(pid):
     else:
         return True
 
-def ContainerTerminals(lab_path, start_config, container, role, terminal_count, terminal_groups):
+def ContainerTerminals(lab_path, start_config, container, terminal_count, terminal_groups):
     num_terminal = int(container.terminals)
     clone_names = GetContainerCloneNames(container)
     for mycontainer_name in clone_names:
         logger.DEBUG("container: %s  Number of terminals: %d" % (mycontainer_name, num_terminal))
-        # If this is instructor - spawn 2 terminal for 'grader' container otherwise 1 terminal
-        if role == 'instructor':
-            if mycontainer_name == start_config.grade_container:
-                # hack use startup.sh instead of instructor.py because some profiles already run startup...
-                cmd =  'sh -c "cd /home/%s && .local/bin/startup.sh"' % (container.user)
-                terminal_location = terminalWideCounter(terminal_count)
-                terminal_count += 1
-                # note hack to change --geometry to -geometry
-                spawn_command = "xterm %s -title GOAL_RESULTS -fa 'Monospace' -fs 11 -e docker exec -it %s %s  &" % (terminal_location[1:], 
-                     mycontainer_name, cmd)
-                #print spawn_command
-                logger.DEBUG("instructor spawn: %s" % spawn_command)
-                os.system(spawn_command)
-            num_terminal = 1
-        else:
-            CopyFilesToHost(lab_path, container.name, mycontainer_name, container.user)
+        CopyFilesToHost(lab_path, container.name, mycontainer_name, container.user)
         ''' HACK remove after a while....  catch case where framework updated to remove XTERM Instructions, but still using image
             that includes instructions, which then consumes a window '''
         if container.xterm is None:
@@ -1390,8 +1243,7 @@ def ContainerTerminals(lab_path, start_config, container, role, terminal_count, 
                 title = parts[0]
                 command = None
                 if title.lower() == 'instructions' and len(parts) == 1:
-                    if role != 'instructor':
-                        command = 'startup.sh'
+                    command = 'startup.sh'
                 elif len(parts) == 2:
                     command = parts[1]
                 else:
@@ -1425,11 +1277,7 @@ def ContainerTerminals(lab_path, start_config, container, role, terminal_count, 
                 terminal_location, columns, lines = terminalCounter(terminal_count)
                 #sys.stderr.write("%s \n" % terminal_location)
                 #sys.stderr.write("%s \n" % mycontainer_name)
-                if role == 'instructor':
-                    # hack, instructor does not have augmented profile
-                    cmd = "sh -c 'cd /home/%s && bash -l'" % container.user
-                else:
-                    cmd = 'bash -l' 
+                cmd = 'bash -l' 
                 #spawn_command = "gnome-terminal %s -x docker exec -it %s bash -l &" % (terminal_location, mycontainer_name)
                 if container.terminal_group is not None:
                     if container.terminal_group not in terminal_groups:
@@ -1459,7 +1307,7 @@ def SkipContainer(run_container, name, start_config, servers):
                 return True
     return False
 
-def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, check_watermark, 
+def DoStart(start_config, labtainer_config, lab_path, 
             quiet_start, run_container, servers, clone_count, auto_grade=False, debug_grade=False, container_images=None):
     labname = os.path.basename(lab_path)
     logger.DEBUG("DoStart Multiple Containers and/or multi-home networking")
@@ -1493,11 +1341,9 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, che
     results = []
     if has_multi_container:
         container_warning_printed = False
-    start_config, student_email = CheckEmailReloadStartConfig(start_config, quiet_start, is_regress_test, lab_path, role, 
+    start_config, student_email = CheckEmailReloadStartConfig(start_config, quiet_start, lab_path, 
                                       labtainer_config, logger, servers, clone_count)
     for name, container in start_config.containers.items():
-        if is_regress_test and container.full_name != start_config.grade_container:
-            continue
         if SkipContainer(run_container, name, start_config, servers):
             #print('gonna skip %s' % run_container)
             continue
@@ -1509,7 +1355,7 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, che
         if container_images is not None:
             image_info = container_images[name]
         t = threading.Thread(target=DoStartOne, args=(labname, name, container, start_config, labtainer_config, lab_path, 
-              role, is_regress_test, check_watermark, student_email, quiet_start, results, auto_grade, image_info))
+              student_email, quiet_start, results, auto_grade, image_info))
         threads.append(t)
         t.setName(name)
         t.start()
@@ -1519,28 +1365,10 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, che
         logger.DEBUG('joined %s' % t.getName())
 
     if False in results:
-        DoStop(start_config, labtainer_config, lab_path, role, False, is_regress_test, run_container, servers)
+        DoStop(start_config, labtainer_config, lab_path, False, run_container, servers)
         logger.ERROR('DoStartOne has at least one failure!')
         sys.exit(1)
 
-    
-    if auto_grade and not debug_grade:
-             
-        cmd = "docker exec %s bash -c 'cd;.local/bin/instructor.py'" % (run_container)
-        if not DockerCmd(cmd):
-            logger.ERROR('trouble with %s' % cmd)
-        result_xfer = StopLab(lab_path, role, False, is_regress_test=False, run_container=run_container)
-        if not quiet_start: 
-            fglob = glob.glob(result_xfer+'/*grades.txt')
-            if len(fglob) == 0:
-                print('No grades.txt file')
-            else:
-                with open(fglob[0]) as fh:
-                    for line in fh:
-                        print line.rstrip()
-            
-      
-        return 0  
 
     #
     #  If a read_first.txt file exists in the lab's config directory, less it before the student continues.
@@ -1550,7 +1378,7 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, che
     pdf = '%s.pdf' % labname
     manual = os.path.join(doc_dir, pdf)
 
-    if os.path.isfile(read_first) and role != 'instructor':
+    if os.path.isfile(read_first):
         print '\n\n'
         command = 'cat %s' % read_first
         less = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
@@ -1568,11 +1396,10 @@ def DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, che
     terminal_groups = {}
     for name, container in start_config.containers.items():
         # Do not spawn terminal if it is regression testing
-        if is_regress_test:
-            continue
         if SkipContainer(run_container, name, start_config, servers):
+            print('herez %s' % name)
             continue
-        terminal_count = ContainerTerminals(lab_path, start_config, container, role, terminal_count, terminal_groups)
+        terminal_count = ContainerTerminals(lab_path, start_config, container, terminal_count, terminal_groups)
 
     for tg in terminal_groups:
         tab_commands = ''
@@ -1671,7 +1498,7 @@ def CopyChownGradesFile(start_config, labtainer_config, name, container_name, co
                 logger.WARNING("Container %s fail on executing cp %s.grades.json file!\n" % (container_name, labname))
         return
 
-def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=False, check_watermark=True, quiet_start=False,
+def StartLab(lab_path, force_build=False, is_redo=False, quiet_start=False,
              run_container=None, servers=None, clone_count=None, auto_grade=False, debug_grade=False):
     labname = os.path.basename(lab_path)
     mycwd = os.getcwd()
@@ -1681,9 +1508,8 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
     logger.DEBUG("ParseStartConfig for %s" % labname)
     is_valid_lab(lab_path)
 
-    if role == 'student':
-        LabCount.addCount('./', labname, is_redo, logger)
-    labtainer_config, start_config = GetBothConfigs(lab_path, role, logger, servers, clone_count)
+    LabCount.addCount('./', labname, is_redo, logger)
+    labtainer_config, start_config = GetBothConfigs(lab_path, logger, servers, clone_count)
     host_home_xfer = os.path.join(labtainer_config.host_home_xfer, labname)
 
     build_student = 'bin/buildImage.sh'
@@ -1692,9 +1518,6 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
     didfix = False
     ''' hackey assumption about running from labtainers-student or labtainers-instructor '''
     container_bin = './bin'
-    if auto_grade and role == 'instructor':
-        run_container = start_config.grade_container
-        #print('run just %s' % run_container)
     if is_redo or force_build:
         my_start_config = os.path.join('./.tmp',labname, 'start.config')
         if os.path.isfile(my_start_config):
@@ -1751,7 +1574,7 @@ def StartLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=Fa
     host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
     CreateHostHomeXfer(host_xfer_dir)
 
-    DoStart(start_config, labtainer_config, lab_path, role, is_regress_test, check_watermark, quiet_start, 
+    DoStart(start_config, labtainer_config, lab_path, quiet_start, 
             run_container, servers=servers, clone_count=clone_count, auto_grade=auto_grade, 
             debug_grade=debug_grade, container_images=container_images)
 
@@ -1960,7 +1783,7 @@ def GetImageUser(image_name, container_registry):
                 return user, password 
     return user, password
                 
-def CheckBuild(lab_path, image_name, image_info, container_name, name, role, is_redo, container_bin,
+def CheckBuild(lab_path, image_name, image_info, container_name, name, is_redo, container_bin,
                  start_config, container_registry, container_user):
     '''
     Determine if a container image needs to be rebuilt, return true if so.
@@ -2036,7 +1859,7 @@ def CheckBuild(lab_path, image_name, image_info, container_name, name, role, is_
                         fname = f.strip()
                         # look for container, or lack of any container qualifier in file name
                         if fname != 'start.config':
-                            if fname.startswith(container_name+':') or role == 'instructor' or len(parts)<3 or ':' not in fname:
+                            if fname.startswith(container_name+':') or len(parts)<3 or ':' not in fname:
                                 logger.WARNING('%s is later and %s mentioned in it, will build' % (param_file, container_name))
                                 retval = True
                                 break
@@ -2067,15 +1890,15 @@ def dumb():
     pass
     '''
     '''
-def RedoLab(lab_path, role, is_regress_test=None, force_build=False, is_redo=False, check_watermark=True, quiet_start=False,
+def RedoLab(lab_path, force_build=False, is_redo=False, quiet_start=False,
              run_container=None, servers=None, clone_count=None, auto_grade=False, debug_grade=False):
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
     # Pass 'True' to ignore_stop_error (i.e., ignore certain error encountered during StopLab
     #                                         since it might not even be an error)
-    StopLab(lab_path, role, True, is_regress_test=is_regress_test)
+    StopLab(lab_path, True)
     is_redo = True
-    StartLab(lab_path, role, is_regress_test, force_build, is_redo=is_redo, check_watermark=check_watermark, quiet_start=quiet_start,
+    StartLab(lab_path, force_build, is_redo=is_redo, quiet_start=quiet_start,
              run_container=run_container, servers=servers, clone_count=clone_count, auto_grade=auto_grade, debug_grade=debug_grade)
 
 def CheckShutdown(lab_path, name, container_name, container_user, ignore_stop_error):
@@ -2187,77 +2010,6 @@ def CopyAbsToResult(container_name, fname, container_user, ignore_stop_error):
             logger.ERROR('chmod ERROR: %s' % error)
             logger.ERROR('command was %s' % command)
 
-# RunInstructorCreateGradeFile
-def RunInstructorCreateGradeFile(container_name, container_user, labname, check_watermark):
-    # Run 'instructor.py' - This will create '<labname>.grades.txt' 
-    logger.DEBUG("About to call instructor.py container_name: %s container_user: %s" % (container_name, container_user))
-    cmd_path = '/home/%s/.local/bin/instructor.py' % (container_user)
-    if check_watermark:
-        check_watermark_argument = "True"
-    else:
-        check_watermark_argument = "False"
-    command=['docker', 'exec', '-i',  container_name, cmd_path, check_watermark_argument]
-    logger.DEBUG('cmd: %s' % str(command))
-    child = subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    error_string = child.stderr.read().strip()
-    if len(error_string) > 0:
-        logger.ERROR("Container %s fail on executing instructor.py: %s \n" % (container_name, error_string))
-    output_string = child.stdout.read().strip()
-    if len(output_string) > 0:
-        logger.DEBUG("result from container %s executing instructor.py: %s \n" % (container_name, output_string))
-
-# WatermarkTest is a 'special' case of Regression Testing (i.e., include watermark testing)
-def WatermarkTest(lab_path, role, standard, isFirstRun=False):
-    labname = os.path.basename(lab_path)
-    username = getpass.getuser()
-    mycwd = os.getcwd()
-    myhomedir = os.environ['HOME']
-    logger.DEBUG("ParseStartConfig for %s" % labname)
-    is_valid_lab(lab_path)
-    labtainer_config, start_config = GetBothConfigs(lab_path, role, logger)
-
-    watermarktest_lab_path = os.path.join(labtainer_config.watermark_root, labname, standard)
-    host_home_xfer = os.path.join(labtainer_config.host_home_xfer, labname)
-    logger.DEBUG("Host Xfer directory for labname %s is %s" % (labname, host_home_xfer))
-    logger.DEBUG("Watermark Test path for labname %s is %s" % (labname, watermarktest_lab_path))
-
-    GradesGold = "%s/%s.grades.txt" % (watermarktest_lab_path, labname)
-    Grades = "/home/%s/%s/%s.grades.txt" % (username, host_home_xfer, labname)
-    logger.DEBUG("GradesGold is %s - Grades is %s" % (GradesGold, Grades))
-
-    is_regress_test = standard
-    check_watermark = True
-    if isFirstRun:   
-        # just to stop previous lab?
-	RedoLab(lab_path, role, is_regress_test, check_watermark=check_watermark)
-    else: 
-	StartLab(lab_path, role, is_regress_test, check_watermark=check_watermark, is_redo=True)
-
-    for name, container in start_config.containers.items():
-        mycontainer_name       = container.full_name
-        container_user         = container.user
-
-        if mycontainer_name == start_config.grade_container:
-            logger.DEBUG('about to RunInstructorCreateDradeFile for container %s' % start_config.grade_container)
-            RunInstructorCreateGradeFile(start_config.grade_container, container_user, labname, check_watermark)
-
-    # Pass 'False' to ignore_stop_error (i.e., do not ignore error)
-    result_xfer = StopLab(lab_path, role, False, is_regress_test=is_regress_test)
-    logger.DEBUG('result_xfer is %s' % result_xfer)
-
-    # Give the container some time to copy the result out -- just in case
-    time.sleep(3)
-
-    CompareResult = False
-    # GradesGold and Grades must exist
-    logger.DEBUG('compare %s to %s' % (GradesGold, Grades))
-    if not os.path.exists(GradesGold):
-        logger.ERROR("GradesGold %s file does not exist!" % GradesGold)
-    elif not os.path.exists(Grades):
-        logger.ERROR("Grades %s file does not exist!" % Grades)
-    else:
-        CompareResult = filecmp.cmp(GradesGold, Grades)
-    return CompareResult
 
 def CreateCopyChownZip(start_config, labtainer_config, name, container_name, container_image, container_user, container_password, ignore_stop_error):
     '''
@@ -2534,7 +2286,7 @@ def ShouldBeRunning(start_config, container):
     return True
        
    
-def DoStopOne(start_config, labtainer_config, lab_path, role, name, container, ZipFileList, ignore_stop_error, results):
+def DoStopOne(start_config, labtainer_config, lab_path, name, container, ZipFileList, ignore_stop_error, results):
         labname = os.path.basename(lab_path) 
         #dumlog = os.path.join('/tmp', name+'.log')
         #sys.stdout = open(dumlog, 'w')
@@ -2551,11 +2303,8 @@ def DoStopOne(start_config, labtainer_config, lab_path, role, name, container, Z
         # error: can't stop non-existent container
         if not haveContainer:
             if ShouldBeRunning(start_config, container):
-                if ignore_stop_error or role == 'instructor':
-                    logger.DEBUG("Container %s does not exist!\n" % mycontainer_name)
-                else:
-                    logger.ERROR("Container %s does not exist!\n" % mycontainer_name)
-                    retval = False
+                logger.ERROR("Container %s does not exist!\n" % mycontainer_name)
+                retval = False
 
         else:
             clone_names = GetContainerCloneNames(container)
@@ -2568,18 +2317,14 @@ def DoStopOne(start_config, labtainer_config, lab_path, role, name, container, Z
                             logger.ERROR("container %s not running\n" % (mycontainer_name))
                             retval = False
                     continue
-                if role == 'instructor':
-                    if mycontainer_name == start_config.grade_container:
-                        CopyChownGradesFile(start_config, labtainer_config, name, mycontainer_name, container_user, ignore_stop_error)
-                else:
-                    GatherOtherArtifacts(lab_path, name, mycontainer_name, container_user, container_password, ignore_stop_error)
-                    # Before stopping a container, run 'Student.py'
-                    # This will create zip file of the result
+                GatherOtherArtifacts(lab_path, name, mycontainer_name, container_user, container_password, ignore_stop_error)
+                # Before stopping a container, run 'Student.py'
+                # This will create zip file of the result
     
-                    baseZipFilename, currentContainerZipFilename = CreateCopyChownZip(start_config, labtainer_config, name, mycontainer_name, mycontainer_image, container_user, container_password, ignore_stop_error)
-                    if baseZipFilename is not None:
-                        ZipFileList.append(currentContainerZipFilename)
-                    logger.DEBUG("baseZipFilename is (%s)" % baseZipFilename)
+                baseZipFilename, currentContainerZipFilename = CreateCopyChownZip(start_config, labtainer_config, name, mycontainer_name, mycontainer_image, container_user, container_password, ignore_stop_error)
+                if baseZipFilename is not None:
+                    ZipFileList.append(currentContainerZipFilename)
+                logger.DEBUG("baseZipFilename is (%s)" % baseZipFilename)
 
                 #command = 'docker exec %s echo "%s\n" | sudo -S rmdir /tmp/.mylockdir 2>/dev/null' % (mycontainer_name, container_password)
                 command = 'docker exec %s sudo rmdir /tmp/.mylockdir 2>/dev/null' % (mycontainer_name)
@@ -2614,14 +2359,13 @@ def SynchStop(start_config, run_container=None):
             t.join()
             logger.DEBUG('joined %s' % t.getName())
 
-def DoStop(start_config, labtainer_config, lab_path, role, ignore_stop_error, is_regress_test=None, run_container=None, servers=None, clone_count=None):
+def DoStop(start_config, labtainer_config, lab_path, ignore_stop_error, run_container=None, servers=None, clone_count=None):
     mycwd = os.getcwd()
     retval = True
     labname = os.path.basename(lab_path)
     host_home_xfer  = os.path.join(labtainer_config.host_home_xfer, labname)
     logger.DEBUG("DoStop Multiple Containers and/or multi-home networking")
-    if role == 'student':
-        SynchStop(start_config, run_container)
+    SynchStop(start_config, run_container)
     username = getpass.getuser()
 
     baseZipFilename = ""
@@ -2632,14 +2376,10 @@ def DoStop(start_config, labtainer_config, lab_path, role, ignore_stop_error, is
         if run_container is not None and container.full_name != run_container:
             #print('not for me %s ' % run_container)
             continue
-        mycontainer_name = '%s.%s.%s' % (labname, container.name, role)
-        if is_regress_test and mycontainer_name != start_config.grade_container:
-            #print('compare %s to %s' % (mycontainer_name, start_config.grade_container))
-            continue
+        mycontainer_name = '%s.%s.student' % (labname, container.name)
 
-        #DoStopOne(start_config, labtainer_config, mycwd, labname, role, name, container, ZipFileList)
         t = threading.Thread(target=DoStopOne, args=(start_config, labtainer_config, lab_path, 
-              role, name, container, ZipFileList, ignore_stop_error, results))
+              name, container, ZipFileList, ignore_stop_error, results))
         threads.append(t)
         t.setName(name)
         t.start()
@@ -2655,73 +2395,72 @@ def DoStop(start_config, labtainer_config, lab_path, role, ignore_stop_error, is
             logger.ERROR('DoStopOne has at least one failure!')
             sys.exit(1)
 
-    if role == 'student':
-        if len(ZipFileList) == 0:
-            if ignore_stop_error:
-                logger.DEBUG('No zip files found')
-            else:
-                logger.ERROR('No zip files found')
-            return None
-        base_filename = os.path.basename(ZipFileList[0])
-        baseZipFilename = base_filename.split('=')[0]
+    if len(ZipFileList) == 0:
+        if ignore_stop_error:
+            logger.DEBUG('No zip files found')
+        else:
+            logger.ERROR('No zip files found')
+        return None
+    base_filename = os.path.basename(ZipFileList[0])
+    baseZipFilename = base_filename.split('=')[0]
 
-        xfer_dir = "/home/%s/%s" % (username, host_home_xfer)
+    xfer_dir = "/home/%s/%s" % (username, host_home_xfer)
 
-        # Create docs.zip in xfer_dir if COLLECT_DOCS is "yes"
-        if start_config.collect_docs.lower() == "yes":
-            docs_zip_file = "%s/docs.zip" % xfer_dir
-            logger.DEBUG("Zipping docs directory to %s" % docs_zip_file)
+    # Create docs.zip in xfer_dir if COLLECT_DOCS is "yes"
+    if start_config.collect_docs.lower() == "yes":
+        docs_zip_file = "%s/docs.zip" % xfer_dir
+        logger.DEBUG("Zipping docs directory to %s" % docs_zip_file)
 
-            docs_path = '%s/docs' % lab_path
-            if os.path.isdir(docs_path):
-                docs_zip_filelist = glob.glob('%s/*' % docs_path)
-                logger.DEBUG(docs_zip_filelist)
+        docs_path = '%s/docs' % lab_path
+        if os.path.isdir(docs_path):
+            docs_zip_filelist = glob.glob('%s/*' % docs_path)
+            logger.DEBUG(docs_zip_filelist)
 
-                # docs.zip file
-                docs_zipoutput = zipfile.ZipFile(docs_zip_file, "w")
-                # Go to the docs_path
-                os.chdir(docs_path)
-                for docs_fname in docs_zip_filelist:
-                    docs_basefname = os.path.basename(docs_fname)
-                    docs_zipoutput.write(docs_basefname, compress_type=zipfile.ZIP_DEFLATED)
-                    # Note: DO NOT remove after the file is zipped
-                docs_zipoutput.close()
+            # docs.zip file
+            docs_zipoutput = zipfile.ZipFile(docs_zip_file, "w")
+            # Go to the docs_path
+            os.chdir(docs_path)
+            for docs_fname in docs_zip_filelist:
+                docs_basefname = os.path.basename(docs_fname)
+                docs_zipoutput.write(docs_basefname, compress_type=zipfile.ZIP_DEFLATED)
+                # Note: DO NOT remove after the file is zipped
+            docs_zipoutput.close()
 
-                # Add docs.zip into the ZipFileList
-                ZipFileList.append(docs_zip_file)
-            else:
-                logger.DEBUG('no docs at %s' % docs_path)
+            # Add docs.zip into the ZipFileList
+            ZipFileList.append(docs_zip_file)
+        else:
+            logger.DEBUG('no docs at %s' % docs_path)
 
-        # Combine all the zip files
-        logger.DEBUG("ZipFileList is ")
-        logger.DEBUG(ZipFileList)
-        logger.DEBUG("baseZipFilename is (%s)" % baseZipFilename)
-        combinedZipFilename = "%s/%s.zip" % (xfer_dir, baseZipFilename)
-        logger.DEBUG("The combined zip filename is %s" % combinedZipFilename)
-        zipoutput = zipfile.ZipFile(combinedZipFilename, "w")
-        # Go to the xfer_dir
-        os.chdir(xfer_dir)
-        for fname in ZipFileList:
-            basefname = os.path.basename(fname)
-            zipoutput.write(basefname, compress_type=zipfile.ZIP_DEFLATED)
-            # Remove after the file is zipped
-            os.remove(basefname)
+    # Combine all the zip files
+    logger.DEBUG("ZipFileList is ")
+    logger.DEBUG(ZipFileList)
+    logger.DEBUG("baseZipFilename is (%s)" % baseZipFilename)
+    combinedZipFilename = "%s/%s.zip" % (xfer_dir, baseZipFilename)
+    logger.DEBUG("The combined zip filename is %s" % combinedZipFilename)
+    zipoutput = zipfile.ZipFile(combinedZipFilename, "w")
+    # Go to the xfer_dir
+    os.chdir(xfer_dir)
+    for fname in ZipFileList:
+        basefname = os.path.basename(fname)
+        zipoutput.write(basefname, compress_type=zipfile.ZIP_DEFLATED)
+        # Remove after the file is zipped
+        os.remove(basefname)
 
-        # Add count.json and labtainer.log (if they exist) to the zip file
-        count_path = LabCount.getPath('./', labname)
-        #print "count_path is %s" % count_path
-        if os.path.isfile(count_path):
-            parent = os.path.dirname(count_path)
-            os.chdir(mycwd)
-            os.chdir(parent)
-            fname = os.path.join('./', os.path.basename(count_path))
-            zipoutput.write(fname, compress_type=zipfile.ZIP_DEFLATED)
+    # Add count.json and labtainer.log (if they exist) to the zip file
+    count_path = LabCount.getPath('./', labname)
+    #print "count_path is %s" % count_path
+    if os.path.isfile(count_path):
+        parent = os.path.dirname(count_path)
         os.chdir(mycwd)
-        my_labtainer_log = os.path.join('./', 'labtainer.log')
-        if os.path.exists(my_labtainer_log):
-            zipoutput.write(my_labtainer_log, compress_type=zipfile.ZIP_DEFLATED)
+        os.chdir(parent)
+        fname = os.path.join('./', os.path.basename(count_path))
+        zipoutput.write(fname, compress_type=zipfile.ZIP_DEFLATED)
+    os.chdir(mycwd)
+    my_labtainer_log = os.path.join('./', 'labtainer.log')
+    if os.path.exists(my_labtainer_log):
+        zipoutput.write(my_labtainer_log, compress_type=zipfile.ZIP_DEFLATED)
 
-        zipoutput.close()
+    zipoutput.close()
 
 
     os.chdir(mycwd)
@@ -2730,24 +2469,24 @@ def DoStop(start_config, labtainer_config, lab_path, role, ignore_stop_error, is
 # ignore_stop_error - set to 'False' : do not ignore error
 # ignore_stop_error - set to 'True' : ignore certain error encountered since it might not even be an error
 #                                     such as error encountered when trying to stop non-existent container
-def StopLab(lab_path, role, ignore_stop_error, is_regress_test=None, run_container=None, servers=None, clone_count=None):
+def StopLab(lab_path, ignore_stop_error, run_container=None, servers=None, clone_count=None):
     labname = os.path.basename(lab_path)
     myhomedir = os.environ['HOME']
     logger.DEBUG("ParseStartConfig for %s" % labname)
     is_valid_lab(lab_path)
-    labtainer_config, start_config = GetBothConfigs(lab_path, role, logger, servers, clone_count)
+    labtainer_config, start_config = GetBothConfigs(lab_path, logger, servers, clone_count)
     host_home_xfer = os.path.join(labtainer_config.host_home_xfer, labname)
 
     # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
     host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
     CreateHostHomeXfer(host_xfer_dir)
 
-    if DoStop(start_config, labtainer_config, lab_path, role, ignore_stop_error, is_regress_test, run_container, servers):
+    if DoStop(start_config, labtainer_config, lab_path, ignore_stop_error, run_container, servers):
         # Inform user where results are stored
         print "Results stored in directory: %s" % host_xfer_dir
     return host_xfer_dir
 
-def DoMoreterm(lab_path, role, container_name, clone_num=None):
+def DoMoreterm(lab_path, container_name, clone_num=None):
     labname = os.path.basename(lab_path)
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
@@ -2755,12 +2494,12 @@ def DoMoreterm(lab_path, role, container_name, clone_num=None):
     logger.DEBUG("current user's home directory for %s" % myhomedir)
     logger.DEBUG("ParseStartConfig for %s" % labname)
     is_valid_lab(lab_path)
-    labtainer_config, start_config = GetBothConfigs(lab_path, role, logger)
+    labtainer_config, start_config = GetBothConfigs(lab_path, logger)
     logger.DEBUG('num terms is %d' % start_config.containers[container_name].terminals)
     if clone_num is None:
-        mycontainer_name = '%s.%s.%s' % (labname, container_name, role)
+        mycontainer_name = '%s.%s.student' % (labname, container_name)
     else:
-        mycontainer_name = '%s.%s-%d.%s' % (labname, container_name, clone_num, role)
+        mycontainer_name = '%s.%s-%d.student' % (labname, container_name, clone_num)
 
     if not IsContainerCreated(mycontainer_name):
         logger.ERROR('container %s not found' % mycontainer_name)
@@ -2778,7 +2517,7 @@ def DoMoreterm(lab_path, role, container_name, clone_num=None):
 	    logger.DEBUG("spawn_command is (%s)" % spawn_command)
 	    os.system(spawn_command)
 
-def DoTransfer(lab_path, role, container_name, filename, direction):
+def DoTransfer(lab_path, container_name, filename, direction):
     '''TBD this is not tested and likey broken'''
     labname = os.path.basename(lab_path)
     mycwd = os.getcwd()
@@ -2787,12 +2526,12 @@ def DoTransfer(lab_path, role, container_name, filename, direction):
     logger.DEBUG("current user's home directory for %s" % myhomedir)
     logger.DEBUG("ParseStartConfig for %s" % labname)
     is_valid_lab(lab_path)
-    labtainer_config, start_config = GetBothConfigs(lab_path, role, logger)
+    labtainer_config, start_config = GetBothConfigs(lab_path, logger)
     host_home_xfer = os.path.join(labtainer_config.host_home_xfer, labname)
     logger.DEBUG('num terms is %d' % start_config.containers[container_name].terminals)
     host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
 
-    mycontainer_name = '%s.%s.%s' % (labname, container_name, role)
+    mycontainer_name = '%s.%s.student' % (labname, container_name)
     if not IsContainerCreated(mycontainer_name):
         logger.ERROR('container %s not found' % mycontainer_name)
         sys.exit(1)
