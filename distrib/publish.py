@@ -124,11 +124,12 @@ def main():
             os.environ['TEST_REGISTRY'] = 'TRUE'
         print('set TEST REG to %s' % os.getenv('TEST_REGISTRY'))
 
-    logger = LabtainerLogging.LabtainerLogging("labtainer-publish.log", 'publish', "../config/labtainer.config")
+    src_path = '../'
+    labtainer_config_file = os.path.join(src_path, 'config', 'labtainer.config')
+    logger = LabtainerLogging.LabtainerLogging("labtainer-publish.log", 'publish', labtainer_config_file)
     labutils.logger = logger
 
     
-    src_path = '../'
     skip_labs = 'skip-labs'
 
     skip = []
@@ -140,7 +141,6 @@ def main():
     
     labsdir = os.path.abspath(os.path.join(src_path,  'labs'))
 
-    labtainer_config_file = os.path.join(src_path, 'config', 'labtainer.config')
     labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_file, logger)
     default_registry = labtainer_config.default_registry
 
