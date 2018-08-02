@@ -56,12 +56,12 @@ top level scripts share functions found in bin/labutils.py.  The
 top level scripts are organized as follows:
 
 \begin{itemize}
-\item Student lab start and stop -- In the labtainers-student/bin directory, these run on the 
+\item Student {\tt labtainers} (start) and {\tt stoplab} -- In the labtainers-student/bin directory, these run on the 
 Linux host and manage the pulling, starting and stopping of containers.  They also coordinate
 collection of student artifacts.
 \item Student container scripts -- In the labtainers-student/lab\_bin directory, these execute on
 containers, e.g., to hook bash and parameterize containers.
-\item Instructor lab start and stop -- Push student artifacts onto instructor containers.
+\item Instructor {\tt gradelab} and {\tt stopgrader}-- Push student artifacts onto grader container and get assessment results.
 \item Instructor container scripts -- perform grading functions.
 \item Developer building -- rebuild.py in labtainers-student/bin and labtainers-instructor/bin.
 \item Publishing labs -- labtainers/distrib/publish.py
@@ -70,6 +70,8 @@ containers, e.g., to hook bash and parameterize containers.
 VirtualBox and VMWare.
 \item Regression testing of grading functions is performed by labtainer-instructor/regress.py.
 Expected results are stored in the labtainer/testsets directory.
+\item Regression testing of labs and grading combined: scripts in trunk/testsets/bin; data sets
+are not distributed, they are in labtainer/simlab/<labname>
 \end{itemize}
 
 \section {Control Flow}
@@ -84,14 +86,10 @@ That script also invokes hookBash.sh, which adds the bash
 sdtin/stout capturing hook, and adds the startup.sh call
 into the .profile.
 
-The startup.sh scripts differ between instructor and student.  The latter
-displays instructions.txt.  The former runs grading.
 The startup.sh uses a lock to control which
-terminal displays the instructions or grading.  In practice instruction
-display and the running of the instructor.py script is done by
-an xterm that explicitly runs the startup.sh directly, and thus
-the startup.sh invoked by profile.sh typically never does anything.
-HOWEVER... the startup.sh invoked by student will source a student\_startup.sh if present.
+terminal displays the instructions or grading.  In practice most
+instructions are now pdf files.
+The startup.sh invoked by student will source a student\_startup.sh if present.
 
 \section{Automation and Distributions}
 The Labtainer framework is distributed via the c3o website as a tar file, or, optionally a
