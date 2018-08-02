@@ -81,6 +81,10 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+
+August 1, 2018
+- Use a generic Docker image for automated assessment; stop creating "instructor" images per lab.
+
 July 30, 2018
 - Document need to unblock the waitparam.service (by creating flag directory)
 if a fixlocal.sh script is to start a service for which waitparam is a
