@@ -1,0 +1,7 @@
+Always first create a test registry image and sort that out.
+
+If a baseline image needs to be reverted, pull it from the mfthomps, tag
+it as the same name without the registry, then publish it to the 
+test registry.
+
+Creation and publishing of grader images is done in trunk/distrib/publish_grader.py
