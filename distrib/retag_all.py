@@ -15,6 +15,7 @@ image name in a label.
     
 def do_lab(lab_dir, lab, role, registry):
     framework_version = labutils.framework_version 
+    ''' use docker files to identify each docker image to relabel '''
     docker_dir = os.path.join(lab_dir, lab, 'dockerfiles')
     if not os.path.isdir(docker_dir):
         print('%s not a directory' % docker_dir)
@@ -24,7 +25,9 @@ def do_lab(lab_dir, lab, role, registry):
         if df.endswith('.swp'):
             continue
         dfile_path = os.path.join(docker_dir,df)
+        ''' get the image name from the docker file '''
         image_base = VersionInfo.getFrom(dfile_path, registry)
+        ''' get the base identifier of the image present on this installation for that image '''
         base_id = VersionInfo.getImageId(image_base)
         try:
             parts = df.split('.')
@@ -59,12 +62,10 @@ def main():
     if args.lab is not None:
         print('retag lab %s' % args.lab)
         do_lab(labdir, args.lab, 'student', registry)
-        do_lab(labdir, args.lab, 'instructor', registry)
     else:
         #print('commented out for now')
         for lab in sorted(lab_list):
             if lab not in skip:
                 do_lab(labdir, lab, 'student', registry)
-                do_lab(labdir, lab, 'instructor', registry)
 if __name__ == '__main__':
     sys.exit(main())
