@@ -261,7 +261,7 @@ def doGrade(labname, use_test_registry, debug, redo, update):
     registry = getRegistry(use_test_registry, labtainer_config)
     grade_image = getGradeImageName(labtainer_config, registry)
     if update:
-        removeGraders()
+        removeGraders(registry)
 
     if not labutils.IsContainerCreated(grade_container):
         cmd = "docker create -t --name=%s --hostname=%s %s" % (grade_container, grade_container, grade_image)
@@ -290,7 +290,7 @@ def doGrade(labname, use_test_registry, debug, redo, update):
     else:
         autoGrade(grade_container, lab_path, labtainer_config, labname)
 
-def removeGraders():
+def removeGraders(registry):
     cmd = 'docker ps -a'
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
@@ -324,8 +324,8 @@ def removeGraders():
         os.system(cmd)
     else:   
         print('No images for %s' % image)
-
-
+    cmd = 'docker pull %s/labtainer.grader' % registry
+    os.system(cmd)
 
 def main():
     parser = argparse.ArgumentParser(description='Grade a Labtainers lab')
