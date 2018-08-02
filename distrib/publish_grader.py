@@ -33,9 +33,22 @@ def main():
     parser = argparse.ArgumentParser(description='Build and publish the grader')
     parser.add_argument('-t', '--test_registry', action='store_true', help='Use image from test registry')
     args = parser.parse_args()
+    if args.test_registry:
+        if os.getenv('TEST_REGISTRY') is None:
+            print('use putenv to set it')
+            os.putenv("TEST_REGISTRY", "TRUE")
+            ''' why does putenv not set the value? '''
+            os.environ['TEST_REGISTRY'] = 'TRUE'
+        else:
+            print('exists, set it true')
+            os.environ['TEST_REGISTRY'] = 'TRUE'
+        print('set TEST REG to %s' % os.getenv('TEST_REGISTRY'))
     here = os.getcwd()
     os.chdir('../scripts/designer/bin')
-    cmd = './create_image.sh grader'
+    test_registry = ''
+    if args.test_registry:
+        test_registry = '-t'
+    cmd = './create_image.sh grader %s' % test_registry
     os.system(cmd)
     os.chdir(here)
     src_path = '../'
