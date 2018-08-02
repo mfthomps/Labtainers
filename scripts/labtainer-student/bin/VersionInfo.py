@@ -1,6 +1,7 @@
 import subprocess
 import os
 def getFrom(dockerfile, registry):
+    ''' given a docker file and registry, get the base image name, qualified by the registry '''
     image_name = None
     with open(dockerfile) as fh:
         for line in fh:
@@ -15,6 +16,7 @@ def getFrom(dockerfile, registry):
     return image_name
 
 def getImageId(image):
+    ''' given an image name, use docker to determine the image ID present on this installation '''
     #cmd = 'docker images | grep %s' % image
     cmd = 'docker images -f=reference="%s:latest" -q ' % image
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
