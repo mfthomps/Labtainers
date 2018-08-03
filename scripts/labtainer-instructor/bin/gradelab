@@ -24,7 +24,7 @@ import LabtainerLogging
 import docgoals
 FAILURE=1
 # Copy Students' Artifacts from host to instructor's lab container
-def CopyStudentArtifacts(labtainer_config, container_name, labname, is_regress_test, check_watermark):
+def CopyStudentArtifacts(labtainer_config, container_name, labname, regress_test, check_watermark):
     # Set the lab name 
     command = 'docker exec %s script -q -c "mkdir -p /home/instructor/.local" /dev/null' % (container_name)
     logger.DEBUG("Command to execute is (%s)" % command)
@@ -45,19 +45,18 @@ def CopyStudentArtifacts(labtainer_config, container_name, labname, is_regress_t
     # Create is_grade_container
     username = getpass.getuser()
     # Make sure check for is_regress_test first
-    if not is_regress_test == None:
+    if regress_test is not None:
         xfer_dir = ""
         # then check if it is watermark test required
         if check_watermark:
             xfer_dir = os.path.join(labtainer_config.watermark_root, labname)
         else:
-            xfer_dir = os.path.join(labtainer_config.testsets_root, labname)
-	xfer_dir += "/" + is_regress_test
+            xfer_dir = os.path.dirname(regress_test)
         zip_filelist = glob.glob('%s/*.zip' % xfer_dir)
     else:
         xfer_dir = os.path.join(labtainer_config.host_home_xfer, labname)
         zip_filelist = glob.glob('/home/%s/%s/*.zip' % (username, xfer_dir))
-    logger.DEBUG("filenames is (%s)" % zip_filelist)
+    logger.DEBUG("zip_filelist is (%s)" % zip_filelist)
     # Copy zip files from 'Shared' folder to 'home/$CONTAINER_USER'
     for fname in zip_filelist:
         logger.DEBUG("name is %s" % fname)
@@ -248,7 +247,7 @@ def moreTerm(labname):
     logger.DEBUG("spawn_command is (%s)" % spawn_command)
     os.system(spawn_command)
 
-def doGrade(labname, use_test_registry, debug, redo, update):
+def doGrade(labname, use_test_registry, debug, redo, update, regress_test=None):
     grade_container = '%s-igrader' % labname
     if redo:
         cmd = 'docker stop %s' % grade_container
@@ -276,7 +275,7 @@ def doGrade(labname, use_test_registry, debug, redo, update):
     InstDocsToHostDir(labname, labtainer_config, lab_path)
     logger.DEBUG('do CopyStudentArtifacts for %s, labname: %s ' % (grade_container, labname))
     copy_result = CopyStudentArtifacts(labtainer_config, grade_container, labname, 
-                     None, False)
+                     regress_test, False)
     if copy_result == FAILURE:
         logger.ERROR("Failed to copy students' artifacts to container %s!\n" % grade_container)
         exit(1)
