@@ -17,6 +17,10 @@ domain and is not subject to copyright.
 
 import sys
 import os
+import getpass
+import time
+import imp
+gradelab = imp.load_source('gradelab', 'bin/gradelab')
 instructor_cwd = os.getcwd()
 student_cwd = instructor_cwd.replace('labtainer-instructor', 'labtainer-student')
 # Append Student CWD to sys.path
@@ -24,6 +28,7 @@ sys.path.append(student_cwd+"/bin")
 import labutils
 import logging
 import LabtainerLogging
+import ParseLabtainerConfig
 
 def usage():
     sys.stderr.write("Usage: regresstest.py [<labname> | -a <labname>]\n")
@@ -71,7 +76,7 @@ def compareGrades(GradesGold, Grades):
         return False
 
 
-def RegressTest(lab_path, role, standard, isFirstRun=False):
+def RegressTest(lab_path, standard, logger):
     labname = os.path.basename(lab_path)
     labtainer_config_dir = os.path.join(os.path.dirname(os.path.dirname(lab_path)), 'config', 'labtainer.config')
     labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_dir, logger)
@@ -83,6 +88,7 @@ def RegressTest(lab_path, role, standard, isFirstRun=False):
     logger.DEBUG("Regression Test path for labname %s is %s" % (labname, regresstest_lab_path))
 
     GradesGold = "%s/%s.grades.txt" % (regresstest_lab_path, labname)
+    username = getpass.getuser()
     Grades = "/home/%s/%s/%s.grades.txt" % (username, host_home_xfer, labname)
     logger.DEBUG("GradesGold is %s - Grades is %s" % (GradesGold, Grades))
 
@@ -90,11 +96,7 @@ def RegressTest(lab_path, role, standard, isFirstRun=False):
     check_watermark = False
     auto_grade = True
     debug_grade = False
-    run_container = start_config.grade_container
-    if isFirstRun:
-        doGrade(labname, False, False, False)
-    else:
-        doGrade(labname, False, False, True)
+    gradelab.doGrade(labname, False, False, True, False, regress_test=GradesGold)
 
 #    for name, container in start_config.containers.items():
 #        mycontainer_name       = container.full_name
@@ -105,9 +107,6 @@ def RegressTest(lab_path, role, standard, isFirstRun=False):
 #            RunInstructorCreateGradeFile(start_config.grade_container, container_user, labname, check_watermark)
 
     # Pass 'True' to ignore_stop_error (i.e., ignore stop error)
-
-    # Give the container some time to copy the result out -- just in case
-    time.sleep(3)
 
     CompareResult = False
     # GradesGold and Grades must exist
@@ -157,7 +156,7 @@ def main():
         finallabnamelist = labnamelist
 
     for labname in sorted(finallabnamelist):
-        labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
+        labutils.logger = LabtainerLogging.LabtainerLogging("labtainer-regress.log", labname, "../../config/labtainer.config")
         labutils.logger.INFO("Begin logging regresstest.py for %s lab" % labname)
         labutils.logger.DEBUG("Current name is (%s)" % labname)
         fulllabname = os.path.join(LABS_ROOT, labname)
@@ -169,10 +168,6 @@ def main():
             labutils.logger.DEBUG("(%s) is directory - assume (%s) is a labname" % (fulllabname, labname))
     
             # RegressTest will do test following:
-            # 1. This will stop containers of a lab, create or update lab images and start the containers.
-            # 2. After the containers are started, it will invoke 'instructor.py' on the GRADE_CONTAINER.
-            # 3. Stop the containers to obtain the 'grades.txt'
-            # 4. Compare 'grades.txt.GOLD' vs. 'grades.txt'
 	    dir_path = os.path.dirname(os.path.realpath(__file__))
 	    dir_path = dir_path[:dir_path.index("scripts")] 
 	    dir_path += "testsets/labs/" + labname
@@ -182,7 +177,6 @@ def main():
 
 	    crude_standards = os.listdir(dir_path)
 	    standards = []
-	    isFirstRun = True
 	    for items in crude_standards:
 		if "." not in items:
 		    standards.append(items)
@@ -191,8 +185,7 @@ def main():
                 print('Did not find any subdirectories under %s' % lab_path)
                 print('Test paths should be testsets/labs/[lab]/GOLD/...')
 	    for standard in standards:
-            	RegressTestResult = labutils.RegressTest(lab_path, "instructor", standard, isFirstRun=isFirstRun)	
-		isFirstRun = False
+            	RegressTestResult = RegressTest(lab_path, standard, labutils.logger)	
             	if RegressTestResult == False:
                 # False means grades.txt.GOLD != grades.txt, output error then break
                     print("RegressTest fails on %s lab %s" % (labname, standard))
