@@ -68,12 +68,13 @@ Then run a specific lab, include the name of the lab:
 \end{verbatim}
 \noindent where \textit{labname} is the name of the lab to run.  
 
-Most labs create one or more virtual terminals, one of which \textbf{may} be titled ``INSTRUCTIONS''.
-Please note that some of the initial lab instructions repeat the steps you've already taken, and you need
-not perform those again.  Some labs direct you to a PDF version of a lab manual, which can usually 
+Most labs direct you to a PDF version of a lab manual, which can usually 
 be done by right clicking on the displayed path, or you can open the file in a browser.
+Please note that some of the initial lab instructions repeat the steps you've already taken, and you need
+not perform those again.  
 
-While running the lab, if you require more virtual terminals, use:
+Once you start the lab, you will typically see one or more virtual terminals conneted to computers within
+the lab.  While running the lab, if you require more virtual terminals, use:
 \begin{verbatim}
     moreterm.py <labname> <container>
 \end{verbatim}
@@ -98,6 +99,10 @@ When you are finished, or wish to stop working, type:
     stoplab
 \end{verbatim}
 \noindent The stoplab command will display the directory containing a zip file that should be provided to your instructor.
+The easiest way to forward the zip file to the instructor is to start a browser, e.g., Firefox, on the VM from which you
+are running Labtainers.  Then use the browser to either email the zip file, or upload it into an LMS system, e.g., Sakai.
+Alternately, you can configure the VM to use a shared folder, and use that to copy the zip file to the host computer.
+
 \subsection{Networking}
 In addition to network properties defined for the lab,
 each component \texttt{/etc/host} file includes a ``my\_host entry'' that names
