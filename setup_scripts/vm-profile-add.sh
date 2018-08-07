@@ -1,4 +1,4 @@
-#!/bin/bash
+#s!/bin/bash
 #
 # Modify the user profile to create a terminal on login that
 # starts in the labtainer workspace.  The profile will also, run the Labtainer
@@ -23,6 +23,8 @@ gsettings set org.gnome.nm-applet disable-connected-notifications "true"
 gsettings set org.gnome.desktop.session idle-delay 0
 gsettings set org.gnome.desktop.screensaver lock-enabled false
 
-
+cd $HOME/Desktop
+ln -s $HOME/labtainer/trunk/docs/student/labtainer-student.pdf
+ln -s ~/labtainer_xfer
 
 
