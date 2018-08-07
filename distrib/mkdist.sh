@@ -99,7 +99,8 @@ cd $ldir/trunk/tool-src/capinout
 cd $ddir
 tar -cz -X $here/skip-labs -f $here/labtainer.tar labtainer
 cd /tmp/
-tar -czf $here/labtainer_pdf.tar labtainer_pdf
+#tar -czf $here/labtainer_pdf.tar.gz labtainer_pdf
+zip $here/labtainer_pdf.zip labtainer_pdf
 cd $here
 cp labtainer.tar $myshare
-cp labtainer_pdf.tar $myshare
+cp labtainer_pdf.zip $myshare
