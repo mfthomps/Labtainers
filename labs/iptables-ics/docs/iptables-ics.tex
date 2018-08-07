@@ -42,7 +42,8 @@ firewall component using:
 
 Students are expected to have a basic 
 familiarity with the Linux command line, and the ability to edit files and
-run simple shell scripts.
+run simple shell scripts. Some experience with Wireshark is presumed, e.g., performance of
+the wireshark-intro lab.
 
 \section{Lab Environment}
 This lab runs in the Labtainer framework,
@@ -74,7 +75,7 @@ debug your firewall rules.  Start it from the firewall terminal:
 \begin{verbatim}
 wireshark &
 \end{verbatim}
-\noindent The select the eth0 interface.
+\noindent Then select the eth0 interface.
 
 On both the client1 and client2 terminals use the following applications
 to explore the services offered by PLC:
@@ -84,7 +85,7 @@ to explore the services offered by PLC:
 \end{verbatim}
 This starts a simple MODBUS client.  Observe the network traffic using
 wireshark, making note of the destination TCP port number used by the client when
-connecting to the PLC. Then use {\tt <ctrl C>} to terminate the program.
+connecting to the PLC. Then use {\tt <ctrl C>} to terminate the program on each client.
 
 \noindent Start firefox on each client 
 \begin{verbatim}
@@ -129,7 +130,7 @@ View the content of the scripts to understand what they do.
 Consider putting your iptables commands in a script so it is easy
 to test and reconfigure the iptables if you restart the lab.
 
-Then use the applications on Client1 and Client2
+Then use the applications on Client1 and Client2 to
 demonstrate that the firewall only allows the desired traffic.
 Watch the traffic in wireshark to confirm the TCP handshake fails
 when attempting to connect to filtered ports.
