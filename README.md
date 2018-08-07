@@ -82,6 +82,12 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+August 7, 2018
+- Add link to student guide in labtainer-student directory
+- Add link to student guide on VM desktops
+- Fixes to iptables-ics to avoid long delay on shutdown; and fixes to regression tests
+- Add note to guides suggesting student use of VM browser to transfer artifact zip file to instructor.
+
 August 1, 2018
 - Use a generic Docker image for automated assessment; stop creating "instructor" images per lab.
 
