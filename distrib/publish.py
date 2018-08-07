@@ -51,7 +51,7 @@ def rebuild(labname, labsdir, force, logger):
     #print('now at %s' % os.getcwd())
     lab_dir = os.path.join(labsdir, labname)
     #print('cwd was %s now %s  lab_dir is %s' % (mycwd, os.getcwd(), lab_dir))
-    retval = labutils.DoRebuildLab(lab_dir, is_regress_test=False, force_build=force)
+    retval = labutils.DoRebuildLab(lab_dir, force_build=force)
     os.chdir(mycwd)
     return retval
 
