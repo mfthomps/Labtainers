@@ -57,7 +57,7 @@ done
 cd $ddir
 tar -cz -X $here/skip-labs -f $here/labtainer-developer.tar labtainer
 cd /tmp/
-tar -czf $here/labtainer_pdf.tar labtainer_pdf
+zip $here/labtainer_pdf.zip labtainer_pdf
 cd $here
 cp labtainer-developer.tar $myshare
-cp labtainer_pdf.tar $myshare
+cp labtainer_pdf.zip $myshare
