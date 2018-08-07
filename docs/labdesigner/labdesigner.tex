@@ -1977,6 +1977,8 @@ was altered to disabled insecure field warnings for the labs that do not use SSL
 If you wish to assess places a browser has visited, e.g., use a pregrade.sh to extract sites from the
 firefox places.sqlite file, put {\tt places.sqlite} into the lab's /\_bin/noskip file.
 
+See \ref{simlab_notes} for information on avoiding firefox crashes when it is restarted in SimLab.
+
 \subsection{Wireshark}
 Wireshark will not run as root in Labtainer containers.  
 The wireshark installion in the labtainer.wireshark image is configured to not
@@ -2168,7 +2170,8 @@ include directive.
 command and then type that.
 
 \end{itemize}
-\subsection{SimLab Application notes}
+\subsection{SimLab spplication notes}
+\label{simlab_notes}
 Most GUI's have shortcut keys that can be used to automate their inclusion in a lab.
 
 Firefox is brittle when it restarts.  See the {\tt fixfirefox.txt} SimLab script for the snort lab
