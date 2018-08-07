@@ -1971,8 +1971,8 @@ The labtainer.firefox image includes a /var/tmp/home.tar
 which is expanded into the user home directory when parameterize.sh is run.
 This tar includes a profile in .mozilla that avoids firefox starting with its 
 welcome pages and privacy statements.  The labtainer.firefox image includes a 
-customized /usr/bin/firefox that starts the browswer in a new instance so it does share existing browsers. 
-The {\tt about:config}
+customized /usr/bin/firefox that starts the browser in a new instance so it does 
+not share existing browsers.  The {\tt about:config}
 was altered to disabled insecure field warnings for the labs that do not use SSL connections to web servers.
 If you wish to assess places a browser has visited, e.g., use a pregrade.sh to extract sites from the
 firefox places.sqlite file, put {\tt places.sqlite} into the lab's /\_bin/noskip file.
@@ -2168,6 +2168,11 @@ include directive.
 command and then type that.
 
 \end{itemize}
+\subsection{SimLab Application notes}
+Most GUI's have shortcut keys that can be used to automate their inclusion in a lab.
+
+Firefox is brittle when it restarts.  See the {\tt fixfirefox.txt} SimLab script for the snort lab
+for an example of avoiding errors when Firefox restarts.
 
 \subsection{Regression testing with smoketest.py} \label{smoketest}
 The {\tt smoketest.py} utility automates regression testing of labs.  It will automatically:
