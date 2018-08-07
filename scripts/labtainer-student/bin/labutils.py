@@ -1969,7 +1969,6 @@ def GatherOtherArtifacts(lab_path, name, container_name, container_user, contain
                 elif len(parts) == 3:
                     f_container = parts[0]
                     filename = parts[1]
-                logger.DEBUG('f_container <%s> container_name %s' % (f_container, name))
                 if f_container is not None and f_container.strip() == name:
                     is_mine = True 
                 filename = filename.strip()
@@ -1977,9 +1976,9 @@ def GatherOtherArtifacts(lab_path, name, container_name, container_user, contain
                 is_mine = True
                 filename = fname
             if is_mine:
-                logger.DEBUG('file on this container to copy <%s>' % filename )
                 if filename.startswith('/') and filename not in did_file:
                     ''' copy from abs path to ~/.local/result ''' 
+                    logger.DEBUG('file on this container to copy <%s>' % filename )
                     CopyAbsToResult(container_name, filename, container_user, ignore_stop_error) 
                     did_file.append(filename)
                         
