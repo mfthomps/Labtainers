@@ -63,9 +63,10 @@ rm -f labtainer/trunk/scripts/labtainer-student/bin/SimLab*
 tar xf labtainer/labtainer-developer.tar
 grep "^Distribution created:" labtainer/trunk/README.md | awk '{print "Updated to release of: ", $3, $4}'
 
-if [ ! -f $HOME/Desktop/labdesigner.pdf ]; then
+if [ ! -L $HOME/Desktop/labdesigner.pdf ]; then
     read -p "Add desktop shortcut to Lab Designer Guide?(y/n) " -n 1 -r
-    if [[ $REPLAY =~ ^[Yy]$ ]]; then
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
        ln -s "$(pwd)"/labtainer/trunk/docs/labdesigner/labdesigner.pdf $HOME/Desktop/labdesigner.pdf
     fi
 fi
