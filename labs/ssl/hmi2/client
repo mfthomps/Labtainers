@@ -11,7 +11,7 @@ except ImportError:
 else:
     SERVICE_PORT = 10023
     if len(sys.argv) < 3:
-        print('./client.py <plc name> <instruction>')
+        print('./client <plc name> <instruction>')
         exit(1)
     server_host = sys.argv[1]+'.example.com'
     instruction = ' '.join(sys.argv[2:])
