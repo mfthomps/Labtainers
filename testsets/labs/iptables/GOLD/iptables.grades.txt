@@ -1,8 +1,8 @@
 Labname iptables
 
-Student              |        ports_ok |        own_work |      no_telnetx |
-==================== | =============== | =============== | =============== |
-dog_at_cat.com       |               Y |               Y |               Y |
+Student              |        ports_ok |      no_telnetx |
+==================== | =============== | =============== |
+dog_at_cat.com       |               Y |               Y |
 What is automatically assessed for this lab:
 
 	ports_ok: ssh & http were open, telnet closed
