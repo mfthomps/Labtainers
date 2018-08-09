@@ -1,0 +1,2 @@
+# the file is parameterized to be unique for each student
+My string is: MY_DIGEST
