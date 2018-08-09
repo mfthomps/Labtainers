@@ -828,7 +828,7 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
     jsonoutput.write('\n')
     jsonoutput.close()
 
-def doFileTimeDelim(targetfile, result_key):
+def doFileTimeDelim(targetfile, result_key, logger):
                 fname, delim_prog = targetfile.split(':')
                 logger.DEBUG('targetfile is time delim %s delim_prog %s fname %s' % (targetfile, delim_prog, fname))
                 look_for = os.path.join(result_home,'%s.stdout.*' % delim_prog)
@@ -886,8 +886,9 @@ def ParseConfigForTimeDelim(studentlabdir, labidname, configfilelines, ts_jsonfn
         if linestrip is not None and not linestrip.startswith('#') and len(line.strip())>0:
             containername, targetfile, result_key, command, field_type, token_id, lookupstring, result_home = getConfigItems(labidname, linestrip, studentlabdir, container_list, logger, parameter_list)
             if targetfile is not None and ':' in targetfile:
-                 doFileTimeDelim(targetfile, result_key)
+                 doFileTimeDelim(targetfile, result_key, logger)
             elif targetfile is not None and command == 'TIME_DELIM':
+                ''' set of timestamped values delimited by named program '''
                 logger.DEBUG('targetfile is time delim %s ' % (targetfile))
                 look_for = os.path.join(result_home,'%s.stdout.*' % targetfile)
                 #print('look for %s' % look_for)
