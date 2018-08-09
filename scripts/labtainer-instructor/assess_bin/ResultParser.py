@@ -23,6 +23,8 @@ import re
 import sys
 import time
 import MyUtil
+import GoalsParser
+import ParameterParser
 from parse import *
 
 MYHOME = ""
@@ -30,8 +32,8 @@ container_exec_proglist = {}
 stdoutfnameslist = []
 timestamplist = {}
 line_types = ['CHECKSUM', 'CONTAINS', 'FILE_REGEX', 'FILE_REGEX_TS', 'LINE', 'STARTSWITH', 'NEXT_STARTSWITH', 'HAVESTRING', 
-              'HAVESTRING_TS', 'LOG_TS', 'LOG_RANGE', 'REGEX', 'REGEX_TS', 'LINE_COUNT', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT']
-just_field_type = ['CHECKSUM', 'LINE_COUNT']
+              'HAVESTRING_TS', 'LOG_TS', 'LOG_RANGE', 'REGEX', 'REGEX_TS', 'LINE_COUNT', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT', 'TIME_DELIM']
+just_field_type = ['CHECKSUM', 'LINE_COUNT', 'TIME_DELIM']
 logger = None
 resultidlist = {}
 
@@ -523,8 +525,19 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                 token = getToken(linerequested, field_type, token_id, logger)
             logger.DEBUG('field_type %s, token_id %s, got token %s' % (field_type, token_id, token))
             return token
-        
-def getConfigItems(labidname, line, studentlabdir, container_list, logger):
+    
+def getParamList(MYHOME, studentdir, logger):    
+    lab_instance_seed = GoalsParser.GetLabInstanceSeed(studentdir, logger)
+    container_user = ""
+    param_filename = os.path.join(MYHOME, '.local', 'config',
+          'parameter.config')
+
+    pp = ParameterParser.ParameterParser(None, container_user, lab_instance_seed, logger)
+
+    parameter_list = pp.ParseParameterConfig(param_filename)
+    return parameter_list
+
+def getConfigItems(labidname, line, studentlabdir, container_list, logger, parameter_list):
     targetlines = None
     if '=' not in line:
          print('no equals in %s' % line)
@@ -594,14 +607,19 @@ def getConfigItems(labidname, line, studentlabdir, container_list, logger):
     if command == 'LINE':
         lineno = int(values[line_at+1].strip())
     elif command not in just_field_type:
-        # command = 'STARTSWITH': or 'HAVESTRING'
         lookupstring = values[line_at+1].strip()
+        if lookupstring.startswith('$'):
+            tstring = lookupstring[1:]
+            if tstring in parameter_list:
+                logger.DEBUG('replacing %s with %s' % (lookupstring, parameter_list[tstring]))
+                lookupstring = parameter_list[tstring]
+
     return containername, targetfile, result_key, command, field_type, token_id, lookupstring, result_home 
 
 
-def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_list, timestamppart, logger):
+def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_list, timestamppart, logger, parameter_list):
     retval = True
-    containername, targetfile, result_key, command, field_type, token_id, lookupstring, result_home = getConfigItems(labidname, line, studentlabdir, container_list, logger)
+    containername, targetfile, result_key, command, field_type, token_id, lookupstring, result_home = getConfigItems(labidname, line, studentlabdir, container_list, logger, parameter_list)
     if targetfile is None:
         nametags[result_key]=None
         logger.ERROR('No target file in %s' % line)
@@ -679,12 +697,12 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
         return False
 
 
-def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfname, container_list, logger):
+def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfname, container_list, logger, parameter_list):
     ts_nametags = {}
     for line in configfilelines:
         linestrip = line.rstrip()
         if linestrip is not None and not linestrip.startswith('#') and len(line.strip())>0:
-            containername, targetfile, result_key, command, field_type, token_id, lookupstring, result_home = getConfigItems(labidname, linestrip, studentlabdir, container_list, logger)
+            containername, targetfile, result_key, command, field_type, token_id, lookupstring, result_home = getConfigItems(labidname, linestrip, studentlabdir, container_list, logger, parameter_list)
         
             if command == 'HAVESTRING_TS':
                 if not os.path.isfile(targetfile):
@@ -810,19 +828,7 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
     jsonoutput.write('\n')
     jsonoutput.close()
 
-def ParseConfigForTimeDelim(studentlabdir, labidname, configfilelines, ts_jsonfname, container_list, logger):
-    '''
-    Handle case of timestamped log files whose names are qualified by a 
-    "time delimiter" program whose start times will
-    be used to break up a timestamped log file.  The quantity of timestamped groupings
-    of log file results will be one plus the quantity of invocations of the "time delimeter" program.
-    '''
-    ts_nametags = {}
-    for line in configfilelines:
-        linestrip = line.rstrip()
-        if linestrip is not None and not linestrip.startswith('#') and len(line.strip())>0:
-            containername, targetfile, result_key, command, field_type, token_id, lookupstring, result_home = getConfigItems(labidname, linestrip, studentlabdir, container_list, logger)
-            if targetfile is not None and ':' in targetfile:
+def doFileTimeDelim(targetfile, result_key):
                 fname, delim_prog = targetfile.split(':')
                 logger.DEBUG('targetfile is time delim %s delim_prog %s fname %s' % (targetfile, delim_prog, fname))
                 look_for = os.path.join(result_home,'%s.stdout.*' % delim_prog)
@@ -834,7 +840,7 @@ def ParseConfigForTimeDelim(studentlabdir, labidname, configfilelines, ts_jsonfn
                     delim_ts_set.append(ts)
                 if len(delim_ts_set) == 0:
                     logger.DEBUG('no ts files for program time delimiter %s' % delim_prog)
-                    continue
+                    return
                 delim_ts_set.sort()
                 end_times='99999999999999'
                 delim_ts_set.append(end_times)
@@ -866,6 +872,40 @@ def ParseConfigForTimeDelim(studentlabdir, labidname, configfilelines, ts_jsonfn
                                     ts_nametags[ts] = {}
                                     ts_nametags[ts]['PROGRAM_ENDTIME'] = end_times
                                 ts_nametags[ts][result_key] = True
+
+def ParseConfigForTimeDelim(studentlabdir, labidname, configfilelines, ts_jsonfname, container_list, logger, parameter_list):
+    '''
+    Handle case of timestamped log files whose names are qualified by a 
+    "time delimiter" program whose start times will
+    be used to break up a timestamped log file.  The quantity of timestamped groupings
+    of log file results will be one plus the quantity of invocations of the "time delimeter" program.
+    '''
+    ts_nametags = {}
+    for line in configfilelines:
+        linestrip = line.rstrip()
+        if linestrip is not None and not linestrip.startswith('#') and len(line.strip())>0:
+            containername, targetfile, result_key, command, field_type, token_id, lookupstring, result_home = getConfigItems(labidname, linestrip, studentlabdir, container_list, logger, parameter_list)
+            if targetfile is not None and ':' in targetfile:
+                 doFileTimeDelim(targetfile, result_key)
+            elif targetfile is not None and command == 'TIME_DELIM':
+                logger.DEBUG('targetfile is time delim %s ' % (targetfile))
+                look_for = os.path.join(result_home,'%s.stdout.*' % targetfile)
+                #print('look for %s' % look_for)
+                delim_list = glob.glob(look_for)
+                delim_ts_set = []
+                prev_ts = 0
+                for delim_ts_file in sorted(delim_list):
+                    end_time='99999999999999'
+                    ts = delim_ts_file.rsplit('.',1)[1]
+                    if ts not in ts_nametags:
+                        ts_nametags[ts] = {}
+                        ts_nametags[ts]['PROGRAM_ENDTIME'] = end_time
+                    ts_nametags[ts][result_key] = True
+                    if prev_ts != 0:
+                        ts_nametags[prev_ts]['PROGRAM_ENDTIME'] = ts
+                    prev_ts = ts
+
+
     if len(ts_nametags) > 0:
         jsonoutput = open(ts_jsonfname, "w")
         for ts in ts_nametags:
@@ -884,7 +924,7 @@ def ParseConfigForTimeDelim(studentlabdir, labidname, configfilelines, ts_jsonfn
 
 
 def ParseConfigForFile(studentlabdir, labidname, configfilelines, 
-                       outputjsonfname, container_list, timestamppart, end_time, logger):
+                       outputjsonfname, container_list, timestamppart, end_time, logger, parameter_list):
     '''
     Invoked for each timestamp to parse results for that timestamp.
     Each config file line is assessed against each results file that corresponds
@@ -898,7 +938,8 @@ def ParseConfigForFile(studentlabdir, labidname, configfilelines,
     for line in configfilelines:
         linestrip = line.rstrip()
         if linestrip is not None and not linestrip.startswith('#') and len(line.strip())>0:
-            got_one = got_one | handleConfigFileLine(labidname, linestrip, nametags, studentlabdir, container_list, timestamppart, logger)
+            got_one = got_one | handleConfigFileLine(labidname, linestrip, nametags, studentlabdir, 
+                                  container_list, timestamppart, logger, parameter_list)
 
     if end_time is not None:
         program_end_time = end_time
@@ -925,7 +966,7 @@ def ParseConfigForFile(studentlabdir, labidname, configfilelines,
         jsonoutput.close()
 
 # Note this can be called directly also
-def ParseValidateResultConfig(actual_parsing, homedir, studentlabdir, container_list, labidname, logger_in):
+def ParseValidateResultConfig(actual_parsing, homedir, studentlabdir, container_list, labidname, logger_in, parameter_list):
     bool_results = []
     MYHOME = homedir
     logger = logger_in
@@ -959,9 +1000,12 @@ def ParseStdinStdout(homedir, studentlabdir, container_list, instructordir, labi
     MYHOME = homedir
     logger = logger_in
     actual_parsing = True
+    ''' pick a container directory from which to extract the lab instance seed for parameter replacements '''
+    container_dir = os.path.join(studentlabdir, container_list[0])
+    parameter_list = getParamList(MYHOME, container_dir, logger)
     # Parse and Validate Results configuration file
     configfilelines, resultlist, bool_results = ParseValidateResultConfig(actual_parsing, homedir, studentlabdir, 
-                                      container_list, labidname, logger_in)
+                                      container_list, labidname, logger_in, parameter_list)
 
     ''' process all results files (ignore name of function) for a student.  These
         are distrbuted amongst multiple containers, per container_list.
@@ -1046,13 +1090,13 @@ def ParseStdinStdout(homedir, studentlabdir, container_list, instructordir, labi
         outputjsonfname = '%s%s.%s' % (OUTPUTRESULTHOME, jsonoutputfilename, timestamppart)
         logger.DEBUG("ParseStdinStdout (1): Outputjsonfname is (%s)" % outputjsonfname)
         ParseConfigForFile(studentlabdir, labidname, configfilelines, outputjsonfname, 
-                           container_list, timestamppart, end_time, logger)
+                           container_list, timestamppart, end_time, logger, parameter_list)
     ''' process files without timestamps '''
     outputjsonfname = '%s%s' % (OUTPUTRESULTHOME, jsonoutputfilename)
-    ParseConfigForFile(studentlabdir, labidname, configfilelines, outputjsonfname, container_list, None, None, logger)
+    ParseConfigForFile(studentlabdir, labidname, configfilelines, outputjsonfname, container_list, None, None, logger, parameter_list)
     ts_jsonfname = outputjsonfname+'_ts'
-    ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfname, container_list, logger)
+    ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfname, container_list, logger, parameter_list)
     td_jsonfname = outputjsonfname+'_td'
-    ParseConfigForTimeDelim(studentlabdir, labidname, configfilelines, td_jsonfname, container_list, logger)
+    ParseConfigForTimeDelim(studentlabdir, labidname, configfilelines, td_jsonfname, container_list, logger, parameter_list)
 
 
