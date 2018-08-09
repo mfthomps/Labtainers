@@ -126,14 +126,6 @@ fi
 echo $CONTAINER_PASSWORD | sudo touch /sbin/consoletype
 echo $CONTAINER_PASSWORD | sudo chmod a+rwx /sbin/consoletype
 echo "image version is $IMAGE_VERSION" >/tmp/mft.out
-echo "do mynotify service"
-date
-if [[ "$IMAGE_VERSION" -eq -1 ]] || [[ "$IMAGE_VERSION" -gt 2 ]]; then
-    systemctl enable mynotify.service
-    systemctl start mynotify.service
-fi
-echo "back from mynotify service"
-date
 # just for ubuntu, tbd limit to that?
 touch ~/.sudo_as_admin_successful
 
@@ -144,5 +136,13 @@ fi
 PERMLOCKDIR=/var/labtainer/did_param
 echo $CONTAINER_PASSWORD | sudo -S mkdir -p "$PERMLOCKDIR" 
 echo "done with parameterize.sh"
+date
+echo "do mynotify service"
+date
+if [[ "$IMAGE_VERSION" -eq -1 ]] || [[ "$IMAGE_VERSION" -gt 2 ]]; then
+    systemctl enable mynotify.service
+    systemctl start mynotify.service
+fi
+echo "back from mynotify service"
 date
 
