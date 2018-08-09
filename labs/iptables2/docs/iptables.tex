@@ -27,8 +27,8 @@ A variety of different techniques and products exist for the purpose of limiting
 IP network traffic between computers.  In this lab, you will limit IP traffic through
 use of Linux iptables.  
 The student is expected to have separately learned about the use of iptables
-to selectively block network traffic. The firewall component includes a few
-example firewall setting scripts that you can reference.  The manpage for iptables can be viewed on the
+to selectively block network traffic. The firewall component includes an
+example firewall setting script that you can reference.  The manpage for iptables can be viewed on the
 firewall component using:
 \begin{verbatim}
    man iptables
@@ -101,22 +101,29 @@ The iptables utility is installed on the ``firewall'' component.
 Use it to prevent the firewall from forwarding any traffic
 to the server other than SSH and HTTP.
 
-You may reference and experiment with the example firewall scripts that
-are on the firewall component in the home directory.  
+You may reference and experiment with the example firewall script that
+is on the firewall component in the home directory.  
 To run the {\tt example\_fw.sh} script, use:
 \begin{verbatim}
         sudo ./example_fw.sh
 \end{verbatim}
-View the content of the scripts to understand what they do.
+View the content of the script to understand what it does.
 Consider putting your iptables commands in a script so it is easy
 to test and reconfigure the iptables if you restart the lab.
 
-Then use the applications on the client to
+Note the last line in the {\tt example\_fw.sh} script directs iptables
+to log dropped packets.  You can view these from one of the firewall terminal
+tabs via:
+\begin{verbatim}
+        tail -f /var/log/iptables.log
+\end{verbatim}
+
+After modifying your iptables configuration, use the applications on the client to
 demonstrate that the firewall only allows the desired traffic.
 Watch the traffic in wireshark to see that the TCP handshake fails
 when attempting to connect to filtered ports.
 
-Use nmap to confirm the proper configuration (this is required):
+Use nmap to confirm the proper configuration:
 \begin{verbatim}
    nmap server
 \end{verbatim}
