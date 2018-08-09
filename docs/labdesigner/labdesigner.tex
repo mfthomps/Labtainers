@@ -1116,6 +1116,9 @@ Directives within the results.config file each have the following format:
                              number named by the field_id.  Regular expressions
                              and their groups are processed using the python
                              re.search semantics.
+               TIME_DELIM -- The timestamps of the named files are used to create 
+                             a set of time ranges, e.g., for use in time_during 
+                             goal operators.
                              
                               
             field_id -- An integer identifying the nth occurance of the field type.
@@ -1154,7 +1157,9 @@ Directives within the results.config file each have the following format:
                                    stdin file.  See the snort lab for an example.
                 REGEX_TS        -- Similar to HAVESTRING_TS, but with REGEX semantics,
                                    including optional use of the GROUP field_type.
-            line_id - See line_type above.
+            line_id - See line_type above.  String values, e.g., for "STARTSWITH"
+                      can be a parameterized value from the param.config file.
+                      Preface these with a "$".
 \end{verbatim}
 
 \subsubsection{Converting artifact file formats}
@@ -1949,6 +1954,10 @@ and parameterization.
 
 The user does not see the /etc/fstab file.  Only virtual file systems can be
 mounted (or those mounted when the container is created.)
+
+Kernel logs do not appear in {\tt /var/log/kern.log}.  For logging events
+such as iptables, consider using ulogd and a ``NFLOG'' directive in place of
+a ``LOG'' directive.  See the dmz-lab as an example.
 
 The available Docker network drivers do not permit IP address overlap between virtual networks.
 For example, you cannot define two 192.168.1.0/24 LANs.
