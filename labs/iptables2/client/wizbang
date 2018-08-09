@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+'''
+Dumb client interacting with a dumb server
+'''
+import socket
+import sys
+import signal
+def signal_handler(sig, frame):
+    print('Interrupted, exiting')
+    sys.exit(0)
+try:
+    import ssl
+except ImportError:
+    pass
+else:
+    signal.signal(signal.SIGINT, signal_handler)
+    SERVICE_PORT = WIZ_PORT
+    if len(sys.argv) < 2:
+        print('ERROR: missing argument.  Usage:')
+        print('   ./wizbang <instruction>')
+        exit(1)
+    server_host = '172.25.0.3'
+    instruction = ' '.join(sys.argv[1:])
+    this_host = socket.gethostname()
+    conn = socket.socket(socket.AF_INET)
+    try:
+        conn.connect((server_host, SERVICE_PORT))
+    except socket.error as ss:
+        print('ERROR: %s' % str(ss))
+        exit(1)
+    print('Sending instruction %s' % instruction)
+    conn.sendall('%s\n' % instruction)
+    print('bye')
+    conn.close()
