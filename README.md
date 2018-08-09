@@ -82,6 +82,11 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+August 9, 2018
+- Support parameter replacement in results.config files
+- Add TIME\_DELIM result type for results.config
+- Rework the iptables lab, remove hidden nmap commands, introduce custom service
+
 August 7, 2018
 - Add link to student guide in labtainer-student directory
 - Add link to student guide on VM desktops
