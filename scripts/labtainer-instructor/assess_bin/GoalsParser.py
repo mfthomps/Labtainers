@@ -121,52 +121,6 @@ def getTagValue(parameter_list, target, finaltag, logger):
             returnTagValue = '%s.%s' % (target, finaltag)
     return returnTagValue
 
-def generateSpecialTagValue(studentdir, target, finaltag, logger):
-    STUDENT_LAB_INSTANCE_SEED = '%s/%s' % (studentdir, ".local/.seed")
-    student_lab_instance_seedfile = open(STUDENT_LAB_INSTANCE_SEED, 'r')
-    student_lab_instance_seed = student_lab_instance_seedfile.read().strip()
-    student_lab_instance_seedfile.close()
-    logger.DEBUG("Student Lab instance seed is (%s)" % student_lab_instance_seed)
-    
-    # Seed random with student lab instance seed
-    random.seed(student_lab_instance_seed)
-
-    if target == "answer":
-        returnTagValue = 'answer=%s' % finaltag
-    elif target == "asciirandom":
-        # finaltag consists of <lowerbound>-<upperbound>
-        bounds = finaltag.split('-')
-        if len(bounds) != 2:
-            logger.ERROR("asciirandom expecting <LowerBound>-<UpperBound>\n")
-            sys.exit(1)
-        randomstring = getRandom(bounds, "asciirandom", logger)
-        returnTagValue = 'answer=%s' % randomstring
-    elif target == "hexrandom":
-        # finaltag consists of <lowerbound>-<upperbound>
-        bounds = finaltag.split('-')
-        if len(bounds) != 2:
-            logger.ERROR("hexrandom expecting <LowerBound>-<UpperBound>\n")
-            sys.exit(1)
-        randomstring = getRandom(bounds, "hexrandom", logger)
-        returnTagValue = 'answer=%s' % randomstring
-    elif target == "intrandom":
-        # finaltag consists of <lowerbound>-<upperbound>
-        bounds = finaltag.split('-')
-        if len(bounds) != 2:
-            logger.ERROR("intrandom expecting <LowerBound>-<UpperBound>\n")
-            sys.exit(1)
-        randomstring = getRandom(bounds, "intrandom", logger)
-        returnTagValue = 'answer=%s' % randomstring
-    elif target == "hash":
-        # finaltag is the secretstring
-        # Concatenate student_lab_instance_seed with secretstring then hash
-        string_to_be_hashed = '%s:%s' % (student_lab_instance_seed, finaltag)
-        mymd5 = md5.new()
-        mymd5.update(string_to_be_hashed)
-        newhash = mymd5.hexdigest()
-        returnTagValue = 'answer=%s' % newhash
-
-    return returnTagValue
 
 def ValidateTag(parameter_list, studentdir, goal_type, inputtag, allowed_special_answer, logger):
     # if allowed_special_answer is true, then allow 'answer=<string>'
