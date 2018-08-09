@@ -828,50 +828,50 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
     jsonoutput.write('\n')
     jsonoutput.close()
 
-def doFileTimeDelim(result_home, targetfile, result_key, logger):
-                fname, delim_prog = targetfile.split(':')
-                logger.DEBUG('targetfile is time delim %s delim_prog %s fname %s' % (targetfile, delim_prog, fname))
-                look_for = os.path.join(result_home,'%s.stdout.*' % delim_prog)
-                #print('look for %s' % look_for)
-                delim_list = glob.glob(look_for)
-                delim_ts_set = []
-                for delim_ts_file in delim_list:
-                    ts = delim_ts_file.rsplit('.',1)[1]
-                    delim_ts_set.append(ts)
-                if len(delim_ts_set) == 0:
-                    logger.DEBUG('no ts files for program time delimiter %s' % delim_prog)
-                    return
-                delim_ts_set.sort()
-                end_times='99999999999999'
-                delim_ts_set.append(end_times)
-                ts = 0
-                current_ts_end = delim_ts_set[0]
-                index = 0
-                with open(fname) as fh:
-                    for currentline in fh:
-                        time_val = getTS(currentline)
-                        logger.DEBUG('ts[index] %s  my_time %s' % (delim_ts_set[index], time_val))
-                        if time_val > delim_ts_set[index]:
-                            logger.DEBUG('time greater')
-                            if ts in ts_nametags:
-                                ts_nametags[ts]['PROGRAM_ENDTIME'] = time_val
-                            ts = delim_ts_set[index]
-                            index += 1
-                        if command == 'CONTAINS':
-                            if lookupstring in currentline:
-                                if ts not in ts_nametags:
-                                    ts_nametags[ts] = {}
-                                    ts_nametags[ts]['PROGRAM_ENDTIME'] = end_times
-                                ts_nametags[ts][result_key] = True
-                        elif command == 'FILE_REGEX':
-                            remain = line.split(command,1)[1]
-                            remain = remain.split(':', 1)[1].strip()
-                            sobj = re.search(remain, currentline)
-                            if sobj is not None:
-                                if ts not in ts_nametags:
-                                    ts_nametags[ts] = {}
-                                    ts_nametags[ts]['PROGRAM_ENDTIME'] = end_times
-                                ts_nametags[ts][result_key] = True
+def doFileTimeDelim(ts_nametags, result_home, targetfile, result_key, command, lookupstring, logger):
+    fname, delim_prog = targetfile.split(':')
+    logger.DEBUG('targetfile is time delim %s delim_prog %s fname %s' % (targetfile, delim_prog, fname))
+    look_for = os.path.join(result_home,'%s.stdout.*' % delim_prog)
+    #print('look for %s' % look_for)
+    delim_list = glob.glob(look_for)
+    delim_ts_set = []
+    for delim_ts_file in delim_list:
+        ts = delim_ts_file.rsplit('.',1)[1]
+        delim_ts_set.append(ts)
+    if len(delim_ts_set) == 0:
+        logger.DEBUG('no ts files for program time delimiter %s' % delim_prog)
+        return
+    delim_ts_set.sort()
+    end_times='99999999999999'
+    delim_ts_set.append(end_times)
+    ts = 0
+    current_ts_end = delim_ts_set[0]
+    index = 0
+    with open(fname) as fh:
+        for currentline in fh:
+            time_val = getTS(currentline)
+            logger.DEBUG('ts[index] %s  my_time %s' % (delim_ts_set[index], time_val))
+            if time_val > delim_ts_set[index]:
+                logger.DEBUG('time greater')
+                if ts in ts_nametags:
+                    ts_nametags[ts]['PROGRAM_ENDTIME'] = time_val
+                ts = delim_ts_set[index]
+                index += 1
+            if command == 'CONTAINS':
+                if lookupstring in currentline:
+                    if ts not in ts_nametags:
+                        ts_nametags[ts] = {}
+                        ts_nametags[ts]['PROGRAM_ENDTIME'] = end_times
+                    ts_nametags[ts][result_key] = True
+            elif command == 'FILE_REGEX':
+                remain = line.split(command,1)[1]
+                remain = remain.split(':', 1)[1].strip()
+                sobj = re.search(remain, currentline)
+                if sobj is not None:
+                    if ts not in ts_nametags:
+                        ts_nametags[ts] = {}
+                        ts_nametags[ts]['PROGRAM_ENDTIME'] = end_times
+                    ts_nametags[ts][result_key] = True
 
 def ParseConfigForTimeDelim(studentlabdir, labidname, configfilelines, ts_jsonfname, container_list, logger, parameter_list):
     '''
@@ -886,7 +886,7 @@ def ParseConfigForTimeDelim(studentlabdir, labidname, configfilelines, ts_jsonfn
         if linestrip is not None and not linestrip.startswith('#') and len(line.strip())>0:
             containername, targetfile, result_key, command, field_type, token_id, lookupstring, result_home = getConfigItems(labidname, linestrip, studentlabdir, container_list, logger, parameter_list)
             if targetfile is not None and ':' in targetfile:
-                 doFileTimeDelim(result_home, targetfile, result_key, logger)
+                 doFileTimeDelim(ts_nametags, result_home, targetfile, result_key, command, lookupstring, logger)
             elif targetfile is not None and command == 'TIME_DELIM':
                 ''' set of timestamped values delimited by named program '''
                 logger.DEBUG('targetfile is time delim %s ' % (targetfile))
