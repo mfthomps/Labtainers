@@ -1,0 +1,50 @@
+#!/usr/bin/env python
+'''
+Simulate a dumb server
+'''
+import socket
+
+SERVICE_PORT = WIZ_PORT
+
+def do_something(constream, data):
+    print('received: %s' % data)
+    if data is None:
+        return False
+    else:
+        return True
+
+def deal_with_client(connstream):
+    try:
+        data = connstream.recv(1024)
+    except:
+        return
+    # null data means the client is finished with us
+    while data:
+        if not do_something(connstream, data):
+            # we'll assume do_something returns False
+            # when we're finished with client
+            break
+        data = connstream.recv(1024)
+    # finished with client
+
+''' this host name, e.g., plc1 '''
+this_host = socket.gethostname()
+
+''' bind socket and listen '''
+bindsocket = socket.socket()
+bindsocket.bind((this_host, SERVICE_PORT))
+bindsocket.listen(5)
+
+while True:
+    ''' wait for client to open connection '''
+    newsocket, fromaddr = bindsocket.accept()
+    print('Connection from %s' % str(fromaddr))
+    try:
+        deal_with_client(newsocket)
+    finally:
+        try:
+            newsocket.shutdown(socket.SHUT_RDWR)
+        except:
+            pass
+        newsocket.close()
+
