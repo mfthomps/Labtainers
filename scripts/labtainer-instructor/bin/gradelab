@@ -263,7 +263,9 @@ def doGrade(labname, use_test_registry, debug, redo, update, regress_test=None):
         removeGraders(registry)
 
     if not labutils.IsContainerCreated(grade_container):
-        cmd = "docker create -t --name=%s --hostname=%s %s" % (grade_container, grade_container, grade_image)
+        docker0_IPAddr = labutils.getDocker0IPAddr()
+        add_host_param = '--add-host my_host:%s' % (docker0_IPAddr)
+        cmd = "docker create -t --name=%s %s --hostname=%s %s" % (grade_container, add_host_param, grade_container, grade_image)
         logger.DEBUG("Command to execute was (%s)" % cmd)
         ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         output = ps.communicate()
