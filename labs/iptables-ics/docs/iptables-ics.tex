@@ -11,8 +11,8 @@
 This Labtainer exercise illustrates the use of iptables
 to limit network access to a PLC component in an operational
 technology (OT) environment. This control is provided by 
-a component serving as a firewall, as illustrated in figure 
-\ref{fig:topology}
+a component serving as a firewall, as illustrated in Figure 
+\ref{fig:topology}.
 
 When properly configured, the firewall will only allow the following traffic
 between the clients and the PLC:
@@ -87,7 +87,7 @@ This starts a simple MODBUS client.  Observe the network traffic using
 wireshark, making note of the destination TCP port number used by the client when
 connecting to the PLC. Then use {\tt <ctrl C>} to terminate the program on each client.
 
-\noindent Start firefox on each client 
+\noindent Start firefox on each client:
 \begin{verbatim}
         firefox &
 \end{verbatim}
@@ -96,7 +96,8 @@ connecting to the PLC. Then use {\tt <ctrl C>} to terminate the program on each 
         http://plc:8080
         http://plc
 \end{verbatim}
-\noindent Observe the traffic in wireshark, making note of which ports are used by the 
+\noindent Observe the traffic in wireshark, making note the
+source IP addresses and the destination ports used by the 
 clients when connecting to the PLC.
 
 \noindent Finally, use SSH to connect to the PLC from each client:
@@ -120,25 +121,39 @@ to the PLC other than specified below.
 \end{enumerate}
 
 You may reference and experiment with the example firewall scripts that
-are on the firewall component.  \textbf{NOTE:} the IP addresses in the example
+are on the firewall component in the home directory.  \textbf{NOTE:} The IP addresses in the example
 script may not correspond to the IP addresses of your system, and would
 therefore need to be changed.  To run the {\tt example\_fw.sh} script, use:
 \begin{verbatim}
-        sudo ../example_fw.sh
+        sudo ./example_fw.sh
 \end{verbatim}
 View the content of the scripts to understand what they do.
 Consider putting your iptables commands in a script so it is easy
 to test and reconfigure the iptables if you restart the lab.
+Note that the last line of {\tt example\_fw.sh} directs iptables
+to send log messages to a file that is at:
+\begin{verbatim}
+  /var/log/iptables.log
+\end{verbatim}
+\noindent If you include that directive in your configuration, you can observe when
+iptables drops filtered packets, e.g., by tailing the log from one of the 
+firewall terminal tabs:
+\begin{verbatim}
+  tail -f /var/log/iptables.log
+\end{verbatim}
 
-Then use the applications on Client1 and Client2 to
+After configuring iptables to meet the requirements, use the applications on Client1 and Client2 to
 demonstrate that the firewall only allows the desired traffic.
 Watch the traffic in wireshark to confirm the TCP handshake fails
-when attempting to connect to filtered ports.
+when attempting to connect to filtered ports.  
 
 When you believe you have the proper iptables configuration and have tested it,
-use the {\tt stoplab} command from your Linux host.  You are free to then restart
+use the {\tt stoplab} command from your Linux system.  You are free to then restart
 the lab using {\tt labtainer iptables-ics} and explore further without concern for
-the state of the system when you again stop it.
+the state of the system when you again stop it.  Alternately, if the {\tt checkwork} command is
+available on your distribution, you can use that command from the Linux system instead of {\tt stoplab}, and then just
+continue working.
+
 \section{Submission}
 After finishing the lab, go to the terminal on your Linux system that was used to start the lab and type:
 \begin{verbatim}
