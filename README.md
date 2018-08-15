@@ -82,6 +82,12 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+August 15, 2018
+- Add "checkwork" command allowing students to view automated assessment  results for their lab work.
+- Include logging of iptables packet drops in the iptables2 and the iptables-ics lab.
+- Remove obsolete instances of is\_true and is\_false from goal.config
+- Fix boolean evaluation to handle "NOT foo", it had expected more operands.
+
 August 9, 2018
 - Support parameter replacement in results.config files
 - Add TIME\_DELIM result type for results.config
