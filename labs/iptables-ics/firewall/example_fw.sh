@@ -27,3 +27,6 @@ $IPTABLES -A FORWARD -p tcp -s 172.24.0.2 --dport 22 -j ACCEPT
 # loopback device (internal traffic)
 iptables -A INPUT -i lo -p all -j ACCEPT
 
+# log IPTABLES filtering actions
+iptables -A FORWARD -j NFLOG -m limit --limit 2/min --nflog-prefix "IPTABLES DROPPED"
+
