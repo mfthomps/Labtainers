@@ -32,6 +32,7 @@ class ParseLabtainerConfig():
         self.test_registry = 'testregistry:5000'
         self.default_registry = 'mfthomps'
         self.apt_source='archive.ubuntu.com'
+        self.checkwork='yes'
         if logger != None:
             self.logger = logger
         else:
