@@ -68,6 +68,9 @@ def bool_eval(token_lst):
         #print('is not, will pop!!!!')
         is_not = token_lst.pop(0)
         token_lst[0] = not token_lst[0]
+        if len(token_lst) == 1:
+            ''' simple case of boolean : not foo '''
+            return token_lst[0]
     #print('%s(%s, %s)' % (token_lst[1], token_lst[0], token_lst[2]))
     tmp = token_lst[1](token_lst[0], token_lst[2])
     #print('bool_eval evaluates to %r' % tmp)
@@ -131,7 +134,7 @@ def evaluate_boolean_expression(s, the_dict, logger, goals):
             #print('s %s item %s value %s' % (s, item, value))
             s = s.replace(item, value)
 
-    tokens = ['(',')',' and_not ', ' AND_NOT ', ' or_not ', ' OR_NOT ', ' not ',' NOT ',' and ',' AND ',
+    tokens = ['(',')',' and_not ', ' AND_NOT ', ' or_not ', ' OR_NOT ', ' not ',' NOT ','not ','NOT ',' and ',' AND ',
               ' or ',' OR ',' True ',' False ', 'True ', ' True', 'False ', ' False'] 
     remains = s
     for t in tokens:
