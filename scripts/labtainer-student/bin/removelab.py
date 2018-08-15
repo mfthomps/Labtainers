@@ -20,7 +20,6 @@ def removeLab(lab):
         os.system(cmd)
     
     
-    lab = sys.argv[1]
     cmd = 'docker images'
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
@@ -41,7 +40,8 @@ def removeLab(lab):
         print('No images for %s' % lab)
 
 def main():
-    parser = argparse.ArgumentParser(prog='labtainer', description='Start a Labtainers lab.  Provide no arguments see a list of labs.')
+    parser = argparse.ArgumentParser(prog='removelab', description='Remove a lab and its images from a Labtainers installation. \
+        The next time the lab is run, a fresh (updated) image will be pulled.')
     parser.add_argument('labname', default='NONE', nargs='?', action='store', help='The lab to delete')
     args = parser.parse_args()
     removeLab(args.labname)
