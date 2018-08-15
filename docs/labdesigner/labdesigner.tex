@@ -415,6 +415,7 @@ address to create an instance seed that controls parameterization of individual 
 See \ref{publishing} for details on the use of this keyword.
 \item COLLECT\_DOCS [yes/no] -- Optional directive to collect lab/docs content as part of student artifacts.
 These are then available to the instructor in the labtainer\_xfer/[lab]/docs directory.  Also see \ref{instructions}.
+\item CHECKWORK [yes/no] -- Optional directive to disable (set to ``no'') ability of student to check their own work from the labtainer-student directory.
 \end{itemize}
 
 \item NETWORK [network name] -- One of these sections is require for each network within the lab.  In addition to
@@ -2110,6 +2111,14 @@ scripts so that they happen on each boot.
 
 Note also, that the Docker group (in which containers execute) is root 
 equivalent, and thus a hostile container can do damage to the Linux host.
+
+\subsection {Student self assessment}
+The {\tt checkwork} command allows students to assess their own work against
+the criteria used by instructors for automated assessment of lab performance.
+This can be disabled on deployment-wide basis using the {\tt CHECKWORK no} directive
+in the {\tt config/labtainers.config} file.  Of course this assumes you have separately
+provided access control over that file, e.g., through use of a custom VM appliance.
+
 \newpage
 \appendix
 \section{\\SimLab for testing labs}
