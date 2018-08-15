@@ -763,7 +763,7 @@ def GetRunningLabNames(containers_list):
     labnameslist = []
     found_lab_role = False
     for each_container in containers_list:
-        print each_container
+        #print each_container
         if each_container.endswith('.student'):
             splitstring = each_container.split('.')
             labname = splitstring[0]
@@ -2010,7 +2010,8 @@ def CopyAbsToResult(container_name, fname, container_user, ignore_stop_error):
             logger.ERROR('command was %s' % command)
 
 
-def CreateCopyChownZip(start_config, labtainer_config, name, container_name, container_image, container_user, container_password, ignore_stop_error):
+def CreateCopyChownZip(start_config, labtainer_config, name, container_name, container_image, container_user, 
+                       container_password, ignore_stop_error, keep_running):
     '''
     Zip up the student home directory and copy it to the Linux host home directory
     '''
@@ -2021,10 +2022,12 @@ def CreateCopyChownZip(start_config, labtainer_config, name, container_name, con
     logger.DEBUG("About to call Student.py")
     cmd_path = '/home/%s/.local/bin/Student.py' % (container_user)
     #command=['docker', 'exec', '-i',  container_name, 'echo "%s\n" |' % container_password, '/usr/bin/sudo', cmd_path, container_user, container_image]
-    command=['docker', 'exec', '-i',  container_name, '/usr/bin/sudo', cmd_path, container_user, container_image]
+    command=['docker', 'exec', '-i',  container_name, '/usr/bin/sudo', cmd_path, container_user, container_image, str(keep_running)]
     logger.DEBUG('cmd: %s' % str(command))
     child = subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output = child.communicate()
+    if keep_running and len(output[0].strip()) > 0:
+        print('\n<<<<< You may need to stop: %s in order to obtain a complete assessment. >>>>>\n' % output[0].strip())
     if len(output[1].strip()) > 0:
         if ignore_stop_error:
             logger.DEBUG("Container %s fail on executing Student.py %s \n" % (container_name, output[1]))
@@ -2285,7 +2288,7 @@ def ShouldBeRunning(start_config, container):
     return True
        
    
-def DoStopOne(start_config, labtainer_config, lab_path, name, container, ZipFileList, ignore_stop_error, results):
+def DoStopOne(start_config, labtainer_config, lab_path, name, container, ZipFileList, ignore_stop_error, results, keep_running):
         labname = os.path.basename(lab_path) 
         #dumlog = os.path.join('/tmp', name+'.log')
         #sys.stdout = open(dumlog, 'w')
@@ -2320,7 +2323,8 @@ def DoStopOne(start_config, labtainer_config, lab_path, name, container, ZipFile
                 # Before stopping a container, run 'Student.py'
                 # This will create zip file of the result
     
-                baseZipFilename, currentContainerZipFilename = CreateCopyChownZip(start_config, labtainer_config, name, mycontainer_name, mycontainer_image, container_user, container_password, ignore_stop_error)
+                baseZipFilename, currentContainerZipFilename = CreateCopyChownZip(start_config, labtainer_config, name, 
+                             mycontainer_name, mycontainer_image, container_user, container_password, ignore_stop_error, keep_running)
                 if baseZipFilename is not None:
                     ZipFileList.append(currentContainerZipFilename)
                 logger.DEBUG("baseZipFilename is (%s)" % baseZipFilename)
@@ -2328,13 +2332,14 @@ def DoStopOne(start_config, labtainer_config, lab_path, name, container, ZipFile
                 #command = 'docker exec %s echo "%s\n" | sudo -S rmdir /tmp/.mylockdir 2>/dev/null' % (mycontainer_name, container_password)
                 command = 'docker exec %s sudo rmdir /tmp/.mylockdir 2>/dev/null' % (mycontainer_name)
                 os.system(command)
-
-                for mysubnet_name, mysubnet_ip in container.container_nets.items():
-                    disconnectNetworkResult = DisconnectNetworkFromContainer(mycontainer_name, mysubnet_name)
+                if not keep_running:
+                    for mysubnet_name, mysubnet_ip in container.container_nets.items():
+                        disconnectNetworkResult = DisconnectNetworkFromContainer(mycontainer_name, mysubnet_name)
 
                 # Stop the container
             
-                StopMyContainer(mycontainer_name, ignore_stop_error)
+                if not keep_running:
+                    StopMyContainer(mycontainer_name, ignore_stop_error)
 
         results.append(retval)
 
@@ -2358,12 +2363,12 @@ def SynchStop(start_config, run_container=None):
             t.join()
             logger.DEBUG('joined %s' % t.getName())
 
-def DoStop(start_config, labtainer_config, lab_path, ignore_stop_error, run_container=None, servers=None, clone_count=None):
+def DoStop(start_config, labtainer_config, lab_path, ignore_stop_error, run_container=None, servers=None, clone_count=None, keep_running=False):
     mycwd = os.getcwd()
     retval = True
     labname = os.path.basename(lab_path)
     host_home_xfer  = os.path.join(labtainer_config.host_home_xfer, labname)
-    logger.DEBUG("DoStop Multiple Containers and/or multi-home networking")
+    logger.DEBUG("DoStop Multiple Containers and/or multi-home networking, keep_running is %r" % keep_running)
     SynchStop(start_config, run_container)
     username = getpass.getuser()
 
@@ -2378,7 +2383,7 @@ def DoStop(start_config, labtainer_config, lab_path, ignore_stop_error, run_cont
         mycontainer_name = '%s.%s.student' % (labname, container.name)
 
         t = threading.Thread(target=DoStopOne, args=(start_config, labtainer_config, lab_path, 
-              name, container, ZipFileList, ignore_stop_error, results))
+              name, container, ZipFileList, ignore_stop_error, results, keep_running))
         threads.append(t)
         t.setName(name)
         t.start()
@@ -2388,7 +2393,8 @@ def DoStop(start_config, labtainer_config, lab_path, ignore_stop_error, run_cont
         t.join()
         logger.DEBUG('joined %s' % t.getName())
 
-    RemoveSubnets(start_config.subnets, ignore_stop_error)
+    if not keep_running:
+        RemoveSubnets(start_config.subnets, ignore_stop_error)
     if not ignore_stop_error:
         if False in results:
             logger.ERROR('DoStopOne has at least one failure!')
@@ -2468,9 +2474,10 @@ def DoStop(start_config, labtainer_config, lab_path, ignore_stop_error, run_cont
 # ignore_stop_error - set to 'False' : do not ignore error
 # ignore_stop_error - set to 'True' : ignore certain error encountered since it might not even be an error
 #                                     such as error encountered when trying to stop non-existent container
-def StopLab(lab_path, ignore_stop_error, run_container=None, servers=None, clone_count=None):
+def StopLab(lab_path, ignore_stop_error, run_container=None, servers=None, clone_count=None, keep_running=False):
     labname = os.path.basename(lab_path)
     myhomedir = os.environ['HOME']
+    logger.DEBUG("keep_running is %r" % keep_running)
     logger.DEBUG("ParseStartConfig for %s" % labname)
     is_valid_lab(lab_path)
     labtainer_config, start_config = GetBothConfigs(lab_path, logger, servers, clone_count)
@@ -2480,7 +2487,8 @@ def StopLab(lab_path, ignore_stop_error, run_container=None, servers=None, clone
     host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
     CreateHostHomeXfer(host_xfer_dir)
 
-    if DoStop(start_config, labtainer_config, lab_path, ignore_stop_error, run_container, servers):
+    if DoStop(start_config, labtainer_config, lab_path, ignore_stop_error, run_container=run_container, 
+              servers=servers, clone_count=clone_count, keep_running=keep_running):
         # Inform user where results are stored
         print "Results stored in directory: %s" % host_xfer_dir
     return host_xfer_dir
