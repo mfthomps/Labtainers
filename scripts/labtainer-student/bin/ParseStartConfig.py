@@ -36,6 +36,8 @@ class ParseStartConfig():
         self.skip_networks = skip_networks
         self.labtainer_config = labtainer_config
         self.clone_count = clone_count
+        # CHECKWORK, set to 'NO' if students should not be able to check their work for this lab
+        self.checkwork = 'yes'
         # COLLECT_DOCS - this optional setting indicates whether to collect lab's docs directory or not
         # default to NO (i.e., do not collect)
         self.collect_docs = 'yes'

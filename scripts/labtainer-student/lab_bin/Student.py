@@ -23,8 +23,11 @@ import time
 import logging
 
 
-def killMonitoredProcess(homeLocal, logger):
-    cmd = "ps ax -o \"%r %c\" | grep [c]apinout | awk '{print $1}' | uniq"
+def killMonitoredProcess(homeLocal, keep_running, logger):
+    if not keep_running:
+        cmd = "ps ax -o \"%r %c\" | grep [c]apinout | awk '{print $1}' | uniq"
+    else:
+        cmd = "ps ax | grep [c]apinout | awk '{print $6}'"
     child = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     done = False
     logger.debug("cmd was %s" % cmd)
@@ -32,31 +35,35 @@ def killMonitoredProcess(homeLocal, logger):
         line = child.stdout.readline().strip()
         logger.debug('got line %s' % line)
         if len(line)>0:
-            cmd = 'kill -INT -%s' % line
-            logger.debug('cmd is %s' % cmd)
-            os.system(cmd)
-            time.sleep(2)
+            if not keep_running:
+                cmd = 'kill -INT -%s' % line
+                logger.debug('cmd is %s' % cmd)
+                os.system(cmd)
+            else:
+                print line
+  
         else:
             done = True
-    kill_proc = os.path.join(homeLocal, 'bin', 'killproc')
-    if os.path.isfile(kill_proc):
-        fh = open(kill_proc)
-        for line in fh:
-            cmd = 'pkill %s' % line
-            logger.debug('pkill_proc cmd is %s' % cmd)
-            os.system(cmd)
-        fh.close()
+    if not keep_running:
+        kill_proc = os.path.join(homeLocal, 'bin', 'killproc')
+        if os.path.isfile(kill_proc):
+            fh = open(kill_proc)
+            for line in fh:
+                cmd = 'pkill %s' % line
+                logger.debug('pkill_proc cmd is %s' % cmd)
+                os.system(cmd)
+            fh.close()
 
 def main():
     #print "Running Student.py"
-    if len(sys.argv) != 3:
+    if len(sys.argv) != 4:
         sys.stderr.write("Usage: Student.py <username> <image_name>\n")
         return 1
 
     file_log_level = logging.DEBUG
     console_log_level = logging.WARNING
 
-    logger = logging.getLogger('student.log')
+    logger = logging.getLogger('/tmp/student.log')
     logger.setLevel(file_log_level)
     formatter = logging.Formatter('[%(asctime)s - %(levelname)s : %(message)s')
 
@@ -75,9 +82,10 @@ def main():
 
     user_name = sys.argv[1]
     container_image = sys.argv[2].split('.')[1]
+    keep_running = sys.argv[3]
     studentHomeDir = os.path.join('/home',user_name)
     homeLocal= os.path.join(studentHomeDir, '.local')
-    killMonitoredProcess(homeLocal, logger)
+    killMonitoredProcess(homeLocal, keep_running, logger)
     os.chdir(studentHomeDir)
     student_email_file=os.path.join(homeLocal, '.email')
     lab_name_file=os.path.join(homeLocal, '.labname')
