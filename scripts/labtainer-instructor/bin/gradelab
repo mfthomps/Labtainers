@@ -161,7 +161,7 @@ def copyAssessBin(container_name):
         logger.ERROR("Failed copy assess_bin %s!\n" % container_name)
         sys.exit(1)
 
-def copyChownGradesFile(labtainer_config, labname, grade_container, container_user):
+def copyChownGradesFile(labtainer_config, labname, grade_container, container_user, copy_json):
     host_home_xfer = os.path.join(labtainer_config.host_home_xfer, labname)
 
     username = getpass.getuser()
@@ -180,15 +180,16 @@ def copyChownGradesFile(labtainer_config, labname, grade_container, container_us
         cmd = 'docker stop %s' % grade_container
         labutils.DockerCmd(cmd)
 
-    # Copy <labname>.grades.json file
-    gradejson_filename = '/home/%s/%s.grades.json' % (container_user, labname)
-    command = "docker cp %s:%s /home/%s/%s" % (grade_container, gradejson_filename, username, host_home_xfer)
-    logger.DEBUG("Command to execute is (%s)" % command)
-    result = subprocess.call(shlex.split(command))
-    logger.DEBUG("Result of subprocess.Popen exec cp %s.grades.json file is %s" % (labname, result))
-    if result == FAILURE:
-        cmd = 'docker stop %s' % grade_container
-        labutils.DockerCmd(cmd)
+    if copy_json:
+        # Copy <labname>.grades.json file
+        gradejson_filename = '/home/%s/%s.grades.json' % (container_user, labname)
+        command = "docker cp %s:%s /home/%s/%s" % (grade_container, gradejson_filename, username, host_home_xfer)
+        logger.DEBUG("Command to execute is (%s)" % command)
+        result = subprocess.call(shlex.split(command))
+        logger.DEBUG("Result of subprocess.Popen exec cp %s.grades.json file is %s" % (labname, result))
+        if result == FAILURE:
+            cmd = 'docker stop %s' % grade_container
+            labutils.DockerCmd(cmd)
 
 
 def diddleProfile(container_name):
@@ -200,11 +201,11 @@ def diddleProfile(container_name):
         logger.ERROR("Failed to set labname in container %s!\n" % container_name)
         sys.exit(1)
 
-def autoGrade(grade_container, lab_path, labtainer_config, labname):
+def autoGrade(grade_container, lab_path, labtainer_config, labname, copy_json):
     cmd = "docker exec %s bash -c 'su - instructor -c \"cd;.local/bin/instructor.py\"'" % (grade_container)
     if not labutils.DockerCmd(cmd):
         logger.ERROR('trouble with %s' % cmd)
-    copyChownGradesFile(labtainer_config, labname, grade_container, 'instructor')
+    copyChownGradesFile(labtainer_config, labname, grade_container, 'instructor', copy_json)
     username = getpass.getuser()
     host_xfer = os.path.join('/home', username, labtainer_config.host_home_xfer, labname)
     fglob = glob.glob(host_xfer+'/*grades.txt')
@@ -247,7 +248,7 @@ def moreTerm(labname):
     logger.DEBUG("spawn_command is (%s)" % spawn_command)
     os.system(spawn_command)
 
-def doGrade(labname, use_test_registry, debug, redo, update, regress_test=None):
+def doGrade(labname, use_test_registry, debug, redo, update, regress_test=None, copy_json=True):
     grade_container = '%s-igrader' % labname
     if redo:
         cmd = 'docker stop %s' % grade_container
@@ -289,7 +290,7 @@ def doGrade(labname, use_test_registry, debug, redo, update, regress_test=None):
         logger.DEBUG("spawn_command is (%s)" % spawn_command)
         os.system(spawn_command)
     else:
-        autoGrade(grade_container, lab_path, labtainer_config, labname)
+        autoGrade(grade_container, lab_path, labtainer_config, labname, copy_json)
 
 def removeGraders(registry):
     cmd = 'docker ps -a'
