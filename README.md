@@ -83,6 +83,9 @@ so you may want to logout/login, or start a new bash shell before using Labtaine
 first time.
 
 August 15, 2018
+- Modify plc-forensics lab assessment to be more general; revise lab manual to reflect wireshark on the Labtainer.
+ 
+August 15, 2018
 - Add "checkwork" command allowing students to view automated assessment  results for their lab work.
 - Include logging of iptables packet drops in the iptables2 and the iptables-ics lab.
 - Remove obsolete instances of is\_true and is\_false from goal.config
