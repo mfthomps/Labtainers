@@ -275,7 +275,8 @@ a separate terminal:
 Note the ``rebuild.py'' command is not intended for use by students, they would use the ``start.py'' command.  
 The rebuild.py utility compares file modification dates to Docker image creation dates to determine if
 a given image needs to be rebuilt.  \footnote{rebuild.py will miss file deletion.  Thus, if files are deleted, you must
-force the rebuild using the {\tt -f} option at the end of the rebuild.py command.}
+force the rebuild using the {\tt -f} option at the end of the rebuild.py command. Also, addition of symbolic links will not
+trigger a rebuild.}
 
 Stop the lab with 
 \begin{verbatim}
