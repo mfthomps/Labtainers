@@ -11,74 +11,53 @@ function contains() {
     echo "n"
     return 1
 }
-revision=`svn info -r HEAD --show-item revision`
+revision=`git describe --long`
 skip="skip-labs"
 skiplist=""
 lines=`cat $skip`
 for line in $lines; do
     lab=$(basename $line)
-    hack=$lab/
-    skiplist+=($hack)
-    #echo "added $hack"
+    skiplist+=($lab)
 done
 mkdir -p /tmp/labtainer_pdf
 #myshare=/home/mike/sf_SEED/
 myshare=/media/sf_SEED/
 here=`pwd`
 cd ../
-svn status | grep -E "^M|^D|^A" | less
+rootdir=`pwd`
+git status -s | grep -E "^ M|^ D|^ A" | less
 ddir=/tmp/labtainer-distrib
-ldir=/tmp/labtainer-distrib/labtainer
+ldir=$ddir/labtainer
+ltrunk=$ldir/trunk
+scripts=$ltrunk/scripts
+labs=$ltrunk/labs
 rm -fr /$ddir
 mkdir $ddir
 mkdir $ldir
-cd $ldir
-mkdir trunk
-cd trunk
-svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/README.md
-sed -i "s/mm\/dd\/yyyy/$(date '+%m\/%d\/%Y %H:%M')/" README.md
-sed -i "s/^Revision:/Revision: $revision/" README.md
-svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/config
-svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/setup_scripts
-svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/docs
-svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/tool-src
-svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/distrib/skip-labs
-mkdir scripts
-cd scripts
-svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/scripts/labtainer-student
-svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/scripts/labtainer-instructor
-cd ../
-mkdir labs
-cd labs
-llist=$(svn ls https://tor.ern.nps.edu/svn/proj/labtainer/trunk/labs)
+mkdir $ltrunk
+git archive master README.md | tar -x -C $ltrunk
+sed -i "s/mm\/dd\/yyyy/$(date '+%m\/%d\/%Y %H:%M')/" $ltrunk/README.md
+sed -i "s/^Revision:/Revision: $revision/" $ltrunk/README.md
+git archive master config | tar -x -C $ltrunk
+git archive master setup_scripts | tar -x -C $ltrunk
+git archive master docs | tar -x -C $ltrunk
+git archive master tool-src | tar -x -C $ltrunk
+git archive master distrib/skip-labs | tar -x -C $ltrunk
+mkdir $scripts
+git archive master scripts/labtainer-student | tar -x -C $ltrunk
+git archive master scripts/labtainer-instructor | tar -x -C $ltrunk
+mkdir $labs
+llist=$(git ls-files labs | cut -d '/' -f 2 | uniq)
 for lab in $llist; do
     if [ $(contains "${skiplist[@]}" $lab) != "y" ]; then
-        mkdir $lab
-        cd $lab
-        mkdir -p /tmp/labtainer_pdf/$lab
-        svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/labs/$lab/config
-        svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/labs/$lab/instr_config
-        svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk/labs/$lab/docs
-        if [[ -d docs ]]; then
-            echo "lab is $lab"
-            cd docs
-            cp -p /tmp/labtainer_pdf/$lab/*.pdf .
-            if [[ -f Makefile ]]; then
-                make
-            else
-                doc=$lab.docx
-                if [[ -f $doc ]]; then
-                    soffice --convert-to pdf $doc --headless
-                fi
-            fi
-            cp -p *pdf /tmp/labtainer_pdf/$lab/
-            cd ../
-        else
-            cp */instructions.txt /tmp/labtainer_pdf/$lab/
+        git archive master labs/$lab/config | tar -x -C $ltrunk
+        git archive master labs/$lab/instr_config | tar -x -C $ltrunk
+        if [[ -d labs/$lab/docs ]]; then
+            git archive master labs/$lab/docs | tar -x -C $ltrunk
         fi
-        cd ../
     fi
 done
+distrib/mk-lab-pdf.sh $labs
 cd $ldir
 mv trunk/setup_scripts/install-labtainer.sh .
 ln -s trunk/setup_scripts/update-labtainer.sh .
@@ -95,12 +74,13 @@ cp labtainer-instructor.pdf ../../../
 cp labtainer-instructor.pdf $myshare
 
 cd $ldir/trunk/tool-src/capinout
+pwd
 ./mkit.sh
 cd $ddir
 tar -cz -X $here/skip-labs -f $here/labtainer.tar labtainer
 cd /tmp/
 #tar -czf $here/labtainer_pdf.tar.gz labtainer_pdf
-zip $here/labtainer_pdf.zip labtainer_pdf
+zip -r $here/labtainer_pdf.zip labtainer_pdf
 cd $here
 cp labtainer.tar $myshare
 cp labtainer_pdf.zip $myshare
