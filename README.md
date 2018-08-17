@@ -1,7 +1,7 @@
 Labtainers: A Docker-based cyber lab framework
 ==============================================
 
-Labtainers include more than 35 cyber lab exercises and tools to build your own. Import a single VM appliance or install on a Linux system and your students are done with provisioning and administrative setup, for these and future lab exercises.
+Labtainers include more than 45 cyber lab exercises and tools to build your own. Import a single VM appliance or install on a Linux system and your students are done with provisioning and administrative setup, for these and future lab exercises.
 
 * Consistent lab execution environments and automated provisioning via Docker containers
 * Multi-component network topologies on a modestly performing laptop computer 
@@ -9,12 +9,12 @@ Labtainers include more than 35 cyber lab exercises and tools to build your own.
 * Individualized lab exercises to discourage sharing solutions
 
 Labtainers provide controlled and consistent execution environments in which students perform labs entirely within the confines of their computer, regardless of the Linux distribution and packages installed on the student's computer.  The only requirement is that the Linux system supports Docker.  See the [Papers][Papers] for additional information about the framework.
-The Labtainers website, and the downloads are at <https://my.nps.edu/web/c3o/labtainers>.
+The Labtainers website, and downloads (including VM appliances with Labtainers pre-installed) are at <https://my.nps.edu/web/c3o/labtainers>.
 
 [Papers]: https://my.nps.edu/web/c3o/labtainers#papers
 
 Distribution created: mm/dd/yyyy
-Revision: v1.1-0-gf638bb7 
+Revision: 
 
 ## Content
 [Distribution and Use](#distribution-and-use)
@@ -27,7 +27,7 @@ Revision: v1.1-0-gf638bb7
 
 ## Distribution and Use
 Labtainers was created by United States Government employees at 
-The Center for the Information Systems Studies and Research (CISR) 
+The Center for Cybersecurity and Cyber Operations (C3O) 
 at the Naval Postgraduate School NPS.  Please note that within the 
 United States, copyright protection is not available for any works 
 created  by United States Government employees, pursuant to Title 17 
