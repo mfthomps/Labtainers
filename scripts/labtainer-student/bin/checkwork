@@ -90,7 +90,7 @@ def main():
     labutils.StopLab(lab_path, False, servers=servers, clone_count=clone_count, keep_running=True)
     here=os.getcwd()
     os.chdir('../labtainer-instructor')
-    gradelab.doGrade(labname, False, False, False, False)
+    gradelab.doGrade(labname, False, False, False, False, copy_json = False)
     os.chdir(here)
 
 
