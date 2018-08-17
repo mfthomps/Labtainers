@@ -14,7 +14,7 @@ The Labtainers website, and the downloads are at <https://my.nps.edu/web/c3o/lab
 [Papers]: https://my.nps.edu/web/c3o/labtainers#papers
 
 Distribution created: mm/dd/yyyy
-Revision: 
+Revision: v1.1-0-gf638bb7 
 
 ## Content
 [Distribution and Use](#distribution-and-use)
@@ -81,6 +81,9 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+
+August 17, 2018
+- Transition to git & GitHub as authoritative repo.
 
 August 15, 2018
 - Modify plc-forensics lab assessment to be more general; revise lab manual to reflect wireshark on the Labtainer.
