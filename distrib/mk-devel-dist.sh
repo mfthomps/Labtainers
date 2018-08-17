@@ -1,17 +1,22 @@
 #!/bin/bash
 #myshare=/home/mike/sf_SEED/
-revision=`svn info -r HEAD --show-item revision`
+revision=`git describe --long`
 myshare=/media/sf_SEED/
 here=`pwd`
 cd ../
-svn status | grep -E "^M|^D|^A" | less
+rootdir=`pwd`
+git status -s | grep -E "^ M|^ D|^ A" | less
 ddir=/tmp/labtainer-distrib
-ldir=/tmp/labtainer-distrib/labtainer
+ldir=$ddir/labtainer
+ltrunk=$ldir/trunk
+scripts=$ltrunk/scripts
+labs=$ltrunk/labs
 rm -fr /$ddir
 mkdir $ddir
 mkdir $ldir
-cd $ldir
-svn export https://tor.ern.nps.edu/svn/proj/labtainer/trunk
+mkdir $ltrunk
+mkdir $labs
+git archive master | tar -x -C $ltrunk
 sed -i "s/mm\/dd\/yyyy/$(date '+%m\/%d\/%Y %H:%M')/" trunk/README.md
 sed -i "s/^Revision:/Revision: $revision/" README.md
 cp setup_scripts/install-labtainer.sh .
@@ -33,31 +38,12 @@ cp labtainer-instructor.pdf $myshare
 $here/mkTars.sh $ldir/trunk/labs $here/skip-labs
 cd $ldir/trunk/labs
 mkdir -p /tmp/labtainer_pdf
-llist=$(ls)
-for lab in $llist; do
-        cd $lab
-        if [[ -d docs ]]; then
-            cd docs
-            cp -p /tmp/labtainer_pdf/$lab/*.pdf .
-            if [[ -f Makefile ]]; then
-                make
-            else
-                doc=$lab.docx
-                if [[ -f $doc ]]; then
-                    soffice --convert-to pdf $doc --headless
-                fi
-            fi
-            cp -p *pdf /tmp/labtainer_pdf/$lab/
-            cd ../
-        else
-            cp */instructions.txt /tmp/labtainer_pdf/$lab/
-        fi
-        cd ../
-done
+cd $rootdir
+distrib/mk-lab-pdf.sh $labs
 cd $ddir
 tar -cz -X $here/skip-labs -f $here/labtainer-developer.tar labtainer
 cd /tmp/
-zip $here/labtainer_pdf.zip labtainer_pdf
+zip -r $here/labtainer_pdf.zip labtainer_pdf
 cd $here
 cp labtainer-developer.tar $myshare
 cp labtainer_pdf.zip $myshare
