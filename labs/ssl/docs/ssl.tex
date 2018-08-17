@@ -12,17 +12,18 @@
 This lab requires that you use SSL certificates to authenticate devices
 on a simulated industrial control system network shared by 
 Programmable Logic Controlers (PLCs) and Human Machine Inteface (HMI) devices.
-The concepts covered by this lab are applicable to pair of clients and servers,
+The concepts covered by this lab are applicable to pairs of clients and servers,
 e.g., a web broswer and a web server.
 
 \subsection {Background}
-The student is expect to have separately learned about the basic elements of PKI 
-certificates, e.g., public/private key pairs, Certification authorities, 
+The student is expected to have separately learned about the basic elements of PKI 
+certificates, e.g., public/private key pairs, Certification Authorities, 
 signing requests and certificate chains.  If the student is engaded in independent
-study, several tutorial videos that cover public key cryptography are at:
-\url{https://my.nps.edu/web/c3o/movies}
+study, several tutorial videos that cover public key cryptography are at:\\
+\url{https://my.nps.edu/web/c3o/movies} \\
 Tutorials on the use of the {\tt openssl} utility can be found on the web, and details
-can be viewed using ``{\tt man openssl}''.
+can be viewed using \\
+``{\tt man openssl}''.
 
 The student is expected to have at least a basic understanding of the Linux command line,
 the basics of the file system, and the ability to use {\tt scp} to copy files from
@@ -150,7 +151,7 @@ of the two components.  (Note you have plc1 and hmi1 as working examples).
 \subsection{Demonstrate communication between all 4 components}
 After installing the certificates and keys, start the {\tt server\_ssl}
 service on each of the PLC components.
-If you have properly install certificates and keys on hmi2 and plc2, then you should
+If you have properly installed certificates and keys on hmi2 and plc2, then you should
 be able to use the {\tt client\_ssl} program to send instructions to either of the
 PLCs from either of the HMI components.  
 
