@@ -1,5 +1,9 @@
 #!/bin/bash
-#myshare=/home/mike/sf_SEED/
+#
+# Create a distribution for lab designers
+# Expects a directory at /media/sf_SEED into which it
+# will copy the distribution tar.
+#
 revision=`git describe --long`
 myshare=/media/sf_SEED/
 here=`pwd`
@@ -17,7 +21,8 @@ mkdir $ldir
 mkdir $ltrunk
 mkdir $labs
 git archive master | tar -x -C $ltrunk
-sed -i "s/mm\/dd\/yyyy/$(date '+%m\/%d\/%Y %H:%M')/" trunk/README.md
+cd $ltrunk
+sed -i "s/mm\/dd\/yyyy/$(date '+%m\/%d\/%Y %H:%M')/" README.md
 sed -i "s/^Revision:/Revision: $revision/" README.md
 cp setup_scripts/install-labtainer.sh .
 cp setup_scripts/update-labtainer.sh .
