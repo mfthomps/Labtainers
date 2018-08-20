@@ -1,4 +1,6 @@
 *.pdf
 *.gz
 *.zip
-*.tar
+*.swp
+*.pyc
+*.log

@@ -678,9 +678,8 @@ def CopyLabBin(mycontainer_name, container_user, lab_path, name, image_info):
         os.makedirs(tmp_dir)
     except os.error:
         logger.ERROR("did not expect to find dir %s" % tmp_dir)
-
     dest_tar = os.path.join(tmp_dir, 'labsys.tar')
-    cmd = 'tar cf %s -C ./lab_sys etc sbin lib' % dest_tar
+    cmd = 'tar cf %s -C ./lab_sys sbin lib &>/dev/null' % dest_tar
     os.system(cmd)
 
     cmd = 'docker cp %s %s:/var/tmp/' % (dest_tar, mycontainer_name)
@@ -1589,7 +1588,7 @@ def DateIsLater(df_utc_string, ts, local=False, debug=False):
     if debug:
         logger.DEBUG('df_utc time is %s' % df_utc_string)
         logger.DEBUG('df_utc ts is %s given ts is %s' % (df_ts, ts))
-    if df_ts > ts:
+    if int(df_ts) > int(ts):
         return True
     else:
         return False
@@ -1605,65 +1604,72 @@ def FileModLater(ts, fname):
     retval = False
     df_utc_string = None
     # start with check of svn status
-    has_svn = True
-    try:
-        child = subprocess.Popen(['svn', 'status', fname], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    except:
+    if os.path.isfile(fname):
+        has_svn = True
+    else:
         has_svn = False
-    while has_svn and True:
+    cmd = 'git status -s %s' % fname
+    logger.DEBUG('cmd: %s' % cmd)
+    child = subprocess.Popen(shlex.split(cmd), shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    while True:
         line = child.stdout.readline()
-        if line.strip() != '':
-            ''' ignore empty tar archives '''
-            if line.startswith('?'):
-                f = line.strip().split()[1]
-                if f.endswith('.tar'):
-                    if EmptyTar(f):
-                        continue
-                    fdir = os.path.dirname(f)
-                    if os.path.isfile(os.path.join(fdir,'external-manifest')):
-                        continue
-                elif f.endswith('_tar') and os.path.isdir(f):
+        line = line.strip()
+        if line == '':
+            break
+        logger.DEBUG('line: <%s>' % line)
+        ''' ignore empty tar archives '''
+        if line.startswith('?'):
+            if os.path.isfile(fname):
+                has_svn = False
+            else:
+                has_svn = True
+            f = line.strip().split()[1]
+            if f.endswith('.tar'):
+                if EmptyTar(f):
                     continue
-                elif os.path.isfile(f):
-                    df_time = os.path.getmtime(f)
-                    df_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
-                    retval = DateIsLater(df_utc_string, ts)
-                    if retval:
-                        break
-                
-            #logger.DEBUG(line)
-            if os.path.isdir(fname) or line.startswith('M') or line.startswith('>'):
-                if '/home_tar/' in line or '/sys_tar/' in line:
+                fdir = os.path.dirname(f)
+                if os.path.isfile(os.path.join(fdir,'external-manifest')):
                     continue
-                #logger.DEBUG('svn status found something for fname %s, line %s' % (fname, line))
-                if line.startswith('M'):
-                    file_path = line.split()[-1]
-                    df_time = os.path.getmtime(file_path)
-                    #parent = os.path.dirname(line.split()[1])
-                    #df_time = os.path.getmtime(parent)
-                elif line.startswith('D'):
-                    file_path = line.split()[-1]
-                    if '/' in file_path:
-                        file_dir = os.path.dirname(file_path)
-                        df_time = os.path.getmtime(file_dir)
-                else:
-                    file_path = '/'+line.split('/', 1)[-1].strip()
-                    #logger.DEBUG('not an "M", get dftime for %s' % file_path)
-                    if not os.path.exists(file_path):
-                        continue
-                    df_time = os.path.getmtime(file_path)
+            elif f.endswith('_tar') and os.path.isdir(f):
+                continue
+            elif os.path.isfile(f):
+                df_time = os.path.getmtime(f)
                 df_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
-                retval = DateIsLater(df_utc_string, ts, debug=True)
+                retval = DateIsLater(df_utc_string, ts)
                 if retval:
                     break
         else:
-            break
+            has_svn = True
+         
+        #logger.DEBUG(line)
+        if os.path.isdir(fname) or line.startswith('M') or line.startswith('>'):
+            if '/home_tar/' in line or '/sys_tar/' in line:
+                continue
+            logger.DEBUG('svn status found something for fname %s, line %s' % (fname, line))
+            if line.startswith('M'):
+                file_path = line.split()[-1]
+                df_time = os.path.getmtime(file_path)
+                #parent = os.path.dirname(line.split()[1])
+                #df_time = os.path.getmtime(parent)
+            elif line.startswith('D'):
+                file_path = line.split()[-1]
+                if '/' in file_path:
+                    file_dir = os.path.dirname(file_path)
+                    df_time = os.path.getmtime(file_dir)
+            else:
+                file_path = '/'+line.split('/', 1)[-1].strip()
+                #logger.DEBUG('not an "M", get dftime for %s' % file_path)
+                if not os.path.exists(file_path):
+                    continue
+                df_time = os.path.getmtime(file_path)
+            df_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
+            retval = DateIsLater(df_utc_string, ts, debug=False)
+            if retval:
+                break
     if df_utc_string is None:
         # try svn info.  stderr implies not in svn
-        if has_svn:
-            child = subprocess.Popen(['svn', 'info', fname], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            error_string = child.stderr.read().strip()
-        if not has_svn or len(error_string) > 0:
+        if not has_svn: 
+            #logger.DEBUG('not in svn?')
             # assume not in svn
             #logger.DEBUG("not in svn? %s" % fname)
             if fname.endswith('.tar'):
@@ -1687,35 +1693,31 @@ def FileModLater(ts, fname):
             retval = DateIsLater(df_utc_string, ts)
         else:
             # in svn, look for changed date
-            while True:
-                line = child.stdout.readline()
-                if line != '':
-                    #logger.DEBUG(line)
-                    if line.startswith('Last Changed Date:'):
-                        parts = line.split()
-                        df_utc_string = parts[3]+' '+parts[4] +' '+parts[5]
-                        svn_is_later = DateIsLater(df_utc_string, ts, True)
+            cmd = 'git log -1 --format="%%ad" %s' % fname
+            logger.DEBUG('in svn, look for changed date %s' % cmd)
+            child = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            output = child.communicate()
+            if len(output[0].strip()) > 0:
+                df_utc_string = output[0].strip()
+                logger.DEBUG('git log for %s returned %s' % (cmd, df_utc_string))
+                svn_is_later = DateIsLater(df_utc_string, ts, local=True, debug=False)
+                df_time = os.path.getmtime(fname)
+                file_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
+                logger.DEBUG('file time %s' % file_utc_string)
+                file_is_later = DateIsLater(file_utc_string, ts, local=False, debug=False)
+                retval = svn_is_later and file_is_later
 
-                        df_time = os.path.getmtime(fname)
-                        file_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
-                        file_is_later = DateIsLater(file_utc_string, ts, False)
-
-                        retval = svn_is_later and file_is_later
-                        #logger.DEBUG('changed date from svn %s for %s df_utc_string is %s' % (line, fname, df_utc_string))
-                        break
-                else:
-                    break
             if df_utc_string is None:
                 # must be an add
-                #logger.DEBUG('%s must be an add' % fname)
+                logger.DEBUG('%s must be an add' % fname)
                 if os.path.isfile(fname):
                     df_time = os.path.getmtime(fname)
                 else:
                     check_file = newest_file_in_tree(fname)
-                    #logger.DEBUG('latest found is %s' % check_file)
+                    logger.DEBUG('latest found is %s' % check_file)
                     df_time = os.path.getmtime(check_file)
                 df_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
-                retval = DateIsLater(df_utc_string, ts)
+                retval = DateIsLater(df_utc_string, ts, debug=False)
 
     ''' is the given file later than the timestamp (which is in UTC)? '''
     #logger.DEBUG('df ts %s' % df_time)
@@ -2304,7 +2306,7 @@ def DoStopOne(start_config, labtainer_config, lab_path, name, container, ZipFile
         # IsContainerCreated returned FAILURE if container does not exists
         # error: can't stop non-existent container
         if not haveContainer:
-            if ShouldBeRunning(start_config, container):
+            if ShouldBeRunning(start_config, container) and not ignore_stop_error:
                 logger.ERROR("Container %s does not exist!\n" % mycontainer_name)
                 retval = False
 
