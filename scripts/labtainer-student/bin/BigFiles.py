@@ -7,6 +7,9 @@ def BigFiles(lab_dir):
     Ensure large files named in the config/bigfiles.txt are present in the lab directory
     '''
     big_list = os.path.join(lab_dir,'config', 'bigfiles.txt')
+    if not os.path.isfile(big_list):
+        print('Missing bigfiles.txt from %s' % big_list)
+        return
     full = os.path.abspath(lab_dir)
     top = full[:full.index('trunk/labs')]
     if os.path.isfile(big_list):
