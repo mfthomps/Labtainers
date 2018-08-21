@@ -62,7 +62,11 @@ def getTags(image, token):
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[0].strip()) > 0:
-        j = json.loads(output[0])
+        try:
+            j = json.loads(output[0])
+        except:
+            print('Unable to reach docker registry.  Is your network connection working?')
+            exit(1)
         if 'tags' in j:
             return j['tags']
         else:
@@ -103,7 +107,7 @@ def getDigest(token, image, tag):
         return None
 
 def getCreated(token, image, digest):
-    cmd = 'curl --silent --location --header "Authorization: Bearer %s" "https://registry-1.docker.io/v2/%s/blobs/%s"' % (token, image, digest)
+    cmd = 'curl --silent --header "Authorization: Bearer %s" "https://registry-1.docker.io/v2/%s/blobs/%s"' % (token, image, digest)
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[0].strip()) > 0:
