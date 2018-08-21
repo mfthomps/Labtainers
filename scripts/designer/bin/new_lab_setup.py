@@ -157,18 +157,19 @@ def handle_add_container(tdir, newcontainer, basename='base'):
     shutil.copy(dockerfile_template, newcontainer_dockerfile)
 
 def renameSVN(old, new):
-    cmd = 'svn status %s' % old
+    cmd = 'git status -s %s' % old
+    print('cmd is %s' % cmd)
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
-    if 'was not found' in output[1]:
+    print('out[0] %s' % output[0])
+    if output[0].strip().startswith('??'):
         os.rename(old, new)
     else:
-
-        cmd = 'svn mv %s %s' % (old, new)
+        cmd = 'git mv %s %s' % (old, new)
         ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         output = ps.communicate()
         if len(output[1]) > 0:
-            print("Error from svn mv: %s" % output[1])
+            print("Error from git mv: %s" % output[1])
  
 def handle_rename_lab(newlabname):
     here = os.getcwd()
