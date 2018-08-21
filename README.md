@@ -82,6 +82,10 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+August 21, 2018
+- Another fix around AWS authentication issues (DockerHub uses AWS).
+- Fix new\_lab\_setup.py to use git instead of svn.
+
 August 17, 2018
 - Transition to git & GitHub as authoritative repo.
 
