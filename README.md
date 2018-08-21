@@ -85,6 +85,7 @@ first time.
 August 21, 2018
 - Another fix around AWS authentication issues (DockerHub uses AWS).
 - Fix new\_lab\_setup.py to use git instead of svn.
+- Split plc-forensics lab into a basic lab and and advanced lab (plc-forensics-adv)
 
 August 17, 2018
 - Transition to git & GitHub as authoritative repo.
