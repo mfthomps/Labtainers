@@ -1,0 +1,19 @@
+#
+# Simulate the linux init process for Labtainers
+# This will start system logging and will run rc.local
+# Add any other system services here, e.g., starting xinetd
+#
+
+
+# Check the existent of permanent 'did_param' lock directory
+# Sleep until exists
+PERMLOCKDIR=/var/labtainer/did_param
+while [ ! -d "$PERMLOCKDIR" ]
+do
+   sleep 2
+done
+service rsyslog start
+service rc.local start
+
+service vsftpd start
+/etc/init.d/httpserver.sh start
