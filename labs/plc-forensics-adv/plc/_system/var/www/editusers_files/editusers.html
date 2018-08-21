@@ -1,0 +1,142 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0031)http://10.1.100.2/editusers.html -->
+<HTML><HEAD><TITLE>Rockwell Automation</TITLE>
+<META http-equiv=Content-Type content=text/html;charset=utf-8><LINK 
+href="editusers_files/radevice.css" type=text/css rel=stylesheet>
+<SCRIPT src="editusers_files/javaConfirm.js" type=text/javascript></SCRIPT>
+
+<SCRIPT src="editusers_files/URLhandle.js" type=text/javascript></SCRIPT>
+
+<SCRIPT type=text/javascript>
+		function validateUsername() {
+			var s_user = document.getElementById('user').value
+			for (var n = 1; n <= s_user.length; n++) 
+			{
+				c = s_user.substring(n-1,n);
+				if (((c < "a") || (c > "z")) && ((c < "A") || (c > "Z")) && ((c < "0") || (c > "9")) && (c != "_") && (c != "-"))
+				{
+					alert("The username must contain only the following characters: A-Z, a-z, 0-9, _, -");
+					return false;
+				}
+			}
+			return true;
+		}
+	</SCRIPT>
+
+<META content="MSHTML 6.00.3790.1830" name=GENERATOR></HEAD>
+<BODY bottomMargin=0 bgColor=#b7b6b6 leftMargin=0 topMargin=0 
+onload=frame_check(); rightMargin=0 marginwidth="0">
+<DIV style="MARGIN-LEFT: 10px"><!-- Start tabs -->
+<TABLE cellSpacing=0 cellPadding=0 width="98%" border=0>
+  <TBODY>
+  <TR>
+    <TD vAlign=top noWrap width=6><IMG height=16 
+      src="editusers_files/menustarton.gif" width=10 border=0></TD>
+    <TD noWrap background=editusers_files/menubgon.gif>Edit Users</TD>
+    <TD noWrap><IMG src="editusers_files/menseponoff.gif" border=0></TD>
+    <TD noWrap background=editusers_files/menubgoff.gif><A class=tab 
+      onclick="highlightTree('/editlimits.html');" 
+      href="http://10.1.100.2/editlimits.html">Edit Access Limits</A></TD>
+    <TD noWrap><IMG height=16 src="editusers_files/menuendoff.gif" width=20 
+      border=0></TD>
+    <TD noWrap align=right width="100%" 
+    background=editusers_files/menuendbg.gif></TD></TR></TBODY></TABLE><!-- End tabs --><!-- Start tab background -->
+<TABLE cellSpacing=0 cellPadding=0 width="98%" bgColor=#002569 border=0>
+  <TBODY>
+  <TR>
+    <TD width=1><IMG height=1 src="editusers_files/border.gif" width=1 
+      border=0></TD>
+    <TD width="100%" bgColor=#ffffff><BR><!-- Body starts here -->
+      <TABLE cellSpacing=10 cellPadding=0 width="100%" border=0>
+        <TBODY>
+        <TR>
+          <TD vAlign=top>
+            <TABLE cellSpacing=0 cellPadding=4 width="100%" border=0><!-- <ASP Data Island>	-->
+              <TBODY>
+              <TR>
+                <TD align=middle>
+                  <TABLE cellSpacing=0 cellPadding=2 width="95%" border=0>
+                    <TBODY>
+                    <TR class=tablehead bgColor=#bdc8dd>
+                      <TD align=left width=50>Delete</TD>
+                      <TD align=left>Edit</TD>
+                      <TD align=left>User Name</TD>
+                      <TD align=left>Group</TD></TR>
+                    <TR>
+                      <TD style="PADDING-LEFT: 13px" align=left><IMG 
+                        title="Click here to delete 'Administrator'" 
+                        style="CURSOR: hand" 
+                        onclick="window.location.href='/rokform/DeleteUser?user=Administrator&amp;ok=ok';" 
+                        src="editusers_files/delete.bmp"></TD>
+                      <TD style="PADDING-LEFT: 4px" align=left><IMG 
+                        title="Click here to edit 'Administrator'" 
+                        style="CURSOR: hand" 
+                        onclick="window.location.href='/rokform/DisplayUser?user=Administrator&amp;ok=ok';" 
+                        src="editusers_files/edit.bmp"></TD>
+                      <TD><B>Administrator</B> <I></I></TD>
+                      <TD>Administrators</TD>
+                    <TR bgColor=#dedede>
+                      <TD style="PADDING-LEFT: 13px" align=left><IMG 
+                        title="Click here to delete 'ftpuser'" 
+                        style="CURSOR: hand" 
+                        onclick="window.location.href='/rokform/DeleteUser?user=ftpuser&amp;ok=ok';" 
+                        src="editusers_files/delete.bmp"></TD>
+                      <TD style="PADDING-LEFT: 4px" align=left><IMG 
+                        title="Click here to edit 'ftpuser'" 
+                        style="CURSOR: hand" 
+                        onclick="window.location.href='/rokform/DisplayUser?user=ftpuser&amp;ok=ok';" 
+                        src="editusers_files/edit.bmp"></TD>
+                      <TD><B>ftpuser</B> <I></I></TD>
+                      <TD>Administrators</TD>
+                    <TR>
+                      <TD style="PADDING-LEFT: 13px" align=left><IMG 
+                        title="Click here to delete 'Guest'" 
+                        style="CURSOR: hand" 
+                        onclick="window.location.href='/rokform/DeleteUser?user=Guest&amp;ok=ok';" 
+                        src="editusers_files/delete.bmp"></TD>
+                      <TD style="PADDING-LEFT: 4px" align=left><IMG 
+                        title="Click here to edit 'Guest'" style="CURSOR: hand" 
+                        onclick="window.location.href='/rokform/DisplayUser?user=Guest&amp;ok=ok';" 
+                        src="editusers_files/edit.bmp"></TD>
+                      <TD><B>Guest</B> <I></I></TD>
+                      <TD>Administrators</TD></TR></TBODY></TABLE></TD></TR><!-- </ASP Data Island>	--></TBODY></TABLE></TD>
+          <TD vAlign=top width=180>
+            <FORM action=/rokform/AddUser method=post>
+            <TABLE cellSpacing=0 cellPadding=1 width=180 bgColor=#002569 
+            border=0>
+              <TBODY>
+              <TR>
+                <TD>
+                  <TABLE cellSpacing=0 cellPadding=4 width=180 bgColor=#bdc8dd 
+                  border=0>
+                    <TBODY>
+                    <TR>
+                      <TD class=tablehead align=middle bgColor=#b7b6b6>Add a 
+                        User</TD></TR>
+                    <TR>
+                      <TD>User ID:<BR><INPUT class=copy id=user 
+                        title="Enter a name for a new user here" maxLength=80 
+                        size=23 name=user></TD></TR>
+                    <TR>
+                      <TD>Group:<BR><SELECT class=copy 
+                        title="Select a group for the new user" size=1 
+                        name=group> <OPTION value=Administrators 
+                          selected>Administrators</OPTION> <OPTION 
+                          value=Write>Write</OPTION> <OPTION 
+                          value=Read>Read</OPTION></SELECT></TD></TR>
+                    <TR>
+                      <TD>Password:<BR><INPUT class=copy 
+                        title="Enter a password for the new user" type=password 
+                        maxLength=80 size=23 name=password></TD></TR>
+                    <TR>
+                      <TD>Confirm Password:<BR><INPUT class=copy 
+                        title="Confirm the password for the new user (should be the same as the 'Password' field)" 
+                        type=password maxLength=80 size=23 name=passconf></TD></TR>
+                    <TR align=middle>
+                      <TD><INPUT class=copy title="Click here to add the user" onclick="return validateUsername();" type=submit value=" Add " name=ok></TD></TR></TBODY></TABLE><INPUT 
+                  type=hidden value=on name=enabled> 
+          </TD></TR></TBODY></TABLE></FORM></TD></TR></TBODY></TABLE><!-- Do not modify below this point --></TD>
+    <TD width=1><IMG height=1 src="editusers_files/border.gif" width=1 
+      border=0></TD></TR>
+  <TR>
+    <TD></TD></TR></TBODY></TABLE></DIV></BODY></HTML>

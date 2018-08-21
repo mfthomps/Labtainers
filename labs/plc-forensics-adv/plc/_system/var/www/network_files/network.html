@@ -1,0 +1,198 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0029)http://10.1.100.2/network.html -->
+<HTML><HEAD>
+<META http-equiv=Content-Type content=text/html;charset=utf-8>
+<META http-equiv=Pragma content=no-cache>
+<META http-equiv=Expires content=-1><LINK href="network_files/radevice.css" 
+type=text/css rel=stylesheet>
+<SCRIPT src="network_files/URLhandle.js" type=text/javascript></SCRIPT>
+
+<SCRIPT src="network_files/javaConfirm.js" type=text/javascript></SCRIPT>
+
+<SCRIPT language=javascript>
+	function autonegotiation_check()
+	{
+		if (document.getElementById("autonegotiation").value == "Force Speed and Duplex")
+		{
+			document.getElementById("port_speed").disabled = 0;
+			document.getElementById("duplex_mode").disabled = 0;
+		}
+		else
+		{
+			document.getElementById("port_speed").disabled = 1;
+			document.getElementById("duplex_mode").disabled = 1;
+		}
+	}
+
+	function ipconfig_check()
+	{
+		if (document.getElementById("obtain_configuration").value == "Static")
+		{
+			document.getElementById("ip_address").disabled = 0;
+			document.getElementById("subnet_mask").disabled = 0;
+			document.getElementById("default_gateway").disabled = 0;
+			document.getElementById("primary_name_server").disabled = 0;
+			document.getElementById("secondary_name_server").disabled = 0;
+			document.getElementById("domain_name").disabled = 0;
+			document.getElementById("hostname").disabled = 0;
+		}
+		else
+		{
+			document.getElementById("ip_address").disabled = 1;
+			document.getElementById("subnet_mask").disabled = 1;
+			document.getElementById("default_gateway").disabled = 1;
+			document.getElementById("primary_name_server").disabled = 1;
+			document.getElementById("secondary_name_server").disabled = 1;
+			document.getElementById("domain_name").disabled = 1;
+			document.getElementById("hostname").disabled = 1;
+		}
+	}
+
+	function validateEntries() 
+	{
+		if (!document.getElementById("ip_address").disabled) {
+			if (document.getElementById("ip_address").value == "") 		{ alert("Invalid IP Address"); return 0; }
+			if (!addrValidate(document.getElementById("ip_address").value, "IP"))		{ alert("Invalid IP Address"); return 0; }
+			if (!addrValidate(document.getElementById("subnet_mask").value, "SM"))		{ alert("Invalid Subnet Mask"); return 0; }
+			if (!addrValidate(document.getElementById("default_gateway").value, "GW"))	{ alert("Invalid Default Gateway"); return 0; }
+			if (!addrValidate(document.getElementById("primary_name_server").value, "NS"))	{ alert("Invalid Primary Name Server"); return 0; }
+			if (!addrValidate(document.getElementById("secondary_name_server").value, "NS")){ alert("Invalid Secondary Name Server"); return 0; }
+		
+			if (!isValidIP(document.getElementById("ip_address").value))		{ alert("Invalid IP Address"); return 0; }
+			if (!isValidSubnet(document.getElementById("subnet_mask").value))	{ alert("Invalid Subnet Mask"); return 0; }
+		}
+		
+		return 1;
+	}
+</SCRIPT>
+
+<STYLE>.inputcol {
+	PADDING-RIGHT: 40px; PADDING-LEFT: 10px; PADDING-TOP: 5px
+}
+</STYLE>
+
+<META content="MSHTML 6.00.3790.1830" name=GENERATOR></HEAD>
+<BODY bottomMargin=0 bgColor=#b7b6b6 leftMargin=0 topMargin=0 
+onload="frame_check(); autonegotiation_check(); ipconfig_check();" rightMargin=0 
+marginwidth="0">
+<DIV style="MARGIN-LEFT: 10px"><!-- Start tabs -->
+<TABLE cellSpacing=0 cellPadding=0 width="98%" border=0>
+  <TBODY>
+  <TR>
+    <TD noWrap><IMG height=16 src="network_files/menustartoff.gif" width=10 
+      border=0></TD>
+    <TD noWrap background=network_files/menubgoff.gif><A class=tab 
+      onclick="highlightTree('/identity.html');" 
+      href="http://10.1.100.2/identity.html">Device Identity</A></TD>
+    <TD noWrap><IMG height=16 src="network_files/mensepoffon.gif" width=23 
+      border=0></TD>
+    <TD noWrap background=network_files/menubgon.gif>Network Configuration</TD>
+    <TD noWrap><IMG height=16 src="network_files/menseponoff.gif" width=23 
+      border=0></TD>
+    <TD noWrap background=network_files/menubgoff.gif><A class=tab 
+      onclick="highlightTree('/services.html');" 
+      href="http://10.1.100.2/services.html">Device Services</A></TD>
+    <TD noWrap><IMG height=16 src="network_files/mensepoffoff.gif" width=23 
+      border=0></TD>
+    <TD noWrap background=network_files/menubgoff.gif><A class=tab 
+      onclick="highlightTree('/emailConfig.html');" 
+      href="http://10.1.100.2/emailConfig.html">Email Configuration</A></TD>
+    <TD noWrap><IMG height=16 alt="" src="network_files/menuendoff.gif" 
+      width=20 border=0></TD>
+    <TD noWrap align=right width="100%" 
+    background=network_files/menuendbg.gif></TD></TR></TBODY></TABLE><!-- End tabs --><!-- Start tab background -->
+<TABLE cellSpacing=0 cellPadding=0 width="98%" bgColor=#002569 border=0>
+  <TBODY>
+  <TR>
+    <TD width=1><IMG height=1 src="network_files/border.gif" width=1 
+    border=0></TD>
+    <TD width="100%" bgColor=#ffffff><BR><!-- Body starts here -->
+      <TABLE cellSpacing=10 cellPadding=0 width="100%" border=0>
+        <TBODY>
+        <TR>
+          <TD class=subhead vAlign=top>
+            <FORM style="DISPLAY: inline" 
+            onsubmit="if(!jsConfirm('Changing the network configuration of this module may cause\nall connections routed through this module to become broken.    \n\nDo you wish to continue? ')) {return false;}" 
+            action=/rokform/UpdateNetwork method=post>
+            <TABLE cellSpacing=0 cellPadding=4 width=500 border=0>
+              <TBODY>
+              <TR class=tablehead bgColor=#bdc8dd>
+                <TD bgColor=#bdc8dd>Initial Network Configuration</TD>
+                <TD></TD>
+              <TR class=row>
+                <TD>Ethernet Interface Configuration</TD>
+                <TD class=inputcol><SELECT class=copy id=obtain_configuration 
+                  onchange=ipconfig_check(); name=obtain_configuration> 
+                    <OPTION value="Dynamic (BOOTP)">Dynamic (BOOTP)</OPTION> 
+                    <OPTION value="Dynamic (DHCP)">Dynamic (DHCP)</OPTION> 
+                    <OPTION value=Static selected>Static</OPTION></SELECT> </TD></TR>
+              <TR class=tablehead>
+                <TD bgColor=#bdc8dd colSpan=2>Network Interface</TD></TR>
+              <TR class=row>
+                <TD>IP Address</TD>
+                <TD class=inputcol><INPUT class=copy id=ip_address 
+                  maxLength=15 size=26 value=10.1.100.2 name=ip_address></TD></TR>
+              <TR bgColor=#dedede>
+                <TD>Subnet Mask</TD>
+                <TD class=inputcol><INPUT class=copy id=subnet_mask 
+                  maxLength=15 size=26 value=255.255.0.0 name=subnet_mask></TD></TR>
+              <TR class=row>
+                <TD>Default Gateway</TD>
+                <TD class=inputcol><INPUT class=copy id=default_gateway 
+                  maxLength=15 size=26 value=10.1.0.2 
+name=default_gateway></TD></TR>
+              <TR bgColor=#dedede>
+                <TD>Primary Name Server</TD>
+                <TD class=inputcol><INPUT class=copy id=primary_name_server 
+                  maxLength=15 size=26 name=primary_name_server></TD></TR>
+              <TR class=row>
+                <TD>Secondary Name Server</TD>
+                <TD class=inputcol><INPUT class=copy id=secondary_name_server 
+                  maxLength=15 size=26 name=secondary_name_server></TD></TR>
+              <TR bgColor=#dedede>
+                <TD>Domain Name</TD>
+                <TD class=inputcol><INPUT class=copy id=domain_name 
+                  maxLength=48 size=26 name=domain_name></TD></TR>
+              <TR class=row>
+                <TD>Hostname</TD>
+                <TD class=inputcol><INPUT class=copy id=hostname maxLength=64 
+                  size=26 name=hostname></TD></TR>
+              <TR bgColor=#dedede>
+                <TD>Name Resolution (DNS)</TD>
+                <TD class=inputcol><SELECT class=copy id=dns_enable 
+                  name=dns_enable> <OPTION value="DNS Enabled" selected>DNS 
+                    Enabled</OPTION> <OPTION value="DNS Disabled">DNS 
+                    Disabled</OPTION></SELECT> </TD></TR>
+              <TR>
+                <TD colSpan=2><BR></TD></TR>
+              <TR class=tablehead bgColor=#bdc8dd>
+                <TD>Ethernet Link</TD>
+                <TD></TD></TR>
+              <TR class=row>
+                <TD>Autonegotiate Status</TD>
+                <TD class=inputcol><SELECT class=copy id=autonegotiation 
+                  onchange=autonegotiation_check(); name=autonegotiation> 
+                    <OPTION value="Autonegotiate Speed and Duplex" 
+                    selected>Autonegotiate Speed and Duplex</OPTION> <OPTION 
+                    value="Force Speed and Duplex">Force Speed and 
+                    Duplex</OPTION></SELECT> </TD></TR>
+              <TR bgColor=#dedede>
+                <TD>Select Port Speed</TD>
+                <TD class=inputcol><SELECT class=copy id=port_speed 
+                  name=port_speed> <OPTION value="10 Mbps">10 Mbps</OPTION> 
+                    <OPTION value="100 Mbps" selected>100 Mbps</OPTION></SELECT> 
+                </TD></TR>
+              <TR class=row>
+                <TD>Select Duplex Mode</TD>
+                <TD class=inputcol><SELECT class=copy id=duplex_mode 
+                  name=duplex_mode> <OPTION value="Half Duplex" selected>Half 
+                    Duplex</OPTION> <OPTION value="Full Duplex">Full 
+                    Duplex</OPTION></SELECT> </TD></TR>
+              <TR>
+                <TD colSpan=2><BR><INPUT class=copy onclick="if (!validateEntries()) { return false; }" type=submit value="Apply Changes"> 
+                </TD></TR></TBODY></TABLE></FORM></TD>
+          <TD></TD></TR></TBODY></TABLE><!-- Do not modify below this point --></TD>
+    <TD width=1><IMG height=1 src="network_files/border.gif" width=1 
+    border=0></TD></TR>
+  <TR>
+    <TD></TD></TR></TBODY></TABLE></DIV><!-- End body background --></BODY></HTML>
