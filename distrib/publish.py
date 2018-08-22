@@ -77,12 +77,12 @@ def pushIt(lab, docker_dir, registry, logger):
             base_id = VersionInfo.getImageId(image_base)
             framework_version = labutils.framework_version
             relabel(image, framework_version, image_base, base_id, registry)
-            ''' Delete the image. Two reasons: 1) ensure we run authoritative copy,
-                which is from the dockerhub.  2) don't push on a rebuild if not rebuilt. '''
-            removelab.removeLab(lab)
 
         else: 
             logger.DEBUG('Have not built %s, nothing to push' % image)
+    ''' Delete the lab images. Two reasons: 1) ensure we run authoritative copy,
+    which is from the dockerhub.  2) don't push on a rebuild if not rebuilt. '''
+    removelab.removeLab(lab)
 
 def DoLab(lab, labsdir, force, logger, do_login, test_registry, default_registry):
     logger.DEBUG('DoLab for %s' % lab)
