@@ -2022,6 +2022,9 @@ def CreateCopyChownZip(start_config, labtainer_config, name, container_name, con
 
     # Run 'Student.py' - This will create zip file of the result
     logger.DEBUG("About to call Student.py")
+    cmd = 'docker cp lab_bin/Student.py  %s:/home/%s/.local/bin/' % (container_name, container_user)
+    if not DockerCmd(cmd):
+        logger.ERROR('failed to copy Student.py')
     cmd_path = '/home/%s/.local/bin/Student.py' % (container_user)
     #command=['docker', 'exec', '-i',  container_name, 'echo "%s\n" |' % container_password, '/usr/bin/sudo', cmd_path, container_user, container_image]
     command=['docker', 'exec', '-i',  container_name, '/usr/bin/sudo', cmd_path, container_user, container_image, str(keep_running)]
