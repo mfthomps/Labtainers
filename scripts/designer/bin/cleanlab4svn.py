@@ -27,7 +27,7 @@ import tarfile
 #
 LABTAINER_DIR=None
 
-def DoWork(current_dir):
+def DoWork(current_dir, lab_name):
     # This script will remove the following:
     # 1. Any tarball '*.tar.gz' in the lab directory, i.e., <lab>/*.tar.gz files
     tarball_list = glob.glob('%s/*.tar.gz' % current_dir)
@@ -78,16 +78,18 @@ def DoWork(current_dir):
                 print("Fails to remove tar file (%s)" % name)
                 sys.exit(1)
 
-    # 4. Any pdf file in docs directory, i.e., <lab>/docs/*.pdf files
+    # 4. Any pdf file in docs directory, i.e., <lab>/docs/*.pdf files that starts
+    #    with the labname
     pdflist = glob.glob('%s/docs/*.pdf' % current_dir)
     #print "pdflist is (%s)" % pdflist
     for name in pdflist:
         #print "current name is %s" % name
-        try:
-            os.remove(name)
-        except:
-            print("Fails to remove PDF file (%s)" % name)
-            sys.exit(1)
+        if os.path.basename(name).startswith(lab_name):
+            try:
+                os.remove(name)
+            except:
+                print("Fails to remove PDF file (%s)" % name)
+                sys.exit(1)
 
 def check_valid_lab(current_dir):
     parent_dir = os.path.basename(os.path.dirname(current_dir))
@@ -107,6 +109,7 @@ def check_valid_lab(current_dir):
     if not (os.path.exists(config_dir) and os.path.isdir(config_dir)):
         print('Missing config directory')
         sys.exit(1)
+    return labname
 
 def usage():
     sys.stderr.write("Usage: cleanlab4svn.py [ -h ]\n")
@@ -133,9 +136,9 @@ def main():
     #print("number of arguments is (%d)" % num_arg)
 
     current_dir = os.getcwd()
-    check_valid_lab(current_dir)
+    lab_name = check_valid_lab(current_dir)
     if num_arg == 1:
-        DoWork(current_dir)
+        DoWork(current_dir, lab_name)
     else:
         # Display usage regardless of what the argument is
         usage()
