@@ -28,7 +28,11 @@ import tarfile
 LABTAINER_DIR=None
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 def DoWork(current_dir, lab_name):
+=======
+def DoWork(current_dir):
+>>>>>>> 26139c6909f82c7d721969e0a64be71095d96a6d
 =======
 def DoWork(current_dir):
 >>>>>>> 26139c6909f82c7d721969e0a64be71095d96a6d
@@ -83,8 +87,12 @@ def DoWork(current_dir):
                 sys.exit(1)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     # 4. Any pdf file in docs directory, i.e., <lab>/docs/*.pdf files that starts
     #    with the labname
+=======
+    # 4. Any pdf file in docs directory, i.e., <lab>/docs/*.pdf files
+>>>>>>> 26139c6909f82c7d721969e0a64be71095d96a6d
 =======
     # 4. Any pdf file in docs directory, i.e., <lab>/docs/*.pdf files
 >>>>>>> 26139c6909f82c7d721969e0a64be71095d96a6d
@@ -93,6 +101,7 @@ def DoWork(current_dir):
     for name in pdflist:
         #print "current name is %s" % name
 <<<<<<< HEAD
+<<<<<<< HEAD
         if os.path.basename(name).startswith(lab_name):
             try:
                 os.remove(name)
@@ -100,11 +109,16 @@ def DoWork(current_dir):
                 print("Fails to remove PDF file (%s)" % name)
                 sys.exit(1)
 =======
+=======
+>>>>>>> 26139c6909f82c7d721969e0a64be71095d96a6d
         try:
             os.remove(name)
         except:
             print("Fails to remove PDF file (%s)" % name)
             sys.exit(1)
+<<<<<<< HEAD
+>>>>>>> 26139c6909f82c7d721969e0a64be71095d96a6d
+=======
 >>>>>>> 26139c6909f82c7d721969e0a64be71095d96a6d
 
 def check_valid_lab(current_dir):
@@ -126,7 +140,10 @@ def check_valid_lab(current_dir):
         print('Missing config directory')
         sys.exit(1)
 <<<<<<< HEAD
+<<<<<<< HEAD
     return labname
+=======
+>>>>>>> 26139c6909f82c7d721969e0a64be71095d96a6d
 =======
 >>>>>>> 26139c6909f82c7d721969e0a64be71095d96a6d
 
@@ -156,9 +173,15 @@ def main():
 
     current_dir = os.getcwd()
 <<<<<<< HEAD
+<<<<<<< HEAD
     lab_name = check_valid_lab(current_dir)
     if num_arg == 1:
         DoWork(current_dir, lab_name)
+=======
+    check_valid_lab(current_dir)
+    if num_arg == 1:
+        DoWork(current_dir)
+>>>>>>> 26139c6909f82c7d721969e0a64be71095d96a6d
 =======
     check_valid_lab(current_dir)
     if num_arg == 1:
