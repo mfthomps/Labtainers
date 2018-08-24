@@ -82,9 +82,12 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+<<<<<<< HEAD
 August 23, 2018
 - Add GrassMarlin lab (ICS network discovery)
 
+=======
+>>>>>>> 26139c6909f82c7d721969e0a64be71095d96a6d
 August 21, 2018
 - Another fix around AWS authentication issues (DockerHub uses AWS).
 - Fix new\_lab\_setup.py to use git instead of svn.

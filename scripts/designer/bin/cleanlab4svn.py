@@ -27,7 +27,11 @@ import tarfile
 #
 LABTAINER_DIR=None
 
+<<<<<<< HEAD
 def DoWork(current_dir, lab_name):
+=======
+def DoWork(current_dir):
+>>>>>>> 26139c6909f82c7d721969e0a64be71095d96a6d
     # This script will remove the following:
     # 1. Any tarball '*.tar.gz' in the lab directory, i.e., <lab>/*.tar.gz files
     tarball_list = glob.glob('%s/*.tar.gz' % current_dir)
@@ -78,18 +82,30 @@ def DoWork(current_dir, lab_name):
                 print("Fails to remove tar file (%s)" % name)
                 sys.exit(1)
 
+<<<<<<< HEAD
     # 4. Any pdf file in docs directory, i.e., <lab>/docs/*.pdf files that starts
     #    with the labname
+=======
+    # 4. Any pdf file in docs directory, i.e., <lab>/docs/*.pdf files
+>>>>>>> 26139c6909f82c7d721969e0a64be71095d96a6d
     pdflist = glob.glob('%s/docs/*.pdf' % current_dir)
     #print "pdflist is (%s)" % pdflist
     for name in pdflist:
         #print "current name is %s" % name
+<<<<<<< HEAD
         if os.path.basename(name).startswith(lab_name):
             try:
                 os.remove(name)
             except:
                 print("Fails to remove PDF file (%s)" % name)
                 sys.exit(1)
+=======
+        try:
+            os.remove(name)
+        except:
+            print("Fails to remove PDF file (%s)" % name)
+            sys.exit(1)
+>>>>>>> 26139c6909f82c7d721969e0a64be71095d96a6d
 
 def check_valid_lab(current_dir):
     parent_dir = os.path.basename(os.path.dirname(current_dir))
@@ -109,7 +125,10 @@ def check_valid_lab(current_dir):
     if not (os.path.exists(config_dir) and os.path.isdir(config_dir)):
         print('Missing config directory')
         sys.exit(1)
+<<<<<<< HEAD
     return labname
+=======
+>>>>>>> 26139c6909f82c7d721969e0a64be71095d96a6d
 
 def usage():
     sys.stderr.write("Usage: cleanlab4svn.py [ -h ]\n")
@@ -136,9 +155,15 @@ def main():
     #print("number of arguments is (%d)" % num_arg)
 
     current_dir = os.getcwd()
+<<<<<<< HEAD
     lab_name = check_valid_lab(current_dir)
     if num_arg == 1:
         DoWork(current_dir, lab_name)
+=======
+    check_valid_lab(current_dir)
+    if num_arg == 1:
+        DoWork(current_dir)
+>>>>>>> 26139c6909f82c7d721969e0a64be71095d96a6d
     else:
         # Display usage regardless of what the argument is
         usage()
