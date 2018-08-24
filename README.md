@@ -83,9 +83,12 @@ so you may want to logout/login, or start a new bash shell before using Labtaine
 first time.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 August 23, 2018
 - Add GrassMarlin lab (ICS network discovery)
 
+=======
+>>>>>>> 26139c6909f82c7d721969e0a64be71095d96a6d
 =======
 >>>>>>> 26139c6909f82c7d721969e0a64be71095d96a6d
 August 21, 2018
