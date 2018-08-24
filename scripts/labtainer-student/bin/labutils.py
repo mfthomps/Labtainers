@@ -678,18 +678,12 @@ def CopyLabBin(mycontainer_name, container_user, lab_path, name, image_info):
         os.makedirs(tmp_dir)
     except os.error:
         logger.ERROR("did not expect to find dir %s" % tmp_dir)
-<<<<<<< HEAD
-<<<<<<< HEAD
  
     if not os.path.isfile('./lab_sys/sbin/capinout'):
         print('\n\n********* ERROR ***********')
         print('./lab_sys/sbin/capinout is missing.  If this is a development system, you may need to')
         print('go to the tool-src/capinout directory and run ./mkit.sh')
         
-=======
->>>>>>> 26139c6909f82c7d721969e0a64be71095d96a6d
-=======
->>>>>>> 26139c6909f82c7d721969e0a64be71095d96a6d
     dest_tar = os.path.join(tmp_dir, 'labsys.tar')
     cmd = 'tar cf %s -C ./lab_sys sbin lib &>/dev/null' % dest_tar
     os.system(cmd)
@@ -2034,13 +2028,7 @@ def CreateCopyChownZip(start_config, labtainer_config, name, container_name, con
 
     # Run 'Student.py' - This will create zip file of the result
     logger.DEBUG("About to call Student.py")
-<<<<<<< HEAD
-<<<<<<< HEAD
     ''' Copy the Student.py on each stop to handle cases where the parameter list changes.'''
-=======
->>>>>>> 26139c6909f82c7d721969e0a64be71095d96a6d
-=======
->>>>>>> 26139c6909f82c7d721969e0a64be71095d96a6d
     cmd = 'docker cp lab_bin/Student.py  %s:/home/%s/.local/bin/' % (container_name, container_user)
     if not DockerCmd(cmd):
         logger.ERROR('failed to copy Student.py')
