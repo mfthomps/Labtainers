@@ -24,6 +24,7 @@ import stat
 import traceback
 import CheckTars
 import BigFiles
+import BigExternal
 import calendar
 import string
 import errno
@@ -983,6 +984,7 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
             pass
         ''' make sure big files have been copied before checking tars '''
         BigFiles.BigFiles(lab_path)
+        BigExternal.BigExternal(lab_path)
         ''' create sys_tar and home_tar before checking build dependencies '''
         CheckTars.CheckTars(container_dir, name, logger)
         if force_this_build or CheckBuild(lab_path, mycontainer_image_name, image_info, mycontainer_name, name, True, container_bin, start_config, container.registry, container.user):
