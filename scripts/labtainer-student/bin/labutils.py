@@ -1032,6 +1032,33 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
             #    exit(1)
     return retval
 
+def defineAdditionalIP(container_name, post_start_if, post_start_nets):
+    for subnet in post_start_nets:
+        existing_ip = post_start_if[subnet]
+        cmd = "docker exec %s bash -c 'ifconfig'" % (container_name)
+        ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        output = ps.communicate()
+        current_if = None
+        this_if = None
+        for line in output[0].splitlines():
+            parts = line.split()
+            if len(parts) < 2:
+                continue
+            if parts[1] == 'Link':
+                current_if = parts[0]
+            elif parts[1] == ('addr:%s' % post_start_if[subnet]):
+                this_if = current_if
+                break
+        count = 1
+        for ip in post_start_nets[subnet]:
+            cmd = "docker exec %s bash -c 'ifconfig %s:%d %s'" % (container_name, this_if, count, ip)
+            if not DockerCmd(cmd):
+                print('error doing %s' % cmd)
+                exit(1) 
+            count += 1
+     
+        
+    
 def DoStartOne(labname, name, container, start_config, labtainer_config, lab_path,  
                student_email, quiet_start, results, auto_grade, image_info):
         retval = True
@@ -1040,6 +1067,9 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
         container_user         = container.user
         container_password         = container.password
         container_hostname         = container.hostname
+        ''' mananage interfaces with multiple IP addresses, docker does not support directly '''
+        post_start_if = {}
+        post_start_nets = {}
 
         haveContainer = AllContainersCreated(container)
         logger.DEBUG("DoStart for %s AllContainersCreated result (%s)" % (container.name, haveContainer))
@@ -1055,7 +1085,11 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                 containerCreated = CreateSingleContainer(labtainer_config, start_config, container)
             else:
                 mysubnet_name, mysubnet_ip = container.container_nets.popitem()
-                containerCreated = CreateSingleContainer(labtainer_config, start_config, container, mysubnet_name, mysubnet_ip)
+                subnet_name = mysubnet_name
+                if ':' in mysubnet_name:
+                    subnet_name = mysubnet_name.split(':')[0] 
+                    post_start_if[subnet_name] = mysubnet_ip
+                containerCreated = CreateSingleContainer(labtainer_config, start_config, container, subnet_name, mysubnet_ip)
                 
             logger.DEBUG("CreateSingleContainer result (%s)" % containerCreated)
             if not containerCreated:
@@ -1081,14 +1115,21 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
         clone_names = GetContainerCloneNames(container)
         for mycontainer_name in clone_names:
             for mysubnet_name, mysubnet_ip in container.container_nets.items():
-                connectNetworkResult = ConnectNetworkToContainer(start_config, mycontainer_name, mysubnet_name, mysubnet_ip)
+                subnet_name = mysubnet_name
+                if ':' in mysubnet_name:
+                    subnet_name = mysubnet_name.split(':')[0] 
+                    if subnet_name not in post_start_nets:
+                        post_start_nets[subnet_name] = []
+                    post_start_nets[subnet_name].append(mysubnet_ip)
+                else:
+                    connectNetworkResult = ConnectNetworkToContainer(start_config, mycontainer_name, mysubnet_name, mysubnet_ip)
 
             # Start the container
             if not StartMyContainer(mycontainer_name):
                 logger.ERROR("Container %s failed to start!\n" % mycontainer_name)
                 results.append(False)
                 return
-
+            defineAdditionalIP(mycontainer_name, post_start_if, post_start_nets)
             clone_need_seeds = need_seeds
             if not clone_need_seeds:
                 cmd = "docker exec %s bash -c 'ls -l /var/labtainer/did_param'" % (mycontainer_name)
@@ -2347,8 +2388,14 @@ def DoStopOne(start_config, labtainer_config, lab_path, name, container, ZipFile
                 command = 'docker exec %s sudo rmdir /tmp/.mylockdir 2>/dev/null' % (mycontainer_name)
                 os.system(command)
                 if not keep_running:
+                    did_this = []
                     for mysubnet_name, mysubnet_ip in container.container_nets.items():
-                        disconnectNetworkResult = DisconnectNetworkFromContainer(mycontainer_name, mysubnet_name)
+                        subnet_name = mysubnet_name
+                        if ':' in mysubnet_name:
+                            subnet_name = mysubnet_name.split(':')[0] 
+                        if subnet_name not in did_this:
+                            disconnectNetworkResult = DisconnectNetworkFromContainer(mycontainer_name, subnet_name)
+                            did_this.append(subnet_name)
 
                 # Stop the container
             

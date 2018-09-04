@@ -93,8 +93,11 @@ class ParseStartConfig():
                 self.logger.ERROR('Character "=" is not allowed in container name (%s)\n' % self.name)
                 exit(1)
             for name, addr in self.container_nets.items():
-                if name not in valid_networks:
-                    self.logger.ERROR('Container %s cannot be added to undefined network %s\n' % (self.full_name, name))
+                tlan = name
+                if ':' in name:
+                    tlan = name.split(':')[0]
+                if tlan not in valid_networks:
+                    self.logger.ERROR('Container %s cannot be added to undefined network %s\n' % (self.full_name, tlan))
                     exit(1)
                 if not skip_networks:
                     if ':' in addr:
@@ -192,7 +195,10 @@ class ParseStartConfig():
                     try:
                         active.add_net(key,val)
                         lan_host = '%s:%s' % (active.name, val)
-                        self.lan_hosts[key].append(lan_host)
+                        tlan = key
+                        if ':' in key:
+                            tlan = key.split(':')[0]
+                        self.lan_hosts[tlan].append(lan_host)
                     except:
                         self.logger.ERROR("Fatal. Can't understand config setting: %s" % line)
                         exit(1)

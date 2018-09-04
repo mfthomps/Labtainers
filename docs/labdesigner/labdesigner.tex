@@ -480,6 +480,11 @@ those of the host network interface.  When stated as a multi-user lab with all c
 {\tt --client\_count} switch, then the allocated IP address is incremeted by one less than the clone instance number.
 \item If {\tt AUTO} is provided as the address, an address is chosen for you from the subnet range.  
 \end{itemize}
+Multiple IP addresses per network interface by appending a {\tt :n} to the {\tt network name}, e.g., 
+\begin{verbatim}
+         MY_LAN:1 172.24.0.3
+         MY_LAN:2 172.24.0.4
+\end{verbatim}
 \item SCRIPT [script] -- Optional script to provide to the Docker create command, defaults to ``bash''.  This must be set to
 ``NONE'' for CentOS-based components, Ubuntu systemd components, or other images that run a true Linux init process.).
 \item ADD-HOST [host:ip | network] -- Optional addition to the /etc/hosts file, a container may have multiple ADD-HOST entries.
