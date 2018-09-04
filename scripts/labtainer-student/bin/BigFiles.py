@@ -8,7 +8,7 @@ def BigFiles(lab_dir):
     '''
     big_list = os.path.join(lab_dir,'config', 'bigfiles.txt')
     if not os.path.isfile(big_list):
-        print('Missing bigfiles.txt from %s' % big_list)
+        #print('Missing bigfiles.txt from %s' % big_list)
         return
     full = os.path.abspath(lab_dir)
     top = full[:full.index('trunk/labs')]
