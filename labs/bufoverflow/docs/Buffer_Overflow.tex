@@ -339,9 +339,6 @@ root). You can check this by typing the following:
   uid=(500) euid=0(root)
 \end{verbatim}
 
-
-
-
 \subsection{Task 2: Address Randomization}
 
 Now, we turn on the Ubuntu's address randomization.  We run the same attack
@@ -362,6 +359,10 @@ using the whilebash.sh script, and see what will happen. If your exploit
 program is designed properly, you should be able to get the root shell
 after a while. You can modify your exploit program to increase the
 probability of success (i.e., reduce the time that you have to wait).
+After getting a root shell, display the secret file (this is required):
+\begin{verbatim}
+  cat /root/.secret
+\end{verbatim}
 
 \subsection{Task 3: Stack Guard}
 
