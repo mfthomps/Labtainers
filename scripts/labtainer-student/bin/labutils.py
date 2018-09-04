@@ -1032,7 +1032,6 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
             #    exit(1)
     return retval
 
-<<<<<<< HEAD
 def defineAdditionalIP(container_name, post_start_if, post_start_nets):
     for subnet in post_start_nets:
         existing_ip = post_start_if[subnet]
