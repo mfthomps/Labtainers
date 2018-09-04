@@ -1032,6 +1032,7 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
             #    exit(1)
     return retval
 
+<<<<<<< HEAD
 def defineAdditionalIP(container_name, post_start_if, post_start_nets):
     for subnet in post_start_nets:
         existing_ip = post_start_if[subnet]
@@ -1130,6 +1131,7 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                 results.append(False)
                 return
             defineAdditionalIP(mycontainer_name, post_start_if, post_start_nets)
+
             clone_need_seeds = need_seeds
             if not clone_need_seeds:
                 cmd = "docker exec %s bash -c 'ls -l /var/labtainer/did_param'" % (mycontainer_name)

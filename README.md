@@ -82,6 +82,7 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+<<<<<<< HEAD
 September 4, 2018
 - Allow multiple IP addresses per network interface
 - Add base image for Wine
@@ -90,6 +91,17 @@ September 4, 2018
 August 23, 2018
 - Add GrassMarlin lab (ICS network discovery)
 
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+August 23, 2018
+- Add GrassMarlin lab (ICS network discovery)
+
+=======
+>>>>>>> 26139c6909f82c7d721969e0a64be71095d96a6d
+=======
+>>>>>>> 26139c6909f82c7d721969e0a64be71095d96a6d
+>>>>>>> e92e3d89b3a592525007966d3b96ecf37476a8f6
 August 21, 2018
 - Another fix around AWS authentication issues (DockerHub uses AWS).
 - Fix new\_lab\_setup.py to use git instead of svn.

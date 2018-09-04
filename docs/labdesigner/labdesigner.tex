@@ -645,6 +645,24 @@ operations:
        # stuff to do as default user
     fi
 \end{verbatim}
+it will be executed from each virtual terminal created for the container.
+See the sql-inject lab and the centos-log lab examples, with the latter
+running the login program to require students to login prior to getting a shell prompt.
+\footnote{On CentOS systems, copy the login program from labs/centos-log/centos-log/\_system/sbin/login
+to your container's \_system/sbin directory. The login program from Ubuntu works as is.}
+Note that on CentOS systems, the student\_startup.sh script will be executed twice: first
+as root and then as the default user.  Use constructs such as the following to avoid repeating
+operations:
+\begin{verbatim}
+    id | grep root >>/dev/null
+    result=$?
+    if [[ $result -eq 0 ]]; then
+       # stuff to do as root
+    else
+       # stuff to do as default user
+    fi
+\end{verbatim}
+
 
 
 \subsection{Final lab environment fixup}
