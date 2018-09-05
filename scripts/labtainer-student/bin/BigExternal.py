@@ -21,6 +21,11 @@ def BigExternal(lab_dir):
                    if not os.path.isfile(to_path):
                        print('missing %s, get it from %s' % (to_path, from_file))
                        exit(1) 
+                   size = os.stat(to_path).st_size
+                   if size < 50000:
+                       print('File at %s is supposed to be large.' % to_path)
+                       print('Get the correct %s from %s' % (to_path, from_file))
+                       exit(1) 
                     
 if __name__ == '__main__':               
     lab_dir = sys.argv[1]
