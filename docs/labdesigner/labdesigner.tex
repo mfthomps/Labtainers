@@ -89,7 +89,7 @@ single iptables configuration during which the student used nmap to demonstrate 
 \end{itemize}
 
 \subsection {Obtaining the Labtainer development kit}
-Installation of Labtainers is described in in the \textit{Labtainer Student Guide},  
+Installation of Labtainers is described in the \textit{Labtainer Student Guide},  
 which also includes instructions for installing an Ubuntu VM (if you do not already have a Linux system),
 and the Labtainer framework.  Our website also distributes pre-packaged VM appliances that already have
 Labtainers installed. Labtainers will work with any Linux
@@ -182,9 +182,9 @@ After the student performs the lab exercise, artifacts from the container
 environments are automatically collected into an archive, (a zip file), that appears on
 the student's Linux host.  The student forwards this archive file to the instructor,
 e.g., via email or a learning management system (LMS).  The instructor collects student archive files into a common
-directory on his or her own Linux host, and then issues a command that starts
-the instructor container(s) for that lab.  This results in automated assessment of student lab
-activity, (if the lab is designed for that), and creation of an environment
+directory on his or her own Linux host, and then issues a command that
+results in automated assessment of student lab
+activity, (if the lab is designed for that), and the optional creation of an environment
 in which the instructor can review the work of each student.
 
 Many cybersecurity lab exercises are assessed through use of reports in which students
@@ -362,11 +362,8 @@ execution environment builds off of a recent Ubuntu image.
 \end{verbatim}
 \noindent directory.  The naming convention for Dockerfiles is
 \begin{verbatim}
-    Dockerfile.[labname].[container_name].[role]
+    Dockerfile.[labname].[container_name].student
 \end{verbatim}
-where role is either ``student'' or ``instructor''.  The framework will use the student Dockerfile to
-create the instructor container unless a distinct instructor file is present (e.g., if the designer
-wishes the instructor to have unique software packages.) 
 
 The first line of each Dockerfile identifies the baseline Labtainer image to be pulled from the Docker Hub.
 The initial default image is a basic Ubuntu system with a minimal set of packages.  To use an
@@ -408,8 +405,7 @@ entries can be left alone for most labs.
 \item GLOBAL\_SETTINGS -- These lab-wide parameters include:
 
 \begin{itemize}
-\item GRADE\_CONTAINER [container name] -- All lab containers are available to the instructor while assessing student labs.
-This setting identifies which of the lab containers will host automated grading functions.
+\item GRADE\_CONTAINER -- Deprecated
 \item HOST\_HOME\_XFER [dir name] --  Identifies the host directory via which to transfer student artifacts, relative to 
 the home directory.  For students, this is where the zip files of their results end up.  For instructors, this is
 where zip files should be gathered for assessment.
@@ -1379,9 +1375,10 @@ in the Labtainer exercises distributed with the framework.
 
 \subsubsection{Assessment Report}
 Evaluation of student results occurs on an instructor container, via a script named {\tt instructor.py}, which runs
-automatically when the instructor starts the lab.  The script can also be run manually, e.g., to
+automatically when the instructor runs the {\tt gradelab [lab]} command.  The script can also be run manually, e.g., to
 test changes and additions to grading configuaration files.  It must be run from the HOME directory
-on the container identified in the start.config for the lab as being the {\tt GRADE\_CONTAINER}
+on the container that results from running the gradelab command with the {\tt -d} option \footnote{Be sure to run
+stopgrade after use of the {\tt -d} option to shut down the grading container when you are done with it}.
 By convention, all goals and boolean results whose symbolic names are not prefaced with an
 underscore ({\tt\_}), will have corresponding entries in the assessment report, located in 
 the home directory in a file named {\tt <lab name>.grades.txt>}
@@ -1557,23 +1554,23 @@ Developing automated assessment for a new lab typically requires some
 amount of debugging.  This section is intended to guide new developers
 through the process.
 
-When the {\tt start.py} or {\tt redo.py} scripts are run from labtainers-instructor,
+When the {\tt gradelab} script is run from labtainers-instructor,
 the configuration files in labs/[lab name]/instr\_config are validated.
 If syntax errors are found, error messages are displayed at the terminal
 and processing halts.  The error messages identify the offending result.config
 or goals.config entry.  Refer to sections \ref{results.config} and \ref{goals.config} 
 for the expected syntax of these files.
 
-Once initial syntax checking is passed, one or more containers is created,
-depending on the lab.  If the grading table does not display, or it displays
-incorrects values, then find the virtual terminal named by the {\tt GRADE\_CONTAINER}
-entry in the start.config file.  At this terminal, enter the {\tt instructor.py}
+Once initial syntax checking is passed, the lab is graded for each student.
+If the grading table does not display, or it displays
+incorrects values, then find run the gradelab command with the {\tt -d} option.
+At the resulting terminal, enter the {\tt instructor.py}
 command.  That may display diagnostics at the terminal.  It will also generate
 a /tmp/instructor.log file of debugging messages. 
 
 At this point, the workflow is easiest if you edit/test from that container --
 just remember to transfer your revised .config files from the container before
-doing a {\tt redo.py}!  A copy of your config files are in \verb!~/.local/instr\_config!.  You can edit
+doing a {\tt gradelab [lab] -r}!  A copy of your config files are in \verb!~/.local/instr\_config!.  You can edit
 those and try running instructor.py again.  The [lab].grades.json contains the
 results of the goals assessment.  You can find the results assessment for each 
 student beneath the directory whose name is prefaced with the student email.  
