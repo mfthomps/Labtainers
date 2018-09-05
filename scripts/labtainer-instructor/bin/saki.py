@@ -2,6 +2,7 @@
 import os
 import sys
 import time
+import datetime
 import zipfile
 import shutil
 import glob
@@ -181,9 +182,20 @@ def checkBulkSaki(lab):
     bulk_path = os.path.join(xfer, lab, 'bulk_download.zip') 
     if os.path.isfile(bulk_path):
         extract(bulk_path, xfer, lab)
-    else:
-        #print('no bulk file at %s' % bulk_path)
-        pass
+    else: 
+        lxfer = os.path.join(xfer, lab)
+        zfiles = glob.glob(lxfer+'/*.zip')
+        for z in zfiles:
+            f = os.path.basename(z).rsplit('.',1)[0]
+            if '_' in f:
+                ts = f.split('_')[1]
+                try:
+                    v = time.mktime(datetime.datetime.strptime(ts,'%Y%m%d%H%M%S').timetuple())
+                    print('Assuming Sakai bulk download: %s' % z)
+                    extract(z, xfer, lab)
+                except:
+                    pass
+
 
 if __name__ == '__main__':
     lab = sys.argv[1]
