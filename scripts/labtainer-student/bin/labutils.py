@@ -1036,8 +1036,10 @@ def defineAdditionalIP(container_name, post_start_if, post_start_nets):
     for subnet in post_start_nets:
         existing_ip = post_start_if[subnet]
         cmd = "docker exec %s bash -c 'ifconfig'" % (container_name)
+        logger.DEBUG('cmd is %s' % cmd)
         ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         output = ps.communicate()
+        logger.DEBUG('out0 %s \nout1 %s' % (output[0], output[1]))
         current_if = None
         this_if = None
         for line in output[0].splitlines():
@@ -1052,6 +1054,7 @@ def defineAdditionalIP(container_name, post_start_if, post_start_nets):
         count = 1
         for ip in post_start_nets[subnet]:
             cmd = "docker exec %s bash -c 'ifconfig %s:%d %s'" % (container_name, this_if, count, ip)
+            logger.DEBUG('next cmd is %s' % cmd)
             if not DockerCmd(cmd):
                 print('error doing %s' % cmd)
                 exit(1) 
@@ -1120,7 +1123,12 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                     subnet_name = mysubnet_name.split(':')[0] 
                     if subnet_name not in post_start_nets:
                         post_start_nets[subnet_name] = []
-                    post_start_nets[subnet_name].append(mysubnet_ip)
+                    if subnet_name not in post_start_if:
+                        post_start_if[subnet_name] = mysubnet_ip
+                        logger.DEBUG('container: %s assigned post_start_if[%s] %s, connecting' % (mycontainer_name, subnet_name, mysubnet_ip))
+                        connectNetworkResult = ConnectNetworkToContainer(start_config, mycontainer_name, subnet_name, mysubnet_ip)
+                    else:
+                        post_start_nets[subnet_name].append(mysubnet_ip)
                 else:
                     connectNetworkResult = ConnectNetworkToContainer(start_config, mycontainer_name, mysubnet_name, mysubnet_ip)
 
