@@ -158,6 +158,9 @@ def main():
         fh.close()
     for rootdir, subdirs, files in os.walk(studentHomeDir):
         newdir = rootdir.replace(udir, ".")
+        # TBD replace with something more configurable
+        if newdir.startswith('./.wine'):
+            continue
         for fname in files:
             savefname = os.path.join(newdir, fname)
             #print "savefname is %s" % savefname
