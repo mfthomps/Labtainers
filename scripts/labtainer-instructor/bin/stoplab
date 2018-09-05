@@ -1,2 +1,2 @@
 #!/bin/bash
-stop.py $@
+stopgrade $@

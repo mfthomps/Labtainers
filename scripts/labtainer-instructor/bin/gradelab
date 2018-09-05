@@ -62,7 +62,7 @@ def CopyStudentArtifacts(labtainer_config, container_name, labname, regress_test
         logger.DEBUG("name is %s" % fname)
         base_fname = os.path.basename(fname)
         # Copy zip file 
-        command = 'docker cp %s %s:/home/instructor/' % (fname, container_name)
+        command = 'docker cp "%s" %s:/home/instructor/' % (fname, container_name)
         logger.DEBUG("Command to execute is (%s)" % command)
         result = subprocess.call(shlex.split(command))
         logger.DEBUG("Result of subprocess.call CopyStudentArtifacts copy zipfile (%s) is %s (1=>FAILURE)" % (fname, result))
@@ -262,7 +262,7 @@ def doGrade(labname, use_test_registry, debug, redo, update, regress_test=None, 
     grade_image = getGradeImageName(labtainer_config, registry)
     if update:
         removeGraders(registry)
-
+    saki.checkBulkSaki(labname)
     if not labutils.IsContainerCreated(grade_container):
         docker0_IPAddr = labutils.getDocker0IPAddr()
         add_host_param = '--add-host my_host:%s' % (docker0_IPAddr)

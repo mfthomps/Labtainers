@@ -172,25 +172,19 @@ def extract(zip_fname, xfer, expect_lab):
    
                
 
-def checkBulkSaki(bulk_path = None, lab = None):
+def checkBulkSaki(lab):
     labtainer_config_dir = '../../config/labtainer.config'
     labutils.logger = LabtainerLogging.LabtainerLogging("saki.log", 'none', labtainer_config_dir)
     labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_dir, labutils.logger)
     home = os.getenv('HOME')
     xfer = os.path.join(home, labtainer_config.host_home_xfer)
-    if bulk_path is None:
-        bulk_path = os.path.join(xfer, lab, 'bulk_download.zip') 
-        if os.path.isfile(bulk_path):
-            extract(bulk_path, xfer, lab)
-        else:
-            #print('no bulk file at %s' % bulk_path)
-            pass
+    bulk_path = os.path.join(xfer, lab, 'bulk_download.zip') 
+    if os.path.isfile(bulk_path):
+        extract(bulk_path, xfer, lab)
     else:
-        if os.path.isfile(bulk_path):
-            extract(bulk_path, xfer, lab)
-        else:
-            print('no file found at %s' % buld_path) 
+        #print('no bulk file at %s' % bulk_path)
+        pass
 
 if __name__ == '__main__':
-    bulk = sys.argv[1]
-    checkBulkSaki(bulk)
+    lab = sys.argv[1]
+    checkBulkSaki(lab)
