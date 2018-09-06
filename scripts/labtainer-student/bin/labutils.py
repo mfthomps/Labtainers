@@ -464,7 +464,7 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
             clone_host = clone_names[clone_fullname]
             if mysubnet_name is not None:
                 subnet_ip, mac = GetNetParam(start_config, mysubnet_name, mysubnet_ip, clone_fullname)
-            createsinglecommand = "docker create -t %s --cap-add NET_ADMIN %s %s %s %s %s --name=%s --hostname %s %s %s %s %s" % (dns_param, 
+            createsinglecommand = "docker create -t %s --ipc host --cap-add NET_ADMIN %s %s %s %s %s --name=%s --hostname %s %s %s %s %s" % (dns_param, 
                     network_param, subnet_ip, mac, priv_param, add_host_param,  clone_fullname, clone_host, volume, 
                     multi_user, new_image_name, start_script)
             logger.DEBUG("Command to execute was (%s)" % createsinglecommand)
