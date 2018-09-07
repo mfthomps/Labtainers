@@ -1364,8 +1364,29 @@ def SkipContainer(run_container, name, start_config, servers):
                 return True
     return False
 
+def readFirst(lab_path, labname, fname, quiet_start):
+    #
+    #  If a fname exists in the lab's config directory, less it before the student continues.
+    #
+    doc_dir = os.path.join(lab_path, 'docs')
+    read_first = os.path.join(doc_dir, fname)
+    pdf = '%s.pdf' % labname
+    manual = os.path.join(doc_dir, pdf)
+
+    if os.path.isfile(read_first):
+        print '\n\n'
+        command = 'cat %s' % read_first
+        less = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
+        sed_cmd = "sed -e s+LAB_MANUAL+%s+ -e s+LAB_DOCS+%s+" %  (manual, doc_dir)
+        sed = subprocess.Popen(sed_cmd.split(), stdin=less.stdout, stdout=subprocess.PIPE)
+        output = sed.communicate()[0]
+        print output
+        if not quiet_start: 
+            less.wait()
+            dumb = raw_input("Press <enter> to start the lab\n")
+
 def DoStart(start_config, labtainer_config, lab_path, 
-            quiet_start, run_container, servers, clone_count, auto_grade=False, debug_grade=False, container_images=None):
+            quiet_start, run_container, servers, clone_count, auto_grade=False, debug_grade=False, container_images=None, lab_count=1):
     labname = os.path.basename(lab_path)
     logger.DEBUG("DoStart Multiple Containers and/or multi-home networking")
     ''' make sure root can access Xserver '''
@@ -1400,6 +1421,8 @@ def DoStart(start_config, labtainer_config, lab_path,
         container_warning_printed = False
     start_config, student_email = CheckEmailReloadStartConfig(start_config, quiet_start, lab_path, 
                                       labtainer_config, logger, servers, clone_count)
+    if lab_count == 1:
+        readFirst(lab_path, labname, 'read_pre.txt', quiet_start)
     for name, container in start_config.containers.items():
         if SkipContainer(run_container, name, start_config, servers):
             #print('gonna skip %s' % run_container)
@@ -1427,28 +1450,9 @@ def DoStart(start_config, labtainer_config, lab_path,
         sys.exit(1)
 
 
-    #
-    #  If a read_first.txt file exists in the lab's config directory, less it before the student continues.
-    #
-    doc_dir = os.path.join(lab_path, 'docs')
-    read_first = os.path.join(doc_dir, 'read_first.txt')
-    pdf = '%s.pdf' % labname
-    manual = os.path.join(doc_dir, pdf)
-
-    if os.path.isfile(read_first):
-        print '\n\n'
-        command = 'cat %s' % read_first
-        less = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
-        sed_cmd = "sed -e s+LAB_MANUAL+%s+ -e s+LAB_DOCS+%s+" %  (manual, doc_dir)
-        sed = subprocess.Popen(sed_cmd.split(), stdin=less.stdout, stdout=subprocess.PIPE)
-        output = sed.communicate()[0]
-        print output
-        if not quiet_start: 
-            less.wait()
-            dumb = raw_input("Press <enter> to start the lab\n")
-
+    readFirst(lab_path, labname, 'read_first.txt', quiet_start)
     
-    # Reach here - Everything is OK - spawn terminal for each container based on num_terminal
+    # spawn terminal for each container based on num_terminal
     terminal_count = 0
     terminal_groups = {}
     for name, container in start_config.containers.items():
@@ -1565,7 +1569,7 @@ def StartLab(lab_path, force_build=False, is_redo=False, quiet_start=False,
     logger.DEBUG("ParseStartConfig for %s" % labname)
     is_valid_lab(lab_path)
 
-    LabCount.addCount('./', labname, is_redo, logger)
+    lab_count = LabCount.addCount('./', labname, is_redo, logger)
     labtainer_config, start_config = GetBothConfigs(lab_path, logger, servers, clone_count)
     host_home_xfer = os.path.join(labtainer_config.host_home_xfer, labname)
 
@@ -1633,7 +1637,7 @@ def StartLab(lab_path, force_build=False, is_redo=False, quiet_start=False,
 
     DoStart(start_config, labtainer_config, lab_path, quiet_start, 
             run_container, servers=servers, clone_count=clone_count, auto_grade=auto_grade, 
-            debug_grade=debug_grade, container_images=container_images)
+            debug_grade=debug_grade, container_images=container_images, lab_count=lab_count)
 
 def DateIsLater(df_utc_string, ts, local=False, debug=False):
     parts = df_utc_string.split('.')

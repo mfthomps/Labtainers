@@ -14,6 +14,7 @@ def addCount(start_path, labname, is_redo, logger):
     current_time_string = str(datetime.datetime.now())
     current_count = getLabCount(start_path, labname, logger)
     writeLabCount(start_path, labname, is_redo, current_count, current_time_string, logger)
+    return current_count
 
 def getLabCount(start_path, labname, logger):
     current_count = {}
