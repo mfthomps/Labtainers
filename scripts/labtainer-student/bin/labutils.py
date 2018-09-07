@@ -539,6 +539,7 @@ def CreateSubnets(start_config):
             output = ps.communicate()
             logger.DEBUG("stdout of subprocess.call CreateSubnets docker network create is %s" % output[0])
             if len(output[1]) > 0:
+                logger.DEBUG('stderr of %s is %s' % (command, output[1]))
                 found_match_network = False
                 found_match_network_name = ""
                 # Before a hard exit - give the user some indication of what to do next
