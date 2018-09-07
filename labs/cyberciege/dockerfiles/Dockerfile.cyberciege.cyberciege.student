@@ -32,7 +32,8 @@ ARG password
 ARG apt_source
 ARG version
 LABEL version=$version
-ENV APT_SOURCE $apt_source
+#ENV APT_SOURCE $apt_source
+ENV APT_SOURCE NOT
 RUN /usr/bin/apt-source.sh
 #
 #  put package installation here
@@ -40,6 +41,8 @@ RUN /usr/bin/apt-source.sh
 #
 # Install the system files found in the _system directory
 #
+RUN apt-get update && apt-get install -y xchm xpdf
+
 ADD $labdir/$imagedir/sys_tar/sys.tar /
 ADD $labdir/sys_$lab.tar.gz /
 #

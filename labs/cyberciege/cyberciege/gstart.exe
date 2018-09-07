@@ -1,0 +1,16 @@
+#!/bin/bash
+fullname=$1
+fname=$(basename -- "$fullname")
+extension="${fname##*.}"
+echo "extension is $extension"
+if [[ $extension == pdf ]]; then
+    OPEN_HANDLER="/usr/bin/xpdf"
+fi
+# convert the path
+RESULT=$(winepath "$@" 2> /dev/null)
+echo "$OPEN_HANDLER $RESULT" >> $LOG
+TMP=$TMPDIR
+TEMP=$TMPDIR
+# finally open the file
+$OPEN_HANDLER "$RESULT"
+

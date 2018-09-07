@@ -16,9 +16,10 @@
 #   PERMLOCKDIR=/var/labtainer/did_param
 #   echo $1 | sudo -S mkdir -p "$PERMLOCKDIR"
 cd $HOME
-export WINEDLLOVERRIDES="mscoree,mshtml="
-wine msiexec /i /var/tmp/wine-mono-4.7.1.msi
-export WINEDLLOVERRIDES=""
+#export WINEDLLOVERRIDES="mscoree,mshtml="
+#wine msiexec /i /var/tmp/wine-mono-4.7.1.msi
+#export WINEDLLOVERRIDES=""
 echo "Now install CyberCIEGE"
-wine /var/tmp/setup1-9v8s.exe
-
+wine /var/tmp/setup1-9v8h.exe
+mv $HOME/gstart.exe $HOME/.wine/drive_c/
+wine regedit $HOME/linuxnative.reg

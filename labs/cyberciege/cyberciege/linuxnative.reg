@@ -1,0 +1,10 @@
+REGEDIT4
+[HKEY_CLASSES_ROOT\.pdf]
+@="linuxnative"
+"Content Type"="application/linuxnative"
+[HKEY_CLASSES_ROOT\linuxnative]
+[HKEY_CLASSES_ROOT\linuxnative\shell]
+[HKEY_CLASSES_ROOT\linuxnative\shell\open]
+[HKEY_CLASSES_ROOT\linuxnative\shell\open\command]
+@="c:\\gstart.exe \"%1\""
+
