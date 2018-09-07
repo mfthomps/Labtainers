@@ -43,7 +43,7 @@ $here/fix-git-dates.py config $ltrunk
 $here/fix-git-dates.py setup_scripts $ltrunk
 $here/fix-git-dates.py docs $ltrunk
 $here/fix-git-dates.py tool-src $ltrunk
-$here/fix-git-dates.py skip-labs $ltrunk
+$here/fix-git-dates.py distrib/skip-labs $ltrunk
 mkdir $scripts
 $here/fix-git-dates.py scripts/labtainer-student $ltrunk
 $here/fix-git-dates.py scripts/labtainer-instructor $ltrunk
@@ -61,7 +61,6 @@ done
 distrib/mk-lab-pdf.sh $labs
 result=$?
 echo "result of mk-lab-pdf is $result"
-exit
 if [ $result -ne 0 ]; then
     echo "Trouble making lab manuals"
     exit
