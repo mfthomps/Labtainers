@@ -38,26 +38,34 @@ mkdir $ltrunk
 git archive master README.md | tar -x -C $ltrunk
 sed -i "s/mm\/dd\/yyyy/$(date '+%m\/%d\/%Y %H:%M')/" $ltrunk/README.md
 sed -i "s/^Revision:/Revision: $revision/" $ltrunk/README.md
-git archive master config | tar -x -C $ltrunk
-git archive master setup_scripts | tar -x -C $ltrunk
-git archive master docs | tar -x -C $ltrunk
-git archive master tool-src | tar -x -C $ltrunk
-git archive master distrib/skip-labs | tar -x -C $ltrunk
+#git archive master config | tar -x -C $ltrunk
+$here/fix-git-dates.py config $ltrunk
+$here/fix-git-dates.py setup_scripts $ltrunk
+$here/fix-git-dates.py docs $ltrunk
+$here/fix-git-dates.py tool-src $ltrunk
+$here/fix-git-dates.py skip-labs $ltrunk
 mkdir $scripts
-git archive master scripts/labtainer-student | tar -x -C $ltrunk
-git archive master scripts/labtainer-instructor | tar -x -C $ltrunk
+$here/fix-git-dates.py scripts/labtainer-student $ltrunk
+$here/fix-git-dates.py scripts/labtainer-instructor $ltrunk
 mkdir $labs
 llist=$(git ls-files labs | cut -d '/' -f 2 | uniq)
 for lab in $llist; do
     if [ $(contains "${skiplist[@]}" $lab) != "y" ]; then
-        git archive master labs/$lab/config | tar -x -C $ltrunk
-        git archive master labs/$lab/instr_config | tar -x -C $ltrunk
+        $here/fix-git-dates.py labs/$lab/config $ltrunk
+        $here/fix-git-dates.py labs/$lab/instr_config $ltrunk
         if [[ -d labs/$lab/docs ]]; then
-            git archive master labs/$lab/docs | tar -x -C $ltrunk
+            $here/fix-git-dates.py labs/$lab/docs $ltrunk
         fi
     fi
 done
 distrib/mk-lab-pdf.sh $labs
+result=$?
+echo "result of mk-lab-pdf is $result"
+exit
+if [ $result -ne 0 ]; then
+    echo "Trouble making lab manuals"
+    exit
+fi
 cd $ldir
 mv trunk/setup_scripts/install-labtainer.sh .
 ln -s trunk/setup_scripts/update-labtainer.sh .

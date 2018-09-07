@@ -20,7 +20,7 @@ mkdir $ddir
 mkdir $ldir
 mkdir $ltrunk
 mkdir $labs
-git archive master | tar -x -C $ltrunk
+$here/fix-git-dates.py ./ $ltrunk
 cd $ltrunk
 sed -i "s/mm\/dd\/yyyy/$(date '+%m\/%d\/%Y %H:%M')/" README.md
 sed -i "s/^Revision:/Revision: $revision/" README.md
