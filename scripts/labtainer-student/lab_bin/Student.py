@@ -159,7 +159,7 @@ def main():
     for rootdir, subdirs, files in os.walk(studentHomeDir):
         newdir = rootdir.replace(udir, ".")
         # TBD replace with something more configurable
-        if newdir.startswith('./.wine'):
+        if newdir.startswith('./.wine') or newdir.startswith('./.cache'):
             continue
         for fname in files:
             savefname = os.path.join(newdir, fname)
