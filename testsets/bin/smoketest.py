@@ -137,7 +137,7 @@ class SmokeTest():
                     f = os.path.basename(line).strip()
                     print('adding [%s]' % f)
                     skip.append(f)
-        
+        skip.append('cyberciege')
         lab_parent = os.path.abspath('../../labs')
         lab_list = os.listdir(lab_parent)
         for lab in sorted(lab_list):
