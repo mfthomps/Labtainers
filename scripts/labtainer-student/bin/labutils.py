@@ -464,7 +464,8 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
             clone_host = clone_names[clone_fullname]
             if mysubnet_name is not None:
                 subnet_ip, mac = GetNetParam(start_config, mysubnet_name, mysubnet_ip, clone_fullname)
-            createsinglecommand = "docker create -t %s --ipc host --cap-add NET_ADMIN %s %s %s %s %s --name=%s --hostname %s %s %s %s %s" % (dns_param, 
+            #createsinglecommand = "docker create -t %s --ipc host --cap-add NET_ADMIN %s %s %s %s %s --name=%s --hostname %s %s %s %s %s" % (dns_param, 
+            createsinglecommand = "docker create -t %s --cap-add NET_ADMIN %s %s %s %s %s --name=%s --hostname %s %s %s %s %s" % (dns_param, 
                     network_param, subnet_ip, mac, priv_param, add_host_param,  clone_fullname, clone_host, volume, 
                     multi_user, new_image_name, start_script)
             logger.DEBUG("Command to execute was (%s)" % createsinglecommand)
@@ -1365,7 +1366,7 @@ def SkipContainer(run_container, name, start_config, servers):
                 return True
     return False
 
-def readFirst(lab_path, labname, fname, quiet_start):
+def readFirst(lab_path, labname, fname, quiet_start, bail_option=False):
     #
     #  If a fname exists in the lab's config directory, less it before the student continues.
     #
@@ -1384,10 +1385,16 @@ def readFirst(lab_path, labname, fname, quiet_start):
         print output
         if not quiet_start: 
             less.wait()
-            dumb = raw_input("Press <enter> to start the lab\n")
+            if not bail_option:
+                dumb = raw_input("Press <enter> to start the lab\n")
+            else:
+                dumb = raw_input("Continue? (y/n)")
+                if dumb.lower() != 'y':
+                    print('Exiting lab')
+                    exit(0)
 
 def DoStart(start_config, labtainer_config, lab_path, 
-            quiet_start, run_container, servers, clone_count, auto_grade=False, debug_grade=False, container_images=None, lab_count=1):
+            quiet_start, run_container, servers, clone_count, auto_grade=False, debug_grade=False, container_images=None):
     labname = os.path.basename(lab_path)
     logger.DEBUG("DoStart Multiple Containers and/or multi-home networking")
     ''' make sure root can access Xserver '''
@@ -1422,8 +1429,6 @@ def DoStart(start_config, labtainer_config, lab_path,
         container_warning_printed = False
     start_config, student_email = CheckEmailReloadStartConfig(start_config, quiet_start, lab_path, 
                                       labtainer_config, logger, servers, clone_count)
-    if lab_count == 1:
-        readFirst(lab_path, labname, 'read_pre.txt', quiet_start)
     for name, container in start_config.containers.items():
         if SkipContainer(run_container, name, start_config, servers):
             #print('gonna skip %s' % run_container)
@@ -1571,6 +1576,8 @@ def StartLab(lab_path, force_build=False, is_redo=False, quiet_start=False,
     is_valid_lab(lab_path)
 
     lab_count = LabCount.addCount('./', labname, is_redo, logger)
+    if lab_count == 1:
+        readFirst(lab_path, labname, 'read_pre.txt', quiet_start, bail_option=True)
     labtainer_config, start_config = GetBothConfigs(lab_path, logger, servers, clone_count)
     host_home_xfer = os.path.join(labtainer_config.host_home_xfer, labname)
 
@@ -1638,7 +1645,7 @@ def StartLab(lab_path, force_build=False, is_redo=False, quiet_start=False,
 
     DoStart(start_config, labtainer_config, lab_path, quiet_start, 
             run_container, servers=servers, clone_count=clone_count, auto_grade=auto_grade, 
-            debug_grade=debug_grade, container_images=container_images, lab_count=lab_count)
+            debug_grade=debug_grade, container_images=container_images)
 
 def DateIsLater(df_utc_string, ts, local=False, debug=False):
     parts = df_utc_string.split('.')
