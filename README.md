@@ -82,6 +82,10 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+September 7, 2018
+- Add CyberCIEGE as a lab
+- read\_pre.txt information display prior to pull of images, and chance to bail.
+
 September 5, 2018
 - Restore sakai bulk download processing to gradelab function.
 - Remove unused instructor scripts.
