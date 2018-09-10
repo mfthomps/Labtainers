@@ -696,7 +696,7 @@ def CopyLabBin(mycontainer_name, container_user, lab_path, name, image_info):
         logger.ERROR('failed %s' % cmd)
         exit(1)
 
-    cmd = 'docker exec %s script -q -c "sudo tar xhf /var/tmp/labsys.tar -C /"' % (mycontainer_name)
+    cmd = 'docker exec %s script -q -c "sudo tar -x --keep-directory-symlink -f /var/tmp/labsys.tar -C /"' % (mycontainer_name)
     if not DockerCmd(cmd):
         cmd = 'docker cp lab_sys/.  %s:/' % (mycontainer_name)
         if not DockerCmd(cmd):
@@ -1675,7 +1675,13 @@ def FileModLater(ts, fname):
     df_utc_string = None
     # start with check of svn status
     if os.path.isfile(fname):
-        has_svn = True
+        cmd = 'git ls-files -s %s' % fname
+        child = subprocess.Popen(shlex.split(cmd), shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output = child.communicate()
+        if len(output[0].strip()) > 0:
+            has_svn = True
+        else:        
+            has_svn = False
     else:
         has_svn = False
     cmd = 'git status -s %s' % fname
