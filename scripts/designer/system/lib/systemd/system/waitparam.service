@@ -1,0 +1,13 @@
+[Unit]
+Description=Wait for labtainers parameterization
+Before=rc-local.service
+
+[Service]
+Type=notify
+ExecStart=/sbin/waitparam.sh
+StandardOutput=null
+
+[Install]
+WantedBy=multi-user.target
+Alias=waitparam.service
+

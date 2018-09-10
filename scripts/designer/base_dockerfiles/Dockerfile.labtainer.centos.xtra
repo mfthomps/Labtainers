@@ -3,3 +3,7 @@ FROM $registry/labtainer.centos
 LABEL description="This is the extended base Docker image for Labtainer CentOS images"
 RUN yum install -y ghex leafpad liberation-sans-fonts xcb-util
 ADD system/usr/share/man/man1.tar /usr/share/man
+# CFS: it will end up in /usr/sbin anyway.  no idea why.  so hack up a unique waitparam.service
+ADD system/sbin/waitparam.sh /usr/sbin/waitparam.sh
+ADD system/lib/systemd/system/waitparam.service.cfs /lib/systemd/system/waitparam.service
+RUN systemctl enable waitparam.service
