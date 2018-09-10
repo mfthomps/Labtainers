@@ -107,9 +107,8 @@ def add_container(start_config_filename, newcontainer, basename):
     start_config_file = open(start_config_filename, 'a')
     start_config_file.write('CONTAINER %s\n' % newcontainer)
     start_config_file.write('\tUSER ubuntu\n')
-    if basename == 'centos' or basename == 'centos.xtra':
-        start_config_file.write('\tSCRIPT NONE\n')
-        start_config_file.write('\tX11 YES\n')
+    start_config_file.write('\tSCRIPT NONE\n')
+    start_config_file.write('\tX11 YES\n')
     start_config_file.close()
 
 def handle_add_container(tdir, newcontainer, basename='base'):
