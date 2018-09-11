@@ -7,6 +7,8 @@
 # Then associate it with the next unused loopback device, create
 # a file system on it, and mount it.  Then populate it with stuff.
 #
+chmod 0700 $HOME/.ssh
+chmod 0600 $HOME/.ssh/id_rsa
 img_dir=/vfs
 img_fid=/vfs/myfs.img
 sudo mkdir $img_dir

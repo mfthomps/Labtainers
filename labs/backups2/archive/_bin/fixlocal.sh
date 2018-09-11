@@ -7,4 +7,5 @@
 #  not not permit nopassword, then use:
 #  echo $1 | sudo -S the-command
 #
-
+chmod 0700 $HOME/.ssh
+chmod 0600 $HOME/.ssh/authorized_keys
