@@ -9,3 +9,5 @@
 #
 chmod 0700 $HOME/.ssh
 chmod 0600 $HOME/.ssh/authorized_keys
+sudo chmod 0700 root/.ssh
+sudo chmod 0600 root/.ssh/authorized_keys
