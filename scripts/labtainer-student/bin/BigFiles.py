@@ -11,7 +11,7 @@ def BigFiles(lab_dir):
         #print('Missing bigfiles.txt from %s' % big_list)
         return
     full = os.path.abspath(lab_dir)
-    top = full[:full.index('trunk/labs')]
+    top = full[:full.index('labs')]
     if os.path.isfile(big_list):
         with open(big_list) as fh:
             for line in fh:
