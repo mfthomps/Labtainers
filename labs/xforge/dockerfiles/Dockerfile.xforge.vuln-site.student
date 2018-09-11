@@ -58,6 +58,7 @@ ADD $labdir/$lab.tar.gz $HOME
 #
 USER root
 RUN chown apache:apache -R var/www/csrflabelgg.com/elgg/
+RUN mkdir -p var/run/elgg_data
 RUN chown apache:apache -R var/run/elgg_data
 CMD ["/usr/sbin/init"]
 # replace below with two above for centos
