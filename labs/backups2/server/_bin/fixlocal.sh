@@ -9,8 +9,8 @@
 #
 chmod 0700 $HOME/.ssh
 chmod 0600 $HOME/.ssh/id_rsa
-suco chmod 0700 root/.ssh
-suco chmod 0600 root/.ssh/id_rsa
+sudo chmod 0700 root/.ssh
+sudo chmod 0600 root/.ssh/id_rsa
 img_dir=/vfs
 img_fid=/vfs/myfs.img
 sudo mkdir $img_dir
