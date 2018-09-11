@@ -82,6 +82,10 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+September 11, 2018
+- Rebuild centos labs, move lamp derivatives to use lamp.xtr for waitparam and force
+httpd to wait for that to finish.
+
 September 7, 2018
 - Add CyberCIEGE as a lab
 - read\_pre.txt information display prior to pull of images, and chance to bail.
