@@ -151,10 +151,10 @@ def main():
             os.system('docker login -u %s' % default_registry)
         DoLab(args.lab, labsdir, args.force, logger, False, args.test_registry, default_registry)
     else:    
-        # do them all.  warn of incomplete svn
+        # do them all.  warn of incomplete git
         mycwd = os.getcwd()
         os.chdir(labsdir)
-        command = 'svn status' 
+        command = 'git status -s' 
         ps = subprocess.Popen(shlex.split(command), True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         grep_command = 'grep -E "^M|^D|^A"'
         ps_grep = subprocess.Popen(shlex.split(grep_command), stdin=ps.stdout,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -167,19 +167,21 @@ def main():
     
         if not args.test_registry:
             os.system('docker login -u %s' % default_registry)
-        cmd = 'svn ls  https://tor.ern.nps.edu/svn/proj/labtainer/trunk/labs'
+        #cmd = 'svn ls  https://tor.ern.nps.edu/svn/proj/labtainer/trunk/labs'
+        cmd = 'git ls-files ./ | cut -d/ -f1 | uniq'
         child = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-        output = child.stdout.read()
-        lab_list = output.strip().split()
+        output = child.communicate()
+        lab_list = output[0].strip().splitlines(True)
         for lab in sorted(lab_list):
-            lab = lab[:len(lab)-1] 
+            #lab = lab[:len(lab)-1] 
+            lab = lab.strip()
             if args.start is not None and lab < args.start:
                 continue 
             if lab not in skip:
                 print('Lab: %s' % lab)
                 lab_dir = os.path.join(labsdir, lab)
                 os.chdir(lab_dir)
-                cmd = 'svn up'
+                cmd = 'git checkout ./'
                 os.system(cmd)
                 os.chdir(mycwd)
                 DoLab(lab, labsdir, args.force, logger, False, args.test_registry, default_registry)
