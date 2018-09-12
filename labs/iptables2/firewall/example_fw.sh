@@ -21,7 +21,7 @@ $IPTABLES -P OUTPUT  DROP
 $IPTABLES -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 
 # Allow SSH traffic on port 22
-$IPTABLES -A FORWARD --dport 22 -j ACCEPT
+$IPTABLES -A FORWARD -p tcp --dport 22 -j ACCEPT
 
 # loopback device (internal traffic)
 iptables -A INPUT -i lo -p all -j ACCEPT
