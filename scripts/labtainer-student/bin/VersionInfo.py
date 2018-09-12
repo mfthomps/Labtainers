@@ -15,7 +15,7 @@ def getFrom(dockerfile, registry):
     ''' Remove xtra suffix if it exists.  We are only interested in the big base '''
     return image_name
 
-def getImageId(image):
+def getImageId(image, quiet):
     ''' given an image name, use docker to determine the image ID present on this installation '''
     #cmd = 'docker images | grep %s' % image
     cmd = 'docker images -f=reference="%s:latest" -q ' % image
@@ -26,6 +26,9 @@ def getImageId(image):
         exit(1)
     if len(output[0]) > 0:
         return output[0].strip()
+    elif quiet:
+        cmd = 'docker pull %s' % image
+        os.system(cmd)
     else:
         print('VersionInfo, getImageId: no image found for %s' % image)
         print('**************************************************')

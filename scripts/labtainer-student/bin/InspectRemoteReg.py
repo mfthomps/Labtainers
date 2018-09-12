@@ -17,7 +17,7 @@ import VersionInfo
 Return creation date and user of a given image from the Docker Hub
 without pulling the image.
 '''
-def inspectRemote(image, is_rebuild=False):
+def inspectRemote(image, is_rebuild=False, quiet=False):
     use_tag = 'latest'
     token = getToken(image)
     if token is None or len(token.strip()) == 0:
@@ -31,7 +31,7 @@ def inspectRemote(image, is_rebuild=False):
         exit(1) 
     #print('base is %s' % base)
     base_image, base_id = base.rsplit('.', 1)
-    my_id = VersionInfo.getImageId(base_image)
+    my_id = VersionInfo.getImageId(base_image, quiet)
     if my_id == base_id:
         pass
         #print('got correct base_id')
@@ -41,6 +41,9 @@ def inspectRemote(image, is_rebuild=False):
         need_tag = 'base_image%s' % my_id
         if is_rebuild or need_tag in tlist:
             use_tag = need_tag
+        elif quiet:
+            cmd = 'docker pull %s' % base_image
+            os.system(cmd)
         else:
             print('**************************************************')
             print('*  This lab will require a download of           *')

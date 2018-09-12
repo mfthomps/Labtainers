@@ -20,7 +20,7 @@ the test registry.
 
 
 
-def inspectLocal(image, test_registry, is_rebuild=False):
+def inspectLocal(image, test_registry, is_rebuild=False, quiet=False):
     use_tag = 'latest'
     digest = getDigest(image, 'latest', test_registry)
     if digest is None:
@@ -29,7 +29,7 @@ def inspectLocal(image, test_registry, is_rebuild=False):
     #print('base is %s' % base)
     if base is not None:
        base_image, base_id = base.rsplit('.', 1)
-       my_id = VersionInfo.getImageId(base_image)
+       my_id = VersionInfo.getImageId(base_image, quiet)
        if my_id == base_id:
            pass
            #print('got correct base_id')
@@ -39,6 +39,9 @@ def inspectLocal(image, test_registry, is_rebuild=False):
             need_tag = 'base_image%s' % my_id
             if is_rebuild or need_tag in tlist:
                 use_tag = need_tag
+            elif quiet:
+                cmd = 'docker pull %s' % base_image
+                os.system(cmd)
             else:
                 print('**************************************************')
                 print('*  This lab will require a download of           *')

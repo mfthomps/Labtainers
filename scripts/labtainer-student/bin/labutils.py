@@ -382,12 +382,12 @@ def isUbuntuSystemd(image_name):
 
     return retval
 
-def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_name=None, mysubnet_ip=None):
+def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_name=None, mysubnet_ip=None, quiet=False):
     ''' create a single container -- or all clones of that container per the start.config '''
     logger.DEBUG("Create Single Container for %s" % container.name)
     retval = True
     #image_exists, result, new_image_name = ImageExists(container.image_name, container.registry)
-    image_info = imageInfo(container.image_name, container.registry, labtainer_config)
+    image_info = imageInfo(container.image_name, container.registry, labtainer_config, quiet=quiet)
     start_script = container.script     
     if image_info is None:
         logger.ERROR('Could not find image for %s' % container.image_name)
@@ -822,7 +822,7 @@ def inspectImage(image_name):
         version = output[0].strip()
     return created, user, version
 
-def imageInfo(image_name, registry, labtainer_config, is_rebuild=False, no_pull=False):
+def imageInfo(image_name, registry, labtainer_config, is_rebuild=False, no_pull=False, quiet=False):
     ''' image_name lacks registry info (always) 
         First look if plain image name exists, suggesting
         an ongoing build/test situation '''    
@@ -842,9 +842,9 @@ def imageInfo(image_name, registry, labtainer_config, is_rebuild=False, no_pull=
         elif not no_pull:
             ''' See if the image exists in the desired registry '''
             if registry == labtainer_config.test_registry:
-                created, user, version, use_tag, base = InspectLocalReg.inspectLocal(image_name, registry, is_rebuild)
+                created, user, version, use_tag, base = InspectLocalReg.inspectLocal(image_name, registry, is_rebuild, quiet)
             else:
-                created, user, version, use_tag = InspectRemoteReg.inspectRemote(with_registry, is_rebuild)
+                created, user, version, use_tag = InspectRemoteReg.inspectRemote(with_registry, is_rebuild, quiet)
             if created is not None:
                 logger.DEBUG('%s only on registry %s, ts %s %s version %s use_tag %s' % (with_registry, registry, created, user, version, use_tag)) 
                 retval = ImageInfo(with_registry, created, user, False, False, version, use_tag)
@@ -1087,14 +1087,14 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
             # Use CreateSingleContainer()
             containerCreated = False
             if len(container.container_nets) == 0:
-                containerCreated = CreateSingleContainer(labtainer_config, start_config, container)
+                containerCreated = CreateSingleContainer(labtainer_config, start_config, container, quiet=quiet_start)
             else:
                 mysubnet_name, mysubnet_ip = container.container_nets.popitem()
                 subnet_name = mysubnet_name
                 if ':' in mysubnet_name:
                     subnet_name = mysubnet_name.split(':')[0] 
                     post_start_if[subnet_name] = mysubnet_ip
-                containerCreated = CreateSingleContainer(labtainer_config, start_config, container, subnet_name, mysubnet_ip)
+                containerCreated = CreateSingleContainer(labtainer_config, start_config, container, subnet_name, mysubnet_ip, quiet=quiet_start)
                 
             logger.DEBUG("CreateSingleContainer result (%s)" % containerCreated)
             if not containerCreated:
@@ -1612,7 +1612,7 @@ def StartLab(lab_path, force_build=False, is_redo=False, quiet_start=False,
                 if len(output[1]) > 0:
                     logger.DEBUG("Error from command = '%s'" % str(output[1]))
         #image_exists, result, dumb = ImageExists(mycontainer_image_name, container.registry)
-        image_info = imageInfo(mycontainer_image_name, container.registry, labtainer_config)
+        image_info = imageInfo(mycontainer_image_name, container.registry, labtainer_config, quiet=quiet_start)
         container_images[name] = image_info
         if image_info is not None:
             logger.DEBUG('Image version %s  framework_version %s' % (image_info.version, framework_version))
