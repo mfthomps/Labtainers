@@ -82,7 +82,9 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
-September 11, 2018
+September 12, 2018
+- Fix setuid-env grading syntax errors
+- Fix syntax error in iptables2 example firewall rules
 - Rebuild centos labs, move lamp derivatives to use lamp.xtr for waitparam and force
 httpd to wait for that to finish.
 
