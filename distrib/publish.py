@@ -74,7 +74,7 @@ def pushIt(lab, docker_dir, registry, logger):
         if image_exists:
             dfile_path = os.path.join(docker_dir,df)
             image_base = VersionInfo.getFrom(dfile_path, registry)
-            base_id = VersionInfo.getImageId(image_base)
+            base_id = VersionInfo.getImageId(image_base, True)
             framework_version = labutils.framework_version
             relabel(image, framework_version, image_base, base_id, registry)
 
