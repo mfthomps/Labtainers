@@ -11,12 +11,14 @@ rm -fr $tmp_dir
 mkdir $tmp_dir
 trunk=$tmp_dir/trunk
 mkdir $trunk
+here=`pwd`
 cd ../
-git archive master distrib | tar -x -C $trunk
-git archive master testsets | tar -x -C $trunk
+$here/fix-git-dates.py distrib $trunk
+$here/fix-git-dates.py testsets $trunk
 cd ../Labtainers-simlab
 git status -s | grep -E "^ M|^ D|^ A" | less
-git archive master simlab | tar -x -C $tmp_dir
+$here/fix-git-dates.py simlab $tmp_dir
+#git archive master simlab | tar -x -C $tmp_dir
 cd $tmp_dir
 tar czf /tmp/labtainer-tests.tar trunk simlab
 mv /tmp/labtainer-tests.tar /media/sf_SEED/
