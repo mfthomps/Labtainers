@@ -1,0 +1,13 @@
+Define N 3
+Define Phi0 
+1 0 0
+Define Transform1
+I H I
+Define Transform2 
+I Control Target
+Define Transform3 
+Control Target I
+Define Transform4 
+H I I
+Define Transform5
+M M I
