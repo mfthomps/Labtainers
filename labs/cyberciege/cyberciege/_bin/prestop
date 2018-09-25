@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+import zipfile
+import os
+import pwd
+user=pwd.getpwuid(os.getuid()).pw_name
+home = os.getenv('HOME')
+
+student_email_file=os.path.join(home, '.local', '.email')
+if not os.path.isfile(student_email_file):
+    print('No email file at %s, exit.' % student_email_file)
+    exit(1)
+fh = open(student_email_file)
+student_email = fh.read().strip()
+
+ldirsuffix = '.wine/drive_c/users/%s/Application Data/CyberCIEGE' % user
+fname = '%sLogCollection.zip' % student_email
+zipoutfilename = os.path.join(home, fname)
+zipoutput = zipfile.ZipFile(zipoutfilename, "w")
+ldir = os.path.join(home,ldirsuffix)
+flist = os.listdir(ldir)
+os.chdir(ldir)
+for f in flist:
+    if f == 'packetSource' or f == 'packetLogs':
+        continue
+    d = os.path.join('./', f)
+    if not os.path.isdir(d):
+        continue
+    for rootdir, subdirs, files in os.walk(d):
+        for f in files:
+            full = os.path.join(rootdir, f)
+            zipoutput.write(full, compress_type=zipfile.ZIP_DEFLATED)
+            print('wrote %s ' % (full))
+
+zipoutput.close()
