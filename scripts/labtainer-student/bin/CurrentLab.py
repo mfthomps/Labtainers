@@ -8,7 +8,11 @@ class CurrentLab():
     def load(self):
         if os.path.isfile(clab_file):
             with open(clab_file) as fh: 
-                self.data = json.load(fh)
+                try:
+                    self.data = json.load(fh)
+                except:
+                    print('failed loading json %s' % clab_file)
+                   
     def save(self):
         try:
             os.mkdir('./.tmp')
