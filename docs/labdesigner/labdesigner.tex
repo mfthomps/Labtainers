@@ -1034,6 +1034,18 @@ advising the student that they may restart a lab after issuing the {\tt stoplab}
 {\tt goalsmet} type of command should be added that does nothing but record prestop results without actually
 stopping the lab?}
 
+\subsubsection{Artifact archives}
+Artifacts from student labs are combined into a zip file that is placed in the student transfer
+directory, typically at {\tt ~/labtainer/xfer/<labname>}.  Students provide this file to their
+instructor for automated assessment, e.g., via email or an LMS.  
+
+Other uses for student artifacts are facilitated through use of a script named:
+\begin{verbatim}
+labtainers/labs/<lab>/bin/postzip
+\end{verbatim}
+\noindent If such a script exists, it is executed after all of the student artifacts are zipped up.  See
+the cyberciege lab for an example of postzip processing.
+
 \subsection{Artifact result values}
 \label{results.config}
 The automated assessment functions encourage labs to be organized into a set of distinct ``goals''.
