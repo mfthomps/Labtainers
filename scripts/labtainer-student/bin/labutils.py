@@ -2554,7 +2554,10 @@ def DoStop(start_config, labtainer_config, lab_path, ignore_stop_error, run_cont
         zipoutput.write(my_labtainer_log, compress_type=zipfile.ZIP_DEFLATED)
 
     zipoutput.close()
-
+    post_zip = os.path.join(lab_path, 'bin', 'postzip')
+    if os.path.isfile(post_zip):
+         cmd = "%s %s" % (post_zip, combinedZipFilename)
+         os.system(cmd)
 
     os.chdir(mycwd)
     return retval
