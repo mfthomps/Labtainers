@@ -887,7 +887,8 @@ ingested into the instructor's system where lab assessment occurs. Timestamped s
 are captured in \texttt{\$HOME/.local/result}
 
 By default, stdin and stdout for all non-system programs is captured, e.g., the results of an ``ls'' command
-are not captured.  The stdin and stdout of system programs will be captured if the program
+are not captured.  The stdin and stdout of system programs\footnote{The ``source'' directive is not a system
+program, and should not be included in a treataslocal file.} will be captured if the program
 names appear at the beginning of a line in the \textit{treataslocal} file at
 \begin{verbatim}
     $LABTAINER_DIR/labs/[labname]/[container name]/_bin/treataslocal
@@ -895,7 +896,7 @@ names appear at the beginning of a line in the \textit{treataslocal} file at
 \noindent The basename of the treataslocal entries are compared to the basename of each command.
 \footnote{In other words, if the treataslocal entry is: \texttt{usr/bin/nmap}, the path leading to nmap is ignored.}
 Starting of services can be monitored through use of treataslocal entries having a ``.service'' suffix,
-e.g., {\tt httpd.service} would generate timestamped artifact files whenever http was started (or restarted)
+e.g., {\tt httpd.service} would generate timestamped artifact files whenever httpd was started (or restarted)
 using systemctl, service or /etc/init.d/...  See section \ref{time delimeter} for the intended use of this feature.
 
 Non-system programs can be excluded from stdin/stdout capturing by including their names in
@@ -1986,6 +1987,8 @@ a ``LOG'' directive.  See the dmz-lab as an example.
 
 The available Docker network drivers do not permit IP address overlap between virtual networks.
 For example, you cannot define two 192.168.1.0/24 LANs.
+
+Student use of the shell directive "source" will cause stdin/stdout to not be captured.
 
 Inquisitive students will see evidence of artifact collection.  Home directories
 on containers includes a \texttt{.local} directory that includes Labtainer scripts that manage
