@@ -1,5 +1,7 @@
 The first run of this lab includes many installation prompts.  
-Please accept defaults for all prompts. 
+Please accept defaults for all installation prompts. 
+If a black dialog is displayed during installation, simply 
+close that dialog.
 
 ** 
 An installation password is required, if you do not have that
