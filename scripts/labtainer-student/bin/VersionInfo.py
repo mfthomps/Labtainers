@@ -44,5 +44,5 @@ def getImageId(image, quiet):
             cmd = 'docker pull %s' % image
             os.system(cmd)
             print('Download has completed.  Wait for lab to start.')
-            return getImageId(image)
+            return getImageId(image, quiet)
 
