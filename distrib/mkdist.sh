@@ -56,6 +56,9 @@ for lab in $llist; do
         if [[ -d labs/$lab/docs ]]; then
             $here/fix-git-dates.py labs/$lab/docs $ltrunk
         fi
+        if [[ -d labs/$lab/bin ]]; then
+            $here/fix-git-dates.py labs/$lab/bin $ltrunk
+        fi
     fi
 done
 distrib/mk-lab-pdf.sh $labs
