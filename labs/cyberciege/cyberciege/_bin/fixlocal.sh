@@ -20,6 +20,8 @@ cd $HOME
 #wine msiexec /i /var/tmp/wine-mono-4.7.1.msi
 #export WINEDLLOVERRIDES=""
 echo "Now install CyberCIEGE"
-wine /var/tmp/setup1-9v8h.exe
+wine /var/tmp/setup1-9v8s.exe
 mv $HOME/gstart.exe $HOME/.wine/drive_c/
 wine regedit $HOME/linuxnative.reg
+mkdir -p "$HOME/.wine/drive_c/users/$USER/Application Data/CyberCIEGE"
+ln -s "$HOME/.wine/drive_c/Program Files (x86)/CyberCIEGE/game/exec/encylo" "$HOME/.wine/drive_c/users/$USER/Application Data/CyberCIEGE/encylo"
