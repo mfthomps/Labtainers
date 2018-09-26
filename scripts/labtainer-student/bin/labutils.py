@@ -1390,6 +1390,8 @@ def readFirst(lab_path, labname, fname, quiet_start, bail_option=False):
             else:
                 dumb = raw_input("Continue? (y/n)")
                 if dumb.lower() != 'y':
+                    cmd = 'rm -fr .tmp/%s' % labname
+                    os.system(cmd)
                     print('Exiting lab')
                     exit(0)
 
