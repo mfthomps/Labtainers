@@ -180,10 +180,10 @@ def main():
             except OSError:
                 ''' ephemeral '''
                 continue 
-            if local_time < start_time and savefname != '/tmp/labtainer/.local/.email':
+            ckname = savefname[2:]
+            if local_time < start_time and not ckname.startswith('.local/.'): 
                 continue
             local_time = local_time.replace(minute=0)
-            ckname = savefname[2:]
             if ckname not in skip_list:
                 skip_this = False
                 for ss in skip_starts:
