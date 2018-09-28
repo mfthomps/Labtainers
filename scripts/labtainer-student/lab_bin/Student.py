@@ -180,7 +180,7 @@ def main():
             except OSError:
                 ''' ephemeral '''
                 continue 
-            if local_time < start_time:
+            if local_time < start_time and savefname != '/tmp/labtainer/.local/.email':
                 continue
             local_time = local_time.replace(minute=0)
             ckname = savefname[2:]
