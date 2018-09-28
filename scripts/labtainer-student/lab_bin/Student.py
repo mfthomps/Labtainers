@@ -124,7 +124,11 @@ def main():
     zipoutput = zipfile.ZipFile(TempOutputName, "w")
     udir = "/home/"+user_name
     skip_list = []
+    skip_starts = []
     manifest = '%s-home_tar.list' % container_image
+
+    start_time_file = '/var/labtainer/did_param'
+    start_time = datetime.datetime.fromtimestamp(os.path.getmtime(start_time_file))
 
     no_skip = os.path.join(udir,'.local','bin', 'noskip')
     no_skip_list = []
@@ -141,6 +145,7 @@ def main():
             if os.path.basename(line.strip()) not in no_skip_list:
                 skip_list.append(line.strip())
         fh.close()
+
     dt_skip_list = {}
     dt_skip_file = os.path.join(udir,'.local','config', 'mytar_list.txt')
     if os.path.isfile(dt_skip_file):
@@ -156,6 +161,12 @@ def main():
                 dt = datetime.datetime.strptime(dt_string, "%Y-%m-%d %H:%M")
                 dt_skip_list[fname] = dt
         fh.close()
+    skip_starts_file = os.path.join(udir,'.local','config', 'skip_starts.txt')
+    if os.path.isfile(skip_starts_file):
+        fh = open(skip_starts_file)
+        for line in fh:
+            skip_starts.append(line.strip())
+        fh.close() 
     for rootdir, subdirs, files in os.walk(studentHomeDir):
         newdir = rootdir.replace(udir, ".")
         # TBD replace with something more configurable
@@ -169,9 +180,18 @@ def main():
             except OSError:
                 ''' ephemeral '''
                 continue 
+            if local_time < start_time:
+                continue
             local_time = local_time.replace(minute=0)
             ckname = savefname[2:]
             if ckname not in skip_list:
+                skip_this = False
+                for ss in skip_starts:
+                    if ckname.startswith(ss):
+                        skip_this = True
+                        break
+                if skip_this:
+                    continue
                 if ckname not in dt_skip_list or dt_skip_list[ckname] < local_time: 
                     try:
                         zipoutput.write(savefname, compress_type=zipfile.ZIP_DEFLATED)
