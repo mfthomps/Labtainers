@@ -82,6 +82,12 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+September 28, 2018
+- Fix access modes of shared file in ACL lab
+- Clarify question in pass-crack
+- Modify artifact collection to ignore files older than start of lab.
+- Add quantum computing algorithms lab
+
 September 12, 2018
 - Fix setuid-env grading syntax errors
 - Fix syntax error in iptables2 example firewall rules
