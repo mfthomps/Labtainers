@@ -1,0 +1,2 @@
+pkill firefox
+touch $HOME/.mozilla/firefox/*default/places.sqlite
