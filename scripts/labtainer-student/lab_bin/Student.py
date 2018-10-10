@@ -128,7 +128,8 @@ def main():
     manifest = '%s-home_tar.list' % container_image
 
     start_time_file = '/var/labtainer/did_param'
-    start_time = datetime.datetime.fromtimestamp(os.path.getmtime(start_time_file))
+    ''' hack start time to catch parameteterized files '''
+    start_time = datetime.datetime.fromtimestamp(os.path.getmtime(start_time_file)) - datetime.timedelta(seconds=60)
 
     no_skip = os.path.join(udir,'.local','bin', 'noskip')
     no_skip_list = []
