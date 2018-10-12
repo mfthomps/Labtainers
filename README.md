@@ -82,6 +82,9 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+October 12, 2018
+- Set ulimit on file size, limit to 1G
+
 October 10, 2018
 - Force collection of parameterized files
 - Explicitly include leafpad and ghex in centos-xtra baseline and rebuild dependent images.
