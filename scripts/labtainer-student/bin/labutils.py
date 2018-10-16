@@ -2595,6 +2595,13 @@ def DoMoreterm(lab_path, container_name, clone_num=None):
     logger.DEBUG("ParseStartConfig for %s" % labname)
     is_valid_lab(lab_path)
     labtainer_config, start_config = GetBothConfigs(lab_path, logger)
+    if container_name not in start_config.containers:
+        print("Container %s not found. Container must be one of the following:" % container_name)
+        for container_name in start_config.containers:
+            print('\t%s' % container_name)
+        print("Usage: moreterm.py <lab> <container>")
+        exit(1)
+        
     logger.DEBUG('num terms is %d' % start_config.containers[container_name].terminals)
     if clone_num is None:
         mycontainer_name = '%s.%s.student' % (labname, container_name)
