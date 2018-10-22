@@ -82,6 +82,10 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+October 22, 2018
+- macs-hash lab resolution verydodgy.com failed on lab restart
+- Notify function failed if notify_cb.sh is missing
+
 October 12, 2018
 - Set ulimit on file size, limit to 1G
 
