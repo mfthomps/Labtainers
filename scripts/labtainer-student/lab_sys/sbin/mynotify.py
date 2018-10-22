@@ -78,7 +78,7 @@ notify_file = '/home/%s/.local/bin/notify' % first_user
 notify_cb = '/home/%s/.local/bin/notify_cb.sh' % first_user
 results = '/home/%s/.local/result' % first_user
 
-if not os.path.isfile(notify_file) or not os.path.isfile(notify_cb):
+if not os.path.isfile(notify_file) and not os.path.isfile(notify_cb):
     logger.error('missing notify %s' % (notify_file))
     exit(0)
 
