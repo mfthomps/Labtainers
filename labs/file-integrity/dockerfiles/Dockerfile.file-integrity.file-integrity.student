@@ -29,7 +29,7 @@ ARG password
 ARG apt_source
 ENV APT_SOURCE $apt_source
 RUN /usr/bin/yum-source.sh
-RUN yum install -y aide
+RUN yum install -y aide e4fsprogs
 #
 # Install the system files found in the _system directory
 #
