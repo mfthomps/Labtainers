@@ -82,6 +82,9 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+November, 5, 2018
+- Change file-integrity lab default aid.conf to track metadata changes rather than file modification times
+
 October 22, 2018
 - macs-hash lab resolution verydodgy.com failed on lab restart
 - Notify function failed if notify_cb.sh is missing
