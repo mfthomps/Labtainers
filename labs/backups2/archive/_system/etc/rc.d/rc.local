@@ -2,3 +2,4 @@
 route delete default
 
 route add -host 172.25.0.2 gw 172.25.3.4
+rm -f /run/nologin
