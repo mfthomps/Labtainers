@@ -81,6 +81,8 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+November 14, 2018
+- Remove /run/nologin from archive machine in backups2 -- need general solution for this nologin issue
 
 November, 5, 2018
 - Change file-integrity lab default aid.conf to track metadata changes rather than file modification times
