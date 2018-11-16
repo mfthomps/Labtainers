@@ -622,7 +622,7 @@ within the virtual terminal, (see the plc lab for examples).  The second method 
 intended for user authentiation and for starting GUI based programs
 that will use the Linux host Xserver.  If a file exists at:
 \begin{verbatim}
-    $LABTAINER_DIR/labs/[labname]/[container name]/_bin/student_start.sh
+    $LABTAINER_DIR/labs/[labname]/[container name]/_bin/student_startup.sh
 \end{verbatim}
 it will be executed from each virtual terminal created for the container.
 See the sql-inject lab and the centos-log lab examples, with the latter
@@ -1694,15 +1694,28 @@ When building lab images at NPS, please set the LABTAINER\_NPS environment varia
 This will force packages to be retrieved from the local NPS mirrors (centosmirror.uc.nps.edu or
 ubuntumirror.uc.nps.edu).  Refer to section \ref{package sources} for additional information.
 
-Labs must be checked into the Subversion repository in order to be distributed.  After creating and testing
-the lab, use the scripts/designer/bin/cleanlab4svn.py script to remove temporary files that do not belong in 
+Labs must be checked into the local Git repository in order to be distributed.  After creating and testing
+a new lab, use the scripts/designer/bin/cleanlab4svn.py script to remove temporary files that do not belong in 
 svn.  Use the publish.py script (described above) to publish the lab containers.
 The distrib/mkdist.sh script is used by NPS to create the distribution tar file.  This script relies on
-an internal NPS subversion repository as the source to the Labtainer scripts and labs.  Use the mk-devel-distrib.py script
-to publish the developer configuration of the tar file.  The distrib/publish.py script is used to rebuild and 
-publish all of the Labtainer exercieses managed by NPS.
+your local Git repository as the source to the Labtainer scripts and labs.  Use the mk-devel-distrib.sh script
+to publish the developer configuration of the tar file.  
 
-The publish.py script will only rebuild labs that have changed.  After pushing a new lab container
+The mkdist.sh and mk-devel-distrib.sh scripts include "myshare" variables that define a path to a directory
+shared with the development VM's host. The scripts will place the resulting tar files in this directory.  You
+must then manually transfer the updated tar files (including the {\tt labtainer\_pdf.zip} file) to the Liferay
+server at
+\begin{verbatim}
+davs://my.nps.edu/webdav/c3o-staging/document_library/labtainers
+\end{verbatim}
+After transfering the files, use the Liferay ``Publish to Live'' function to make the files available on the
+Labtainers website (which is also where they are pulled from when a student runs update-labtainer.sh).
+
+Be sure to push your Git repository updates to the GitHub master.
+
+The distrib/publish.py script is used to rebuild and 
+publish individual labs, or optionally all of the Labtainer exercises managed by NPS.
+The publish.py (without the {\tt -l} option) script will only rebuild labs that have changed.  After pushing a new lab container
 image to the Docker hub, the script deletes the image from the local system.  The intent is to
 ensure that future testing of the lab is done on the authoritative copy, i.e., from the hub.
 
