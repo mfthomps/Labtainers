@@ -81,6 +81,9 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+December 5, 2018
+- Fix routing-basics lab, dns resolution at isp and gatway components was broken.
+
 November 14, 2018
 - Remove /run/nologin from archive machine in backups2 -- need general solution for this nologin issue
 
