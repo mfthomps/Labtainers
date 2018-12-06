@@ -20,8 +20,8 @@ iptables --append FORWARD --in-interface $lan2 -j ACCEPT
 #
 # restart the DNS forwarder (rely on DNS provided by ISP)
 #
-/etc/init.d/dnsmasq restart
 
 echo "nameserver 203.0.113.1" > /etc/resolv.conf
 route del -host 172.17.0.1
+systemctl restart dnsmasq
 

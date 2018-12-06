@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# remove dns default
+#
 echo "" > /etc/resolv.conf
 route del -host 172.17.0.1
 
