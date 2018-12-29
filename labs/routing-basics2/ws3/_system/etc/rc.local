@@ -2,6 +2,5 @@
 echo "" > /etc/resolv.conf
 route del -host 172.17.0.1
 
-route delete default gw 192.168.2.101 >> /tmp/wtf.over
-route -n >> /tmp/wtf.over
+route delete default gw 192.168.2.101 
 

@@ -27,8 +27,7 @@ sudo iptables -t nat -A POSTROUTING -o $lan1 -p tcp --dport 80 -d 192.168.1.2 -j
 #
 # restart the DNS forwarder (rely on DNS provided by ISP)
 #
-/etc/init.d/dnsmasq restart
-
-echo "nameserver 203.0.113.1" > /etc/resolv.conf
+echo "nameserver 240.0.113.1" > /etc/resolv.conf
 route del -host 172.17.0.1
+systemctl restart dnsmasq
 
