@@ -47,7 +47,7 @@ component.  The ws3 workstation is not yet configured for routing.
 
 The gateway is configured to use NAT to translate
 sources addresses of traffic from internal IP addresses, e.g., 192.168.1.1, to
-our external address, i.e., 203.0.113.10.
+our external address, i.e., 240.0.113.10.
 
 \begin{figure}[htb]
 \begin{center}
@@ -85,7 +85,7 @@ On ws3, define the gateway component as the \textit{default gateway} using the
 \noindent Then try to ping between ws1 and ws3. 
 
 \subsection{Routing to the Internet}
-The gateway component is configured to route to a simulated ISP at 203.0.113.1, which 
+The gateway component is configured to route to a simulated ISP at 240.0.113.1, which 
 is a hidden component that provides routing to the Internet for this lab.  From ws2, 
 try to ping www.google.com.  Then do the same from ws3.  The problem with ws3 is that
 it has no domain name service (DNS) definition.  Note, routing from ws3 to the Internet
@@ -103,8 +103,8 @@ Review how the gateway component implements NAT using the \texttt{iptables}
 utility.  Consider traffic from ws1 destined for www.google.com. The source IP address
 on those packets is 192.168.1.1.  The ws1 component sends the packets to its default
 gateway, i.e., our gateway component.  The gateway routing table is configured to
-send external traffic to 203.0.113.1.  However, before that traffic is sent, we need
-to translate the source IP address to our external 203.0.113.10 address so that google knows
+send external traffic to 240.0.113.1.  However, before that traffic is sent, we need
+to translate the source IP address to our external 240.0.113.10 address so that google knows
 where to send replies.  
 Use this command:
 \begin{verbatim}
@@ -123,7 +123,10 @@ Our iptables NAT rules are defined in the /etc/rc.local file on the gateway comp
 \subsection{IP forwarding for web traffic}
 Note how the iptables commands yield rules that were not present in the routing-basics lab.  These include port forwarding,
 pre, and post routing to forward all traffic sent to port 80 of our site (240.0.113.10) to an
-internal web server.
+internal web server.   Go to the remote workstation (hank@remote\_ws) and use wget to access the web server:
+\begin{verbatim}
+   wget 240.0.113.10
+\end{verbatim}
 
 \section{Submission}
 After finishing the lab, go to the terminal on your Linux system that was used to start the lab and type:
