@@ -18,6 +18,7 @@ iptables --table nat -I POSTROUTING 1 --out-interface $wan -j MASQUERADE
 iptables --append FORWARD --in-interface $lan1 -j ACCEPT
 iptables --append FORWARD --in-interface $lan2 -j ACCEPT
 
+# forward web traffic to the web server and permit flow of established connections.
 sudo iptables -A FORWARD -i $wan -o $lan1 -p tcp --syn --dport 80 -m conntrack --ctstate NEW -j ACCEPT
 sudo iptables -A FORWARD -i $wan -o $lan1 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 sudo iptables -A FORWARD -i $lan1 -o $wan -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
