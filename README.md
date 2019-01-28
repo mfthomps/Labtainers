@@ -83,6 +83,8 @@ so you may want to logout/login, or start a new bash shell before using Labtaine
 first time.
 January 7, 2019
 - Fix gdblesson automated assessment to at least be operational.
+January 27, 2018
+- Fix lab manual for routing-basics2 and fix routing to enable external access to internal web server.
 
 December 29, 2018
 - Fix routing-basics2, same issues as routing-basics, plus an incorret ip address in the gateway resolv.conf
