@@ -5,7 +5,7 @@ route add default gw 240.0.114.1
 # get ethernet device names for the three interfaces
 #
 lan1=$(ifconfig | grep -B1 "inet addr:172.16.0.10" | awk '$1!="inet" && $1!="--" {print $1}')
-wan=$(ifconfig | grep -B1 "inet addr:240.0.114.20" | awk '$1!="inet" && $1!="--" {print $1}')
+wan=$(ifconfig | grep -B1 "inet addr:240.0.114.10" | awk '$1!="inet" && $1!="--" {print $1}')
 #
 # Define NAT for traffic from LANs to the WAN
 #
@@ -18,8 +18,8 @@ iptables --append FORWARD --in-interface $lan1 -j ACCEPT
 #
 # restart the DNS forwarder (rely on DNS provided by ISP)
 #
-/etc/init.d/dnsmasq restart
 
-echo "nameserver 203.0.113.1" > /etc/resolv.conf
+echo "nameserver 240.0.114.1" > /etc/resolv.conf
 route del -host 172.17.0.1
+/etc/init.d/dnsmasq restart
 
