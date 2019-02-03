@@ -102,6 +102,34 @@ the gradelab command with the {\tt -a} flag.  When you are finished, or wish to 
     stopgrader
 \end{verbatim}
 
+\section{Managing Labtainer Installations and Updates}
+Any given Labtainers installation can be brought up to date to the latest version by using the
+\begin{verbatim}
+   update-labtainer.sh
+\end{verbatim}
+\noindent command from the {\tt labtainer-student} directory.  The current version of a Labtainer installation is seen by using:
+\begin{verbatim}
+   labtainer -v
+\end{verbatim}
+\noindent
+The first time any given lab exercise is started, the latest version of that lab is automatically pulled from
+the Docker Hub registry.
+Note however that any given lab is not updated by the {\tt update-labtainer.sh} command once the lab has been started.  
+To update a specific lab to the latest version after it has been started the previous version of that lab must be deleted
+using:
+\begin{verbatim}
+   removelab.py <labname>
+\end{verbatim}
+\noindent The next time the lab is started, the latest version will be retrieved from the Docker registry.
+
+\subsection{Suggestions for student workflow}
+A student's work on any given lab is preserved until and unless the student restarts the lab using the ``-r'' 
+option on the {\tt labtainer <labname> -r} command.  When taking a break from work on a lab, the student can
+either stop the lab using {\tt stoplab}, or simply pause the VM.  However, if the student wishes to perform other
+Labtainer-related work on the VM, (e.g., revisit a previous lab), they should first use {\tt stoplab} for the current
+lab.  When the restart the lab, none of their work will be lost.
+
+
 \newpage
 \appendix
 \section{\\LMS Assignment Collection}
