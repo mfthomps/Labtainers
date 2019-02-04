@@ -75,6 +75,13 @@ Instructor assessment of labs takes place from the {\tt labtainer-instructor} di
 \end{verbatim}
 \noindent A table of lab results with one row per student and
 a column for each goal will be displayed.  A description of the goals follows the table.
+Note that not all labs include automated assessment.  For those labs, you will see this
+messsage:
+\begin{verbatim}
+  No automated assessment for this lab
+\end{verbatim}
+\noindent Even when no automated assessment is performed, you can still observe student performance
+artifacts, e.g., the {\tt .bash\_history} file as described below in \ref{review-artifacts}.
 
 Student reports (if any) are  copied into 
 \begin{verbatim}
@@ -90,7 +97,15 @@ be looked for in
 \subsubsection{Review artifact details}
 You can view all student results, including their original artifacts by using the {\tt -d} flag
 with the {\tt gradelab} command.  This results in a virtual terminal connected to a grading
-container that contains all student artifacts and results.  Student artifacts are found in 
+container that contains all student artifacts and results.  If you have not first run the
+{\tt gradelab} command without the ``-d'' option, run {\tt instructor.py} from within the
+virtual terminal to cause the zip files to be extracted.  A student's home directory can
+then be found in
+\begin{verbatim}
+<student email>/<lab>.<container>.student
+\end{verbatim}
+\noindent There you will find the {\tt .bash\_history} file along with the student-created files.
+Student artifacts collected by the framework are found in 
 \begin{verbatim}
 <student email>/<lab>.<container>.student/.local/result
 \end{verbatim}
