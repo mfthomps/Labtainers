@@ -1,3 +1,3 @@
 #!/bin/bash
-cd $HOME
-nohup python $HOME/MyHTTPServer.py
+cd /home/ubuntu
+nohup python /home/ubuntu/MyHTTPServer.py

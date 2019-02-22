@@ -1,2 +1,2 @@
-/usr/bin/wget
-/usr/sbin/openvpn
+wget
+openvpn
