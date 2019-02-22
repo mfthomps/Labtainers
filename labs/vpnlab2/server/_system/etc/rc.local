@@ -16,5 +16,5 @@
 #  
 
 set_default_gw.sh 192.168.0.3
-
+systemctl restart httpserver
 exit 0
