@@ -32,7 +32,7 @@ gradelab = imp.load_source('gradelab', '../labtainer-instructor/bin/gradelab')
 # Arguments:
 #    <labname> - the lab to stop
 def main():
-    parser = argparse.ArgumentParser(description='Stop a Labtainers lab.  If no arguments are provided, then all labs are stopped.')
+    parser = argparse.ArgumentParser(description='Check your work for a lab.  If no lab name is given, the currently running lab is checked')
     parser.add_argument('lab', nargs='?')
     args = parser.parse_args()
     labname = None 
@@ -44,7 +44,7 @@ def main():
             print('%s lab is not running, looking for previous results...' % args.lab)
             here=os.getcwd()
             os.chdir('../labtainer-instructor')
-            gradelab.doGrade(labname, False, False, False, False)
+            gradelab.doGrade(labname, False, False, True, False)
             os.chdir(here)
             sys.exit(0)
         labutils.logger = LabtainerLogging.LabtainerLogging("checkwork.log", labname, "../../config/labtainer.config")
@@ -90,7 +90,7 @@ def main():
     labutils.StopLab(lab_path, False, servers=servers, clone_count=clone_count, keep_running=True)
     here=os.getcwd()
     os.chdir('../labtainer-instructor')
-    gradelab.doGrade(labname, False, False, False, False, copy_json = False)
+    gradelab.doGrade(labname, False, False, True, False, copy_json = False)
     os.chdir(here)
 
 
