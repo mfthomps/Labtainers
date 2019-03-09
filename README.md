@@ -81,6 +81,10 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+March 9, 2019
+- The checkwork funtion was reusing containers, thereby preventing students from eliminating artifacts
+from previous lab work.  
+- Add appendix to the symkey lab to describe the BMP image format.
 February 22
 - The http server failed to start in the vpn and vpn2 labs.  Automated assessment removed from those labs until reworked.
 January 7, 2019
