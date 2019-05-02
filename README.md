@@ -81,8 +81,10 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+May 2, 2019
+- Acl lab fix to bobstuff.txt permissions.  Use explicit chmod in fixlocal.sh
 March 9, 2019
-- The checkwork funtion was reusing containers, thereby preventing students from eliminating artifacts
+- The checkwork function was reusing containers, thereby preventing students from eliminating artifacts
 from previous lab work.  
 - Add appendix to the symkey lab to describe the BMP image format.
 February 22
