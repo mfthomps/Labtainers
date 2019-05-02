@@ -8,6 +8,7 @@
 #  echo $1 | sudo -S the-command
 #
 echo $1 | sudo -S chown -R bob:bob /shared_data/bob
+echo $1 | sudo -S chmod 660 /shared_data/bob/bobstuff.txt
 echo $1 | sudo -S chown -R alice:alice /shared_data/alice
 echo umask 007 | sudo tee -a /home/bob/.bashrc
 echo umask 007 | sudo tee -a /home/alice/.bashrc
