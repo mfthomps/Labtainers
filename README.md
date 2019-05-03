@@ -83,6 +83,7 @@ so you may want to logout/login, or start a new bash shell before using Labtaine
 first time.
 May 2, 2019
 - Acl lab fix to bobstuff.txt permissions.  Use explicit chmod in fixlocal.sh
+- Revise student guide to clarify use of stop and -r option in body of the manual.
 March 9, 2019
 - The checkwork function was reusing containers, thereby preventing students from eliminating artifacts
 from previous lab work.  
