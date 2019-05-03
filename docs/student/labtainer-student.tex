@@ -1,3 +1,14 @@
+%------------------------------------------------------------------------
+%
+%  Labtainer Student Guide
+%
+%  Author: Michael Thompson
+%
+%  NOTICE: This document was developed for the Labtainer framework by the 
+%  Naval Postgraduate School, Center for Cybersecurity and Cyber Operations 
+%  under National Science Foundation Award No. 1438893. 
+%  This work is in the public domain, and cannot be copyrighted.
+%------------------------------------------------------------------------
 \documentclass[12pt]{article}
 \usepackage{geometry}
 \geometry{a4paper, total={170mm,257mm},left=20mm, top=10mm,}
@@ -9,6 +20,7 @@
 \title {Labtainer Student Guide}
 \maketitle
 
+%----------------
 \section {Introduction}
 This manual is intended for use by students performing labs with Labtainers.
 Labtainers assume you have a Linux system, e.g., a virtual machine.  If you
@@ -22,6 +34,7 @@ Labtainers provide a consistent execution environment for performing
 laboratory exercises, and can simulate the execution of several different
 computers interconnected via virtual networks.   
 
+%----------------
 \subsection{Obtaining and installing Labtainers}
 If you are using one of the pre-configured virtual machines from
 \url{https://my.nps.edu/web/c3o/virtual-machine-images}, you may
@@ -51,6 +64,7 @@ Note that older Linux distributions, e.g., Ubuntu 14.* lack the
 After the Linux host reboots, open a terminal to your Linux host and
 change directory to wherever you untarred the tarball, e.g., your HOME directory.
 
+%----------------
 \section{Performing a Lab}
 All labs are run from the same Labtainer workspace directory, which is typically at:
 \begin{verbatim}
@@ -71,7 +85,9 @@ Then run a specific lab, include the name of the lab:
 Most labs direct you to a PDF version of a lab manual, which can usually 
 be done by right clicking on the displayed path, or you can open the file in a browser.
 Please note that some of the initial lab instructions repeat the steps you've already taken, and you need
-not perform those again.  
+not perform those again. 
+
+A list of labtainer commands can be found in Appendix C of this document. 
 
 Once you start the lab, you will typically see one or more virtual terminals conneted to computers within
 the lab.  While running the lab, if you require more virtual terminals, use:
@@ -90,25 +106,48 @@ may use networks to interact with other Labtainer computers within the lab.
 Many labs automatically gather results of your work, which you will provide to your instructor.
 Note that, unless otherwise directed, exploration and experimentation you perform either before
 or after performing the expected activity will not diminish or dilute your results.  And you typically
-do not have to take actions to collect or record your results.  This occurs automatically as noted in the 
-next section.  
+do not have to take actions to collect or record your results.  This occurs automatically as noted in the next section.  
 
-\subsection{Stopping Labtainers}
-When you are finished, or wish to stop working, type:
+%----------------
+\subsection{Interrupting and Completing  Labs}
+When you want to stop working for a while or are finished and ready to turn it in to your instructor, type:
 \begin{verbatim}
     stoplab
 \end{verbatim}
-\noindent from the Linux system from which you issued the {\tt labtainer} command.  The 
-stoplab command will display the directory containing a zip file that should be provided to your instructor.
-The easiest way to forward the zip file to the instructor is to start a browser, e.g., Firefox, on the VM from which you
+
+\noindent from the Linux system from which you issued the {\tt labtainer} command. All changes to the files, etc. will be preserved and you will be able to resume the lab just the way you started it. You can resume your work, as needed.
+
+The {\tt stoplab }command always displays the directory containing a zip file that should be provided to your instructor. It shows the current results of your work. 
+
+The easiest way to forward the complete zip file to the instructor is to start a browser, e.g., Firefox, on the VM from which you
 are running Labtainers.  Then use the browser to either email the zip file, or upload it into an LMS system, e.g., Sakai.
 Alternately, you can configure the VM to use a shared folder, and use that to copy the zip file to the host computer.
 
+%----------------
+\subsection{Redoing a Lab}
+Sometimes you might want to redo the lab from the beginning.  In this case, type:
+\begin{verbatim}
+    labtainer -r  <labname>
+\end{verbatim}
+This will delete any previous containers associated with this lab and start it fresh.  \textbf{Warning}: this will cause all previous data from the named lab to be lost.
+
+%----------------
 \subsection{Checking your work}
 Some labs include criteria by which to automatically assess your progress.
 Where enabled and supported, this feature can be utilized by issuing the {\tt checkwork} command from Linux system.
 That command can be run while the lab is still running.
 
+%----------------
+\subsection{Getting Help and Things to Avoid}
+To get help, type:
+\begin{verbatim}
+    labtainer -h
+\end{verbatim}
+\noindent from the Linux system from which you issued the {\tt labtainer} command. A list of useful labtainer commands will be displayed.
+
+Do not run multiple labs simultaneously.  Consistent results cannot be guaranteed when more than one lab runs at the same time.
+
+%----------------
 \subsection{Networking}
 In addition to network properties defined for the lab,
 each component \texttt{/etc/host} file includes a ``my\_host entry'' that names
@@ -123,10 +162,11 @@ can use to toggle the default gateway between one that leads to the host, and on
 This allows students to add packages on components having lab-specific default gateways.
 Use of the \textit{togglegw.sh} script is not necessary to reach the Linux host, (e.g., to scp files).
 
+%----------------
 \subsection{Installing and Using Labtainers Behind a Web Proxy}
 If you are not behind a web proxy, ignore this section (most school environments
 are not behind proxies). 
-If you are behind a web proxy, Labatiner installation
+If you are behind a web proxy, Labtainer installation
 requires that you have configured your Linux package management configuration to reflect
 the proxy, e.g., the /etc/atp/apt.conf or /etc/dnf.conf files.  
 
@@ -139,6 +179,7 @@ HTTP_PROXY=http://myproxy:3128
 If you wish to use apt-get from within a container to add new software to a container, you
 must first modify the container's /etc/apt/apt.conf file to reflect your proxy.
 
+%----------------
 \subsection{Limitations}
 The Labtainer ``computers'' are individual Docker containers that are interconnected via virtual
 networks.  These containers each share the Linux kernel of your host.  Thus, a change
@@ -162,15 +203,18 @@ those containers as Linux systems, and explore them.
 Pasting multiple commands into a labtainer terminal may result in the not all of the
 commands being executed.
 
+\appendix 
+\includepdf[pages=1,pagecommand={ \thispagestyle{empty}}, fitpaper=true]{InstallingVB-LinuxMac.pdf}
+\includepdf[pages=2-,pagecommand={\thispagestyle{empty}}, fitpaper=true]{InstallingVB-LinuxMac.pdf}
 
 \appendix 
-\section {Appendix A: Installing Virtual Box and Ubuntu on a Mac}
-\includepdf[pages=-]{InstallingVB-LinuxMac.pdf}
+\includepdf[pages=1,pagecommand={ \thispagestyle{empty}}, fitpaper=true]{InstallingVB-LinuxWin.pdf}
+\includepdf[pages=2-,pagecommand={\thispagestyle{empty}}, fitpaper=true]{InstallingVB-LinuxWin.pdf}
+
 \appendix 
-\section {Appendix B: Installing Virtual Box and Ubuntu on Windows}
-\includepdf[pages=-]{InstallingVB-LinuxWin.pdf}
-\appendix 
-\section {Appendix C: Labtainer Command Summary}
+\pagenumbering{Alph}
+\setcounter{page}{3}
+\section* {Appendix C: Labtainer Command Summary}
 \label{sec:appendixC}
 The following labtainer commands are available from the \texttt{labtainer/labtainer-student}
 directory:
