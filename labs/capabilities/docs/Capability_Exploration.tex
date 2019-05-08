@@ -155,7 +155,7 @@ Modify the tcpdump program so that an unprivileged user can run it.
 
 \subsubsection{Task 1.2 Convert passwd to use capabilities}
 Some setuid programs require several different capabilities
-to operate.  The file: {\tt include/linux/capability.h}
+to operate.  The file: {\tt /usr/include/linux/capability.h} % prepended /usr/
 describes the various capabilities available in Linux.
 
 The \texttt{/usr/bin/passwd} program requires the following
@@ -171,9 +171,7 @@ Modify the \texttt{passwd} program to use capabilities instead of setuid,
 then demonstrate that it still works by changing the ubuntu user password
 (which initially is \texttt{ubuntu}).
 
-\textbf{Note:} When you run the passwd utility in this lab, it will display
-your passwords as you type them.  Usually, passwords are not displayed.  This
-is a limitation of the Labtainer environment.
+
 
 
 \subsection{Task 2: Adjusting Privileges}
