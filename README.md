@@ -81,6 +81,8 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+May 23, 2019
+- Automated assessment of setuid-env failed due to typos in field seperators.
 May 8, 2019
 - Corrections to Capabilities lab manual
 May 2, 2019
