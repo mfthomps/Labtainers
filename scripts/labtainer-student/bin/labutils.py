@@ -649,6 +649,9 @@ def DockerCmd(cmd, noloop=False):
            ok = True
         if len(output[0]) > 0:
             logger.DEBUG("cmd %s stdout: %s" % (cmd, output[0]))
+            ''' don't fail for now, fix when adding capinout to centos6 '''
+            #if 'unrecognized option' in output[0]:
+            #    return False
     return True
 
 
@@ -698,6 +701,10 @@ def CopyLabBin(mycontainer_name, container_user, lab_path, name, image_info):
 
     cmd = 'docker exec %s script -q -c "sudo tar -x --keep-directory-symlink -f /var/tmp/labsys.tar -C /"' % (mycontainer_name)
     if not DockerCmd(cmd):
+        '''
+        cmd = 'docker exec %s script -q -c "sudo tar -x -f /var/tmp/labsys.tar -C /"' % (mycontainer_name)
+        if not DockerCmd(cmd):
+        '''
         cmd = 'docker cp lab_sys/.  %s:/' % (mycontainer_name)
         if not DockerCmd(cmd):
             logger.ERROR('failed %s' % cmd)
