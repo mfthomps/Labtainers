@@ -122,6 +122,11 @@ if [ -f /usr/bin/apt-source.sh ]; then
     echo $CONTAINER_PASSWORD | sudo -S /usr/bin/apt-source.sh
 fi
 
+# hack for centos6 gui's
+if [ -f /bin/dbus-uuidgen ]; then
+    echo $CONTAINER_PASSWORD | sudo -S /bin/dbus-uuidgen > /var/lib/dbus/machine-id
+fi
+
 # hack console type for initd
 echo $CONTAINER_PASSWORD | sudo touch /sbin/consoletype
 echo $CONTAINER_PASSWORD | sudo chmod a+rwx /sbin/consoletype
