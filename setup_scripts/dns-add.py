@@ -17,6 +17,7 @@ if len(output[0]) > 0:
         dns_add = line.split()[1].strip()
         dns.append(dns_add)
         break
+print('local dns found is %s' % str(dns))
 dns.append("8.8.8.8")
 
 if os.path.isfile(jfile):
@@ -28,11 +29,12 @@ else:
     data = {}
 
 if 'dns' in data:
-    print('yes')
+    print('dns already defined in %s -- will replace' % data)
+    data['dns'] = dns
 else:
-    print('no')
+    print('no dns entry in json, add it')
     data['dns'] = dns
 
 with open(jfile, 'w') as outfile:
     json.dump(data, outfile, indent = 4)
-    
+    service docker restart 
