@@ -81,6 +81,8 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+June 6, 2019
+- Introduce a Centos6 base, but not support for automated assessment yet
 May 23, 2019
 - Automated assessment of setuid-env failed due to typos in field seperators.
 May 8, 2019
