@@ -29,7 +29,9 @@ else
     #echo "hook not enabled, fix this"
     cat $MYHOME/.local/bin/profile-add >> $target
     echo "export DISPLAY=:0" >> $root_target
-    cat $MYHOME/.local/bin/bashrc-add  |  sed 's@PRECMD_HOME_REPLACE_ME@'"$MYHOME"'@' >> $MYHOME/.bashrc
-    cat $MYHOME/.local/bin/bashrc-add  |  sed 's@PRECMD_HOME_REPLACE_ME@'"$MYHOME"'@' >> /root/.bashrc
+    if [[ -f /sbin/capinout ]]; then
+        cat $MYHOME/.local/bin/bashrc-add  |  sed 's@PRECMD_HOME_REPLACE_ME@'"$MYHOME"'@' >> $MYHOME/.bashrc
+        cat $MYHOME/.local/bin/bashrc-add  |  sed 's@PRECMD_HOME_REPLACE_ME@'"$MYHOME"'@' >> /root/.bashrc
+    fi
 fi
 
