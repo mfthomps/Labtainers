@@ -274,6 +274,7 @@ a separate terminal:
 \begin{verbatim}
     tail -f labtainer.log
 \end{verbatim}
+If the rebuild fails with a error reflecting a problem resolving hostnames, e.g., mirror.centos.com, please see \ref{DNS-rebuild}.
 
 Note the ``rebuild.py'' command is not intended for use by students, they would use the ``start.py'' command.  
 The rebuild.py utility compares file modification dates to Docker image creation dates to determine if
@@ -2129,6 +2130,12 @@ removed from sudoers at the end of the fixlocal.sh script.
 Only the initial user (and that user's actions taken as root) are monitored.  Additional users can be added,
 e.g., in the Dockerfile, but their actions are not monitored or recorded in artifacts.
 
+\subsection{DNS fixes for rebuild problems}
+\label{DNS-rebuild}
+When building a container, Docker uses its Daemon's default DNS addresses, which are the external Google DNS.
+Some sites disallow use of external DNS, and this results in rebuilds failing when yum/apt are unable to resolve 
+host names.  The script at {\tt setup\_scripts/dns-add.sh} will update those default DNS entres to include the
+DNS used by the host.
 
 \subsection{Suggestions for Developers}
 The result and goals configuration files can be revised and tested within a
