@@ -188,7 +188,7 @@ def checkBulkSaki(lab):
         for z in zfiles:
             f = os.path.basename(z).rsplit('.',1)[0]
             if '_' in f:
-                ts = f.split('_')[1]
+                ts = f.rsplit('_', 1)[1]
                 try:
                     v = time.mktime(datetime.datetime.strptime(ts,'%Y%m%d%H%M%S').timetuple())
                     print('Assuming Sakai bulk download: %s' % z)
