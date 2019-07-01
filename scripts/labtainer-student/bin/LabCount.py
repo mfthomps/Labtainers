@@ -24,7 +24,7 @@ def getLabCount(start_path, labname, logger):
             try:
                 current_count = json.load(f)
             except:
-                logger.WARNING('json load failed on %s, reset the counts.' % count_path)
+                logger.debug('json load failed on %s, reset the counts.' % count_path)
                 current_count['start'] = []
                 current_count['redo'] = []
     else:
@@ -50,7 +50,7 @@ def writeLabCount(start_path, labname, is_redo, current_count, current_time_stri
     try:
         jsondumpsoutput = json.dumps(current_count, indent=4)
     except:
-        logger.ERROR('json dumps failed on %s' % current_count)
+        logger.debug('json dumps failed on %s' % current_count)
         exit(1)
     labname_file.write(jsondumpsoutput)
     labname_file.write('\n')

@@ -14,7 +14,8 @@ domain and is not subject to copyright.
 #              * Parse stdin and stdout files based on parameter.config
 
 import glob
-import md5
+import hashlib
+from hashlib import md5
 import os
 import random
 import sys
@@ -37,17 +38,17 @@ class ParameterParser():
             self.logger = ParameterizeLogging.ParameterizeLogging("/tmp/parameterize.log")
         else:
             self.logger = logger
-        self.logger.DEBUG('start parsing parameters')
+        self.logger.debug('start parsing parameters')
     
     def WatermarkCreate(self):
         watermarkcreatelist = {}
         the_watermark_string = "LABTAINER_WATERMARK1"
         # Create hash per the_watermark_string (note: there is only one watermark file for now)
         string_to_be_hashed = '%s:%s' % (self.lab_instance_seed, the_watermark_string)
-        mymd5 = md5.new()
+        mymd5 = hashlib.new('md5')
         mymd5.update(string_to_be_hashed)
         mymd5_hex_string = mymd5.hexdigest()
-        #logger.DEBUG(mymd5_hex_string)
+        #logger.debug(mymd5_hex_string)
     
         # Assume only one watermark file with filename /home/<container_user>/.local/.watermark
         myfilename = '/home/%s/.local/.watermark' % self.container_user
@@ -62,10 +63,10 @@ class ParameterParser():
         watermarkcreatelist[myfilename] = []
         watermarkcreatelist[myfilename].append('%s' % mymd5_hex_string)
     
-        #logger.DEBUG("Perform_WATERMARK_CREATE")
+        #logger.debug("Perform_WATERMARK_CREATE")
         for (listfilename, createlist) in watermarkcreatelist.items():
             filename = listfilename
-            #logger.DEBUG("Current Filename is %s" % filename)
+            #logger.debug("Current Filename is %s" % filename)
             #print "Watermark Create list is "
             #print createlist
             # open the file - write
@@ -81,8 +82,8 @@ class ParameterParser():
         #print entryline
         numentry = len(entryline)
         if numentry != 4:
-            self.logger.ERROR("RAND_REPLACE (%s) improper format" % each_value)
-            #logger.ERROR("RAND_REPLACE : <filename> : <token> : <LowerBound> : <UpperBound>")
+            self.logger.error("RAND_REPLACE (%s) improper format" % each_value)
+            #logger.error("RAND_REPLACE : <filename> : <token> : <LowerBound> : <UpperBound>")
             sys.exit(1)
         myfilename_field = entryline[0].strip()
         token = entryline[1].strip()
@@ -104,8 +105,8 @@ class ParameterParser():
             if use_integer == True:
                 # Inconsistent format of lowerbound (integer format)
                 # vs upperbound (hexadecimal format)
-                self.logger.ERROR("RAND_REPLACE (%s) inconsistent lowerbound/upperbound format" % each_value)
-                #self.logger.ERROR("RAND_REPLACE : <filename> : <token> : <LowerBound> : <UpperBound>")
+                self.logger.error("RAND_REPLACE (%s) inconsistent lowerbound/upperbound format" % each_value)
+                #self.logger.error("RAND_REPLACE : <filename> : <token> : <LowerBound> : <UpperBound>")
                 sys.exit(1)
             use_integer = False
             upperbound_int = int(upperboundstr, 16)
@@ -113,14 +114,14 @@ class ParameterParser():
             if use_integer == False:
                 # Inconsistent format of lowerbound (hexadecimal format)
                 # vs upperbound (integer format)
-                self.logger.ERROR("RAND_REPLACE (%s) inconsistent lowerbound/upperbound format" % each_value)
-                #self.logger.ERROR("RAND_REPLACE : <filename> : <token> : <LowerBound> : <UpperBound>")
+                self.logger.error("RAND_REPLACE (%s) inconsistent lowerbound/upperbound format" % each_value)
+                #self.logger.error("RAND_REPLACE : <filename> : <token> : <LowerBound> : <UpperBound>")
                 sys.exit(1)
             upperbound_int = int(upperboundstr, 10)
         #print "lowerbound is (%d)" % lowerbound_int
         #print "upperbound is (%d)" % upperbound_int
         if lowerbound_int > upperbound_int:
-            self.logger.ERROR("RAND_REPLACE (%s) lowerbound greater than upperbound" % each_value)
+            self.logger.error("RAND_REPLACE (%s) lowerbound greater than upperbound" % each_value)
             sys.exit(1)
         if unique:
             key = '%d-%d' % (lowerbound_int, upperbound_int)
@@ -128,7 +129,7 @@ class ParameterParser():
                 self.unique_values[key] = []
             num_possible = upperbound_int - lowerbound_int + 1
             if len(self.unique_values) >= num_possible:
-                self.logger.ERROR("unqiue values for %s consumed" % key)
+                self.logger.error("unqiue values for %s consumed" % key)
                 sys.exit(1)
             while True:
                 random_int = random.randint(lowerbound_int, upperbound_int)
@@ -181,7 +182,7 @@ class ParameterParser():
         #print entryline
         numentry = len(entryline)
         if numentry != 2 and numentry != 3:
-            self.logger.ERROR("HASH_CREATE : <filename> : <string> [: length]")
+            self.logger.error("HASH_CREATE : <filename> : <string> [: length]")
             sys.exit(1)
         myfilename_field = entryline[0].strip()
         the_string = entryline[1].strip()
@@ -190,13 +191,13 @@ class ParameterParser():
             try:
                 strlen = int(entryline[2].strip())
             except:      
-                self.logger.ERROR("HASH_CREATE (%s) improper format" % each_value)
-                self.logger.ERROR("expected int for length, got %s" % entryline[2])
+                self.logger.error("HASH_CREATE (%s) improper format" % each_value)
+                self.logger.error("expected int for length, got %s" % entryline[2])
                 sys.exit(1)
     
         # Create hash per the_string
         string_to_be_hashed = '%s:%s' % (self.lab_instance_seed, the_string)
-        mymd5 = md5.new()
+        mymd5 = hashlib.new('md5')
         mymd5.update(string_to_be_hashed)
         mymd5_hex_string = mymd5.hexdigest()[:strlen]
         #print mymd5_hex_string
@@ -251,23 +252,23 @@ class ParameterParser():
         #print entryline
         numentry = len(entryline)
         if numentry != 3 and numentry != 4:
-            self.logger.ERROR("HASH_REPLACE (%s) improper format" % each_value)
-            #self.logger.ERROR("HASH_REPLACE : <filename> : <symbol> : <string> [: length]")
+            self.logger.error("HASH_REPLACE (%s) improper format" % each_value)
+            #self.logger.error("HASH_REPLACE : <filename> : <symbol> : <string> [: length]")
             sys.exit(1)
         strlen = 32
         if numentry == 4:
             try:
                 strlen = int(entryline[3].strip())
             except:      
-                self.logger.ERROR("HASH_REPLACE (%s) improper format" % each_value)
-                self.logger.ERROR("expected int for length, got %s" % entryline[3])
+                self.logger.error("HASH_REPLACE (%s) improper format" % each_value)
+                self.logger.error("expected int for length, got %s" % entryline[3])
                 sys.exit(1)
         myfilename_field = entryline[0].strip()
         token = entryline[1].strip()
         the_string = entryline[2].strip()
         # Create hash per the_string
         string_to_be_hashed = '%s:%s' % (self.lab_instance_seed, the_string)
-        mymd5 = md5.new()
+        mymd5 = hashlib.new('md5')
         mymd5.update(string_to_be_hashed)
         mymd5_hex_string = mymd5.hexdigest()[:strlen]
         #print "filename is (%s)" % myfilename_field
@@ -325,7 +326,7 @@ class ParameterParser():
             if ':' in myfilename:
                 # myfilename includes the container_name 
                 tempcontainer_name, myactualfilename = myfilename.split(':')
-                self.logger.DEBUG('tmpcontainer_name is %s fname %s' % (tempcontainer_name, myactualfilename))
+                self.logger.debug('tmpcontainer_name is %s fname %s' % (tempcontainer_name, myactualfilename))
                 # Assume filename is relative to /home/<container_user>
                 if not myactualfilename.startswith('/'):
                     user_home_dir = '/home/%s' % self.container_user
@@ -336,7 +337,7 @@ class ParameterParser():
                     myfilename = '%s-%s:%s' % (tempcontainer_name, clone_num, myfullactualfilename)
                 else:
                     myfilename = '%s:%s' % (tempcontainer_name, myfullactualfilename)
-                self.logger.DEBUG('myfilename now %s' % myfilename)
+                self.logger.debug('myfilename now %s' % myfilename)
             else:
                 # myfilename does not have the containername
                 # Assume filename is relative to /home/<container_user>
@@ -372,7 +373,7 @@ class ParameterParser():
             #print "CLONE"
             self.CheckCloneReplaceEntry(param_id, each_value)
         else:
-            self.logger.ERROR("ParseParameter.py, ValidateParameterConfig, Invalid operator %s" % each_key)
+            self.logger.error("ParseParameter.py, ValidateParameterConfig, Invalid operator %s" % each_key)
             sys.exit(1)
         return 0
     
@@ -387,7 +388,7 @@ class ParameterParser():
                 ''' running on linux host before container creation '''
                 if listfilename != 'start.config':
                     #print('listfile is <%s>' % listfilename)
-                    self.logger.DEBUG('running on host, not start.config')
+                    self.logger.debug('running on host, not start.config')
                     continue
                 else:
                     filename = os.path.join('./.tmp', self.lab, 'start.config')
@@ -404,7 +405,7 @@ class ParameterParser():
                 filename = listfilename
             #print "Current Filename is %s" % filename
             if not os.path.exists(filename):
-                self.logger.ERROR("Perform_RAND_REPLACE: File %s does not exist" % filename)
+                self.logger.error("Perform_RAND_REPLACE: File %s does not exist" % filename)
                 sys.exit(1)
             #else:
             #    print "File (%s) exist\n" % filename
@@ -436,7 +437,7 @@ class ParameterParser():
                 ''' running one linux host before container creation '''
                 if listfilename != 'start.config':
                     #print('listfile is <%s>' % listfilename)
-                    self.logger.DEBUG('running on host, not start.config')
+                    self.logger.debug('running on host, not start.config')
                     continue
                 else:
                     filename = '/tmp/start.config'
@@ -470,7 +471,7 @@ class ParameterParser():
                 ''' running one linux host before container creationt '''
                 if listfilename != 'start.config':
                     #print('listfile is <%s>' % listfilename)
-                    self.logger.DEBUG('running on host, not start.config')
+                    self.logger.debug('running on host, not start.config')
                     continue
                 else:
                     filename = '/tmp/start.config'
@@ -490,7 +491,7 @@ class ParameterParser():
                 filename = listfilename
             #print "Current Filename is %s" % filename
             if not os.path.exists(filename):
-                self.logger.ERROR("Perform_HASH_REPLACE: File %s does not exist" % filename)
+                self.logger.error("Perform_HASH_REPLACE: File %s does not exist" % filename)
                 sys.exit(1)
             #else:
             #    print "File (%s) exist\n" % filename
@@ -519,21 +520,21 @@ class ParameterParser():
                 # listfilename includes the containername 
                 #print "listfilename is (%s)" % listfilename
                 #print "container_name is (%s)" % container_name
-                self.logger.DEBUG('self.container_name is <%s>, listfilename is <%s>' % (self.container_name, listfilename))
+                self.logger.debug('self.container_name is <%s>, listfilename is <%s>' % (self.container_name, listfilename))
                 if self.container_name != "" and listfilename.startswith(self.container_name+':'):
                     #print "Yes it startswith"
                     tmp_container_name, filename = listfilename.split(':')
                 else:
                     #print "No it does not startswith"
                     # Not for this container
-                    self.logger.DEBUG('does not startwith')
+                    self.logger.debug('does not startwith')
                     continue
             else:
                 #print "Does not have :"
                 filename = listfilename
-            self.logger.DEBUG("Current Filename is %s" % filename)
+            self.logger.debug("Current Filename is %s" % filename)
             if not os.path.exists(filename):
-                self.logger.ERROR("Perform_CLONE_REPLACE: File %s does not exist" % filename)
+                self.logger.error("Perform_CLONE_REPLACE: File %s does not exist" % filename)
                 sys.exit(1)
             #else:
             #    print "File (%s) exist\n" % filename
@@ -565,7 +566,7 @@ class ParameterParser():
         self.Perform_HASH_REPLACE()
         # Perform CLONE_REPLACE
         self.Perform_CLONE_REPLACE()
-        self.logger.DEBUG('done parsing parameters')
+        self.logger.debug('done parsing parameters')
     
     def ParseParameterConfig(self, configfilename):
         # Seed random with lab seed
@@ -603,7 +604,7 @@ def main():
     numargs = len(sys.argv)
     if not (numargs == 4 or numargs == 5):
         logger = ParameterizeLogging.ParameterizeLogging("/tmp/parameterize.log")
-        logger.ERROR("ParameterParser.py <container_user> <lab_instance_seed> <container_name> [<config_file>]")
+        logger.error("ParameterParser.py <container_user> <lab_instance_seed> <container_name> [<config_file>]")
         sys.exit(1)
 
     container_user = sys.argv[1]
@@ -612,7 +613,7 @@ def main():
         container_name = sys.argv[3].split('.')[1]
     except:
         logger = ParameterizeLogging.ParameterizeLogging("/tmp/parameterize.log")
-        logger.ERROR('Could not parse container name from %s' % sys.argv[3])
+        logger.error('Could not parse container name from %s' % sys.argv[3])
         sys.exit(1)
         
     if numargs == 5:

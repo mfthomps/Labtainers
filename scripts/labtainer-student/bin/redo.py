@@ -43,7 +43,7 @@ def main():
         sys.exit(1)
     
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
-    labutils.logger.INFO("Begin logging start.py for %s lab" % labname)
+    labutils.logger.info("Begin logging start.py for %s lab" % labname)
     lab_path = os.path.join(os.path.abspath('../../labs'), labname)
     update_flag='../../../.doupdate'
     if os.path.isfile(update_flag):

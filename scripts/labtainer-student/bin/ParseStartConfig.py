@@ -12,7 +12,10 @@ domain and is not subject to copyright.
 import os
 import sys
 import re
-from netaddr import *
+if sys.version_info >=(3,0):
+    from ipaddress import *
+else:
+    from netaddr import *
 import LabtainerLogging
 import ParseLabtainerConfig
 import labutils
@@ -44,19 +47,19 @@ class ParseStartConfig():
         self.lan_hosts = {}
 
         if not os.path.exists(fname):
-            self.logger.ERROR("Config file %s does not exists!\n" % fname)
+            self.logger.error("Config file %s does not exists!\n" % fname)
             sys.exit(1)
 
         self.get_configs(fname)
         self.multi_user = None
         ''' determine if running as a distributed Labtainers, or many clients on a single VM '''
-        if self.clone_count > 0: 
+        if self.clone_count is not None and self.clone_count > 0: 
             self.multi_user = 'clones'
         elif servers is not None:
             self.multi_user = servers 
         self.finalize()
         self.validate()
-        self.logger.DEBUG('Completed reload from %s' % fname)
+        self.logger.debug('Completed reload from %s' % fname)
 
     class Container():
         def __init__(self, name, logger):
@@ -90,31 +93,31 @@ class ParseStartConfig():
             self.terminals = int(self.terminals) #replace with something smarter
           
             if '=' in self.name: # TODO: do we still need this?
-                self.logger.ERROR('Character "=" is not allowed in container name (%s)\n' % self.name)
+                self.logger.error('Character "=" is not allowed in container name (%s)\n' % self.name)
                 exit(1)
             for name, addr in self.container_nets.items():
                 tlan = name
                 if ':' in name:
                     tlan = name.split(':')[0]
                 if tlan not in valid_networks:
-                    self.logger.ERROR('Container %s cannot be added to undefined network %s\n' % (self.full_name, tlan))
+                    self.logger.error('Container %s cannot be added to undefined network %s\n' % (self.full_name, tlan))
                     exit(1)
                 if not skip_networks:
                     if ':' in addr:
                         addr, mac = addr.split(':',1)
                         if not re.match("[0-9a-f]{2}([-:])[0-9a-f]{2}(\\1[0-9a-f]{2}){4}$", mac.lower()):
-                            self.logger.ERROR('bad MAC address %s in %s\n' % (mac, name))
+                            self.logger.error('bad MAC address %s in %s\n' % (mac, name))
                             exit(1)
                     elif '+' in addr:
                         addr, adjust = addr.split('+')
                         if adjust.lower() != 'clone' and adjust.lower() != 'clone_mac':
-                            self.logger.ERROR('bad adjustment syntax for network definition of %s, expected "CLONE", got %s' % (name, adjust))
+                            self.logger.error('bad adjustment syntax for network definition of %s, expected "CLONE", got %s' % (name, adjust))
                             exit(1)
                     if addr != 'auto' and addr != 'auto_mac':
                         try:
                             IPAddress(addr)
                         except :
-                            self.logger.ERROR('bad ip addr %s in %s\n' % (addr, name))
+                            self.logger.error('bad ip addr %s in %s\n' % (addr, name))
                             exit(1)
 
     class Subnet():
@@ -130,21 +133,21 @@ class ParseStartConfig():
 
         def validate(self):
             if not isalphadashscore(self.name):
-                self.logger.ERROR('bad subnet name %s \n' % (self.name))
+                self.logger.error('bad subnet name %s \n' % (self.name))
                 exit(1)
             try:
                 IPNetwork(self.mask)
             except:
-                self.logger.ERROR('bad ip subnet %s for subnet %s\n' % (self.mask, self.name))
+                self.logger.error('bad ip subnet %s for subnet %s\n' % (self.mask, self.name))
                 exit(1)
             if not IPAddress(self.gateway) in IPNetwork(self.mask):
-                self.logger.ERROR('network: %s Gateway IP (%s) not in subnet for SUBNET line(%s)!\n' % 
+                self.logger.error('network: %s Gateway IP (%s) not in subnet for SUBNET line(%s)!\n' % 
                     (self.name, self.gateway, self.mask))
                 exit(1)
 
     def add_if_new(self, name, location, thing):
         if name in location:
-            self.logger.ERROR("Fatal. '%s' already defined." % name)
+            self.logger.error("Fatal. '%s' already defined." % name)
             exit(1)
         location[name] = thing
 
@@ -171,7 +174,7 @@ class ParseStartConfig():
                 elif key in defaults_ok:
                     val = "default"
                 else:
-                    self.logger.ERROR("Fatal. Missing value for: %s" % line)
+                    self.logger.error("Fatal. Missing value for: %s" % line)
                     exit(1)
 
                 if key == "global_settings":
@@ -182,10 +185,10 @@ class ParseStartConfig():
                     self.lan_hosts[val] = []
                 elif key == "container":
                     if val in self.containers:
-                        self.logger.ERROR('Container %s already defined' % val)
+                        self.logger.error('Container %s already defined' % val)
                         exit(1)
                     self.containers[val] = self.Container(val, self.logger)
-                    self.logger.DEBUG('added container %s' % val)
+                    self.logger.debug('added container %s' % val)
                     active = self.containers[val]
                 elif key == 'add-host':
                     active.add_hosts.append(val)
@@ -200,7 +203,7 @@ class ParseStartConfig():
                             tlan = key.split(':')[0]
                         self.lan_hosts[tlan].append(lan_host)
                     except:
-                        self.logger.ERROR("Fatal. Can't understand config setting: %s" % line)
+                        self.logger.error("Fatal. Can't understand config setting: %s" % line)
                         exit(1)
 
     def validate(self):
@@ -211,19 +214,19 @@ class ParseStartConfig():
             self.collect_docs = "no"
         else:
             if self.collect_docs.lower() != "yes" and self.collect_docs.lower() != "no":
-                self.logger.ERROR("Unexpected collect_docs value in ParseStartConfig module : %s\n" % self.collect_docs)
+                self.logger.error("Unexpected collect_docs value in ParseStartConfig module : %s\n" % self.collect_docs)
                 exit(1)
         
         if not self.host_home_xfer:
-            self.logger.ERROR("Missing host_home_xfer in start.config!\n")
+            self.logger.error("Missing host_home_xfer in start.config!\n")
             exit(1)
         
         if not self.lab_master_seed:
-           self.logger.ERROR("Missing lab_master_seed in start.config!\n")
+           self.logger.error("Missing lab_master_seed in start.config!\n")
            exit(1)
 
         if not self.grade_container:
-            self.logger.ERROR("Missing grade_container in start.config!\n")
+            self.logger.error("Missing grade_container in start.config!\n")
             exit(1)
         
         if not self.skip_networks:
@@ -253,7 +256,7 @@ class ParseStartConfig():
                     iface_num = int(self.subnets[net].macvlan_ext)
                     use = labutils.getFirstUnassignedIface(iface_num)
                     if use is None:
-                        self.logger.ERROR('MACVLAN requested, but not %s unassigned interfaces' % iface_num)
+                        self.logger.error('MACVLAN requested, but not %s unassigned interfaces' % iface_num)
                         exit(1)
                 except ValueError:
                     use = self.subnets[net].macvlan_ext
@@ -263,7 +266,7 @@ class ParseStartConfig():
                     iface_num = int(self.subnets[net].macvlan)
                     use = labutils.getFirstUnassignedIface(iface_num)
                     if use is None:
-                        self.logger.ERROR('MACVLAN requested, but not %s unassigned interfaces' % iface_num)
+                        self.logger.error('MACVLAN requested, but not %s unassigned interfaces' % iface_num)
                         exit(1)
                 except ValueError:
                     use = self.subnets[net].macvlan
@@ -284,14 +287,14 @@ class ParseStartConfig():
                     try:
                         from_lab, from_container = self.containers[name].from_image.split('.')
                     except:
-                        self.logger.ERROR('bad from_image value %s' % self.containers[name].from_image)
+                        self.logger.error('bad from_image value %s' % self.containers[name].from_image)
                         exit(1)
                     if from_lab == self.labname:
                         self.containers[name].user = self.containers[from_container].user
                         self.containers[name].password = self.containers[from_container].password
                         #print('from_lab <%s>, user now %s  bs is %s' %(from_lab, self.containers[name].user, self.containers[from_container].user))
                     else:
-                        self.logger.ERROR('Use of FROM_IMAGE from different lab requires explicit USER (which must be manually gotten from other lab :{')
+                        self.logger.error('Use of FROM_IMAGE from different lab requires explicit USER (which must be manually gotten from other lab :{')
                         exit(1)
             if self.containers[name].full_name == "":
                self.containers[name].full_name = full
@@ -309,7 +312,7 @@ class ParseStartConfig():
                 self.containers[name].registry = self.labtainer_config.default_registry
             if self.clone_count is not None and self.containers[name].client == 'yes':
                 if self.containers[name].clone is not None:
-                    self.logger.ERROR('Cannot specify clone_count for container having CLONE set in the start.config file')
+                    self.logger.error('Cannot specify clone_count for container having CLONE set in the start.config file')
                     exit(1)
                 else:
                     self.containers[name].clone_copies = self.clone_count
@@ -318,30 +321,30 @@ class ParseStartConfig():
 
     def show_current_settings(self):
         bar = "="*80
-        print bar
+        print(bar)
         print("Global configuration settings:")
-        print bar
+        print(bar)
         for key, val in self.__dict__.items():
             if type(val) == type({}): val = len(val)
-            print "\t" + str(key) + ": " + str(val)
-        print "\n"+bar
+            print("\t" + str(key) + ": " + str(val))
+        print("\n"+bar)
         print("Network configuration settings:")
-        print bar
+        print(bar)
         for name, network in self.subnets.items():
-            print "name: " + name 
+            print("name: " + name)
             for key, val in network.__dict__.items():
                 if type(val) == type({}): val = len(val)
-                print "\t" + str(key) + ": " + str(val)
-            print ""
-        print "\n"+bar
+                print("\t" + str(key) + ": " + str(val))
+            print("")
+        print("\n"+bar)
         print("Container configuration settings:")
-        print bar
+        print(bar)
         for name, container in self.containers.items():
-            print "name: " + name 
+            print("name: " + name)
             for key, val in container.__dict__.items():
                 if type(val) == type({}): val = len(val)
-                print "\t" + str(key) + ": " + str(val)
-            print ""
+                print("\t" + str(key) + ": " + str(val))
+            print("")
              
 if __name__ == '__main__':
     start_config = ParseStartConfig(*sys.argv[1:])

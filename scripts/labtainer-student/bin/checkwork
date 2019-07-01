@@ -59,7 +59,7 @@ def main():
         else:
             labname = lablist[0]
 
-    labutils.logger.INFO("Begin logging checkwork for %s lab" % labname)
+    labutils.logger.debug("Begin logging checkwork for %s lab" % labname)
     
     lab_path = os.path.join(os.path.abspath('../../labs'), labname)
     labtainer_config, start_config = labutils.GetBothConfigs(lab_path, labutils.logger)
@@ -75,14 +75,14 @@ def main():
         has_lab_role, labnamelist = labutils.GetRunningLabNames(running_containers_list)
         if has_lab_role:
             if labname not in labnamelist:
-                labutils.logger.ERROR("No lab named %s in currently running labs!" % labname)
+                labutils.logger.debug("No lab named %s in currently running labs!" % labname)
                 sys.exit(1)
         else:
-            labutils.logger.ERROR("Student is not running any labs")
+            labutils.logger.debug("Student is not running any labs")
             sys.exit(1)
     else:
         print("No labs are running")
-        labutils.logger.DEBUG("No labs are running")
+        labutils.logger.debug("No labs are running")
         sys.exit(1)
     current_lab = CurrentLab.CurrentLab()
     clone_count = current_lab.get('clone_count')        

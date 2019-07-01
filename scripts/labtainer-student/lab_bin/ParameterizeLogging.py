@@ -39,7 +39,7 @@ class ParameterizeLogging():
         self.logger.addHandler(file_handler)
         self.logger.addHandler(console_handler)
 
-    def DEBUG(self, message):
+    def debug(self, message):
         func = inspect.currentframe().f_back
         #print "func.f_code.co_name is %s" % func.f_code.co_name
         #print "func.f_code.co_filename is %s" % func.f_code.co_filename
@@ -50,7 +50,7 @@ class ParameterizeLogging():
         linemessage = '%s:%s - %s() ] %s' % (filename, lineno, funcname[:15], message)
         self.logger.debug(linemessage)
 
-    def INFO(self, message):
+    def info(self, message):
         func = inspect.currentframe().f_back
         #print "func.f_code.co_name is %s" % func.f_code.co_name
         #print "func.f_code.co_filename is %s" % func.f_code.co_filename
@@ -61,7 +61,7 @@ class ParameterizeLogging():
         linemessage = '%s:%s - %s() ] %s' % (filename, lineno, funcname[:15], message)
         self.logger.info(linemessage)
 
-    def WARNING(self, message):
+    def warning(self, message):
         func = inspect.currentframe().f_back
         #print "func.f_code.co_name is %s" % func.f_code.co_name
         #print "func.f_code.co_filename is %s" % func.f_code.co_filename
@@ -72,7 +72,7 @@ class ParameterizeLogging():
         linemessage = '%s:%s - %s() ] %s' % (filename, lineno, funcname[:15], message)
         self.logger.warning(linemessage)
 
-    def ERROR(self, message):
+    def error(self, message):
         func = inspect.currentframe().f_back
         #print "func.f_code.co_name is %s" % func.f_code.co_name
         #print "func.f_code.co_filename is %s" % func.f_code.co_filename
