@@ -99,13 +99,13 @@ def evalTimeDuring(goals_tag1, goals_tag2, logger):
     ''' make sure dictionary contains entry for each goals_tag2 time range within which
         there exists at least one goals_tag1 time -- independent of the boolean values. '''
     for goal2timestamp, goal2value in goals_tag2.iteritems():
-        #logger.DEBUG("Goal2 timestamp is (%s) and value is (%s)" % (goal2timestamp, goal2value))
+        #logger.debug("Goal2 timestamp is (%s) and value is (%s)" % (goal2timestamp, goal2value))
         value_for_ts2 = None
         for goal1timestamp, goal1value in goals_tag1.iteritems():
-            #logger.DEBUG("Goal1 timestamp is (%s) and value is (%s)" % (goal1timestamp, goal1value))
+            #logger.debug("Goal1 timestamp is (%s) and value is (%s)" % (goal1timestamp, goal1value))
             eval_time_during_result = compare_time_during(goal1timestamp, goal2timestamp)
             if eval_time_during_result:
-                #logger.DEBUG("is during Goal1 timestamp is (%s) and value is (%s)" % (goal1timestamp, goal1value))
+                #logger.debug("is during Goal1 timestamp is (%s) and value is (%s)" % (goal1timestamp, goal1value))
                 ''' at least one during event '''
                 if value_for_ts2 is None:
                     value_for_ts2 = False
@@ -126,16 +126,16 @@ def evalTimeNotDuring(goals_tag1, goals_tag2, logger):
     ''' make sure dictionary contains entry for each goals_tag2 time range within which
         there exists at least one goals_tag1 time -- independent of the boolean values. '''
     for goal2timestamp, goal2value in goals_tag2.iteritems():
-        #logger.DEBUG("Goal2 timestamp is (%s) and value is (%s)" % (goal2timestamp, goal2value))
+        #logger.debug("Goal2 timestamp is (%s) and value is (%s)" % (goal2timestamp, goal2value))
         found_one = False
         ''' only can be true if goalvalue2 is true '''
         if goals_tag1 is not None and goal2value:
             for goal1timestamp, goal1value in goals_tag1.iteritems():
-                #logger.DEBUG("Goal1 timestamp is (%s) and value is (%s)" % (goal1timestamp, goal1value))
+                #logger.debug("Goal1 timestamp is (%s) and value is (%s)" % (goal1timestamp, goal1value))
                 if goal1value:
                     eval_time_during_result = compare_time_during(goal1timestamp, goal2timestamp)
                     if eval_time_during_result:
-                        #logger.DEBUG("is during Goal1 timestamp is (%s) and value is (%s)" % (goal1timestamp, goal1value))
+                        #logger.debug("is during Goal1 timestamp is (%s) and value is (%s)" % (goal1timestamp, goal1value))
                         found_one = True
         if found_one:
             retval[goal2timestamp] = False
@@ -449,34 +449,34 @@ def handle_expression(resulttag, json_output, logger):
     if resulttag.startswith('(') and resulttag.endswith(')'):
         express = resulttag[resulttag.find("(")+1:resulttag.find(")")]
         for tag in json_output:
-            logger.DEBUG('is tag %s in express %s' % (tag, express))
+            logger.debug('is tag %s in express %s' % (tag, express))
             if tag in express:
                 if json_output[tag] != None:
                     express = express.replace(tag, json_output[tag])
                 else:
                     return None
         try:
-            logger.DEBUG('try eval of <%s>' % express)
+            logger.debug('try eval of <%s>' % express)
             result = evalExpress.eval_expr(express)
         except:
-            logger.ERROR('could not evaluation %s, which became %s' % (resulttag, express))
+            logger.error('could not evaluation %s, which became %s' % (resulttag, express))
             sys.exit(1)
     else:
-        logger.ERROR('handleExpress called with %s, expected expression in parens' % resulttag)
+        logger.error('handleExpress called with %s, expected expression in parens' % resulttag)
     return result
 
         
 def processMatchAny(result_sets, eachgoal, goal_times, logger):
     #print "Inside processMatchAny"
-    #logger.DEBUG("Inside processMatchAny")
+    #logger.debug("Inside processMatchAny")
     found = False
     goalid = eachgoal['goalid']
     #print goalid
     jsonanswertag = eachgoal['answertag']
-    logger.DEBUG('jsonanswertag %s' % jsonanswertag)
+    logger.debug('jsonanswertag %s' % jsonanswertag)
     jsonresulttag = eachgoal['resulttag']
     (resulttagtarget, resulttag) = jsonresulttag.split('.')
-    logger.DEBUG('jsonresulttag %s' % jsonresulttag)
+    logger.debug('jsonresulttag %s' % jsonresulttag)
     # Handle special case 'answer=<string>'
     one_answer = False
     if '=' in jsonanswertag:
@@ -501,12 +501,12 @@ def processMatchAny(result_sets, eachgoal, goal_times, logger):
 
         if resulttag.startswith('('):
             resulttagresult = str(handle_expression(resulttag, results, logger))
-            logger.DEBUG('from handle_expression, got %s' % resulttagresult)
+            logger.debug('from handle_expression, got %s' % resulttagresult)
         else:
             try:
                 resulttagresult = results[resulttag]
             except KeyError:
-                logger.DEBUG('%s not found in file %s' % (resulttag, ts))
+                logger.debug('%s not found in file %s' % (resulttag, ts))
                 continue
         if resulttagresult == None:
             continue 
@@ -514,20 +514,20 @@ def processMatchAny(result_sets, eachgoal, goal_times, logger):
         try:
             timestampend = results['PROGRAM_ENDTIME']
         except KeyError:
-            logger.ERROR('processMatchAny: PROGRAM_ENDTIME not found in file %s' % ts)
+            logger.error('processMatchAny: PROGRAM_ENDTIME not found in file %s' % ts)
             exit(1)
         fulltimestamp = '%s-%s' % (ts, timestampend)
         if one_answer:
-            #logger.DEBUG("Correct answer is (%s) result (%s)" % (current_onlyanswer, resulttagresult))
+            #logger.debug("Correct answer is (%s) result (%s)" % (current_onlyanswer, resulttagresult))
             found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
             goal_times.addGoal(goalid, fulltimestamp, found)
         else:
             if answertagstring not in results:
-                logger.ERROR('%s not in results %s' % (answertagstring, str(results)))
+                logger.error('%s not in results %s' % (answertagstring, str(results)))
                 sys.exit(1)
             answertagresult = results[answertagstring]
             current_answer = answertagresult.strip()
-            #logger.DEBUG("Correct answer is (%s) result (%s)" % (current_answer, resulttagresult))
+            #logger.debug("Correct answer is (%s) result (%s)" % (current_answer, resulttagresult))
             found = compare_result_answer(resulttagresult, current_answer, eachgoal['goaloperator'])
             goal_times.addGoal(goalid, fulltimestamp, found)
 
@@ -607,7 +607,7 @@ def processCount(result_sets, eachgoal, grades, logger):
                     found = compare_result_answer(resulttagresult, current_onlyanswer, eachgoal['goaloperator'])
                 else:
                     if answertagstring not in results:
-                        logger.ERROR('%s not in results %s' % (answertagstring, str(results)))
+                        logger.error('%s not in results %s' % (answertagstring, str(results)))
                         sys.exit(1)
                     answertagresult = results[answertagstring]
                     current_answer = answertagresult.strip()
@@ -755,13 +755,13 @@ def processTemporal(eachgoal, goal_times, logger):
     goal1tag = eachgoal['goal1tag']
     goal2tag = eachgoal['goal2tag']
     goalid = eachgoal['goalid']
-    logger.DEBUG("goal1tag is (%s) and goal2tag is (%s)" % (goal1tag, goal2tag))
+    logger.debug("goal1tag is (%s) and goal2tag is (%s)" % (goal1tag, goal2tag))
     # Make sure goal1tag and goal2tag is in goals_id_ts
     if not goal_times.hasGoal(goal1tag) and eachgoal['goaltype'] != 'time_not_during':
-        logger.DEBUG("warning: goal1tag (%s) does not exist in goalTimes\n" % (goal1tag))
+        logger.debug("warning: goal1tag (%s) does not exist in goalTimes\n" % (goal1tag))
         return
     if not goal_times.hasGoal(goal2tag):
-        logger.DEBUG("warning: goal2tag (%s) does not exist!\n" % goal2tag)
+        logger.debug("warning: goal2tag (%s) does not exist!\n" % goal2tag)
         return
     goals_tag1 = goal_times.getGoal(goal1tag)
     goals_tag2 = goal_times.getGoal(goal2tag)
@@ -776,7 +776,7 @@ def processTemporal(eachgoal, goal_times, logger):
         # (2) goal1start <= goal2start
         goal_times.addGoal(goalid, default_timestamp, eval_time_result)
     elif eachgoal['goaltype'] == "time_during":
-        logger.DEBUG('eval for %s %s' % (goals_tag1, goals_tag2))
+        logger.debug('eval for %s %s' % (goals_tag1, goals_tag2))
         eval_time_result = evalTimeDuring(goals_tag1, goals_tag2, logger)
         for ts in eval_time_result:
             goal_times.addGoal(goalid, ts, eval_time_result[ts])
@@ -786,7 +786,7 @@ def processTemporal(eachgoal, goal_times, logger):
         # (1) goals_tag1 is True and goals_tag2 is True
         # (2) goal2start (%s) <= goal1start (%s) <= goal2end (%s)
     elif eachgoal['goaltype'] == "time_not_during":
-        logger.DEBUG('eval time_not_during for %s %s' % (goals_tag1, goals_tag2))
+        logger.debug('eval time_not_during for %s %s' % (goals_tag1, goals_tag2))
         eval_time_result = evalTimeNotDuring(goals_tag1, goals_tag2, logger)
         for ts in eval_time_result:
             goal_times.addGoal(goalid, ts, eval_time_result[ts])
@@ -801,15 +801,15 @@ def processBoolean(eachgoal, goal_times, logger):
     goals_ts_id = goal_times.getGoalTimeStampId()
     for timestamppart, current_goals in goals_ts_id.iteritems():
         if timestamppart != default_timestamp or len(goals_ts_id)==1:
-            logger.DEBUG('eval %s against %s tspart %s' % (t_string, str(current_goals), timestamppart))
+            logger.debug('eval %s against %s tspart %s' % (t_string, str(current_goals), timestamppart))
             evalBooleanResult = evalBoolean.evaluate_boolean_expression(t_string, current_goals, logger, glist)
             if evalBooleanResult is not None:
-                logger.DEBUG('bool evaluated to %r' % evalBooleanResult)
+                logger.debug('bool evaluated to %r' % evalBooleanResult)
                 goal_times.addGoal(goalid, timestamppart, evalBooleanResult)
     # if evalBooleanResult is None - means not found
     if evalBooleanResult is None:
-        #logger.DEBUG('processBoolean evalBooleanResult is None, goalid %s goal_id_ts %s' % (goalid, goals_ts_id))
-        logger.DEBUG('processBoolean evalBooleanResult is None, goalid %s ' % (goalid))
+        #logger.debug('processBoolean evalBooleanResult is None, goalid %s goal_id_ts %s' % (goalid, goals_ts_id))
+        logger.debug('processBoolean evalBooleanResult is None, goalid %s ' % (goalid))
         goal_times.addGoal(goalid, default_timestamp, False)
 
 class ResultSets():
@@ -919,7 +919,7 @@ def processLabExercise(studentlabdir, labidname, grades, goals, bool_results, go
 
     # Go through each goal for each student
     for eachgoal in goals:
-        logger.DEBUG('goal is %s type %s' % (eachgoal['goalid'], eachgoal['goaltype']))
+        logger.debug('goal is %s type %s' % (eachgoal['goalid'], eachgoal['goaltype']))
 
         if eachgoal['goaltype'] == "matchany":
             processMatchAny(result_sets, eachgoal, goal_times, logger)
