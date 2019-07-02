@@ -1,0 +1,71 @@
+#!/usr/bin/env python
+import sys
+import os
+import argparse
+import json
+from netaddr import IPNetwork
+sys.path.append('/home/mike/labtainer/trunk/scripts/labtainer-student/bin')
+sys.path.append('/home/mike/labtainer/trunk/scripts/labtainer-student/lab_bin')
+import labutils
+import LabtainerLogging
+'''
+Generate network files for GNS3 from a given Labtainers lab configuration.
+The results go in the etc/network/interfaces file used by GNS3 startup.
+'''
+
+def getLabtainerNodeId(gns3_json, name):
+    for node in gns3_json['topology']['nodes']:
+        nn = node['name']
+        if nn.startswith(name):
+            print('matched node id %s' % node['node_id'])
+            return node['node_id']
+        if nn.startswith('mfthomps-'+name):
+            print('matched node id %s' % node['node_id'])
+            return node['node_id']
+    return None
+
+
+gns3_path = '/home/mike/GNS3/projects'
+labtainers_path = '/home/mike/labtainer/trunk/labs'
+parser = argparse.ArgumentParser(description='Generate gns3 network interfaces file.')
+parser.add_argument('labname', help='Name of labtainers lab')
+parser.add_argument('gns3_proj', help='Name of gns3 project')
+args = parser.parse_args()
+
+print('labname: %s gns3: %s' % (args.labname, args.gns3_proj))
+labutils.logger = LabtainerLogging.LabtainerLogging("genNet.log", 'eh', "../../config/labtainer.config")
+gns3_proj = os.path.join(gns3_path, args.gns3_proj, args.gns3_proj+'.gns3')
+if not os.path.isfile(gns3_proj):
+    print('no gns3 proj file found at %s' % gns3_proj)
+    exit(1)
+labtainer_lab = os.path.join(labtainers_path, args.labname)
+dumb, start_config = labutils.GetBothConfigs(labtainer_lab, labutils.logger)
+
+with open(gns3_proj) as fh:
+    gns3_json = json.load(fh)
+
+subnets = start_config.subnets
+
+
+for name, container in start_config.containers.items():
+    print('container %s' % name)
+    gns3_con = '%s-%s-labtainer' % (args.labname, name) 
+    node_id = getLabtainerNodeId(gns3_json, gns3_con)
+    if node_id is None:
+       print('Could not find container %s in gns3 project json' % name)
+       exit(1)
+    iface_fname = os.path.join(gns3_path, args.gns3_proj, 'project-files', 'docker', node_id, 'etc','network','interfaces')
+    with open(iface_fname, 'w') as fh:
+
+        eth_index = 0
+        for mysubnet_name, mysubnet_ip in container.container_nets.items():
+            subnet_name = mysubnet_name
+            print('subnet_name %s ip %s' % (mysubnet_name, mysubnet_ip))
+            eth = 'eth%d' % eth_index
+            netmask = IPNetwork(subnets[mysubnet_name].mask).netmask
+            line = 'auto %s\niface %s inet static\n\taddress %s\n\tnetmask %s' % (eth, eth, mysubnet_ip, netmask)
+            fh.write(line+'\n')
+
+
+
+
