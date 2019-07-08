@@ -3,8 +3,12 @@ import sys
 import os
 import argparse
 from netaddr import IPNetwork
-sys.path.append('/home/mike/labtainer/trunk/scripts/labtainer-student/bin')
-sys.path.append('/home/mike/labtainer/trunk/scripts/labtainer-student/lab_bin')
+labtainer_dir = os.getenv('LABTAINER_DIR')
+if labtainer_dir is None:
+    print('Must define LABTAINER_DIR environment variable')
+    exit(1)
+sys.path.append(os.path.join(labtainer_dir, 'scripts', 'labtainer-student','bin'))
+sys.path.append(os.path.join(labtainer_dir, 'scripts', 'labtainer-student','lab_bin'))
 import labutils
 import LabtainerLogging
 
