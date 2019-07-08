@@ -20,8 +20,9 @@ The resulting image name will be <lab name>-<component>-<labtainer>, and that im
 be imported into GNS3 as a Docker container image.
 '''
 
-gns3_path = '/home/mike/GNS3/projects'
-labtainers_path = '/home/mike/labtainer/trunk/labs'
+home = os.getenv("HOME")
+gns3_path = os.path.join(home, 'GNS3', 'projects')
+labtainers_path = os.path.join(labtainer_dir, 'labs')
 parser = argparse.ArgumentParser(description='Create gns3-friendy variants of Labtainers images.')
 parser.add_argument('labname', help='Name of labtainers lab')
 args = parser.parse_args()

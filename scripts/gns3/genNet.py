@@ -30,8 +30,9 @@ def getLabtainerNodeId(gns3_json, name):
     return None
 
 
-gns3_path = '/home/mike/GNS3/projects'
-labtainers_path = '/home/mike/labtainer/trunk/labs'
+home = os.getenv("HOME")
+gns3_path = os.path.join(home, 'GNS3', 'projects')
+labtainers_path = os.path.join(labtainer_dir, 'labs')
 parser = argparse.ArgumentParser(description='Generate gns3 network interfaces file.')
 parser.add_argument('labname', help='Name of labtainers lab')
 parser.add_argument('gns3_proj', help='Name of gns3 project')

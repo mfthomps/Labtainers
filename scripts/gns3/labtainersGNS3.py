@@ -111,7 +111,8 @@ def parameterizeOne(image_name, logger):
                 return
 
 if __name__ == '__main__':
-    gns3_path = '/home/mike/GNS3/projects'
+    home = os.getenv("HOME")
+    gns3_path = os.path.join(home, 'GNS3', 'projects')
     logger = LabtainerLogging.LabtainerLogging("test.log", 'eh', "../../config/labtainer.config")
     parser = argparse.ArgumentParser(description='Generate gns3 network interfaces file.')
     parser.add_argument('labname', help='Name of labtainers lab')
