@@ -11,3 +11,8 @@ ADD system/usr/share/man/man1.tar /usr/share/man
 ADD system/sbin/waitparam.sh /usr/sbin/waitparam.sh
 ADD system/lib/systemd/system/waitparam.service.cfs /lib/systemd/system/waitparam.service
 RUN systemctl enable waitparam.service
+# work around centos base having old yum-source.sh and  sources in /tmp instead of /var/tmp
+ADD system/bin/yum-source.sh /usr/bin/yum-source.sh
+RUN mkdir /var/tmp/yum.repos.d
+RUN mv /tmp/yum.repos.d/* /var/tmp/yum.repos.d/
+
