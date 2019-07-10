@@ -34,14 +34,10 @@ try:
 except:
     pass
 
-instructor_cwd = os.getcwd()
-student_cwd = instructor_cwd.replace('labtainer-instructor', 'labtainer-student')
-if student_cwd.endswith('labtainer-student'):
-    sys.path.append(student_cwd+"/lab_bin")
-else:
-    # assume from labtainer/distrib
-    print('is distrib %s' % os.getcwd())
-    sys.path.append('../scripts/labtainer-student/lab_bin')
+''' assumes relative file positions '''
+here = os.path.dirname(os.path.abspath(__file__))
+lab_bin_dir = os.path.join(here, '../lab_bin')
+sys.path.append(lab_bin_dir)
 import ParameterParser
 import InspectLocalReg
 import InspectRemoteReg
@@ -682,6 +678,8 @@ def DockerCmd(cmd, noloop=False):
            ok = True
         if len(output[0]) > 0:
             logger.debug("cmd %s stdout: %s" % (cmd, output[0]))
+            if 'unrecognized option' in output[0]:
+                return False
     return True
 
 
@@ -739,6 +737,7 @@ def CopyLabBin(mycontainer_name, container_user, lab_path, name, image_info):
         if not DockerCmd(cmd):
             logger.error('failed %s' % cmd)
             exit(1)
+        logger.debug('CopyLabBin tar failed for lab_sys, explicit copy')
 
 # Copy Students' Artifacts from host to instructor's lab container
 def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_user, container_password):
