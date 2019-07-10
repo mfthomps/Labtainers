@@ -21,7 +21,7 @@ def getLabFromImage(image_name):
     suffix = '-labtainer'
     if not image_name.endswith(suffix):
         print('%s not a labtainer' % image_name)
-        return
+        return None, None
     index = len(suffix) * -1
     lab_box = image_name[:index]
     parts = lab_box.rsplit('-', 1)
@@ -91,6 +91,9 @@ def parameterizeOne(image_name, logger):
 
     here = os.path.dirname(os.path.abspath(__file__))
     labname, comp_name = getLabFromImage(image_name)
+    if labname is None:
+        log.error('no labtainer labname found in image %s' % image_name)
+        return
     parent = os.path.dirname(here)
     gparent = os.path.dirname(parent)
     lab_path = os.path.join(gparent, 'labs', labname)
