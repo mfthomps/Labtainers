@@ -42,12 +42,12 @@ def labtainerTerms(images, logger):
     container_map = {}
     labtainer_config, start_config = labutils.GetBothConfigs(lab_path, logger)
     for name, container in start_config.containers.items():
-        print('name %s full %s' % (name, container.full_name))
+        #print('name %s full %s' % (name, container.full_name))
         gimage = '%s-%s-labtainer' % (labname, name)
         for image in images:
             if image.startswith(gimage):
                 gcontainer = images[image]
-                print('got match %s cont %s' % (image, gcontainer))
+                #print('got match %s cont %s' % (image, gcontainer))
                 container_map[container.full_name] = gcontainer
 
     labutils.DoTerminals(start_config, lab_path, container_map = container_map)
