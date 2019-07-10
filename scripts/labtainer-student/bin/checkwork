@@ -10,8 +10,8 @@ domain and is not subject to copyright.
 '''
 
 '''
-Stop a given Labtainers lab.  If no arguments are given, then all running
-labs will be stopped.
+Check work on (automated assessment) on the currently running lab, or
+a given lab name.
 '''
 
 import sys
@@ -22,10 +22,18 @@ import LabtainerLogging
 import CurrentLab
 import argparse
 import imp
-sys.path.append('../labtainer-instructor/bin')
-sys.path.append('../labtainer-instructor/assess_bin')
-
-gradelab = imp.load_source('gradelab', '../labtainer-instructor/bin/gradelab')
+here = os.path.dirname(os.path.abspath(__file__))
+lab_bin_dir = os.path.join(here, '../lab_bin')
+sys.path.append(here)
+sys.path.append(lab_bin_dir)
+student_dir = os.path.dirname(here)
+scripts_dir = os.path.dirname(os.path.dirname(here))
+assess_bin_path = os.path.join(scripts_dir, 'labtainer-instructor', 'assess_bin')
+instruct_bin_path = os.path.join(scripts_dir, 'labtainer-instructor', 'bin')
+sys.path.append(assess_bin_path)
+sys.path.append(instruct_bin_path)
+grade_lab_path = os.path.join(scripts_dir, 'labtainer-instructor', 'bin', 'gradelab')
+gradelab = imp.load_source('gradelab', grade_lab_path)
 
 
 # Usage: stop.py <labname>
@@ -38,14 +46,15 @@ def main():
     labname = None 
     lablist = []
     lablist = labutils.GetListRunningLab()
+    orig_dir=os.getcwd()
+    os.chdir(student_dir)
     if args.lab is not None:
         labname = args.lab
         if labname not in lablist:
             print('%s lab is not running, looking for previous results...' % args.lab)
-            here=os.getcwd()
             os.chdir('../labtainer-instructor')
             gradelab.doGrade(labname, False, False, True, False)
-            os.chdir(here)
+            os.chdir(orig_dir)
             sys.exit(0)
         labutils.logger = LabtainerLogging.LabtainerLogging("checkwork.log", labname, "../../config/labtainer.config")
     else:
@@ -88,10 +97,9 @@ def main():
     clone_count = current_lab.get('clone_count')        
     servers = current_lab.get('servers')        
     labutils.StopLab(lab_path, False, servers=servers, clone_count=clone_count, keep_running=True)
-    here=os.getcwd()
     os.chdir('../labtainer-instructor')
     gradelab.doGrade(labname, False, False, True, False, copy_json = False)
-    os.chdir(here)
+    os.chdir(orig_dir)
 
 
     return 0
