@@ -20,15 +20,22 @@ The results go in the etc/network/interfaces file used by GNS3 startup.
 
 def getLabtainerNodeId(gns3_json, name):
     for node in gns3_json['topology']['nodes']:
-        nn = node['name']
-        if nn.startswith(name):
+        #nn = node['name']
+        ni = node['properties']['image']
+        if ni.startswith(name):
             print('matched node id %s' % node['node_id'])
             return node['node_id']
-        if nn.startswith('mfthomps-'+name):
+        if ni.startswith('mfthomps-'+name):
             print('matched node id %s' % node['node_id'])
             return node['node_id']
     return None
 
+def setNodeName(gns3_json, node_id, name):
+    for node in gns3_json['topology']['nodes']:
+        if node['node_id'] == node_id:
+            node['name'] = name
+            return
+    print('Failed to find node_id %s in json' % node_id)
 
 home = os.getenv("HOME")
 gns3_path = os.path.join(home, 'GNS3', 'projects')
@@ -60,6 +67,7 @@ for name, container in start_config.containers.items():
     if node_id is None:
        print('Could not find container %s in gns3 project json' % name)
        exit(1)
+    setNodeName(gns3_json, node_id, name)
     iface_fname = os.path.join(gns3_path, args.gns3_proj, 'project-files', 'docker', node_id, 'etc','network','interfaces')
     with open(iface_fname, 'w') as fh:
 
@@ -71,7 +79,8 @@ for name, container in start_config.containers.items():
             netmask = IPNetwork(subnets[mysubnet_name].mask).netmask
             line = 'auto %s\niface %s inet static\n\taddress %s\n\tnetmask %s' % (eth, eth, mysubnet_ip, netmask)
             fh.write(line+'\n')
-
+with open(gns3_proj, 'w') as fh:
+    json.dump(gns3_json, fh)
 
 
 
