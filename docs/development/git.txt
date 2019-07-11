@@ -3,3 +3,8 @@ git svn rebase
 ###  IF NEEDED ? git pull https://github.com/mfthomps/Labtainers
 git push origin master
 
+
+Branches
+git checkout -b some_branch
+git push -u origin some_branch
+
