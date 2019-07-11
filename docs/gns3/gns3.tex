@@ -147,5 +147,11 @@ containers.  This should be revisited to be perhaps less crude.
 Install qtcreator
 Open the {\tt gns3-gui/gns3/gui/main\_window.ui} file
 
-
+To add icons:
+\begin{itemize}
+   Add to resources/images or wherever.
+   Edit resources.qrc
+   scripts/build\_pyqt.py --ressources
+   Use qtcreator to identify the icon in "resources"
+\end{itemize}
 \end{document}
