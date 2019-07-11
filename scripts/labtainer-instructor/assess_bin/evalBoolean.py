@@ -144,10 +144,10 @@ def evaluate_boolean_expression(s, the_dict, logger, goals):
         got_unknown = False
         for rem in remains.split():
            if rem not in goals: 
-               logger.DEBUG('***  unknown token <%s>' % rem)
+               logger.debug('***  unknown token <%s>' % rem)
                got_unknown = True
         if not got_unknown:
-            logger.DEBUG('goal values not set for this timestamp %s' % (remains))
+            logger.debug('goal values not set for this timestamp %s' % (remains))
         return None
     
     return nested_bool_eval(s) 

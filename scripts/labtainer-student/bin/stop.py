@@ -40,7 +40,7 @@ def main():
         lablist = labutils.GetListRunningLab()
 
     for labname in lablist:
-        labutils.logger.INFO("Begin logging stop.py for %s lab" % labname)
+        labutils.logger.info("Begin logging stop.py for %s lab" % labname)
         # Pass 'False' to ignore_stop_error (i.e., do not ignore error)
         lab_path = os.path.join(os.path.abspath('../../labs'), labname)
         has_running_containers, running_containers_list = labutils.GetRunningContainersList()
@@ -48,13 +48,13 @@ def main():
             has_lab_role, labnamelist = labutils.GetRunningLabNames(running_containers_list)
             if has_lab_role:
                 if labname not in labnamelist:
-                    labutils.logger.ERROR("No lab named %s in currently running labs!" % labname)
+                    labutils.logger.error("No lab named %s in currently running labs!" % labname)
                     sys.exit(1)
             else:
-                labutils.logger.ERROR("Student is not running any labs")
+                labutils.logger.error("Student is not running any labs")
                 sys.exit(1)
         else:
-            labutils.logger.ERROR("No running labs at all")
+            labutils.logger.error("No running labs at all")
             sys.exit(1)
         current_lab = CurrentLab.CurrentLab()
         clone_count = current_lab.get('clone_count')        

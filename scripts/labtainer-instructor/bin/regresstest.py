@@ -51,7 +51,7 @@ def compareGrades(GradesGold, Grades):
             student_email = linetoken[0]
             if "_at_" in student_email:
                 if student_email in GradesGoldLines:
-                    logger.ERROR("GradesGold file error: Multiple entries for the same student's e-mail %s" % student_email)
+                    logger.error("GradesGold file error: Multiple entries for the same student's e-mail %s" % student_email)
                     return False
                 else:
                     new_line = line.strip().replace(" ", "")
@@ -65,7 +65,7 @@ def compareGrades(GradesGold, Grades):
             student_email = linetoken[0]
             if "_at_" in student_email:
                 if student_email in GradesLines:
-                    logger.ERROR("Grades file error: Multiple entries for the same student's e-mail %s" % student_email)
+                    logger.error("Grades file error: Multiple entries for the same student's e-mail %s" % student_email)
                     return False
                 else:
                     new_line = line.strip().replace(" ", "")
@@ -84,13 +84,13 @@ def RegressTest(lab_path, standard, logger):
     labutils.is_valid_lab(lab_path)
     regresstest_lab_path = os.path.join(labtainer_config.testsets_root, labname, standard)
     host_home_xfer = os.path.join(labtainer_config.host_home_xfer, labname)
-    logger.DEBUG("Host Xfer directory for labname %s is %s" % (labname, host_home_xfer))
-    logger.DEBUG("Regression Test path for labname %s is %s" % (labname, regresstest_lab_path))
+    logger.debug("Host Xfer directory for labname %s is %s" % (labname, host_home_xfer))
+    logger.debug("Regression Test path for labname %s is %s" % (labname, regresstest_lab_path))
 
     GradesGold = "%s/%s.grades.txt" % (regresstest_lab_path, labname)
     username = getpass.getuser()
     Grades = "/home/%s/%s/%s.grades.txt" % (username, host_home_xfer, labname)
-    logger.DEBUG("GradesGold is %s - Grades is %s" % (GradesGold, Grades))
+    logger.debug("GradesGold is %s - Grades is %s" % (GradesGold, Grades))
 
     is_regress_test = standard
     check_watermark = False
@@ -103,18 +103,18 @@ def RegressTest(lab_path, standard, logger):
 #        container_user         = container.user
 #
 #        if mycontainer_name == start_config.grade_container:
-#            logger.DEBUG('about to RunInstructorCreateDradeFile for container %s' % start_config.grade_container)
+#            logger.debug('about to RunInstructorCreateDradeFile for container %s' % start_config.grade_container)
 #            RunInstructorCreateGradeFile(start_config.grade_container, container_user, labname, check_watermark)
 
     # Pass 'True' to ignore_stop_error (i.e., ignore stop error)
 
     CompareResult = False
     # GradesGold and Grades must exist
-    logger.DEBUG('compare %s to %s' % (GradesGold, Grades))
+    logger.debug('compare %s to %s' % (GradesGold, Grades))
     if not os.path.exists(GradesGold):
-        logger.ERROR("GradesGold %s file does not exist!" % GradesGold)
+        logger.error("GradesGold %s file does not exist!" % GradesGold)
     elif not os.path.exists(Grades):
-        logger.ERROR("Grades %s file does not exist!" % Grades)
+        logger.error("Grades %s file does not exist!" % Grades)
     else:
         CompareResult = compareGrades(GradesGold, Grades)
     return CompareResult
@@ -157,22 +157,22 @@ def main():
 
     for labname in sorted(finallabnamelist):
         labutils.logger = LabtainerLogging.LabtainerLogging("labtainer-regress.log", labname, "../../config/labtainer.config")
-        labutils.logger.INFO("Begin logging regresstest.py for %s lab" % labname)
-        labutils.logger.DEBUG("Current name is (%s)" % labname)
+        labutils.logger.info("Begin logging regresstest.py for %s lab" % labname)
+        labutils.logger.debug("Current name is (%s)" % labname)
         fulllabname = os.path.join(LABS_ROOT, labname)
         if labname == "etc" or labname == "bin":
-            labutils.logger.DEBUG("skipping etc or bin")
+            labutils.logger.debug("skipping etc or bin")
             continue
 
         if os.path.isdir(fulllabname):
-            labutils.logger.DEBUG("(%s) is directory - assume (%s) is a labname" % (fulllabname, labname))
+            labutils.logger.debug("(%s) is directory - assume (%s) is a labname" % (fulllabname, labname))
     
             # RegressTest will do test following:
 	    dir_path = os.path.dirname(os.path.realpath(__file__))
 	    dir_path = dir_path[:dir_path.index("scripts")] 
 	    dir_path += "testsets/labs/" + labname
             if not os.path.isdir(dir_path):
-                labutils.logger.INFO("no tests found for "+labname)
+                labutils.logger.info("no tests found for "+labname)
                 continue
 
 	    crude_standards = os.listdir(dir_path)

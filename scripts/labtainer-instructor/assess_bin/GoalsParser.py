@@ -67,7 +67,7 @@ def getRandom(bounds, type, logger):
         if use_integer == True:
             # Inconsistent format of lowerbound (integer format)
             # vs upperbound (hexadecimal format)
-            logger.ERROR("inconsistent lowerbound (%s) & upperbound (%s) format\n"
+            logger.error("inconsistent lowerbound (%s) & upperbound (%s) format\n"
                             % (lowerboundstr, upperboundstr))
             sys.exit(1)
         use_integer = False
@@ -77,7 +77,7 @@ def getRandom(bounds, type, logger):
     #print "lowerbound is (%d)" % lowerbound_int
     #print "upperbound is (%d)" % upperbound_int
     if lowerbound_int > upperbound_int:
-        logger.ERROR("lowerbound greater than upperbound\n")
+        logger.error("lowerbound greater than upperbound\n")
         sys.exit(1)
     if type == "asciirandom":
         # Make sure lowerbound/upperbound in ASCII printable characters range
@@ -85,7 +85,7 @@ def getRandom(bounds, type, logger):
         ASCIIlowrange = 33
         ASCIIhighrange = 126
         if (lowerbound_int < ASCIIlowrange or upperbound_int > ASCIIhighrange):
-            logger.ERROR("ASCII lowerbound (%s) & upperbound (%s) outside printable\n"
+            logger.error("ASCII lowerbound (%s) & upperbound (%s) outside printable\n"
                             % (lowerboundstr, upperboundstr))
             sys.exit(1)
     random_int = random.randint(lowerbound_int, upperbound_int)
@@ -104,7 +104,7 @@ def getTagValue(parameter_list, target, finaltag, logger):
     else:
         if target.startswith('parameter'):
             if finaltag not in parameter_list:
-                logger.ERROR('Could not find parameter %s' % finaltag)
+                logger.error('Could not find parameter %s' % finaltag)
                 sys.exit(1)
             value = parameter_list[finaltag]
             if target.lower() == "parameter_ascii":
@@ -113,7 +113,7 @@ def getTagValue(parameter_list, target, finaltag, logger):
                 else: 
                     num = int(value)
                 if num not in range(41, 177):
-                    logger.ERROR('parameter_ascii value %s not in ascii range' % value)
+                    logger.error('parameter_ascii value %s not in ascii range' % value)
                     sys.exit(1)
                 value = chr(num)
             returnTagValue = 'answer=%s' % value
@@ -128,10 +128,10 @@ def ValidateTag(parameter_list, studentdir, goal_type, inputtag, allowed_special
     returntag = ""
     if '=' in inputtag:
         if not allowed_special_answer:
-            logger.ERROR("goals.config only answertag is allowed answer=<string>, resulttag (%s) is not" % inputtag)
+            logger.error("goals.config only answertag is allowed answer=<string>, resulttag (%s) is not" % inputtag)
             sys.exit(1)
         if goal_type == "matchacross":
-            logger.ERROR("goals.config answer=<string> and goal_type==matchacross is not allowed")
+            logger.error("goals.config answer=<string> and goal_type==matchacross is not allowed")
             sys.exit(1)
         (target, finaltag) = inputtag.split('=')
         returntag = getTagValue(parameter_list, target, finaltag, logger)
@@ -139,20 +139,20 @@ def ValidateTag(parameter_list, studentdir, goal_type, inputtag, allowed_special
     elif inputtag.startswith('(') and inputtag.endswith(')'):
         returntag = 'result.%s' % inputtag
     elif '.' in inputtag:
-        logger.DEBUG("tag %s contains '.'" % inputtag)
+        logger.debug("tag %s contains '.'" % inputtag)
         (target, finaltag) = inputtag.split('.')
         if not target in answer_tokens:
-            logger.ERROR("goals.config tag=<string> then tag must be:(%s), got %s" % (','.join(answer_tokens), inputtag))
+            logger.error("goals.config tag=<string> then tag must be:(%s), got %s" % (','.join(answer_tokens), inputtag))
             sys.exit(1)
         if not MyUtil.CheckAlphaDashUnder(finaltag):
-            logger.ERROR("Invalid characters in goals.config's tag (%s)" % inputtag)
+            logger.error("Invalid characters in goals.config's tag (%s)" % inputtag)
             sys.exit(1)
 
         returntag = getTagValue(parameter_list, target, finaltag, logger)
     else:
-        logger.DEBUG("tag is %s" % inputtag)
+        logger.debug("tag is %s" % inputtag)
         if not MyUtil.CheckAlphaDashUnder(inputtag):
-            logger.ERROR("Invalid characters in goals.config's tag (%s)" % inputtag)
+            logger.error("Invalid characters in goals.config's tag (%s)" % inputtag)
             sys.exit(1)
         returntag = 'result.%s' % inputtag
 
@@ -164,7 +164,7 @@ def GetLabInstanceSeed(studentdir, logger):
     with open(seed_dir) as fh:
         student_lab_instance_seed = fh.read().strip()
     if student_lab_instance_seed is None:
-        logger.ERROR('could not get lab instance seed from %s' % seed_dir)
+        logger.error('could not get lab instance seed from %s' % seed_dir)
         sys.exit(1)
     return student_lab_instance_seed
 
@@ -189,18 +189,18 @@ def ParseGoals(homedir, studentdir, logger_in):
         linestrip = line.rstrip()
         if linestrip:
             if not linestrip.startswith('#'):
-                logger.DEBUG("Current linestrip is (%s)" % linestrip)
+                logger.debug("Current linestrip is (%s)" % linestrip)
                 try:
                     (each_key, each_value) = linestrip.split('=', 1)
                 except:
-                     logger.ERROR('goal lacks "=" character, %s' % linestrip)
+                     logger.error('goal lacks "=" character, %s' % linestrip)
                      sys.exit(1)
                 each_key = each_key.strip()
                 if not MyUtil.CheckAlphaDashUnder(each_key):
-                    logger.ERROR("Invalid characters in goals.config's key (%s)" % each_key)
+                    logger.error("Invalid characters in goals.config's key (%s)" % each_key)
                     sys.exit(1)
                 if len(each_key) > 15:
-                    logger.DEBUG("goal (%s) is more than 15 characters long\n" % each_key)
+                    logger.debug("goal (%s) is more than 15 characters long\n" % each_key)
 
                 values = []
                 # expecting - either:
@@ -209,9 +209,9 @@ def ParseGoals(homedir, studentdir, logger_in):
                 # <type> : <string>
                 values = each_value.split(" : ")
                 numvalues = len(values)
-                logger.DEBUG('numvalues is %d  values are: %s' % (numvalues, str(values)))
+                logger.debug('numvalues is %d  values are: %s' % (numvalues, str(values)))
                 if not (numvalues == 4 or numvalues == 3 or numvalues == 2):
-                    logger.ERROR("goals.config contains unexpected value (%s) format" % each_value)
+                    logger.error("goals.config contains unexpected value (%s) format" % each_value)
                     sys.exit(1)
                 if numvalues == 4:
                     ''' <type> : <operator> : <resulttag> : <answertag> '''
@@ -228,8 +228,8 @@ def ParseGoals(homedir, studentdir, logger_in):
                         goal_type == "count" or
                         goal_type == "value" or
                         goal_type == "execute"):
-                        logger.ERROR("Error found in line (%s)" % linestrip)
-                        logger.ERROR("goals.config contains unrecognized type (1) (%s)" % goal_type)
+                        logger.error("Error found in line (%s)" % linestrip)
+                        logger.error("goals.config contains unrecognized type (1) (%s)" % goal_type)
                         sys.exit(1)
                     if not (goal_type == "execute"):
                         # If goal_type is not 'execute' then check the goal_operator
@@ -241,15 +241,15 @@ def ParseGoals(homedir, studentdir, logger_in):
                             goal_operator == "integer_equal" or
                             goal_operator == "integer_greater" or
                             goal_operator == "integer_lessthan"):
-                            logger.ERROR("Error found in line (%s)" % linestrip)
-                            logger.ERROR("goals.config contains unrecognized operator (%s)" % (goal_operator))
+                            logger.error("Error found in line (%s)" % linestrip)
+                            logger.error("goals.config contains unrecognized operator (%s)" % (goal_operator))
                             sys.exit(1)
                     else:
                         # Make sure the file to be executed exist
                         execfile = os.path.join(MYHOME, '.local', 'bin', goal_operator)
                         if not (os.path.exists(execfile) and os.path.isfile(execfile)):
-                            logger.ERROR("Error found in line (%s)" % linestrip)
-                            logger.ERROR("goals.config contains execute goals with missing exec file (%s)" % (goal_operator))
+                            logger.error("Error found in line (%s)" % linestrip)
+                            logger.error("goals.config contains execute goals with missing exec file (%s)" % (goal_operator))
                             sys.exit(1)
                     nametags.append(MyGoal(each_key, goal_type, goaloperator=goal_operator, answertag=valid_answertag, resulttag=valid_resulttag))
                     #print "goal_type non-boolean"
@@ -266,7 +266,7 @@ def ParseGoals(homedir, studentdir, logger_in):
                         subgoal_list = values[2].strip()
                         nametags.append(MyGoal(each_key, goal_type, answertag=answertag, boolean_string=subgoal_list))
                     else:
-                        logger.ERROR('Could not parse goals.config line %s' % each_value)
+                        logger.error('Could not parse goals.config line %s' % each_value)
                         sys.exit(1)
                     #print "goal_type non-boolean"
                     #print nametags[each_key].goal_dict()
@@ -284,10 +284,10 @@ def ParseGoals(homedir, studentdir, logger_in):
                         resulttag = values[1].strip()
                         nametags.append(MyGoal(each_key, goal_type, resulttag=resulttag))
                     elif goal_type == 'count_greater':
-                        logger.ERROR('missing count_greater value in %s ?' % linestrip)
+                        logger.error('missing count_greater value in %s ?' % linestrip)
                         sys.exit(1)
                     else:
-                        logger.ERROR('Could not parse goals.config line %s' % linestrip)
+                        logger.error('Could not parse goals.config line %s' % linestrip)
                         sys.exit(1)
        
                     #print "goal_type boolean"

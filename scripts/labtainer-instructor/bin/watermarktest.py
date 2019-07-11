@@ -72,15 +72,15 @@ def main():
 
     for labname in sorted(finallabnamelist):
         labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
-        labutils.logger.INFO("Begin logging watermarktest.py for %s lab" % labname)
-        labutils.logger.DEBUG("Current name is (%s)" % labname)
+        labutils.logger.info("Begin logging watermarktest.py for %s lab" % labname)
+        labutils.logger.debug("Current name is (%s)" % labname)
         fulllabname = os.path.join(LABS_ROOT, labname)
         if labname == "etc" or labname == "bin":
-            labutils.logger.DEBUG("skipping etc or bin")
+            labutils.logger.debug("skipping etc or bin")
             continue
 
         if os.path.isdir(fulllabname):
-            labutils.logger.DEBUG("(%s) is directory - assume (%s) is a labname" % (fulllabname, labname))
+            labutils.logger.debug("(%s) is directory - assume (%s) is a labname" % (fulllabname, labname))
     
             # Watermark will do test following:
             # 1. This will stop containers of a lab, create or update lab images and start the containers.
@@ -91,7 +91,7 @@ def main():
 	    dir_path = dir_path[:dir_path.index("trunk")] 
 	    dir_path += "trunk/testsets/watermark/" + labname
             if not os.path.isdir(dir_path):
-                labutils.logger.INFO("no tests found for "+labname)
+                labutils.logger.info("no tests found for "+labname)
                 continue
 
 	    crude_standards = os.listdir(dir_path)

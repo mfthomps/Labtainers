@@ -10,8 +10,8 @@ domain and is not subject to copyright.
 '''
 
 '''
-Stop a given Labtainers lab.  If no arguments are given, then all running
-labs will be stopped.
+Check work on (automated assessment) on the currently running lab, or
+a given lab name.
 '''
 
 import sys
@@ -22,15 +22,22 @@ import LabtainerLogging
 import CurrentLab
 import argparse
 import imp
-sys.path.append('../labtainer-instructor/bin')
-sys.path.append('../labtainer-instructor/assess_bin')
+here = os.path.dirname(os.path.abspath(__file__))
+lab_bin_dir = os.path.join(here, '../lab_bin')
+sys.path.append(here)
+sys.path.append(lab_bin_dir)
+student_dir = os.path.dirname(here)
+scripts_dir = os.path.dirname(os.path.dirname(here))
+assess_bin_path = os.path.join(scripts_dir, 'labtainer-instructor', 'assess_bin')
+instruct_bin_path = os.path.join(scripts_dir, 'labtainer-instructor', 'bin')
+sys.path.append(assess_bin_path)
+sys.path.append(instruct_bin_path)
+grade_lab_path = os.path.join(scripts_dir, 'labtainer-instructor', 'bin', 'gradelab')
+orig_dir=os.getcwd()
+os.chdir(student_dir)
+gradelab = imp.load_source('gradelab', grade_lab_path)
 
-gradelab = imp.load_source('gradelab', '../labtainer-instructor/bin/gradelab')
 
-
-# Usage: stop.py <labname>
-# Arguments:
-#    <labname> - the lab to stop
 def main():
     parser = argparse.ArgumentParser(description='Check your work for a lab.  If no lab name is given, the currently running lab is checked')
     parser.add_argument('lab', nargs='?')
@@ -42,10 +49,9 @@ def main():
         labname = args.lab
         if labname not in lablist:
             print('%s lab is not running, looking for previous results...' % args.lab)
-            here=os.getcwd()
             os.chdir('../labtainer-instructor')
             gradelab.doGrade(labname, False, False, True, False)
-            os.chdir(here)
+            os.chdir(orig_dir)
             sys.exit(0)
         labutils.logger = LabtainerLogging.LabtainerLogging("checkwork.log", labname, "../../config/labtainer.config")
     else:
@@ -59,7 +65,7 @@ def main():
         else:
             labname = lablist[0]
 
-    labutils.logger.INFO("Begin logging checkwork for %s lab" % labname)
+    labutils.logger.debug("Begin logging checkwork for %s lab" % labname)
     
     lab_path = os.path.join(os.path.abspath('../../labs'), labname)
     labtainer_config, start_config = labutils.GetBothConfigs(lab_path, labutils.logger)
@@ -75,23 +81,23 @@ def main():
         has_lab_role, labnamelist = labutils.GetRunningLabNames(running_containers_list)
         if has_lab_role:
             if labname not in labnamelist:
-                labutils.logger.ERROR("No lab named %s in currently running labs!" % labname)
+                labutils.logger.debug("No lab named %s in currently running labs!" % labname)
                 sys.exit(1)
         else:
-            labutils.logger.ERROR("Student is not running any labs")
+            labutils.logger.debug("Student is not running any labs")
             sys.exit(1)
     else:
         print("No labs are running")
-        labutils.logger.DEBUG("No labs are running")
+        labutils.logger.debug("No labs are running")
         sys.exit(1)
     current_lab = CurrentLab.CurrentLab()
     clone_count = current_lab.get('clone_count')        
     servers = current_lab.get('servers')        
     labutils.StopLab(lab_path, False, servers=servers, clone_count=clone_count, keep_running=True)
-    here=os.getcwd()
     os.chdir('../labtainer-instructor')
+    print('cwd is %s' % os.getcwd())
     gradelab.doGrade(labname, False, False, True, False, copy_json = False)
-    os.chdir(here)
+    os.chdir(orig_dir)
 
 
     return 0

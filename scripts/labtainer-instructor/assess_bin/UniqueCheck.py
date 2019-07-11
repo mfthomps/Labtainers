@@ -38,7 +38,7 @@ def findLineIndex(values):
 def ValidateUniqueConfig(actual_parsing, studentlabdir, container_list, labidname, each_key, each_value, logger):
     valid_field_types = ['CHECKSUM']
     if not MyUtil.CheckAlphaDashUnder(each_key):
-        logger.ERROR("Not allowed characters in unique.config's key (%s)" % each_key)
+        logger.error("Not allowed characters in unique.config's key (%s)" % each_key)
         sys.exit(1)
     values = []
     # expecting:
@@ -49,18 +49,18 @@ def ValidateUniqueConfig(actual_parsing, studentlabdir, container_list, labidnam
     values = [x.strip() for x in each_value.split(' : ')]
     #print values
     numvalues = len(values)
-    logger.DEBUG("each_value is %s -- numvalues is (%d)" % (each_value, numvalues))
+    logger.debug("each_value is %s -- numvalues is (%d)" % (each_value, numvalues))
     if numvalues < 2:
-        logger.ERROR("found no ':' delimiter in %s" % each_value)
+        logger.error("found no ':' delimiter in %s" % each_value)
         sys.exit(1)
     if numvalues < 3 and values[1] not in line_types:
-        logger.ERROR("Offending line: (%s).\n Perhaps there is a missing ':'?" % each_value)
-        logger.ERROR("unique.config expected %s to be one of these: %s." % (values[1], str(line_types)))
+        logger.error("Offending line: (%s).\n Perhaps there is a missing ':'?" % each_value)
+        logger.error("unique.config expected %s to be one of these: %s." % (values[1], str(line_types)))
         sys.exit(1)
 
     line_at = findLineIndex(values)
     if line_at is None:
-        logger.ERROR('No line_type in %s' % each_value)
+        logger.error('No line_type in %s' % each_value)
         sys.exit(1)
     num_splits = line_at+1
     #print "line_at is (%d) and num_splits is (%d)" % (line_at, num_splits)
@@ -69,13 +69,13 @@ def ValidateUniqueConfig(actual_parsing, studentlabdir, container_list, labidnam
     values = [x.strip() for x in each_value.split(' : ', num_splits)]
 
     newfilename = values[0].strip()
-    logger.DEBUG('newfilename is %s' % newfilename)
+    logger.debug('newfilename is %s' % newfilename)
     # <cfgcontainername>:<filename>
     if ':' in newfilename:
         cfgcontainername, filename = newfilename.split(':', 1)
     else:
         if len(container_list) > 1:
-            logger.ERROR('No container name found in multi container lab entry (%s = %s)' % (each_key, each_value))
+            logger.error('No container name found in multi container lab entry (%s = %s)' % (each_key, each_value))
             sys.exit(1)
         cfgcontainername = ""
         filename = newfilename
@@ -94,7 +94,7 @@ def handleUniqueConfig(labidname, line, nametags, studentlabdir, container_list,
     retval = True
     targetlines = None
     #print('line is %s' % line)
-    logger.DEBUG('line is %s' % line)
+    logger.debug('line is %s' % line)
     (each_key, each_value) = line.split('=', 1)
     each_key = each_key.strip()
 
@@ -108,7 +108,7 @@ def handleUniqueConfig(labidname, line, nametags, studentlabdir, container_list,
     # NOTE: Split using ' : ' - i.e., "space colon space"
     values = [x.strip() for x in each_value.split(' : ', num_splits)]
     newtargetfile = values[0].strip()
-    logger.DEBUG('line_at is %d newtargetvalue = %s, values: %s' % (line_at, newtargetfile, str(values)))
+    logger.debug('line_at is %d newtargetvalue = %s, values: %s' % (line_at, newtargetfile, str(values)))
     #print('newtargetfile is %s' % newtargetfile)
     # <cfgcontainername>:<exec_program>.<type>
     containername = None
@@ -127,10 +127,10 @@ def handleUniqueConfig(labidname, line, nametags, studentlabdir, container_list,
     if targetfile.startswith('/'):
         targetfile = os.path.join(result_home, targetfile[1:])
     #print('targetfile is %s containername is %s' % (targetfile, containername))
-    logger.DEBUG('targetfile is %s, containername is %s' % (targetfile, containername))
+    logger.debug('targetfile is %s, containername is %s' % (targetfile, containername))
     if containername is not None and containername not in container_list:
         print "Config line (%s) containername %s not in container list (%s), skipping..." % (line, containername, str(container_list))
-        logger.DEBUG("Config line (%s) containername %s not in container list (%s), skipping..." % (line, 
+        logger.debug("Config line (%s) containername %s not in container list (%s), skipping..." % (line, 
               containername, str(container_list)))
         # set nametags - value pair to NONE
         nametags[targetfile] = "NONE"
@@ -155,7 +155,7 @@ def handleUniqueConfig(labidname, line, nametags, studentlabdir, container_list,
         if not os.path.exists(current_targetfname):
             # If file does not exist, treat as can't find token
             token = "NONE"
-            logger.DEBUG("No %s file does not exist\n" % current_targetfname)
+            logger.debug("No %s file does not exist\n" % current_targetfname)
             nametags[targetfile] = token
             return False
         else:
@@ -179,7 +179,7 @@ def handleUniqueConfig(labidname, line, nametags, studentlabdir, container_list,
             else:
                 # config file should have been validated
                 # - if still unknown command, then should exit
-                logger.ERROR('unknown command %s' % command)
+                logger.error('unknown command %s' % command)
                 sys.exit(1)
 
 def handleFileUniqueCheck(studentlabdir, labidname, configfilelines, outputjsonfname, container_list, logger):
@@ -227,7 +227,7 @@ def ParseUniqueConfig(actual_parsing, homedir, studentlabdir, container_list, la
                 try:
                     (each_key, each_value) = linestrip.split('=', 1)
                 except:
-                     logger.ERROR('missing "=" character in %s' % linestrip)
+                     logger.error('missing "=" character in %s' % linestrip)
                      sys.exit(1)
                 each_key = each_key.strip()
                 newfilename = ValidateUniqueConfig(actual_parsing, studentlabdir, container_list, labidname, each_key, each_value, logger)
@@ -246,7 +246,7 @@ def UniqueCheck(homedir, studentlabdir, container_list, instructordir, labidname
     configfilelines, uniquelist = ParseUniqueConfig(actual_parsing, homedir, studentlabdir, container_list, labidname, logger_in)
 
     jsonoutputfilename = labidname
-    logger.DEBUG("UniqueCheck: jsonoutputfilename is (%s) studentlabdir %s" % (jsonoutputfilename, studentlabdir))
+    logger.debug("UniqueCheck: jsonoutputfilename is (%s) studentlabdir %s" % (jsonoutputfilename, studentlabdir))
   
     del logfilelist[:]
 
@@ -255,7 +255,7 @@ def UniqueCheck(homedir, studentlabdir, container_list, instructordir, labidname
     #print "logfilelist is: "
     #print logfilelist
     OUTPUTRESULTHOME = '%s/%s' % (studentlabdir, ".local/result/")
-    logger.DEBUG('Done with validate, outputresult to %s' % OUTPUTRESULTHOME)
+    logger.debug('Done with validate, outputresult to %s' % OUTPUTRESULTHOME)
 
     if not os.path.exists(OUTPUTRESULTHOME):
         os.makedirs(OUTPUTRESULTHOME)

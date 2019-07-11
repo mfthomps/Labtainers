@@ -73,7 +73,7 @@ def VerifyBashScriptExecutable(lab_path, labname, logger):
     for eachfile in bashfiles:
         f_stat = os.stat(eachfile)
         if not f_stat.st_mode & stat.S_IXUSR:
-            logger.WARNING("File (%s) not executable!\n" % eachfile)
+            logger.warning("File (%s) not executable!\n" % eachfile)
     
 
 def VerifyDockerVsStartConfig(lab_path, labname, logger):
@@ -95,24 +95,24 @@ def VerifyDockerVsStartConfig(lab_path, labname, logger):
              for container_name, container in start_config.containers.items():
                  if mycontainername == container_name:
                      if not (container.script == "" or container.script == "none"):
-                         logger.WARNING("Expecting SCRIPT NONE setting for labtainer.centos or labtainer.lamp!\n")
+                         logger.warning("Expecting SCRIPT NONE setting for labtainer.centos or labtainer.lamp!\n")
 
              has_cmd_init = check_cmdinit(eachfile)
              if not has_cmd_init:
-                 logger.WARNING('Expecting (CMD ["/usr/sbin/init"]) setting for labtainer.centos or labtainer.lamp!\n')
+                 logger.warning('Expecting (CMD ["/usr/sbin/init"]) setting for labtainer.centos or labtainer.lamp!\n')
 
          if (uses_labtainer_firefox or uses_labtainer_java):
              for container_name, container in start_config.containers.items():
                  if mycontainername == container_name:
                      if not (container.x11 == "yes"):
-                         logger.WARNING("Expecting X11 YES setting for labtainer.firefox or labtainer.java!\n")
+                         logger.warning("Expecting X11 YES setting for labtainer.firefox or labtainer.java!\n")
 
 
 def VerifyHomeTar(lab_path, labname, logger):
     hometar = "%s/*/home_tar/home.tar" % lab_path
-    logger.DEBUG("home tar (%s)" % hometar)
+    logger.debug("home tar (%s)" % hometar)
     hometarlist = glob.glob(hometar)
-    logger.DEBUG("home tar list (%s)" % hometarlist)
+    logger.debug("home tar list (%s)" % hometarlist)
 
     for eachhometar in hometarlist:
         pathsplit = eachhometar.split(lab_path)
@@ -134,13 +134,13 @@ def VerifyHomeTar(lab_path, labname, logger):
                     tarlinefound = True
                     break
         if not tarlinefound:
-            logger.WARNING("Expecting line (ADD $labdir/$imagedir/home_tar/home.tar $HOME) in Dockerfile!\n")
+            logger.warning("Expecting line (ADD $labdir/$imagedir/home_tar/home.tar $HOME) in Dockerfile!\n")
         
 def VerifySysTar(lab_path, labname, logger):
     systar = "%s/*/sys_tar/sys.tar" % lab_path
-    logger.DEBUG("sys tar (%s)" % systar)
+    logger.debug("sys tar (%s)" % systar)
     systarlist = glob.glob(systar)
-    logger.DEBUG("sys tar list (%s)" % systarlist)
+    logger.debug("sys tar list (%s)" % systarlist)
 
     for eachsystar in systarlist:
         pathsplit = eachsystar.split(lab_path)
@@ -162,7 +162,7 @@ def VerifySysTar(lab_path, labname, logger):
                     tarlinefound = True
                     break
         if not tarlinefound:
-            logger.WARNING("Expecting line (ADD $labdir/$imagedir/sys_tar/sys.tar /) in Dockerfile!\n")
+            logger.warning("Expecting line (ADD $labdir/$imagedir/sys_tar/sys.tar /) in Dockerfile!\n")
         
 
 def DoSaneChecks(lab_path, labname, logger):
@@ -183,8 +183,8 @@ def main():
     labname = sys.argv[1]
 
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
-    labutils.logger.INFO("Begin logging checklab.py for %s lab" % labname)
-    labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
+    labutils.logger.info("Begin logging checklab.py for %s lab" % labname)
+    labutils.logger.debug("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
     lab_path = os.path.join(os.path.abspath('../../labs'), labname)
     DoSaneChecks(lab_path, labname, labutils.logger)
     return 0

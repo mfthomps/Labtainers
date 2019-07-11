@@ -50,7 +50,7 @@ def main():
         force_build = args.force
     #print('force %s quiet %s container %s' % (force_build, quiet_start, args.container))
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", args.labname, "../../config/labtainer.config")
-    labutils.logger.INFO("Begin logging Rebuild.py for %s lab" % args.labname)
+    labutils.logger.info("Begin logging Rebuild.py for %s lab" % args.labname)
     lab_path = os.path.join(os.path.abspath('../../labs'), args.labname)
 
     if args.test_registry:

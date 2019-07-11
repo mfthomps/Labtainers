@@ -68,18 +68,18 @@ def validate_parameter_result(parameter_list, resultidlist, goals, inputtag):
             if inputtagstring.startswith('(') and inputtagstring.endswith(')'):
                 express = inputtagstring[inputtagstring.find("(")+1:inputtagstring.find(")")]
                 for tag in resultidlist:
-                    labutils.logger.DEBUG('is tag %s in express %s' % (tag, express))
+                    labutils.logger.debug('is tag %s in express %s' % (tag, express))
                     if tag in express:
                         # Replace each occurence of tag with 2
                         express = express.replace(tag, "2")
                 try:
-                    labutils.logger.DEBUG('try eval of <%s>' % express)
+                    labutils.logger.debug('try eval of <%s>' % express)
                     result = evalExpress.eval_expr(express)
                 except:
-                    labutils.logger.ERROR('could not evaluation %s, which became %s' % (inputtagstring, express))
+                    labutils.logger.error('could not evaluation %s, which became %s' % (inputtagstring, express))
                     validate_ok = False
             else:
-                labutils.logger.ERROR('invalid tag %s' % inputtagstring)
+                labutils.logger.error('invalid tag %s' % inputtagstring)
                 validate_ok = False
     else:
         validate_ok = False
@@ -90,7 +90,7 @@ def check_count(parameter_list, resultidlist, goals, jsongoalid, jsonresulttag):
     # Make sure the resulttag is valid - no special case for resulttag
     validate_resulttag_ok = validate_parameter_result(parameter_list, resultidlist, goals, jsonresulttag)
     if not validate_resulttag_ok:
-        labutils.logger.ERROR("ERROR: Goals goalid (%s) has invalid resulttag (%s)" % (jsongoalid, jsonresulttag))
+        labutils.logger.error("ERROR: Goals goalid (%s) has invalid resulttag (%s)" % (jsongoalid, jsonresulttag))
 
     if not validate_resulttag_ok:
         found_error = True
@@ -101,7 +101,7 @@ def check_countgreater(parameter_list, resultidlist, goals, jsongoalid, jsonansw
     try:
         value = int(jsonanswertag)
     except:
-        labutils.logger.ERROR("ERROR: Goals goalid (%s) has invalid int (%s)" % (jsongoalid, jsonanswertag))
+        labutils.logger.error("ERROR: Goals goalid (%s) has invalid int (%s)" % (jsongoalid, jsonanswertag))
     # boolean_string must start with '(' and end with ')'
     # and contains comma separated goals
     validate_ok = True
@@ -121,11 +121,11 @@ def check_countgreater(parameter_list, resultidlist, goals, jsongoalid, jsonansw
             if found_goaltag_in_goals:
                 continue
             else:
-                labutils.logger.ERROR('invalid goal %s in %s' % (goaltag, boolean_string))
+                labutils.logger.error('invalid goal %s in %s' % (goaltag, boolean_string))
                 validate_ok = False
                 break
     else:
-        labutils.logger.ERROR('ERROR: expected goals %s in parens' % boolean_string)
+        labutils.logger.error('ERROR: expected goals %s in parens' % boolean_string)
         validate_ok = False
     if not validate_ok:
         found_error = True
@@ -146,7 +146,7 @@ def check_temporal(parameter_list, resultidlist, goals, jsongoalid, goal1tag, go
                 break
     if not found_goaltag_in_goals:
         goal1tag_ok = False
-        labutils.logger.ERROR("ERROR: Goals goalid (%s) has invalid goal1tag (%s)" % (jsongoalid, goal1tag))
+        labutils.logger.error("ERROR: Goals goalid (%s) has invalid goal1tag (%s)" % (jsongoalid, goal1tag))
     # goal2tag must be in goals otherwise it is an error
     found_goaltag_in_goals = False
     if goal2tag in resultidlist:
@@ -158,7 +158,7 @@ def check_temporal(parameter_list, resultidlist, goals, jsongoalid, goal1tag, go
                 break
     if not found_goaltag_in_goals:
         goal2tag_ok = False
-        labutils.logger.ERROR("ERROR: Goals goalid (%s) has invalid goal2tag (%s)" % (jsongoalid, goal2tag))
+        labutils.logger.error("ERROR: Goals goalid (%s) has invalid goal2tag (%s)" % (jsongoalid, goal2tag))
     if not (goal1tag_ok and goal2tag_ok):
         found_error = True
     return found_error
@@ -189,11 +189,11 @@ def check_boolean(parameter_list, bool_results, goals, jsongoalid, boolean_strin
             if found_goaltag_in_goals:
                 continue
             else:
-                labutils.logger.ERROR('invalid goal %s in %s' % (goaltag, boolean_string))
+                labutils.logger.error('invalid goal %s in %s' % (goaltag, boolean_string))
                 validate_ok = False
                 break
     else:
-        labutils.logger.ERROR('ERROR: expected goals %s in parens' % boolean_string)
+        labutils.logger.error('ERROR: expected goals %s in parens' % boolean_string)
         validate_ok = False
     if not validate_ok:
         found_error = True
@@ -215,12 +215,12 @@ def check_execute(parameter_list, resultidlist, goals, jsongoalid, executefilepa
     else:
         validate_answertag_ok = validate_parameter_result(parameter_list, resultidlist, goals, jsonanswertag)
     if not validate_answertag_ok:
-        labutils.logger.ERROR("ERROR: Goals goalid (%s) has invalid answertag (%s)" % (jsongoalid, jsonanswertag))
+        labutils.logger.error("ERROR: Goals goalid (%s) has invalid answertag (%s)" % (jsongoalid, jsonanswertag))
 
     # Make sure the resulttag is valid - resulttag can't have 'answer=<string>'
     validate_resulttag_ok = validate_parameter_result(parameter_list, resultidlist, goals, jsonresulttag)
     if not validate_resulttag_ok:
-        labutils.logger.ERROR("ERROR: Goals goalid (%s) has invalid resulttag (%s)" % (jsongoalid, jsonresulttag))
+        labutils.logger.error("ERROR: Goals goalid (%s) has invalid resulttag (%s)" % (jsongoalid, jsonresulttag))
 
     if not (executefile_ok and validate_answertag_ok and validate_resulttag_ok):
         found_error = True
@@ -238,13 +238,13 @@ def check_matches(parameter_list, resultidlist, goals, jsongoalid, jsonanswertag
     else:
         validate_answertag_ok = validate_parameter_result(parameter_list, resultidlist, goals, jsonanswertag)
     if not validate_answertag_ok:
-        labutils.logger.ERROR("ERROR: Goals goalid (%s) has invalid answertag (%s)" % (jsongoalid, jsonanswertag))
+        labutils.logger.error("ERROR: Goals goalid (%s) has invalid answertag (%s)" % (jsongoalid, jsonanswertag))
 
     validate_resulttag_ok = True
     # Make sure the resulttag is valid - no special case for resulttag
     validate_resulttag_ok = validate_parameter_result(parameter_list, resultidlist, goals, jsonresulttag)
     if not validate_resulttag_ok:
-        labutils.logger.ERROR("ERROR: Goals goalid (%s) has invalid resulttag (%s)" % (jsongoalid, jsonresulttag))
+        labutils.logger.error("ERROR: Goals goalid (%s) has invalid resulttag (%s)" % (jsongoalid, jsonresulttag))
 
     if not (validate_answertag_ok and validate_resulttag_ok):
         found_error = True
@@ -252,20 +252,20 @@ def check_matches(parameter_list, resultidlist, goals, jsongoalid, jsonanswertag
     return found_error
 
 def validate_goals(parameter_list, resultidlist, goals, bool_results):
-    #labutils.logger.DEBUG("Result ID list is ")
-    #labutils.logger.DEBUG(resultidlist)
-    #labutils.logger.DEBUG("Parameter list is ")
-    #labutils.logger.DEBUG(parameter_list)
-    #labutils.logger.DEBUG("Goals list is ")
-    #labutils.logger.DEBUG(goals)
+    #labutils.logger.debug("Result ID list is ")
+    #labutils.logger.debug(resultidlist)
+    #labutils.logger.debug("Parameter list is ")
+    #labutils.logger.debug(parameter_list)
+    #labutils.logger.debug("Goals list is ")
+    #labutils.logger.debug(goals)
     found_error = False
     for eachgoal in goals:
-        #labutils.logger.DEBUG("Current goal is ")
-        #labutils.logger.DEBUG(eachgoal)
-        #labutils.logger.DEBUG("    goalid is (%s)" % eachgoal['goalid'])
-        #labutils.logger.DEBUG("    goaltype is (%s)" % eachgoal['goaltype'])
-        #labutils.logger.DEBUG("    answertag is (%s)" % eachgoal['answertag'])
-        #labutils.logger.DEBUG("    resulttag is (%s)" % eachgoal['resulttag'])
+        #labutils.logger.debug("Current goal is ")
+        #labutils.logger.debug(eachgoal)
+        #labutils.logger.debug("    goalid is (%s)" % eachgoal['goalid'])
+        #labutils.logger.debug("    goaltype is (%s)" % eachgoal['goaltype'])
+        #labutils.logger.debug("    answertag is (%s)" % eachgoal['answertag'])
+        #labutils.logger.debug("    resulttag is (%s)" % eachgoal['resulttag'])
         jsongoalid = eachgoal['goalid']
         jsongoaltype = eachgoal['goaltype']
 
@@ -300,7 +300,7 @@ def validate_goals(parameter_list, resultidlist, goals, bool_results):
             validate_resulttag_ok = validate_parameter_result(parameter_list, resultidlist, goals, jsonresulttag)
             if not validate_resulttag_ok:
                 found_error = True
-                labutils.logger.ERROR("ERROR: Goals goalid (%s) has invalid resulttag (%s)" % (jsongoalid, jsonresulttag))
+                labutils.logger.error("ERROR: Goals goalid (%s) has invalid resulttag (%s)" % (jsongoalid, jsonresulttag))
         else:
             sys.stdout.write("Error: Invalid goal type: %s\n eachgoal is %s" % (jsongoaltype, str(eachgoal)))
             sys.exit(1)
@@ -337,7 +337,7 @@ def setup_to_validate(lab_path, labname, validatetestsets, validatetestsets_path
             # instruction.txt file path
             instruction_path = "%s/%s/instructions.txt" % (lab_path, container_name)
             if not (os.path.exists(instruction_path) and os.path.isfile(instruction_path)):
-                logger.WARNING("container %s instruction_path file %s not found" % (container_name, instruction_path))
+                logger.warning("container %s instruction_path file %s not found" % (container_name, instruction_path))
 
     lab_master_seed = start_config.lab_master_seed
     # Create hash using LAB_MASTER_SEED concatenated with user's e-mail
@@ -346,7 +346,7 @@ def setup_to_validate(lab_path, labname, validatetestsets, validatetestsets_path
     mymd5 = md5.new()
     mymd5.update(string_to_be_hashed)
     lab_instance_seed = mymd5.hexdigest()
-    labutils.logger.DEBUG("seed %s" % lab_instance_seed)
+    labutils.logger.debug("seed %s" % lab_instance_seed)
 
     # Create files
     LAB_SEEDFILE = os.path.join(TEMPLOCAL, ".seed")
@@ -366,7 +366,7 @@ def setup_to_validate(lab_path, labname, validatetestsets, validatetestsets_path
     mymd5 = md5.new()
     mymd5.update(string_to_be_hashed)
     watermark = mymd5.hexdigest()
-    labutils.logger.DEBUG("watermark %s" % watermark)
+    labutils.logger.debug("watermark %s" % watermark)
     with open(WATERMARK_NAMEFILE, "w") as fh:
         fh.write("%s\n" % watermark)
     fh.close()
@@ -458,7 +458,7 @@ def ValidateTreataslocal(labname, lab_path, resultidlist, logger):
             # Test against corresponding container's treataslocal file (loop through to check)
             treataslocal_path = "%s/%s/_bin/treataslocal" % (lab_path, container_name)
             if not (os.path.exists(treataslocal_path) and os.path.isfile(treataslocal_path)):
-                logger.WARNING("treataslocal file %s not found when validating command %s from %s %s" % (treataslocal_path, execprog, key, progname_type))
+                logger.warning("treataslocal file %s not found when validating command %s from %s %s" % (treataslocal_path, execprog, key, progname_type))
                 user_input=raw_input("Would you like to quit? (yes/no)\n")
                 user_input=user_input.strip().lower()
                 #print "user_input (%s)" % user_input
@@ -467,15 +467,15 @@ def ValidateTreataslocal(labname, lab_path, resultidlist, logger):
             with open(treataslocal_path) as fh:
                  execlist_from_file = [os.path.basename(line.strip()) for line in fh]
             if not execprog in execlist_from_file:
-                 logger.ERROR("treataslocal path %s in treataslocal" % treataslocal_path)
-                 logger.ERROR("result id (%s) has exec program %s not found in treataslocal" % (key, execprog))
+                 logger.error("treataslocal path %s in treataslocal" % treataslocal_path)
+                 logger.error("result id (%s) has exec program %s not found in treataslocal" % (key, execprog))
                  sys.exit(1)
 
 def DoValidate(lab_path, labname, validatetestsets, validatetestsets_path, logger):
     labutils.is_valid_lab(lab_path)
 
     lab_instance_seed, container_list, email_labname = setup_to_validate(lab_path, labname, validatetestsets, validatetestsets_path, logger)
-    logger.DEBUG("container_list (%s)" % container_list)
+    logger.debug("container_list (%s)" % container_list)
  
     LabDirName = os.path.join(TEMPDIR, email_labname)
     # Just validating - not actual parsing
@@ -492,8 +492,8 @@ def DoValidate(lab_path, labname, validatetestsets, validatetestsets_path, logge
     goalsjson = open(goalsjsonfname, "r")
     goals = json.load(goalsjson)
     goalsjson.close()
-    #logger.DEBUG("Goals JSON config is")
-    #logger.DEBUG(goals)
+    #logger.debug("Goals JSON config is")
+    #logger.debug(goals)
 
     return validate_goals(parameter_list, resultidlist, goals, bool_results)
 
@@ -526,8 +526,8 @@ def main():
                 labname = fh.read().strip()
         
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
-    labutils.logger.INFO("Begin logging validate.py for %s lab" % labname)
-    labutils.logger.DEBUG("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
+    labutils.logger.info("Begin logging validate.py for %s lab" % labname)
+    labutils.logger.debug("Instructor CWD = (%s), Student CWD = (%s)" % (instructor_cwd, student_cwd))
     lab_path = os.path.join(os.path.abspath('../../labs'), labname)
     DoValidate(lab_path, labname, validatetestsets, validatetestsets_path, labutils.logger)
     return 0

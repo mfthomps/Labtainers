@@ -48,13 +48,13 @@ class ParseLabtainerConfig():
 
     def mylogdebug(self, message):
         if self.logger != None:
-            self.logger.DEBUG(message)
+            self.logger.debug(message)
             
     def mylog(self, message):
         if self.logger != None:
             traceback.print_exc()
             traceback.print_stack()
-            self.logger.ERROR(message)
+            self.logger.error(message)
         else:
             sys.stderr.write(message)
 
@@ -134,13 +134,13 @@ class ParseLabtainerConfig():
 
     def show_current_settings(self):
         bar = "="*80
-        print bar
+        print(bar)
         print("Global configuration settings:")
-        print bar
+        print(bar)
         for key, val in self.__dict__.items():
             if type(val) == type({}): val = len(val)
-            print "\t" + str(key) + ": " + str(val)
-        print "\n"+bar
+            print("\t" + str(key) + ": " + str(val))
+        print("\n"+bar)
              
 if __name__ == '__main__':
     labtainer_config = ParseLabtainerConfig(*sys.argv[1:])

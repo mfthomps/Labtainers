@@ -51,12 +51,12 @@ def main():
     found_error = False
     for labname in sorted(labnamelist):
         labutils.logger = LabtainerLogging.LabtainerLogging("configtest.log", labname, "../../config/labtainer.config")
-        labutils.logger.INFO("Begin logging configtest.py for %s lab" % labname)
-        labutils.logger.DEBUG("Current test name is (%s)" % labname)
+        labutils.logger.info("Begin logging configtest.py for %s lab" % labname)
+        labutils.logger.debug("Current test name is (%s)" % labname)
         fulllabname = os.path.join(CONFIGTEST_ROOT, labname)
 
         if os.path.isdir(fulllabname):
-            labutils.logger.DEBUG("(%s) is directory - assume (%s) is a labname" % (fulllabname, labname))
+            labutils.logger.debug("(%s) is directory - assume (%s) is a labname" % (fulllabname, labname))
     
             # ConfigTest will do following:
             # 1. Invoke validate.py against the lab - should create a labtainer.log file
@@ -79,22 +79,22 @@ def main():
             fh.close()
             expected_string = expectedlogline[1]
             labtainer_string = labtainerlogline[1]
-            labutils.logger.DEBUG("expected_string is (%s)" % expected_string)
-            labutils.logger.DEBUG("labtainer_string is (%s)" % labtainer_string)
+            labutils.logger.debug("expected_string is (%s)" % expected_string)
+            labutils.logger.debug("labtainer_string is (%s)" % labtainer_string)
 
             if expected_string != labtainer_string:
-                labutils.logger.ERROR("validate (%s) fails!" % labname)
-                labutils.logger.ERROR("expected string (%s)" % expected_string.strip())
-                labutils.logger.ERROR("got this string (%s) instead!" % labtainer_string.strip())
+                labutils.logger.error("validate (%s) fails!" % labname)
+                labutils.logger.error("expected string (%s)" % expected_string.strip())
+                labutils.logger.error("got this string (%s) instead!" % labtainer_string.strip())
                 found_error = True
                 break
 
 
     if found_error:
-        labutils.logger.ERROR("Validate test encountered an error!")
+        labutils.logger.error("Validate test encountered an error!")
     else:
         # No error
-        labutils.logger.DEBUG("NO ERROR found")
+        labutils.logger.debug("NO ERROR found")
         print "NO ERROR found"
     return 0
 

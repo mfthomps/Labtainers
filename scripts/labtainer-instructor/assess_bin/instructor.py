@@ -50,64 +50,64 @@ def newStudentJson():
     
 
 def store_student_labcount(gradesjson, email_labname, student_lab_count):
-    logger.DEBUG('store_student_labcount email_labname %s' % (email_labname))
+    logger.debug('store_student_labcount email_labname %s' % (email_labname))
     if email_labname not in gradesjson:
         gradesjson[email_labname] = newStudentJson()
     else:
         if gradesjson[email_labname]['labcount'] != {}:
             # Already have that student's labcount stored
-            logger.ERROR("instructor.py store_student_labcount: duplicate email_labname %s labcount %s" % (email_labname, labcount))
+            logger.error("instructor.py store_student_labcount: duplicate email_labname %s labcount %s" % (email_labname, labcount))
             sys.exit(1)
     gradesjson[email_labname]['labcount'] = copy.deepcopy(student_lab_count)
 
 def store_student_watermark(gradesjson, email_labname, actual_watermark, expected_watermark):
-    logger.DEBUG('store_student_watermal email_labname %s actual %s expected %s' % (email_labname, actual_watermark, expected_watermark))
+    logger.debug('store_student_watermal email_labname %s actual %s expected %s' % (email_labname, actual_watermark, expected_watermark))
     if email_labname not in gradesjson:
         gradesjson[email_labname] = newStudentJson()
     gradesjson[email_labname]['actualwatermark'] = actual_watermark
     gradesjson[email_labname]['expectedwatermark'] = expected_watermark
 
 def store_student_firstlevelzip(gradesjson, email_labname, first_zip_name):
-    logger.DEBUG('store_student_firstlevelzip email_labname %s first_zip_name %s' % (email_labname, first_zip_name))
+    logger.debug('store_student_firstlevelzip email_labname %s first_zip_name %s' % (email_labname, first_zip_name))
     if email_labname not in gradesjson:
         gradesjson[email_labname] = newStudentJson()
     gradesjson[email_labname]['firstlevelzip'] = first_zip_name
 
 def store_student_secondlevelzip(gradesjson, email_labname, second_zip_name):
-    logger.DEBUG('store_student_secondlevelzip email_labname %s second_zip_name %s' % (email_labname, second_zip_name))
+    logger.debug('store_student_secondlevelzip email_labname %s second_zip_name %s' % (email_labname, second_zip_name))
     if email_labname not in gradesjson:
         gradesjson[email_labname] = newStudentJson()
     gradesjson[email_labname]['secondlevelzip'] = second_zip_name
 
 def store_student_parameter(gradesjson, email_labname, student_parameter):
-    logger.DEBUG('store_student_parameter email_labname %s student_parameter %s' % (email_labname, student_parameter))
+    logger.debug('store_student_parameter email_labname %s student_parameter %s' % (email_labname, student_parameter))
     if email_labname not in gradesjson:
         gradesjson[email_labname] = newStudentJson()
         if gradesjson[email_labname]['parameter'] != {}:
             # Already have that student's parameter stored
-            logger.ERROR("instructor.py store_student_parameter: duplicate email_labname %s student_parameter %s" % (email_labname, student_parameter))
+            logger.error("instructor.py store_student_parameter: duplicate email_labname %s student_parameter %s" % (email_labname, student_parameter))
             sys.exit(1)
     gradesjson[email_labname]['parameter'] = copy.deepcopy(student_parameter)
 
 def store_student_grades(gradesjson, email_labname, grades):
-    logger.DEBUG('store_student_grades email_labname %s grades %s' % (email_labname, grades))
+    logger.debug('store_student_grades email_labname %s grades %s' % (email_labname, grades))
     if email_labname not in gradesjson:
         gradesjson[email_labname] = newStudentJson()
         if gradesjson[email_labname]['grades'] != {}:
             # Already have that student's grades stored
-            logger.ERROR("instructor.py store_student_grades: duplicate email_labname %s grades %s" % (email_labname, grades))
+            logger.error("instructor.py store_student_grades: duplicate email_labname %s grades %s" % (email_labname, grades))
             sys.exit(1)
     gradesjson[email_labname]['grades'] = copy.deepcopy(grades)
 
 def store_student_unique(uniquejson, email_labname, uniquevalues):
-    logger.DEBUG('store_student_unique email_labname %s unique %s' % (email_labname, uniquevalues))
+    logger.debug('store_student_unique email_labname %s unique %s' % (email_labname, uniquevalues))
     if email_labname not in uniquejson:
         uniquejson[email_labname] = {}
         uniquejson[email_labname]['unique'] = copy.deepcopy(uniquevalues)
     else:
         if uniquejson[email_labname]['unique'] != {}:
             # Already have that student's unique values stored
-            logger.ERROR("instructor.py store_student_unique: duplicate email_labname %s unique %s" % (email_labname, uniquevalues))
+            logger.error("instructor.py store_student_unique: duplicate email_labname %s unique %s" % (email_labname, uniquevalues))
             sys.exit(1)
         else:
             uniquejson[email_labname]['unique'] = copy.deepcopy(uniquevalues)
@@ -179,15 +179,15 @@ def main():
     # TBD clean this up, break out routines.  impossible to follow.
     #
 
-    logger.INFO("Begin logging instructor.py")
+    logger.info("Begin logging instructor.py")
 
     # Default to check_watermark to True
     check_watermark = True
-    logger.DEBUG('MYHOME is %s' % MYHOME)
+    logger.debug('MYHOME is %s' % MYHOME)
     os.chdir(MYHOME)
     lab_name_dir = os.path.join(MYHOME,'.local','.labname')
     if not os.path.isfile(lab_name_dir):
-        logger.ERROR('no file at %s, perhaps running instructor script on wrong containers?' % lab_name_dir)
+        logger.error('no file at %s, perhaps running instructor script on wrong containers?' % lab_name_dir)
         sys.exit(1)
 
     with open(lab_name_dir) as fh:
@@ -201,7 +201,7 @@ def main():
         elif check_watermark_argument == "FALSE":
             check_watermark = False
         else:
-            logger.ERROR('Usage: instructor.py "[True|False]"')
+            logger.error('Usage: instructor.py "[True|False]"')
             exit(1)
 
     # is this used?  
@@ -284,11 +284,11 @@ def main():
             #print email_labname
         else:
             # Old format - no containername
-            logger.ERROR("Instructor.py old format (no containername) no longer supported!\n")
+            logger.error("Instructor.py old format (no containername) no longer supported!\n")
             return 1
         student_id = email_labname.rsplit('.', 1)[0]
         #print "student_id is %s" % student_id
-        logger.DEBUG("student_id is %s" % student_id)
+        logger.debug("student_id is %s" % student_id)
         OutputName = '%s/%s' % (TMPDIR, zip_file_name)
         lab_dir_name = os.path.join(MYHOME, email_labname)
         DestDirName = os.path.join(MYHOME, DestinationDirName)
@@ -299,7 +299,7 @@ def main():
         if os.path.isfile(src_count_path):
             #  ad-hoc fix to remnants of old bug, remove this
             if os.path.isdir(dst_count_path):
-                logger.WARNING('removing errored directory %s' % dst_count_path)
+                logger.warning('removing errored directory %s' % dst_count_path)
                 shutil.rmtree(dst_count_path)
             parent = os.path.dirname(dst_count_path)
             #print('parent %s' % parent)
@@ -331,7 +331,7 @@ def main():
             student_list[email_labname] = []
         student_list[email_labname].append(containername) 
         #print('append container %s for student %s' % (containername, email_labname))
-        logger.DEBUG('append container %s for student %s' % (containername, email_labname))
+        logger.debug('append container %s for student %s' % (containername, email_labname))
 
         ''' retain dates of student files '''
         for zi in zipoutput.infolist():
@@ -366,7 +366,7 @@ def main():
             for container in student_list[email_labname]: 
                 dest = os.path.join(email_labname, container)
                 cmd = '%s %s %s' % (pregrade_script, MYHOME, dest)
-                logger.DEBUG('invoke pregrade script %s' % cmd)
+                logger.debug('invoke pregrade script %s' % cmd)
                 os.system(cmd) 
 
         ''' backward compatible for test sets '''
@@ -381,7 +381,7 @@ def main():
         # Call ResultParser script to parse students' result
         lab_dir_name = os.path.join(MYHOME, email_labname)
         #print('call ResultParser for %s %s' % (email_labname, student_list[email_labname]))
-        logger.DEBUG('call ResultParser for %s %s' % (email_labname, student_list[email_labname]))
+        logger.debug('call ResultParser for %s %s' % (email_labname, student_list[email_labname]))
         ResultParser.ParseStdinStdout(MYHOME, lab_dir_name, student_list[email_labname], InstDirName, lab_id_name, logger)
 
         # Add student's parameter
@@ -389,7 +389,7 @@ def main():
 
         if do_unique:
             #print('call UniqueCheck for %s %s' % (email_labname, student_list[email_labname]))
-            logger.DEBUG('call UniqueCheck for %s %s' % (email_labname, student_list[email_labname]))
+            logger.debug('call UniqueCheck for %s %s' % (email_labname, student_list[email_labname]))
             uniquevalues = UniqueCheck.UniqueCheck(MYHOME, lab_dir_name, student_list[email_labname], InstDirName, lab_id_name, logger)
             # Add student's unique check
             store_student_unique(uniquejson, email_labname, uniquevalues)

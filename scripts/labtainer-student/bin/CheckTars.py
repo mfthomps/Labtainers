@@ -87,13 +87,13 @@ def CheckTars(container_dir, image_name, logger):
     tar_list = os.listdir(container_dir)
     manifest_name = '%s-home_tar.list' % image_name
     lab_dir = os.path.dirname(container_dir)
-    logger.DEBUG('container_dir is %s' % container_dir)
+    logger.debug('container_dir is %s' % container_dir)
     manifest = os.path.join(lab_dir, 'config', manifest_name)
     for f in tar_list:
         full = os.path.join(container_dir, f)
         if os.path.isdir(full) and f.endswith('_tar'):
             try:
-                logger.DEBUG('remove tree at %s' % tmp_loc)
+                logger.debug('remove tree at %s' % tmp_loc)
                 shutil.rmtree(tmp_loc)
             except:
                 pass
@@ -101,24 +101,24 @@ def CheckTars(container_dir, image_name, logger):
             os.chdir(full)
             tmp_name = f[:-4]
             tar_name = tmp_name+'.tar'
-            logger.DEBUG('check for %s' % tar_name)
+            logger.debug('check for %s' % tar_name)
             if not os.path.isfile(tar_name):
                 ''' no tar, make one '''
-                logger.DEBUG('no tar %s, make one' % tar_name)
+                logger.debug('no tar %s, make one' % tar_name)
                 f_list = os.listdir('./')
                 if len(f_list) == 0:
                     #print('no files, make empty')
                     ''' no files at all, create empty archive '''
                     cmd = 'tar cvf %s --files-from /dev/null' % tar_name
                     os.system(cmd)
-                    logger.DEBUG('did %s' % cmd)
+                    logger.debug('did %s' % cmd)
                 else:
                     if external in f_list:
                         ''' external manifest, expand that '''
-                        logger.DEBUG('expand manifest at %s' % full)
+                        logger.debug('expand manifest at %s' % full)
                         expandManifest(full, tar_name)
                     for cfile in f_list:
-                        logger.DEBUG('cfile is %s' % cfile)
+                        logger.debug('cfile is %s' % cfile)
                         if cfile != external:
                             if os.path.isdir(cfile):
                                 copydir(cfile, os.path.join(tmp_loc, cfile))
@@ -136,11 +136,11 @@ def CheckTars(container_dir, image_name, logger):
                 ''' is a tar file, should it be updated? '''
                 os.chdir(full)
                 newest = newest_file_in_tree('./') 
-                logger.DEBUG('newest is %s' % newest)
+                logger.debug('newest is %s' % newest)
                 referenced_tar_newer = False 
                 if os.path.isfile(external): 
                     latest_ref = newest_referenced_tar(full, tar_name)
-                    logger.DEBUG('has manifest, is referenced file (%s) newer than local tar?' % latest_ref)
+                    logger.debug('has manifest, is referenced file (%s) newer than local tar?' % latest_ref)
                     if os.stat(latest_ref).st_mtime > os.stat(tar_name).st_mtime:
                         referenced_tar_newer = True
                     
@@ -161,7 +161,7 @@ def CheckTars(container_dir, image_name, logger):
                     else:
                         cmd = 'tar czf %s `ls -A -1`' % (full_tar)
                     os.system(cmd)
-                    logger.DEBUG(cmd)
+                    logger.debug(cmd)
                     #print('did %s' % cmd)
                 else:
                     ''' tar file is the most recent.  ensure we have a manifest '''
@@ -169,7 +169,7 @@ def CheckTars(container_dir, image_name, logger):
                         os.chdir(full)
                         cmd =  'tar tf %s > %s' % (tar_name, manifest) 
                         os.system(cmd)
-                        logger.DEBUG(cmd)
+                        logger.debug(cmd)
         os.chdir(here)
     noskip_file = os.path.join(container_dir,'_bin', 'noskip')
     #print('look for %s' % noskip_file)
