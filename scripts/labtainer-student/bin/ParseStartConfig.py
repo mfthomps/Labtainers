@@ -82,6 +82,7 @@ class ParseStartConfig():
             self.clone = None  # Number of clones of this component to create.  
             self.client = None # Used for distributed labtainers, indicates container is a client
             self.from_image = None
+            self.docker_args = ''
             self.enable = None
             self.disable = None
             self.logger = logger
@@ -166,7 +167,7 @@ class ParseStartConfig():
                 keyval = linestrip.split(None,1)    
                 key = keyval[0].lower()
                 if len(keyval) > 1:
-                    if key == "user" or key == "xterm" or key == "password":
+                    if key == "user" or key == "xterm" or key == "password" or key == "docker_args":
                         # DO NOT change case for 'user' or 'xterm'
                         val = keyval[1]
                     else:

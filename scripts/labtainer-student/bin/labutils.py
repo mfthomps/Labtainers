@@ -382,6 +382,30 @@ def isUbuntuSystemd(image_name):
 
     return retval
 
+def isFirefox(image_name):
+    done = False
+    retval = False
+    #print('check if %s is systemd' % image_name)
+    cmd = "docker inspect -f '{{json .Config.Labels.base}}' --type image %s" % image_name
+    #print('lab container cmd is %s' % cmd)
+    ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if len(output[0].strip()) > 0:
+            logger.debug('base %s' % output[0])
+            if output[0].strip() == 'null': 
+                base = image_name
+            else:
+                base = output[0].rsplit('.', 1)[0]+'"'
+            cmd = "docker history --no-trunc %s" % base
+            ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            output = ps.communicate()
+            for line in output[0].splitlines():
+                if 'firefox' in line:
+                    retval = True
+                    break
+
+    return retval
+
 def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_name=None, mysubnet_ip=None, quiet=False):
     ''' create a single container -- or all clones of that container per the start.config '''
     logger.debug("Create Single Container for %s" % container.name)
@@ -402,6 +426,11 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
         logger.debug("getDockerIPAddr result (%s)" % docker0_IPAddr)
         volume=''
         ubuntu_systemd = isUbuntuSystemd(new_image_name)
+        is_firefox = isFirefox(new_image_name)
+        if is_firefox:
+            shm = '--shm-size=2g'
+        else:
+            shm = ''
         if container.script == '' or ubuntu_systemd:
             logger.debug('Container %s is systemd' % (new_image_name))
             ''' a systemd container, centos or ubuntu? '''
@@ -465,8 +494,13 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
             if mysubnet_name is not None:
                 subnet_ip, mac = GetNetParam(start_config, mysubnet_name, mysubnet_ip, clone_fullname)
             #createsinglecommand = "docker create -t %s --ipc host --cap-add NET_ADMIN %s %s %s %s %s --name=%s --hostname %s %s %s %s %s" % (dns_param, 
-            createsinglecommand = "docker create -t %s --cap-add NET_ADMIN %s %s %s %s %s --name=%s --hostname %s %s %s %s %s" % (dns_param, 
-                    network_param, subnet_ip, mac, priv_param, add_host_param,  clone_fullname, clone_host, volume, 
+            if len(container.docker_args) == 0:
+                createsinglecommand = "docker create %s -t %s --cap-add NET_ADMIN %s %s %s %s %s --name=%s --hostname %s %s %s %s %s" % \
+                    (shm, dns_param, network_param, subnet_ip, mac, priv_param, add_host_param,  clone_fullname, clone_host, volume, 
+                    multi_user, new_image_name, start_script)
+            else:
+                createsinglecommand = "docker create %s %s --shm-size=2g -t %s --cap-add NET_ADMIN %s %s %s %s %s --name=%s --hostname %s %s %s %s %s" % \
+                    (shm, container.docker_args, dns_param, network_param, subnet_ip, mac, priv_param, add_host_param,  clone_fullname, clone_host, volume, 
                     multi_user, new_image_name, start_script)
             logger.debug("Command to execute was (%s)" % createsinglecommand)
             ps = subprocess.Popen(shlex.split(createsinglecommand), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
