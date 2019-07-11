@@ -33,12 +33,11 @@ instruct_bin_path = os.path.join(scripts_dir, 'labtainer-instructor', 'bin')
 sys.path.append(assess_bin_path)
 sys.path.append(instruct_bin_path)
 grade_lab_path = os.path.join(scripts_dir, 'labtainer-instructor', 'bin', 'gradelab')
+orig_dir=os.getcwd()
+os.chdir(student_dir)
 gradelab = imp.load_source('gradelab', grade_lab_path)
 
 
-# Usage: stop.py <labname>
-# Arguments:
-#    <labname> - the lab to stop
 def main():
     parser = argparse.ArgumentParser(description='Check your work for a lab.  If no lab name is given, the currently running lab is checked')
     parser.add_argument('lab', nargs='?')
@@ -46,8 +45,6 @@ def main():
     labname = None 
     lablist = []
     lablist = labutils.GetListRunningLab()
-    orig_dir=os.getcwd()
-    os.chdir(student_dir)
     if args.lab is not None:
         labname = args.lab
         if labname not in lablist:
@@ -98,6 +95,7 @@ def main():
     servers = current_lab.get('servers')        
     labutils.StopLab(lab_path, False, servers=servers, clone_count=clone_count, keep_running=True)
     os.chdir('../labtainer-instructor')
+    print('cwd is %s' % os.getcwd())
     gradelab.doGrade(labname, False, False, True, False, copy_json = False)
     os.chdir(orig_dir)
 
