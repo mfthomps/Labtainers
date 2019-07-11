@@ -11,7 +11,7 @@ function contains() {
     echo "n"
     return 1
 }
-revision=`git describe --long`
+revision=`git describe --always`
 skip="skip-labs"
 skiplist=""
 lines=`cat $skip`
