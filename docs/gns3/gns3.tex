@@ -21,42 +21,68 @@ This document is in the public domain and is not subject to copyright.
 \section {Introduction}
 This document describes the integration of GNS3 with Labtainers.
 
+\section {Requirements}
+It is assumed your development system is a recent Linux distribution.  You will require these packages:
+\begin{itemize}
+	\item pthon3-setuptools
+	\item python3-dev
+	\item python3-pyqt5
+\end{itemize}
+\noindent Install GNS3 from their website in order to get the ubridge software property configured.
+\begin{verbatim}
+https://docs.gns3.com/1QXVIihk7dsOL7Xr7Bmz4zRzTsJ02wklfImGuHwTlaA4/index.html
+\end{verbatim}
+Add yourself to the ubridge group and logout and in to get permissions set per GNS3 guidance.
 
 \section{Cloning and installing GNS3 and Labtainers}
+\subsection{Labtainers repo (optional)}
+This subsection is optional, and is intended to give access to GNS3 updates to Labtainers directly
+from github without waiting for formal Labtainers releases.  
+
 Get the gns3 branch from Labtainers:
 \begin{verbatim}
 git clone https://github.com/mfthomps/labtainers.git
 git checkout gns3 
 \end{verbatim}
 \noindent Define the {\tt LABTAINERS\_DIR} environment variable to point to the Labtainers directory.
+(Log out and in, or create a new bash shell to take effect.)
 Create the capinout executable:
 \begin{verbatim}
 cd $LABTAINER_DIR/tool-src/capinout
 ./mkit.sh
 \end{verbatim}
+\noindent Ignore the warning messages.
+Run any Labtainers lab from the labtainer-student directory to test that it works and to capture a
+Labtainers email identifier.
 
-Get the GNS3 server from the forked github repo:
+\subsection{GNS3 Repos}
+Get the GNS3 server from the forked github repo.  First change your directory to where you want the repos to
+exist.  Then:
+\small
 \begin{verbatim}
 git clone --single-branch --branch labtainers https://github.com/mfthomps/gns3-server.git
 cd gns3-server
-sudo python3 setup.py install
-\end{verbatim}
-
-Get the GNS3 GUI from the gns3 github repo:
-\begin{verbatim}
-git clone --single-branch --branch 2.1 https://github.com/mfthomps/gns3-gui.git
 git checkout tags/v2.1.21
-cd gns3-gui
 sudo python3 setup.py install
 \end{verbatim}
 
-Run the server from a terminal with LABTAINER\_DIR defined.
+Change directory to where you want the repo, and then get the GNS3 GUI from the gns3 github repo:
+\small
+\begin{verbatim}
+      git clone --single-branch --branch 2.1 https://github.com/mfthomps/gns3-gui.git
+      cd gns3-gui
+      git checkout tags/v2.1.21
+      sudo python3 setup.py install
+\end{verbatim}
+\normalsize
+\noindent Run the server from a terminal with LABTAINER\_DIR defined.
 
 \begin{verbatim}
-gns3server --local --log /tmp/gns3log
+      gns3server --local --log /tmp/gns3log
 \end{verbatim}
+\noindent The server does not display to stdout.  Tail the /tmp/gns3log to see status.
 
-Run the gui:
+\noindent Run the gui from a different terminal or tab:
 \begin{verbatim}
     gns3
 \end{verbatim}
@@ -65,7 +91,7 @@ Run the gui:
 Note below that your Labtainers repo uses the "gns3" branch -- and your GNS3 repo uses the "labtainers" branch.
 From the local GNS3  repo:
 \begin{verbatim}
-git pull origin labtainers
+      git pull origin labtainers
 \end{verbatim}
 
 From the local Labtainers repo:
@@ -74,6 +100,7 @@ git pull origin gns3
 \end{verbatim}
 
 \section{Updating remote repo}
+This step is only for use by Labtainers framework developers.
 The GNS3 repo:
 \begin{verbatim}
 git push --set-upstream origin labtainers
@@ -91,19 +118,29 @@ It is assumed the gns3-server has been started.
 This workflow can be further automated to automatically generate network connections.  Or to fully define the project
 file based on predefined templates.
 
+These steps assume the Labtainer Docker images exist on the machine, e.g., you've peformed a rebuild.py.  If not, run the Labtainers lab
+to cause them to be pulled. 
+
+\bigskip
+If there is a logo that you wish to appear on the GNS3 display, put that file in 
+\begin{verbatim}
+      <lab>/config/logo.png
+\end{verbatim}
+\noindent Clicking on the resulting log will display the text found in {\tt <lab>/config/about.txt}.
+\bigskip
 Go to the {\tt \$LABTAINER\_DIR/scripts/gns3} directory:
 \begin{verbatim}
-cd $LABTAINER_DIR/scripts/gns3
+      cd $LABTAINER_DIR/scripts/gns3
 \end{verbatim}
 
 Create modified Docker images for the lab:
 \begin{verbatim}
-./noNet.py telnetlab
+      ./noNet.py telnetlab
 \end{verbatim}
 
 View the Labtainer network topology.
 \begin{verbatim}
-./showNet.py telnetlab
+      ./showNet.py telnetlab
 \end{verbatim}
 \noindent Use the GNS3 gui to define GNS3 Docker container templates for each of the 
 images you created, and to then use those templates to create a GNS3 instance of 
@@ -111,7 +148,7 @@ the lab.
 \begin{itemize}
 	\item Start the gui, e.g., run {\tt gns3}
 	\item Open a new project, assigning the same name as the Labtainers lab, e.g., ``telnetlab''
-	\item Use {\tt Browse all devices / Add applicance template} to add the new container images created
+	\item Use {\tt Browse all devices / Add appliance template} to add the new container images created
 		via the {\tt noNet.py} command.  Accept all defaults, except set the number of ``Adapaters'' to
 		the quantity displayed using {\tt showNet.py} for each component.
 	\item Drag each container image from the list on the left of the GUI onto the workspace.  (Do not try to fix
@@ -121,6 +158,8 @@ the lab.
 		fix the component names.  You will not see the revised names until you restart the lab.
 	\item Stop the GUI and restart it.  Then test the lab.
 \end{itemize}
+Changes made to Labtainers container images will be picked up by GNS3 the next time the GUI is started,
+assuming you re-run the noNet.py command.  There is no need to redefine appliance templates.
 
 \section{History}
 This section describes steps taken to create the Labtainers version of GNS3.
@@ -129,29 +168,33 @@ The steps outlined here are not intended to be repeated by developers.
 The gns3 server was forked into https://github.com/mfthomps/gns3-server.git
 
 The branch "2.1" was then cloned the tag set to tag v2.1.21:
+\small
 \begin{verbatim}
-git clone --single-branch --branch 2.1 https://github.com/mfthomps/gns3-server.git
-git checkout tags/v2.1.21
+      git clone --single-branch --branch 2.1 https://github.com/mfthomps/gns3-server.git
+      git checkout tags/v2.1.21
 \end{verbatim}
 
+\normalsize
 \noindent A new ``labtainers'' branch was defined for the gns3 fork:
 \begin{verbatim}
-    git tag v1.2.1-labtainers
-    git checkout -b labtainers
-    git push --set-upstream origin labtainers
+       git tag v1.2.1-labtainers
+       git checkout -b labtainers
+       git push --set-upstream origin labtainers
 \end{verbatim}
 
 The node.py script was altered to increase the timeout to account for parameterization of
 containers.  This should be revisited to be perhaps less crude.
 
+\bigskip
 Install qtcreator
 Open the {\tt gns3-gui/gns3/gui/main\_window.ui} file
 
 To add icons:
 \begin{itemize}
-   Add to resources/images or wherever.
-   Edit resources.qrc
-   scripts/build\_pyqt.py --ressources
-   Use qtcreator to identify the icon in "resources"
+\item Add to resources/images or wherever.
+\item Edit resources.qrc
+\item scripts/build\_pyqt.py --ressources
+\item Use qtcreator to identify the icon in "resources"
 \end{itemize}
+Added lab manual button "?" and check work button.
 \end{document}
