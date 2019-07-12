@@ -52,6 +52,24 @@ def labtainerTerms(images, logger):
 
     labutils.DoTerminals(start_config, lab_path, container_map = container_map)
 
+def moreTerm(image, container_id, logger):
+    labutils.logger = logger
+    logger.debug('moreTerm mage %s' % image)
+    labname, box = getLabFromImage(image)
+    here = os.path.dirname(os.path.abspath(__file__))
+    gparent = os.path.dirname(os.path.dirname(here))
+    lab_path = os.path.join(gparent, 'labs', labname)
+    logger.debug('lab_path is %s' % lab_path)
+
+    labtainer_config, start_config = labutils.GetBothConfigs(lab_path, logger)
+    for name, container in start_config.containers.items():
+        #print('name %s full %s' % (name, container.full_name))
+        gimage = '%s-%s-labtainer' % (labname, name)
+        if image.startswith(gimage):
+            return labutils.DoMoreterm(lab_path, name, alt_name=container_id[:12])
+    logger.error('moreTerm failed to find container for %s' % image)
+    return False
+
 def gatherZips(zip_list, image, logger):
     labutils.logger = logger
     here = os.path.dirname(os.path.abspath(__file__))
@@ -114,6 +132,7 @@ def parameterizeOne(image_name, logger):
                 return
 
 if __name__ == '__main__':
+    ''' only for testing '''
     home = os.getenv("HOME")
     gns3_path = os.path.join(home, 'GNS3', 'projects')
     logger = LabtainerLogging.LabtainerLogging("test.log", 'eh', "../../config/labtainer.config")
