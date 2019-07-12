@@ -2435,7 +2435,11 @@ def AnyContainersRunning(container):
     return True
 
 def IsContainerRunning(mycontainer_name):
-    cmd = 'docker ps -f name=%s' % mycontainer_name
+    cmd = 'docker ps -f id=%s' % mycontainer_name
+    try:
+        dumb = int(mycontainer_name, 16)
+    except:
+        cmd = 'docker ps -f name=%s' % mycontainer_name
     try:
         s = subprocess.check_output(shlex.split(cmd)).decode('utf-8')
     except:
@@ -2678,21 +2682,18 @@ def StopLab(lab_path, ignore_stop_error, run_container=None, servers=None, clone
         print("Results stored in directory: %s" % host_xfer_dir)
     return host_xfer_dir
 
-def DoMoreterm(lab_path, container_name, clone_num=None):
+def DoMoreterm(lab_path, container_name, clone_num=None, alt_name=None):
     labname = os.path.basename(lab_path)
     mycwd = os.getcwd()
     myhomedir = os.environ['HOME']
-    logger.debug("current working directory for %s" % mycwd)
-    logger.debug("current user's home directory for %s" % myhomedir)
-    logger.debug("ParseStartConfig for %s" % labname)
     is_valid_lab(lab_path)
     labtainer_config, start_config = GetBothConfigs(lab_path, logger)
     if container_name not in start_config.containers:
-        print("Container %s not found. Container must be one of the following:" % container_name)
+        logger.error("Container %s not found. Container must be one of the following:" % container_name)
         for container_name in start_config.containers:
             print('\t%s' % container_name)
         print("Usage: moreterm.py <lab> <container>")
-        exit(1)
+        return False
         
     logger.debug('num terms is %d' % start_config.containers[container_name].terminals)
     if clone_num is None:
@@ -2700,21 +2701,24 @@ def DoMoreterm(lab_path, container_name, clone_num=None):
     else:
         mycontainer_name = '%s.%s-%d.student' % (labname, container_name, clone_num)
 
+    if alt_name is not None:
+        mycontainer_name = alt_name
+
     if not IsContainerCreated(mycontainer_name):
-        logger.error('container %s not found' % mycontainer_name)
+        logger.error('DoMoreTerm container %s not found' % mycontainer_name)
         sys.exit(1)
     if not IsContainerRunning(mycontainer_name):
         logger.error("Container %s is not running!\n" % (mycontainer_name))
         sys.exit(1)
-    for x in range(1):
-        # Change to allow spawning if terminal is 0 but not -1
-        if start_config.containers[container_name].terminals == -1:
-            print("No terminals supported for this component")
-            sys.exit(1)
-        else:
-            spawn_command = "gnome-terminal -- docker exec -it %s bash -l &" % 	mycontainer_name
-            logger.debug("spawn_command is (%s)" % spawn_command)
-            os.system(spawn_command)
+
+    if start_config.containers[container_name].terminals == -1:
+        logger.debug("No terminals supported for %s" % container_name)
+        return False
+    else:
+        spawn_command = "gnome-terminal -- docker exec -it %s bash -l &" % 	mycontainer_name
+        logger.debug("spawn_command is (%s)" % spawn_command)
+        os.system(spawn_command)
+    return True
 
 def DoTransfer(lab_path, container_name, filename, direction):
     '''TBD this is not tested and likey broken'''
