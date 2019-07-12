@@ -3,6 +3,7 @@ import sys
 import os
 import argparse
 import json
+import shutil
 from netaddr import IPNetwork
 labtainer_dir = os.getenv('LABTAINER_DIR')
 if labtainer_dir is None:
@@ -16,6 +17,9 @@ import LabtainerLogging
 '''
 Generate network files for GNS3 from a given Labtainers lab configuration.
 The results go in the etc/network/interfaces file used by GNS3 startup.
+
+This script also changes container names to match Labtainer conventions and will
+copy a logo for use in the GNS3 workspace.
 '''
 
 def getLabtainerNodeId(gns3_json, name):
@@ -57,9 +61,24 @@ dumb, start_config = labutils.GetBothConfigs(labtainer_lab, labutils.logger)
 with open(gns3_proj) as fh:
     gns3_json = json.load(fh)
 
+'''
+Look for logo
+'''
+logo_path = os.path.join(labtainer_lab, 'config', 'logo.png')
+if os.path.isfile(logo_path):
+    dest = os.path.join(gns3_path, args.gns3_proj, 'project-files', 'images')
+    shutil.copy(logo_path, dest)
+    about_path = os.path.join(labtainer_lab, 'config', 'about.txt')
+    supplier = {}
+    supplier['logo'] = 'logo.png'
+    supplier['url'] = about_path
+    gns3_json['supplier'] = supplier
+else:
+    print('no logo to copy at %s' % logo_path)
+
 subnets = start_config.subnets
 
-
+''' set node names and generate network interface files '''
 for name, container in start_config.containers.items():
     print('container %s' % name)
     gns3_con = '%s-%s-labtainer' % (args.labname, name) 
@@ -70,7 +89,6 @@ for name, container in start_config.containers.items():
     setNodeName(gns3_json, node_id, name)
     iface_fname = os.path.join(gns3_path, args.gns3_proj, 'project-files', 'docker', node_id, 'etc','network','interfaces')
     with open(iface_fname, 'w') as fh:
-
         eth_index = 0
         for mysubnet_name, mysubnet_ip in container.container_nets.items():
             subnet_name = mysubnet_name
@@ -80,7 +98,8 @@ for name, container in start_config.containers.items():
             line = 'auto %s\niface %s inet static\n\taddress %s\n\tnetmask %s' % (eth, eth, mysubnet_ip, netmask)
             fh.write(line+'\n')
 with open(gns3_proj, 'w') as fh:
-    json.dump(gns3_json, fh)
+    fh.write(json.dumps(gns3_json, indent=4))
+    #json.dump(gns3_json, fh)
 
 
 
