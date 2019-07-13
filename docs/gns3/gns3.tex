@@ -20,6 +20,25 @@ This document is in the public domain and is not subject to copyright.
 \newpage
 \section {Introduction}
 This document describes the integration of GNS3 with Labtainers.
+The goal of this integration is to allow lab exercises developed for Labtainers to run within the
+GNS3 environment.   From the student's perspective, they see the GNS3 GUI and select their lab as a standard GNS3 project.
+Labtainer components will be visible in the GNS3 workspace along with any other components defined in the lab, 
+e.g., GNS3 routers.  Pressing the "play" button starts that lab, and any Labtainers terminal windows that were
+defined for the lab will open as the components come online.
+
+All components within the running lab are known to GNS3 as standard GNS3 nodes.  Those that happen to be based on
+Labtainers containers will call-back into Labtainers modules, e.g., to open new terminals, or perform configuration steps
+during startup.  All component networking is via GNS3 network management.
+
+The lab development workflow is summarised as follows:
+\begin{itemize}
+	\item Develop a lab using standard Labtainers tools and techniques, ignoring true routers, switches and such.
+	\item Run a script that creates GNS3-Labtainers instances of the lab's Docker images
+	\item Use GNS3 to lay out the topology of the newly created images, along with other devices such as routers.
+	\item Run a script to automatically configure the GNS3 network configurations to match those defined for Labtainers
+	\item Restart GNS3 and test the lab
+	\item The new "lab" then consists of the GNS3 project directory and the Labtainers lab directory.
+\end{itemize}
 
 \section {Requirements}
 It is assumed your development system is a recent Linux distribution.  You will require these packages:
