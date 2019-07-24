@@ -46,6 +46,7 @@ It is assumed your development system is a recent Linux distribution.  You will 
 	\item pthon3-setuptools
 	\item python3-dev
 	\item python3-pyqt5
+	\item g++
 \end{itemize}
 \noindent Install GNS3 from their website in order to get the ubridge software property configured.
 \begin{verbatim}
@@ -61,18 +62,22 @@ from github without waiting for formal Labtainers releases.
 Get the gns3 branch from Labtainers:
 \begin{verbatim}
 git clone https://github.com/mfthomps/labtainers.git
+cd labtainers
 git checkout gns3 
 \end{verbatim}
-\noindent Define the {\tt LABTAINERS\_DIR} environment variable to point to the Labtainers directory.
+\noindent Define the {\tt LABTAINERS\_DIR} environment variable to point to the Labtainers directory. Also define \$PATH to include '/bin' and \$LABTAINER\_DIR/scripts/designer/bin
 (Log out and in, or create a new bash shell to take effect.)
-Create the capinout executable:
+Create the capinout executable (Ignore the warning messages):
 \begin{verbatim}
 cd $LABTAINER_DIR/tool-src/capinout
 ./mkit.sh
 \end{verbatim}
-\noindent Ignore the warning messages.
-Run any Labtainers lab from the labtainer-student directory to test that it works and to capture a
-Labtainers email identifier.
+\noindent Run the docker install script for your operating system located in \$LABTAINERS\_DIR/setup\_scripts to install docker and other packages to run Labtainers. Ex. For Ubuntu developers run install-docker-ubuntu.sh.
+
+\vspace{5mm}
+
+\noindent
+Run any Labtainers lab from the labtainer-student directory to test that it works and to capture a Labtainers email identifier.
 
 \subsection{GNS3 Repos}
 Get the GNS3 server from the forked github repo.  First change your directory to where you want the repos to
@@ -81,17 +86,15 @@ exist.  Then:
 \begin{verbatim}
 git clone --single-branch --branch labtainers https://github.com/mfthomps/gns3-server.git
 cd gns3-server
-git checkout tags/v2.1.21
 sudo python3 setup.py install
 \end{verbatim}
 
 Change directory to where you want the repo, and then get the GNS3 GUI from the gns3 github repo:
 \small
 \begin{verbatim}
-      git clone --single-branch --branch 2.1 https://github.com/mfthomps/gns3-gui.git
-      cd gns3-gui
-      git checkout tags/v2.1.21
-      sudo python3 setup.py install
+git clone --single-branch --branch labtainers  https://github.com/mfthomps/gns3-gui.git
+cd gns3-gui
+sudo python3 setup.py install
 \end{verbatim}
 \normalsize
 \noindent Run the server from a terminal with LABTAINER\_DIR defined.
@@ -145,7 +148,8 @@ If there is a logo that you wish to appear on the GNS3 display, put that file in
 \begin{verbatim}
       <lab>/config/logo.png
 \end{verbatim}
-\noindent Clicking on the resulting log will display the text found in {\tt <lab>/config/about.txt}.
+
+\noindent Clicking on the resulting logo will display the text found in {\tt <lab>/config/about.txt}.
 \bigskip
 Go to the {\tt \$LABTAINER\_DIR/scripts/gns3} directory:
 \begin{verbatim}
@@ -165,17 +169,23 @@ View the Labtainer network topology.
 images you created, and to then use those templates to create a GNS3 instance of 
 the lab.
 \begin{itemize}
-	\item Start the gui, e.g., run {\tt gns3}
+	\item Start the gui, e.g., run {\tt gns3}.  
+	
+	{\bf Note:} Starting the gns3 program with the \-\-student flag, e.g., 
+	\begin{verbatim}	
+	  gns3 -s 
+	\end{verbatim}		
+	will cause the GUI to hide toolbars and widgets that students should not interact with.
 	\item Open a new project, assigning the same name as the Labtainers lab, e.g., ``telnetlab''
 	\item Use {\tt Browse all devices / Add appliance template} to add the new container images created
 		via the {\tt noNet.py} command.  Accept all defaults, except set the number of ``Adapaters'' to
 		the quantity displayed using {\tt showNet.py} for each component.
 	\item Drag each container image from the list on the left of the GUI onto the workspace.  (Do not try to fix
 		the component names, that will be done later).
-	\item Use the gui's {\tt Add a Link} function to connect each component per the output of {\tt showNet.py}.
-	\item Run the {\tt ./genNet.py telnetlab telnetlab} command to generate GNS3 network connection files, and to
+	\item Use the gui's {\tt Add a Link} function to connect each component per the output of {\tt showNet.py}. If a network has more than 2 componenets, add an ethernet hub and connect the components to the ethernet hub.
+	\item Close GNS3 and gns3-server. Run the {\tt ./genNet.py telnetlab telnetlab} command to generate GNS3 network connection files, to set the logo, and to
 		fix the component names.  You will not see the revised names until you restart the lab.
-	\item Stop the GUI and restart it.  Then test the lab.
+	\item Start the GUI and test the lab.
 \end{itemize}
 Changes made to Labtainers container images will be picked up by GNS3 the next time the GUI is started,
 assuming you re-run the noNet.py command.  There is no need to redefine appliance templates.
