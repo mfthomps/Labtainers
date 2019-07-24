@@ -41,10 +41,15 @@ for name, container in start_config.containers.items():
     os.system('rm -fr /tmp/nonet/*')
     fname = 'Dockerfile.%s-%s' % (args.labname, name)
     full = os.path.join(tdir, fname)
-    from_image = '%s/%s' % (container.registry, container.image_name)
+    from_image = container.image_name
     created, user, version = labutils.inspectImage(from_image)
     if created is None:
-        from_image = container.image_name
+        labutils.logger.error("Running noNet.py and cannot find image %s locally." % from_image)
+        from_image = '%s/%s' % (container.registry, container.image_name)
+        created, user, version = labutils.inspectImage(from_image)
+        if created is None:
+            labutils.logger.error("Running noNet.py and cannot find image %s in remote registry." % from_image)
+
     print('container image for %s is %s' % (name, from_image))
     with open(full, 'w') as fh:
         line = 'FROM %s' % from_image

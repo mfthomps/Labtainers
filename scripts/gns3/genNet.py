@@ -67,12 +67,17 @@ Look for logo
 logo_path = os.path.join(labtainer_lab, 'config', 'logo.png')
 if os.path.isfile(logo_path):
     dest = os.path.join(gns3_path, args.gns3_proj, 'project-files', 'images')
+    try:
+        os.mkdir(dest)
+    except:
+        pass
     shutil.copy(logo_path, dest)
     about_path = os.path.join(labtainer_lab, 'config', 'about.txt')
     supplier = {}
     supplier['logo'] = 'logo.png'
     supplier['url'] = about_path
     gns3_json['supplier'] = supplier
+   # print('logo path added! at %s' % logo_path)
 else:
     print('no logo to copy at %s' % logo_path)
 
