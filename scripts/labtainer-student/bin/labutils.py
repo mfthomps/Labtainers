@@ -2496,8 +2496,14 @@ def DoStopOne(start_config, labtainer_config, lab_path, name, container, zip_fil
                 baseZipFilename, currentContainerZipFilename = CreateCopyChownZip(start_config, labtainer_config, name, 
                              mycontainer_name, mycontainer_image, container_user, container_password, ignore_stop_error, keep_running)
                 if baseZipFilename is not None:
-                    zip_file_list.append(currentContainerZipFilename)
-                logger.debug("baseZipFilename is (%s)" % baseZipFilename)
+                    if currentContainerZipFilename is not None:
+                        zip_file_list.append(currentContainerZipFilename)
+                    else:
+                        logger.debug('currentContainerZipFilename is None for container %s' % mycontainer_name)
+
+                    logger.debug("baseZipFilename is (%s)" % baseZipFilename)
+                else:
+                    logger.debug("baseZipFileName is None for container %s" % mycontainer_name)
 
                 #command = 'docker exec %s echo "%s\n" | sudo -S rmdir /tmp/.mylockdir 2>/dev/null' % (mycontainer_name, container_password)
                 command = 'docker exec %s sudo rmdir /tmp/.mylockdir 2>/dev/null' % (mycontainer_name)
@@ -2554,6 +2560,10 @@ def GatherZips(zip_file_list, labtainer_config, start_config, labname, lab_path)
     host_home_xfer  = os.path.join(labtainer_config.host_home_xfer, labname)
     username = getpass.getuser()
     xfer_dir = "/home/%s/%s" % (username, host_home_xfer)
+    try:
+        os.makedirs(xfer_dir)
+    except:
+        pass
 
     # Create docs.zip in xfer_dir if COLLECT_DOCS is "yes"
     if start_config.collect_docs.lower() == "yes":
