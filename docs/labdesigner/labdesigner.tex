@@ -594,25 +594,36 @@ The centos-logs lab provides an example of forcing the student to login using th
 login program, as described in section \ref{student start}.
 
 
-\subsection {Instructions for Students} \label{instructions}
-Lab instructions for students can be displayed in a virtual terminal by placing an
-``instructions.txt'' file within the home directory of one of the containers.  Refer to existing
-labs for conventions.  Additionally, textual message can be displayed to the student before any 
-of the lab virtual terminals are created.  Any text within the 
+\subsection {Lab Text and Instructions for Students} \label{instructions}
+Create a 'docs' directory in the [labname] directory if there isn't one there. This is where most textual information about the lab, as well as the lab manual, should be stored and modified. The 'about.txt' is an exception to this. \\ 
+
+\noindent Use LateX to write and create PDF files in the docs directory. Look at other lab's docs directory on how to create a Makefile for the LateX file. \\ 
+
+\noindent Display a message to the student before any 
+of the lab virtual terminals are created by creating a {\tt read\_first.txt} in the 'docs' directory. Any text within the 
 \begin{verbatim}
    $LABTAINER_DIR/labs/[labname]/docs/read_first.txt
 \end{verbatim}
 \noindent file will be displayed on the Linux host in the terminal in which the student
-starts the lab.  Any ``LAB\_MANUAL'' string in that file will be replaced with the full path
-to a [labname].pdf file within that same docs directory.  And ``LAB\_DOCS'' is replaced by the
-path to the lab docs directory.  One intended use is to prompt the
-student to open a PDF lab manual and perhaps read parts of it prior to continuing with the lab.
-Another intended use is to display the path to a reporting template that a student is to use
-for answering lab-specific questions and note taking.  If the name of the symbols are prefaced
-by ``file://'', then the paths will display as links that can be opened via a right click.
-If the start.config file includes ``COLLECT\_DOCS YES'', the content of the lab/docs directory will be
+starts the lab.  
+\begin{itemize}
+	\item Any ``LAB\_MANUAL'' string in that file will be replaced with the full path
+to a [labname].pdf file within that same docs directory. And ``LAB\_DOCS'' is replaced by the path to the lab docs directory.  
+	\item One intended use is to prompt the student to open a PDF lab manual and perhaps read parts of it prior to continuing with the lab. Another intended use is to display the path to a reporting template that a student is to use for answering lab-specific questions and note taking. 
+	\item If the name of the symbols are prefaced by ``file://'', then the paths will display as links that can be opened via a right click.
+\end{itemize}
+	
+
+\noindent An 'about.txt' file will be present in the 'config' directory of the lab. Any text inside will be displayed as a description to the lab when listed from running the 'labtainer' command in \$LABTAINER\_DIR/trunk/scripts/labtainer-student. This text will also appear when clicking on the logo in the GNS3 environment of Labtainers. \\ 
+
+\noindent If the start.config file includes ``COLLECT\_DOCS YES'', the content of the lab/docs directory will be
 included with the student artifacts and available extracted into the intstrutor's 
-labtainer\_xfer/[lab]/docs directory.
+labtainer\_xfer/[lab]/docs directory. \\
+
+\noindent A deprecated feature that still exists in a tiny handful of labs: "Lab instructions for students can be displayed in a virtual terminal by placing an
+``instructions.txt'' file within the home directory of one of the containers.  Refer to existing
+labs for conventions."  
+
 
 \subsection {Running programs in Virtual Terminals}
 \label {student start}

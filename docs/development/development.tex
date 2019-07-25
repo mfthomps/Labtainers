@@ -3,6 +3,8 @@
 \geometry{a4paper, total={170mm,257mm},left=20mm, top=20mm,}
 \usepackage[colorlinks=true,linkcolor=blue,urlcolor=black]{hyperref}
 \usepackage{bookmark}
+\usepackage{listings}
+\usepackage{enumitem}
 \usepackage[autostyle, english = american]{csquotes}
 \begin{document}
 \begin{titlepage}
@@ -23,59 +25,106 @@ This document is intended for use by developers who maintain the
 Labtainer framework.  It does not address lab creation, which is 
 covered in the \textit {Labtainers Lab Designer User Guide}.
 
+\begin{flushleft} 
+{\bf Note:} 
+The Labtainer framework is based in Linux and is accessed through the Linux Terminal. 
+\end{flushleft} 
 
-\section{Developer Software Prerequisits}
+
+\section{Developer Software Prerequisites}
 \begin {itemize}
-\item Subversion
-\item Latex (texlive-full)
+\item {\bf git}
+\item {\bf make}
+\item {\bf g++}
+\item {\bf Latex} (texlive-full)
+\item {\bf Docker (Community Edition)}
+    \begin {itemize}
+    \item {For full and convenient installation of Docker and setting of Docker privileges, run {\tt install-docker-ubuntu.sh} in {\tt setup\_scripts}, assuming you are developing in Ubuntu. 
+    \item If on a different Linux distribution look in the same folder for your corresponding distribution (CentOS, Debian, Fedora). 
+    \item If your Linux distribution is none of these, please view Docker's webpage documentation to learn how to install Docker and set Docker privileges on your machine.}
+    \item {\bf NOTE:} These install-docker scripts include the installation of other packages outside Docker that are necessary for  
+    \end {itemize}
 \end {itemize}
 
 
-\section{Getting Labtainers from Subversion}
-svn co https://tor.ern.nps.edu/svn/proj/labtainer
-Change directory to trunk/setup-scripts and run ./after-checkout.sh. The will build the PDF lab
-manuals so that you can reference the manuals while you test or otherwise reference
-existing labs.  (Please follow the lab manual and report discrepancies!)
-It will also create any executables required by the framework.
-Then run ./pull-all.sh to pull all the baseline images (so that your running of 
-existing labs is more akin to what students and instructors do so we can better test that).
+\section{Getting Labtainers from Github}
+In the Linux Terminal change working directory into the directory you want to store Labtainers.
+\begin{flushleft} Run this in the terminal: \end{flushleft}
+\begin{center} {\tt git clone https://github.com/mfthomps/Labtainers.git} \end{center} 
+
+\section{Setting up the Development Environment}
+\begin {itemize}
+\item Disable any auto-updates on your machine as this may interfere with 'apt-get' requests you may have during development.
+\item Modify your ~/.bashrc file.
+    \begin{enumerate}
+    \item Add {\bf Labtainer\_DIR} as another global variable and set its value as the path to the {\tt  /Labtainers} directory. 
+    \item Modify the \$PATH to include {\tt ./bin} and {\tt \$LABTAINER\_DIR/scripts/designer/bin}.
+    \item In summary, your ~/.bashrc should include something like this:
+    \small{\begin{lstlisting}[frame=single]
+if [[ ":$PATH:" != *":./bin:"* ]]; then
+  export LABTAINER_DIR=$HOME/Labtainers
+  export PATH="${PATH}:./bin:$LABTAINER_DIR/scripts/designer/bin"
+fi
+    \end{lstlisting}} 
+    \item cd into \$LABTAINER\_DIR/setup\_cripts:
+	    \begin{itemize}
+    		\item Run pull-all.py to get all base docker images.
+    		\item Run build-docs.sh to build the lab manuals for all labs.
+	    \end{itemize}
+    \item cd into \$LABTAINER\_DIR/tool-src/capinout and run mkit.sh
+    \end{enumerate}
+\end {itemize}
 
 \section{Testing and Running Existing Labs}
-There are situations where you will run an existing lab, e.g., to test it, or to 
-observe some example.  When running labs, please refer to the lab manuals
-so that they get reivewed and tested by different people.  Also, please first delete
-the lab using trunk/setup\_scripts/removelab.sh to ensure that you are running the latest
-version of the published lab.  If you find the lab to be broken, e.g., missing a file, please
-attempt to run "rebuild.py" on the lab.  Report these findings to the lab author.  And always
-run removelab.sh after you have run an existing lab via rebuild.py.  Again, the goal is to
-force ourselves to run the distributed labs unless we have specific reasons to do otherwise.
+When running labs, the goal is to force ourselves to run the distributed labs unless we have specific reasons to do otherwise.
+\begin{enumerate}[label=\Alph*]
+	\item )   To ensure that you are running the latest version of the published lab, first delete the current version of the lab using setup\_scripts/removelab.sh.  
+
+	\item )   If you find the lab to be broken, e.g., missing a file, please attempt to run "rebuild.py" on the lab. rebuild.py will ouput a log of issues. Report these findings to the lab author.  
+
+	\item )   Always run removelab.sh after you have run an existing lab via rebuild.py.  
+
+	\item )   Please review the lab's manual very closely. This is so that both the lab itself and the lab's manual can receive feedback for improvement. 
+\end{enumerate}
 
 \section{Overview of Labtainer Elements}
 The Labtainer framework implementation is primarily python scripts.  A number of the 
-top level scripts share functions found in bin/labutils.py.  The 
+top level scripts share functions found in scripts/labtainer-student/{\bf bin}/labutils.py.  The 
 top level scripts are organized as follows:
 
 \begin{itemize}
+	\item {\bf Student} \begin{itemize}
 \item Student {\tt labtainers} (start) and {\tt stoplab} -- In the labtainers-student/bin directory, these run on the 
 Linux host and manage the pulling, starting and stopping of containers.  They also coordinate
 collection of student artifacts.
-\item Student container scripts -- In the labtainers-student/lab\_bin directory, these execute on
+\item Student container scripts -- In the labtainers-student/{\bf lab\_bin} directory, these execute on
 containers, e.g., to hook bash and parameterize containers.
+	\end{itemize}
+
+	\item {\bf Instructor} \begin{itemize}
 \item Instructor {\tt gradelab} and {\tt stopgrader}-- Push student artifacts onto grader container and get assessment results.
 \item Instructor container scripts -- perform grading functions.
+	\end{itemize}
+
+	\item {\bf Developer} \begin{itemize}
 \item Developer building -- rebuild.py in labtainers-student/bin and labtainers-instructor/bin.
 \item Publishing labs -- labtainers/distrib/publish.py
-\item Base Labtainer images -- /trunk/scripts/designer/bin, create and publish the base images.
-\item VM appliances -- /trunk/host\_scripts, update and publish VM appliances as OVA files for 
+\item Base Labtainer images -- scripts/designer/bin, create and publish the base images.
+	\end{itemize}	
+
+	\item {\bf Other} \begin{itemize}
+\item VM appliances -- //host\_scripts, update and publish VM appliances as OVA files for 
 VirtualBox and VMWare.
 \item Regression testing of grading functions is performed by labtainer-instructor/regress.py.
 Expected results are stored in the labtainer/testsets directory.
-\item Regression testing of labs and grading combined: scripts in trunk/testsets/bin; data sets
+\item Regression testing of labs and grading combined: scripts in testsets/bin; data sets
 are not distributed, they are in labtainer/simlab/<labname>
+       \end{itemize}
+
 \end{itemize}
 
 \section {Control Flow}
-Student scripts, e.g., start.py, run from the trunk/scripts/labtainer-student directory.
+Student scripts, e.g., start.py, run from the scripts/labtainer-student directory.
 That directory also contains the bin/labutils.py, which contains most of the framework
 functions.
 
