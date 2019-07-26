@@ -712,7 +712,7 @@ def DockerCmd(cmd, noloop=False):
            ok = True
         if len(output[0]) > 0:
             logger.debug("cmd %s stdout: %s" % (cmd, output[0]))
-            if 'unrecognized option' in output[0]:
+            if 'unrecognized option' in output[0].decode('utf-8'):
                 return False
     return True
 
