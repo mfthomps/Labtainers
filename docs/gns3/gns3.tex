@@ -190,6 +190,19 @@ the lab.
 Changes made to Labtainers container images will be picked up by GNS3 the next time the GUI is started,
 assuming you re-run the noNet.py command.  There is no need to redefine appliance templates.
 
+\section{GNS3 interface changes for Labtainers}
+Once the lab is defined for use in GNS3, it can be run by opening the associated project file.  The following features were added to the GNS interface:
+\begin{itemize}
+	\item Labtainers containers will be parameterized and initialized when the container is started.  It requires a student email address in
+		{\tt ~/.local/share/labtainers/}
+	\item Terminal windows defined for the Labtainers lab will be opened.
+	\item Double clicking on a Labtainers component will open another Labtainers window similar to the {\tt moreterm.py} function.
+	\item The ``check work'' button will perform automated assessment similar to the Labtainers {\tt checkwork} function.
+	\item Lab manuals are displayed by clicking the ``Lab Manual'' button (question mark)
+	\item The state of Labtainers containers is maintained after GNS3 is terminated.  A new fresh instance of the lab can be generated
+		by pressing the "Restart Lab" button.
+	\item All Labtainers containers support X11 applications using the host system X11 server.
+\end{itemize}
 \section{History}
 This section describes steps taken to create the Labtainers version of GNS3.
 The steps outlined here are not intended to be repeated by developers.
