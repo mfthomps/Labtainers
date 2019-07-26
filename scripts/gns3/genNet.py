@@ -86,7 +86,7 @@ subnets = start_config.subnets
 ''' set node names and generate network interface files '''
 for name, container in start_config.containers.items():
     print('container %s' % name)
-    gns3_con = '%s-%s-labtainer' % (args.labname, name) 
+    gns3_con = '%s_%s-labtainer' % (args.labname, name) 
     node_id = getLabtainerNodeId(gns3_json, gns3_con)
     if node_id is None:
        print('Could not find container %s in gns3 project json' % name)

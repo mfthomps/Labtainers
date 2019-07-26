@@ -37,6 +37,7 @@ except:
 
 labtainer_lab = os.path.join(labtainers_path, args.labname)
 labtainer_config, start_config = labutils.GetBothConfigs(labtainer_lab, labutils.logger)
+created_images = []
 for name, container in start_config.containers.items():
     os.system('rm -fr /tmp/nonet/*')
     fname = 'Dockerfile.%s-%s' % (args.labname, name)
@@ -57,6 +58,12 @@ for name, container in start_config.containers.items():
         fh.write('USER root\n')
         fh.write('RUN rm -fr /etc/network\n')
     os.chdir(tdir)
-    image = '%s-%s-labtainer' % (args.labname, name)
+    image = '%s_%s-labtainer' % (args.labname, name)
+    created_images.append(image)
     cmd = 'docker build -f %s -t %s .' % (fname, image)
     os.system(cmd)
+print('-----------------------------------------------------------')
+print('[Use the images below to define Docker container templates')
+print(' for use in your lab in GNS3.]:')
+for img in created_images:
+    print('- %s' % img)

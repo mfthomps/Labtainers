@@ -24,7 +24,13 @@ def getLabFromImage(image_name):
         return None, None
     index = len(suffix) * -1
     lab_box = image_name[:index]
-    parts = lab_box.rsplit('-', 1)
+    if lab_box.count('-') == 1:
+        parts = lab_box.split('-')
+    elif '_' in lab_box:
+        parts = lab_box.rsplit('_', 1)
+    else:
+        print('could not parse lab/box from %s' % image_name)
+        return None, None
     lab = parts[0]
     box = parts[1]
     return lab, box
@@ -43,7 +49,7 @@ def labtainerTerms(images, logger):
     labtainer_config, start_config = labutils.GetBothConfigs(lab_path, logger)
     for name, container in start_config.containers.items():
         #print('name %s full %s' % (name, container.full_name))
-        gimage = '%s-%s-labtainer' % (labname, name)
+        gimage = getGImage(labname, name)
         for image in images:
             if image.startswith(gimage):
                 gcontainer = images[image]
@@ -64,7 +70,7 @@ def moreTerm(image, container_id, logger):
     labtainer_config, start_config = labutils.GetBothConfigs(lab_path, logger)
     for name, container in start_config.containers.items():
         #print('name %s full %s' % (name, container.full_name))
-        gimage = '%s-%s-labtainer' % (labname, name)
+        gimage = getGImage(labname, name)
         if image.startswith(gimage):
             return labutils.DoMoreterm(lab_path, name, alt_name=container_id[:12])
     logger.error('moreTerm failed to find container for %s' % image)
@@ -81,6 +87,9 @@ def gatherZips(zip_list, image, logger):
     labtainer_config, start_config = labutils.GetBothConfigs(lab_path, logger)
     labutils.GatherZips(zip_list, labtainer_config, start_config, labname, lab_path)
 
+def getGImage(labname, name):
+    return '%s_%s-labtainer' % (labname, name)
+
 def labtainerStop(image, container_id, logger):
     labutils.logger = logger
     here = os.path.dirname(os.path.abspath(__file__))
@@ -93,9 +102,10 @@ def labtainerStop(image, container_id, logger):
     here = os.getcwd()
     student_dir = os.path.join(parent, 'labtainer-student')
     os.chdir(student_dir)
+    zip_file_name = None
     for name, container in start_config.containers.items():
         logger.debug('name %s full %s' % (name, container.full_name))
-        gimage = '%s-%s-labtainer' % (labname, name)
+        gimage = getGImage(labname, name)
         if image.startswith(gimage):
 
             labutils.GatherOtherArtifacts(lab_path, name, container_id, container.user, container.password, True)
