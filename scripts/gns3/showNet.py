@@ -35,7 +35,8 @@ print('labname: %s has %d networks' % (args.labname, len(nets)))
 
 for name, container in start_config.containers.items():
     eth_index = 0
-    print('Container: %s' % name)
+    num_adapters = len(container.container_nets.items())
+    print('Container: %s (# of adapters: %d)' % (name, num_adapters))
     for subnet_name, subnet_ip in container.container_nets.items():
         sub_index = nets.index(subnet_name)
         eth = 'eth %d' % eth_index
