@@ -37,4 +37,4 @@ else:
 
 with open(jfile, 'w') as outfile:
     json.dump(data, outfile, indent = 4)
-    service restart docker 
+os.system('service docker restart')
