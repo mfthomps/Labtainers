@@ -25,6 +25,8 @@ copy a logo for use in the GNS3 workspace.
 def getLabtainerNodeId(gns3_json, name):
     for node in gns3_json['topology']['nodes']:
         #nn = node['name']
+        if 'image' not in node['properties']:
+            continue
         ni = node['properties']['image']
         if ni.startswith(name):
             print('matched node id %s' % node['node_id'])
