@@ -6,6 +6,8 @@
 \usepackage{listings}
 \usepackage{enumitem}
 \usepackage[autostyle, english = american]{csquotes}
+\usepackage{courier}
+\usepackage{mdframed}
 \begin{document}
 \begin{titlepage}
 \title {Labtainer Framework Development Guide}
@@ -37,17 +39,10 @@ The Labtainer framework is based in Linux and is accessed through the Linux Term
 \item {\bf make}
 \item {\bf g++}
 \item {\bf Latex} (texlive-full)
-\item {\bf Docker (Community Edition)}
-    \begin {itemize}
-    \item {For full and convenient installation of Docker and setting of Docker privileges, run {\tt install-docker-ubuntu.sh} in {\tt setup\_scripts}, assuming you are developing in Ubuntu. 
-    \item If on a different Linux distribution look in the same folder for your corresponding distribution (CentOS, Debian, Fedora). 
-    \item If your Linux distribution is none of these, please view Docker's webpage documentation to learn how to install Docker and set Docker privileges on your machine.}
-    \item {\bf NOTE:} These install-docker scripts include the installation of other packages outside Docker that are necessary for  
-    \end {itemize}
+\item {\bf Docker (Community Edition)} [See {\bf Docker Installation} Section]
 \end {itemize}
-
-
 \section{Getting Labtainers from Github}
+
 In the Linux Terminal change working directory into the directory you want to store Labtainers.
 \begin{flushleft} Run this in the terminal: \end{flushleft}
 \begin{center} {\tt git clone https://github.com/mfthomps/Labtainers.git} \end{center} 
@@ -60,13 +55,20 @@ In the Linux Terminal change working directory into the directory you want to st
     \item Add {\bf Labtainer\_DIR} as another global variable and set its value as the path to the {\tt  /Labtainers} directory. 
     \item Modify the \$PATH to include {\tt ./bin} and {\tt \$LABTAINER\_DIR/scripts/designer/bin}.
     \item In summary, your ~/.bashrc should include something like this:
-    \small{\begin{lstlisting}[frame=single]
+	    \lstset{basicstyle=\footnotesize\ttfamily,
+		    breaklines=true
+	    	    framextopmargin=50pt
+		    frame=single,
+		    language=bash}
+	    \begin{mdframed}
+	    \begin{lstlisting}
 if [[ ":$PATH:" != *":./bin:"* ]]; then
   export LABTAINER_DIR=$HOME/Labtainers
   export PATH="${PATH}:./bin:$LABTAINER_DIR/scripts/designer/bin"
 fi
-    \end{lstlisting}} 
-    \item cd into \$LABTAINER\_DIR/setup\_cripts:
+	    \end{lstlisting}
+	    \end{mdframed}
+    \item cd into \$LABTAINER\_DIR/setup\_scripts:
 	    \begin{itemize}
     		\item Run pull-all.py to get all base docker images.
     		\item Run build-docs.sh to build the lab manuals for all labs.
@@ -74,6 +76,18 @@ fi
     \item cd into \$LABTAINER\_DIR/tool-src/capinout and run mkit.sh
     \end{enumerate}
 \end {itemize}
+
+
+\section{Docker Installation}
+For full and convenient installation of Docker and setting of Docker privileges, run  'install-docker-ubuntu.sh' in 'setup\_scripts', assuming you are developing in Ubuntu. {\bf Note:} Make sure to run the script as user (not sudo), so that your user can be added to the Docker group.\\ 
+    
+\noindent Reboot system, so that user receives Docker privileges.
+
+    \begin {itemize}
+    \item If on a different Linux distribution look in the same folder for your corresponding distribution (CentOS, Debian, Fedora). 
+    \item If your Linux distribution is none of these, please view Docker's webpage documentation to learn how to install Docker and set Docker privileges on your machine.
+    \item {\bf NOTE:} These install-docker scripts include the installation of other packages outside Docker that are necessary for building labs. 
+    \end {itemize}
 
 \section{Testing and Running Existing Labs}
 When running labs, the goal is to force ourselves to run the distributed labs unless we have specific reasons to do otherwise.
