@@ -1044,7 +1044,9 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
             continue
 
         force_this_build = force_build
-        logger.debug('force_this_build: %r' % force_this_build)
+        if container.no_pull == 'YES':
+            no_pull = True
+        logger.debug('force_this_build: %r no_pull %r' % (force_this_build, no_pull))
         image_info = imageInfo(mycontainer_image_name, container.registry, labtainer_config, is_rebuild=True, no_pull=no_pull)
         if not force_this_build and image_info is None:
             logger.debug('image exists nowhere, so force the build')
@@ -1064,7 +1066,7 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
         ''' create sys_tar and home_tar before checking build dependencies '''
         CheckTars.CheckTars(container_dir, name, logger)
         if force_this_build or CheckBuild(lab_path, mycontainer_image_name, image_info, mycontainer_name, name, True, container_bin, start_config, container.registry, container.user):
-            logger.debug("Will rebuild %s,  force_this_build: %s" % (mycontainer_name, force_this_build))
+            logger.debug("Will rebuild %s,  force_this_build: %s  apt_source %s" % (mycontainer_name, force_this_build, labtainer_config.apt_source))
             if os.path.isfile(build_student):
                 cmd = '%s %s %s %s %s %s %s %s %s %s %s' % (build_student, labname, name, container.user, 
                       container.password, True, LABS_DIR, labtainer_config.apt_source, container.registry, framework_version, str(no_pull))
@@ -2267,12 +2269,12 @@ def StopMyContainer(container_name, ignore_stop_error):
     #    logger.debug('StopMyContainer stdout %s' % output[0])
     #result = subprocess.call(command, shell=True)
 
-# Get a list of running lab
+# Get a list of running lab names
 def GetListRunningLab():
     lablist = []
     # Note: doing "docker ps" not "docker ps -a" to get just the running container
     command = "docker ps"
-    logger.debug("Command to execute is (%s)" % command)
+    logger.debug("GetListRunningLab Command to execute is (%s)" % command)
     ps = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[1].strip()) > 0:
@@ -2283,14 +2285,26 @@ def GetListRunningLab():
         for each_line in docker_ps_output:
             # Skip empty line or the "CONTAINER ID" line - the header line returned by "docker ps"
             current_line = each_line.strip()
-            if not current_line or current_line.startswith("CONTAINER"):
+            if not current_line or len(current_line) == 0 or current_line.startswith("CONTAINER"):
                 continue
+            logger.debug(current_line)
             # Assume the container name is the last token on the line
             container_info = current_line.split()
             container_name = container_info[-1]
-            # Assume the labname is the first token if split by '.'
-            labname = container_name.split('.')[0]
+            # And the image is the 2nd token
+            image_name = container_info[1]
+            image_name = os.path.basename(image_name)
+            if container_name.startswith(image_name):
+                ''' std Labtainers image, get is labname '''
+                labname = container_name.split('.')[0]
+            elif 'labtainer' in image_name:
+                ''' gns3 labtainer image '''
+                labname = image_name.split('_', 1)[0]
+            else:
+                logger.debug('not a labtainer: %s' % image_name)
+                continue
             if labname not in lablist:
+                logger.debug('appending %s' % labname)
                 lablist.append(labname)
     return lablist
 
@@ -2825,7 +2839,7 @@ def GetContainerId(image):
     ps = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[1].strip()) > 0:
-        logger.error('Fail to get a list of running containers, error returned %s' % output[1])
+        logger.error('GetContainerId, Failed to get a list of running containers, error returned %s' % output[1])
         sys.exit(1)
     if len(output[0]) > 0:
         docker_ps_output = output[0].decode('utf-8').splitlines()
