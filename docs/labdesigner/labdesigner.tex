@@ -2162,6 +2162,10 @@ that you go back and re-perform student actions.  Exceptions to this are:
 Use {\tt TERMINAL\_GROUPS} in the start.config file to organize terminals if you have more
 than a few.  Otherwise the student will spend time trying to find each terminal.
 
+Avoid the use of ``shared folders'' in VMWare and VirtualBox as a means of copying lab
+definitions.  Use tar and/or scp instead.  Otherwise permissions of directories may
+be changed, e.g., no x access to /etc for other.
+
 \begin{enumerate}
 \item Adding new system commands to a ``treataslocal'' file;
 \item Identifying new system files to be parsed as results.  For example, results in a log
