@@ -4,6 +4,8 @@ import os
 import json
 import logging
 import argparse
+import subprocess
+import shlex
 here = os.path.dirname(os.path.abspath(__file__))
 student_dir = os.path.join(here,'../labtainer-student')
 sys.path.append(os.path.join(student_dir, 'bin'))
@@ -13,6 +15,22 @@ import LabtainerLogging
 '''
 Wraper functions for invoking Labtainer functions from GNS3
 '''
+def getImageMap(lab, logger):
+    cmd = 'docker ps'
+    ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if len(output[1].strip()) > 0:
+        logger.error('No running containers: error returned %s, return false' % output[1])
+        return None
+    lookfor = ' %s_' % lab
+    image_map = {}
+    for line in output[0].decode('utf-8').splitlines():
+        if lookfor in line:
+            parts = line.split()
+            image_map[parts[1]] = parts[0]
+            logger.debug('getImageMap map %s to %s' % (parts[1], parts[0]))
+    return image_map
+
 
 def getLabFromImage(image_name):
     ''' strip off tag if present '''
@@ -38,21 +56,20 @@ def getLabFromImage(image_name):
 def labtainerTerms(images, logger):
     labutils.logger = logger
     logger.debug('labtainerTerms %d images' % len(images))
-    image = next(iter(images))
-    labname, box = getLabFromImage(image)
+    labname, box = getLabFromImage(images[0])
     here = os.path.dirname(os.path.abspath(__file__))
     gparent = os.path.dirname(os.path.dirname(here))
     lab_path = os.path.join(gparent, 'labs', labname)
     logger.debug('lab_path is %s' % lab_path)
-
+    image_map = getImageMap(labname, logger)
     container_map = {}
     labtainer_config, start_config = labutils.GetBothConfigs(lab_path, logger)
     for name, container in start_config.containers.items():
         #print('name %s full %s' % (name, container.full_name))
         gimage = getGImage(labname, name)
-        for image in images:
+        for image in image_map:
             if image.startswith(gimage):
-                gcontainer = images[image]
+                gcontainer = image_map[image]
                 #print('got match %s cont %s' % (image, gcontainer))
                 container_map[container.full_name] = gcontainer
 
