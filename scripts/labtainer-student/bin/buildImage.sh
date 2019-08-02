@@ -61,9 +61,11 @@ else
         exit
     fi
     ORIG_PWD=`pwd`
-    echo $ORIG_PWD
-    LAB_TAR=$LAB_DIR/$labimage.tar.gz
-    SYS_TAR=$LAB_DIR/sys_$labimage.tar.gz
+    echo "ORIG_PWD is:" $ORIG_PWD
+    LAB_TAR=$LABIMAGE_DIR/$labimage.tar.gz
+    SYS_TAR=$LABIMAGE_DIR/sys_$labimage.tar.gz
+    rm -f $LAB_TAR
+    rm -f $SYS_TAR
     TMP_DIR=/tmp/$labimage
     rm -rf $TMP_DIR
     mkdir $TMP_DIR
@@ -100,7 +102,8 @@ else
     tar --atime-preserve -zcvf $LAB_TAR .
 fi
 #---------------------------------------------------------------^
-cd $LAB_TOP
+#cd $LAB_TOP
+cd $LABIMAGE_DIR
 dfile=Dockerfile.$labimage
 #---------------------------------V
 result=0
@@ -111,23 +114,25 @@ fi
 if [ ! -z "$imagecheck" ] && [ $force_build = "False" ]; then 
     echo "use exising image"
 else
-    echo docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename \
+    cp ../dockerfiles/$dfile .
+    echo docker build --build-arg lab=$labimage --build-arg labdir="." --build-arg imagedir="." \
                  --build-arg user_name=$user_name --build-arg password=$user_password --build-arg apt_source=$APT_SOURCE \
                  --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY \
                  --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY \
                  --build-arg NO_PROXY=$NO_PROXY  --build-arg no_proxy=$NO_PROXY \
                  --build-arg registry=$REGISTRY --build-arg version=$VERSION \
-               $pull -f $LAB_DIR/dockerfiles/$dfile -t $labimage .
-    docker build --build-arg lab=$labimage --build-arg labdir=$lab --build-arg imagedir=$imagename \
+               $pull -f $dfile -t $labimage .
+    docker build --build-arg lab=$labimage --build-arg labdir="." --build-arg imagedir="." \
                  --build-arg user_name=$user_name --build-arg password=$user_password --build-arg apt_source=$APT_SOURCE \
                  --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY \
                  --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY \
                  --build-arg NO_PROXY=$NO_PROXY  --build-arg no_proxy=$NO_PROXY \
                  --build-arg registry=$REGISTRY --build-arg version=$VERSION \
-               $pull -f $LAB_DIR/dockerfiles/$dfile -t $labimage .
+               $pull -f $dfile -t $labimage .
     result=$?
 fi
-#---------------------------------^
+
+rm $dfile
 echo "removing temporary $dfile, reference original in $LAB_DIR/dockerfiles/$dfile"
 #rm $LABIMAGE_DIR
 cd $ORIG_PWD
