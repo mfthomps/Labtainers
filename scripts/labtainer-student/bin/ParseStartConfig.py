@@ -85,6 +85,7 @@ class ParseStartConfig():
             self.docker_args = ''
             self.enable = None
             self.disable = None
+            self.no_pull = False
             self.logger = logger
 
         def add_net(self, name, ipaddr):
@@ -167,7 +168,7 @@ class ParseStartConfig():
                 keyval = linestrip.split(None,1)    
                 key = keyval[0].lower()
                 if len(keyval) > 1:
-                    if key == "user" or key == "xterm" or key == "password" or key == "docker_args":
+                    if key == "user" or key == "xterm" or key == "password" or key == "docker_args" or key == "no_pull":
                         # DO NOT change case for 'user' or 'xterm'
                         val = keyval[1]
                     else:
