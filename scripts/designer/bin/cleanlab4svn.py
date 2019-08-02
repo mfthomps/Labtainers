@@ -30,7 +30,7 @@ LABTAINER_DIR=None
 def DoWork(current_dir, lab_name):
     # This script will remove the following:
     # 1. Any tarball '*.tar.gz' in the lab directory, i.e., <lab>/*.tar.gz files
-    tarball_list = glob.glob('%s/*.tar.gz' % current_dir)
+    tarball_list = glob.glob('%s/*/*.tar.gz' % current_dir)
     #print "tarball_list is (%s)" % tarball_list
     for name in tarball_list:
         #print "current name is %s" % name
