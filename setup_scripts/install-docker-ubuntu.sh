@@ -12,6 +12,13 @@ END
 # Install Docker on an Ubuntu system, along with other packages required by Labtainers
 #
 
+#Check if current user is user login. (Targeted to avoid adding root user into docker group instead of the the user logged in account.)
+currUser=`who | awk '{print $1}'`
+if [ "$USER" != "$currUser" ]; then
+    echo "You are not the login user. If you are root user, please exit. And run this script again."
+    exit
+fi
+
 type sudo >/dev/null 2>&1 || { echo >&2 "Please install sudo.  Aborting."; exit 1; }
 sudo -v || { echo >&2 "Please make sure user is sudoer.  Aborting."; exit 1; }
 #---needed packages for install
