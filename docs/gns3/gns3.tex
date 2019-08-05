@@ -232,15 +232,17 @@ The node.py script was altered to increase the timeout to account for parameteri
 containers.  This should be revisited to be perhaps less crude.
 
 \bigskip
-Install qtcreator
-Open the {\tt gns3-gui/gns3/gui/main\_window.ui} file
-
-To add icons:
+To add icons: 
 \begin{itemize}
-\item Add to resources/images or wherever.
-\item Edit resources.qrc
-\item scripts/build\_pyqt.py --ressources
-\item Use qtcreator to identify the icon in "resources"
+	\item Add icon to {\tt gns3-gui/resources/images}
+	\item Add  <file>images/yourIconFileName</file> to the list in resources.qrc located in {\tt gns3-gui/resources}.
+	\item Run gns3-gui/scripts/build\_pyqt.py --ressources
+	\item Install qtcreator. 
+	\item Open the {\tt gns3-gui/gns3/gui/main\_window.ui} file with qtcreator.
+	\item Edit an object from the Action Editor bar, and click on the button with 3 dots on the 'Icon' row. 
+	\item Select your icon from the 'images' section, press OK, and press OK again.
+	\item After saving your changes, run gns3-gui/scripts/build\_pyqt.py --ressources.
+	\item Run 'sudo python3 setup.py install' in the gns3-gui directory.
 \end{itemize}
-Added lab manual button "?" and check work button.
+Added lab manual button and check work button.
 \end{document}
