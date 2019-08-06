@@ -131,19 +131,22 @@ def labtainerStop(image, container_id, logger):
     os.chdir(here)
     return zip_file_name
 
-def parameterizeOne(image_name, logger):
-    labutils.logger = logger
-
+def getStartConfig(image_name, logger):
     here = os.path.dirname(os.path.abspath(__file__))
     labname, comp_name = getLabFromImage(image_name)
     if labname is None:
         log.error('no labtainer labname found in image %s' % image_name)
-        return
+        return None, None, None, None
     parent = os.path.dirname(here)
     gparent = os.path.dirname(parent)
     lab_path = os.path.join(gparent, 'labs', labname)
     logger.debug('paremterizeOne lab_path is %s' % lab_path)
     labtainer_config, start_config = labutils.GetBothConfigs(lab_path, logger)
+    return start_config, comp_name, labname, lab_path
+
+def parameterizeOne(image_name, logger):
+    labutils.logger = logger
+    start_config, comp_name, labname, lab_path = getStartConfig(image_name, logger)
     running = labutils.GetContainerId(image_name)
     logger.debug('running is %s  ' % running)
     email_addr = labutils.getLastEmail()
@@ -157,6 +160,31 @@ def parameterizeOne(image_name, logger):
                 labutils.ParamForStudent(start_config.lab_master_seed, container.full_name, container.user, container.password,
                                 labname, email_addr, lab_path, name, None, running_container = running)
                 return
+
+def extraHosts(image_name, logger):
+    ''' gns3 style extra host processing '''
+    retval = ''
+    labutils.logger = logger
+
+    start_config, comp_name, labname, lab_path = getStartConfig(image_name, logger)
+    for name, container in start_config.containers.items():
+        if name == comp_name:
+            logger.debug('extraHosts found match container name %s' % name)
+            for item in container.add_hosts:
+                if ':' not in item:
+                   if item in start_config.lan_hosts:
+                       for entry in start_config.lan_hosts[item]:
+                           host, ip = entry.split(':')
+                           retval = retval + '%s\t%s\n' % (host.strip(), ip.strip())
+                   else:
+                       logger.error('ADD-HOST entry in start.config missing colon: %s' % item)
+                       logger.error('sytax: ADD-HOST <host>:<ip>')
+                       return retval
+                else:
+                   host, ip = item.split(':')
+                   retval = retval + '%s\t%s\n' % (host.strip(), ip.strip())
+            break 
+    return retval
 
 if __name__ == '__main__':
     ''' only for testing '''
