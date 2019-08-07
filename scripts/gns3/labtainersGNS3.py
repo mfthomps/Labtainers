@@ -188,7 +188,7 @@ def extraHosts(image_name, logger):
                        return retval
                 else:
                    host, ip = item.split(':')
-                   retval = retval + '%s\t%s\n' % (host.strip(), ip.strip())
+                   retval = retval + '%s\t%s\n' % (ip.strip(), host.strip())
             break 
     return retval
 
