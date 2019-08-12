@@ -26,10 +26,11 @@ def removeLab(lab, justContainers):
         output = ps.communicate()
         image_find = '/%s.' % lab
         image_find2 = '%s.' % lab
+        image_find3 = '%s_' % lab
         image_list = []
         for line in output[0].splitlines():
             #print line
-            if (image_find in line or line.startswith(image_find2)) and ' <none> ' not in line:
+            if (image_find in line or line.startswith(image_find2) or line.startswith(image_find3)) and ' <none> ' not in line:
                 parts = line.split()
                 image = '%s:%s' % (parts[0], parts[1])
                 image_list.append(image)
