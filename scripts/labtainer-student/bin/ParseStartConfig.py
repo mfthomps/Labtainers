@@ -160,9 +160,11 @@ class ParseStartConfig():
            advantage is that I think the parsing method should be easy to extend."""
         active      = None
         defaults_ok = {"network","container", "global_settings"}
+        line_count = 0
         with open(fname, "r") as f:
             for line in f:
                 linestrip = line.strip()
+                line_count = line_count + 1
                 if not linestrip or linestrip.startswith("#"):
                     continue
                 keyval = linestrip.split(None,1)    
@@ -176,7 +178,7 @@ class ParseStartConfig():
                 elif key in defaults_ok:
                     val = "default"
                 else:
-                    self.logger.error("Fatal. Missing value for: %s" % line)
+                    self.logger.error("Fatal. Missing value for: %s \nPlease fix your start.config file at line %s" % (line,line_count))
                     exit(1)
 
                 if key == "global_settings":
@@ -187,8 +189,22 @@ class ParseStartConfig():
                     self.lan_hosts[val] = []
                 elif key == "container":
                     if val in self.containers:
-                        self.logger.error('Container %s already defined' % val)
+                        self.logger.error('Container %s already defined\n\nPlease fix your start.config file at line %s' % (val,line_count))
                         exit(1)
+                    
+                    #Check if the directory for this container exists: 
+                    #(Only if an absolute path is set to fname, which is in the case of fname referencing a start.config file located in a lab's config directory)
+                    #(Cases where relative paths are set to fname will be ignored for this validation 
+                    # since the method used to find the container directory will not guarantee proper success/failure in this case)
+                    #Method: Using the path of the start.config file for a lab as a pivot point, go up 2 steps, and look from the [labname] top directory for directories of this container name
+                    container_path = os.path.join(os.path.dirname(os.path.dirname(self.fname)), val)
+                    if(fname[0] == '/'):
+                        if not os.path.isdir(container_path):
+                            errorStatement = 'Container \'%s\' does not have directory setup in the \'%s\' lab directory \n\n' % (val, self.labname) 
+                            error_line = "\nPlease fix your start.config file at line %s" % line_count
+                            self.logger.error(errorStatement + 'Either change your start.config to not name this container or create a container directory for this lab.' + error_line)
+                            exit(1)
+                   
                     self.containers[val] = self.Container(val, self.logger)
                     self.logger.debug('added container %s' % val)
                     active = self.containers[val]
@@ -205,7 +221,7 @@ class ParseStartConfig():
                             tlan = key.split(':')[0]
                         self.lan_hosts[tlan].append(lan_host)
                     except:
-                        self.logger.error("Fatal. Can't understand config setting: %s" % line)
+                        self.logger.error("Fatal. Can't understand config setting: %s \nPlease fix your start.config file at line %s" % (line,line_count))
                         exit(1)
 
     def validate(self):
