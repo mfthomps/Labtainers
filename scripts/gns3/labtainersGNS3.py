@@ -154,12 +154,18 @@ def parameterizeOne(image_name, logger):
         logger.error('Missing labtainer email address')
         ''' TBD dialog?  Tell user how to add it '''
         return
+   
+    cwd = os.getcwd()
+    logger.debug('parameterizeOne in %s need to be in %s' % (cwd, student_dir))
+    os.chdir(student_dir)
     for name, container in start_config.containers.items():
         if name == comp_name:
                 logger.debug('found match container name %s' % name)
                 labutils.ParamForStudent(start_config.lab_master_seed, container.full_name, container.user, container.password,
                                 labname, email_addr, lab_path, name, None, running_container = running)
+                os.chdir(cwd)
                 return
+    os.chdir(cwd)
 
 def extraHosts(image_name, logger):
     ''' gns3 style extra host processing '''
@@ -182,7 +188,7 @@ def extraHosts(image_name, logger):
                        return retval
                 else:
                    host, ip = item.split(':')
-                   retval = retval + '%s\t%s\n' % (host.strip(), ip.strip())
+                   retval = retval + '%s\t%s\n' % (ip.strip(), host.strip())
             break 
     return retval
 
