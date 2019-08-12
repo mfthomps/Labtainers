@@ -1067,6 +1067,13 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
         CheckTars.CheckTars(container_dir, name, logger)
         if force_this_build or CheckBuild(lab_path, mycontainer_image_name, image_info, mycontainer_name, name, True, container_bin, start_config, container.registry, container.user):
             logger.debug("Will rebuild %s,  force_this_build: %s  apt_source %s" % (mycontainer_name, force_this_build, labtainer_config.apt_source))
+            
+            #Check if the container's Dockerfile exists
+            dfile = '%s/%s/dockerfiles/Dockerfile.%s.%s.student' % (LABS_DIR, labname, labname, name)
+            if not os.path.isfile(dfile):
+                logger.error("Dockerfile.%s.%s.student is missing from labs/%s/dockerfiles." % (labname, name, labname))
+                exit(1)
+
             if os.path.isfile(build_student):
                 cmd = '%s %s %s %s %s %s %s %s %s %s %s' % (build_student, labname, name, container.user, 
                       container.password, True, LABS_DIR, labtainer_config.apt_source, container.registry, framework_version, str(no_pull))
@@ -1085,8 +1092,8 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
                     #if 'Error in docker build result 1' in line:
                     if 'Error in docker build result 1' in line or 'Error in docker build result 2' in line \
                        or 'syntax error' in line:
-                        logger.error(line)
-                        fatal_error = True
+                      logger.error("%s\nPlease fix Dockerfile.%s.%s.student. Look in labtainer.log for specifics on the error." % (line, labname, name))
+                      fatal_error = True
                     else:
                         logger.debug(line)
                 else:
@@ -1096,7 +1103,7 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
                 if line != '':
                     if 'Error in docker build result 1' in line or 'Error in docker build result 2' in line \
                        or 'syntax error' in line:
-                        logger.error(line)
+                        logger.error("%s\nPlease fix Dockerfile.%s.%s.student. Look in labtainer.log for specifics on the error." % (line, labname, name))
                         fatal_error = True
                     else:
                         logger.debug(line)
@@ -1298,7 +1305,7 @@ def CheckLabContainerApps(start_config, lab_path, apps2start):
     return has_multi_container
 
 def ReloadStartConfig(lab_path, labtainer_config, start_config, student_email, logger, servers, clone_count):
-    
+
     labname = os.path.basename(lab_path)
     my_start_config = os.path.join('./.tmp',labname, 'start.config')
     if not os.path.isfile(my_start_config):
@@ -1535,7 +1542,7 @@ def DoStart(start_config, labtainer_config, lab_path,
     if has_multi_container:
         container_warning_printed = False
     start_config, student_email = CheckEmailReloadStartConfig(start_config, quiet_start, lab_path, 
-                                      labtainer_config, logger, servers, clone_count)
+                                      labtainer_config, logger, servers, clone_count)    
     for name, container in start_config.containers.items():
         if SkipContainer(run_container, name, start_config, servers):
             #print('gonna skip %s' % run_container)
