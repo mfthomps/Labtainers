@@ -178,7 +178,7 @@ the lab.
 	\begin{verbatim}	
 	  gns3 -s 
 	\end{verbatim}		
-	will cause the GUI to hide toolbars and widgets that students should not interact with.
+	will cause the GUI to hide toolbars and widgets that students should not interact with. The container state after quitting gns3 will also persist. Without the student flag a lab's containers state wil reset upon pressing start once.
 	\item Open a new project, assigning the same name as the Labtainers lab, e.g., ``telnetlab''
 	\item Use {\tt Browse all devices / Add appliance template} to add the new container images created
 		via the {\tt noNet.py} command.  Accept all defaults, except set the number of ``Adapaters'' to
