@@ -1,6 +1,4 @@
-dmz-example.pdf: dmz-lab.tex header.tex
-	latex dmz-lab
-	pdflatex -jobname=dmz-lab dmz-lab
+dmz-example.pdf: dmz-lab.tex header.tex dmz-lab.jpg
 	pdflatex -jobname=dmz-lab dmz-lab
 
 clean:
