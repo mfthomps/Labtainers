@@ -1,6 +1,4 @@
 ldap.pdf: ldap.tex header.tex
-	latex ldap
-	pdflatex -jobname=ldap ldap
 	pdflatex -jobname=ldap ldap
 
 clean:

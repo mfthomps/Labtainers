@@ -1,5 +1,5 @@
 \input{header}
-
+\usepackage{float}
 %\documentclass{article} 
 %\usepackage{graphicx}
 %\usepackage{color}
@@ -53,9 +53,9 @@ be sure to copy it back to the specified location on your Linux system.
 
 
 
-\begin{figure}[!htb]
+\begin{figure}[H]
 \centering
-\includegraphics*[ width=0.9\textwidth,natwidth=621,natheight=403]{Figs/remote-dns.jpg}
+\includegraphics*[ width=0.9\textwidth]{Figs/remote-dns.jpg}
 \caption{The Lab Environment Setup} 
 \label{fig:environment}
 \end{figure}
@@ -189,17 +189,17 @@ result must be a fake IP address.
 
 
 
-\begin{figure}[!htb]
+\begin{figure}[H]
 \centering
-\includegraphics*[width=0.9\textwidth,natwidth=621,natheight=403]{Figs/DNS_Remote_Flow1.pdf}
+\includegraphics*[width=0.9\textwidth]{Figs/DNS_Remote_Flow1.pdf}
 \caption{The complete DNS query process} 
 \label{fig:flow_diagram1}
 \end{figure}
 
 
-\begin{figure}[!htb]
+\begin{figure}[H]
 \centering
-\includegraphics*[width=0.9\textwidth,natwidth=621,natheight=403]{Figs/DNS_Remote_Flow2.pdf}
+\includegraphics*[width=0.9\textwidth]{Figs/DNS_Remote_Flow2.pdf}
 \caption{The DNS query process when {\tt example.com}'s name server is cached}
 \label{fig:flow_diagram2}
 \end{figure}
@@ -344,14 +344,12 @@ the following:
 
 \item {\em Flush the Cache.}
 Flush {\tt Apollo}'s  DNS cache, and restart its DNS server. 
-
-
 \end{enumerate}
 
 
-\begin{figure}[!htb]
+\begin{figure}[H]
 \centering
-\includegraphics*[viewport=0 50 600 750,width=1.0\textwidth,natwidth=621,natheight=403]{Figs/screenshot_packet.pdf}
+\includegraphics*[viewport=0 50 600 750,width=1.0\textwidth]{Figs/screenshot_packet.pdf}
 \caption{A Sample DNS Response Packet}
 \label{fig:response_packet}
 \end{figure}
@@ -398,10 +396,10 @@ Check the {\tt dump.db} file to see whether your spoofed DNS
 response has been successfully accepted by the DNS server. 
 See an example in Figure~\ref{fig:cache_screenshot}.
 
-\begin{figure}[!htb]
+\begin{figure}[H]
 \centering
 %\includegraphics*[viewport=0 0 600 680,width=1.0\textwidth]{Figs/cache_screenshot.pdf}
-\includegraphics*[viewport=0 180 600 630,width=0.85\textwidth,natwidth=621,natheight=403]{Figs/cache_screenshot.pdf}
+\includegraphics*[viewport=0 180 600 630,width=0.85\textwidth]{Figs/cache_screenshot.pdf}
 \caption{A Sample of Successfully Poisoned DNS Cache}
 \label{fig:cache_screenshot}
 \end{figure}

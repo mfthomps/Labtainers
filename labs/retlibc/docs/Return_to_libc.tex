@@ -1,5 +1,5 @@
 \input{header}
-
+\usepackage{float}
 %\documentclass{article} 
 %\usepackage{graphicx}
 %\usepackage{color}
@@ -341,9 +341,9 @@ Let us concentrate on the stack while calling {\tt foo()}. We can ignore the sta
 before that. Please note that line numbers instead of instruction addresses are
 used in this explanation. 
 
-\begin{figure}[t]
+\begin{figure}[H]
    \begin{center} 
-   \includegraphics[width=0.9\textwidth,natwidth=621,natheight=403]{Figs/enter_leave_foo.pdf}
+   \includegraphics[width=0.9\textwidth]{Figs/enter_leave_foo.pdf}
     \end{center}
     \caption{Entering and Leaving {\tt foo()}}
     \label{fig:enter_leave_foo}

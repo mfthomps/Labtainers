@@ -1,6 +1,4 @@
 ssl.pdf: ssl.tex header.tex
-	latex ssl
-	pdflatex -jobname=ssl ssl
 	pdflatex -jobname=ssl ssl
 
 clean:

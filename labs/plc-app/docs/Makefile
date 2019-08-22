@@ -1,6 +1,4 @@
 plc-app.pdf: plc-app.tex header.tex plc-app.jpg
-	latex plc-app
-	pdflatex -jobname=plc-app plc-app
 	pdflatex -jobname=plc-app plc-app
 
 clean:

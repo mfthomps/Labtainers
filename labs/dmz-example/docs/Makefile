@@ -1,6 +1,4 @@
 dmz-example.pdf: dmz-example.tex header.tex
-	latex dmz-example
-	pdflatex -jobname=dmz-example dmz-example
 	pdflatex -jobname=dmz-example dmz-example
 
 clean:

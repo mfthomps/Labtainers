@@ -1,6 +1,4 @@
 iptables-ics.pdf: iptables-ics.tex header.tex
-	latex iptables-ics
-	pdflatex -jobname=iptables-ics iptables-ics
 	pdflatex -jobname=iptables-ics iptables-ics
 
 clean:

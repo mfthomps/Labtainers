@@ -1,6 +1,4 @@
 snort.pdf: snort.tex header.tex
-	latex snort
-	pdflatex -jobname=snort snort
 	pdflatex -jobname=snort snort
 
 clean:

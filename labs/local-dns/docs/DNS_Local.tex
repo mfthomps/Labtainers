@@ -1,5 +1,5 @@
 \input{header}
-
+\usepackage{float}
 %\documentclass{article} 
 %\usepackage{graphicx}
 %\usepackage{color}
@@ -61,9 +61,9 @@ be sure to copy it back to the specified location on your Linux system.
 The network configuration is illustrated in 
 Figure~\ref{fig:dns:environment}. 
 
-\begin{figure}[!htb]
+\begin{figure}[H]
 \centering
-\includegraphics*[ width=0.9\textwidth,natwidth=621,natheight=403]{Figs/topology.jpg}
+\includegraphics*[ width=0.9\textwidth]{Figs/topology.jpg}
 \caption{The Lab Environment Setup} 
 \label{fig:dns:environment}
 \end{figure}
@@ -356,9 +356,10 @@ such sniffing and responding.
 Tip: in the {\tt Netwox/Netwag} tool 105, you can use the ``filter'' field to indicate 
 the IP address of your target. For example,
 in the scenario showing below, you can use {\tt "src host 192.168.0.100"}.
-\begin{figure}[!htb]
-\centering
-\includegraphics*[ width=0.9\textwidth,natwidth=621,natheight=403]{Figs/flow1.jpg}
+\begin{figure}[H]
+\begin{center}
+\includegraphics*[ width=0.9\textwidth]{Figs/flow1.jpg}
+\end{center}
 \caption{Directly Spoof response to user flow} 
 \label{fig:flow1}
 \end{figure}
@@ -403,9 +404,9 @@ to reply. This way, attackers only need to spoof once, and
 the impact will last until the cached information expires. 
 This attack is called {\em DNS
 cache poisoning}.  The following diagram (Figure~\ref{fig:flow2}) illustrates this attack.
-\begin{figure}[!htb]
+\begin{figure}[H]
 \centering
-\includegraphics*[ width=0.9\textwidth,natwidth=621,natheight=403]{Figs/flow2.jpg}
+\includegraphics*[ width=0.9\textwidth]{Figs/flow2.jpg}
 \caption{DNS cache posioning flow} 
 \label{fig:flow2}
 \end{figure}

@@ -1,6 +1,4 @@
 routing-basics.pdf: routing-basics.tex header.tex
-	latex routing-basics
-	pdflatex -jobname=routing-basics routing-basics
 	pdflatex -jobname=routing-basics routing-basics
 
 clean:

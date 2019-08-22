@@ -1,6 +1,4 @@
 arp-spoof.pdf: arp-spoof.tex header.tex
-	latex arp-spoof
-	pdflatex -jobname=arp-spoof arp-spoof
 	pdflatex -jobname=arp-spoof arp-spoof
 
 clean:

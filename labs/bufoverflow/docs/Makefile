@@ -1,6 +1,4 @@
 bufoverflow.pdf: Buffer_Overflow.tex header.tex
-	latex Buffer_Overflow
-	pdflatex -jobname=bufoverflow Buffer_Overflow
 	pdflatex -jobname=bufoverflow Buffer_Overflow
 
 clean:

@@ -1,6 +1,4 @@
 iptables.pdf: iptables.tex header.tex
-	latex iptables
-	pdflatex iptables
 	pdflatex iptables
 
 clean:
