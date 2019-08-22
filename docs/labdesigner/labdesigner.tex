@@ -6,6 +6,7 @@
 \usepackage{graphicx}
 \usepackage[autostyle, english = american]{csquotes}
 \usepackage{appendix}
+\usepackage{float}
 \begin{document}
 \begin{titlepage}
 \title {Labtainer Lab Designer User Guide}
@@ -65,9 +66,9 @@ a common Linux execution environment.   These benefits can be realized
 whether or not labs are configured for automatic assessment, 
 or are parameterized for each student.
 
-\begin{figure}[ht]
+\begin{figure}[H]
 \centering
-\includegraphics[width=0.4\textwidth,natwidth=621,natheight=403]{dmz-lab.jpg}
+\includegraphics[width=0.4\textwidth]{dmz-lab.jpg}
 \caption{Example Labtainers network topology}
 \label{fig:dmz}
 \end{figure}
@@ -1673,9 +1674,9 @@ NETWORK  LAN
 \item Assign 192.168.1.2 to the container in the start.config
 \end{itemize}
 
-\begin{figure}[ht]
+\begin{figure}[H]
 \centering
-\includegraphics[width=0.4\textwidth,natwidth=621,natheight=403]{ExternalNetworks.jpg}
+\includegraphics[width=0.4\textwidth]{ExternalNetworks.jpg}
 \caption{Networking with external hosts.}
 \label{fig:external hosts}
 \end{figure}
@@ -1864,16 +1865,16 @@ Labtainers VM.  This is illustrated in Figure \ref{fig:multi-multi}
 VM running Labtainers.  This is illustrated in Figure \ref{fig:multi-single}
 \end{enumerate}
 
-\begin{figure}[ht]
+\begin{figure}[H]
 \centering
-\includegraphics[width=0.4\textwidth,natwidth=621,natheight=403]{multiuser-multilabtainers.jpg}
+\includegraphics[width=0.4\textwidth]{multiuser-multilabtainers.jpg}
 \caption{Multi-user Labtainers with multiple instances of Labtainers.}
 \label{fig:multi-multi}
 \end{figure}
 
-\begin{figure}[ht]
+\begin{figure}[H]
 \centering
-\includegraphics[width=0.4\textwidth,natwidth=621,natheight=403]{multiuser-onelabtainer.jpg}
+\includegraphics[width=0.4\textwidth]{multiuser-onelabtainer.jpg}
 \caption{Multi-user Labtainers via SSH.}
 \label{fig:multi-single}
 \end{figure}
@@ -2219,6 +2220,26 @@ the debugging of automated assessment.
 Full automation of regression testing is achieved using the {\tt smoketest.py} utlity
 described below in \ref{smoketest}
 
+\subsection {Preparations Before Running SimLab}
+\begin{itemize}
+	\item Ensure that you have 'xdotool' install. Run this to install if you haven't : \\ 
+		{\tt sudo apt-get install xdotool}
+
+	\item Ensure your system's \$PATH includes \$LABTAINERS\_DIR/testsets/bin 
+
+	\item Ensure the saved email used for each lab is 'frank@beans.com'. You can do this by modifying {\tt \url{~}/.local/share/labtainers/email.txt} with only 'frank@beans.com' at the top. 
+\end{itemize}
+
+\subsection {Running SimLab}
+This is all run from the '../scripts/labtainer-student' directory.
+\begin{enumerate}
+	\item Start targeted lab with the redo flag, '-r'.
+	\item Run SimLab.py on targeted lab.
+	\item Do not click or type anything on the computer. This will disrupt the simulation. 
+	\item The process ends when the user prompt comes back. If the simulation hangs up, 'ctrl + C' and run stoplab.
+\end{enumerate}
+
+
 \subsection {SimLab Directives}
 Directives within a {\tt simthis.txt} file name windows to select, (i.e., gain focus),
 and keystrokes to generate as described in the list below.  The SimLab utility includes
@@ -2265,7 +2286,7 @@ include directive.
 command and then type that.
 
 \end{itemize}
-\subsection{SimLab spplication notes}
+\subsection{SimLab application notes}
 \label{simlab_notes}
 Most GUI's have shortcut keys that can be used to automate their inclusion in a lab.
 

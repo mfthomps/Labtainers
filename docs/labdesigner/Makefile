@@ -1,5 +1,4 @@
 labdesigner.pdf: labdesigner.tex
-	latex labdesigner
 	pdflatex labdesigner
 clean:
 	rm -fr auto
