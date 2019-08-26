@@ -2263,12 +2263,13 @@ use when the xterm title is changed by a program.
 \item \textbf{sleep} $<$seconds$>$ -- Sleeps for the given number of seconds.
 \item \textbf{wait\_proc} $<$text$>$ -- Delays until a {\tt ps au $<$text$>$} returns nothing.
 Intended for use to wait for a command to complete.  This runs on the Linux host, so
-do not be vauge, or it may never return.
+do not be vauge, or it may never return. 
+Note: If the command was added to the keyboard buffer, then wait\_proc may not catch a command.
 \item \textbf{wait\_net} $<$container$>$:$<$text$>$ -- Delays until network connections to a given remote
 host have terminated.  The given $<$text$>$ is searched for as a substring within the host name ouput
 from a {\tt netstat} command run on the given container.
 \item \textbf{type\_file} $<$file name$>$ -- Reads and types each line in the named file.
-Blank lines will cause a 2 second sleep.
+Blank lines will cause a 2 second sleep. Note: Each line is typed into a keyboard buffer and a line commnd will not wait for the previous line to complete its process before running itself. Refer to command\_file for this function.
 \item \textbf{command\_file} $<$file name$>$ -- Intended for use in issuing a series of
 commands from the shell.  This reads and types each line in the named file.
 A {\tt wait\_proc} function is then automatically performed on the line.
