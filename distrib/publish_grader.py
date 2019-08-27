@@ -63,7 +63,7 @@ def main():
         registry = labtainer_config.default_registry
     dfile_path = '../scripts/designer/base_dockerfiles/Dockerfile.labtainer.grader'
     image_base = VersionInfo.getFrom(dfile_path, registry)
-    base_id = VersionInfo.getImageId(image_base)
+    base_id = VersionInfo.getImageId(image_base, True)
     framework_version = labutils.framework_version
     relabel('labtainer.grader', framework_version, image_base, base_id, registry)
     
