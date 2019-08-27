@@ -1,0 +1,14 @@
+ARG registry
+FROM $registry/labtainer.wireshark
+RUN apt-get update && apt-get install -y --no-install-recommends libcanberra-gtk3-module firefox sqlite3 && rm -rf /var/cache/apt/
+# modified to create new instance
+ADD system/bin/firefox /usr/bin/
+# the firefox user profile which paramterize.sh will extract and remove.
+COPY system/var/tmp/home.tar /var/tmp/
+RUN systemd-machine-id-setup
+RUN useradd -ms /bin/bash instructor
+RUN echo "instructor:password" | chpasswd
+RUN adduser instructor sudo
+USER root
+CMD ["/bin/bash", "-c", "exec /sbin/init --log-target=journal 3>&1"]
+
