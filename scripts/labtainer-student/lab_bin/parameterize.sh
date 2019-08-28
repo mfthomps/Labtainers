@@ -13,6 +13,10 @@ END
 exec &> /tmp/parameterize.sh.log
 echo "start parameterize.sh"
 date
+if [[ -d /var/labtainer/did_param ]]; then
+	echo "Already parameterized, exit"
+	exit 0
+fi
 # Configuration variables
 LAB_SEEDFILE="$HOME/.local/.seed"
 USER_EMAILFILE="$HOME/.local/.email"
