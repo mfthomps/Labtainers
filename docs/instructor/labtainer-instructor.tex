@@ -137,6 +137,12 @@ using:
 \end{verbatim}
 \noindent The next time the lab is started, the latest version will be retrieved from the Docker registry.
 
+\noindent \\If you want to update the labtainer.grader docker image (and delete the previous image and grader containers) use:
+\begin{verbatim}
+   update-gradelab
+\end{verbatim}
+
+
 \subsection{Suggestions for student workflow}
 A student's work on any given lab is preserved until and unless the student restarts the lab using the ``-r'' 
 option on the {\tt labtainer <labname> -r} command.  When taking a break from work on a lab, the student can
