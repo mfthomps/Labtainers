@@ -687,7 +687,9 @@ and reside at:
     $LABTAINER_DIR/labs/[labname]/[container name]/_bin/fixlocal.sh
 \end{verbatim}
 \noindent Note the fixlocal.sh script runs as the user defined in the start.config for the container, 
-regardless of whether root is set as the user in the Dockerfile.
+regardless of whether root is set as the user in the Dockerfile.  The {\tt fixlocal.sh} script is primarily
+intended for parameterizing labs.  Other initialization and synchronization between multiple components 
+should be performed as within any Linux system, e.g., via services or rc.local.
 
 
 \footnote{Use of {\tt sed -i ...} to modify configuration files (e.g., in etc), might result in overwriting symbolic links.
@@ -815,6 +817,9 @@ The parameter\_id fields may be referenced during the automated grading function
 in section \ref{goals.config}. 
 
 \subsection{Synchronizing startup and parameterization}
+System initialization should generally occur as with any Linux based system, e.g., using rc.local
+or system services.
+You can enable rc.local by placing {\tt RUN systemctl enable rc-local} in the Dockerfile.
 Parameterizing occurs subsequent to container ``boot'', but prior to running the fixlocal.sh script.
 The Ubuntu based images include a {\tt waitparam.service} that delays reporting its initialization to
 systemd until parameterization has completed.  That service is configured to run prior to rc.local.
@@ -1757,7 +1762,7 @@ LABEL version=$version
 
 \subsection{Alternate registry for testing}
 If the environment variable {\tt TEST\_REGISTRY}, is set to YES, labs to be pulled and pushed
-into an alternate registry defined in the trunk/config/labtainer.config file test\_registry entry entry.
+into an alternate registry defined in the trunk/config/labtainer.config file test\_registry entry.
 Also, the {\tt build\_lab.py}, {\tt labtainer}, and {\tt publish.sh} scripts include {\tt -t} flags to
 force the system to reference the test registry instead of the Docker Hub.
 It is easy to set up a registry (it is a container!), \url{https://docs.docker.com/registry/deploying/}
