@@ -114,7 +114,7 @@ Student artifacts collected by the framework are found in
 files.  You can create additional virtual terminals into the grading container by reissuing
 the gradelab command with the {\tt -a} flag.  When you are finished, or wish to stop working, type:
 \begin{verbatim}
-    stopgrader
+    stopgrade
 \end{verbatim}
 
 \section{Managing Labtainer Installations and Updates}
@@ -136,6 +136,12 @@ using:
    removelab.py <labname>
 \end{verbatim}
 \noindent The next time the lab is started, the latest version will be retrieved from the Docker registry.
+
+\noindent \\If you want to update the labtainer.grader docker image (and delete the previous image and grader containers) use:
+\begin{verbatim}
+   update-gradelab
+\end{verbatim}
+
 
 \subsection{Suggestions for student workflow}
 A student's work on any given lab is preserved until and unless the student restarts the lab using the ``-r'' 
