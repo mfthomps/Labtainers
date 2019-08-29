@@ -4,7 +4,7 @@ import sys
 import os
 import argparse
 
-def removeLab(lab, justContainers):
+def removeLab(lab, justContainers=False):
     cmd = 'docker ps -a'
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
