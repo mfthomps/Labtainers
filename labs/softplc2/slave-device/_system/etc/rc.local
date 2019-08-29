@@ -1,0 +1,3 @@
+#!/bin/bash
+export DISPLAY=:0
+/home/ubuntu/server.py &
