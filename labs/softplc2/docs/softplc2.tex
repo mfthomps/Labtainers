@@ -41,6 +41,9 @@ ethernet interface via which it is connected to a PLC using Modbus TCP/IP.
 \item{PLC} A programable logic controller implemented using the OpenPLC Soft-PLC implementation
 on a Linux based computer.  The PLC is connected to the slave device via Modbus TCP/IP over ethernet.
 The PLC has a seperate ethernet connection to an HMI computer.
+For convenience of the lab, the PLC computer includes Wireshark and will be used to capture, review and
+replay network traffic between the PLC and the slave device.  
+
 \item{HMI} A computer that interacts with the PLC using a web browser to load programs and monitor its operation.  This
 computer also contains an OpenPLC Editor for constructing programs using ``Ladder Logic'' (LD).
 \end{itemize}
@@ -142,7 +145,9 @@ In the plc window, locate the files you just saved.  Then use netcat to replay t
 cat on.raw | nc <ip> <port>
 cat off.raw | nc <ip> <port>
 \end{verbatim}
-\noindent Where ip and portare the IP address and port of the slave device.
+\noindent Where ip and port are the IP address and port of the slave device.
+Note that the capturing and replaying of TCP packets is performed on the PLC computer for convenience of the lab.  
+It could occur on any component with access to the network used by the PLC to communicate with the slave device.
 
 \subsection{Modify the ST program}
 Stop the PLC if it is running (click the {\tt Stop PLC} button in the browser).
