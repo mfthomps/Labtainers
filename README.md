@@ -81,27 +81,36 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+
 July 11, 2019
 - Automated assessment for CentOS6 containers, fix for firefox memory issue, support arbitrary docker 
 create arguments in the start.config file.
+
 June 6, 2019
 - Introduce a Centos6 base, but not support for automated assessment yet
+
 May 23, 2019
 - Automated assessment of setuid-env failed due to typos in field seperators.
+
 May 8, 2019
 - Corrections to Capabilities lab manual
+
 May 2, 2019
 - Acl lab fix to bobstuff.txt permissions.  Use explicit chmod in fixlocal.sh
 - Revise student guide to clarify use of stop and -r option in body of the manual.
+
 March 9, 2019
 - The checkwork function was reusing containers, thereby preventing students from eliminating artifacts
 from previous lab work.  
 - Add appendix to the symkey lab to describe the BMP image format.
-February 22
+
+February 22, 2019
 - The http server failed to start in the vpn and vpn2 labs.  Automated assessment removed from those labs until reworked.
+
 January 7, 2019
 - Fix gdblesson automated assessment to at least be operational.
-January 27, 2018
+
+January 27, 2019
 - Fix lab manual for routing-basics2 and fix routing to enable external access to internal web server.
 
 December 29, 2018

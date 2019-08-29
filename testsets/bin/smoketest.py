@@ -40,6 +40,7 @@ class SmokeTest():
         self.logger.addHandler(file_handler)
         self.logger.addHandler(console_handler)
 
+        labutils.logger = self.logger
         self.logger.debug('Begin smoke test')
 
     def checkLab(self, lab, test_registry):

@@ -1,0 +1,1 @@
+Illustrates the lossy nature of code compilation and underscores the challenges of reverse engineering a compiled binary.
