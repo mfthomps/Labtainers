@@ -198,6 +198,7 @@ class ParseStartConfig():
                     # since the method used to find the container directory will not guarantee proper success/failure in this case)
                     #Method: Using the path of the start.config file for a lab as a pivot point, go up 2 steps, and look from the [labname] top directory for directories of this container name
                     container_path = os.path.join(os.path.dirname(os.path.dirname(self.fname)), val)
+                    '''
                     if(fname[0] == '/'):
                         if not os.path.isdir(container_path):
                             errorStatement = 'Container \'%s\' does not have directory setup in the \'%s\' lab directory \n\n' % (val, self.labname) 
@@ -205,6 +206,7 @@ class ParseStartConfig():
                             self.logger.error(errorStatement + 'Either change your start.config to not name this container or create a container directory for this lab.' + error_line)
                             exit(1)
                    
+                    '''
                     self.containers[val] = self.Container(val, self.logger)
                     self.logger.debug('added container %s' % val)
                     active = self.containers[val]
