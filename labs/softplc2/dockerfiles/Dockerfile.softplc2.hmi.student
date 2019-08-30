@@ -32,18 +32,18 @@ ARG password
 ARG apt_source
 ARG version
 LABEL version=$version
-ENV APT_SOURCE $apt_source
+#ENV APT_SOURCE $apt_source
 RUN /usr/bin/apt-source.sh
 #
 #  put package installation here
 RUN apt-get update
-RUN apt-get install -y python-dev
+RUN apt-get install -y --no-install-recommends python-dev
 RUN pip install future 
 #RUN apt-get install -y python-wxgtk2.8 pyro python-numpy python-nevow python-matplotlib python-lxml
-RUN sudo apt-get install -y software-properties-common
+RUN sudo apt-get install -y --no-install-recommends software-properties-common
 RUN sudo add-apt-repository --yes ppa:nilarimogard/webupd8
 RUN apt-get update
-RUN apt-get install -y python-wxgtk2.8 pyro python-numpy python-nevow python-matplotlib python-lxml
+RUN apt-get install -y --no-install-recommends python-wxgtk2.8 pyro python-numpy python-nevow python-matplotlib python-lxml
 #
 #
 # Install the system files found in the _system directory
