@@ -82,6 +82,9 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+August 30, 2019
+- Revert test for existence of container directories, they do not always exist.
+
 August 29, 2019
 - Lab image pulls from docker hub failed due to change in github or curl?  Catch rediret to cloudflare.
 Addition of GNS3 support.  Fix to dmz-lab dnssec.
