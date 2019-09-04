@@ -28,9 +28,9 @@ RUN pip install parse inotify_simple enum
 
 RUN pip install pexpect netifaces selenium
 
-RUN echo "deb http://downloads.sourceforge.net/project/ubuntuzilla/mozilla/apt all main" | tee -a /etc/apt/sources.list > /dev/null
-RUN apt-key adv --recv-keys --keyserver keyserver.ubuntu.com C1289A29
-RUN apt-get update && apt-get install -y --no-install-recommends firefox-mozilla-build
+#RUN echo "deb http://downloads.sourceforge.net/project/ubuntuzilla/mozilla/apt all main" | tee -a /etc/apt/sources.list > /dev/null
+#RUN apt-key adv --recv-keys --keyserver keyserver.ubuntu.com C1289A29
+#RUN apt-get update && apt-get install -y --no-install-recommends firefox-mozilla-build
 
 RUN apt-get update && apt-get install -y --no-install-recommends sudo \
     less \
