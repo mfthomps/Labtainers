@@ -23,9 +23,13 @@ def BigFiles(lab_dir):
                    if not os.path.isfile(to_path):
                        if not os.path.isfile(from_path):
                            print('Missing large file: %s' % from_path)
-                           print('Get it from mynps.edu/cyberciege/downloads/%s' % from_file)
+                           print('Get it from https://nps.box.com/v/LabtainersBigFiles' % from_file)
                            exit(1)
                        else:
+                           try:
+                               os.makedirs(os.path.dirname(to_path))
+                           except:
+                               pass
                            shutil.copy2(from_path, to_path)
                     
 if __name__ == '__main__':               
