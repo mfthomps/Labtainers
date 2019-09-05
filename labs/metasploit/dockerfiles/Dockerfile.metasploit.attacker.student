@@ -69,7 +69,6 @@ ADD $labdir/$lab.tar.gz $HOME
 #  The first thing that executes on the container.
 #
 USER root
-RUN systemctl enable mynotify
 RUN systemctl enable rc-local
 RUN systemctl enable postgresql
 CMD ["/sbin/init"]
