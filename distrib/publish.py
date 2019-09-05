@@ -63,12 +63,12 @@ def pushIt(lab, docker_dir, registry, logger):
     for df in df_list:
         if df.endswith('.swp'):
             continue
-        logger.DEBUG('tag and push %s' % df)
+        logger.debug('tag and push %s' % df)
         try:
             parts = df.split('.')
             image = '%s.%s.student' % (parts[1], parts[2])
         except:
-            logger.ERROR('could not get image from %s' % df);
+            logger.error('could not get image from %s' % df);
             continue
         image_exists, dumb, dumb1 = labutils.ImageExists(image, None)
         if image_exists:
@@ -79,21 +79,21 @@ def pushIt(lab, docker_dir, registry, logger):
             relabel(image, framework_version, image_base, base_id, registry)
 
         else: 
-            logger.DEBUG('Have not built %s, nothing to push' % image)
+            logger.debug('Have not built %s, nothing to push' % image)
     ''' Delete the lab images. Two reasons: 1) ensure we run authoritative copy,
     which is from the dockerhub.  2) don't push on a rebuild if not rebuilt. '''
     removelab.removeLab(lab)
 
 def DoLab(lab, labsdir, force, logger, do_login, test_registry, default_registry):
-    logger.DEBUG('DoLab for %s' % lab)
+    logger.debug('DoLab for %s' % lab)
     lab_dir = os.path.join(labsdir, lab)
     registry_set = rebuild(lab, labsdir, force, logger)
     if len(registry_set) > 1:
-        logger.ERROR('no current support for images from multiple registries')
+        logger.error('no current support for images from multiple registries')
         exit(1)
     else:
         registry = list(registry_set)[0]
-    logger.DEBUG('back from rebuild with registry of %s' % registry)
+    logger.debug('back from rebuild with registry of %s' % registry)
     ''' should we login?  Never if test registry '''
     if not test_registry:
         if registry is not None and registry != default_registry:
@@ -145,7 +145,7 @@ def main():
     default_registry = labtainer_config.default_registry
 
     if args.lab is not None:
-        logger.DEBUG('Doing just one lab %s labsdir %s' % (args.lab, labsdir))
+        logger.debug('Doing just one lab %s labsdir %s' % (args.lab, labsdir))
         # Do login here and now so we don't wait for lab to build before prompt
         if not args.test_registry:
             os.system('docker login -u %s' % default_registry)
