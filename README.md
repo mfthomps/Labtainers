@@ -82,6 +82,10 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+September 5, 2019
+- Rebuild metasploit lab, metasploit-framework exhibited a bug.  And the labs "treataslocal" file
+was left out of the move from svn.  Fix type in metasploit lab manual.
+
 August 30, 2019
 - Revert test for existence of container directories, they do not always exist.
 
