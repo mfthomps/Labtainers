@@ -5,7 +5,7 @@
 #
 #
 ARG registry
-FROM $registry/labtainer.centos
+FROM $registry/labtainer.centos.xtra
 #
 #  lab is the fully qualified image name, e.g., mylab.some_container.student
 #  labdir is the name of the lab, e.g., mylab 
