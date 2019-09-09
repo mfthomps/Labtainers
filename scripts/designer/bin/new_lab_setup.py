@@ -149,12 +149,19 @@ def handle_add_container(tdir, newcontainer, basename='base'):
         sys.exit(1)
     add_container(start_config_filename, newcontainer, basename)
 
-    # Now copy dockerfiles/Dockerfile.template.template.student as
-    #          dockerfiles/Dockerfile.<labname>.<newcontainer>.student
-    dockerfile_template = os.path.join(tdir, 'dockerfiles', 'Dockerfile.template.%s.student' % basename)
+    
+    # Write Dockerfile for the added container
+    dfile, level0_bases = find_template(here, tdir, basename)
+    if dfile == None:
+        sys.exit()
+    docker_template = os.path.join(tdir, 'dockerfiles', dfile)
+    dockerfiles = os.path.join(here, 'dockerfiles')
+    try:
+        os.mkdir(dockerfiles)
+    except:
+        pass
     newcontainer_dockerfilename = 'Dockerfile.%s.%s.student' % (labname, newcontainer)
-    newcontainer_dockerfile = os.path.join(here, 'dockerfiles', newcontainer_dockerfilename)
-    shutil.copy(dockerfile_template, newcontainer_dockerfile)
+    write_template(docker_template, os.path.join(dockerfiles, newcontainer_dockerfilename), basename, level0_bases)
 
 def renameSVN(old, new):
     cmd = 'git status -s %s' % old
