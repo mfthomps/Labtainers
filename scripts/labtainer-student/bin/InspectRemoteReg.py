@@ -29,6 +29,7 @@ def inspectRemote(image, is_rebuild=False, quiet=False):
     if base is None:
         print('Remote image %s is lacking a base version, it needs to be retagged with trunk/distrib/retag_all.py' % image)
         exit(1) 
+        #return None, None, None, None
     #print('base is %s' % base)
     base_image, base_id = base.rsplit('.', 1)
     my_id = VersionInfo.getImageId(base_image, quiet)
@@ -79,12 +80,15 @@ def getTags(image, token):
 
 def getToken(image):
     cmd = 'curl --silent "https://auth.docker.io/token?scope=repository:%s:pull&service=registry.docker.io"' % (image) 
+    #cmd = 'curl --silent "https://auth.docker.io/token?service=registry.docker.io&scope=repository:%s:pull,push"' % (image)
+
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     
     if len(output[0].strip()) > 0:
         j = json.loads(output[0])
         return j['token']
+        #return j['access_token']
     else:
         return None
 
@@ -110,9 +114,24 @@ def getDigest(token, image, tag):
         return None
 
 def getCreated(token, image, digest):
-    cmd = 'curl --silent --header "Authorization: Bearer %s" "https://registry-1.docker.io/v2/%s/blobs/%s"' % (token, image, digest)
+    cmd = 'curl -v --silent --header "Authorization: Bearer %s" "https://registry-1.docker.io/v2/%s/blobs/%s"' % (token, image, digest)
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
+    if len(output[0].strip()) == 0 and len(output[1].strip()) > 0:
+        if 'Temporary Redirect' in output[1]:
+           flare = None
+           for line in output[1].splitlines():
+               if 'Location:' in line:
+                   url = line[len('Location'):]
+                   flare = 'curl --silent %s' % url
+                   break
+           if flare is not None:
+               #print('flare is %s' % flare)
+               ps = subprocess.Popen(flare, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+               output = ps.communicate()
+           else:
+               print('failed to find redirect url')
+    
     if len(output[0].strip()) > 0:
         ''' Sometimes get redirected, and authentication then fails? '''
         if 'Temporary Redirect' in output[0]:
