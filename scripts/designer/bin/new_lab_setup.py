@@ -494,8 +494,14 @@ def find_template(here, tdir, basename):
 
     #If did not find requested dockerfile as zero base or under a zero base then report that it does not exists.
     if requested_template == '':
-        print("Error: " + requested_dockerfile + " does not exist.")
-        return None
+        print("ERROR Dockerfile: " + requested_dockerfile + " does not exist.")
+        print('Here are the valid bases: ')
+        basenames = get_listofbases(os.getcwd())
+        i = 1
+        for basename in basenames:
+            print(str(i) + ': ' + basename)
+            i = i+1
+        return None, level0_bases
         #DEV NOTE: If program halts, the new lab dir needs to be reset(made empty) so there is no conlict with repopulating
         # the lab files in this dir upon runnning new_lab_setup.py again.
     
@@ -507,7 +513,7 @@ def find_template(here, tdir, basename):
         os.chdir(new_lab_dir)
         return requested_template, level0_bases
     else:
-        print("Error: " + requested_template + " does not exist.")
+        print("ERROR Template: " + requested_template + " does not exist.")
         os.chdir(new_lab_dir)
         return None, level0_bases
 
@@ -524,6 +530,16 @@ def write_template(src, dest, basename, level0_bases):
                 found_from = True
 
         dest_template.write("".join(lines)) 
+
+def get_listofbases(dockerfiles_path):
+    base_dockerfiles = glob.glob("Dockerfile.labtainer.*")
+    
+    basenames = []
+    for dockerfile in base_dockerfiles:
+        # As of 9/9/19: master and centos6 has no template file for to use. 
+        if dockerfile != "Dockerfile.labtainer.master" and dockerfile != "Dockerfile.labtainer.centos6":
+            basenames.append(dockerfile.replace("Dockerfile.labtainer.", ""))
+    return basenames
 
 
 def copy_from_template(tdir, basename):
@@ -649,7 +665,7 @@ def main():
     parser.add_argument('-r', '--rename_container', action='store', nargs = 2, help='Rename container in the lab, e.g., "-r old new"', metavar='')
     parser.add_argument('-m', '--rename_lab', action='store',  help='Rename the current lab to the given name. Warning: may break subversion!"', metavar='')
     parser.add_argument('-d', '--delete_container', action='store', help='Delete a container from this lab', metavar='')
-    parser.add_argument('-b', '--base_name', action='store', help='Identify labtainer base dockerfile', 
+    parser.add_argument('-b', '--base_name', action='store', help='Identify labtainer base dockerfile to be used for a new container/lab.', 
                           metavar='', default=None)
 
     args = parser.parse_args()
