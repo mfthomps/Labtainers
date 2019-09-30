@@ -81,6 +81,9 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+September 30, 2019
+- DockerHub registry retrieval again failing for some users.  Ignore html prefix to json.
+
 September 20, 2019
 - Assessment of onewayhash should allow hmac operations on file of student's choosing.
 
