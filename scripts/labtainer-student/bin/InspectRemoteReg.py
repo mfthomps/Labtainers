@@ -61,13 +61,24 @@ def inspectRemote(image, is_rebuild=False, quiet=False):
                 print('Download has completed.  Wait for lab to start.')
     return created, user, version, use_tag
 
+def extractJson(output):
+    output=output.strip()
+    if output.startswith('{'):
+        return output
+    start = output.find('{"arch"')
+    if start >=0:
+        return output[start:]
+    else:
+        return output
+
 def getTags(image, token):
     cmd =   'curl --silent --header "Accept: application/vnd.docker.distribution.manifest.v2+json" --header "Authorization: Bearer %s"  "https://registry-1.docker.io/v2/%s/tags/list"' % (token, image)
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[0].strip()) > 0:
+        jstring = extractJson(output[0])
         try:
-            j = json.loads(output[0])
+            j = json.loads(jstring)
         except:
             print('Unable to reach docker registry.  Is your network connection working?')
             exit(1)
@@ -84,21 +95,24 @@ def getToken(image):
 
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
-    
+     
     if len(output[0].strip()) > 0:
-        j = json.loads(output[0])
+        jstring = extractJson(output[0])
+        j = json.loads(jstring)
         return j['token']
         #return j['access_token']
     else:
         return None
 
+        
 def getDigest(token, image, tag):
     cmd = 'curl --silent --header "Accept: application/vnd.docker.distribution.manifest.v2+json" --header "Authorization: Bearer %s" "https://registry-1.docker.io/v2/%s/manifests/%s"' % (token, image, tag) 
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[0].strip()) > 0:
+        jstring = extractJson(output[0])
         try:
-            j = json.loads(output[0])
+            j = json.loads(jstring)
         except ValueError:
             with open('/tmp/docker_error.txt', 'w') as fh:
                 fh.write(cmd+'\n'+output[0])
@@ -139,8 +153,9 @@ def getCreated(token, image, digest):
            flare = 'curl --silent %s' % redirect
            ps = subprocess.Popen(flare, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
            output = ps.communicate()
+        jstring = extractJson(output[0])
         try:
-            j = json.loads(output[0])
+            j = json.loads(jstring)
         except ValueError:
             with open('/tmp/docker_error.txt', 'w') as fh:
                 fh.write(cmd+'\n'+output[0])
