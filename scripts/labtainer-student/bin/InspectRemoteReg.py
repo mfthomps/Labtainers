@@ -65,10 +65,11 @@ def extractJson(output):
     output=output.strip()
     if output.startswith('{'):
         return output
-    start = output.find('{"arch"')
+    start = output.find('{"arch')
     if start >=0:
         return output[start:]
     else:
+        print('Failed to find start of json')
         return output
 
 def getTags(image, token):
