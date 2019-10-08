@@ -19,13 +19,19 @@ def BigExternal(lab_dir):
                    from_file, to_file = line.split()
                    to_path = os.path.join(lab_dir, to_file)
                    if not os.path.isfile(to_path):
-                       print('missing %s, get it from %s' % (to_path, from_file))
-                       exit(1) 
-                   size = os.stat(to_path).st_size
-                   if size < 50000:
-                       print('File at %s is supposed to be large.' % to_path)
-                       print('Get the correct %s from %s' % (to_path, from_file))
-                       exit(1) 
+                       cmd = 'curl -L -R -o %s %s' % (to_path, from_file)
+                       print('cmd: %s' % cmd)
+                       ok = os.system(cmd)
+                       print('missing %s, get it from %s success %d' % (to_path, from_file, ok))
+                   else:
+                       size = os.stat(to_path).st_size
+                       if size < 50000:
+                           if os.basename(to_path) == 'home.tar':
+                               print('Remove the file at %s, and run again.' % to_path) 
+                           else:
+                               print('File at %s is supposed to be large.' % to_path)
+                               print('Try removing the file and running again.  Or get the correct %s from %s' % (to_path, from_file))
+                               exit(1) 
                     
 if __name__ == '__main__':               
     lab_dir = sys.argv[1]
