@@ -535,7 +535,9 @@ container home directory, those should be placed into a ``home\_tar'' directory 
     $LABTAINER_DIR/labs/[labname]/[container_name]/home_tar/
 \end{verbatim}
 \noindent Use of this technique prevents these files from being collected as student artifacts, which
-otherwise include copies of everything relative to the home directory.  This
+otherwise include copies of everything relative to the home directory \footnote{Actually, we only collect
+files whose modify dates are more recent than the container, so use of home\_tar is not as
+important as it previously was.}.  This
 can save considerable time and space, e.g., on the instructor's computer that must collect
 all student artifacts.
 The individual files should exist in the home\_tar directory, and the framework automatically
@@ -1712,10 +1714,16 @@ When building lab images at NPS, please set the LABTAINER\_NPS environment varia
 \end{verbatim}
 This will force packages to be retrieved from the local NPS mirrors (centosmirror.uc.nps.edu or
 ubuntumirror.uc.nps.edu).  Refer to section \ref{package sources} for additional information.
+If builds fail with this environment set, it is likely due to trying to install packages not present
+in the mirror.  In those cases, edit the Dockerfile to remove this line:
+\begin{verbatim}
+ENV APT_SOURCE $apt_source
+\end{verbatim}
+\noindent That will force use of the original apt-sources for that container.
 
 Labs must be checked into the local Git repository in order to be distributed.  After creating and testing
 a new lab, use the scripts/designer/bin/cleanlab4svn.py script to remove temporary files that do not belong in 
-svn.  Use the publish.py script (described above) to publish the lab containers.
+git.  Use the publish.py script (described above) to publish the lab containers.
 The distrib/mkdist.sh script is used by NPS to create the distribution tar file.  This script relies on
 your local Git repository as the source to the Labtainer scripts and labs.  Use the mk-devel-distrib.sh script
 to publish the developer configuration of the tar file.  
@@ -1769,7 +1777,21 @@ It is easy to set up a registry (it is a container!), \url{https://docs.docker.c
 Use the {\tt trunk/setup\_scripts/prep-testregistry.sh} script to
 prepare a test system to use a test registry.
 
-\subsection{Reuse of large file sets}
+\subsection{Large lab files}
+Consider storing large files (e.g., pcaps) or directories in external locations, e.g., nps.box.com.  This has two
+advantages:  1) Reduces the size of the lab designer distribution tar; 2) avoids putting large files
+into github.  Note this issue does not affect container images, which will always include the large files however they
+are stored.  The question is simply the location of the authoritative source of the large files for purposes of
+rebuilding a specific lab.
+
+A file named {\tt config/bigexternal.txt} with entries as follows:
+\begin{verbatim}
+<url> <relative_path>
+\end{verbatim}
+\noindent will cause a rebuild to look for a file at {\tt relative\_path} relative to the lab directory, and
+fetch it from the {\tt url} if it is missing.
+
+\subsubsection{Reuse of large file sets}
 \label{manifest}
 The use of ``sys\_tar'' and ``home\_tar'' described in \ref{large files} facilitates sharing of common
 baselines of large or numerous files.  New labs can incorporate tar files from existing
