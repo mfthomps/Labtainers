@@ -19,7 +19,7 @@ def BigExternal(lab_dir):
                    from_file, to_file = line.split()
                    to_path = os.path.join(lab_dir, to_file)
                    if not os.path.isfile(to_path):
-                       cmd = 'curl -L -R -o %s %s' % (to_path, from_file)
+                       cmd = 'curl -L -R --create-dirs -o %s %s' % (to_path, from_file)
                        print('cmd: %s' % cmd)
                        ok = os.system(cmd)
                        print('missing %s, get it from %s success %d' % (to_path, from_file, ok))
