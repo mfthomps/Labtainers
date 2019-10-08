@@ -19,7 +19,7 @@ if 'insecure-registries' in data:
     print('already has insecure-registries %s' % data['insecure-registries'])
 else:
     print('adding insecure-registries')
-    data['insecure-registries'] = 'testregistry:5000'
+    data['insecure-registries'] = ['testregistry:5000']
 
     with open(jfile, 'w') as outfile:
         json.dump(data, outfile, indent = 4)
