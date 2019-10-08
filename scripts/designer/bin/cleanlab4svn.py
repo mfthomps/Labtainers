@@ -80,16 +80,20 @@ def DoWork(current_dir, lab_name):
 
     # 4. Any pdf file in docs directory, i.e., <lab>/docs/*.pdf files that starts
     #    with the labname
-    pdflist = glob.glob('%s/docs/*.pdf' % current_dir)
     #print "pdflist is (%s)" % pdflist
-    for name in pdflist:
-        #print "current name is %s" % name
-        if os.path.basename(name).startswith(lab_name):
-            try:
-                os.remove(name)
-            except:
-                print("Fails to remove PDF file (%s)" % name)
-                sys.exit(1)
+    pdf_extensions = ['pdf','dvi','out','log','aux']
+    for ext in pdf_extensions:
+        pdflist = glob.glob('%s/docs/*.%s' % (current_dir, ext))
+        for name in pdflist:
+            #print "current name is %s" % name
+            if os.path.basename(name).startswith(lab_name):
+                try:
+                    os.remove(name)
+                except:
+                    print("Fails to remove PDF file (%s)" % name)
+                    sys.exit(1)
+    # external big files in config/bigexternal.txt
+    gitIgnoreBig(current_dir)
 
 def check_valid_lab(current_dir):
     parent_dir = os.path.basename(os.path.dirname(current_dir))
@@ -110,6 +114,29 @@ def check_valid_lab(current_dir):
         print('Missing config directory')
         sys.exit(1)
     return labname
+
+def gitIgnoreBig(current_dir):
+    if os.path.isfile('config/bigexternal.txt'):
+        ''' skip files already in gitignore '''
+        ignore_list = []
+        if os.path.isfile('.gitignore'):
+            with open('.gitignore') as fh:
+                for line in fh:
+                    if line.strip().startswith('#') or len(line.strip())==0:
+                        continue
+                    ignore_list.append(line.strip())
+                  
+        gi = git_ignore = open('.gitignore', 'a')
+        with open('config/bigexternal.txt') as fh:
+            for line in fh:
+                if line.strip().startswith('#') or len(line.strip())==0:
+                    continue
+                parts = line.split()
+                target = parts[1].strip()
+                if target not in ignore_list:
+                    gi.write(target+'\n')
+        gi.close()
+                
 
 def usage():
     sys.stderr.write("Usage: cleanlab4svn.py [ -h ]\n")
