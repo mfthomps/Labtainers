@@ -81,6 +81,9 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+October 8, 2019
+- Syntax error in test registry setup; lab designer info on large files; fetch bigexternal.txt files
+
 September 30, 2019
 - DockerHub registry retrieval again failing for some users.  Ignore html prefix to json.
 
