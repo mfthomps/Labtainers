@@ -44,7 +44,8 @@ RUN adduser $user_name sudo
 # replace above with below for centos/fedora
 #RUN usermod $user_name -a -G wheel
 
-
+RUN systemctl disable dnsmasq
+RUN apt-get purge -y dnsmasq
 #
 #  **** Perform all root operations, e.g.,           ****
 #  **** "apt-get install" prior to the USER command. ****
