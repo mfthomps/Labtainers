@@ -758,8 +758,11 @@ def CopyLabBin(mycontainer_name, container_user, lab_path, name, image_info):
         
     dest_tar = os.path.join(tmp_dir, 'labsys.tar')
     lab_sys_path = os.path.join(parent, 'lab_sys')
-    cmd = 'tar cf %s -C %s sbin lib &>/dev/null' % (dest_tar, lab_sys_path)
-    os.system(cmd)
+    cmd = 'tar cf %s -C %s sbin lib' % (dest_tar, lab_sys_path)
+    ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if len(output[1].strip()) > 0:
+        logger.error('tar failure %s result: %s' % (cmd, output[1]))
 
     cmd = 'docker cp %s %s:/var/tmp/' % (dest_tar, mycontainer_name)
     if not DockerCmd(cmd):
