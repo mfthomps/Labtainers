@@ -7,12 +7,21 @@
 # to shutdown when the virtual powerbutton is pressed.
 #
 # Create new Ubuntu VM 40GB 4 GB RAM; 2 CPUs; VMSVGA; 3d accelleration
+# disable auto upgrades in /etc/apt/apt.conf.d/20auto-upgrades
+# comment out /etc/apt/apt.conf.d/99update-notifier
+
+# VBOX:
 # sudo apt install build-essential dkms linux-headers-$(uname -r)
 # install guest additions
 #sudo usermod -G vboxsf -a $USER
+# VMWARE:
+# set automatic login: activities / users / unlock / automatic login
+# ALL
 # add terminal to desktop
 # bidirectional shared clipboard
 # wget https://my.nps.edu/documents/107523844/109121513/labtainer.tar
+# tar xf labtainer.tar
+# rm labtainer.tar
 # cd labtainer
 # ./install-labtainer.sh
 # reboot
