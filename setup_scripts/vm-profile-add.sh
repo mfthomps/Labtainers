@@ -27,6 +27,7 @@
 # apt-get install xdotool
 # apt-get install vim
 # setup-scripts/prep-testregistry.sh
+# touch $HOME/labtainer/.dosmoke
 #
 cat >>~/.profile <<EOL
 gnome-terminal --geometry 120x31+150+300 --working-directory=$HOME/labtainer/labtainer-student -e "bash -c \"/bin/cat README; exec bash\"" &
