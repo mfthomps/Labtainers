@@ -12,6 +12,7 @@
 # By default this script does nothing.
 
 
+route del default gw 192.168.1.1
 nohup /usr/bin/rmiregistry >/dev/null 2>&1 &
 nohup /usr/bin/unrealircd &
 rm -f /root/.vnc/*.pid
