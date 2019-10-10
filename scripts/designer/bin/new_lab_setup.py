@@ -15,6 +15,7 @@ import shutil
 import sys
 import argparse
 import subprocess
+import time
 
 # Filename: new_lab_setup.py
 # Description:
@@ -148,12 +149,19 @@ def handle_add_container(tdir, newcontainer, basename='base'):
         sys.exit(1)
     add_container(start_config_filename, newcontainer, basename)
 
-    # Now copy dockerfiles/Dockerfile.template.template.student as
-    #          dockerfiles/Dockerfile.<labname>.<newcontainer>.student
-    dockerfile_template = os.path.join(tdir, 'dockerfiles', 'Dockerfile.template.%s.student' % basename)
+    
+    # Write Dockerfile for the added container
+    dfile, level0_bases = find_template(here, tdir, basename)
+    if dfile == None:
+        sys.exit()
+    docker_template = os.path.join(tdir, 'dockerfiles', dfile)
+    dockerfiles = os.path.join(here, 'dockerfiles')
+    try:
+        os.mkdir(dockerfiles)
+    except:
+        pass
     newcontainer_dockerfilename = 'Dockerfile.%s.%s.student' % (labname, newcontainer)
-    newcontainer_dockerfile = os.path.join(here, 'dockerfiles', newcontainer_dockerfilename)
-    shutil.copy(dockerfile_template, newcontainer_dockerfile)
+    write_template(docker_template, os.path.join(dockerfiles, newcontainer_dockerfilename), basename, level0_bases)
 
 def renameSVN(old, new):
     cmd = 'git status -s %s' % old
@@ -392,6 +400,147 @@ def handle_replace_container(tdir, oldcontainer, newcontainer):
         start_config_file.write(newline)
     start_config_file.close()
 
+def find_template(here, tdir, basename):
+    ##Store the current working directory to restore later
+    new_lab_dir = os.getcwd()
+    
+    ##Change working directory to the directory of base dockerfiles
+    os.chdir("../../scripts/designer/base_dockerfiles")
+
+    ##Get list of files and clean it up to only include 'Dockerfile.labtainer.' files
+    base_dockerfiles = glob.glob("Dockerfile.labtainer.*")
+    #print(base_dockerfiles)
+
+   
+    ##Make list of potential level 0 bases (bases that will have specific template files to them)
+    level0_bases = []
+    base_dockerfiles_tmp = list(base_dockerfiles)
+    for base_dfile in base_dockerfiles:
+        not_base0 = False
+
+        open_dfile = open(base_dfile)
+        line = open_dfile.readline()
+        while line:
+            if line.startswith('FROM $registry/labtainer.') or line.startswith('FROM mfthomps/labtainer.'):
+                not_base0 = True
+                break
+            line = open_dfile.readline()
+        open_dfile.close()
+
+        if not not_base0:
+            #print('Base0:' + base_dfile)
+            level0_bases.append(base_dfile)
+            base_dockerfiles_tmp.remove(base_dfile)
+
+    base_dockerfiles = list(base_dockerfiles_tmp)
+    #print(base_dockerfiles) 
+
+    ##Make map of bases
+    bases_map = dict((base,[]) for base in level0_bases)
+    #print(bases_map.keys())
+    while len(base_dockerfiles_tmp) != 0:
+        for base_dfile in base_dockerfiles:
+            open_dfile = open(base_dfile)
+            line = open_dfile.readline()
+            while line:
+                if line.startswith('FROM $registry/labtainer.') or line.startswith('FROM mfthomps/labtainer.'):
+                    referenced_base = "Dockerfile.labtainer.%s" % line.split('labtainer.')[1].rstrip()
+                    #print("Ref Base: " + referenced_base)
+
+                    #check if the referenced_base is a zero base
+                    if referenced_base in bases_map.keys():
+                        bases_map[referenced_base].append(base_dfile)
+                        base_dockerfiles_tmp.remove(base_dfile)
+                        break
+                    #check if the referenced_base is under a zero base
+                    for base0 in bases_map.keys():
+                        for base in bases_map[base0]:
+                            if(referenced_base == base):
+                                bases_map[base0].append(base_dfile)
+                                base_dockerfiles_tmp.remove(base_dfile)
+                                break
+                        else:
+                            continue
+                        break
+
+                    #If the referenced_base is neither a zero base or under a zero base, then skip it.
+                    #The next iteration through the shortened list of base_dockerfiles may find its root zero base.
+                    break
+                line = open_dfile.readline()
+            open_dfile.close()
+
+        if len(base_dockerfiles_tmp) > 0:
+            base_dockerfiles = list(base_dockerfiles_tmp)
+    #print(bases_map)
+
+    ##Check which level 0 base the requested base uses, in other words, what dockerfile template the base will use.
+    requested_dockerfile = "Dockerfile.labtainer.%s" % basename
+    #print("requested base: " + requested_dockerfile)
+    requested_template = ''
+
+    #check if the requested dockerfile is a zero base
+    if requested_dockerfile in bases_map.keys():
+        requested_template = "Dockerfile.template.%s.student" % basename
+    else:
+        #check if the requested dockerfile is under a zero base
+        for base0 in bases_map.keys():
+            for base in bases_map[base0]:
+                if(requested_dockerfile == base):
+                    requested_template = "Dockerfile.template.%s.student" % base0.split('labtainer.')[1]
+                    break
+            else:
+                continue
+            break
+
+    #If did not find requested dockerfile as zero base or under a zero base then report that it does not exists.
+    if requested_template == '':
+        print("ERROR Dockerfile: " + requested_dockerfile + " does not exist.")
+        print('Here are the valid bases: ')
+        basenames = get_listofbases(os.getcwd())
+        i = 1
+        for basename in basenames:
+            print(str(i) + ': ' + basename)
+            i = i+1
+        return None, level0_bases
+        #DEV NOTE: If program halts, the new lab dir needs to be reset(made empty) so there is no conlict with repopulating
+        # the lab files in this dir upon runnning new_lab_setup.py again.
+    
+    #print("Requested docker template: " + requested_template)
+
+    ##Check if the requested template exists
+    os.chdir("../templates/dockerfiles")
+    if(os.path.isfile(requested_template)):
+        os.chdir(new_lab_dir)
+        return requested_template, level0_bases
+    else:
+        print("ERROR Template: " + requested_template + " does not exist.")
+        os.chdir(new_lab_dir)
+        return None, level0_bases
+
+
+def write_template(src, dest, basename, level0_bases):
+    requested_base = 'Dockerfile.labtainer.%s' % basename
+    level0_base = requested_base in level0_bases
+    found_from = False
+    with open(src, 'r') as src_template, open(dest, 'w') as dest_template:
+        lines = src_template.readlines()
+        for i, line in enumerate(lines):
+            if level0_base is False and found_from is False and line.startswith('FROM $registry/labtainer.'):
+                lines[i] = 'FROM $registry/labtainer.%s\n' % basename
+                found_from = True
+
+        dest_template.write("".join(lines)) 
+
+def get_listofbases(dockerfiles_path):
+    base_dockerfiles = glob.glob("Dockerfile.labtainer.*")
+    
+    basenames = []
+    for dockerfile in base_dockerfiles:
+        # As of 9/9/19: master and centos6 has no template file for to use. 
+        if dockerfile != "Dockerfile.labtainer.master" and dockerfile != "Dockerfile.labtainer.centos6":
+            basenames.append(dockerfile.replace("Dockerfile.labtainer.", ""))
+    return basenames
+
 
 def copy_from_template(tdir, basename):
     '''
@@ -411,14 +560,17 @@ def copy_from_template(tdir, basename):
                 print('error copying %s to %s, expected %s to be empty' % (source, here, here))
                 exit(1)
         elif source == 'dockerfiles':
-                dfile = 'Dockerfile.template.%s.student' % basename
+                dfile, level0_bases = find_template(here, tdir, basename)
+                if dfile == None:
+                    sys.exit()
                 docker_template = os.path.join(tdir, 'dockerfiles', dfile)
                 dockerfiles = os.path.join(here, 'dockerfiles')
                 try:
                     os.mkdir(dockerfiles)
                 except:
                     pass
-                shutil.copyfile(docker_template, os.path.join(dockerfiles, 'Dockerfile.template.template.student'))
+                write_template(docker_template, os.path.join(dockerfiles, 'Dockerfile.template.template.student'), basename, level0_bases)
+
         else:        
             try:
                 shutil.copytree(os.path.join(tdir, source), os.path.join(here, source)) 
@@ -506,13 +658,14 @@ def main():
         sys.exit(1)
     tdir = os.path.join(LABTAINER_DIR, 'scripts','designer','templates')
     parser = argparse.ArgumentParser(description='Create a new lab or change an existing lab.  If no arguments are given, create a new lab in the current directory. ')
+    #parser.add_argument('basename', default='NONE', nargs='?', action='store', help='What base dockerfile this ') 
     parser.add_argument('-c', '--clone_container', action='store', help='Clone the current lab to a new lab', metavar='')
     parser.add_argument('-a', '--add_container', action='store', help='Add a container to this lab', metavar='')
     parser.add_argument('-A', '--copy_container', action='store', nargs = 2, help='Add a container to this lab copied from an existing container.', metavar='')
     parser.add_argument('-r', '--rename_container', action='store', nargs = 2, help='Rename container in the lab, e.g., "-r old new"', metavar='')
     parser.add_argument('-m', '--rename_lab', action='store',  help='Rename the current lab to the given name. Warning: may break subversion!"', metavar='')
     parser.add_argument('-d', '--delete_container', action='store', help='Delete a container from this lab', metavar='')
-    parser.add_argument('-b', '--base_name', action='store', help='Identify labtainer base dockerfile', 
+    parser.add_argument('-b', '--base_name', action='store', help='Identify labtainer base dockerfile to be used for a new container/lab.', 
                           metavar='', default=None)
 
     args = parser.parse_args()
@@ -532,8 +685,6 @@ def main():
         base_name = 'base'
     else:
         base_name = args.base_name
-        if base_name == 'centos':
-            base_name = 'centos.xtra'
     is_valid = check_valid_lab(current_dir)
     if num_arg == 1 or (num_arg == 3 and args.base_name is not None):
         if is_valid:
