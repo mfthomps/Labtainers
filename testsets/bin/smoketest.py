@@ -147,10 +147,12 @@ class SmokeTest():
             if startwith is not None and lab < startwith:
                 continue
             print('Start lab: %s' % lab)
+            sys.stdout.flush()
             result = self.checkLab(lab, test_registry)
             if not result:
                 exit(1)
             print('Finished lab: %s' % lab)
+            sys.stdout.flush()
 
 def __main__():
 
