@@ -5,6 +5,10 @@ import shlex
 sudo iptables -t nat -v -L POSTROUTING -n --line-number
 sudo iptables -t nat --delete POSTROUTING <line number>
 sudo route del -net 192.168.1.0 netmask 255.255.255.0
+
+
+/dev/loop16         0      0         0  0 /vfs/myfs.img                                        0     512
+
 '''
 
 def checkContainers():
@@ -61,6 +65,18 @@ def getIPTable(ip):
             break
     return retval
 
+def checkLoop():
+    retval = None
+    cmd = 'sudo losetup -a'
+    ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    for line in output[0].splitlines(True):
+        if '/vfs/' in line:
+            print('This loopback device may not have been cleaned up by Docker:\n%s' % line)
+            dev = line.split(':',1)[0]
+            print('Try removing with "sudo losetup -d %s' % dev)
+      
+
 
 if __name__ == '__main__':
     if not checkContainers():
@@ -85,3 +101,6 @@ if __name__ == '__main__':
                         num = iptable.split()[0]
                         print('Try: sudo iptables -t nat --delete POSTROUTING %s' % num)
            
+        checkLoop()
+    else:
+        print('Containers are running, try stoplab.')
