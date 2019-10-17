@@ -129,6 +129,32 @@ def getDigest(token, image, tag):
         return None
 
 def getCreated(token, image, digest):
+    cmd = 'curl -L --silent --header "Authorization: Bearer %s" "https://registry-1.docker.io/v2/%s/blobs/%s"' % (token, image, digest)
+    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    
+    if len(output[0].strip()) > 0:
+        ''' Sometimes get redirected, and authentication then fails? '''
+        jstring = extractJson(output[0])
+        try:
+            j = json.loads(jstring)
+        except ValueError:
+            with open('/tmp/docker_error.txt', 'w') as fh:
+                fh.write(cmd+'\n'+output[0])
+            print('Error getting blob for image: %s digest: %s' % (image, digest))
+            print('please email the file at /tmp/docker_error.txt to mfthomps@nps.edu')
+            exit(1)
+        version = None
+        base = None
+        if 'version' in j['container_config']['Labels']:
+            version = j['container_config']['Labels']['version'] 
+        if 'base' in j['container_config']['Labels']:
+            base = j['container_config']['Labels']['base'] 
+        return j['created'], j['container_config']['User'], version, base
+    else:
+        return None, None, None, None
+
+def getCreatedXXXXXXXXXXXX(token, image, digest):
     cmd = 'curl -v --silent --header "Authorization: Bearer %s" "https://registry-1.docker.io/v2/%s/blobs/%s"' % (token, image, digest)
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
@@ -172,4 +198,3 @@ def getCreated(token, image, digest):
         return j['created'], j['container_config']['User'], version, base
     else:
         return None, None, None, None
-
