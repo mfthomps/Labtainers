@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import json
 import os
 import subprocess
@@ -13,7 +13,7 @@ cmd="nmcli dev show | grep 'IP4.DNS'"
 ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 output = ps.communicate()
 if len(output[0]) > 0:
-    for line in output[0].splitlines(True):
+    for line in output[0].decode('utf-8').splitlines(True):
         dns_add = line.split()[1].strip()
         dns.append(dns_add)
         break

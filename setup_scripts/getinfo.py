@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Filename: getinfo.py
 # Description: simple script to get Linux host resources
