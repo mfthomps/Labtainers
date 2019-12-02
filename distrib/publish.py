@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 This software was created by United States Government employees at 
 The Center for the Information Systems Studies and Research (CISR) 
@@ -32,16 +32,16 @@ def relabel(image, version, base_image, base_id, registry):
     cmd = 'docker build -f dfile -t %s.tmp .' % image
     os.system(cmd)
     cmd = 'docker tag %s.tmp %s/%s' % (image, registry, image)
-    print cmd
+    #print cmd
     os.system(cmd)
     cmd = 'docker push %s/%s' % (registry, image)
-    print cmd
+    #print cmd
     os.system(cmd)
     cmd = 'docker tag %s.tmp %s/%s:base_image%s' % (image, registry, image, base_id)
-    print cmd
+    #print cmd
     os.system(cmd)
     cmd = 'docker push %s/%s:base_image%s' % (registry, image, base_id)
-    print cmd
+    #print cmd
     os.system(cmd)
 
 def rebuild(labname, labsdir, force, logger):
@@ -161,9 +161,9 @@ def main():
         ps.stdout.close()
         output = ps_grep.communicate()
         if len(output[0]) > 0:
-            for line in output[0].splitlines(True):
-                print line.strip()
-            dumb = raw_input("any key to continue") 
+            for line in output[0].decode('utf-8').splitlines(True):
+                print(line.strip())
+            dumb = input("any key to continue") 
     
         if not args.test_registry:
             os.system('docker login -u %s' % default_registry)
@@ -171,7 +171,7 @@ def main():
         cmd = 'git ls-files ./ | cut -d/ -f1 | uniq'
         child = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
         output = child.communicate()
-        lab_list = output[0].strip().splitlines(True)
+        lab_list = output[0].decode('utf-8').strip().splitlines(True)
         for lab in sorted(lab_list):
             #lab = lab[:len(lab)-1] 
             lab = lab.strip()

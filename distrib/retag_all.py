@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import os
 import sys
 import argparse
@@ -36,7 +36,7 @@ def do_lab(lab_dir, lab, role, registry):
             print('could not get image from %s' % df);
             continue
         cmd = './relabel.sh %s %s %s %s %s' % (registry, framework_version , image, image_base, base_id)
-        print cmd
+        #print cmd
         os.system(cmd)
 
 def main():

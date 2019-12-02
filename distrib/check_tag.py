@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import os
 import sys
 import argparse
@@ -41,7 +41,7 @@ def do_lab(lab_dir, lab, role, registry):
         if not base.startswith(image_base):
             cmd = './relabel.sh %s %s %s %s %s' % (registry, framework_version , image, image_base, base_id)
             print("MISMATCH")
-            print cmd
+            print(cmd)
             os.system(cmd)
             
 

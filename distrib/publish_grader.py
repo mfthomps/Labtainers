@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import os
 import sys
 import argparse
@@ -17,16 +17,16 @@ def relabel(image, version, base_image, base_id, registry):
     cmd = 'docker build -f dfile -t %s.tmp .' % image
     os.system(cmd)
     cmd = 'docker tag %s.tmp %s/%s' % (image, registry, image)
-    print cmd
+    #print cmd
     os.system(cmd)
     cmd = 'docker push %s/%s' % (registry, image)
-    print cmd
+    #print cmd
     os.system(cmd)
     cmd = 'docker tag %s.tmp %s/%s:base_image%s' % (image, registry, image, base_id)
-    print cmd
+    #print cmd
     os.system(cmd)
     cmd = 'docker push %s/%s:base_image%s' % (registry, image, base_id)
-    print cmd
+    #print cmd
     os.system(cmd)
 
 def main():
