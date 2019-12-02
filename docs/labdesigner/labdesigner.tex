@@ -1628,7 +1628,7 @@ support of student exploration.
 
 In many instances, the lab designer will want to define a different default route for a 
 container.  Each container includes a \textit{set\_default\_gw.sh}
-script that can be added to the \textit{/etc/rc.local} (or \textit{fixlocal.sh}) file to redefine the default gateway.
+script that can be added to the \textit{/etc/rc.local} file to redefine the default gateway.
 This script will automatically retain a route table entry so that the student can reach the ``my\_host''
 address.  Additionally, those baseline images include a \textit{togglegw.sh} script that the student
 can use to toggle the default gateway between one that leads to the host, and one defined for the lab.
@@ -1778,13 +1778,14 @@ Use the {\tt trunk/setup\_scripts/prep-testregistry.sh} script to
 prepare a test system to use a test registry.
 
 \subsection{Large lab files}
-Consider storing large files (e.g., pcaps) or directories in external locations, e.g., nps.box.com.  This has two
+Consider storing the authoritative source of large files (e.g., pcaps) or directories in external locations, e.g., nps.box.com.  This has two
 advantages:  1) Reduces the size of the lab designer distribution tar; 2) avoids putting large files
-into github.  Note this issue does not affect container images, which will always include the large files however they
-are stored.  The question is simply the location of the authoritative source of the large files for purposes of
-rebuilding a specific lab.
+into github.  Note this issue does not affect container images, which will always include the large files regardless of how they
+are stored.  The question is simply the location of the source of the large files for purposes of
+rebuilding a specific lab.   Our model is to provide potential lab developers with a distribution that is not gigabytes, but also contains
+whatever is needed to rebuild existing labs -- or at least links that are automatically followed when building the lab.
 
-A file named {\tt config/bigexternal.txt} with entries as follows:
+A file named {\tt <lab>/config/bigexternal.txt} with entries as follows:
 \begin{verbatim}
 <url> <relative_path>
 \end{verbatim}
