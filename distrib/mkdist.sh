@@ -1,4 +1,9 @@
 #!/bin/bash
+#
+#  Create an end-user distribution of Labtainers.
+#  This uses git archive, basing the distribution on committed content of the local repo.
+#
+#
 function contains() {
     local n=$#
     local value=${!n}
