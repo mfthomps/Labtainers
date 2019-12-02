@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 This software was created by United States Government employees at 
 The Center for the Information Systems Studies and Research (CISR) 
@@ -15,12 +15,11 @@ domain and is not subject to copyright.
 #              * Create a json file
 
 import json
-import md5
+from hashlib import md5
 import os
 import re
 import sys
 import MyUtil
-from parse import *
 
 MYHOME = ""
 logfilelist = []
@@ -129,7 +128,7 @@ def handleUniqueConfig(labidname, line, nametags, studentlabdir, container_list,
     #print('targetfile is %s containername is %s' % (targetfile, containername))
     logger.debug('targetfile is %s, containername is %s' % (targetfile, containername))
     if containername is not None and containername not in container_list:
-        print "Config line (%s) containername %s not in container list (%s), skipping..." % (line, containername, str(container_list))
+        print("Config line (%s) containername %s not in container list (%s), skipping..." % (line, containername, str(container_list)))
         logger.debug("Config line (%s) containername %s not in container list (%s), skipping..." % (line, 
               containername, str(container_list)))
         # set nametags - value pair to NONE
@@ -171,7 +170,7 @@ def handleUniqueConfig(labidname, line, nametags, studentlabdir, container_list,
                 ''' Create a checksum of the targetfile '''
                 mymd5 = md5.new()
                 targetlinestring = "".join(targetlines)
-                mymd5.update(targetlinestring)
+                mymd5.update(targetlinestring.encode('utf-8'))
                 tagstring = mymd5.hexdigest()
                 nametags[targetfile] = tagstring
                 #print('tag string is %s for eachkey %s' % (tagstring, each_key))

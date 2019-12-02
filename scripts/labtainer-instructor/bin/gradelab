@@ -214,7 +214,7 @@ def autoGrade(grade_container, lab_path, labtainer_config, labname, copy_json):
     else:
         with open(fglob[0]) as fh:
             for line in fh:
-                print line.rstrip()
+                print(line.rstrip())
     cmd = 'docker stop %s' % grade_container
     labutils.DockerCmd(cmd)
 
@@ -306,7 +306,7 @@ def removeGraders(registry):
             container_list.append(line.split()[0])
     if len(container_list) > 0:
         cmd = 'docker rm %s' % ' '.join(container_list)
-        print cmd
+        #print(cmd)
         os.system(cmd)
 
     lab = sys.argv[1]
@@ -325,7 +325,7 @@ def removeGraders(registry):
             image_list.append(image)
     if len(image_list) > 0:
         cmd = 'docker rmi -f %s' % ' '.join(image_list)
-        print cmd
+        #print(cmd)
         os.system(cmd)
     else:   
         print('No images for %s' % image)

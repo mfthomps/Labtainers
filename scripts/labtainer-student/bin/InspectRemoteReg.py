@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 This software was created by United States Government employees at 
 The Center for the Information Systems Studies and Research (CISR) 
@@ -17,7 +17,8 @@ import VersionInfo
 Return creation date and user of a given image from the Docker Hub
 without pulling the image.
 '''
-def inspectRemote(image, is_rebuild=False, quiet=False):
+def inspectRemote(image, lgr, is_rebuild=False, quiet=False):
+    lgr.debug('inspectRemote image %s' % image)
     use_tag = 'latest'
     token = getToken(image)
     if token is None or len(token.strip()) == 0:
@@ -77,7 +78,7 @@ def getTags(image, token):
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[0].strip()) > 0:
-        jstring = extractJson(output[0])
+        jstring = extractJson(output[0].decode('utf-8'))
         try:
             j = json.loads(jstring)
         except:
@@ -98,7 +99,7 @@ def getToken(image):
     output = ps.communicate()
      
     if len(output[0].strip()) > 0:
-        jstring = extractJson(output[0])
+        jstring = extractJson(output[0].decode('utf-8'))
         j = json.loads(jstring)
         return j['token']
         #return j['access_token']
@@ -111,7 +112,7 @@ def getDigest(token, image, tag):
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[0].strip()) > 0:
-        jstring = extractJson(output[0])
+        jstring = extractJson(output[0].decode('utf-8'))
         try:
             j = json.loads(jstring)
         except ValueError:
@@ -135,7 +136,7 @@ def getCreated(token, image, digest):
     
     if len(output[0].strip()) > 0:
         ''' Sometimes get redirected, and authentication then fails? '''
-        jstring = extractJson(output[0])
+        jstring = extractJson(output[0].decode('utf-8'))
         try:
             j = json.loads(jstring)
         except ValueError:
@@ -159,7 +160,7 @@ def getCreatedXXXXXXXXXXXX(token, image, digest):
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[0].strip()) == 0 and len(output[1].strip()) > 0:
-        if 'Temporary Redirect' in output[1]:
+        if 'Temporary Redirect' in output[1].decode('utf-8'):
            flare = None
            for line in output[1].splitlines():
                if 'Location:' in line:
@@ -175,12 +176,12 @@ def getCreatedXXXXXXXXXXXX(token, image, digest):
     
     if len(output[0].strip()) > 0:
         ''' Sometimes get redirected, and authentication then fails? '''
-        if 'Temporary Redirect' in output[0]:
-           redirect = output[0].split('"')[1]
+        if 'Temporary Redirect' in output[0].decode('utf-8'):
+           redirect = output[0].decode('utf-8').split('"')[1]
            flare = 'curl --silent %s' % redirect
            ps = subprocess.Popen(flare, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
            output = ps.communicate()
-        jstring = extractJson(output[0])
+        jstring = extractJson(output[0].decode('utf-8'))
         try:
             j = json.loads(jstring)
         except ValueError:

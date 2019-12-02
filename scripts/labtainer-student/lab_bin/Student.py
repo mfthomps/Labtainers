@@ -40,7 +40,7 @@ def killMonitoredProcess(homeLocal, keep_running, logger):
                 logger.debug('cmd is %s' % cmd)
                 os.system(cmd)
             else:
-                print line
+                print(line)
   
         else:
             done = True

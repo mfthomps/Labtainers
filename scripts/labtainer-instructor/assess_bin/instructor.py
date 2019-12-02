@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 This software was created by United States Government employees at 
 The Center for the Information Systems Studies and Research (CISR) 
@@ -16,7 +16,7 @@ domain and is not subject to copyright.
 
 import copy
 import json
-import md5
+from hashlib import md5
 import os
 import sys
 import zipfile
@@ -141,7 +141,7 @@ def Check_SecondLevel_EmailWatermark_OK(gradesjson, email_labname, student_id, z
     if not all(c in string.printable for c in student_id_from_file): 
         student_id_from_file = 'not_printable'
     if student_id != student_id_from_file:
-        print "mismatch student_id is (%s) student_id_from_file is (%s)" % (student_id, student_id_from_file)
+        print("mismatch student_id is (%s) student_id_from_file is (%s)" % (student_id, student_id_from_file))
         store_student_secondlevelzip(gradesjson, email_labname, student_id_from_file)
         #check_result = False
 
@@ -155,8 +155,8 @@ def Check_SecondLevel_EmailWatermark_OK(gradesjson, email_labname, student_id, z
 
         the_watermark_string = "LABTAINER_WATERMARK1"
         string_to_be_hashed = '%s:%s' % (seed_from_file, the_watermark_string)
-        mymd5 = md5.new()
-        mymd5.update(string_to_be_hashed)
+        mymd5 = md5()
+        mymd5.update(string_to_be_hashed.encode('utf-8'))
         expected_watermark = mymd5.hexdigest()
         #print expected_watermark
 
@@ -445,7 +445,7 @@ def main():
         GenReport.UniqueReport(uniquejsonname, gradestxtname)
 
     # Inform user where the 'grades.txt' are created
-    print "Grades are stored in '%s'" % gradestxtname
+    print("Grades are stored in '%s'" % gradestxtname)
     return 0
 
 if __name__ == '__main__':

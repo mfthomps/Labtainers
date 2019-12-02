@@ -29,10 +29,8 @@ import BigExternal
 import calendar
 import string
 import errno
-try:
-    from dateutil.parser import parse
-except:
-    pass
+from dateutil import parser
+from dateutil.parser import parse
 
 ''' assumes relative file positions '''
 here = os.path.dirname(os.path.abspath(__file__))
@@ -111,7 +109,7 @@ def getFirstUnassignedIface(n=1):
 
 def get_ip_address(ifname):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sp = struct.pack('256s', ifname[:15])
+    sp = struct.pack('256s', str.encode(ifname[:15]))
     try:
         fc = fcntl.ioctl(s.fileno(), 0x8915, sp)
     except:
@@ -150,7 +148,7 @@ def getDocker0IPAddr():
     if len(output[1].strip()) == 0:
         ''' is a docker0 master container '''
         if len(output[0].strip()) > 0:
-            return output[0].strip()
+            return output[0].decode('utf-8').strip()
         else:
             return None
     else:
@@ -180,7 +178,7 @@ def ParameterizeMyContainer(mycontainer_name, container_user, container_password
     logger.debug("About to call parameterize.sh with : %s" % str(command))
     #return retval 
     child = subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    error_string = child.stderr.read()
+    error_string = child.stderr.read().decode('utf-8')
     if len(error_string) > 0:
         for line in error_string.splitlines(True):
             if  not line.startswith('[sudo]') and "LC_ALL" not in line and "ENCRYPT_METHOD" not in line:
@@ -188,7 +186,7 @@ def ParameterizeMyContainer(mycontainer_name, container_user, container_password
                 retval = False
             else:
                 logger.debug(line)
-    out_string = child.stdout.read().strip()
+    out_string = child.stdout.read().decode('utf-8').strip()
     if len(out_string) > 0:
         logger.debug('ParameterizeMyContainer %s' % out_string)
     return retval
@@ -204,11 +202,11 @@ def StartMyContainer(mycontainer_name):
     ps = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[1]) > 0:
-        logger.error('StartMyContainer %s' % output[1])
+        logger.error('StartMyContainer %s' % output[1].decode('utf-8'))
         logger.error('command was %s' % command)
         retval = False
     if len(output[0]) > 0:
-        logger.debug(output[0])
+        logger.debug(output[0].decode('utf-8'))
     return retval
 
 def AllContainersCreated(container):
@@ -289,7 +287,7 @@ def DisconnectNetworkFromContainer(mycontainer_name, mysubnet_name):
     output = ps.communicate()
     result = 0
     if len(output[1]) > 0:
-        logger.error(output[1])
+        logger.error(output[1].decode('utf-8'))
         result = 1;
     return result
 
@@ -298,7 +296,7 @@ def SetXhost():
     cmd = 'xhost'
     ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
-    if not 'LOCAL:' in output[0]:
+    if not 'LOCAL:' in output[0].decode('utf-8'):
         cmd = 'xhost local:root'
         os.system(cmd)
     
@@ -328,7 +326,7 @@ def GetDNS():
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[0]) > 0: 
-        for line in output[0].splitlines(True):
+        for line in output[0].decode('utf-8').splitlines(True):
             dns_param = '--dns=%s %s' % (line.split()[1].strip(), dns_param)
             ''' just take first '''
             break
@@ -344,7 +342,7 @@ def GetX11SSH():
     ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[0]) > 0: 
-        parts = output[0].strip().split()
+        parts = output[0].decode('utf-8').strip().split()
         magic_cookie = parts[2]
     else:
         print('could not find magic cookie')
@@ -367,15 +365,15 @@ def isUbuntuSystemd(image_name):
     ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[0].strip()) > 0:
-            logger.debug('base %s' % output[0])
-            if output[0].strip() == 'null': 
+            logger.debug('base %s' % output[0].decode('utf-8'))
+            if output[0].decode('utf-8').strip() == 'null': 
                 base = image_name
             else:
-                base = output[0].rsplit('.', 1)[0]+'"'
+                base = output[0].decode('utf-8').rsplit('.', 1)[0]+'"'
             cmd = "docker history --no-trunc %s" % base
             ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             output = ps.communicate()
-            for line in output[0].splitlines():
+            for line in output[0].decode('utf-8').splitlines():
                 if 'Labtainer base image from ubuntu-systemd' in line:
                     retval = True
                     break
@@ -391,15 +389,15 @@ def isFirefox(image_name):
     ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[0].strip()) > 0:
-            logger.debug('base %s' % output[0])
-            if output[0].strip() == 'null': 
+            logger.debug('base %s' % output[0].decode('utf-8'))
+            if output[0].decode('utf-8').strip() == 'null': 
                 base = image_name
             else:
-                base = output[0].rsplit('.', 1)[0]+'"'
+                base = output[0].decode('utf-8').rsplit('.', 1)[0]+'"'
             cmd = "docker history --no-trunc %s" % base
             ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             output = ps.communicate()
-            for line in output[0].splitlines():
+            for line in output[0].decode('utf-8').splitlines():
                 if 'firefox' in line:
                     retval = True
                     break
@@ -442,9 +440,9 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
                 logger.debug('cmd is %s' % cmd)
                 ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
                 output = ps.communicate()
-                logger.debug('back from docker run, output %s' % (output[0]))
+                logger.debug('back from docker run, output %s' % (output[0].decode('utf-8')))
                 if len(output[1]) > 0:
-                    logger.debug('back from docker run, error %s' % (output[1]))
+                    logger.debug('back from docker run, error %s' % (output[1].decode('utf-8')))
                 
             else:
                 volume='-v /sys/fs/cgroup:/sys/fs/cgroup:ro'
@@ -507,10 +505,10 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
             output = ps.communicate()
             if len(output[1]) > 0:
                 logger.debug('command was %s' % createsinglecommand)
-                if 'Cannot connect to the Docker daemon' in output[1]:
+                if 'Cannot connect to the Docker daemon' in output[1].decode('utf-8'):
                     print('\n\nERROR: Docker seems not to be running.')
                     print('Try "sudo systemctl restart docker"\n\n')
-                logger.error('CreateSingleContainer %s' % output[1])
+                logger.error('CreateSingleContainer %s' % output[1].decode('utf-8'))
                 retval = False
                 break
             #print('result of create %s' % output[0])
@@ -521,13 +519,13 @@ def GetIface(ip):
     cmd = 'ifconfig | grep -B1 "inet addr:%s" | awk \'$1!="inet" && $1!="--" {print $1}\'' % ip
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
-    return output[0].strip()
+    return output[0].decode('utf-8').strip()
 
 def CheckPromisc(iface):
     cmd = "netstat -i | grep enp0s8 | awk '{print $12}'"
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
-    if 'P' in output[0]:
+    if 'P' in output[0].decode('utf-8'):
         return True
     else:
         return False
@@ -572,9 +570,9 @@ def CreateSubnets(start_config):
             #create_result = subprocess.call(command, shell=True)
             ps = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             output = ps.communicate()
-            logger.debug("stdout of subprocess.call CreateSubnets docker network create is %s" % output[0])
+            logger.debug("stdout of subprocess.call CreateSubnets docker network create is %s" % output[0].decode('utf-8'))
             if len(output[1]) > 0:
-                logger.debug('stderr of %s is %s' % (command, output[1]))
+                logger.debug('stderr of %s is %s' % (command, output[1].decode('utf-8')))
                 found_match_network = False
                 found_match_network_name = ""
                 # Before a hard exit - give the user some indication of what to do next
@@ -591,7 +589,7 @@ def CreateSubnets(start_config):
 
                 # At this point, if still not found then just print error and exit
                 if not found_match_network:
-                    logger.error("Failed to create %s subnet at %s, %s\n" % (subnet_name, subnet_network_mask, output[1]))
+                    logger.error("Failed to create %s subnet at %s, %s\n" % (subnet_name, subnet_network_mask, output[1].decode('utf-8')))
                     logger.error("command was %s\n" % command)
                     sys.exit(1)
                 else:
@@ -619,7 +617,7 @@ def RemoveSubnets(subnets, ignore_stop_error):
         command = "docker network rm %s" % subnet_name
         ps = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         output = ps.communicate()
-        if len(output[1]) > 0:
+        if len(output[1].decode('utf-8')) > 0:
             if ignore_stop_error:
                 logger.debug('Encountered error removing subnet %s' % subnet_name)
             else:
@@ -702,16 +700,16 @@ def DockerCmd(cmd, noloop=False):
         logger.debug("Command to execute is (%s)" % cmd)
         ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         output = ps.communicate()
-        if len(output[1]) > 0:
+        if len(output[1].decode('utf-8')) > 0:
             count += 1
-            logger.debug("Failed cmd %s %s" % (cmd, output[1]))
+            logger.debug("Failed cmd %s %s" % (cmd, output[1].decode('utf-8')))
             if count > 1:
                 return False
             time.sleep(1)
         else:
            ok = True
-        if len(output[0]) > 0:
-            logger.debug("cmd %s stdout: %s" % (cmd, output[0]))
+        if len(output[0].decode('utf-8')) > 0:
+            logger.debug("cmd %s stdout: %s" % (cmd, output[0].decode('utf-8')))
             out = output[0].decode('utf-8')
             if 'unrecognized option' in out or 'Unexpected EOF' in out:
                 return False
@@ -758,11 +756,12 @@ def CopyLabBin(mycontainer_name, container_user, lab_path, name, image_info):
         
     dest_tar = os.path.join(tmp_dir, 'labsys.tar')
     lab_sys_path = os.path.join(parent, 'lab_sys')
+
     cmd = 'tar cf %s -C %s sbin lib' % (dest_tar, lab_sys_path)
     ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[1].strip()) > 0:
-        logger.error('tar failure %s result: %s' % (cmd, output[1]))
+        logger.error('tar failure %s result: %s' % (cmd, output[1].decode('utf-8')))
 
     cmd = 'docker cp %s %s:/var/tmp/' % (dest_tar, mycontainer_name)
     if not DockerCmd(cmd):
@@ -832,10 +831,10 @@ def GetRunningContainersList():
     cmd = "docker container ls --format {{.Names}}"
     ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
-    if len(output[1].strip()) > 0:
-        logger.debug('No running containers: error returned %s, return false' % output[1])
+    if len(output[1].decode('utf-8').strip()) > 0:
+        logger.debug('No running containers: error returned %s, return false' % output[1].decode('utf-8'))
         return False, None
-    result = output[0].strip()
+    result = output[0].decode('utf-8').strip()
     logger.debug('result is %s' % result)
     if 'Error:' in result or len(result.strip()) == 0:
         if 'Error:' in result:
@@ -886,18 +885,18 @@ def inspectImage(image_name):
     cmd = "docker inspect -f '{{.Created}}' --type image %s" % image_name
     ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
-    if len(output[0].strip()) > 0:
-        created = output[0].strip()
+    if len(output[0].decode('utf-8').strip()) > 0:
+        created = output[0].decode('utf-8').strip()
     cmd = "docker inspect -f '{{.Config.User}}' --type image %s" % image_name
     ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
-    if len(output[0].strip()) > 0:
-        user = output[0].strip()
+    if len(output[0].decode('utf-8').strip()) > 0:
+        user = output[0].decode('utf-8').strip()
     cmd = "docker inspect --format='{{json .Config.Labels.version}}' --type image %s" % image_name
     ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
-    if len(output[0].strip()) > 0:
-        version = output[0].strip()
+    if len(output[0].decode('utf-8').strip()) > 0:
+        version = output[0].decode('utf-8').strip()
     return created, user, version
 
 def imageInfo(image_name, registry, labtainer_config, is_rebuild=False, no_pull=False, quiet=False):
@@ -920,9 +919,9 @@ def imageInfo(image_name, registry, labtainer_config, is_rebuild=False, no_pull=
         elif not no_pull:
             ''' See if the image exists in the desired registry '''
             if registry == labtainer_config.test_registry:
-                created, user, version, use_tag, base = InspectLocalReg.inspectLocal(image_name, registry, is_rebuild, quiet)
+                created, user, version, use_tag, base = InspectLocalReg.inspectLocal(image_name, logger, registry, is_rebuild, quiet)
             else:
-                created, user, version, use_tag = InspectRemoteReg.inspectRemote(with_registry, is_rebuild, quiet)
+                created, user, version, use_tag = InspectRemoteReg.inspectRemote(with_registry, logger, is_rebuild, quiet)
             if created is not None:
                 logger.debug('%s only on registry %s, ts %s %s version %s use_tag %s' % (with_registry, registry, created, user, version, use_tag)) 
                 retval = ImageInfo(with_registry, created, user, False, False, version, use_tag)
@@ -940,14 +939,14 @@ def ImageExists(image_name, registry):
     cmd = "docker inspect -f '{{.Created}}' --type image %s" % image_name
     ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
-    if len(output[1].strip()) > 0:
+    if len(output[1].decode('utf-8').strip()) > 0:
         if registry is not None:
             with_registry = '%s/%s' % (registry, image_name)
             return ImageExists(with_registry, None)
         else:
-            logger.debug('No image: error returned %s, return false' % output[1])
+            logger.debug('No image: error returned %s, return false' % output[1].decode('utf-8'))
             return False, None, None
-    result = output[0].strip()
+    result = output[0].decode('utf-8').strip()
     #logger.debug('result is %s' % result)
     if 'Error:' in result or len(result.strip()) == 0:
         if registry is not None:
@@ -1041,7 +1040,7 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
             output = ps.communicate()
             #logger.debug("Command was (%s)" % cmd)
             if len(output[1]) > 0:
-                logger.debug("Error from command %s was  '%s'" % (cmd, output[1]))
+                logger.debug("Error from command %s was  '%s'" % (cmd, output[1].decode('utf-8')))
 
         if container.from_image is not None:
             logger.debug('skip image taken from %s' % container.from_image)
@@ -1091,7 +1090,7 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
             ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             fatal_error = False
             while True:
-                line = ps.stdout.readline()
+                line = ps.stdout.readline().decode('utf-8')
                 if line != '':
                     #if 'Error in docker build result 1' in line:
                     if 'Error in docker build result 1' in line or 'Error in docker build result 2' in line \
@@ -1103,7 +1102,7 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
                 else:
                     break
             while True:
-                line = ps.stderr.readline()
+                line = ps.stderr.readline().decode('utf-8')
                 if line != '':
                     if 'Error in docker build result 1' in line or 'Error in docker build result 2' in line \
                        or 'syntax error' in line:
@@ -1128,10 +1127,10 @@ def defineAdditionalIP(container_name, post_start_if, post_start_nets):
         logger.debug('cmd is %s' % cmd)
         ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         output = ps.communicate()
-        logger.debug('out0 %s \nout1 %s' % (output[0], output[1]))
+        logger.debug('out0 %s \nout1 %s' % (output[0].decode('utf-8'), output[1].decode('utf-8')))
         current_if = None
         this_if = None
-        for line in output[0].splitlines():
+        for line in output[0].decode('utf-8').splitlines():
             parts = line.split()
             if len(parts) < 2:
                 continue
@@ -1264,17 +1263,17 @@ def GetUserEmail(quiet_start):
         if quiet_start and prev_email is not None:
             user_email = prev_email
         else:
-            user_input = raw_input(eprompt)
+            user_input = input(eprompt)
             if not all(c in string.printable for c in user_input):
                 print('Bad characters detected.  Please re-enter email')
             else:
                 user_email = user_input 
         if user_email is not None:
-            #user_email = raw_input(eprompt)
+            #user_email = input(eprompt)
             if len(user_email.strip()) == 0:
                 if prev_email is None:
                     print('You have provided an empty email address, which may cause your results to not be graded.')
-                    confirm = str(raw_input('Use the empty address? (y/n)')).lower().strip()
+                    confirm = str(input('Use the empty address? (y/n)')).lower().strip()
                     if confirm != 'y':
                         user_email = None
                 else:
@@ -1471,14 +1470,14 @@ def readFirst(lab_path, labname, fname, quiet_start, bail_option=False):
         less = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
         sed_cmd = "sed -e s+LAB_MANUAL+%s+ -e s+LAB_DOCS+%s+" %  (manual, doc_dir)
         sed = subprocess.Popen(sed_cmd.split(), stdin=less.stdout, stdout=subprocess.PIPE)
-        output = sed.communicate()[0]
+        output = sed.communicate()[0].decode('utf-8')
         print(output)
         if not quiet_start: 
             less.wait()
             if not bail_option:
-                dumb = raw_input("Press <enter> to start the lab\n")
+                dumb = input("Press <enter> to start the lab\n")
             else:
-                dumb = raw_input("Continue? (y/n)")
+                dumb = input("Continue? (y/n)")
                 if dumb.lower() != 'y':
                     cmd = 'rm -fr .tmp/%s' % labname
                     os.system(cmd)
@@ -1532,7 +1531,7 @@ def DoStart(start_config, labtainer_config, lab_path,
         result = subprocess.call(shlex.split(command), stderr=subprocess.PIPE)
         if result == FAILURE:
             logger.warning("Host System Check indicates error encountered")
-            user_input=raw_input("Would you like to quit? (yes/no)\n")
+            user_input=input("Would you like to quit? (yes/no)\n")
             user_input=user_input.strip().lower()
             #print "user_input (%s)" % user_input
             if user_input == "yes":
@@ -1705,7 +1704,7 @@ def StartLab(lab_path, force_build=False, is_redo=False, quiet_start=False,
                 output = ps.communicate()
                 logger.debug("Command was (%s)" % cmd)
                 if len(output[1]) > 0:
-                    logger.debug("Error from command = '%s'" % str(output[1]))
+                    logger.debug("Error from command = '%s'" % str(output[1].decode('utf-8')))
         #image_exists, result, dumb = ImageExists(mycontainer_image_name, container.registry)
         image_info = imageInfo(mycontainer_image_name, container.registry, labtainer_config, quiet=quiet_start)
         container_images[name] = image_info
@@ -1783,7 +1782,7 @@ def FileModLater(ts, fname):
     logger.debug('cmd: %s' % cmd)
     child = subprocess.Popen(shlex.split(cmd), shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     while True:
-        line = child.stdout.readline()
+        line = child.stdout.readline().decode('utf-8')
         line = line.strip()
         if line == '':
             break
@@ -2082,7 +2081,7 @@ def CheckShutdown(lab_path, name, container_name, container_user, ignore_stop_er
         command='docker cp %s:/tmp/.shutdown_done /tmp/' % (container_name)
         logger.debug(command)
         child = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        error = child.stderr.read().strip()
+        error = child.stderr.read().decode('utf-8').strip()
         if len(error) > 0:
            logger.debug("response from docker cp %s" % error)
            time.sleep(1)
@@ -2162,7 +2161,7 @@ def CopyAbsToResult(container_name, fname, container_user, ignore_stop_error):
     command='docker exec %s sudo  cp --parents %s /home/%s/.local/result' % (container_name, fname, container_user)
     logger.debug(command)
     child = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    error = child.stderr.read().strip()
+    error = child.stderr.read().decode('utf-8').strip()
     if len(error) > 0:
         if ignore_stop_error:
             logger.debug('error from docker: %s' % error)
@@ -2173,7 +2172,7 @@ def CopyAbsToResult(container_name, fname, container_user, ignore_stop_error):
     #command='docker exec %s echo "%s\n" | sudo -S chmod a+r -R /home/%s/.local/result' % (container_name, container_password, container_user)
     command='docker exec %s sudo chmod a+r -R /home/%s/.local/result' % (container_name, container_user)
     child = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    error = child.stderr.read().strip()
+    error = child.stderr.read().decode('utf-8').strip()
     if len(error) > 0:
         if ignore_stop_error:
             logger.debug('chmod ERROR: %s' % error)
@@ -2209,9 +2208,9 @@ def CreateCopyChownZip(start_config, labtainer_config, name, container_name, con
         print('\n<<<<< You may need to stop: %s in order to obtain a complete assessment. >>>>>\n' % output[0].decode('utf-8').strip())
     if len(output[1].strip()) > 0:
         if ignore_stop_error:
-            logger.debug("Container %s fail on executing Student.py %s \n" % (running_container, output[1]))
+            logger.debug("Container %s fail on executing Student.py %s \n" % (running_container, output[1].decode('utf-8')))
         else:
-            logger.error("Container %s fail on executing Student.py %s \n" % (running_container, output[1]))
+            logger.error("Container %s fail on executing Student.py %s \n" % (running_container, output[1].decode('utf-8')))
         return None, None
     logger.debug("results from Student.py: %s" % output[0].decode('utf-8'))
     
@@ -2233,7 +2232,7 @@ def CreateCopyChownZip(start_config, labtainer_config, name, container_name, con
     # The zip filename created by Student.py has the format of e-mail.labname.zip
     logger.debug("Command to execute is (%s)" % command)
     child = subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    error_string = child.stderr.read().strip()
+    error_string = child.stderr.read().decode('utf-8').strip()
     if len(error_string) > 0:
         if ignore_stop_error:
             logger.debug("Container %s fail on executing cp zip file: %s\n" % (container_name, error_string))
@@ -2273,9 +2272,9 @@ def StopMyContainer(container_name, ignore_stop_error):
     output = ps.communicate()
     if len(output[1].strip()) > 0:
         if ignore_stop_error:
-            logger.debug('Fail to stop container, error returned %s' % output[1])
+            logger.debug('Fail to stop container, error returned %s' % output[1].decode('utf-8'))
         else:
-            logger.error('Fail to stop container, error returned %s' % output[1])
+            logger.error('Fail to stop container, error returned %s' % output[1].decode('utf-8'))
     #if len(output[0].strip()) > 0:
     #    logger.debug('StopMyContainer stdout %s' % output[0])
     #result = subprocess.call(command, shell=True)
@@ -2289,9 +2288,9 @@ def GetListRunningLab():
     ps = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[1].strip()) > 0:
-        logger.error('Fail to get a list of running containers, error returned %s' % output[1])
+        logger.error('Fail to get a list of running containers, error returned %s' % output[1].decode('utf-8'))
         sys.exit(1)
-    if len(output[0]) > 0:
+    if len(output[0].decode('utf-8')) > 0:
         docker_ps_output = output[0].decode('utf-8').split('\n')
         for each_line in docker_ps_output:
             # Skip empty line or the "CONTAINER ID" line - the header line returned by "docker ps"
@@ -2328,7 +2327,7 @@ def GetListLabContainerOnNetwork(network_name):
     ps = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[1].strip()) > 0:
-        logger.error('Fail to inspect the network %s, error returned %s' % (network_name, output[1]))
+        logger.error('Fail to inspect the network %s, error returned %s' % (network_name, output[1].decode('utf-8')))
         sys.exit(1)
     if len(output[0]) > 0:
         network_result = json.loads(output[0].decode('utf-8'))
@@ -2356,7 +2355,7 @@ def FindNetworkGivenGatewayIP(gateway_address):
     ps = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[1].strip()) > 0:
-        logger.error('Fail to get a list of network (driver=bridge), error returned %s' % output[1])
+        logger.error('Fail to get a list of network (driver=bridge), error returned %s' % output[1].decode('utf-8'))
         sys.exit(1)
     if len(output[0]) > 0:
         network_list = output[0].decode('utf-8').split('\n')
@@ -2378,7 +2377,7 @@ def FindNetworkGivenGatewayIP(gateway_address):
         ps = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         output = ps.communicate()
         if len(output[1].strip()) > 0:
-            logger.error('Fail to inspect the network %s, error returned %s' % (network_name, output[1]))
+            logger.error('Fail to inspect the network %s, error returned %s' % (network_name, output[1].decode('utf-8')))
             sys.exit(1)
         if len(output[0]) > 0:
             network_result = json.loads(output[0].decode('utf-8'))
@@ -2407,10 +2406,10 @@ def FindNetworkGivenSubnet(subnet):
     ps = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[1].strip()) > 0:
-        logger.error('Fail to get a list of network (driver=bridge), error returned %s' % output[1])
+        logger.error('Fail to get a list of network (driver=bridge), error returned %s' % output[1].decode('utf-8'))
         sys.exit(1)
     if len(output[0]) > 0:
-        network_list = output[0].split('\n')
+        network_list = output[0].decode('utf-8').split('\n')
         for each_line in network_list:
             # Skip empty line or the "NETWORK ID" line - the header line returned by "docker network"
             current_line = each_line.strip()
@@ -2428,11 +2427,11 @@ def FindNetworkGivenSubnet(subnet):
         logger.debug("Command to execute is (%s)" % command)
         ps = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         output = ps.communicate()
-        if len(output[1].strip()) > 0:
-            logger.error('Fail to inspect the network %s, error returned %s' % (network_name, output[1]))
+        if len(output[1].decode('utf-8').strip()) > 0:
+            logger.error('Fail to inspect the network %s, error returned %s' % (network_name, output[1].decode('utf-8')))
             sys.exit(1)
         if len(output[0]) > 0:
-            network_result = json.loads(output[0])
+            network_result = json.loads(output[0].decode('utf-8'))
             if len(network_result) != 0:
                 result = network_result[0]
                 ipam_config = result["IPAM"]["Config"][0]
@@ -2850,7 +2849,7 @@ def GetContainerId(image):
     ps = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[1].strip()) > 0:
-        logger.error('GetContainerId, Failed to get a list of running containers, error returned %s' % output[1])
+        logger.error('GetContainerId, Failed to get a list of running containers, error returned %s' % output[1].decode('utf-8'))
         sys.exit(1)
     if len(output[0]) > 0:
         docker_ps_output = output[0].decode('utf-8').splitlines()

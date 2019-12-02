@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 This software was created by United States Government employees at 
 The Center for the Information Systems Studies and Research (CISR) 
@@ -45,8 +45,8 @@ def hasLabInstalled(lab):
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[0]) > 0: 
-        for line in output[0].splitlines():
-            print line
+        for line in output[0].decode('utf-8').splitlines():
+            print(line)
             name = line.split()[1]
             thislab = os.path.basename(name.split('.')[0])
             if thislab == lab:
@@ -71,20 +71,20 @@ def showLabs(dirs, path, versions, skip):
     for loc in sorted(dirs):
         if loc in skip: 
             continue
-    	versionfile = os.path.join(path, loc, "config", "version")
+        versionfile = os.path.join(path, loc, "config", "version")
         lname, dumb = getLabVersion(versionfile)
         if lname is None or isLatestVersion(versions[lname], loc):
             description = description+'\n  '+loc
-    	    aboutfile = os.path.join(path, loc, "config", "about.txt")
-	
-	    if(os.path.isfile(aboutfile)):
-                description += ' - '
-	        with open(aboutfile) as fh:
-	            for line in fh:
-                        description += line
-            else:
-                description += "\n"
-                #sys.stderr.write(description)
+            aboutfile = os.path.join(path, loc, "config", "about.txt")
+           
+        if(os.path.isfile(aboutfile)):
+            description += ' - '
+            with open(aboutfile) as fh:
+                for line in fh:
+                    description += line
+        else:
+            description += "\n"
+            #sys.stderr.write(description)
     pydoc.pager(description)
     print('Use "-h" for help.')
 
@@ -108,7 +108,7 @@ def diagnose():
     
 def main():
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    dir_path = dir_path[:dir_path.index("scripts/labtainer-student")]	
+    dir_path = dir_path[:dir_path.index("scripts/labtainer-student")]    
     path = dir_path + "labs/"
     dirs = os.listdir(path)
     rev = getRev()

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 This software was created by United States Government employees at 
 The Center for the Information Systems Studies and Research (CISR) 
@@ -100,4 +100,4 @@ def getGoalInfo(instr_config_path):
 
 if __name__ == "__main__":
     labname = sys.argv[1]
-    print getGoalInfo(labname)
+    print(getGoalInfo(labname))

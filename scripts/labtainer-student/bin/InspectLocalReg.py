@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 This software was created by United States Government employees at 
 The Center for the Information Systems Studies and Research (CISR) 
@@ -20,11 +20,13 @@ the test registry.
 
 
 
-def inspectLocal(image, test_registry, is_rebuild=False, quiet=False):
+def inspectLocal(image, lgr, test_registry, is_rebuild=False, quiet=False):
     use_tag = 'latest'
+    lgr.debug('inspectLocal image %s' % image)
     digest = getDigest(image, 'latest', test_registry)
     if digest is None:
         return None, None, None, None, None
+    lgr.debug('inspectLocal digest %s' % digest)
     created, user, version, base = getCreated(image, digest, test_registry)
     #print('base is %s' % base)
     if base is not None:
@@ -47,7 +49,7 @@ def inspectLocal(image, test_registry, is_rebuild=False, quiet=False):
                 print('*  This lab will require a download of           *')
                 print('*  several hundred megabytes.                    *')
                 print('**************************************************')
-                confirm = str(raw_input('Continue? (y/n)')).lower().strip()
+                confirm = str(input('Continue? (y/n)')).lower().strip()
                 if confirm != 'y':
                     print('Exiting lab')
                     exit(0)
@@ -66,7 +68,7 @@ def getTags(image, test_registry):
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[0].strip()) > 0:
-        j = json.loads(output[0])
+        j = json.loads(output[0].decode('utf-8'))
         if 'tags' in j:
             return j['tags']
         else:
@@ -79,7 +81,7 @@ def getDigest(image, tag, test_registry):
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[0].strip()) > 0:
-        j = json.loads(output[0])
+        j = json.loads(output[0].decode('utf-8'))
         if 'config' in j:
             return j['config']['digest']
         else:
@@ -92,7 +94,7 @@ def getCreated(image, digest, test_registry):
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[0].strip()) > 0:
-        j = json.loads(output[0])
+        j = json.loads(output[0].decode('utf-8'))
         #print j['container_config']['User']
         version = None
         base = None

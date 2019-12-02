@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 This software was created by United States Government employees at 
 The Center for the Information Systems Studies and Research (CISR) 
@@ -59,7 +59,7 @@ def compare_time_before(goal1timestamp, goal2timestamp):
     goal1start, goal1end = goal1timestamp.split('-')
     goal2start, goal2end = goal2timestamp.split('-')
     if goal1start == 'default' or goal2start == 'default':
-        print "Can't compare 'default' timestamp!"
+        print("Can't compare 'default' timestamp!")
         exit(1)
     if goal1start <= goal2start:
         #print "goal1start (%s) <= goal2start (%s)" % (goal1start, goal2start)
@@ -69,11 +69,11 @@ def compare_time_before(goal1timestamp, goal2timestamp):
 
 def evalTimeBefore(goals_tag1, goals_tag2):
     evalTimeBeforeResult = False
-    for goal1timestamp, goal1value in goals_tag1.iteritems():
+    for goal1timestamp, goal1value in goals_tag1.items():
         #print "Goal1 timestamp is (%s) and value is (%s)" % (goal1timestamp, goal1value)
         # For each Goal1 value that is True
         if goal1value:
-            for goal2timestamp, goal2value in goals_tag2.iteritems():
+            for goal2timestamp, goal2value in goals_tag2.items():
                 #print "Goal2 timestamp is (%s) and value is (%s)" % (goal2timestamp, goal2value)
                 # If there is Goal2 value that is True
                 if goal2value:
@@ -98,10 +98,10 @@ def evalTimeDuring(goals_tag1, goals_tag2, logger):
     retval = {}
     ''' make sure dictionary contains entry for each goals_tag2 time range within which
         there exists at least one goals_tag1 time -- independent of the boolean values. '''
-    for goal2timestamp, goal2value in goals_tag2.iteritems():
+    for goal2timestamp, goal2value in goals_tag2.items():
         #logger.debug("Goal2 timestamp is (%s) and value is (%s)" % (goal2timestamp, goal2value))
         value_for_ts2 = None
-        for goal1timestamp, goal1value in goals_tag1.iteritems():
+        for goal1timestamp, goal1value in goals_tag1.items():
             #logger.debug("Goal1 timestamp is (%s) and value is (%s)" % (goal1timestamp, goal1value))
             eval_time_during_result = compare_time_during(goal1timestamp, goal2timestamp)
             if eval_time_during_result:
@@ -125,12 +125,12 @@ def evalTimeNotDuring(goals_tag1, goals_tag2, logger):
     retval = {}
     ''' make sure dictionary contains entry for each goals_tag2 time range within which
         there exists at least one goals_tag1 time -- independent of the boolean values. '''
-    for goal2timestamp, goal2value in goals_tag2.iteritems():
+    for goal2timestamp, goal2value in goals_tag2.items():
         #logger.debug("Goal2 timestamp is (%s) and value is (%s)" % (goal2timestamp, goal2value))
         found_one = False
         ''' only can be true if goalvalue2 is true '''
         if goals_tag1 is not None and goal2value:
-            for goal1timestamp, goal1value in goals_tag1.iteritems():
+            for goal1timestamp, goal1value in goals_tag1.items():
                 #logger.debug("Goal1 timestamp is (%s) and value is (%s)" % (goal1timestamp, goal1value))
                 if goal1value:
                     eval_time_during_result = compare_time_during(goal1timestamp, goal2timestamp)
@@ -587,7 +587,7 @@ def processCount(result_sets, eachgoal, grades, logger):
                 jsonanswertag = eachgoal['answertag']
                 #print jsonanswertag
                 jsonresulttag = eachgoal['resulttag']
-                print 'tag is %s' %  jsonresulttag
+                #print('tag is %s' %  jsonresulttag)
                 #(resulttagtarget, resulttag) = jsonresulttag.split('.')
                 #print jsonresulttag
                 # Handle special case 'answer=<string>'
@@ -740,7 +740,7 @@ def processCountGreater(eachgoal, goal_times):
     the_goals = the_list.strip().split(',')
     the_goals = [x.strip() for x in the_goals]
     goals_ts_id = goal_times.getGoalTimeStampId()
-    for timestamppart, current_goals in goals_ts_id.iteritems():
+    for timestamppart, current_goals in goals_ts_id.items():
         true_count += countTrue(the_goals, current_goals)
         #print('true_count now %d' % true_count)
     is_greater = False
@@ -799,7 +799,7 @@ def processBoolean(eachgoal, goal_times, logger):
     goalid = eachgoal['goalid']
     # Process all goals_ts_id dictionary
     goals_ts_id = goal_times.getGoalTimeStampId()
-    for timestamppart, current_goals in goals_ts_id.iteritems():
+    for timestamppart, current_goals in goals_ts_id.items():
         if timestamppart != default_timestamp or len(goals_ts_id)==1:
             logger.debug('eval %s against %s tspart %s' % (t_string, str(current_goals), timestamppart))
             evalBooleanResult = evalBoolean.evaluate_boolean_expression(t_string, current_goals, logger, glist)
@@ -827,7 +827,7 @@ class ResultSets():
                 print('look at %s, val %s' % (key, result_set[key]))
                 self.result_sets[ts][key] = result_set[key]
                 if isinstance(result_set[key], bool):
-                    print 'is bool ts is %s' % ts
+                    #print('is bool ts is %s' % ts)
                     goal_times.addGoal(key, fulltimestamp, result_set[key])
                     
         else:
@@ -873,7 +873,7 @@ def finalGoalValue(goalid, grades, goal_times):
     #print "goalid is (%s)" % goalid
     current_goals_result = False
     goals_id_ts = goal_times.getGoalIdTimeStamp()
-    for current_goals, timestamp in goals_id_ts.iteritems():
+    for current_goals, timestamp in goals_id_ts.items():
         #print "current_goals is "
         #print current_goals
         if current_goals == goalid:
@@ -881,7 +881,7 @@ def finalGoalValue(goalid, grades, goal_times):
             # Use goals_ts_id for processing 
             # - if found on any timestamp then True
             # - if not found on any timestamp then False
-            for key, value in timestamp.iteritems():
+            for key, value in timestamp.items():
                 #print "Key is (%s) - value is (%s)" % (key, value)
                 if value:
                     current_value = True
@@ -950,7 +950,7 @@ def processLabExercise(studentlabdir, labidname, grades, goals, bool_results, go
 
     #print "Goals - id timestamp : "
     #print goals_id_ts
-    #for current_goals, timestamp in goals_id_ts.iteritems():
+    #for current_goals, timestamp in goals_id_ts.items():
     #     print "-----"
     #     print current_goals
     #     print timestamp

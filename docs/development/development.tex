@@ -40,6 +40,8 @@ The Labtainer framework is based in Linux and is accessed through the Linux Term
 \item {\bf g++}
 \item {\bf Latex} (texlive-full)
 \item {\bf Docker (Community Edition)} [See {\bf Docker Installation} Section]
+\item {\bf pip3} {\tt apt-get install python3-pip}
+\item {\bf dateutil} {\tt pip3 install py-dateutil}
 \end {itemize}
 \section{Getting Labtainers from Github}
 
@@ -167,6 +169,9 @@ From that shared folder, the two tar files are copied to the
 \noindent and then "Publish to Live" is 
 performed on the Liferay site.
 
+The distributions are created from a local git repo, i.e., it does not pull a new repo.  The scripts first highlights
+changes that have not yet been locally committed.  The user must press q to continue, potentially ignoring local changes.
+
 Two prepackaged VMs are maintained: one for VirtualBox, and one for VMWare.  Each include
 their respective guest additions.  The VMs are maintained on a native Linux system using command line
 utilities, e.g., VBoxManage.  The VMs are rigged to update labtainers, including a pull of
@@ -257,5 +262,8 @@ paths are managed relatively between scripts.
 Change smoke test to look for email in expected results and set that as the email before starting a lab.
 Validation should catch results.config naming of non-existent container.
 
+\subsection{Docker problems}
+The check\_nets.py tests for problems that sometimes crop up in Docker.  These include Linux routes defined
+on the host for container networks that no longer exist.  And, loopback devices that are not properly deleted?
 
 \end{document}

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 This software was created by United States Government employees at 
 The Center for the Information Systems Studies and Research (CISR) 
@@ -119,7 +119,7 @@ def evaluate_boolean_expression(s, the_dict, logger, goals):
     left = s.count('(')
     right = s.count(')')
     if left != right:
-        print 'ERROR unbalanced parens'
+        print('ERROR unbalanced parens')
         exit(1)
     replacelist = []
     for key, value in the_dict.items():

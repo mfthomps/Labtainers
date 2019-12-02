@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import subprocess
 import sys
 import os
@@ -14,13 +14,12 @@ def removeLab(lab, justContainers=False):
         lab_container = ' %s.' % lab
     gns3_container = ' %s_' % lab
     container_list = []
-    for line in output[0].splitlines():
-        #print line
+    for line in output[0].decode('utf-8').splitlines():
         if lab_container in line or gns3_container in line :
             container_list.append(line.split()[0]) 
     if len(container_list) > 0:
         cmd = 'docker rm %s' % ' '.join(container_list)
-        print cmd
+        #print(cmd)
         os.system(cmd)
     
     if not justContainers: 
@@ -31,7 +30,7 @@ def removeLab(lab, justContainers=False):
         image_find2 = '%s.' % lab
         image_find3 = '%s_' % lab
         image_list = []
-        for line in output[0].splitlines():
+        for line in output[0].decode('utf-8').splitlines():
             #print line
             if (image_find in line or line.startswith(image_find2) or line.startswith(image_find3)) and ' <none> ' not in line:
                 parts = line.split()
@@ -39,7 +38,7 @@ def removeLab(lab, justContainers=False):
                 image_list.append(image)
         if len(image_list) > 0:
             cmd = 'docker rmi -f %s' % ' '.join(image_list)
-            print cmd
+            #print(cmd)
             os.system(cmd)
         else:
             print('No images for %s' % lab)

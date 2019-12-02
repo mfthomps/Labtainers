@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 This software was created by United States Government employees at 
 The Center for the Information Systems Studies and Research (CISR) 
@@ -15,7 +15,7 @@ domain and is not subject to copyright.
 '''
 import json
 import glob
-import md5
+from hashlib import md5
 import os
 import random
 import sys

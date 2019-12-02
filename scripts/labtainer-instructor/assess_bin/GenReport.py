@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 This software was created by United States Government employees at 
 The Center for the Information Systems Studies and Research (CISR) 
@@ -49,7 +49,7 @@ def ValidateLabGrades(labgrades):
     storedlabname = ""
     storedgoalsline = ""
     storedbarline = ""
-    for emaillabname, keyvalue in sorted(labgrades.iteritems()):
+    for emaillabname, keyvalue in sorted(labgrades.items()):
         email, labname = emaillabname.rsplit('.', 1)
         #print "emaillabname is (%s) email is (%s) labname is (%s)" % (emaillabname, email, labname)
         if storedlabname == "":
@@ -68,12 +68,12 @@ def ValidateLabGrades(labgrades):
             continue
 
         #print "keyvalue is (%s)" % keyvalue
-        for key, value in keyvalue.iteritems():
+        for key, value in keyvalue.items():
             #print "key is (%s)" % key
             if key == 'grades':
                 # Do 'grades' portion - skip 'parameter' portion for now
                 #print "value is (%s)" % value
-                for goalid, goalresult in value.iteritems():
+                for goalid, goalresult in value.items():
                     if goalid.startswith('_'):
                         continue
                     #print "goalid is (%s)" % goalid
@@ -117,7 +117,7 @@ def ReportCheater(gradestxtoutput, watermark_source, email, keyvalue, found_chea
     #print keyvalue['actualwatermark']
     elif keyvalue['expectedwatermark'] != keyvalue['actualwatermark']: 
         found_source_email = "Unknown"
-        for source_email, source_watermark in watermark_source.iteritems():
+        for source_email, source_watermark in watermark_source.items():
             #print source_email
             #print source_watermark
             if keyvalue['actualwatermark'] == source_watermark:
@@ -137,19 +137,19 @@ def PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, che
     gradestxtoutput.write("Labname %s" % labname)
     gradestxtoutput.write("\n\n" + headerline + "\n" + barline + "\n")
 
-    for emaillabname, keyvalue in sorted(labgrades.iteritems()):
+    for emaillabname, keyvalue in sorted(labgrades.items()):
         email, labname = emaillabname.rsplit('.', 1)
         #print "emaillabname is (%s) email is (%s) labname is (%s)" % (emaillabname, email, labname)
         # Get the first 20 characters of the student's e-mail only
         curline = emailprintformat % email[:20]
 
         #print "keyvalue is (%s)" % keyvalue
-        for key, value in keyvalue.iteritems():
+        for key, value in keyvalue.items():
             #print "key is (%s)" % key
             if key == 'grades':
                 # Do 'grades' portion - skip 'parameter' portion for now
                 #print "value is (%s)" % value
-                for goalid, goalresult in value.iteritems():
+                for goalid, goalresult in value.items():
                     if goalid.startswith('_'):
                         continue
                     #print "goalid is (%s)" % goalid
@@ -170,7 +170,7 @@ def PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, che
     if check_watermark:
         # Create 'Source' watermark
         watermark_source = {}
-        for emaillabname, keyvalue in labgrades.iteritems():
+        for emaillabname, keyvalue in labgrades.items():
             email, labname = emaillabname.rsplit('.', 1)
             # Do not use 'cheater' as source
             if keyvalue['firstlevelzip'] == {} and keyvalue['secondlevelzip'] == {}:
@@ -183,7 +183,7 @@ def PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, che
 
         # Report 'cheaters'
         found_cheater = False
-        for emaillabname, keyvalue in labgrades.iteritems():
+        for emaillabname, keyvalue in labgrades.items():
             email, labname = emaillabname.rsplit('.', 1)
 
             # Report the one with failed_checks on Check_Email_Watermark_OK()
@@ -232,9 +232,9 @@ def UniqueReport(uniquejsonfile, gradestxtfile):
 
     gradestxtoutput = open(gradestxtfile, "a")
     unique_header_printed = False
-    for emaillabname, keyvalue in labunique.iteritems():
+    for emaillabname, keyvalue in labunique.items():
         #print "emaillabname is (%s)" % emaillabname
-        for filename, checksum in keyvalue['unique'].iteritems():
+        for filename, checksum in keyvalue['unique'].items():
             #print "filename is (%s)" % filename
             #print "checksum is (%s)" % checksum
             filename_not_printed = True
@@ -242,11 +242,11 @@ def UniqueReport(uniquejsonfile, gradestxtfile):
             # Skip no checksum
             if checksum == "NONE":
                 continue
-            for emaillabname2, keyvalue2 in labunique.iteritems():
+            for emaillabname2, keyvalue2 in labunique.items():
                 #print "emaillabname2 is (%s)" % emaillabname2
                 if emaillabname == emaillabname2:
                     continue
-                for filename2, checksum2 in keyvalue2['unique'].iteritems():
+                for filename2, checksum2 in keyvalue2['unique'].items():
                     if filename == filename2 and checksum == checksum2:
                         email, labname = emaillabname.rsplit('.', 1)
                         email2, labname2 = emaillabname2.rsplit('.', 1)

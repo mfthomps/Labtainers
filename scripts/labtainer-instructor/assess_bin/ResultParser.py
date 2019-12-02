@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 This software was created by United States Government employees at 
 The Center for the Information Systems Studies and Research (CISR) 
@@ -17,7 +17,7 @@ domain and is not subject to copyright.
 import datetime
 import json
 import glob
-import md5
+from hashlib import md5
 import os
 import re
 import sys
@@ -25,7 +25,6 @@ import time
 import MyUtil
 import GoalsParser
 import ParameterParser
-from parse import *
 
 MYHOME = ""
 container_exec_proglist = {}
@@ -432,7 +431,7 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                 ''' Create a checksum of the targetfile '''
                 mymd5 = md5.new()
                 targetlinestring = "".join(targetlines)
-                mymd5.update(targetlinestring)
+                mymd5.update(targetlinestring.encode('utf-8'))
                 tagstring = mymd5.hexdigest()
                 return tagstring
             elif command == 'CONTAINS':
@@ -580,7 +579,7 @@ def getConfigItems(labidname, line, studentlabdir, container_list, logger, param
     #print('targetfile is %s containername is %s' % (targetfile, containername))
     logger.debug('targetfile is %s, containername is %s' % (targetfile, containername))
     if containername is not None and containername not in container_list:
-        print "Config line (%s) containername %s not in container list (%s), skipping..." % (line, containername, str(container_list))
+        print("Config line (%s) containername %s not in container list (%s), skipping..." % (line, containername, str(container_list)))
         logger.debug("Config line (%s) containername %s not in container list (%s), skipping..." % (line, 
               containername, str(container_list)))
         return None, None, result_key, None, None, None, None, None 

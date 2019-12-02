@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 This software was created by United States Government employees at 
 The Center for the Information Systems Studies and Research (CISR) 
@@ -415,7 +415,7 @@ def setup_to_validate(lab_path, labname, validatetestsets, validatetestsets_path
 # Validate resultidlist for 'system' in 'treataslocal'
 def ValidateTreataslocal(labname, lab_path, resultidlist, logger):
     checklist = []
-    for key, progname_type in resultidlist.iteritems():
+    for key, progname_type in resultidlist.items():
         if ':' in progname_type:
             #container_name, newprogname_type = progname_type.split(':')
             container_name = labname

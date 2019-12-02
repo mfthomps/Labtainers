@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 This software was created by United States Government employees at 
 The Center for the Information Systems Studies and Research (CISR) 
@@ -95,7 +95,7 @@ def main():
     else:
         # No error
         labutils.logger.debug("NO ERROR found")
-        print "NO ERROR found"
+        print("NO ERROR found")
     return 0
 
 if __name__ == '__main__':

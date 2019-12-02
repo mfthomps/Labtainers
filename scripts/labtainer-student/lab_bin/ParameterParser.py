@@ -269,7 +269,7 @@ class ParameterParser():
         # Create hash per the_string
         string_to_be_hashed = '%s:%s' % (self.lab_instance_seed, the_string)
         mymd5 = hashlib.new('md5')
-        mymd5.update(string_to_be_hashed)
+        mymd5.update(string_to_be_hashed.encode('utf-8'))
         mymd5_hex_string = mymd5.hexdigest()[:strlen]
         #print "filename is (%s)" % myfilename_field
         #print "token is (%s)" % token
