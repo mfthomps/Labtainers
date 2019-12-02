@@ -15,10 +15,16 @@
 # install guest additions
 #sudo usermod -G vboxsf -a $USER
 # VMWARE:
+#  DO NOT select "custom" install, it is not really, and it will break the clock and will fail to installvmware tools.
+#  May have to manually set time and then install open-vm-tools-desktop
+#  DO NOT allow updates, do not do an update from ubuntu 18.  VMWare will fail to 
+#  boot the updated VM 9/10 times.
 # set automatic login: activities / users / unlock / automatic login
+# hw compatability to old version  VM / Manage / Change HW compatabilityh  ws 14?
 # ALL
 # add terminal to desktop
 # bidirectional shared clipboard
+# sudo apt-get install net-tools
 # wget https://my.nps.edu/documents/107523844/109121513/labtainer.tar
 # tar xf labtainer.tar
 # rm labtainer.tar
