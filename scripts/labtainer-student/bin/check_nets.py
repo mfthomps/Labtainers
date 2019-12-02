@@ -74,7 +74,7 @@ def checkLoop():
         if '/vfs/' in line:
             print('This loopback device may not have been cleaned up by Docker:\n%s' % line)
             dev = line.split(':',1)[0]
-            print('Try removing with "sudo losetup -d %s' % dev)
+            print('Try removing with "sudo losetup -d %s"' % dev)
       
 
 
