@@ -81,6 +81,7 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+
 October 9, 2019
 - Remove dnsmasq from dns component in the dmz-lab.  Was causing bind to fail on some installations.
 
