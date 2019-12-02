@@ -209,6 +209,23 @@ After running the poweron/poweroff scripts, then run the exportVM.sh to
 An initial install, including the base images, requires about 4GB.  Installing a larger lab,
 e.g., snort, requires an additional 1GB.  Running bufoverflow added 22M.
 
+\section {Maintenance notes}
+When working on a significant change, do so in a distinct branch:
+\begin{itemize}
+\item Create a new branch: {\tt git checkout -b newbranch}
+\item Make changes 
+\item Push changes in progress {\tt git push --set-upstream origin newbranch}
+\item Pull new branch from other repo -- first checkin all local changes or stash. 
+\begin{itemize}
+\item {\tt git pull}
+\item {\tt git checkout newbranch}
+\end{itemize}
+\item After testing, merge to branch into master:
+\begin{itemize}
+\item Checkout master: {\tt git checkout master}
+\item merge: {\tt git merge newbranch}
+\end{itemize}
+\end{itemize}
 
 \section {Notes}
 \subsection {Race condition on checklocal.sh output}
