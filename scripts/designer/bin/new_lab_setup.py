@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 This software was created by United States Government employees at 
 The Center for the Information Systems Studies and Research (CISR) 
@@ -168,15 +168,15 @@ def renameSVN(old, new):
     print('cmd is %s' % cmd)
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
-    print('out[0] %s' % output[0])
-    if output[0].strip().startswith('??'):
+    print('out[0] %s' % output[0].decode('utf-8'))
+    if output[0].decode('utf-8').strip().startswith('??'):
         os.rename(old, new)
     else:
         cmd = 'git mv %s %s' % (old, new)
         ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         output = ps.communicate()
         if len(output[1]) > 0:
-            print("Error from git mv: %s" % output[1])
+            print("Error from git mv: %s" % output[1].decode('utf-8'))
  
 def handle_rename_lab(newlabname):
     here = os.getcwd()
@@ -211,7 +211,7 @@ def handle_rename_lab(newlabname):
             count_container_lines = count_container_lines + 1
     #print "Number of lines that starts with 'CONTAINER' is (%d)" % count_container_lines
     if count_container_lines == 0:
-        print "Can't have a no container lab!"
+        print("Can't have a no container lab!")
         sys.exit(1)
     if count_container_lines == 1:
         oldcontainerpath = os.path.join(newlabpath, oldlabname)
@@ -256,7 +256,7 @@ def handle_clone_lab(tdir, newlabname):
 
     # Make sure new lab directory does not exist
     if os.path.exists(newlabpath):
-        print "New lab name already exists!"
+        print("New lab name already exists!")
         sys.exit(1)
 
     # Copy old lab as new lab
@@ -291,7 +291,7 @@ def handle_clone_lab(tdir, newlabname):
             count_container_lines = count_container_lines + 1
     #print "Number of lines that starts with 'CONTAINER' is (%d)" % count_container_lines
     if count_container_lines == 0:
-        print "Can't have a no container lab!"
+        print("Can't have a no container lab!")
         sys.exit(1)
     if count_container_lines == 1:
         oldcontainerpath = os.path.join(newlabpath, oldlabname)
@@ -311,7 +311,7 @@ def handle_clone_lab(tdir, newlabname):
             try:
                 renameSVN(name, newname)
             except:
-                print "ERROR, could not rename, name is (%s) newname is (%s)" % (name, newname)
+                print("ERROR, could not rename, name is (%s) newname is (%s)" % (name, newname))
                 exit(1)
 
         # Read start.config, replace 'oldlabname' as 'newlabname' into start.config
@@ -355,26 +355,26 @@ def handle_replace_container(tdir, oldcontainer, newcontainer):
 
     # Make sure oldcontainer directory exist
     if not (os.path.exists(oldcontainer) and os.path.isdir(oldcontainer)):
-        print "Old container directory does not exists!"
+        print("Old container directory does not exists!")
         sys.exit(1)
 
     # Make sure newcontainer directory does not exist
     if os.path.exists(newcontainer):
-        print "New container already exists!"
+        print("New container already exists!")
         sys.exit(1)
 
     # Make sure oldcontainer dockerfile exist
     olddockerfilename = 'Dockerfile.%s.%s.student' % (labname, oldcontainer)
     olddockerfile = os.path.join(here, 'dockerfiles', olddockerfilename)
     if not (os.path.exists(olddockerfile) and os.path.isfile(olddockerfile)):
-        print "Old container dockerfile does not exists!"
+        print("Old container dockerfile does not exists!")
         sys.exit(1)
 
     # Make sure newcontainer dockerfile does not exist
     newdockerfilename = 'Dockerfile.%s.%s.student' % (labname, newcontainer)
     newdockerfile = os.path.join(here, 'dockerfiles', newdockerfilename)
     if os.path.exists(newdockerfile):
-        print "New container dockerfile already exists!"
+        print("New container dockerfile already exists!")
         sys.exit(1)
 
     # Make sure start.config exist already
