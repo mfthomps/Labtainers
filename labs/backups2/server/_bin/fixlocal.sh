@@ -17,7 +17,7 @@ sudo mkdir $img_dir
 sudo dd if=/dev/zero of=$img_fid bs=1k count=100k
 sudo parted -s /vfs/myfs.img mklabel bsd mkpart ext2 1 100
 next=$(sudo losetup -f)
-if [[ ! -f $next ]]; then
+if [[ ! -b $next ]]; then
     # make the device if it does not exist (using mknod)
     count=${next:9}
     echo "count is $count"
