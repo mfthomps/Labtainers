@@ -225,8 +225,9 @@ def getJsonOutTS(outputjsonfile):
             if new is not None:
                 if type(new) is str:
                     new_filtered = filter(lambda x: x in string.printable, new)
+                    new_filtered = "".join(new_filtered)
                 else:
-                    new_filtered = new
+                    new_filtered = "".join(new)
             else:
                 new_filtered = None
             result_set[key] = new_filtered 
@@ -248,8 +249,9 @@ def getJsonOut(outputjsonfile):
         if new is not None:
             if type(new) is str:
                 new_filtered = filter(lambda x: x in string.printable, new)
+                new_filtered = "".join(new_filtered)
             else:
-                new_filtered = new
+                new_filtered = "".join(new)
         else:
             new_filtered = None
         jsonoutput[key] = new_filtered
