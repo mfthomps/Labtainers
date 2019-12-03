@@ -13,7 +13,8 @@ import os
 import sys
 import re
 if sys.version_info >=(3,0):
-    from ipaddress import *
+    from ipaddress import ip_address as IPAddress
+    from ipaddress import ip_network as IPNetwork
 else:
     from netaddr import *
 import LabtainerLogging
@@ -118,7 +119,7 @@ class ParseStartConfig():
                     if addr != 'auto' and addr != 'auto_mac':
                         try:
                             IPAddress(addr)
-                        except :
+                        except ValueError:
                             self.logger.error('bad ip addr %s in %s\n' % (addr, name))
                             exit(1)
 
@@ -139,7 +140,7 @@ class ParseStartConfig():
                 exit(1)
             try:
                 IPNetwork(self.mask)
-            except:
+            except ValueError:
                 self.logger.error('bad ip subnet %s for subnet %s\n' % (self.mask, self.name))
                 exit(1)
             if not IPAddress(self.gateway) in IPNetwork(self.mask):
