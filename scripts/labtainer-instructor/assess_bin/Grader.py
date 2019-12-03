@@ -227,7 +227,7 @@ def getJsonOutTS(outputjsonfile):
                     new_filtered = filter(lambda x: x in string.printable, new)
                     new_filtered = "".join(new_filtered)
                 else:
-                    new_filtered = "".join(new)
+                    new_filtered = new
             else:
                 new_filtered = None
             result_set[key] = new_filtered 
@@ -251,7 +251,7 @@ def getJsonOut(outputjsonfile):
                 new_filtered = filter(lambda x: x in string.printable, new)
                 new_filtered = "".join(new_filtered)
             else:
-                new_filtered = "".join(new)
+                new_filtered = new
         else:
             new_filtered = None
         jsonoutput[key] = new_filtered
