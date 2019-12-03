@@ -3,7 +3,15 @@
 #  Script will be run after parameterization has completed, e.g., 
 #  use this to compile source code that has been parameterized.
 #
+next=$(sudo losetup -f)
+if [[ ! -b $next ]]; then
+    # make the device if it does not exist (using mknod)
+    count=${next:9}
+    echo "count is $count"
+    sudo mknod $next b 7 $count
+fi
 cd $HOME
+mkdir mnt
 dd if=/dev/zero of=myfs.img bs=1k count=1k
 mkfs.ext2 -F myfs.img
 sudo mount -o loop myfs.img mnt
