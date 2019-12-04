@@ -267,7 +267,7 @@ def getToken(linerequested, field_type, token_id, logger):
                 numlinetokens = len(linetokens)
             elif field_type == 'SEARCH':
                 logger.debug('is search')
-                search_results = search(token_id, linerequested)
+                search_results = re.search(token_id, linerequested)
                 if search_results is not None:
                     token = str(search_results[0])
                 else: 
