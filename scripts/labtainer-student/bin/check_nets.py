@@ -17,7 +17,7 @@ def checkContainers():
     ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     retval = False
-    for line in output[0].splitlines(True):
+    for line in output[0].decode('utf-8').splitlines(True):
         if not line.startswith('CONTAINER'):
             parts = line.split()
             name = parts[-1]
@@ -31,7 +31,7 @@ def getRoutes():
     retval = {}
     ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
-    for line in output[0].splitlines(True):
+    for line in output[0].decode('utf-8').splitlines(True):
         parts = line.split()
         if len(parts) == 8:
             iface = parts[7]
@@ -47,7 +47,7 @@ def getNets():
     retval = []
     ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
-    for line in output[0].splitlines(True):
+    for line in output[0].decode('utf-8').splitlines(True):
         if not line.startswith('NETWORK'):
             parts = line.split()
             nid = parts[0]
@@ -59,7 +59,7 @@ def getIPTable(ip):
     cmd = 'sudo iptables -t nat -v -L POSTROUTING -n --line-number'
     ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
-    for line in output[0].splitlines(True):
+    for line in output[0].decode('utf-8').splitlines(True):
         if ip in line:
             retval = line
             break
@@ -70,7 +70,7 @@ def checkLoop():
     cmd = 'sudo losetup -a'
     ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
-    for line in output[0].splitlines(True):
+    for line in output[0].decode('utf-8').splitlines(True):
         if '/vfs/' in line:
             print('This loopback device may not have been cleaned up by Docker:\n%s' % line)
             dev = line.split(':',1)[0]

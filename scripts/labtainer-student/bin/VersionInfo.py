@@ -22,10 +22,10 @@ def getImageId(image, quiet):
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[1]) > 0:
-        print(output[1])
+        print(output[1].decode('utf-8'))
         exit(1)
     if len(output[0]) > 0:
-        return output[0].strip()
+        return output[0].decode('utf-8').strip()
     elif quiet:
         cmd = 'docker pull %s' % image
         os.system(cmd)

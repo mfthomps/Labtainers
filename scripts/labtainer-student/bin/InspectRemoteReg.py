@@ -31,14 +31,14 @@ def inspectRemote(image, lgr, is_rebuild=False, quiet=False):
         print('Remote image %s is lacking a base version, it needs to be retagged with trunk/distrib/retag_all.py' % image)
         exit(1) 
         #return None, None, None, None
-    #print('base is %s' % base)
+    lgr.debug('base is %s' % base)
     base_image, base_id = base.rsplit('.', 1)
     my_id = VersionInfo.getImageId(base_image, quiet)
     if my_id == base_id:
         pass
         #print('got correct base_id')
     else:
-        #print('got WRONG base_id')
+        lgr.debug('got WRONG base_id my_id %s  base: %s' % (my_id, base_id))
         tlist = getTags(image, token)
         need_tag = 'base_image%s' % my_id
         if is_rebuild or need_tag in tlist:
@@ -51,7 +51,7 @@ def inspectRemote(image, lgr, is_rebuild=False, quiet=False):
             print('*  This lab will require a download of           *')
             print('*  several hundred megabytes.                    *')
             print('**************************************************')
-            confirm = str(raw_input('Continue? (y/n)')).lower().strip()
+            confirm = str(input('Continue? (y/n)')).lower().strip()
             if confirm != 'y':
                 print('Exiting lab')
                 exit(0)
@@ -117,7 +117,7 @@ def getDigest(token, image, tag):
             j = json.loads(jstring)
         except ValueError:
             with open('/tmp/docker_error.txt', 'w') as fh:
-                fh.write(cmd+'\n'+output[0])
+                fh.write(cmd+'\n'+output[0].decode('utf-8'))
             print('Error getting digest for image: %s tag: %s' % (image, tag))
             print('please email the file at /tmp/docker_error.txt to mfthomps@nps.edu')
             exit(1)
