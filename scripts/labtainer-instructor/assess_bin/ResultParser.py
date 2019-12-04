@@ -352,7 +352,7 @@ def getTS(line):
 
 def getTokenFromFile(current_targetfname, command, field_type, token_id, logger, lookupstring, line, result_key):
             # Read in corresponding file
-            targetf = open(current_targetfname, "r")
+            targetf = open(current_targetfname, encoding='utf-8')
             targetlines = targetf.readlines()
             targetf.close()
             targetfilelen = len(targetlines)
@@ -706,7 +706,7 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
             if command == 'HAVESTRING_TS':
                 if not os.path.isfile(targetfile):
                     continue
-                with open(targetfile, "r") as fh:
+                with open(targetfile, encoding='utf-8') as fh:
                     targetlines = fh.readlines()
                 for currentline in targetlines:
                     if lookupstring in currentline:
@@ -723,7 +723,7 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
             if command == 'LOG_TS':
                 if not os.path.isfile(targetfile):
                     continue
-                with open(targetfile, "r") as fh:
+                with open(targetfile, encoding='utf-8') as fh:
                     targetlines = fh.readlines()
                 for currentline in targetlines:
                     if lookupstring in currentline:
@@ -739,7 +739,7 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
             if command == 'LOG_RANGE':
                 if not os.path.isfile(targetfile):
                     continue
-                with open(targetfile, "r") as fh:
+                with open(targetfile, encoding='utf-8') as fh:
                     targetlines = fh.readlines()
                 prev_time_val = None
                 last_time_val = None
@@ -774,7 +774,7 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
             elif command == 'REGEX_TS':
                 if not os.path.isfile(targetfile):
                     continue
-                with open(targetfile, "r") as fh:
+                with open(targetfile, encoding='utf-8') as fh:
                     targetlines = fh.readlines()
                 for currentline in targetlines:
                     sobj = re.search(lookupstring, currentline)
@@ -797,7 +797,7 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
             elif command == 'FILE_REGEX_TS':
                 if not os.path.isfile(targetfile):
                     continue
-                with open(targetfile, "r") as fh:
+                with open(targetfile, encoding='utf-8') as fh:
                     targetlines = fh.readlines()
                 for currentline in targetlines:
                     sobj = re.search(lookupstring, currentline)
