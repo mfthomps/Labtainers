@@ -24,18 +24,10 @@ domain and is not subject to copyright.
 #    the user passed the optional argument specifying the number of
 #    terminal
 
-import glob
-import json
-import md5
 import os
-import re
-import subprocess
 import sys
-import time
-import zipfile
 import ParseStartConfig
 import labutils
-import logging
 import LabtainerLogging
 
 LABS_ROOT = os.path.abspath("../../labs/")
