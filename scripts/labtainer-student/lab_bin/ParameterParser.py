@@ -38,7 +38,7 @@ class ParameterParser():
             self.logger = ParameterizeLogging.ParameterizeLogging("/tmp/parameterize.log")
         else:
             self.logger = logger
-        self.logger.debug('start parsing parameters')
+        self.logger.debug('start parsing parameters lab_instance_seed %s' % lab_instance_seed)
     
     def WatermarkCreate(self):
         watermarkcreatelist = {}
@@ -74,7 +74,15 @@ class ParameterParser():
             for the_string in createlist:
                 outfile.write('%s\n' % the_string)
             outfile.close()
-    
+   
+    def compatRandInt(self, low, high):
+        if sys.version_info >=(3,0):
+            randint_compat = lambda lo, hi: lo + int(random.random() * (hi + 1 - lo))
+            x = randint_compat(low, high)
+        else:
+            x = random.randint(low, high)
+        return x
+ 
     def CheckRandReplaceEntry(self, param_id, each_value, unique=False):
         # RAND_REPLACE : <filename> : <token> : <LowerBound> : <UpperBound>
         #print "Checking RAND_REPLACE entry"
@@ -132,12 +140,12 @@ class ParameterParser():
                 self.logger.error("unqiue values for %s consumed" % key)
                 sys.exit(1)
             while True:
-                random_int = random.randint(lowerbound_int, upperbound_int)
+                random_int = self.compatRandInt(lowerbound_int, upperbound_int)
                 if random_int not in self.unique_values[key]:
                     self.unique_values[key].append(random_int)
                     break
         else:
-            random_int = random.randint(lowerbound_int, upperbound_int)
+            random_int = self.compatRandInt(lowerbound_int, upperbound_int)
         #print "random value is (%d)" % random_int
         if use_integer:
             random_str = '%s' % int(random_int)
@@ -570,7 +578,10 @@ class ParameterParser():
     
     def ParseParameterConfig(self, configfilename):
         # Seed random with lab seed
-        random.seed(self.lab_instance_seed)
+        if sys.version_info >=(3,0):
+            random.seed(self.lab_instance_seed, version=1)
+        else:
+            random.seed(self.lab_instance_seed)
         configfile = open(configfilename)
         configfilelines = configfile.readlines()
         configfile.close()
