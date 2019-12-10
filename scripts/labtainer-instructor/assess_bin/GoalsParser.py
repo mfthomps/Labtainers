@@ -51,6 +51,14 @@ class MyGoal(object):
         self.goal1tag = goal1tag
         self.goal2tag = goal2tag
 
+def compatRandInt(low, high):
+    if sys.version_info >=(3,0):
+        randint_compat = lambda lo, hi: lo + int(random.random() * (hi + 1 - lo))
+        x = randint_compat(low, high)
+    else:
+        x = random.randint(low, high)
+    return x
+
 def getRandom(bounds, type, logger):
     # Converts lowerbound and upperbound as integer - and pass to
     # random.randint(a,b)
@@ -88,7 +96,7 @@ def getRandom(bounds, type, logger):
             logger.error("ASCII lowerbound (%s) & upperbound (%s) outside printable\n"
                             % (lowerboundstr, upperboundstr))
             sys.exit(1)
-    random_int = random.randint(lowerbound_int, upperbound_int)
+    random_int = compatRandInt(lowerbound_int, upperbound_int)
     if type == "asciirandom":
         random_str = '%s' % chr(random_int)
     elif type == "hexrandom":
