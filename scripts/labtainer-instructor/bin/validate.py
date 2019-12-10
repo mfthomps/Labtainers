@@ -343,7 +343,7 @@ def setup_to_validate(lab_path, labname, validatetestsets, validatetestsets_path
     # Create hash using LAB_MASTER_SEED concatenated with user's e-mail
     # LAB_MASTER_SEED is per laboratory - specified in start.config
     string_to_be_hashed = '%s:%s' % (lab_master_seed, user_email)
-    mymd5 = md5.new()
+    mymd5 = md5()
     mymd5.update(string_to_be_hashed)
     lab_instance_seed = mymd5.hexdigest()
     labutils.logger.debug("seed %s" % lab_instance_seed)
@@ -363,7 +363,7 @@ def setup_to_validate(lab_path, labname, validatetestsets, validatetestsets_path
     fh.close()
     WATERMARK_NAMEFILE = os.path.join(TEMPLOCAL, ".watermark")
     string_to_be_hashed = '%s:%s' % (lab_instance_seed, user_email)
-    mymd5 = md5.new()
+    mymd5 = md5()
     mymd5.update(string_to_be_hashed)
     watermark = mymd5.hexdigest()
     labutils.logger.debug("watermark %s" % watermark)

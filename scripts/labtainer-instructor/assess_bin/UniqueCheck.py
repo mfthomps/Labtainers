@@ -168,7 +168,7 @@ def handleUniqueConfig(labidname, line, nametags, studentlabdir, container_list,
             # command has been validated
             if command == 'CHECKSUM':
                 ''' Create a checksum of the targetfile '''
-                mymd5 = md5.new()
+                mymd5 = md5()
                 targetlinestring = "".join(targetlines)
                 mymd5.update(targetlinestring.encode('utf-8'))
                 tagstring = mymd5.hexdigest()
