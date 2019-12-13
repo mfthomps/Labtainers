@@ -51,61 +51,6 @@ class MyGoal(object):
         self.goal1tag = goal1tag
         self.goal2tag = goal2tag
 
-def compatRandInt(low, high):
-    if sys.version_info >=(3,0):
-        randint_compat = lambda lo, hi: lo + int(random.random() * (hi + 1 - lo))
-        x = randint_compat(low, high)
-    else:
-        x = random.randint(low, high)
-    return x
-
-def getRandom(bounds, type, logger):
-    # Converts lowerbound and upperbound as integer - and pass to
-    # random.randint(a,b)
-    # Starts with assuming will use integer (instead of hexadecimal)
-    use_integer = True
-    lowerboundstr = bounds[0].strip()
-    if lowerboundstr.startswith('0x'):
-        use_integer = False
-        lowerbound_int = int(lowerboundstr, 16)
-    else:
-        lowerbound_int = int(lowerboundstr, 10)
-    upperboundstr = bounds[1].strip()
-    if upperboundstr.startswith('0x'):
-        if use_integer == True:
-            # Inconsistent format of lowerbound (integer format)
-            # vs upperbound (hexadecimal format)
-            logger.error("inconsistent lowerbound (%s) & upperbound (%s) format\n"
-                            % (lowerboundstr, upperboundstr))
-            sys.exit(1)
-        use_integer = False
-        upperbound_int = int(upperboundstr, 16)
-    else:
-        upperbound_int = int(upperboundstr, 10)
-    #print "lowerbound is (%d)" % lowerbound_int
-    #print "upperbound is (%d)" % upperbound_int
-    if lowerbound_int > upperbound_int:
-        logger.error("lowerbound greater than upperbound\n")
-        sys.exit(1)
-    if type == "asciirandom":
-        # Make sure lowerbound/upperbound in ASCII printable characters range
-        # (i.e., starts with 33-126 - excludes 33 (space) and 127 (del)
-        ASCIIlowrange = 33
-        ASCIIhighrange = 126
-        if (lowerbound_int < ASCIIlowrange or upperbound_int > ASCIIhighrange):
-            logger.error("ASCII lowerbound (%s) & upperbound (%s) outside printable\n"
-                            % (lowerboundstr, upperboundstr))
-            sys.exit(1)
-    random_int = compatRandInt(lowerbound_int, upperbound_int)
-    if type == "asciirandom":
-        random_str = '%s' % chr(random_int)
-    elif type == "hexrandom":
-        random_str = '%s' % hex(random_int)
-    else:
-        # type == "intrandom":
-        random_str = '%s' % int(random_int)
-    return random_str
-
 def getTagValue(parameter_list, target, finaltag, logger):
     if target == "answer":
         returnTagValue = 'answer=%s' % finaltag
