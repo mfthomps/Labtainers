@@ -446,6 +446,7 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
                 
             else:
                 volume='-v /sys/fs/cgroup:/sys/fs/cgroup:ro'
+                #volume='--security-opt seccomp=unconfined --tmpfs /run --tmpfs /run/lock -v /sys/fs/cgroup:/sys/fs/cgroup:ro'
         if container.x11.lower() == 'yes':
             #volume = '-e DISPLAY -v /tmp/.Xll-unix:/tmp/.X11-unix --net=host -v$HOME/.Xauthority:/home/developer/.Xauthority'
             volume = volume+' --env="DISPLAY"  --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw"'
@@ -1246,6 +1247,9 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
             elif clone_need_seeds:
                 ParamForStudent(start_config.lab_master_seed, mycontainer_name, container_user, 
                                                  container_password, labname, student_email, lab_path, name, image_info)
+            if container.no_gw:
+                cmd = "docker exec %s bash -c 'sudo ip route del 0/0'" % (mycontainer_name)
+                DockerCmd(cmd)
     
         results.append(retval)
 
