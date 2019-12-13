@@ -70,8 +70,10 @@ ADD $labdir/$lab.tar.gz $HOME
 #
 USER root
 RUN systemctl enable rc-local
-RUN systemctl enable postgresql
+RUN systemctl disable postgresql
 CMD ["/sbin/init"]
+#CMD ["/bin/bash", "-c", "exec /sbin/init --log-target=journal 3>&1"]
+
 # replace below with four above for centos
 #
 #  DO NOT add below this line.
