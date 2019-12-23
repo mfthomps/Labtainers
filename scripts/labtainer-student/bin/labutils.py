@@ -29,8 +29,12 @@ import BigExternal
 import calendar
 import string
 import errno
-from dateutil import parser
-from dateutil.parser import parse
+try:
+    ''' only needed for lab designer '''
+    from dateutil import parser
+    from dateutil.parser import parse
+except:
+    pass
 
 ''' assumes relative file positions '''
 here = os.path.dirname(os.path.abspath(__file__))
