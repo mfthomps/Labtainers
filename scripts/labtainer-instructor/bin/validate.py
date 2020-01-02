@@ -479,7 +479,7 @@ def ValidateTreataslocal(labname, lab_path, resultidlist, logger):
             treataslocal_path = "%s/%s/_bin/treataslocal" % (lab_path, container_name)
             if not (os.path.exists(treataslocal_path) and os.path.isfile(treataslocal_path)):
                 logger.warning("treataslocal file %s not found when validating command %s from %s %s" % (treataslocal_path, execprog, key, progname_type))
-                user_input=raw_input("Would you like to quit? (yes/no)\n")
+                user_input=input("Would you like to quit? (yes/no)\n")
                 user_input=user_input.strip().lower()
                 #print "user_input (%s)" % user_input
                 if user_input == "yes":
