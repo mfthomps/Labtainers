@@ -39,10 +39,10 @@ if [ $OK -eq 0 ];then
     NUM=$(echo $VER | cut -d$' ' -f 2)
     echo "NUM is $NUM"
     if [[ "$NUM" == "3.5.2" ]]; then
-        echo "is bad, very bad"
+        #echo "is bad, very bad"
         cmd="python"
     else
-        echo "is ok"
+        #echo "is ok"
         cmd="python3"
     fi
 else

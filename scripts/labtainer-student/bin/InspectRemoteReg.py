@@ -71,7 +71,10 @@ def inspectRemote(image, lgr, is_rebuild=False, quiet=False):
             print('*  This lab will require a download of           *')
             print('*  several hundred megabytes.                    *')
             print('**************************************************')
-            confirm = str(input('Continue? (y/n)')).lower().strip()
+            if sys.version_info >=(3,0):
+                confirm = str(input('Continue? (y/n)')).lower().strip()
+            else:
+                confirm = str(raw_input('Continue? (y/n)')).lower().strip()
             if confirm != 'y':
                 print('Exiting lab')
                 exit(0)

@@ -1510,12 +1510,12 @@ def readFirst(lab_path, labname, fname, quiet_start, bail_option=False):
                 if sys.version_info >=(3,0):
                     dumb = input("Press <enter> to start the lab\n")
                 else:
-                    dumb = input("Press <enter> to start the lab\n")
+                    dumb = raw_input("Press <enter> to start the lab\n")
             else:
                 if sys.version_info >=(3,0):
                     dumb = input("Continue? (y/n)")
                 else:
-                    dumb = input("Continue? (y/n)")
+                    dumb = raw_input("Continue? (y/n)")
                 if dumb.lower() != 'y':
                     cmd = 'rm -fr .tmp/%s' % labname
                     os.system(cmd)
@@ -1569,7 +1569,10 @@ def DoStart(start_config, labtainer_config, lab_path,
         result = subprocess.call(shlex.split(command), stderr=subprocess.PIPE)
         if result == FAILURE:
             logger.warning("Host System Check indicates error encountered")
-            user_input=input("Would you like to quit? (yes/no)\n")
+            if sys.version_info >=(3,0):
+                user_input=input("Would you like to quit? (yes/no)\n")
+            else:
+                user_input=raw_input("Would you like to quit? (yes/no)\n")
             user_input=user_input.strip().lower()
             #print "user_input (%s)" % user_input
             if user_input == "yes":
