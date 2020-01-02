@@ -133,7 +133,8 @@ def checkVersion():
        print('instead of using start.py <lab>.  Thank you.')
        exit()
     else:
-       print('version is %s' % str(sys.version_info))
+       #print('version is %s' % str(sys.version_info))
+       pass
      
 def main():
     checkVersion()
