@@ -35,7 +35,3 @@ stoplab
 echo "--Smoketest Single Base--"
 #SimLab.py wiggysinglebase
 smoketest.py -l wiggysinglebase
-#stoplab
-
-#cd ../../labs
-#rm -rf wiggy* 

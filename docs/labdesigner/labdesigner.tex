@@ -428,7 +428,7 @@ providing a name for the network, the following values are defined:
 \item GATEWAY [gateway address] -- The IP address of the network gateway used by Docker to communicate with the
 host.  Please note that to define a different network gateway for the component, you should 
 use the {\tt set\_default\_gw.sh}.  This GATEWAY field should not name the IP of any of your other components.  
-See the the {\tt routing\_basics2} lab for examples.
+See the {\tt routing\_basics2} lab for examples.
 \item MACVLAN\_EXT [N] -- Optional, causes the Docker network driver to 
 create and use a macvlan tied to the given Nth ethernet interface (in alphabetical order) that lacks an
 assigned IP address.  The network device is expected to be on a ``host-only'' VM network.  The VMM should disable the
@@ -495,6 +495,7 @@ increasing integer starting with one, and this value can be used for the network
 parameterization as described in section \ref{parameterize}. This option is not intended for use in creating multi-user
 labs.
 \item NO\_PULL [YES/NO] -- Use a local instance of the container image rather than pulling it from the Docker hub.
+\item NO\_GW [YES/NO] -- Disable the default gateway, preventing network communication with the host or external devices.
 
 \end{itemize}
 \end{itemize}
@@ -1769,7 +1770,7 @@ LABEL version=$version
 \noindent And, be sure to publish the revised framework before publishing the revised lab(s).
 
 \subsection{Alternate registry for testing}
-If the environment variable {\tt TEST\_REGISTRY}, is set to YES, labs to be pulled and pushed
+If the environment variable {\tt TEST\_REGISTRY}, is set to TRUE, labs to be pulled and pushed
 into an alternate registry defined in the trunk/config/labtainer.config file test\_registry entry.
 Also, the {\tt build\_lab.py}, {\tt labtainer}, and {\tt publish.sh} scripts include {\tt -t} flags to
 force the system to reference the test registry instead of the Docker Hub.
@@ -2225,6 +2226,15 @@ This can be disabled on deployment-wide basis using the {\tt CHECKWORK no} direc
 in the {\tt config/labtainers.config} file.  Of course this assumes you have separately
 provided access control over that file, e.g., through use of a custom VM appliance.
 
+\subsection {Test registry setup}
+The test registry is a Docker container that runs on the host, i.e., native OS
+upon which the VMs run.  The same test registry is shared by multiple development VMs.
+The test registry is created via {\tt host\_scripts/registry/start\_reg.sh}.  It listens
+to port 5000 on the localhost.
+
+A VM is configured to use the test registry via {\tt setup\_scripts/./prep-testregistry.sh}
+
+The test registry is populated using publish.py -t
 \newpage
 \appendix
 \section{\\SimLab for testing labs}
@@ -2293,6 +2303,7 @@ use when the xterm title is changed by a program.
 Intended for use to wait for a command to complete.  This runs on the Linux host, so
 do not be vauge, or it may never return. 
 Note: If the command was added to the keyboard buffer, then wait\_proc may not catch a command.
+\item \textbf{type\_command} $<$text$>$ -- Types the given text and uses wait\_proc to wait for the command to finish.
 \item \textbf{wait\_net} $<$container$>$:$<$text$>$ -- Delays until network connections to a given remote
 host have terminated.  The given $<$text$>$ is searched for as a substring within the host name ouput
 from a {\tt netstat} command run on the given container.

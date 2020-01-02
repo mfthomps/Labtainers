@@ -26,19 +26,8 @@ Revision:
 [Release notes](#release-notes)
 
 ## Distribution and Use
-Labtainers was created by United States Government employees at 
-The Center for Cybersecurity and Cyber Operations (C3O) 
-at the Naval Postgraduate School NPS.  Please note that within the 
-United States, copyright protection is not available for any works 
-created  by United States Government employees, pursuant to Title 17 
-United States Code Section 105.   This software is in the public 
-domain and is not subject to copyright. 
-
-However, several of the labs are derived from SEED labs from 
-Syracuse University, and include copyrighted and licensed elements
-as set forth in their respective Lab Manuals.  These labs include:
-bufoverflow, capabilities, formatstring, local-dns, onewayhash,
-retlibc, setuid-env, sql-inject, tcpip, webtrack, xforge and xsite.
+Please see the licensing and distribution information
+in the [docs/license.md file](docs/license.md).
 
 ## Guide to directories
 
@@ -81,6 +70,19 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+
+January 2, 2020
+- Port framework and gradelab Python3 (existing Python2 labs will not change)
+  - Use backward compatible random.seed options
+  - Hack non-compatable randint to return old values
+- Centos-based labs manpages were failing; use mandb within base docker file
+- dmz-lab netmask for DMZ network was wrong (caught by python3); as was IP address of inner gateway in lab manual
+- ghex removed from centos labs -- no longer easily supported by centos 7
+- file-deletion lab must be completed without rebooting the VM, note this in the Lab Manual.
+- Add NO\_GW switch to start.config to disable default gateways on containers.
+- Metasploit lab, crashes host VM if runs as privileged; long delays on su if systemd enabled; so run without systemd.
+  Remove use of database from lab manual, configure to use new no\_gw switch
+- Update file headers for licensing/terms; add consolidated license file.
 
 October 9, 2019
 - Remove dnsmasq from dns component in the dmz-lab.  Was causing bind to fail on some installations.

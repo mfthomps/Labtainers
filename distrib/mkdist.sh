@@ -40,29 +40,32 @@ rm -fr /$ddir
 mkdir $ddir
 mkdir $ldir
 mkdir $ltrunk
-git archive master README.md | tar -x -C $ltrunk
+branch=$(git rev-parse --abbrev-ref HEAD)
+echo "Make distribution from branch: $branch"
+git archive $branch README.md | tar -x -C $ltrunk
+git archive $branch | tar -x -C $ltrunk
 sed -i "s/mm\/dd\/yyyy/$(date '+%m\/%d\/%Y %H:%M')/" $ltrunk/README.md
 sed -i "s/^Revision:/Revision: $revision/" $ltrunk/README.md
 #git archive master config | tar -x -C $ltrunk
-$here/fix-git-dates.py config $ltrunk
-$here/fix-git-dates.py setup_scripts $ltrunk
-$here/fix-git-dates.py docs $ltrunk
-$here/fix-git-dates.py tool-src $ltrunk
-$here/fix-git-dates.py distrib/skip-labs $ltrunk
+$here/fix-git-dates.py config $ltrunk $branch
+$here/fix-git-dates.py setup_scripts $ltrunk $branch
+$here/fix-git-dates.py docs $ltrunk $branch
+$here/fix-git-dates.py tool-src $ltrunk $branch
+$here/fix-git-dates.py distrib/skip-labs $ltrunk $branch
 mkdir $scripts
-$here/fix-git-dates.py scripts/labtainer-student $ltrunk
-$here/fix-git-dates.py scripts/labtainer-instructor $ltrunk
+$here/fix-git-dates.py scripts/labtainer-student $ltrunk $branch
+$here/fix-git-dates.py scripts/labtainer-instructor $ltrunk $branch
 mkdir $labs
 llist=$(git ls-files labs | cut -d '/' -f 2 | uniq)
 for lab in $llist; do
     if [ $(contains "${skiplist[@]}" $lab) != "y" ]; then
-        $here/fix-git-dates.py labs/$lab/config $ltrunk
-        $here/fix-git-dates.py labs/$lab/instr_config $ltrunk
+        $here/fix-git-dates.py labs/$lab/config $ltrunk $branch
+        $here/fix-git-dates.py labs/$lab/instr_config $ltrunk $branch
         if [[ -d labs/$lab/docs ]]; then
-            $here/fix-git-dates.py labs/$lab/docs $ltrunk
+            $here/fix-git-dates.py labs/$lab/docs $ltrunk $branch
         fi
         if [[ -d labs/$lab/bin ]]; then
-            $here/fix-git-dates.py labs/$lab/bin $ltrunk
+            $here/fix-git-dates.py labs/$lab/bin $ltrunk $branch
         fi
     fi
 done

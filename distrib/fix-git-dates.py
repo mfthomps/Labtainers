@@ -21,6 +21,8 @@ parser.add_argument('pathspec',
 
 parser.add_argument('dist_path', help='directory of distribution tree')
 
+parser.add_argument('branch', help='branch of the repo')
+
 args = parser.parse_args()
 logger.basicConfig(level=logger.DEBUG if args.verbose else logger.ERROR,
                    format='%(levelname)s:\t%(message)s')
@@ -28,7 +30,7 @@ logger.basicConfig(level=logger.DEBUG if args.verbose else logger.ERROR,
 # Find repo's top level.
 try:
     workdir = os.path.abspath(subprocess.check_output(shlex.split(
-                    'git rev-parse --show-toplevel')).strip())
+                    'git rev-parse --show-toplevel')).strip()).decode('utf-8')
 except subprocess.CalledProcessError as e:
     sys.exit(e.returncode)
 
@@ -53,6 +55,7 @@ elif os.path.isdir(path):
 
 
 def fixtimes(filelist, dist_path, pathspec, workdir):
+    print('fix times')
     for f in filelist:
         source = os.path.join(workdir, f)
         dest = os.path.join(dist_path, f)
@@ -61,9 +64,9 @@ def fixtimes(filelist, dist_path, pathspec, workdir):
             os.utime(dest, (mtime, mtime))
 
 if args.pathspec.strip() == './':
-    cmd = 'git archive master | tar -x -C %s' % (args.dist_path)
+    cmd = 'git archive %s | tar -x -C %s' % (args.branch, args.dist_path)
 else:
-    cmd = 'git archive master %s | tar -x -C %s' % (args.pathspec, args.dist_path)
+    cmd = 'git archive %s %s | tar -x -C %s' % (args.branch, args.pathspec, args.dist_path)
 os.system(cmd)
 
 fixtimes(filelist, args.dist_path, args.pathspec, workdir)

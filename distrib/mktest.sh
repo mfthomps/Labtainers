@@ -13,11 +13,15 @@ trunk=$tmp_dir/trunk
 mkdir $trunk
 here=`pwd`
 cd ../
-$here/fix-git-dates.py distrib $trunk
-$here/fix-git-dates.py testsets $trunk
+branch=$(git rev-parse --abbrev-ref HEAD)
+echo "Make test set distribution from branch: $branch"
+$here/fix-git-dates.py distrib $trunk $branch
+$here/fix-git-dates.py testsets $trunk $branch
 cd ../Labtainers-simlab
 git status -s | grep -E "^ M|^ D|^ A" | less
-$here/fix-git-dates.py simlab $tmp_dir
+branch=$(git rev-parse --abbrev-ref HEAD)
+echo "Make simlab distribution from branch: $branch"
+$here/fix-git-dates.py simlab $tmp_dir $branch
 #git archive master simlab | tar -x -C $tmp_dir
 cd $tmp_dir
 tar czf /tmp/labtainer-tests.tar trunk simlab

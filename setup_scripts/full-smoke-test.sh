@@ -26,4 +26,5 @@ sleep 5
 cd ../scripts/labtainer-student
 echo "start smoke test"
 smoketest.py
+build_lab_test.sh
 sudo poweroff

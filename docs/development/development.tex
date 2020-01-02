@@ -42,6 +42,7 @@ The Labtainer framework is based in Linux and is accessed through the Linux Term
 \item {\bf Docker (Community Edition)} [See {\bf Docker Installation} Section]
 \item {\bf pip3} {\tt apt-get install python3-pip}
 \item {\bf dateutil} {\tt pip3 install py-dateutil}
+\item {\bf xdotool} 
 \end {itemize}
 \section{Getting Labtainers from Github}
 
@@ -134,7 +135,11 @@ VirtualBox and VMWare.
 \item Regression testing of grading functions is performed by labtainer-instructor/regress.py.
 Expected results are stored in the labtainer/testsets directory.
 \item Regression testing of labs and grading combined: scripts in testsets/bin; data sets
-are not distributed, they are in labtainer/simlab/<labname>
+are not distributed, they are in labtainer/simlab/<labname>  Get simlab data sets using
+\begin{verbatim}
+git clone https://gitlab.nps.edu/mfthomps/Labtainers-simlab.git/
+\end{verbatim}
+
        \end{itemize}
 
 \end{itemize}
@@ -171,6 +176,7 @@ performed on the Liferay site.
 
 The distributions are created from a local git repo, i.e., it does not pull a new repo.  The scripts first highlights
 changes that have not yet been locally committed.  The user must press q to continue, potentially ignoring local changes.
+Distrubtions are made from the current git branch.
 
 Two prepackaged VMs are maintained: one for VirtualBox, and one for VMWare.  Each include
 their respective guest additions.  The VMs are maintained on a native Linux system using command line
@@ -262,8 +268,35 @@ paths are managed relatively between scripts.
 Change smoke test to look for email in expected results and set that as the email before starting a lab.
 Validation should catch results.config naming of non-existent container.
 
-\subsection{Docker problems}
+The backups2 lab creates a loopback volume named myfs.img.  The lab does not dismount it.
+This device will go away on a reboot.
+
+\subsubsection{Docker problems}
 The check\_nets.py tests for problems that sometimes crop up in Docker.  These include Linux routes defined
 on the host for container networks that no longer exist.  And, loopback devices that are not properly deleted?
+The file-deletion lab fails in a full smoketest, perhaps due to a lingering loopback device?
+Lab must be completed prior to reboot of the host VM. Reflect that in Lab Manual.
 
+The backups2 lab consumed a loopback device, leaving it define (as seen when running check\_nets.sh).  This
+led the file-deletion lab to fail, being unable to get a loopback device.  Altered file-deletion to create the
+"next" loopback device if it does not exist.
+
+Metasploit lab now crashes the VM.  g\_array\_unref: assertion 'array' failed.   Leads to X server crash, loss of
+desktop.  Perhaps only occurs after reboot, once, then works ok?  Created both containers with NO\_PRIVILEGE attribute
+in start.config, seems to fix it?
+
+\subsubsection{grader updates}
+Automate detection of need to update a local grader image, e.g., in response to a fix to the grader.
+
+\subsubsection{ongoing}
+Updated framework and grader to use python3.  Intent is to not affect existing labs.  Need to publish centos-log2 and
+backups2 due to changes in centos packages.  Changed grader and centos.xtra base dockerfiles.
+Publish along with new update?   Will centos-log2 run with old framework?
+This is begin done in the python3 branch of git.
+
+Python3 changed semantics of randint.  Also changed random.seed to take a version number for compatable seeding.
+Except version 3.5.2 is broken in that a string given as the seed causes a non-deterministic (time?) seed to be used.
+This bug is fixed in 3.6.  Our grader container naturally installs 3.5.2, so we also install 3.6 from dead.snakes ppa
+and change the links in /usr/bin/python3. The broken 3.5.2 version is also what comes with the Ubuntu used in the original
+Labtainer VMs.  So, we will maintain support for python2 in the framework, and fall back to python2 if we detect 3.5.2.
 \end{document}
