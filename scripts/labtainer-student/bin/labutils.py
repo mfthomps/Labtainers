@@ -2732,6 +2732,10 @@ def DoStop(start_config, labtainer_config, lab_path, ignore_stop_error, run_cont
         else:
             logger.error('No zip files found')
         return None
+    ''' Check for empty email identifier '''
+    if zip_file_list[0].startswith('.'):
+        lgr.error('Missing email for student, cannot gather artifacts')
+        return None
     GatherZips(zip_file_list, labtainer_config, start_config, labname, lab_path)
     return retval
 
