@@ -1,0 +1,145 @@
+\documentclass[12pt]{article}
+\usepackage{geometry}
+\geometry{a4paper, total={170mm,257mm},left=20mm, top=20mm,}
+\usepackage[colorlinks=true,linkcolor=blue,urlcolor=black]{hyperref}
+\usepackage{bookmark}
+\usepackage{listings}
+\usepackage{enumitem}
+\usepackage[autostyle, english = american]{csquotes}
+\usepackage{courier}
+\usepackage{mdframed}
+\begin{document}
+\title {Labtainer Instructor Modules (IModules)}
+\maketitle
+
+\section{Introduction and Purpose}
+This guide describes how instructors can add content to Labtainers.
+Instructors extend Labtainers with new labs or customized versions of existing
+labs by defining IModules and directing their students to enable the IModules within
+their individual Labtainers instances. 
+(Or, instructors can enable IModules in VMs, and direct students to use those).
+The scope of instructor-generated extensions can range from modified lab manuals 
+to new Labtainer exercises.  The Labtainers framework provides tools
+to assist instructors in creating and publishing these extensions. 
+
+\section{Labtainer distribution strategy}
+To understand how IModules are distributed, it is helpful to first review the general
+Labtainers distribution strategy.  A Labtainers installation, (e.g., the initial content of a Labtainers VM 
+appliance, or the results of installing from the distribution),  includes the scripts and configuration files 
+needed to run all Labtainers exercises.  The installation initially only includes a small number of 
+Docker container images that provide the core of container images for each of the labs.   
+When a student first starts a given lab, the framework retrieves all Docker image layers 
+required for that lab.  These layers are retrieved from the Docker Hub, and build upon the core images
+present in the initial distribution.   The scripts and configuration files are 
+published as a tar archive on the Labtainers website.  Whenever a Labtainers installation is updated, 
+the archive is retrieved from the website and used to update the installation.
+
+Files needed to create Docker images are typically not distributed in Labtainers distributions, but are 
+installed when the user runs the update-designer script.  These files are drawn from a separate 
+tar archive on the Labtainers website.  
+
+\section{Imodule distribution strategy}
+Instructors place archives on a web server and student
+instances of Labtainers retrieve those archives from the web server while retrieving other
+Labtainer updates.  When creating new labs, instructors publish the lab Docker images to
+DockerHub, where they'll be retrieved by the framework when students run that lab.
+While the publishing of extensions does not depend on any particular 
+source control system, supporting tools that simplify archive creation are built around git.  
+
+Archives published by instructors are tar files that include only changed and new files,
+relative to the Labtainers baseline.  Inclusion of unchanged (relative to the 
+Labtainers baseline) files is discouraged, as is publishing only deltas from previous
+IModule publications.  Put another way, an IModule will contain any 
+and all files
+necessary for running, (not building), all new labs -- or to modify existing labs, 
+relative to the Labtainers baseline as defined by the GitHub master repository.
+
+Support tools simplify creation of IModule tar files through use of git attributes.
+Instructors who chose not to use git are responsible for creating a tar of selected
+files -- which may be trivial, e.g., if the IModule consists of lab manual modifications
+or new lab guides.  Paths within tar files will be relative to the labtainers/lab
+directory.  For example, a revised telnet-lab manual would have the path:
+\begin{verbatim}
+telnet-lab/docs/telnet-lab.pdf
+\end{verbatim}
+\noindent Note the modified source, e.g., tex files, are not included in the IModule
+archive.
+
+Typically, each participating instructor will publish a single archive, using
+{\tt imodule.tar}, as the base name of a URL specific to the instructor or institution. The URL path, 
+less the file name, is distributed to students and entered into their Labtainers 
+instance using the {\tt add-imodule} command.  For example, if the instructor publishes
+at \url{https://myschool/mystuff/labtainers/Imodule.tar}, the students would each issue
+this command to Labtainers:
+\begin{verbatim}
+add-imodule myschool/mystuff/labtainers
+\end{verbatim} 
+
+IModule support tools rely on instructor contributions existing in local git repositories.
+The tools do not reference remote repositories.  IModule repositories have no relationship
+to the main Labtainers repository, and may (should?) be managed within Labtainer
+distributions rather than within local repo copies of the main Labtainer repository.   \footnote{In general,
+instructors and lab designers are encourage to work from Labtainer distributions rather
+than repos pulled from the Labtainers repo at GitHub to avoid git repository conflicts.}
+
+\subsection {Examples}  
+These examples assume the instructor is working from a Labtainers distribution, e.g., one
+of the VM appliance.
+\subsubsection {Modify a lab manual for the telnet-lab}
+In this example, the instructor wants his or her students to work with a customized version
+of the telnet-lab manual.  
+\begin{itemize}
+\item Change directory to labtainer/labs
+\item Initialize the git archive: 
+\begin{verbatim}
+git init  
+\end{verbatim}
+\noindent (Do this only once, no need to repeat for each IModule.)
+\item Add the original Labtainer file as the baseline: 
+
+\begin{verbatim}
+git add telnet-lab/docs/telnet-lab.tex
+\end{verbatim}
+\item Edit the telnet-lab/docs/telnet-lab.tex file
+\item Commit your change: 
+\begin{verbatim}
+    git commit telnet-lab/docs/telnet-lab.tex
+\end{verbatim}
+\end{itemize}
+
+This change has no effect on any Docker container, so we need only generate the 
+updated tar:
+\begin{verbatim}
+    create-imodules.py
+\end{verbatim}
+
+\noindent Then publish the imodule.tar to the website.
+\subsubsection{Create a new lab}
+In this example, the instructor wants to create a new lab for use by his or her students.
+This example assumes the instructor has created a DockerHub registry that is publicly accessible.
+\begin{itemize}
+\item Change directory to labtainer/labs
+\item Initialize git archive: git init  (Do this only once, no need to repeat for each IModule.)  
+\item Create the lab per the Lab Designer User Guide, for this example, we assume the lab is my-new-lab.
+\item Include the name of your DockerHub registry the lab config/start.config file.
+\item Complete development and testing of the lab, e.g., build a SimLab test.
+\item While in the my-new-lab directory, run {\tt cleanlab4svn.py} to remove temporary files that should not be under source control.
+\item While in the lab directory (parent of my-new-lab), add the lab to source control:
+\begin{verbatim}
+    git add my-new-lab
+    git commit my-new-lab -m "Adding an IModule"
+\end{verbatim}
+\item Publish the lab container images: 
+\begin{verbatim}
+    ./publish.py -l my-new-lab
+\end{verbatim}
+\noindent This will rebuild the lab container images and publish them to your DockerHub registry.
+\item Generate the updated IModule tar:
+\begin{verbatim}
+    create-imodules.py
+\end{verbatim}
+\item Then publish the imodule.tar to your website.
+\end{itemize}
+
+
+\end{document}
