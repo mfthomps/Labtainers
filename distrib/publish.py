@@ -44,14 +44,14 @@ def relabel(image, version, base_image, base_id, registry):
     #print cmd
     os.system(cmd)
 
-def rebuild(labname, labsdir, force, logger):
+def rebuild(labname, labsdir, force, no_build, logger):
     mycwd = os.getcwd()
     path = '../scripts/labtainer-student'
     os.chdir(path)
     #print('now at %s' % os.getcwd())
     lab_dir = os.path.join(labsdir, labname)
     #print('cwd was %s now %s  lab_dir is %s' % (mycwd, os.getcwd(), lab_dir))
-    retval = labutils.DoRebuildLab(lab_dir, force_build=force)
+    retval = labutils.DoRebuildLab(lab_dir, force_build=force, no_build=no_build)
     os.chdir(mycwd)
     return retval
 
@@ -84,13 +84,16 @@ def pushIt(lab, docker_dir, registry, logger):
     which is from the dockerhub.  2) don't push on a rebuild if not rebuilt. '''
     removelab.removeLab(lab)
 
-def DoLab(lab, labsdir, force, logger, do_login, test_registry, default_registry):
+def DoLab(lab, labsdir, force, logger, do_login, test_registry, default_registry, no_build=False):
     logger.debug('DoLab for %s' % lab)
     lab_dir = os.path.join(labsdir, lab)
-    registry_set = rebuild(lab, labsdir, force, logger)
+    registry_set = rebuild(lab, labsdir, force, no_build, logger)
     if len(registry_set) > 1:
         logger.error('no current support for images from multiple registries')
         exit(1)
+    elif len(registry_set) == 0:
+        logger.debug('DoLab, no registry, just testing?')
+        return
     else:
         registry = list(registry_set)[0]
     logger.debug('back from rebuild with registry of %s' % registry)
@@ -112,6 +115,7 @@ def main():
     parser.add_argument('-s', '--start', action='store', help='all labs starting with this one')
     parser.add_argument('-t', '--test_registry', action='store_true', default=False, help='build and publish with test registry')
     parser.add_argument('-f', '--force', action='store_true', default=False, help='force rebuild of all images')
+    parser.add_argument('-n', '--no_build', action='store_true', default=False, help='Do not rebuild, just report on what would be built')
     args = parser.parse_args()
     if args.test_registry:
         if os.getenv('TEST_REGISTRY') is None:
@@ -184,7 +188,7 @@ def main():
                 cmd = 'git checkout ./'
                 os.system(cmd)
                 os.chdir(mycwd)
-                DoLab(lab, labsdir, args.force, logger, False, args.test_registry, default_registry)
+                DoLab(lab, labsdir, args.force, logger, False, args.test_registry, default_registry, no_build=args.no_build)
 
 if __name__ == '__main__':
     sys.exit(main())
