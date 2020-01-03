@@ -1,5 +1,6 @@
 radius.pdf: radius.tex header.tex
 	pdflatex -jobname=radius radius
+	pdflatex -jobname=radius radius
 
 clean:
 	rm -fr auto

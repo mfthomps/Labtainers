@@ -1,4 +1,5 @@
-acl.pdf: softplc2.tex header.tex
+softplc2.pdf: softplc2.tex header.tex
+	pdflatex -jobname=softplc2 softplc2
 	pdflatex -jobname=softplc2 softplc2
 
 clean:

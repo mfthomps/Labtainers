@@ -1,5 +1,6 @@
 arp-spoof.pdf: arp-spoof.tex header.tex
 	pdflatex -jobname=arp-spoof arp-spoof
+	pdflatex -jobname=arp-spoof arp-spoof
 
 clean:
 	rm -fr auto

@@ -1,5 +1,6 @@
 local-dns.pdf: DNS_Local.tex header.tex
 	pdflatex -jobname=local-dns DNS_Local
+	pdflatex -jobname=local-dns DNS_Local
 
 clean:
 	rm -fr auto

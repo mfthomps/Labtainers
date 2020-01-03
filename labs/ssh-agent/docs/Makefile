@@ -1,5 +1,6 @@
 ssh-agent.pdf: ssh-agent.tex header.tex
 	pdflatex -jobname=ssh-agent ssh-agent
+	pdflatex -jobname=ssh-agent ssh-agent
 
 clean:
 	rm -fr auto

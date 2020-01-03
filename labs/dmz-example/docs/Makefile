@@ -1,5 +1,6 @@
 dmz-example.pdf: dmz-example.tex header.tex
 	pdflatex -jobname=dmz-example dmz-example
+	pdflatex -jobname=dmz-example dmz-example
 
 clean:
 	rm -fr auto

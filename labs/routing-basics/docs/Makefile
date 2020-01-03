@@ -1,5 +1,6 @@
 routing-basics.pdf: routing-basics.tex header.tex
 	pdflatex -jobname=routing-basics routing-basics
+	pdflatex -jobname=routing-basics routing-basics
 
 clean:
 	rm -fr auto

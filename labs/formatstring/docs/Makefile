@@ -1,5 +1,6 @@
 formatstring.pdf: Format_String.tex header.tex
 	pdflatex -jobname=formatstring Format_String
+	pdflatex -jobname=formatstring Format_String
 
 clean:
 	rm -fr auto

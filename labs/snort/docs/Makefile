@@ -1,5 +1,6 @@
 snort.pdf: snort.tex header.tex
 	pdflatex -jobname=snort snort
+	pdflatex -jobname=snort snort
 
 clean:
 	rm -fr auto

@@ -1,5 +1,6 @@
 bufoverflow.pdf: Buffer_Overflow.tex header.tex
 	pdflatex -jobname=bufoverflow Buffer_Overflow
+	pdflatex -jobname=bufoverflow Buffer_Overflow
 
 clean:
 	rm -fr auto
