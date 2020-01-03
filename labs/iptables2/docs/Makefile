@@ -1,5 +1,6 @@
 iptables.pdf: iptables.tex header.tex
 	pdflatex iptables
+	pdflatex iptables
 
 clean:
 	rm -fr auto
