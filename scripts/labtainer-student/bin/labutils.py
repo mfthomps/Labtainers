@@ -1031,7 +1031,7 @@ def dockerPull(registry, image_name):
 
 def DoRebuildLab(lab_path, force_build=False, just_container=None, 
                  start_config=None, labtainer_config=None, run_container=None, servers=None, 
-                 clone_count=None, no_pull=False):
+                 clone_count=None, no_pull=False, no_build=False):
     retval = set()
     labname = os.path.basename(lab_path)
     is_valid_lab(lab_path)
@@ -1092,6 +1092,12 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
         ''' create sys_tar and home_tar before checking build dependencies '''
         CheckTars.CheckTars(container_dir, name, logger)
         if force_this_build or CheckBuild(lab_path, mycontainer_image_name, image_info, mycontainer_name, name, True, container_bin, start_config, container.registry, container.user):
+
+            if no_build:
+                logger.debug("Would (but won't) rebuild %s" % (mycontainer_name))
+                print("Would (but won't) rebuild %s" % (mycontainer_name))
+                return retval
+                
             logger.debug("Will rebuild %s,  force_this_build: %s  apt_source %s" % (mycontainer_name, force_this_build, labtainer_config.apt_source))
             
             #Check if the container's Dockerfile exists

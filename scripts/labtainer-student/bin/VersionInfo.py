@@ -29,6 +29,7 @@ POSSIBILITY OF SUCH DAMAGE.
 '''
 import subprocess
 import os
+import sys
 def getFrom(dockerfile, registry):
     ''' given a docker file and registry, get the base image name, qualified by the registry '''
     image_name = None
