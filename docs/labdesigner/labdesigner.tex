@@ -162,7 +162,7 @@ running alongside the Linux host VM, as described in section \ref{external hosts
 
 Students initiate any and all labs from a
 single workspace directory on the Linux host.
-To perform a specific Labtainer exercise, the student runs a \textit{start.py} command from
+To perform a specific Labtainer exercise, the student runs a \textit{labtainer} command from
 the Labtainer workspace, naming the lab exercise.  This results in one or more
 containers starting up along with corresponding virtual terminals via which the 
 student will interact with the containers.  These virtual terminals typically
@@ -277,15 +277,15 @@ a separate terminal:
 \end{verbatim}
 If the rebuild fails with a error reflecting a problem resolving hostnames, e.g., mirror.centos.com, please see \ref{DNS-rebuild}.
 
-Note the ``rebuild.py'' command is not intended for use by students, they would use the ``start.py'' command.  
+Note the ``rebuild.py'' command is not intended for use by students, they would use the ``labtainer'' command.  
 The rebuild.py utility compares file modification dates to Docker image creation dates to determine if
-a given image needs to be rebuilt.  \footnote{rebuild.py will miss file deletion.  Thus, if files are deleted, you must
+a given image needs to be rebuilt.  The rebuild.py will miss file deletions.  Thus, if files are deleted, you must
 force the rebuild using the {\tt -f} option at the end of the rebuild.py command. Also, addition of symbolic links will not
-trigger a rebuild.}
+trigger a rebuild.  Rebuild references git modify dates (vice file modify dates).
 
 Stop the lab with 
 \begin{verbatim}
-    stop.py 
+    stoplab
 \end{verbatim}
 When you stop the lab, a path to saved results is displayed.
 This is the zip file that the student will forward to the instructor.
@@ -299,7 +299,7 @@ To test adding a ``hello world'' program to the new labtainer, perform the follo
     
 You should see the new program in the container's
 home directory.  If you run the program from the container, and then stop the lab
-with stop.py, you will see the stdin and stdout results of the program within the
+with stoplab, you will see the stdin and stdout results of the program within the
 saved zip file.
 
 The ``hello world'' program was placed in \verb!$LABTAINER_DIR/labs/[labname]/[labname]!.
@@ -1420,7 +1420,7 @@ the home directory in a file named {\tt <lab name>.grades.txt>}
 
 \subsubsection{Document the meaning of goals}
 \label{document goals}
-Instructors will see descriptions of lab goals when they start the lab using {\tt start.py}.
+Instructors will see descriptions of lab goals when they start the lab using {\tt gradelab}.
 These descriptions are embedded within comments in the goals.config and results.config files.
 The descriptions are associated with symbolic names that immediately follow the documentation
 directives as described below:
@@ -1931,11 +1931,11 @@ For example:
     sudo ifconfig ethx promisc
 \end{verbatim} 
 
-\item Start the lab on the server VM using start.py and the --server (-s) switch. This
+\item Start the lab on the server VM using the labtainer command with the --server (-s) switch. This
 causes Labtainers to start each container in the lab that is not tagged as a ``CLIENT''. 
 
 \item Students then
-start the lab on their individual VMs using start.py with the --workstation switch, which will cause
+start the lab on their individual VMs using the labtainer command with the --workstation switch, which will cause
 the student VM to only start the container identified as the ``CLIENT'' in the start.config file.
 \end{itemize}
 
@@ -1959,7 +1959,7 @@ set the network interface to promisuous mode (within the Linux host as well).
 Labtainers workstation.  Configure the network on the VM to use DHCP (the host-only
 DHCP server should be disabled, the VM will get an IP from a Labtainer DHCP server.)
 
-\item Start the lab on the server VM using start.py and the --clone\_count (-n) switch,
+\item Start the lab on the server VM using the labtainer command with the --clone\_count (-n) switch,
 specifying the quantity of per-student client containers to start.
 
 \item Students then ssh into their respective containers over the host-only network.
@@ -2087,6 +2087,14 @@ not share existing browsers.  The {\tt about:config}
 was altered to disabled insecure field warnings for the labs that do not use SSL connections to web servers.
 If you wish to assess places a browser has visited, e.g., use a pregrade.sh to extract sites from the
 firefox places.sqlite file, put {\tt places.sqlite} into the lab's /\_bin/noskip file.
+
+Some html, e.g., for the softplc, want to visit fonts.googleapis.com.  If no gateway/dns is available, there is a long timeout.
+Try adding 
+\begin{verbatim}
+ADD-HOST fonts.googleapis.com:127.0.0.1 
+\end{verbatim}
+\noindent to start.config to avoid the timeout.
+
 
 See \ref{simlab_notes} for information on avoiding firefox crashes when it is restarted in SimLab.
 
