@@ -1,0 +1,7 @@
+#!/bin/bash
+nmap -Pn -p 22 plc
+nmap -Pn -p 23 plc
+nmap -Pn -p 80 plc
+nmap -Pn -p 8080 plc
+nmap -Pn -p 502 plc
+

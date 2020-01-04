@@ -9,31 +9,32 @@
 #   openssl openssh-server openvpn wget tcpdump  update-inetd  xinetd
 #
 ARG registry 
-FROM $registry/labtainer.network
+FROM $registry/labtainer.wireshark
 ARG lab
 ARG labdir
 ARG imagedir
 ARG user_name
-ARG password 
-ARG apt_source
-
+# Need nodejs to start OpenPLC server
 ENV APT_SOURCE $apt_source
 RUN /usr/bin/apt-source.sh
-RUN apt-get update && apt-get install -y --no-install-recommends telnetd
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    nodejs
+    git
 ADD $labdir/$imagedir/sys_tar/sys.tar /
 ADD $labdir/sys_$lab.tar.gz /
 
-
-# Need nodejs to start OpenPLC server
-
 RUN useradd -ms /bin/bash $user_name
-RUN echo "$user_name:$password" | chpasswd
+RUN echo "$user_name:$user_name" | chpasswd
 RUN adduser $user_name sudo
-
-USER $user_name 
+USER $user_name
 ENV HOME /home/$user_name
 ADD $labdir/$lab.tar.gz $HOME
+
+WORKDIR /home/$user_name
+RUN git clone https://github.com/mfthomps/OpenPLC_v3.git
+WORKDIR /home/$user_name/OpenPLC_v3
+RUN sudo ./install.sh linux
+RUN cp /var/tmp/openplc.db $HOME/OpenPLC_v3/webserver/
+RUN cp /var/tmp/mbconfig.cfg $HOME/OpenPLC_v3/webserver/
 USER root
 CMD ["/bin/bash", "-c", "exec /sbin/init --log-target=journal 3>&1"]
+
