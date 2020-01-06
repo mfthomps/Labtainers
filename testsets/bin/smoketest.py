@@ -43,7 +43,7 @@ class SmokeTest():
         labutils.logger = self.logger
         self.logger.debug('Begin smoke test')
 
-    def checkLab(self, lab, test_registry):
+    def checkLab(self, lab, test_registry, remove_lab):
         FAILURE=1
         retval = True
         xfer_dir = os.path.join(os.getenv('HOME'), self.labtainer_config.host_home_xfer, lab)
@@ -85,7 +85,7 @@ class SmokeTest():
             self.logger.debug('instructor start result is %d' % result)
             '''
             self.simlab.searchWindows('GOAL_RESULTS')
-            cmd = 'stop.py %s' % lab
+            cmd = 'stoplab %s' % lab
             result = subprocess.call(cmd, shell=True, stderr=self.outfile, stdout=self.outfile)
             if result == FAILURE:
                 retval = False
@@ -106,6 +106,9 @@ class SmokeTest():
                     else:
                         print('no expected results for %s' % lab)
             os.chdir(here)
+        if retval and remove_lab:
+            cmd = 'removelab.py %s' % lab
+            result = subprocess.call(cmd, shell=True, stderr=self.outfile, stdout=self.outfile)
                     
        
         return retval
@@ -128,7 +131,7 @@ class SmokeTest():
             return False
         return True
     
-    def checkAll(self, startwith, test_registry):
+    def checkAll(self, startwith, test_registry, remove_lab):
         
         skip_labs = os.path.abspath('../../distrib/skip-labs')
         skip = []
@@ -148,7 +151,7 @@ class SmokeTest():
                 continue
             print('Start lab: %s' % lab)
             sys.stdout.flush()
-            result = self.checkLab(lab, test_registry)
+            result = self.checkLab(lab, test_registry, remove_lab)
             if not result:
                 exit(1)
             print('Finished lab: %s' % lab)
@@ -161,13 +164,14 @@ def __main__():
     parser.add_argument('-s', '--start_with', action='store', help='Test all starting with .')
     parser.add_argument('-v', '--verbose', action='count', default=0, help="Use -v to see comments as they are encountered, -vv to see each line")
     parser.add_argument('-t', '--test_registry', action='store_true', default=False, help='Run with images from the test registry')
+    parser.add_argument('-r', '--remove_lab', action='store_true', default=False, help='Remove lab after test')
 
     args = parser.parse_args()
     smoketest = SmokeTest(args.verbose)
     if args.lab is not None:
-        smoketest.checkLab(args.lab, args.test_registry)
+        smoketest.checkLab(args.lab, args.test_registry, args.remove_lab)
     else:
-        smoketest.checkAll(args.start_with, args.test_registry)
+        smoketest.checkAll(args.start_with, args.test_registry, args.remove_lab)
 
 if __name__=='__main__':
     __main__()
