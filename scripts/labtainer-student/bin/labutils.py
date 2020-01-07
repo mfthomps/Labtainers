@@ -1811,7 +1811,7 @@ def EmptyTar(fname):
     else:
         return False
 
-def FileModLater(ts, fname):
+def FileModLater(ts, fname, big_list=[]):
     retval = False
     df_utc_string = None
     # start with check of svn status
@@ -1826,14 +1826,14 @@ def FileModLater(ts, fname):
     else:
         has_svn = False
     cmd = 'git status -s %s' % fname
-    logger.debug('cmd: %s' % cmd)
+    #logger.debug('cmd: %s' % cmd)
     child = subprocess.Popen(shlex.split(cmd), shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     while True:
         line = child.stdout.readline().decode('utf-8')
         line = line.strip()
         if line == '':
             break
-        logger.debug('line: <%s>' % line)
+        #logger.debug('line: <%s>' % line)
         ''' ignore empty tar archives '''
         if line.startswith('?'):
             if os.path.isfile(fname):
@@ -1872,6 +1872,8 @@ def FileModLater(ts, fname):
                 file_path = line.split()[-1]
                 if '/' in file_path:
                     file_dir = os.path.dirname(file_path)
+                    while not os.path.isdir(file_dir):
+                        file_dir = os.path.dirname(file_dir)
                     df_time = os.path.getmtime(file_dir)
             else:
                 file_path = '/'+line.split('/', 1)[-1].strip()
@@ -1901,9 +1903,12 @@ def FileModLater(ts, fname):
                 df_time = os.path.getmtime(fname)
             else:
                 check_file = newest_file_in_tree(fname)
-                #logger.debug('latest found is %s' % check_file)
+                #logger.debug('FileModLater, not in svn latest found is %s' % check_file)
                 if EmptyTar(check_file):
                     # hacky special case for empty tar files.  ug.
+                    return False
+                if check_file in big_list:
+                    #logger.debug('FileModLater, not in svn is bigfile %s' % check_file)
                     return False
                 df_time = os.path.getmtime(check_file)
             df_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
@@ -1911,16 +1916,16 @@ def FileModLater(ts, fname):
         else:
             # in svn, look for changed date
             cmd = 'git log -1 --format="%%ad" %s' % fname
-            logger.debug('in svn, look for changed date %s' % cmd)
+            #logger.debug('in svn, look for changed date %s' % cmd)
             child = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             output = child.communicate()
             if len(output[0].decode('utf-8').strip()) > 0:
                 df_utc_string = output[0].decode('utf-8').strip()
-                logger.debug('git log for %s returned %s' % (cmd, df_utc_string))
+                #logger.debug('git log for %s returned %s' % (cmd, df_utc_string))
                 svn_is_later = DateIsLater(df_utc_string, ts, local=True, debug=False)
                 df_time = os.path.getmtime(fname)
                 file_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
-                logger.debug('file time %s' % file_utc_string)
+                #logger.debug('file time %s' % file_utc_string)
                 file_is_later = DateIsLater(file_utc_string, ts, local=False, debug=False)
                 retval = svn_is_later and file_is_later
 
@@ -1931,7 +1936,7 @@ def FileModLater(ts, fname):
                     df_time = os.path.getmtime(fname)
                 else:
                     check_file = newest_file_in_tree(fname)
-                    logger.debug('latest found is %s' % check_file)
+                    #logger.debug('latest found is %s' % check_file)
                     df_time = os.path.getmtime(check_file)
                 df_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
                 retval = DateIsLater(df_utc_string, ts, debug=False)
@@ -2001,7 +2006,23 @@ def GetImageUser(image_name, container_registry):
             if user is not None:
                 return user, password 
     return user, password
-                
+        
+def GetBigFiles(lab_path):        
+    big_list_file = os.path.join(lab_path,'config', 'bigexternal.txt')
+    logger.debug('big_list_file at %s' % big_list_file)
+    big_list = []
+    if os.path.isfile(big_list_file):
+        with open(big_list_file) as fh:
+            for line in fh:
+                if not line.strip().startswith('#') and len(line.strip())>0:
+                    parts = line.split()
+                    if len(parts) == 2:
+                      
+                        path = os.path.join(lab_path, parts[1])
+                        logger.debug('adding to big_list %s' % path)
+                        big_list.append(path)
+    return big_list
+
 def CheckBuild(lab_path, image_name, image_info, container_name, name, is_redo, container_bin,
                  start_config, container_registry, container_user):
     '''
@@ -2041,11 +2062,13 @@ def CheckBuild(lab_path, image_name, image_info, container_name, name, is_redo, 
     else:
         ''' look for new/deleted files in the container '''
         logger.debug('container dir %s' % container_dir)
-        if FileModLater(ts, container_dir):
+        big_list = GetBigFiles(lab_path)
+        if FileModLater(ts, container_dir, big_list=big_list):
            logger.warning('new/deleted %s is later, will build %s' % (container_dir, name))
            retval = True
         else:
             ''' look at all files/directories in container '''
+                            
             flist = os.listdir(container_dir)
             for f in flist:
                 check_file = None
@@ -2058,8 +2081,12 @@ def CheckBuild(lab_path, image_name, image_info, container_name, name, is_redo, 
                 else:
                     check_file = os.path.join(container_dir, f)
                 logger.debug('check file %s' % check_file)
-                if FileModLater(ts, check_file):
+                if check_file in big_list:
+                    logger.debug('CheckBuid ignore big file %s' % check_file)
+                    continue
+                if FileModLater(ts, check_file, big_list=big_list):
                     logger.warning('files in container %s is later, will build %s' % (check_file, name))
+                    exit(1)
                     retval = True
                     break
 
@@ -2084,6 +2111,12 @@ def CheckBuild(lab_path, image_name, image_info, container_name, name, is_redo, 
                                 break
                     if retval:
                         break
+    if not retval:
+        big_external = os.path.join(lab_path, 'config', 'bigexternal.txt')
+        if os.path.isfile(big_external):
+            if FileModLater(ts, big_external):
+                self.lgr.debug('config/bigexternal.txt is later, will rebuild')
+                retval = True
     
     #if not retval and container_bin is not None:
     #    all_bin_files = os.listdir(container_bin)
