@@ -948,7 +948,7 @@ def imageInfo(image_name, registry, labtainer_config, is_rebuild=False, no_pull=
             ''' See if the image exists in the desired registry '''
             reg_host = None
             if ':' in labtainer_config.test_registry:
-                reg_host == reg_host.split(':')[0]
+                reg_host = labtainer_config.test_registry.split(':')[0]
             if reg_host is not None and registry.startswith(reg_host):
                 created, user, version, use_tag, base = InspectLocalReg.inspectLocal(image_name, logger, registry, is_rebuild, quiet)
             else:
@@ -1765,6 +1765,10 @@ def StartLab(lab_path, force_build=False, is_redo=False, quiet_start=False,
                 if len(output[1]) > 0:
                     logger.debug("Error from command = '%s'" % str(output[1].decode('utf-8')))
         #image_exists, result, dumb = ImageExists(mycontainer_image_name, container.registry)
+        if container.registry == labtainer_config.test_registry:
+            branch, container_registry = registry.getBranchRegistry()
+        else:
+            container_registry = container.registry
         image_info = imageInfo(mycontainer_image_name, container_registry, labtainer_config, quiet=quiet_start)
         container_images[name] = image_info
         if image_info is not None:
