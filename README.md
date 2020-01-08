@@ -15,6 +15,7 @@ The Labtainers website, and downloads (including VM appliances with Labtainers p
 
 Distribution created: mm/dd/yyyy
 Revision: 
+Branch:
 
 ## Content
 [Distribution and Use](#distribution-and-use)
@@ -72,9 +73,11 @@ so you may want to logout/login, or start a new bash shell before using Labtaine
 first time.
 
 January 2, 2020
-- Port framework and gradelab Python3 (existing Python2 labs will not change)
+- Port framework and gradelab to Python3 (existing Python2 labs will not change)
   - Use backward compatible random.seed options
   - Hack non-compatable randint to return old values
+  - Continue to support platforms that lack python3 (or those such as the
+    older VM appliance that include python 3.5.2, which breaks random.seed compatability).
 - Centos-based labs manpages were failing; use mandb within base docker file
 - dmz-lab netmask for DMZ network was wrong (caught by python3); as was IP address of inner gateway in lab manual
 - ghex removed from centos labs -- no longer easily supported by centos 7
@@ -83,6 +86,9 @@ January 2, 2020
 - Metasploit lab, crashes host VM if runs as privileged; long delays on su if systemd enabled; so run without systemd.
   Remove use of database from lab manual, configure to use new no\_gw switch
 - Update file headers for licensing/terms; add consolidated license file.
+- Modify publish.py to default to use of test registry, use -d to force use of default\_registry
+- Revise source control procedures to use different test registry for each branch, and use a premaster
+branch for final testing of a release.
 
 October 9, 2019
 - Remove dnsmasq from dns component in the dmz-lab.  Was causing bind to fail on some installations.
