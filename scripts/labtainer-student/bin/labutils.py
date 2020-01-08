@@ -58,6 +58,7 @@ import BigExternal
 import calendar
 import string
 import errno
+import registry
 try:
     ''' only needed for lab designer '''
     from dateutil import parser
@@ -431,7 +432,11 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
     logger.debug("Create Single Container for %s" % container.name)
     retval = True
     #image_exists, result, new_image_name = ImageExists(container.image_name, container.registry)
-    image_info = imageInfo(container.image_name, container.registry, labtainer_config, quiet=quiet)
+    if container.registry == labtainer_config.test_registry:
+        branch, container_registry = registry.getBranchRegistry()
+    else:
+        container_registry = container.registry
+    image_info = imageInfo(container.image_name, container_registry, labtainer_config, quiet=quiet)
     start_script = container.script     
     if image_info is None:
         logger.error('Could not find image for %s' % container.image_name)
@@ -439,9 +444,9 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
     else:
         new_image_name = container.image_name
         if not image_info.local_build:
-            new_image_name = '%s/%s' % (container.registry, container.image_name) 
+            new_image_name = '%s/%s' % (container_registry, container.image_name) 
         if not image_info.local:
-            dockerPull(container.registry, container.image_name)
+            dockerPull(container_registry, container.image_name)
         docker0_IPAddr = getDocker0IPAddr()
         logger.debug("getDockerIPAddr result (%s)" % docker0_IPAddr)
         volume=''
@@ -941,7 +946,10 @@ def imageInfo(image_name, registry, labtainer_config, is_rebuild=False, no_pull=
             logger.debug('%s local from reg, ts %s %s version: %s' % (with_registry, created, user, version)) 
         elif not no_pull:
             ''' See if the image exists in the desired registry '''
-            if registry == labtainer_config.test_registry:
+            reg_host = None
+            if ':' in labtainer_config.test_registry:
+                reg_host == reg_host.split(':')[0]
+            if reg_host is not None and registry.startswith(reg_host):
                 created, user, version, use_tag, base = InspectLocalReg.inspectLocal(image_name, logger, registry, is_rebuild, quiet)
             else:
                 created, user, version, use_tag = InspectRemoteReg.inspectRemote(with_registry, logger, is_rebuild, quiet)
@@ -1054,7 +1062,11 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
             print('Force build of %s' % just_container)
         mycontainer_name       = container.full_name
         mycontainer_image_name = container.image_name
-        retval.add(container.registry)
+        if container.registry == labtainer_config.test_registry:
+            branch, container_registry = registry.getBranchRegistry()
+        else:
+            container_registry = container.registry
+        retval.add(container_registry)
 
         clone_names = GetContainerCloneNames(container)
         for clone_full in clone_names:
@@ -1073,7 +1085,7 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
         if container.no_pull == 'YES':
             no_pull = True
         logger.debug('force_this_build: %r no_pull %r' % (force_this_build, no_pull))
-        image_info = imageInfo(mycontainer_image_name, container.registry, labtainer_config, is_rebuild=True, no_pull=no_pull)
+        image_info = imageInfo(mycontainer_image_name, container_registry, labtainer_config, is_rebuild=True, no_pull=no_pull)
         if not force_this_build and image_info is None:
             logger.debug('image exists nowhere, so force the build')
             force_this_build = True
@@ -1091,7 +1103,7 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
         BigExternal.BigExternal(lab_path)
         ''' create sys_tar and home_tar before checking build dependencies '''
         CheckTars.CheckTars(container_dir, name, logger)
-        if force_this_build or CheckBuild(lab_path, mycontainer_image_name, image_info, mycontainer_name, name, True, container_bin, start_config, container.registry, container.user):
+        if force_this_build or CheckBuild(lab_path, mycontainer_image_name, image_info, mycontainer_name, name, True, container_bin, start_config, container_registry, container.user):
 
             if no_build:
                 logger.debug("Would (but won't) rebuild %s" % (mycontainer_name))
@@ -1108,10 +1120,10 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
 
             if os.path.isfile(build_student):
                 cmd = '%s %s %s %s %s %s %s %s %s %s %s' % (build_student, labname, name, container.user, 
-                      container.password, True, LABS_DIR, labtainer_config.apt_source, container.registry, framework_version, str(no_pull))
+                      container.password, True, LABS_DIR, labtainer_config.apt_source, container_registry, framework_version, str(no_pull))
             elif os.path.isfile(build_instructor):
                 cmd = '%s %s %s %s %s %s %s %s %s %s %s' % (build_instructor, labname, name, container.user, 
-                      container.password, True, LABS_DIR, labtainer_config.apt_source, container.registry, framework_version, str(no_pull))
+                      container.password, True, LABS_DIR, labtainer_config.apt_source, container_registry, framework_version, str(no_pull))
             else:
                 logger.error("no image rebuild script\n")
                 exit(1)
@@ -1753,7 +1765,7 @@ def StartLab(lab_path, force_build=False, is_redo=False, quiet_start=False,
                 if len(output[1]) > 0:
                     logger.debug("Error from command = '%s'" % str(output[1].decode('utf-8')))
         #image_exists, result, dumb = ImageExists(mycontainer_image_name, container.registry)
-        image_info = imageInfo(mycontainer_image_name, container.registry, labtainer_config, quiet=quiet_start)
+        image_info = imageInfo(mycontainer_image_name, container_registry, labtainer_config, quiet=quiet_start)
         container_images[name] = image_info
         if image_info is not None:
             logger.debug('Image version %s  framework_version %s' % (image_info.version, framework_version))
@@ -1764,14 +1776,14 @@ def StartLab(lab_path, force_build=False, is_redo=False, quiet_start=False,
                 print('and then try starting the lab again.') 
                 exit(0)
             if not image_info.local:
-                dockerPull(container.registry, mycontainer_image_name)
+                dockerPull(container_registry, mycontainer_image_name)
         else:
             if os.path.isfile(build_student):
                 cmd = '%s %s %s %s %s %s %s %s %s %s' % (build_student, labname, name, container.user, container.password, False, 
-                                                  LABS_DIR, labtainer_config.apt_source, container.registry, framework_version)
+                                                  LABS_DIR, labtainer_config.apt_source, container_registry, framework_version)
             elif os.path.isfile(build_instructor):
                 cmd = '%s %s %s %s %s %s %s %s %s %s' % (build_instructor, labname, name, container.user, container.password, False, 
-                                                  LABS_DIR, labtainer_config.apt_source, container.registry, framework_version)
+                                                  LABS_DIR, labtainer_config.apt_source, container_registry, framework_version)
             else:
                 logger.error("no image rebuild script\n")
                 exit(1)

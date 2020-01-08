@@ -40,7 +40,7 @@ the test registry.
 
 
 
-def inspectLocal(image, lgr, test_registry, is_rebuild=False, quiet=False):
+def inspectLocal(image, lgr, test_registry, is_rebuild=False, quiet=False, no_pull=False):
     use_tag = 'latest'
     lgr.debug('inspectLocal image %s' % image)
     digest = getDigest(image, 'latest', test_registry)
@@ -49,7 +49,8 @@ def inspectLocal(image, lgr, test_registry, is_rebuild=False, quiet=False):
     lgr.debug('inspectLocal digest %s' % digest)
     created, user, version, base = getCreated(image, digest, test_registry)
     #print('base is %s' % base)
-    if base is not None:
+    
+    if not no_pull and base is not None:
        base_image, base_id = base.rsplit('.', 1)
        my_id = VersionInfo.getImageId(base_image, quiet)
        if my_id == base_id:

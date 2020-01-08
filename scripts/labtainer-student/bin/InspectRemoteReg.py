@@ -37,8 +37,8 @@ import VersionInfo
 Return creation date and user of a given image from the Docker Hub
 without pulling the image.
 '''
-def inspectRemote(image, lgr, is_rebuild=False, quiet=False):
-    lgr.debug('inspectRemote image %s' % image)
+def inspectRemote(image, lgr, is_rebuild=False, quiet=False, no_pull=False):
+    lgr.debug('inspectRemote image %s no_pull: %r' % (image, no_pull))
     use_tag = 'latest'
     token = getToken(image)
     if token is None or len(token.strip()) == 0:
@@ -47,42 +47,43 @@ def inspectRemote(image, lgr, is_rebuild=False, quiet=False):
     if digest is None:
         return None, None, None, None
     created, user, version, base = getCreated(token, image, digest)
-    if base is None:
-        print('Remote image %s is lacking a base version, it needs to be retagged with trunk/distrib/retag_all.py' % image)
-        exit(1) 
-        #return None, None, None, None
-    lgr.debug('base is %s' % base)
-    base_image, base_id = base.rsplit('.', 1)
-    my_id = VersionInfo.getImageId(base_image, quiet)
-    if my_id == base_id:
-        pass
-        #print('got correct base_id')
-    else:
-        lgr.debug('got WRONG base_id my_id %s  base: %s' % (my_id, base_id))
-        tlist = getTags(image, token)
-        need_tag = 'base_image%s' % my_id
-        if is_rebuild or need_tag in tlist:
-            use_tag = need_tag
-        elif quiet:
-            cmd = 'docker pull %s' % base_image
-            os.system(cmd)
+    if not no_pull:
+        if base is None:
+            print('Remote image %s is lacking a base version, it needs to be retagged with trunk/distrib/retag_all.py' % image)
+            exit(1) 
+            #return None, None, None, None
+        lgr.debug('base is %s' % base)
+        base_image, base_id = base.rsplit('.', 1)
+        my_id = VersionInfo.getImageId(base_image, quiet)
+        if (my_id == base_id):
+            pass
+            #print('got correct base_id')
         else:
-            print('**************************************************')
-            print('*  This lab will require a download of           *')
-            print('*  several hundred megabytes.                    *')
-            print('**************************************************')
-            if sys.version_info >=(3,0):
-                confirm = str(input('Continue? (y/n)')).lower().strip()
-            else:
-                confirm = str(raw_input('Continue? (y/n)')).lower().strip()
-            if confirm != 'y':
-                print('Exiting lab')
-                exit(0)
-            else:
-                print('Please wait for download to complete...')
+            lgr.debug('got WRONG base_id my_id %s  base: %s' % (my_id, base_id))
+            tlist = getTags(image, token)
+            need_tag = 'base_image%s' % my_id
+            if is_rebuild or need_tag in tlist:
+                use_tag = need_tag
+            elif quiet:
                 cmd = 'docker pull %s' % base_image
                 os.system(cmd)
-                print('Download has completed.  Wait for lab to start.')
+            else:
+                print('**************************************************')
+                print('*  This lab will require a download of           *')
+                print('*  several hundred megabytes.                    *')
+                print('**************************************************')
+                if sys.version_info >=(3,0):
+                    confirm = str(input('Continue? (y/n)')).lower().strip()
+                else:
+                    confirm = str(raw_input('Continue? (y/n)')).lower().strip()
+                if confirm != 'y':
+                    print('Exiting lab')
+                    exit(0)
+                else:
+                    print('Please wait for download to complete...')
+                    cmd = 'docker pull %s' % base_image
+                    os.system(cmd)
+                    print('Download has completed.  Wait for lab to start.')
     return created, user, version, use_tag
 
 def extractJson(output):
@@ -117,7 +118,7 @@ def getTags(image, token):
 def getToken(image):
     cmd = 'curl --silent "https://auth.docker.io/token?scope=repository:%s:pull&service=registry.docker.io"' % (image) 
     #cmd = 'curl --silent "https://auth.docker.io/token?service=registry.docker.io&scope=repository:%s:pull,push"' % (image)
-
+    #print('cmd is %s' % cmd)
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
      
@@ -178,47 +179,3 @@ def getCreated(token, image, digest):
     else:
         return None, None, None, None
 
-def getCreatedXXXXXXXXXXXX(token, image, digest):
-    cmd = 'curl -v --silent --header "Authorization: Bearer %s" "https://registry-1.docker.io/v2/%s/blobs/%s"' % (token, image, digest)
-    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    output = ps.communicate()
-    if len(output[0].strip()) == 0 and len(output[1].strip()) > 0:
-        if 'Temporary Redirect' in output[1].decode('utf-8'):
-           flare = None
-           for line in output[1].splitlines():
-               if 'Location:' in line:
-                   url = line[len('Location'):]
-                   flare = 'curl --silent %s' % url
-                   break
-           if flare is not None:
-               #print('flare is %s' % flare)
-               ps = subprocess.Popen(flare, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-               output = ps.communicate()
-           else:
-               print('failed to find redirect url')
-    
-    if len(output[0].strip()) > 0:
-        ''' Sometimes get redirected, and authentication then fails? '''
-        if 'Temporary Redirect' in output[0].decode('utf-8'):
-           redirect = output[0].decode('utf-8').split('"')[1]
-           flare = 'curl --silent %s' % redirect
-           ps = subprocess.Popen(flare, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-           output = ps.communicate()
-        jstring = extractJson(output[0].decode('utf-8'))
-        try:
-            j = json.loads(jstring)
-        except ValueError:
-            with open('/tmp/docker_error.txt', 'w') as fh:
-                fh.write(cmd+'\n'+output[0])
-            print('Error getting blob for image: %s digest: %s' % (image, digest))
-            print('please email the file at /tmp/docker_error.txt to mfthomps@nps.edu')
-            exit(1)
-        version = None
-        base = None
-        if 'version' in j['container_config']['Labels']:
-            version = j['container_config']['Labels']['version'] 
-        if 'base' in j['container_config']['Labels']:
-            base = j['container_config']['Labels']['base'] 
-        return j['created'], j['container_config']['User'], version, base
-    else:
-        return None, None, None, None
