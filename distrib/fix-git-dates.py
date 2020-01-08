@@ -55,7 +55,7 @@ elif os.path.isdir(path):
 
 
 def fixtimes(filelist, dist_path, pathspec, workdir):
-    print('fix times')
+    #print('fix times')
     for f in filelist:
         source = os.path.join(workdir, f)
         dest = os.path.join(dist_path, f)
