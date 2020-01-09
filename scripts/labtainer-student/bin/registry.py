@@ -31,6 +31,7 @@ POSSIBILITY OF SUCH DAMAGE.
 import subprocess
 import os
 import ParseLabtainerConfig
+import argparse
 def getBranchRegistry():
     if 'LABTAINER_DIR' in os.environ:
         registry_file = os.path.join(os.environ['LABTAINER_DIR'], 'config', 'registry.config')
@@ -65,6 +66,23 @@ def getBranchRegistry():
 
     return branch, registry
 
+def getDefaultRegistry():
+    if 'LABTAINER_DIR' in os.environ:
+        registry_file = os.path.join(os.environ['LABTAINER_DIR'], 'config', 'registry.config')
+    else:
+        print('LABTAINER_DIR not defined, unable to find registry.config')
+        exit(1)
+    labtainer_config_file = os.path.join(os.environ['LABTAINER_DIR'], 'config', 'labtainer.config')
+    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_file, None)
+    registry = labtainer_config.default_registry
+    return registry
+    
 if __name__ == '__main__':
-    branch, registry = getBranchRegistry()
+    parser = argparse.ArgumentParser(prog='registry', description='Get the registry for either the current branch or the default.')
+    parser.add_argument('-d', '--default', action='store_true', help='Get default registry')
+    args = parser.parse_args()
+    if not args.default:
+        branch, registry = getBranchRegistry()
+    else:
+        registry = getDefaultRegistry()
     print(registry)
