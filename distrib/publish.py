@@ -7,6 +7,26 @@ United States, copyright protection is not available for any works
 created  by United States Government employees, pursuant to Title 17 
 United States Code Section 105.   This software is in the public 
 domain and is not subject to copyright. 
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
 '''
 import sys
 import os
@@ -31,12 +51,12 @@ def relabel(image, version, base_image, base_id, registry):
 
     cmd = 'docker build -f dfile -t %s.tmp .' % image
     os.system(cmd)
-    cmd = 'docker tag %s.tmp %s/%s' % (image, registry, image)
+    #cmd = 'docker tag %s.tmp %s/%s' % (image, registry, image)
     #print cmd
-    os.system(cmd)
-    cmd = 'docker push %s/%s' % (registry, image)
+    #os.system(cmd)
+    #cmd = 'docker push %s/%s' % (registry, image)
     #print cmd
-    os.system(cmd)
+    #os.system(cmd)
     cmd = 'docker tag %s.tmp %s/%s:base_image%s' % (image, registry, image, base_id)
     #print cmd
     os.system(cmd)
@@ -84,7 +104,7 @@ def pushIt(lab, docker_dir, registry, logger):
     which is from the dockerhub.  2) don't push on a rebuild if not rebuilt. '''
     removelab.removeLab(lab)
 
-def DoLab(lab, labsdir, force, logger, do_login, test_registry, default_registry, no_build=False):
+def DoLab(lab, labsdir, force, logger, do_login, use_default_registry, default_registry, no_build=False):
     logger.debug('DoLab for %s' % lab)
     lab_dir = os.path.join(labsdir, lab)
     registry_set = rebuild(lab, labsdir, force, no_build, logger)
@@ -98,7 +118,7 @@ def DoLab(lab, labsdir, force, logger, do_login, test_registry, default_registry
         registry = list(registry_set)[0]
     logger.debug('back from rebuild with registry of %s' % registry)
     ''' should we login?  Never if test registry '''
-    if not test_registry:
+    if use_default_registry:
         if registry is not None and registry != default_registry:
             print('registry %s not equal %s, login' % (registry, default_registry))
             os.system('docker login -u %s' % registry)
@@ -113,11 +133,11 @@ def main():
     parser = argparse.ArgumentParser(description='Build the images labs and publish to a registry')
     parser.add_argument('-l', '--lab', action='store', help='build and publish just this lab')
     parser.add_argument('-s', '--start', action='store', help='all labs starting with this one')
-    parser.add_argument('-t', '--test_registry', action='store_true', default=False, help='build and publish with test registry')
+    parser.add_argument('-d', '--default_registry', action='store_true', default=False, help='build and publish with default registry -- instead of the typical test registry')
     parser.add_argument('-f', '--force', action='store_true', default=False, help='force rebuild of all images')
     parser.add_argument('-n', '--no_build', action='store_true', default=False, help='Do not rebuild, just report on what would be built')
     args = parser.parse_args()
-    if args.test_registry:
+    if not args.default_registry:
         if os.getenv('TEST_REGISTRY') is None:
             print('use putenv to set it')
             os.putenv("TEST_REGISTRY", "TRUE")
@@ -127,6 +147,10 @@ def main():
             print('exists, set it true')
             os.environ['TEST_REGISTRY'] = 'TRUE'
         print('set TEST REG to %s' % os.getenv('TEST_REGISTRY'))
+    else:
+        if os.getenv('TEST_REGISTRY') is not None:
+            print('Request to use default registry, but TEST_REGISTRY is set.  Unset that first.')
+            exit(1)
 
     src_path = '../'
     labtainer_config_file = os.path.join(src_path, 'config', 'labtainer.config')
@@ -151,9 +175,9 @@ def main():
     if args.lab is not None:
         logger.debug('Doing just one lab %s labsdir %s' % (args.lab, labsdir))
         # Do login here and now so we don't wait for lab to build before prompt
-        if not args.test_registry:
+        if args.default_registry:
             os.system('docker login -u %s' % default_registry)
-        DoLab(args.lab, labsdir, args.force, logger, False, args.test_registry, default_registry)
+        DoLab(args.lab, labsdir, args.force, logger, False, args.default_registry, default_registry)
     else:    
         # do them all.  warn of incomplete git
         mycwd = os.getcwd()
@@ -169,7 +193,7 @@ def main():
                 print(line.strip())
             dumb = input("any key to continue") 
     
-        if not args.test_registry:
+        if args.default_registry:
             os.system('docker login -u %s' % default_registry)
         #cmd = 'svn ls  https://tor.ern.nps.edu/svn/proj/labtainer/trunk/labs'
         cmd = 'git ls-files ./ | cut -d/ -f1 | uniq'
@@ -188,7 +212,7 @@ def main():
                 cmd = 'git checkout ./'
                 os.system(cmd)
                 os.chdir(mycwd)
-                DoLab(lab, labsdir, args.force, logger, False, args.test_registry, default_registry, no_build=args.no_build)
+                DoLab(lab, labsdir, args.force, logger, False, args.default_registry, default_registry, no_build=args.no_build)
 
 if __name__ == '__main__':
     sys.exit(main())
