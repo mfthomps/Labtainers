@@ -45,7 +45,7 @@ def getBranchRegistry():
     if len(output[1].strip()) > 0:
         ''' No git, assume use of test-registry '''
         labtainer_config_file = os.path.join(os.environ['LABTAINER_DIR'], 'config', 'labtainer.config')
-        labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_file)
+        labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_file, None)
         registry = labtainer_config.test_registry
     elif len(output[0].strip()) > 0:
         branch = output[0].decode('utf-8').strip()
