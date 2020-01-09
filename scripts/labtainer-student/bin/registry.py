@@ -30,6 +30,7 @@ POSSIBILITY OF SUCH DAMAGE.
 '''
 import subprocess
 import os
+import ParseLabtainerConfig
 def getBranchRegistry():
     if 'LABTAINER_DIR' in os.environ:
         registry_file = os.path.join(os.environ['LABTAINER_DIR'], 'config', 'registry.config')
