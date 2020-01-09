@@ -74,7 +74,9 @@ END
 # setup-scripts/prep-testregistry.sh
 # touch $HOME/labtainer/.dosmoke
 #
-cat >>~/.profile <<EOL
+echo "$HOME/.doterms.sh &" >> ~/.profile
+cat >~/.doterms.sh <<EOL
+sleep 1
 gnome-terminal --geometry 120x31+150+300 --working-directory=$HOME/labtainer/labtainer-student -e "bash -c \"/bin/cat README; exec bash\"" &
 if [[ -f $HOME/labtainer/.doupdate ]]; then
     gnome-terminal --geometry 73x31+100+300 --working-directory=$HOME/labtainer -x ./update-labtainer.sh
@@ -84,6 +86,7 @@ if [[ -f $HOME/labtainer/.dosmoke ]]; then
 fi
 
 EOL
+chmod a+x $HOME/.doterms.sh
 touch $HOME/labtainer/.doupdate 
 gsettings set org.gnome.settings-daemon.plugins.power button-power 'shutdown'
 gsettings set org.gnome.nm-applet disable-disconnected-notifications "true"
