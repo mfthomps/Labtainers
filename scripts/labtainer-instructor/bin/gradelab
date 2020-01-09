@@ -12,6 +12,7 @@ import zipfile
 import time
 import saki
 import ParseLabtainerConfig
+import registry
 
 instructor_cwd = os.getcwd()
 student_cwd = instructor_cwd.replace('labtainer-instructor', 'labtainer-student')
@@ -238,7 +239,8 @@ def getRegistry(use_test_registry, labtainer_config):
         if env_test_registry is not None and (env_test_registry.lower() == 'yes' or env_test_registry.lower() == 'true'):
             use_test_registry = True
     if use_test_registry:
-        return labtainer_config.test_registry
+        branch, use_registry = registry.getBranchRegistry()
+        return use_registry
     else:
         return labtainer_config.default_registry
 
