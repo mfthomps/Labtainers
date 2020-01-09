@@ -384,15 +384,21 @@ def isUbuntuSystemd(image_name):
     retval = False
     #print('check if %s is systemd' % image_name)
     cmd = "docker inspect -f '{{json .Config.Labels.base}}' --type image %s" % image_name
-    #print('lab container cmd is %s' % cmd)
     ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[0].strip()) > 0:
-            logger.debug('base %s' % output[0].decode('utf-8'))
+            logger.debug('isUbuntuSystemd base %s' % output[0].decode('utf-8'))
             if output[0].decode('utf-8').strip() == 'null': 
                 base = image_name
             else:
-                base = output[0].decode('utf-8').rsplit('.', 1)[0]+'"'
+                base = output[0].decode('utf-8').rsplit('.', 1)[0]
+                if base.startswith('"'):
+                    base = base[1:]
+                if '/' in base and '/' in image_name:
+                    my_registry = image_name.split('/')[0]
+                    no_reg = base.split('/')[1]
+                    base = '%s/%s' % (my_registry, no_reg)
+                
             cmd = "docker history --no-trunc %s" % base
             ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             output = ps.communicate()
