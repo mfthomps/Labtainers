@@ -41,11 +41,13 @@ mkdir $ddir
 mkdir $ldir
 mkdir $ltrunk
 branch=$(git rev-parse --abbrev-ref HEAD)
-echo "Make distribution from branch: $branch"
+registry=$(scripts/labtainer-student/bin/registry.py)
+echo "Make distribution from branch: $branch  registry: $registry"
 git archive $branch README.md | tar -x -C $ltrunk
 git archive $branch | tar -x -C $ltrunk
 sed -i "s/mm\/dd\/yyyy/$(date '+%m\/%d\/%Y %H:%M')/" $ltrunk/README.md
 sed -i "s/^Revision:/Revision: $revision/" $ltrunk/README.md
+sed -i "s/^Branch:/Branch: $branch/" $ltrunk/README.md
 #git archive master config | tar -x -C $ltrunk
 $here/fix-git-dates.py config $ltrunk $branch
 $here/fix-git-dates.py setup_scripts $ltrunk $branch
@@ -69,7 +71,7 @@ for lab in $llist; do
         fi
     fi
 done
-distrib/mk-lab-pdf.sh $labs
+distrib/mk-lab-pdf.sh $labs &> /tmp/mk-lab-pdf.log
 result=$?
 echo "result of mk-lab-pdf is $result"
 if [ $result -ne 0 ]; then
@@ -77,28 +79,35 @@ if [ $result -ne 0 ]; then
     exit
 fi
 cd $ldir
+#
+#  NOTE the test_registry is changed if not on master branch
+#
+if [[ "$branch" != "master" ]]; then
+    sed -i "s/TEST_REGISTRY.*$/TEST_REGISTRY $registry/" trunk/config/labtainer.config 
+fi
 mv trunk/setup_scripts/install-labtainer.sh .
 ln -s trunk/setup_scripts/update-labtainer.sh .
 ln -s trunk/setup_scripts/update-designer.sh .
 
 cd $ldir/trunk/docs/student
-make
+make &> /tmp/mkstudent.out
 cp labtainer-student.pdf ../../../
 cp labtainer-student.pdf $myshare
 
 cd $ldir/trunk/docs/instructor
-make
+make &> /tmp/mkins.out
 cp labtainer-instructor.pdf ../../../
 cp labtainer-instructor.pdf $myshare
 
 cd $ldir/trunk/tool-src/capinout
 pwd
-./mkit.sh
+./mkit.sh &> /tmp/mkit.out
 cd $ddir
 tar -cz -X $here/skip-labs -f $here/labtainer.tar labtainer
 cd /tmp/
 #tar -czf $here/labtainer_pdf.tar.gz labtainer_pdf
-zip -r $here/labtainer_pdf.zip labtainer_pdf
+zip -qq -r $here/labtainer_pdf.zip labtainer_pdf
 cd $here
 cp labtainer.tar $myshare
 cp labtainer_pdf.zip $myshare
+echo "DONE"
