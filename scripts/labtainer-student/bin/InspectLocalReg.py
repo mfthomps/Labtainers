@@ -126,6 +126,8 @@ def getCreated(image, digest, test_registry):
             version = j['container_config']['Labels']['version'] 
         if 'base' in j['container_config']['Labels']:
             base = j['container_config']['Labels']['base'] 
+            if '/' in base:
+                base = '%s/%s' % (test_registry, base.split('/')[1])
         return j['created'], j['container_config']['User'], version, base
 
 #created, user, version, use_tag = inspectLocal('radius.radius.student', 'testregistry:5000', True)
