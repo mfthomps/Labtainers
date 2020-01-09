@@ -5,12 +5,13 @@ import argparse
 sys.path.append('../scripts/labtainer-student/bin')
 import InspectLocalReg
 import InspectRemoteReg
+import LabtainerLogging
 '''
 Pull all labtainer container images from the docker hub, retag them, and push to a 
 local registry.  Only replace the local registry if its image is older than the remote.
 '''
 
-def do_lab(lab_dir, lab, role, source_reg, dest_reg, force):
+def do_lab(lab_dir, lab, role, source_reg, dest_reg, force, logger):
     docker_dir = os.path.join(labdir, lab, 'dockerfiles')
     if not os.path.isdir(docker_dir):
         return
@@ -24,9 +25,10 @@ def do_lab(lab_dir, lab, role, source_reg, dest_reg, force):
         except:
             print('could not get image from %s' % df);
             continue
-        local_created, local_user, version, tag = InspectLocalReg.inspectLocal(image, dest_reg)
+        local_created, local_user, version, tag, base = InspectLocalReg.inspectLocal(image, logger, dest_reg)
         if local_created is not None:
-            remote_created, remote_user, version, tag = InspectRemoteReg.inspectRemote(image)
+            with_reg = '%s/%s' % (source_reg, image)
+            remote_created, remote_user, version, tag = InspectRemoteReg.inspectRemote(with_reg, logger)
         if force or local_created is None or remote_created > local_created:
             cmd = 'docker pull %s/%s' % (source_reg, image)
             #print cmd
@@ -51,6 +53,7 @@ with open('skip-labs') as fh:
        print('will skip [%s]' % f)
        skip.append(f)
 
+logger = LabtainerLogging.LabtainerLogging("reg_image_dif.log", 'none', "../config/labtainer.config")
 labdir = '../labs'
 lab_list = os.listdir(labdir)
 #
@@ -58,12 +61,10 @@ lab_list = os.listdir(labdir)
 #
 testregistry = 'testregistry:5000'
 if args.lab is not None:
-    do_lab(labdir, args.lab, 'student', 'mfthomps', testregistry, args.force)
-    do_lab(labdir, args.lab, 'instructor', 'mfthomps', testregistry, args.force)
+    do_lab(labdir, args.lab, 'student', 'mfthomps', testregistry, args.force, logger)
 else:
     #print('commented out for now')
     testregistry = 'testregistry:5000'
     for lab in sorted(lab_list):
         if lab not in skip:
-            do_lab(labdir, lab, 'student', 'mfthomps', testregistry, args.force)
-            do_lab(labdir, lab, 'instructor', 'mfthomps', testregistry, args.force)
+            do_lab(labdir, lab, 'student', 'mfthomps', testregistry, args.force, logger)
