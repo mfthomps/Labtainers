@@ -25,7 +25,7 @@ if not args.test_registry:
     if env is not None and env.lower() == 'true':
         test_registry = True
 if args.test_registry or test_registry:
-    use_registry = registry.getBranchRegistry()
+    branch, use_registry = registry.getBranchRegistry()
 else:
     use_registry = labtainer_config.default_registry
 print('registry is: %s' % use_registry)
