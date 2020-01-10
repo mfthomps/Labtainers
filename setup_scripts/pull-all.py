@@ -8,6 +8,7 @@ import ParseLabtainerConfig
 import LabtainerLogging
 import InspectLocalReg
 import InspectRemoteReg
+import registry
 parser = argparse.ArgumentParser(description='Pull all base images if they do not yet exist')
 parser.add_argument('-f', '--force', action='store_true', default=False, help='always pull latest')
 parser.add_argument('-t', '--test_registry', action='store_true', default=False, help='pull all Labtainer base images')
@@ -24,19 +25,19 @@ if not args.test_registry:
     if env is not None and env.lower() == 'true':
         test_registry = True
 if args.test_registry or test_registry:
-    registry = labtainer_config.test_registry
+    use_registry = registry.getBranchRegistry()
 else:
-    registry = labtainer_config.default_registry
-print('registry is: %s' % registry)
+    use_registry = labtainer_config.default_registry
+print('registry is: %s' % use_registry)
 config_list = ['base', 'network', 'firefox', 'wireshark', 'java', 'centos', 'lamp']
 if args.metasploit:
     config_list.append('metasploitable')
     config_list.append('kali')
 for config in config_list:
-    image_name = '%s/labtainer.%s' % (registry, config)
+    image_name = '%s/labtainer.%s' % (use_registry, config)
     local_created, local_user, local_version = labutils.inspectImage(image_name)
     if args.force or local_created is None:
-        cmd = 'docker pull %s/labtainer.%s' % (registry, config)
+        cmd = 'docker pull %s/labtainer.%s' % (use_registry, config)
         print(cmd)
         os.system(cmd)
     '''
