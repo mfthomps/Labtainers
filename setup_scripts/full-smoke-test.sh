@@ -55,6 +55,16 @@ sleep 5
 ./update-testsets.sh
 cd ../scripts/labtainer-student
 echo "start smoke test"
-smoketest.py
+smoketest.py -r
+RESULT=$?
+if [ $RESULT !=0 ]; then
+    echo "smoke test failed"
+    exit 1
+fi
 build_lab_test.sh
+RESULT=$?
+if [ $RESULT !=0 ]; then
+    echo "build_lab_test failed"
+    exit 1
+fi
 sudo poweroff
