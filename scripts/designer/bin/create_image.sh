@@ -29,6 +29,10 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 END
 source ./set_reg.sh
+if [[ $LABTAINER_REGISTRY == "" ]]; then
+   echo "No registry found"
+   exit 1
+fi
 if [[ "$2" != -f ]]; then
    echo "This will build the labtainer $1 image.  "
    echo "Confirm that the dependent images have been published."
