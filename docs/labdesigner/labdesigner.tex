@@ -1791,7 +1791,10 @@ A file named {\tt <lab>/config/bigexternal.txt} with entries as follows:
 <url> <relative_path>
 \end{verbatim}
 \noindent will cause a rebuild to look for a file at {\tt relative\_path} relative to the lab directory, and
-fetch it from the {\tt url} if it is missing.
+fetch it from the {\tt url} if it is missing.  Note that the date/times of these files are not referenced for rebuild dependencies
+due to limitations in product such as box.com which fails to provide file modification times.  Instead, the modification time of the
+bigexternal.txt file is used to control rebuilds.  Thus, if you update one of the large files, you will want to make a gratuitous change
+to the bigexternal.txt file to force a rebuild (for you and others who may extend your lab.)
 
 \subsubsection{Reuse of large file sets}
 \label{manifest}
