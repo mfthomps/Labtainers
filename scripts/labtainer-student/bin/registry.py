@@ -68,11 +68,13 @@ def getBranchRegistry():
 
 def getDefaultRegistry():
     if 'LABTAINER_DIR' in os.environ:
-        registry_file = os.path.join(os.environ['LABTAINER_DIR'], 'config', 'registry.config')
+        labtainer_config_file = os.path.join(os.environ['LABTAINER_DIR'], 'config', 'labtainer.config')
+        if not os.path.isfile(labtainer_config_file):
+            print('This does not look like a LABTAINER_DIR: %s, missing labtainer.config file' % os.environ['LABTAINER_DIR'])
+            exit(1)
     else:
-        print('LABTAINER_DIR not defined, unable to find registry.config')
+        print('LABTAINER_DIR not defined, unable to find labtainer.config')
         exit(1)
-    labtainer_config_file = os.path.join(os.environ['LABTAINER_DIR'], 'config', 'labtainer.config')
     labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_file, None)
     registry = labtainer_config.default_registry
     return registry
