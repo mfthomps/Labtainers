@@ -48,6 +48,9 @@ echo "will destroy docker in 5 seconds"
 sleep 5
 ./destroy-docker.sh -f
 
+# remove labtainer.config to ensure we get the registry from the distribution
+rm $LABTAINER_DIR/config/labtainer.config
+
 # Update baseline and framework
 ./update-labtainer.sh -t
 
