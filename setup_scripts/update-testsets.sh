@@ -30,5 +30,5 @@ POSSIBILITY OF SUCH DAMAGE.
 
 END
 cd ../..
-tar xf /media/sf_SEED/labtainer-tests.tar
+tar xf /media/sf_SEED/labtainer-tests.tar --keep-newer-files --warning=none
 
