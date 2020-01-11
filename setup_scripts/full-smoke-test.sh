@@ -43,10 +43,15 @@ now=`date +"%s"`
 exec > /media/sf_SEED/smokelogs/log-$now.log
 exec 2>&1
 
-#Clear out docker.
-echo "will destroy docker in 5 seconds"
-sleep 5
-./destroy-docker.sh -f
+uname -a 
+date
+if [[ "$1" != "-n" ]];then
+    #Clear out docker.
+    echo "LABTAINER_DIR is $LABTAINER_DIR"
+    echo "will destroy docker in 5 seconds"
+    sleep 5
+    ./destroy-docker.sh -f
+fi
 
 # remove labtainer.config to ensure we get the registry from the distribution
 rm $LABTAINER_DIR/config/labtainer.config
