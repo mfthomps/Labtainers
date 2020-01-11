@@ -51,6 +51,9 @@ sleep 5
 # remove labtainer.config to ensure we get the registry from the distribution
 rm $LABTAINER_DIR/config/labtainer.config
 
+# fresh set of labs
+rm -fr $LABTAINER_DIR/labs/*
+
 # Update baseline and framework
 ./update-labtainer.sh -t
 
