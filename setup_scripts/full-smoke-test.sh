@@ -34,7 +34,8 @@ END
 #  Runs as bash -c argument to gnome-terminal.  unable to get it to inherit bashrc defined env.
 #
 export TEST_REGISTRY=TRUE
-export PATH="${PATH}:./bin:$HOME/labtainer/trunk/scripts/designer/bin:$HOME/labtainer/trunk/testsets/bin"
+export LABTAINER_DIR=$HOME/labtainer/trunk
+export PATH="${PATH}:./bin:$LABTAINER_DIR/scripts/designer/bin:$LABTAINER_DIR/testsets/bin"
 
 if [[ ! -f $HOME/.local/share/labtainers/email.txt ]]; then
     echo "frank@beans.com" > $HOME/.local/share/labtainers/email.txt
