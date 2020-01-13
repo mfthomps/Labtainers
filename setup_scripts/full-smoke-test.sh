@@ -73,6 +73,7 @@ if [ $RESULT != 0 ]; then
     echo "smoke test failed"
     exit 1
 fi
+update-designer.sh
 build_lab_test.sh
 RESULT=$?
 if [ $RESULT != 0 ]; then
