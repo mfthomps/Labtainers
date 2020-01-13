@@ -169,7 +169,9 @@ def __main__():
     args = parser.parse_args()
     smoketest = SmokeTest(args.verbose)
     if args.lab is not None:
-        smoketest.checkLab(args.lab, args.test_registry, args.remove_lab)
+        result = smoketest.checkLab(args.lab, args.test_registry, args.remove_lab)
+        if not result:
+            exit(1)
     else:
         smoketest.checkAll(args.start_with, args.test_registry, args.remove_lab)
 
