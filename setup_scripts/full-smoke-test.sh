@@ -41,7 +41,8 @@ if [[ ! -f $HOME/.local/share/labtainers/email.txt ]]; then
     echo "frank@beans.com" > $HOME/.local/share/labtainers/email.txt
 fi
 now=`date +"%s"`
-exec > /media/sf_SEED/smokelogs/log-$now.log
+HOSTNAME=`hostname`
+exec > /media/sf_SEED/smokelogs/log-$HOSTNAME-$now.log
 exec 2>&1
 
 uname -a 
@@ -66,18 +67,18 @@ rm -fr $LABTAINER_DIR/labs/*
 # Update test sets
 ./update-testsets.sh
 cd ../scripts/labtainer-student
-echo "start smoke test"
+echo "start smoke test $HOSTNAME"
 smoketest.py -r
 RESULT=$?
 if [ $RESULT != 0 ]; then
-    echo "smoke test failed"
+    echo "smoke test failed $HOSTNAME"
     exit 1
 fi
 update-designer.sh
 build_lab_test.sh
 RESULT=$?
 if [ $RESULT != 0 ]; then
-    echo "build_lab_test failed"
+    echo "build_lab_test failed $HOSTNAME"
     exit 1
 fi
 sudo poweroff
