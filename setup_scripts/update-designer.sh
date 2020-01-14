@@ -76,16 +76,17 @@ fi
 rm -f update-designer.sh
 ln -s trunk/setup_scripts/update-designer.sh
 full=`realpath trunk/setup_scripts/update-designer.sh`
+HOSTNAME=`hostname`
 ln -sf $full trunk/scripts/labtainer-student/bin/update-designer.sh
 if [[ "$TEST_REGISTRY" != TRUE ]]; then
     wget https://my.nps.edu/documents/107523844/109121513/labtainer-developer.tar/f377285e-23b5-4cd4-a578-c879b0200fff -O labtainer-developer.tar
 else
-    cp /media/sf_SEED/labtainer-developer.tar .
+    cp /media/sf_SEED/test_vms/$HOSTNAME/labtainer-developer.tar .
     echo "USING SHARED FILE TAR, NOT PULLING FROM WEB"
 fi
 sudo trunk/setup_scripts/dns-add.py
 sudo systemctl restart docker
-sudo -H pip install netaddr parse python-dateutil
+#sudo -H pip install netaddr parse python-dateutil
 cd ..
 # ad-hoc clean up.  remove after a while
 rm -f labtainer/trunk/scripts/labtainer-student/bin/SimLab*

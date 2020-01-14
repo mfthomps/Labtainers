@@ -29,6 +29,7 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
 END
+HOSTNAME=`hostname`
 cd ../..
-tar xf /media/sf_SEED/labtainer-tests.tar --keep-newer-files --warning=none
+tar xf /media/sf_SEED/test_vms/$HOSTNAME/labtainer-tests.tar --keep-newer-files --warning=none
 

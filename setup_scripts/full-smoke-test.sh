@@ -56,7 +56,7 @@ if [[ "$1" != "-n" ]];then
 fi
 
 # remove labtainer.config to ensure we get the registry from the distribution
-rm $LABTAINER_DIR/config/labtainer.config
+rm -f $LABTAINER_DIR/config/labtainer.config
 
 # fresh set of labs
 rm -fr $LABTAINER_DIR/labs/*
@@ -74,7 +74,7 @@ if [ $RESULT != 0 ]; then
     echo "smoke test failed $HOSTNAME"
     exit 1
 fi
-update-designer.sh
+$LABTAINER_DIR/setup_scripts/update-designer.sh
 build_lab_test.sh
 RESULT=$?
 if [ $RESULT != 0 ]; then
