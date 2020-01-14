@@ -28,13 +28,6 @@ STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 '''
-
-# Filename: redo.py
-# Description:
-# For lab development testing workflow.  This will stop containers of a lab, create or update lab images
-# and start the containers.
-#
-
 import sys
 import os
 import labutils
@@ -48,7 +41,7 @@ try:
 except:
     print('Lab building now requires a python3 environment with includes dateutil')
     print('Please migrate to a newer Linux distribution, e.g, Ubuntu 18')
-    print('As a short-term work-around, you can change the bin/rebuild.py script to reference python2')
+    print('As a short-term work-around, use the rebuild command (no .py suffix) to reference python2')
     print('Avoid use of python 3.5.2, it is broken, see our README.')
     exit(1)
 
@@ -58,7 +51,7 @@ except:
 #    [-f] will force a rebuild
 #    [-q] will load the lab using a predetermined email.
 def main():
-    parser = argparse.ArgumentParser(description='Build the images of a lab and start the lab.')
+    parser = argparse.ArgumentParser(description='Build the images of a lab and start the lab.',prog='rebuild')
     parser.add_argument('labname', help='The lab to build')
     parser.add_argument('-f', '--force', action='store_true', help='Force build of all containers in the lab.')
     parser.add_argument('-p', '--prompt', action='store_true', help='prompt for email, otherwise use stored')
