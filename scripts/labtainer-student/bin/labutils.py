@@ -2108,7 +2108,6 @@ def CheckBuild(lab_path, image_name, image_info, container_name, name, is_redo, 
                     continue
                 if FileModLater(ts, check_file, big_list=big_list):
                     logger.warning('files in container %s is later, will build %s' % (check_file, name))
-                    exit(1)
                     retval = True
                     break
 
