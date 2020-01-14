@@ -72,12 +72,13 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
-January 2, 2020
+January 14, 2020
 - Port framework and gradelab to Python3 (existing Python2 labs will not change)
   - Use backward compatible random.seed options
   - Hack non-compatable randint to return old values
-  - Continue to support platforms that lack python3 (or those such as the
+  - Continue to support python2 for platforms that lack python3 (or those such as the
     older VM appliance that include python 3.5.2, which breaks random.seed compatability).
+  - Add rebuild alias for rebuild.py that will select python2 if needed.
 - Centos-based labs manpages were failing; use mandb within base docker file
 - dmz-lab netmask for DMZ network was wrong (caught by python3); as was IP address of inner gateway in lab manual
 - ghex removed from centos labs -- no longer easily supported by centos 7
