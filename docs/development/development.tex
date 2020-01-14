@@ -24,16 +24,19 @@ This document is in the public domain and is not subject to copyright.
 \newpage
 \section {Introduction}
 This document is intended for use by developers who maintain the
-Labtainer framework.  It does not address lab creation, which is 
+Labtainer framework.  It is also applicable to lab designers who wish
+to follow Labtainers configuration managment and testing conventions for  their labs.
+It does not address the mechanics lab creation, which is 
 covered in the \textit {Labtainers Lab Designer User Guide}.
 
 \begin{flushleft} 
 {\bf Note:} 
-The Labtainer framework is based in Linux and is accessed through the Linux Terminal. 
+The Labtainer framework is developed within and for Linux environments using the command line.
 \end{flushleft} 
 
 
-\section{Developer Software Prerequisites}
+\section{Installation}
+\subsection{Developer Software Prerequisites}
 \begin {itemize}
 \item {\bf git}
 \item {\bf make}
@@ -44,13 +47,13 @@ The Labtainer framework is based in Linux and is accessed through the Linux Term
 \item {\bf dateutil} {\tt pip3 install py-dateutil}
 \item {\bf xdotool} 
 \end {itemize}
-\section{Getting Labtainers from Github}
+\subsection{Getting Labtainers from Github}
 
-In the Linux Terminal change working directory into the directory you want to store Labtainers.
+In a Linux terminal, change working directory into the directory you want to store Labtainers.
 \begin{flushleft} Run this in the terminal: \end{flushleft}
 \begin{center} {\tt git clone https://github.com/mfthomps/Labtainers.git} \end{center} 
 
-\section{Setting up the Development Environment}
+\subsection{Setting up the Development Environment}
 \begin {itemize}
 \item Disable any auto-updates on your machine as this may interfere with 'apt-get' requests you may have during development.
 \item Modify your ~/.bashrc file.
@@ -65,8 +68,9 @@ In the Linux Terminal change working directory into the directory you want to st
 		    language=bash}
 	    \begin{mdframed}
 	    \begin{lstlisting}
+export LABTAINER_DIR=$HOME/Labtainers
+export TEST_REGISTRY="YES"
 if [[ ":$PATH:" != *":./bin:"* ]]; then
-  export LABTAINER_DIR=$HOME/Labtainers
   export PATH="${PATH}:./bin:$LABTAINER_DIR/scripts/designer/bin"
 fi
 	    \end{lstlisting}
@@ -81,10 +85,10 @@ fi
 \end {itemize}
 
 
-\section{Docker Installation}
+\subsection{Docker Installation}
 For full and convenient installation of Docker and setting of Docker privileges, run  'install-docker-ubuntu.sh' in 'setup\_scripts', assuming you are developing in Ubuntu. {\bf Note:} Make sure to run the script as user (not sudo), so that your user can be added to the Docker group.\\ 
     
-\noindent Reboot system, so that user receives Docker privileges.
+\noindent Reboot the system, so that user receives Docker privileges.
 
     \begin {itemize}
     \item If on a different Linux distribution look in the same folder for your corresponding distribution (CentOS, Debian, Fedora). 
@@ -92,19 +96,10 @@ For full and convenient installation of Docker and setting of Docker privileges,
     \item {\bf NOTE:} These install-docker scripts include the installation of other packages outside Docker that are necessary for building labs. 
     \end {itemize}
 
-\section{Testing and Running Existing Labs}
-When running labs, the goal is to force ourselves to run the distributed labs unless we have specific reasons to do otherwise.
-\begin{enumerate}[label=\Alph*]
-	\item )   To ensure that you are running the latest version of the published lab, first delete the current version of the lab using setup\_scripts/removelab.sh.  
 
-	\item )   If you find the lab to be broken, e.g., missing a file, please attempt to run "rebuild.py" on the lab. rebuild.py will ouput a log of issues. Report these findings to the lab author.  
 
-	\item )   Always run removelab.sh after you have run an existing lab via rebuild.py.  
-
-	\item )   Please review the lab's manual very closely. This is so that both the lab itself and the lab's manual can receive feedback for improvement. 
-\end{enumerate}
-
-\section{Overview of Labtainer Elements}
+\section {Framework implementation overview}
+\subsection{Implementation elements}
 The Labtainer framework implementation is primarily python scripts.  A number of the 
 top level scripts share functions found in scripts/labtainer-student/{\bf bin}/labutils.py.  The 
 top level scripts are organized as follows:
@@ -144,8 +139,8 @@ git clone https://gitlab.nps.edu/mfthomps/Labtainers-simlab.git/
 
 \end{itemize}
 
-\section {Control Flow}
-Student scripts, e.g., start.py, run from the scripts/labtainer-student directory.
+\subsection{Control flow}
+Student scripts, e.g., {\tt labtainer}, run from the scripts/labtainer-student directory.
 That directory also contains the bin/labutils.py, which contains most of the framework
 functions.
 
@@ -161,7 +156,7 @@ terminal displays the instructions or grading.  In practice most
 instructions are now pdf files.
 The startup.sh invoked by student will source a student\_startup.sh if present.
 
-\section{Automation and Distributions}
+\section{Distribution publishing}
 The Labtainer framework is distributed via the c3o website as a tar file, or, optionally a
 VM applicance (both VMWare and VirtualBox).  The Docker images are distributed via the Docker Hub.
 
@@ -174,22 +169,24 @@ From that shared folder, the two tar files are copied to the
 \noindent and then "Publish to Live" is 
 performed on the Liferay site.
 
-The distributions are created from a local git repo, i.e., it does not pull a new repo.  The scripts first highlights
+The distributions are created from a local git repo, i.e., it does not pull from a remote repo.  The scripts first highlight
 changes that have not yet been locally committed.  The user must press q to continue, potentially ignoring local changes.
 Distrubtions are made from the current git branch.
 
-Two prepackaged VMs are maintained: one for VirtualBox, and one for VMWare.  Each include
+\subsection{VM Appliances}
+Two prepackaged VM appliances are maintained: one for VirtualBox, and one for VMWare.  Each include
 their respective guest additions.  The VMs are maintained on a native Linux system using command line
-utilities, e.g., VBoxManage.  The VMs are rigged to update labtainers, including a pull of
+utilities, e.g., VBoxManage.  The VMs are rigged to update Labtainers, including a pull of
 baseline images, on each boot until the first lab is commenced.  Scripts named "export*" are
 used to created the appliance files.  The scripts re-import into test images, which must be
 manually tested.  The WinSCP script pushes new applicance images to the CyberCIEGE download
 directory on the C3O web server.  (Wine and WinSCP must be installed on the Linux host that
 manages the VMs.
 
-New baseline images are created using scripts/designer/bin/create\_all.sh.  Note its comment
-about deleting all docker images first.  When new baselines are created, use the labtainer-scripts
-on the native Linux system to update the VM appliances so they contain the latest baseline images.
+The VM appliances should be updated or recreated whenever changes are made to Labtairer base
+images, otherwise, they are not expected to be changed.  To revise the VM appliances, use the scripts
+from host\_scripts on 
+on the Linux system that hosts VirtualBox and VMWare to update the VM appliances so they contain the latest baseline images.
 After the VM starts and updates the baseline images, use:
 \begin{verbatim}
 sudo dd if=/dev/zero of=/emptyfile bs=1M
@@ -210,15 +207,138 @@ tests.
 
 Do the same for vmware.
 
-Then push the images to the web server
+Then push the images to the web server, in our case this is the nps.box.com account
+pointed to by the Labtainers web server.
 
 The appliances automatically update the baselines and the Labtainer scripts on boot, so there
 is only really advantage to doing this for baseline changes, since they take a while to download.
-After running the poweron/poweroff scripts, then run the exportVM.sh to 
 
-\section {installation sizes}
+\subsubsection {installation sizes}
 An initial install, including the base images, requires about 4GB.  Installing a larger lab,
 e.g., snort, requires an additional 1GB.  Running bufoverflow added 22M.
+
+\section {Source control and Configuration Management}
+This section describes Labtainers source control and mechanisms to support continuous
+integration.  Labtainers is managed using git, Docker registries, and a set of custom scripts that control
+rebuilding and publishing of artifacts.  Artifacts are published to test environments associated with each
+development branch of the product.  Publishing releases for public distribution occurs after development
+branches are tested and merged into the master git branch.
+
+\subsection{Build artifacts}
+Labtainers development creates the following artifacts:
+\begin{itemize}
+\item The distribution tar file for students
+\item A distribution tar file for lab designers (which is a superset of that for students).
+\item A test script tar distribution containing SimLab scripts. (These come from a seperately managed repo.)
+\item The Docker container images for each lab.
+\item The Docker container image for the grader.
+\end{itemize}
+
+The tar distributions are created using scripts from the {\tt distrib} directory.  The Docker images are built and published to
+a Docker registry using the publish.py script, which includes file dependency logic to only rebuild images when one
+of their sources change.  By default, the publish.py script pushes to a local registry rather than to the DockerHub.  
+Updated images are pushed to the DockerHub as part of publishing a new revision of Labtainers.
+
+\subsubsection{Base images}
+Changes to base docker images referenced by the lab containers will trigger rebuilds.  Base docker images are extended by creating
+new dockerfiles with ``.xtra'' file extensions.  
+This lets us add features to a base without rebuilding all previous labs that use that base.  
+While these ``.xtra'' images are built with docker files managed within the
+designer/base\_dockerfiles directory they are not true base images.
+Only the true base images are included in the initial distribution.  
+In general, avoid changes to a base docker image because doing so could lead some installations
+to include two copies of the base image, which are very much larger than most other Labtainer images.  
+Modifcations to an xtra extension image will not effect existing installations that have run
+some labs.  Whenever a new lab is started, if it relies on a newer version of the xtra extention, that will be pulled as needed for the 
+lab container images.
+
+When a lab container image is created, it is tagged with the base image name and its image ID (a checksum generated by Docker).
+When a lab is started, the framework confirms it hosts the appropriate base image.  If not, the user is prompted to download it.
+
+\subsection{Releases and Container Images}
+A Labtainers \textit{release} contains the set of artifacts described above.  File versions within the tar files
+of a release are all pulled from the git \textit{master} git branch on the development system.  Docker container images within a release are built from a 
+\textit{premaster} git branch as described below.
+
+\subsubsection{The premaster branch}
+Labtainers source control management includes a \textit{premaster} branch which shall always be on the workflow of 
+creating new releases. All merges on the path to a release go through the premaster branch.  No changes are ever made to the master
+branch.  The only way the master branch ever is updated is via a merge with the premaster branch, after all of its testing is 
+complete.  This approach has two goals: 1) ensure that results of merge conflict resolution are tested prior to 
+inclusion within the master, and allow us to test container images before they are published in a new version.  
+A Labtainers release shall always be accompanied by a push of the local 
+develoment repo to the remote GitHub repo.
+
+Container images on DockerHub are
+pushed from a registry containing images build from the premaster branch. The push occurs during the final merge from the
+premaster branch into the master branch during a release step.
+
+It is intended that no changes be made directly to the premaster branch, rather, changes are merged into the premaster from
+other development branches.  Once a merge into the premaster commences, no hotfixes affecting build images should occur until
+the merge completes and the premaster is merged into the master.
+
+\subsection{Development branches}
+Development of new features and fixes occur within development branches.
+New branches are made off of the premaster branch, but not during a premaster merge.
+
+\subsection{Test registries}
+The test registries are used to test the premaster and development branches of Labtainers.
+
+Test registries are named by their port numbers (currently, all test registries must reside on the same host).  
+These port numbers are mapped to git branch names.  This mapping occurs in the 
+config/registry.config file.
+The rebuild.py command pulls from the registry associated with the current branch.
+
+All development systems are intended to have the {\tt TEST\_REGISTRY} environment variable set such that images are
+pulled and pushed to the appropriate test registry.
+
+Within the test environment host, i.e., the computer that builds distributions and docker images, Update 
+the /etc/docker/daemon.json file to reflect new registries as "insecure".
+\begin{verbatim}
+    "insecure-registries": [
+        "testregistry:5000",
+        "testregistry:5001",
+        "testregistry:5002",
+        "testregistry:5003"
+        "testregistry:5004"
+    ]
+\end{verbatim}
+
+\subsection{Testing}
+The smoketest.py scripts represents the test procedures for Labtainers.  
+It is expected that local repo development branches will be tested prior to pushing them to GitHub.  Similarly, the
+results of premaster branch merges are expected to be tested locally before it is pushed to GitHub. A test run
+from a fresh pull from GitHub premaster branch is a prerequisite to publishing a new release.
+
+\subsection{Examples}
+Example: Create new branch to include changed lab and perhaps changed framework
+Run new\_branch.py.  This will create a new git branch for the local repo and will allocate a test registry to the
+new branch (for now, first updated manually by editing config/registry.config).  This script will update the 
+assigned registry to fully match the premaster branch (SO DO NOT DO THIS WHILE A MERGE IS BEING DETANGLED).
+
+The smoke test environment will pull tar file from SEED/labtainer.tar
+Limitation: no concurrent smoke tests launched from same test system.
+The config/labtainer.config file is modified when creating a branch test distribution to reflect the registry for
+that branch.
+
+The authoritative location for lab container images is the DockerHub registry.  If a merge to the premaster branch is
+botched, use the reset\_premaster.py script to restore the premaster registry to match DockerHub, and to revert the
+premaster git branch to match the master.
+
+
+\section{Developer guidelines}
+\subsection{Testing and Running Existing Labs}
+When running labs, the goal is to force ourselves to run the distributed labs unless we have specific reasons to do otherwise.
+Labtainers will use locally-created container images if they are present -- and these may be stale.
+\begin{enumerate}[label=\Alph*]
+	\item )   To ensure that you are running the latest version of the published lab (or version assocated with your current git branch), first delete the current version of the lab using setup\_scripts/removelab.sh.  
+
+	\item )   If you find the lab to be broken, e.g., missing a file, please attempt to run "rebuild.py" on the lab. rebuild.py will ouput a log of issues. Report these findings to the lab author.  
+
+	\item )   Always run removelab.sh after you have run an existing lab via rebuild.py.  
+
+	\item )   Please review the lab's manual very closely. This is so that both the lab itself and the lab's manual can receive feedback for improvement. 
+\end{enumerate}
 
 \section {Maintenance notes}
 When working on a significant change, do so in a distinct branch:
@@ -288,101 +408,6 @@ in start.config, seems to fix it?
 \subsubsection{grader updates}
 Automate detection of need to update a local grader image, e.g., in response to a fix to the grader.
 
-\subsection{Continuous integration and delivery}
-These notes describe a strategy for moving Labtainers into a continuous integration environment such as Jenkins.
-The goal is to automate building and testing of Labtainers, with an ultimate goal of automating the delivery step as well.
-
-Note that provisioning of new VM appliances is not within the scope of this section.  The deliverable components are the 
-distribution tar files (one for students; and a superset for developers), and the Docker container images required for each lab.
-
-\subsubsection{Building}
-Labtainers development includes building the following items:
-\begin{itemize}
-\item The distribution tar file for students
-\item A distribution tar file for lab designers (which is a superset of that for students).
-\item A test script tar distribution containing SimLab scripts. (These come from a seperately managed repo.)
-\item The Docker container images for each lab.
-\item The Docker container image for the grader.
-\end{itemize}
-
-The tar distributions are created using scripts from the distrib directory.  The Docker images are built and published to
-a Docker registry using the publish.py script, which includes ad-hoc file dependency logic to only rebuild images when one
-of their sources change.  By default, the publish.py script pushes to a local registry rather than to the DockerHub.  
-Updated images are pushed to the DockerHub as part of publishing a new revision of Labtainers.
-
-Changes to base docker images referenced by the lab containers will trigger rebuilds.  Base docker images are extended by creating
-new dockerfiles with ``.xtra'' file extensions.  
-This lets us add features to a base without rebuilding all previous labs that use that base.  
-While these ``.xtra'' images are built with docker files managed within the
-designer/base\_dockerfiles directory they are not true base images.
-Only the true base images are included in the initial distribution.  
-In general, avoid changes to a base docker image because doing so could lead some installations
-to include two copies of the base image, which are very much larger than most other Labtainer images.  
-Modifcations to an xtra extension image will not effect existing installations that have run
-some labs.  Whenever a new lab is started, if it relies on a newer version of the xtra extention, that will be pulled as needed for the 
-lab container images.
-
-When a lab container image is created, it is tagged with the base image name and its image ID (a checksum generated by Docker).
-When a lab is started, the framework confirms it hosts the appropriate base image.  If not, the user is prompted to download it.
-
-A Labtainers \textit{release} is defined as a set of Docker images and the distribution tar files.  File versions within the tar files
-of a release are all based on the git \textit{master} git branch.  Docker container images of a release are built from a 
-\textit{premaster} git branch as described below.
-
-Labtainers source control management includes a \textit{premaster} branch which shall always be on the workflow of 
-creating new releases. All merges on the path to a release go through the premaster branch.  No changes are ever made to the master
-branch.  The only way the master branch ever is updated is via a merge with the premaster branch, after all of its testing is 
-complete.  This approach has two goals: 1) ensure that results of merge conflict resolution are tested prior to 
-inclusion within the master, and allow us to test container images before they are published in a new version.  
-A Labtainers release shall always be accompanied by a push of the local 
-develoment repo to the remote GitHub repo.
-
-Container images on DockerHub are
-pushed from a registry containing images build from the premaster branch. The push occurs during the final merge from the
-premaster branch into the master branch during a release step.
-
-It is intended that no changes be made directly to the premaster branch, rather, changes are merged into the premaster from
-other development branches.  Once a merge into the premaster commences, no hotfixes affecting build images should occur until
-the merge completes and the premaster is merged into the master.
-
-The rebuild.py command pulls from the registry assocated with the current branch.
-
-All development systems are intended to have the {\tt TEST\_REGISTRY} environment variable set such that images are
-pulled and pushed to the appropriate test registry.
-
-Example: Create new branch to include changed lab and perhaps changed framework
-Run new\_branch.py.  This will create a new git branch for the local repo and will allocate a test registry to the
-new branch (for now, first updated manually by editing config/registry.config).  This script will update the 
-assigned registry to fully match the premaster branch (SO DO NOT DO THIS WHILE A MERGE IS BEING DETANGLED).
-
-The smoke test environment will pull tar file from SEED/labtainer.tar
-Limitation: no concurrent smoke tests launched from same test system.
-The config/labtainer.config file is modified when creating a branch test distribution to reflect the registry for
-that branch.
-
-The authoritative location for lab container images is the DockerHub registry.  If a merge to the premaster branch is
-botched, use the reset\_premaster.py script to restore the premaster registry to match DockerHub, and to revert the
-premaster git branch to match the master.
-
-The test registries are used to test the premaster and development branches of Labtainers.
-
-Test registries are named by their port numbers (currently, all test registries must reside on the same host).  
-These port numbers are mapped to git branch names.  This mapping occurs in the 
-config/registry.config file.
-
-Within the test environment host, i.e., the computer that builds distributions and docker images, Update 
-the /etc/docker/daemon.json file to reflect new registries as "insecure"
-\begin{verbatim}
-    "insecure-registries": [
-        "testregistry:5000",
-        "testregistry:5001",
-        "testregistry:5002",
-        "testregistry:5003"
-        "testregistry:5004"
-    ]
-\end{verbatim}
-
-
 \subsection{ongoing}
 Updated framework and grader to use python3.  Intent is to not affect existing labs.  Need to publish centos-log2 and
 backups2 due to changes in centos packages.  Changed grader and centos.xtra base dockerfiles.
@@ -398,7 +423,7 @@ Labtainer VMs.  So, we will maintain support for python2 in the framework, and f
 Some html, e.g., for the softplc, want to visit fonts.googleapis.com.  If no gateway/dns is available, there is a long timeout.
 add         ADD-HOST fonts.googleapis.com:127.0.0.1 to start.config to shut it up.
 
-In the VM .proile, move the terminal creation functions to a seperate script run in background -- seems .profile must finish or VMWare Horizen 
+In the VM .profile, move the terminal creation functions to a seperate script run in background -- seems .profile must finish or VMWare Horizen 
 borks the Terminal Server startup.
 
 \subsection{bread crumbs}
