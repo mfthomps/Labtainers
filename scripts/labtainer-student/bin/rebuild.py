@@ -43,6 +43,14 @@ import LabtainerLogging
 import argparse
 import CurrentLab
 
+try:
+    from dateutil import parser
+except:
+    print('Lab building now requires a python3 environment with includes dateutil')
+    print('Please migrate to a newer Linux distribution, e.g, Ubuntu 18')
+    print('As a short-term work-around, you can change the bin/rebuild.py script to reference python2')
+    print('Avoid use of python 3.5.2, it is broken, see our README.')
+    exit(1)
 
 # Usage: redo.py <labname> [-f]
 # Arguments:
