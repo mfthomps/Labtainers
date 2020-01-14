@@ -9,7 +9,6 @@ myshare=/media/sf_SEED/
 here=`pwd`
 cd ../
 rootdir=`pwd`
-git status -s | grep -E "^ M|^ D|^ A" | less
 ddir=/tmp/labtainer-distrib
 ldir=$ddir/labtainer
 ltrunk=$ldir/trunk

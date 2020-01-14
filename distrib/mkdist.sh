@@ -1,7 +1,10 @@
 #!/bin/bash
 #
 #  Create an end-user distribution of Labtainers.
-#  This uses git archive, basing the distribution on committed content of the local repo.
+#  This uses git archive, basing the distribution on committed content of the 
+#  current branch of the local repo.
+#  Will modify the labtainer.config TEST_REGISTRY entry unless -n is provided
+#  as the first argument.
 #
 #
 function contains() {
@@ -25,12 +28,9 @@ for line in $lines; do
     skiplist+=($lab)
 done
 mkdir -p /tmp/labtainer_pdf
-#myshare=/home/mike/sf_SEED/
-myshare=/media/sf_SEED/
 here=`pwd`
 cd ../
 rootdir=`pwd`
-git status -s | grep -E "^ M|^ D|^ A" | less
 ddir=/tmp/labtainer-distrib
 ldir=$ddir/labtainer
 ltrunk=$ldir/trunk
@@ -41,10 +41,14 @@ mkdir $ddir
 mkdir $ldir
 mkdir $ltrunk
 branch=$(git rev-parse --abbrev-ref HEAD)
-registry=$(scripts/labtainer-student/bin/registry.py)
-echo "Make distribution from branch: $branch  registry: $registry"
+if [[ "$1" != "-t" ]]; then
+    registry=$(scripts/labtainer-student/bin/registry.py)
+    echo "Make distribution from branch: $branch  registry: $registry"
+else
+    echo "Make distribution from branch: $branch  Using premaster registry OVERRIDE"
+fi
 git archive $branch README.md | tar -x -C $ltrunk
-git archive $branch | tar -x -C $ltrunk
+#git archive $branch | tar -x -C $ltrunk
 sed -i "s/mm\/dd\/yyyy/$(date '+%m\/%d\/%Y %H:%M')/" $ltrunk/README.md
 sed -i "s/^Revision:/Revision: $revision/" $ltrunk/README.md
 sed -i "s/^Branch:/Branch: $branch/" $ltrunk/README.md
@@ -82,9 +86,15 @@ cd $ldir
 #
 #  NOTE the test_registry is changed if not on master branch
 #
-if [[ "$branch" != "master" ]]; then
+share_ext=""
+if [[ "$1" != "-t" ]]; then
+  if [[ "$branch" != "master" ]]; then
     sed -i "s/TEST_REGISTRY.*$/TEST_REGISTRY $registry/" trunk/config/labtainer.config 
+  fi
 fi
+myshare=/media/sf_SEED/
+
+
 mv trunk/setup_scripts/install-labtainer.sh .
 ln -s trunk/setup_scripts/update-labtainer.sh .
 ln -s trunk/setup_scripts/update-designer.sh .

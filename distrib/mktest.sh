@@ -18,7 +18,6 @@ echo "Make test set distribution from branch: $branch"
 $here/fix-git-dates.py distrib $trunk $branch
 $here/fix-git-dates.py testsets $trunk $branch
 cd ../Labtainers-simlab
-git status -s | grep -E "^ M|^ D|^ A" | less
 branch=$(git rev-parse --abbrev-ref HEAD)
 echo "Make simlab distribution from branch: $branch"
 $here/fix-git-dates.py simlab $tmp_dir $branch
