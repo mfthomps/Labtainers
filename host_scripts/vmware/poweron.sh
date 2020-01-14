@@ -1,1 +1,1 @@
-vmrun start /home/mike/vmware/LabtainerVM-VMWare/LabtainerVM-VMWare.vmx
+vmrun start /VMs/LabtainerVM-2-VMware/LabtainerVM-2-VMware/LabtainerVM-2-VMware.vmx

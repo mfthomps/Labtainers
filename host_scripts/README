@@ -1,6 +1,3 @@
-README for scripts run on a Linux host to create and test 
-Labtainer VM appliances for VirtualBox and VMWare.
-
 Power up / down baseline so it can update.
 Then do export:
 
@@ -14,4 +11,5 @@ That will  create a testvm.  Test with it, then publish with exportVB.sh.
 Use 
 dd if=/dev/zero of=wipefile bs=1024x1024; rm wipefile  
 on the VM to zero unused space, then
-run compact.sh to squeeze the vm.
+
+Use box.com web interface to push ova's to the labtainer vms folder.

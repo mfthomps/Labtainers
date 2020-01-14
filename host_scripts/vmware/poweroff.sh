@@ -1,1 +1,1 @@
-vmrun stop /home/mike/vmware/LabtainerVM-VMWare/LabtainerVM-VMWare.vmx
+vmrun stop /VMs/LabtainerVM-2-VMware/LabtainerVM-2-VMware/LabtainerVM-2-VMware.vmx

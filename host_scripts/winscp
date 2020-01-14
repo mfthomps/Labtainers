@@ -1,1 +1,0 @@
-wine /opt/WinSCP/WinSCP.com /script=push.txt
