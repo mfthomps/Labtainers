@@ -259,11 +259,11 @@ directory.  So, open a new tab or window, and then:
 Then start the lab using the:
 
 \begin{verbatim}
-    rebuild.py [labname] 
+    rebuild [labname] 
 \end{verbatim}
 command, where labname is the name of the lab you just created.  
 
-The rebuild.py command will remove and recreate the lab containers
+The {\tt rebuild} command \footnote{Previously named {\tt rebuild.py}} will remove and recreate the lab containers
 each time the script is run.  And it will rebuild the container images if any of their configuration 
 information has changed.  \footnote{The build process may generate warnings in red text, some of which are expected.  
 These include an unreferenced ``user'' variable and the lack of apt-utils if apt-get is used to install packages in 
@@ -277,10 +277,10 @@ a separate terminal:
 \end{verbatim}
 If the rebuild fails with a error reflecting a problem resolving hostnames, e.g., mirror.centos.com, please see \ref{DNS-rebuild}.
 
-Note the ``rebuild.py'' command is not intended for use by students, they would use the ``labtainer'' command.  
-The rebuild.py utility compares file modification dates to Docker image creation dates to determine if
-a given image needs to be rebuilt.  The rebuild.py will miss file deletions.  Thus, if files are deleted, you must
-force the rebuild using the {\tt -f} option at the end of the rebuild.py command. Also, addition of symbolic links will not
+Note the {\tt rebuild} command is not intended for use by students, they would use the ``labtainer'' command.  
+The rebuild utility compares file modification dates to Docker image creation dates to determine if
+a given image needs to be rebuilt.  The rebuild will miss file deletions.  Thus, if files are deleted, you must
+force the rebuild using the {\tt -f} option at the end of the rebuild command. Also, addition of symbolic links will not
 trigger a rebuild.  Rebuild references git modify dates (vice file modify dates).
 
 Stop the lab with 
@@ -294,7 +294,7 @@ To test adding a ``hello world'' program to the new labtainer, perform the follo
 \begin{itemize}
 \item From the new lab directory window, cd \verb!$LABTAINER_DIR/labs/[labname]/[labname]!
 \item Create a ``hello world'' program, e.g., in python or compiled C.
-\item From the labtainer-student window, run rebuild.py [labname]
+\item From the labtainer-student window, run {\tt rebuild [labname]}
 \end{itemize}
     
 You should see the new program in the container's
@@ -317,7 +317,7 @@ in the lab.  For example, from your new lab directory:
     new_lab_setup.sh -a joe_computer
 \end{verbatim}
 \noindent will create a second container for your lab,
-named ``joe\_computer''.  If you again run the rebuild.py script, you will see two virtual
+named ``joe\_computer''.  If you again run the rebuild script, you will see two virtual
 terminals, each connected to one of your two independent computers.  Use 
 \begin{verbatim}
     new_lab_setup.sh -h
