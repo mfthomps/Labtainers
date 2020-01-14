@@ -40,9 +40,9 @@ import ParseLabtainerConfig
 import registry
 
 '''
-Force the registry associated with the current git branch (see config/registry.config)
-to match the premaster registry.  Intended to be called from scripts, e.g., to establish
-a new branch.  Not intended to be invoked directly.
+Either force the registry associated with the current git branch (see config/registry.config)
+to match the premaster registry, or visa versa.  Intended to be called from scripts, e.g., to establish
+a new branch, or to merge a development branch into the premaster branch.
 '''
 def pull_push(image, source_registry, dest_registry):
     with_registry = '%s/%s' % (source_registry, image)
@@ -85,7 +85,7 @@ def do_lab(lab_dir, lab, role, source_reg, dest_reg, logger, no_copy):
         else:
             pull_push(image, source_reg, dest_reg)
 
-def doBases(source_registry, dest_registry):
+def doBases(source_registry, dest_registry, no_copy):
     base_names = ['base', 'network', 'firefox', 'wireshark', 'java', 'centos', 'centos.xtra', 'lamp', 'lamp.xtra', 'kali', 'metasploitable']
     print('Comparing base images in %s to  %s, and replacing content of %s if different' % (dest_registry, source_registry, dest_registry))
     for base in base_names:
@@ -96,49 +96,61 @@ def doBases(source_registry, dest_registry):
         dest_created, local_user = LocalBase.inspectLocal(full, lgr, dest_registry)
         if source_created != dest_created:
             print('Difference in %s,  source: %s  destination: %s' % (full, source_created, dest_created))
-            if not args.no_copy:
+            if not no_copy:
                 pull_push(full, source_registry, dest_registry)
 
-parser = argparse.ArgumentParser(description='Compare a source registry with a destination registry, and update the destination so they match')
-parser.add_argument('-n', '--no_copy', action='store_true', default=False, help='Do not modify registry, just report differences')
-parser.add_argument('-l', '--lab', action='store', help='only check this lab')
-args = parser.parse_args()
 
-config_file = '../config/labtainer.config'
-labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(config_file, None)
-lgr = LabtainerLogging.LabtainerLogging("refresh_branch.log", 'none', config_file)
-
-''' source is always the mirror '''
-source_registry = labtainer_config.test_registry
-branch, dest_registry = registry.getBranchRegistry()
-if dest_registry is None:
-    print('No registry found for branch %s' % branch)
-    exit(1)
-
-labdir = '../labs'
-if args.lab is not None:
-    do_lab(labdir, args.lab, 'student', source_registry, dest_registry, lgr, args.no_copy)
-else:
-    grader = 'labtainer.grader'
-    pull_push(grader, source_registry, dest_registry)
+def updateRegistry(source_registry, dest_registry, lgr, lab, no_copy):
     
-    doBases(source_registry, dest_registry)
-    skip = []
-    with open('skip-labs') as fh:
-       for line in fh:
-           f = os.path.basename(line).strip()
-           print('will skip [%s]' % f)
-           skip.append(f)
+    labdir = os.path.join(os.getenv('LABTAINER_DIR'), 'labs')
+    if lab is not None:
+        do_lab(labdir, lab, 'student', source_registry, dest_registry, lgr, no_copy)
+    else:
+        grader = 'labtainer.grader'
+        pull_push(grader, source_registry, dest_registry)
+        
+        doBases(source_registry, dest_registry, no_copy)
+        skip = []
+        with open('skip-labs') as fh:
+           for line in fh:
+               f = os.path.basename(line).strip()
+               print('will skip [%s]' % f)
+               skip.append(f)
+    
+        mycwd = os.getcwd()
+        os.chdir(labdir)
+        cmd = 'git ls-files ./ | cut -d/ -f1 | uniq'
+        child = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+        output = child.communicate()
+        lab_list = output[0].decode('utf-8').strip().splitlines(True)
+        os.chdir(mycwd)
+        for lab in sorted(lab_list):
+            lab = lab.strip()
+            if lab not in skip:
+                do_lab(labdir, lab, 'student', source_registry, dest_registry, lgr, no_copy)
 
-    mycwd = os.getcwd()
-    os.chdir(labdir)
-    cmd = 'git ls-files ./ | cut -d/ -f1 | uniq'
-    child = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    output = child.communicate()
-    lab_list = output[0].decode('utf-8').strip().splitlines(True)
-    os.chdir(mycwd)
-    for lab in sorted(lab_list):
-        lab = lab.strip()
-        if lab not in skip:
-            do_lab(labdir, lab, 'student', source_registry, dest_registry, lgr, args.no_copy)
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Compare a source registry with a destination registry, and update the destination so they match')
+    parser.add_argument('-n', '--no_copy', action='store_true', default=False, help='Do not modify registry, just report differences')
+    parser.add_argument('-l', '--lab', action='store', help='only check this lab')
+    parser.add_argument('-r', '--refresh', action='store_true', default=False,  help='Force the current branch to match the premaster; otherwise the premaster is updated to match the current branch registry')
+    args = parser.parse_args()
+
+    config_file = os.path.join(os.getenv('LABTAINER_DIR'), 'config', 'labtainer.config')
+    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(config_file, None)
+    lgr = LabtainerLogging.LabtainerLogging("refresh_branch.log", 'none', config_file)
+   
+    if args.refresh: 
+        ''' source is the premaster mirror '''
+        source_registry = labtainer_config.test_registry
+        branch, dest_registry = registry.getBranchRegistry()
+    else:
+        ''' marge branch registry into the premaster '''
+        dest_registry = labtainer_config.test_registry
+        branch, source_registry = registry.getBranchRegistry()
+
+    if dest_registry is None:
+        print('No registry found for branch %s' % branch)
+        exit(1)
+    updateRegistry(source_registry, dest_registry, lgr, args.lab, args.no_copy)
 
