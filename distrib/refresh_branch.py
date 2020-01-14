@@ -59,7 +59,7 @@ def pull_push(image, source_registry, dest_registry):
 def do_lab(lab_dir, lab, role, source_reg, dest_reg, logger, no_copy):
     ''' use dockerfiles to determine the set of containers '''
     print('Lab: %s' % lab)
-    docker_dir = os.path.join(labdir, lab, 'dockerfiles')
+    docker_dir = os.path.join(lab_dir, lab, 'dockerfiles')
     if not os.path.isdir(docker_dir):
         return
     df_list = [f for f in os.listdir(docker_dir) if os.path.isfile(os.path.join(docker_dir, f))]
@@ -77,7 +77,7 @@ def do_lab(lab_dir, lab, role, source_reg, dest_reg, logger, no_copy):
 
         if dest_created is not None:
             with_reg = '%s/%s' % (source_reg, image)
-            source_created, source_user, dest_version, tag, base  = InspectLocalReg.inspectLocal(image, logger, source_reg, no_pull=True)
+            source_created, source_user, source_version, tag, base  = InspectLocalReg.inspectLocal(image, logger, source_reg, no_pull=True)
             if source_created != dest_created:
                 print('DIFFERENT: %s:%s source created/version %s/%s  destination: %s/%s' % (lab, container, source_created, 
                       source_version, dest_created, dest_version))
