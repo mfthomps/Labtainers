@@ -95,9 +95,5 @@ tar xf labtainer/labtainer-developer.tar
 grep "^Distribution created:" labtainer/trunk/README.md | awk '{print "Updated to release of: ", $3, $4}'
 
 if [ ! -L $HOME/Desktop/labdesigner.pdf ]; then
-    read -p "Add desktop shortcut to Lab Designer Guide?(y/n) " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
        ln -s "$(pwd)"/labtainer/trunk/docs/labdesigner/labdesigner.pdf $HOME/Desktop/labdesigner.pdf
-    fi
 fi
