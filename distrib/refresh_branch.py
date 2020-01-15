@@ -56,9 +56,27 @@ def pull_push(image, source_registry, dest_registry):
     print(cmd)
     os.system(cmd)
 
-def do_lab(lab_dir, lab, role, source_reg, dest_reg, logger, no_copy):
+def checkDates(image, source_reg, dest_reg, no_copy, lab, logger):
+        dest_created, dest_user, dest_version, tag, base  = InspectLocalReg.inspectLocal(image, logger, dest_reg, no_pull=True)
+
+        if dest_created is not None:
+            with_reg = '%s/%s' % (source_reg, image)
+            source_created, source_user, source_version, tag, base  = InspectLocalReg.inspectLocal(image, logger, source_reg, no_pull=True)
+            if source_created != dest_created:
+                print('DIFFERENT: %s:%s source created/version %s/%s  destination: %s/%s' % (lab, image, source_created, 
+                      source_version, dest_created, dest_version))
+                logger.debug('DIFFERENT: %s:%s source created/version %s/%s  destination: %s/%s' % (lab, image, source_created, 
+                      source_version, dest_created, dest_version))
+                if not no_copy:
+                    pull_push(image, source_reg, dest_reg)
+        else:
+            print('%s not in %s, would add it' % (image, dest_reg))
+            if not no_copy:
+                pull_push(image, source_reg, dest_reg)
+
+def doLab(lab_dir, lab, role, source_reg, dest_reg, logger, no_copy):
     ''' use dockerfiles to determine the set of containers '''
-    print('Lab: %s' % lab)
+    print('Lab: %s No_copy %r' % (lab, no_copy))
     docker_dir = os.path.join(lab_dir, lab, 'dockerfiles')
     if not os.path.isdir(docker_dir):
         return
@@ -73,20 +91,10 @@ def do_lab(lab_dir, lab, role, source_reg, dest_reg, logger, no_copy):
         except:
             print('could not get image from %s' % df);
             continue
-        dest_created, dest_user, dest_version, tag, base  = InspectLocalReg.inspectLocal(image, logger, dest_reg, no_pull=True)
-
-        if dest_created is not None:
-            with_reg = '%s/%s' % (source_reg, image)
-            source_created, source_user, source_version, tag, base  = InspectLocalReg.inspectLocal(image, logger, source_reg, no_pull=True)
-            if source_created != dest_created:
-                print('DIFFERENT: %s:%s source created/version %s/%s  destination: %s/%s' % (lab, container, source_created, 
-                      source_version, dest_created, dest_version))
-                pull_push(image, source_reg, dest_reg)
-        else:
-            pull_push(image, source_reg, dest_reg)
+        checkDates(image, source_reg, dest_reg, no_copy, lab, logger)
 
 def doBases(source_registry, dest_registry, no_copy):
-    base_names = ['base', 'network', 'firefox', 'wireshark', 'java', 'centos', 'centos.xtra', 'lamp', 'lamp.xtra', 'kali', 'metasploitable']
+    base_names = ['base', 'network', 'firefox', 'wireshark', 'java', 'centos', 'centos.xtra', 'lamp', 'lamp.xtra', 'kali', 'metasploitable', 'wine']
     print('Comparing base images in %s to  %s, and replacing content of %s if different' % (dest_registry, source_registry, dest_registry))
     for base in base_names:
         full = 'labtainer.%s' % (base)
@@ -100,21 +108,27 @@ def doBases(source_registry, dest_registry, no_copy):
                 pull_push(full, source_registry, dest_registry)
 
 
-def updateRegistry(source_registry, dest_registry, lgr, lab, no_copy):
+def updateRegistry(source_registry, dest_registry, lgr, lab, no_copy, quiet=False):
     
     labdir = os.path.join(os.getenv('LABTAINER_DIR'), 'labs')
     if lab is not None:
-        do_lab(labdir, lab, 'student', source_registry, dest_registry, lgr, no_copy)
+        doLab(labdir, lab, 'student', source_registry, dest_registry, lgr, no_copy)
     else:
+        if not quiet:
+            msg = 'Will modify registry %s to match %s.  Continue? (y/n)' % (dest_registry, source_registry)
+            response = input(msg)
+            if response.lower() != 'y':
+                print('Exiting')
+                exit(0)
         grader = 'labtainer.grader'
-        pull_push(grader, source_registry, dest_registry)
+        checkDates(grader, source_registry, dest_registry, no_copy, 'grader', lgr)
         
         doBases(source_registry, dest_registry, no_copy)
         skip = []
         with open('skip-labs') as fh:
            for line in fh:
                f = os.path.basename(line).strip()
-               print('will skip [%s]' % f)
+               #print('will skip [%s]' % f)
                skip.append(f)
     
         mycwd = os.getcwd()
@@ -127,13 +141,14 @@ def updateRegistry(source_registry, dest_registry, lgr, lab, no_copy):
         for lab in sorted(lab_list):
             lab = lab.strip()
             if lab not in skip:
-                do_lab(labdir, lab, 'student', source_registry, dest_registry, lgr, no_copy)
+                doLab(labdir, lab, 'student', source_registry, dest_registry, lgr, no_copy)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Compare a source registry with a destination registry, and update the destination so they match')
     parser.add_argument('-n', '--no_copy', action='store_true', default=False, help='Do not modify registry, just report differences')
     parser.add_argument('-l', '--lab', action='store', help='only check this lab')
     parser.add_argument('-r', '--refresh', action='store_true', default=False,  help='Force the current branch to match the premaster; otherwise the premaster is updated to match the current branch registry')
+    parser.add_argument('-q', '--quiet', action='store_true', default=False,  help='Do not prompt for confirmation.')
     args = parser.parse_args()
 
     config_file = os.path.join(os.getenv('LABTAINER_DIR'), 'config', 'labtainer.config')
@@ -152,5 +167,5 @@ if __name__ == '__main__':
     if dest_registry is None:
         print('No registry found for branch %s' % branch)
         exit(1)
-    updateRegistry(source_registry, dest_registry, lgr, args.lab, args.no_copy)
+    updateRegistry(source_registry, dest_registry, lgr, args.lab, args.no_copy, args.quiet)
 

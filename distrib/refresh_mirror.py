@@ -31,6 +31,7 @@ POSSIBILITY OF SUCH DAMAGE.
 import sys
 import os
 import argparse
+import subprocess
 sys.path.append('../scripts/labtainer-student/bin')
 import RemoteBase
 import LocalBase
@@ -128,7 +129,7 @@ def updateLab(labdir, lab, role, remote_reg, local_reg, logger, no_copy):
    
 def doUpdateOrRefresh(local_registry, remote_registry, args, lgr): 
     ''' either push local images to remote registry (an update, which is the default), or pull remote images into local registry (refresh). '''
-    if not args.quiet:
+    if not args.quiet and not args.no_copy:
         if not args.refresh:
             msg = 'The will push images from the %s registry to the %s registry. Continue? (y/n)' % (local_registry, remote_registry)
         else:
@@ -138,7 +139,7 @@ def doUpdateOrRefresh(local_registry, remote_registry, args, lgr):
             print('aborting')
             exit(1)
 
-    if not args.refresh:
+    if not args.refresh and not args.no_copy:
         os.system('docker login -u %s' % remote_registry)
 
     ldir = os.getenv('LABTAINER_DIR')
@@ -152,11 +153,12 @@ def doUpdateOrRefresh(local_registry, remote_registry, args, lgr):
         else:
             refreshLab(labdir, args.lab, 'student', remote_registry, local_registry, lgr, args.no_copy)
     else:
-        grader = 'labtainer.grader'
-        if not args.refresh:
-            pull_push(grader, local_registry, remote_registry)
-        else:
-            pull_push(grader, remote_registry, local_registry)
+        if not args.no_copy:
+            grader = 'labtainer.grader'
+            if not args.refresh:
+                pull_push(grader, local_registry, remote_registry)
+            else:
+                pull_push(grader, remote_registry, local_registry)
         skip = []
         with open('skip-labs') as fh:
            for line in fh:
@@ -165,7 +167,14 @@ def doUpdateOrRefresh(local_registry, remote_registry, args, lgr):
                skip.append(f)
     
         #lab_list = os.listdir(labdir)
-        lab_list = [x[0] for x in os.walk(labdir)]
+        mycwd = os.getcwd()
+        os.chdir(labdir)
+        cmd = 'git ls-files ./ | cut -d/ -f1 | uniq'
+        child = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+        output = child.communicate()
+        lab_list = output[0].decode('utf-8').strip().splitlines(True)
+        os.chdir(mycwd)
+        #lab_list = [x[0] for x in os.walk(labdir)]
         for lab in sorted(lab_list):
             if lab not in skip:
                 if not args.refresh:
@@ -173,7 +182,7 @@ def doUpdateOrRefresh(local_registry, remote_registry, args, lgr):
                 else:
                     refreshLab(labdir, lab, 'student', remote_registry, local_registry, lgr, args.no_copy)
     
-        base_names = ['base', 'network', 'firefox', 'wireshark', 'java', 'centos', 'centos.xtra', 'lamp', 'lamp.xtra', 'kali', 'metasploitable']
+        base_names = ['base', 'network', 'firefox', 'wireshark', 'java', 'centos', 'centos.xtra', 'lamp', 'lamp.xtra', 'kali', 'metasploitable', 'wine']
         print('Comparing base images in %s to  %s, and replacing content of %s if different' % (local_registry, remote_registry, local_registry))
         for base in base_names:
             full = 'labtainer.%s' % (base)
