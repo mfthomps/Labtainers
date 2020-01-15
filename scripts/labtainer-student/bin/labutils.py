@@ -1874,6 +1874,7 @@ def FileModLater(ts, fname, big_list=[]):
             elif os.path.isfile(f):
                 df_time = os.path.getmtime(f)
                 df_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
+                #logger.debug('df_time %s   string %s' % (df_time, df_utc_string))
                 retval = DateIsLater(df_utc_string, ts)
                 if retval:
                     break
@@ -1884,7 +1885,7 @@ def FileModLater(ts, fname, big_list=[]):
         if os.path.isdir(fname) or line.startswith('M') or line.startswith('>'):
             if '/home_tar/' in line or '/sys_tar/' in line:
                 continue
-            logger.debug('svn status found something for fname %s, line %s' % (fname, line))
+            #logger.debug('svn status found something for fname %s, line %s' % (fname, line))
             if line.startswith('M'):
                 file_path = line.split()[-1]
                 df_time = os.path.getmtime(file_path)
@@ -1943,17 +1944,17 @@ def FileModLater(ts, fname, big_list=[]):
             output = child.communicate()
             if len(output[0].decode('utf-8').strip()) > 0:
                 df_utc_string = output[0].decode('utf-8').strip()
-                #logger.debug('git log for %s returned %s' % (cmd, df_utc_string))
                 svn_is_later = DateIsLater(df_utc_string, ts, local=True, debug=False)
+                #logger.debug('git log returned %s  is later? %r' % (df_utc_string, svn_is_later))
                 df_time = os.path.getmtime(fname)
                 file_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
-                #logger.debug('file time %s' % file_utc_string)
                 file_is_later = DateIsLater(file_utc_string, ts, local=False, debug=False)
+                #logger.debug('file time %s  is later? %r' % (file_utc_string, file_is_later))
                 retval = svn_is_later and file_is_later
 
             if df_utc_string is None:
                 # must be an add
-                logger.debug('%s must be an add' % fname)
+                #logger.debug('%s must be an add' % fname)
                 if os.path.isfile(fname):
                     df_time = os.path.getmtime(fname)
                 else:
@@ -2079,7 +2080,7 @@ def CheckBuild(lab_path, image_name, image_info, container_name, name, is_redo, 
         logger.warning('Base image %s changed, will build %s' % (bname, name))
         retval = True
     elif FileModLater(ts, df):
-        logger.warning('dockerfile changed, will build %s' % name)
+        logger.warning('dockerfile %s changed, will build %s' % (df, name))
         retval = True
     else:
         ''' look for new/deleted files in the container '''
