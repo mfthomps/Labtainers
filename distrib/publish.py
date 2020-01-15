@@ -42,7 +42,7 @@ import removelab
 '''
 Build and publish labtainer images.  Use -h option for help.
 '''
-def relabel(image, version, base_image, base_id, registry):
+def relabel(image, version, base_image, base_id, registry, logger):
     with open('./dfile', 'w') as fh:
         fh.write('FROM %s\n' % image)
         fh.write('ARG version\n')
@@ -51,12 +51,16 @@ def relabel(image, version, base_image, base_id, registry):
 
     cmd = 'docker build -f dfile -t %s.tmp .' % image
     os.system(cmd)
-    #cmd = 'docker tag %s.tmp %s/%s' % (image, registry, image)
+    '''
+    Do two pushes, one for the default image, the other with a base image tag for
+    retrieval by instances that do not have the appropriate base.
+    '''
+    cmd = 'docker tag %s.tmp %s/%s' % (image, registry, image)
     #print cmd
-    #os.system(cmd)
-    #cmd = 'docker push %s/%s' % (registry, image)
+    os.system(cmd)
+    cmd = 'docker push %s/%s' % (registry, image)
     #print cmd
-    #os.system(cmd)
+    os.system(cmd)
     cmd = 'docker tag %s.tmp %s/%s:base_image%s' % (image, registry, image, base_id)
     #print cmd
     os.system(cmd)
@@ -80,6 +84,7 @@ def pushIt(lab, docker_dir, registry, logger):
     Set the label and tags on any newly built image and push it to the given registry.
     '''
     df_list = [f for f in os.listdir(docker_dir) if os.path.isfile(os.path.join(docker_dir, f))]
+    did_one = False
     for df in df_list:
         if df.endswith('.swp'):
             continue
@@ -96,13 +101,15 @@ def pushIt(lab, docker_dir, registry, logger):
             image_base = VersionInfo.getFrom(dfile_path, registry)
             base_id = VersionInfo.getImageId(image_base, True)
             framework_version = labutils.framework_version
-            relabel(image, framework_version, image_base, base_id, registry)
-
+            relabel(image, framework_version, image_base, base_id, registry, logger)
+            logger.debug('Did relabel of %s' % image)
+            did_one = True
         else: 
             logger.debug('Have not built %s, nothing to push' % image)
-    ''' Delete the lab images. Two reasons: 1) ensure we run authoritative copy,
-    which is from the dockerhub.  2) don't push on a rebuild if not rebuilt. '''
-    removelab.removeLab(lab)
+    ''' Delete the lab images. Two reasons: 1) ensure we run registry or dockerHub copy,
+    2) don't push on a rebuild if not rebuilt. '''
+    if did_one:
+        removelab.removeLab(lab)
 
 def DoLab(lab, labsdir, force, logger, do_login, use_default_registry, default_registry, no_build=False):
     logger.debug('DoLab for %s' % lab)
