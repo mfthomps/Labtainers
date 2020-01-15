@@ -30,26 +30,34 @@ POSSIBILITY OF SUCH DAMAGE.
 END
 usage(){
     echo "publish_image.sh image [-t]"
-    echo "use -t to push to the testregistry:5000 registry for testing"
+    echo "Consider using mkbases.py instead of this"
     exit
 }
 
 if [ $# -eq 0 ]; then
    usage
 fi
-if [[ $# -eq 1 ]]; then
-    export LABTAINER_REGISTRY="mfthomps"
+source ./set_reg.sh
+if [[ $LABTAINER_REGISTRY == "" ]]; then
+   echo "No registry found"
+   exit 1
+fi
+echo "This will push the labtainer.$1 image.  "
+echo "to registry $LABTAINER_REGISTRY"
+read -p "Continue? (y/n)"
+if [[ ! $REPLY =~ ^[Yy]$ ]]
+then
+    echo exiting
+    exit
+fi
+if [[ $LABTAINER_REGISTRY == "mfthomps" ]]; then
     if [ -z "$DOCKER_LOGIN" ]; then
         docker login
         DOCKER_LOGIN=YES
     fi
-elif [[ "$2" == -t ]]; then
-    export LABTAINER_REGISTRY="testregistry:5000"
-else
-   usage
 fi
 echo "Using registry $LABTAINER_REGISTRY"
-image=$1
+image=labtainer.$1
 docker tag $image $LABTAINER_REGISTRY/$image
 docker push $LABTAINER_REGISTRY/$image
 

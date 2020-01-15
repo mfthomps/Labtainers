@@ -49,4 +49,6 @@ fi
 here=`pwd`
 cd ../
 docker build --build-arg registry=$LABTAINER_REGISTRY -f base_dockerfiles/Dockerfile.labtainer.$1 -t labtainer.$1:latest .
+result=$?
 cd $here
+exit $result
