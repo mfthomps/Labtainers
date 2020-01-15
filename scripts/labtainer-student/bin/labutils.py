@@ -1043,6 +1043,20 @@ def dockerPull(registry, image_name):
     print('Done with pull')
     return True
 
+
+def removeStrays(container_dir, name):
+    ''' remove any stray gz files from previous builds '''
+    gmask = '/*.%s.student.tar.gz' % name
+    gz_list = glob.glob(container_dir+gmask)
+    for gz in gz_list:
+        logger.debug('Stray gz %s will be deleted' % gz)
+        os.remove(gz)
+    gmask = '/Dockerfile.%s.*' % name
+    df_list = glob.glob(container_dir+gmask)
+    for df in df_list:
+        logger.debug('Stray docker file %s will be deleted' % df)
+        os.remove(df)
+
 def DoRebuildLab(lab_path, force_build=False, just_container=None, 
                  start_config=None, labtainer_config=None, run_container=None, servers=None, 
                  clone_count=None, no_pull=False, no_build=False):
@@ -1104,6 +1118,7 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
             os.mkdir(os.path.join(container_dir, 'sys_tar'))
         except:
             pass
+        removeStrays(container_dir, name)
         ''' make sure big files have been copied before checking tars '''
         BigFiles.BigFiles(lab_path)
         BigExternal.BigExternal(lab_path)
@@ -1821,8 +1836,18 @@ def DateIsLater(df_utc_string, ts, local=False, debug=False):
     if debug:
         logger.debug('df_utc time is %s' % df_utc_string)
         logger.debug('df_utc ts is %s given ts is %s' % (df_ts, ts))
-    if int(df_ts) > int(ts):
-        return True
+    df_ts = int(df_ts)
+    ts = int(ts)
+
+    if df_ts > ts:
+        ''' if over a year old, and less than a week, assume build prior to commit '''
+        now = int(time.time())
+        since = (now - ts)
+        if ((df_ts - ts) < 60000) and (now - ts) > (86400*365):
+            logger.debug('Less than a week and older than a year (%d), assume no change' % since)
+            return False
+        else:
+            return True
     else:
         return False
 
@@ -1900,7 +1925,7 @@ def FileModLater(ts, fname, big_list=[]):
                     df_time = os.path.getmtime(file_dir)
             else:
                 file_path = '/'+line.split('/', 1)[-1].strip()
-                #logger.debug('not an "M", get dftime for %s' % file_path)
+                #logger.debug('not an "M" or D, get dftime for %s' % file_path)
                 if not os.path.exists(file_path):
                     continue
                 df_time = os.path.getmtime(file_path)
@@ -1944,11 +1969,11 @@ def FileModLater(ts, fname, big_list=[]):
             output = child.communicate()
             if len(output[0].decode('utf-8').strip()) > 0:
                 df_utc_string = output[0].decode('utf-8').strip()
-                svn_is_later = DateIsLater(df_utc_string, ts, local=True, debug=False)
+                svn_is_later = DateIsLater(df_utc_string, ts, local=True, debug=True)
                 #logger.debug('git log returned %s  is later? %r' % (df_utc_string, svn_is_later))
                 df_time = os.path.getmtime(fname)
                 file_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
-                file_is_later = DateIsLater(file_utc_string, ts, local=False, debug=False)
+                file_is_later = DateIsLater(file_utc_string, ts, local=False, debug=True)
                 #logger.debug('file time %s  is later? %r' % (file_utc_string, file_is_later))
                 retval = svn_is_later and file_is_later
 
