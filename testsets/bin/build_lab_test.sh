@@ -30,7 +30,7 @@ cd ..
 cd ../../scripts/labtainer-student
 
 echo "--Rebuild Single Base--"
-rebuild.py wiggysinglebase
+rebuild wiggysinglebase
 stoplab
 echo "--Smoketest Single Base--"
 #SimLab.py wiggysinglebase
