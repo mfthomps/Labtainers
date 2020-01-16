@@ -32,37 +32,46 @@ import subprocess
 import os
 import ParseLabtainerConfig
 import argparse
+def regFromBranch(branch, registry_file):
+    if os.path.isfile(registry_file):
+        with open(registry_file) as fh:
+            for line in fh:
+                parts = line.split()
+                if parts[0] == branch:
+                    registry = 'testregistry:%s' % parts[1]
+                    break
+    else:
+        print('No config/registry.config file %s' % registry_file)
+        exit(1)
+    return registry
+
 def getBranchRegistry():
     if 'LABTAINER_DIR' in os.environ:
         registry_file = os.path.join(os.environ['LABTAINER_DIR'], 'config', 'registry.config')
     else:
         print('LABTAINER_DIR not defined, unable to find registry.config')
         exit(1)
-    cmd = 'git rev-parse --abbrev-ref HEAD'
-    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    output = ps.communicate()
-    branch = None
-    registry = None
-    if len(output[1].strip()) > 0:
-        ''' No git, assume use of test-registry '''
-        labtainer_config_file = os.path.join(os.environ['LABTAINER_DIR'], 'config', 'labtainer.config')
-        labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_file, None)
-        registry = labtainer_config.test_registry
-    elif len(output[0].strip()) > 0:
-        branch = output[0].decode('utf-8').strip()
-        if os.path.isfile(registry_file):
-            with open(registry_file) as fh:
-                for line in fh:
-                    parts = line.split()
-                    if parts[0] == branch:
-                        registry = 'testregistry:%s' % parts[1]
-                        break
-        else:
-            print('No config/registry.config file %s' % registry_file)
-            exit(1)
+    
+    branch = os.getenv('LABTAINER_BRANCH')
+    if branch is not None:
+        ''' Must be in git archive (not a repo), or in a smoketest environment, '''
+        registry = regFromBranch(branch, registry_file)
     else:
-        print('No branch found')
-        exit(1)
+        cmd = 'git rev-parse --abbrev-ref HEAD'
+        ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        output = ps.communicate()
+        registry = None
+        if len(output[1].strip()) > 0:
+            ''' No git, assume use of test-registry '''
+            labtainer_config_file = os.path.join(os.environ['LABTAINER_DIR'], 'config', 'labtainer.config')
+            labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_file, None)
+            registry = labtainer_config.test_registry
+        elif len(output[0].strip()) > 0:
+            branch = output[0].decode('utf-8').strip()
+            registry = regFromBranch(branch, registry_file)
+        else:
+            print('No branch found')
+            exit(1)
 
     return branch, registry
 
