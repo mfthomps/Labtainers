@@ -30,13 +30,11 @@ git clone --single-branch --branch $branch $LABTAINER_DIR $ltrunk
 #
 export LABTAINER_DIR=$ltrunk
 #
-# Archive from git is not a repo, thus git commands will not work to get branch.  
-# So set in the env
 #
-export LABTAINER_BRANCH=$branch
 cd $LABTAINER_DIR/distrib
 # force current branch regsitry to match premaster
 if [[ $branch != 'premaster' ]]; then
+    echo "Refresh the branch registry"
     ./refresh_branch.py -q
     result=$?
     if [[ $result != 0 ]]; then
@@ -45,15 +43,15 @@ if [[ $branch != 'premaster' ]]; then
     fi
 fi
 cd $LABTAINER_DIR/scripts/designer/bin
-echo "running from $LABTAINER_DIR"
+echo "running mkbases from $LABTAINER_DIR"
 ./mkbases.py 
-exit
 result=$?
 if [[ $result != 0 ]]; then
     echo "mkbases failed"
     exit 1
 fi
 cd $LABTAINER_DIR/distrib
+echo "Now rebuild lab images as needed and publish to branch registry"
 ./publish.py -q
 result=$?
 if [[ $result != 0 ]]; then
