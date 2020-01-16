@@ -27,7 +27,8 @@ branch=$(git rev-parse --abbrev-ref HEAD)
 #
 export LABTAINER_BRANCH=$branch
 cd $LABTAINER_DIR/distrib
-./refresh_branch.py -r -q
+# force current branch regsitry to match premaster
+./refresh_branch.py -q
 result=$?
 if [[ $result != 0 ]]; then
     echo "refresh_branch failed"
