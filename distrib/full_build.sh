@@ -46,7 +46,7 @@ if [[ $branch != 'premaster' ]]; then
 fi
 cd $LABTAINER_DIR/scripts/designer/bin
 echo "running from $LABTAINER_DIR"
-./mkbases.py -n
+./mkbases.py 
 exit
 result=$?
 if [[ $result != 0 ]]; then
