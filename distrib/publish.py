@@ -162,7 +162,7 @@ def main():
 
     src_path = '../'
     labtainer_config_file = os.path.join(src_path, 'config', 'labtainer.config')
-    logger = LabtainerLogging.LabtainerLogging("labtainer-publish.log", 'publish', labtainer_config_file)
+    logger = LabtainerLogging.LabtainerLogging("/tmp/labtainer-publish.log", 'publish', labtainer_config_file)
     labutils.logger = logger
 
     
