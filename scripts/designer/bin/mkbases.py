@@ -50,6 +50,7 @@ if __name__ == '__main__':
     
     exempt_file = 'exempt.txt'
     exempt_list = []
+    logger.debug('mkbases branch %s, registry %s' % (branch, registry))
     with open(exempt_file) as fh:
         for line in fh:
             exempt_list.append(line.strip()) 
@@ -73,7 +74,7 @@ if __name__ == '__main__':
                 continue
             x=parse(image_info.creation)
             ts = calendar.timegm(x.timetuple())
-            #print('image ts %s  %s' % (ts, image_info.creation))
+            logger.debug('image %s ts %s  %s' % (image_name, ts, image_info.creation))
             if labutils.FileModLater(ts, full):
                 print('WOUlD REBUILD %s' % image_name)
                 logger.debug('WOUlD REBUILD %s' % image_name)
