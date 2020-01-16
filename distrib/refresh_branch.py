@@ -40,9 +40,9 @@ import ParseLabtainerConfig
 import registry
 
 '''
-Either force the registry associated with the current git branch (see config/registry.config)
-to match the premaster registry, or visa versa.  Intended to be called from scripts, e.g., to establish
-a new branch, or to merge a development branch into the premaster branch.
+Force the registry associated with the current git branch (see config/registry.config)
+to match the premaster registry.  Intended to be called from scripts, e.g., to establish
+a new branch.
 '''
 def pull_push(image, source_registry, dest_registry):
     with_registry = '%s/%s' % (source_registry, image)
@@ -147,7 +147,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Compare a source registry with a destination registry, and update the destination so they match')
     parser.add_argument('-n', '--no_copy', action='store_true', default=False, help='Do not modify registry, just report differences')
     parser.add_argument('-l', '--lab', action='store', help='only check this lab')
-    parser.add_argument('-r', '--refresh', action='store_true', default=False,  help='Force the current branch to match the premaster; otherwise the premaster is updated to match the current branch registry')
     parser.add_argument('-q', '--quiet', action='store_true', default=False,  help='Do not prompt for confirmation.')
     args = parser.parse_args()
 
@@ -155,14 +154,9 @@ if __name__ == '__main__':
     labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(config_file, None)
     lgr = LabtainerLogging.LabtainerLogging("refresh_branch.log", 'none', config_file)
    
-    if args.refresh: 
-        ''' source is the premaster mirror '''
-        source_registry = labtainer_config.test_registry
-        branch, dest_registry = registry.getBranchRegistry()
-    else:
-        ''' marge branch registry into the premaster '''
-        dest_registry = labtainer_config.test_registry
-        branch, source_registry = registry.getBranchRegistry()
+    ''' source is the premaster mirror '''
+    source_registry = labtainer_config.test_registry
+    branch, dest_registry = registry.getBranchRegistry()
 
     if dest_registry is None:
         print('No registry found for branch %s' % branch)
