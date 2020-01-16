@@ -37,6 +37,9 @@ The Labtainer framework is developed within and for Linux environments using the
 
 \section{Installation}
 \subsection{Developer Software Prerequisites}
+Labtainers is primarily implemented using python3.  The containers within a lab include python2 scripts that are
+part of the framework, e.g., functions that collect student artifacts.  The following packages are required on a
+Linux distribution to support Labtainer framework development.
 \begin {itemize}
 \item {\bf git}
 \item {\bf make}
@@ -46,10 +49,15 @@ The Labtainer framework is developed within and for Linux environments using the
 \item {\bf pip3} {\tt apt-get install python3-pip}
 \item {\bf dateutil} {\tt pip3 install py-dateutil}
 \item {\bf xdotool} 
+\item {\bf VirtualBox} 
 \end {itemize}
+
+The VirtualBox product is used to to run Labtainer VMs for testing.  Currently, tests are performed on 
+Ubuntu16 and Ubuntu18 VMs, the former tests backwards compatability of the frameworks python3 support.
+
 \subsection{Getting Labtainers from Github}
 
-In a Linux terminal, change working directory into the directory you want to store Labtainers.
+In a Linux terminal, change the working directory into the directory you want to store Labtainers.
 \begin{flushleft} Run this in the terminal: \end{flushleft}
 \begin{center} {\tt git clone https://github.com/mfthomps/Labtainers.git} \end{center} 
 
@@ -58,7 +66,7 @@ In a Linux terminal, change working directory into the directory you want to sto
 \item Disable any auto-updates on your machine as this may interfere with 'apt-get' requests you may have during development.
 \item Modify your ~/.bashrc file.
     \begin{enumerate}
-    \item Add {\bf Labtainer\_DIR} as another global variable and set its value as the path to the {\tt  /Labtainers} directory. 
+    \item Add {\bf LABTAINER\_DIR} as an environment variable and set its value as the path to the {\tt  /Labtainers} directory. 
     \item Modify the \$PATH to include {\tt ./bin} and {\tt \$LABTAINER\_DIR/scripts/designer/bin}.
     \item In summary, your ~/.bashrc should include something like this:
 	    \lstset{basicstyle=\footnotesize\ttfamily,
@@ -80,7 +88,7 @@ fi
     		\item Run pull-all.py to get all base docker images.
     		\item Run build-docs.sh to build the lab manuals for all labs.
 	    \end{itemize}
-    \item cd into \$LABTAINER\_DIR/tool-src/capinout and run mkit.sh
+    \item cd into \$LABTAINER\_DIR/tool-src/capinout and run {\tt ./mkit.sh}
     \end{enumerate}
 \end {itemize}
 
@@ -106,20 +114,20 @@ top level scripts are organized as follows:
 
 \begin{itemize}
 	\item {\bf Student} \begin{itemize}
-\item Student {\tt labtainers} (start) and {\tt stoplab} -- In the labtainers-student/bin directory, these run on the 
+\item {\tt labtainer} (start) and {\tt stoplab} -- In the labtainers-student/bin directory, these run on the 
 Linux host and manage the pulling, starting and stopping of containers.  They also coordinate
 collection of student artifacts.
-\item Student container scripts -- In the labtainers-student/{\bf lab\_bin} directory, these execute on
+\item Container scripts -- In the labtainers-student/{\bf lab\_bin} directory, these execute on
 containers, e.g., to hook bash and parameterize containers.
 	\end{itemize}
 
 	\item {\bf Instructor} \begin{itemize}
-\item Instructor {\tt gradelab} and {\tt stopgrader}-- Push student artifacts onto grader container and get assessment results.
-\item Instructor container scripts -- perform grading functions.
+\item {\tt gradelab} and {\tt stopgrader}-- Push student artifacts onto grader container and get assessment results.
+\item Container scripts -- perform grading functions.
 	\end{itemize}
 
 	\item {\bf Developer} \begin{itemize}
-\item Developer building -- rebuild.py in labtainers-student/bin and labtainers-instructor/bin.
+\item Building -- rebuild in labtainers-student/bin 
 \item Publishing labs -- labtainers/distrib/publish.py
 \item Base Labtainer images -- scripts/designer/bin, create and publish the base images.
 	\end{itemize}	
@@ -169,9 +177,7 @@ From that shared folder, the two tar files are copied to the
 \noindent and then "Publish to Live" is 
 performed on the Liferay site.
 
-The distributions are created from a local git repo, i.e., it does not pull from a remote repo.  The scripts first highlight
-changes that have not yet been locally committed.  The user must press q to continue, potentially ignoring local changes.
-Distrubtions are made from the current git branch.
+The distributions are created from a git repos, as described in section \ref{releases}.
 
 \subsection{VM Appliances}
 Two prepackaged VM appliances are maintained: one for VirtualBox, and one for VMWare.  Each include
@@ -218,6 +224,7 @@ An initial install, including the base images, requires about 4GB.  Installing a
 e.g., snort, requires an additional 1GB.  Running bufoverflow added 22M.
 
 \section {Source control and Configuration Management}
+\label{releases}
 This section describes Labtainers source control and mechanisms to support continuous
 integration.  Labtainers is managed using git, Docker registries, and a set of custom scripts that control
 rebuilding and publishing of artifacts.  Artifacts are published to test environments associated with each
@@ -238,6 +245,17 @@ The tar distributions are created using scripts from the {\tt distrib} directory
 a Docker registry using the publish.py script, which includes file dependency logic to only rebuild images when one
 of their sources change.  By default, the publish.py script pushes to a local registry rather than to the DockerHub.  
 Updated images are pushed to the DockerHub as part of publishing a new revision of Labtainers.
+
+\subsubsection{Build steps}
+The following steps must be performed for each build to ensure distributions are based on the latest file versions.
+\begin{enumerate}
+\item Pull the latest git version of the current branch with {\tt git pull}
+\item Refresh branch registry from the premaster (unless building premaster) using {\tt refresh\_branch.py -r}
+\item Rebuild and publish Labtainer base images using {\tt scripts/labdesigner/bin/mkbases.py}
+\item Rebuild and publish labs using {\tt publish.py}
+\item Create distribution tar files with {\tt mkall.sh}
+\item Run smoke test on Ubuntu16 and Ubuntu18 machines using scripts in {\tt testsets/bin}
+\end{enumerate}
 
 \subsubsection{Base images}
 Changes to base docker images referenced by the lab containers will trigger rebuilds.  Base docker images are extended by creating
@@ -310,6 +328,35 @@ It is expected that local repo development branches will be tested prior to push
 results of premaster branch merges are expected to be tested locally before it is pushed to GitHub. A test run
 from a fresh pull from GitHub premaster branch is a prerequisite to publishing a new release.
 
+Local bench testing, e.g., using {\tt rebuild} for a small set of labs, depends on the git workspace and the test registry for the current branch.
+Local branch testing, i.e., use of full\_build.sh, uses the local repo.  It is up to the developer to ensure that is up to date.
+Release testing pulls from the GitHub repo for the desired branch.
+
+
+\subsection{Merging}
+Development branches are merged into the premaster branch as part of creating a new release.
+\begin{itemize}
+\item Be sure that any and all new and changed files are commited in the development branch, and these have been tested.
+\item Update the premaster registry to match the development branch registry: {\tt ./refresh\_branch.py}
+\item {\tt git checkout premaster}
+\item {\tt git merge <dev branch>}
+\item Fix any confilicts
+\item Run smoketest.
+\item Push premaster to GitHub: 
+\begin{verbatim}
+    git push --set-upstream origin premaster
+\end{verbatim}
+\end{itemize}
+
+Revert to premaster in case of merge issues or other failures.
+\begin{itemize}
+\item Replace the premaster registry with current published images per DockerHub:
+\begin{verbatim} 
+    refresh_mirror.sh -r
+\end{verbatim} 
+\item Delete premaster branch
+\item Recreate premaster branch:
+\end{itemize}
 \subsection{Examples}
 Example: Create new branch to include changed lab and perhaps changed framework
 Run new\_branch.py.  This will create a new git branch for the local repo and will allocate a test registry to the
@@ -430,4 +477,7 @@ borks the Terminal Server startup.
 If you get the dreaded "docker.service: Start request repeated too quickly.", then:
 sudo systemctl daemon-reload
 sudo systemctl restart docker
+
+Builds may be "local", meaning they will use any local (untagged) copy of a base image.
+Publishing NEVER draws from a local copy of a base image.
 \end{document}
