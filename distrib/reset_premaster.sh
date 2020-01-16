@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# Revert the premaster branch to match master, and force
+# the premaster registry to match DockerHub images.
+#
 branch=$(git rev-parse --abbrev-ref HEAD)
 git checkout master
 git push -d origin premaster
