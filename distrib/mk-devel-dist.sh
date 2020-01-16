@@ -19,10 +19,12 @@ mkdir $ddir
 mkdir $ldir
 mkdir $ltrunk
 mkdir $labs
-$here/fix-git-dates.py ./ $ltrunk
+branch=$(git rev-parse --abbrev-ref HEAD)
+$here/fix-git-dates.py ./ $ltrunk $branch
 cd $ltrunk
 sed -i "s/mm\/dd\/yyyy/$(date '+%m\/%d\/%Y %H:%M')/" README.md
 sed -i "s/^Revision:/Revision: $revision/" README.md
+sed -i "s/^Branch:/Branch: $branch/" README.md
 cp setup_scripts/install-labtainer.sh .
 cp setup_scripts/update-labtainer.sh .
 cd $ldir/trunk/docs/labdesigner
