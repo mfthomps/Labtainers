@@ -83,17 +83,7 @@ if [ $result -ne 0 ]; then
     exit
 fi
 cd $ldir
-#
-#  NOTE the test_registry is changed if not on master branch
-#
-share_ext=""
-if [[ "$1" != "-t" ]]; then
-  if [[ "$branch" != "master" ]]; then
-    sed -i "s/TEST_REGISTRY.*$/TEST_REGISTRY $registry/" trunk/config/labtainer.config 
-  fi
-fi
 myshare=/media/sf_SEED/
-
 
 mv trunk/setup_scripts/install-labtainer.sh .
 ln -s trunk/setup_scripts/update-labtainer.sh .
