@@ -143,6 +143,7 @@ def main():
     parser.add_argument('-d', '--default_registry', action='store_true', default=False, help='build and publish with default registry -- instead of the typical test registry')
     parser.add_argument('-f', '--force', action='store_true', default=False, help='force rebuild of all images')
     parser.add_argument('-n', '--no_build', action='store_true', default=False, help='Do not rebuild, just report on what would be built')
+    parser.add_argument('-q', '--quiet', action='store_true', default=False, help='Do not prompt user for ok')
     args = parser.parse_args()
     if not args.default_registry:
         if os.getenv('TEST_REGISTRY') is None:
@@ -198,7 +199,8 @@ def main():
         if len(output[0]) > 0:
             for line in output[0].decode('utf-8').splitlines(True):
                 print(line.strip())
-            dumb = input("any key to continue") 
+            if not args.quiet:
+                dumb = input("any key to continue") 
     
         if args.default_registry:
             os.system('docker login -u %s' % default_registry)
