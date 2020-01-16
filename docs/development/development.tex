@@ -251,7 +251,7 @@ The following steps must be performed for each build to ensure distributions are
 These steps are implemented with in the {\tt full\_build.sh} script.
 \begin{enumerate}
 \item Pull the latest git version of the current branch with {\tt git pull}
-\item Refresh branch registry from the premaster (unless building premaster) using {\tt refresh\_branch.py -r}
+\item Refresh branch registry from the premaster (unless building premaster) using {\tt refresh\_branch.py}
 \item Rebuild and publish Labtainer base images using {\tt scripts/labdesigner/bin/mkbases.py}
 \item Rebuild and publish labs using {\tt publish.py}
 \item Create distribution tar files with {\tt mkall.sh}
@@ -288,7 +288,8 @@ inclusion within the master, and allow us to test container images before they a
 
 Container images on DockerHub are
 pushed from a registry containing images build from the premaster branch. The push occurs during the final merge from the
-premaster branch into the master branch during a release step.
+premaster branch into the master branch during a release step.  The images within the premaster registry are updated only through
+a rebuild, i.e., {\tt full\_build.sh}.  Images are not not pushed from development registries directly to the premaster registry.
 
 It is intended that no changes be made directly to the premaster branch, rather, changes are merged into the premaster from
 other development branches.  Once a merge into the premaster commences, no hotfixes affecting build images should occur until
@@ -337,10 +338,11 @@ Release testing pulls from the GitHub repo for the desired branch.
 Development branches are merged into the premaster branch as part of creating a new release.
 \begin{itemize}
 \item Be sure that any and all new and changed files are commited in the development branch, and these have been tested.
-\item Update the premaster registry to match the development branch registry: {\tt ./refresh\_branch.py}
+\item Refresh the premaster registry to ensure it matches the DockerHub images: {\tt ./refresh\_mirror.py -r}
 \item {\tt git checkout premaster}
 \item {\tt git merge <dev branch>}
 \item Fix any confilicts
+\item Rebuild images using the premaster branch source: {\tt ./full\_rebuild.py}
 \item Run smoketest.
 \item Push premaster to GitHub: 
 \begin{verbatim}
