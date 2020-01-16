@@ -35,6 +35,8 @@ def doBase(image_name, registry):
         
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Rebuild all Labtainer base images (if their Dockerfiles are newer than the base image)')
+    parser.add_argument('-n', '--no_build', action='store_true', default=False, help='Do not rebuild, just report on what would be built')
+    args = parser.parse_args()
     labtainer_dir = os.getenv('LABTAINER_DIR')
     labtainer_config_file = os.path.join(labtainer_dir, 'config', 'labtainer.config')
     logger = LabtainerLogging.LabtainerLogging("/tmp/mkbases.log", 'publish', labtainer_config_file)
@@ -66,7 +68,8 @@ if __name__ == '__main__':
             if image_info is None:
                 print('No image info for %s, rebuild' % image_name)
                 logger.debug('No image info for %s  rebuild' % image_name)
-                doBase(image_name, registry)
+                if not args.no_build:
+                    doBase(image_name, registry)
                 continue
             x=parse(image_info.creation)
             ts = calendar.timegm(x.timetuple())
@@ -74,6 +77,7 @@ if __name__ == '__main__':
             if labutils.FileModLater(ts, full):
                 print('WOUlD REBUILD %s' % image_name)
                 logger.debug('WOUlD REBUILD %s' % image_name)
-                doBase(image_name, registry)
+                if not args.no_build:
+                    doBase(image_name, registry)
 
 
