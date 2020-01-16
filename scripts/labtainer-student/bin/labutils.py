@@ -1970,11 +1970,11 @@ def FileModLater(ts, fname, big_list=[]):
             if len(output[0].decode('utf-8').strip()) > 0:
                 df_utc_string = output[0].decode('utf-8').strip()
                 svn_is_later = DateIsLater(df_utc_string, ts, local=True, debug=True)
-                #logger.debug('git log returned %s  is later? %r' % (df_utc_string, svn_is_later))
+                logger.debug('git log returned %s  is later? %r' % (df_utc_string, svn_is_later))
                 df_time = os.path.getmtime(fname)
                 file_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
                 file_is_later = DateIsLater(file_utc_string, ts, local=False, debug=True)
-                #logger.debug('file time %s  is later? %r' % (file_utc_string, file_is_later))
+                logger.debug('file time %s  is later? %r' % (file_utc_string, file_is_later))
                 retval = svn_is_later and file_is_later
 
             if df_utc_string is None:
