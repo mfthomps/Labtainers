@@ -136,7 +136,7 @@ def updateRegistry(source_registry, dest_registry, lgr, lab, no_copy, quiet=Fals
         cmd = 'git ls-files ./ | cut -d/ -f1 | uniq'
         child = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
         output = child.communicate()
-        lab_list = output[0].decode('utf-8').strip().splitlines(True)
+        lab_list = output[0].decode('utf-8').strip().splitlines()
         os.chdir(mycwd)
         for lab in sorted(lab_list):
             lab = lab.strip()

@@ -197,7 +197,7 @@ def main():
         ps.stdout.close()
         output = ps_grep.communicate()
         if len(output[0]) > 0:
-            for line in output[0].decode('utf-8').splitlines(True):
+            for line in output[0].decode('utf-8').splitlines():
                 print(line.strip())
             if not args.quiet:
                 dumb = input("any key to continue") 
@@ -208,7 +208,7 @@ def main():
         cmd = 'git ls-files ./ | cut -d/ -f1 | uniq'
         child = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
         output = child.communicate()
-        lab_list = output[0].decode('utf-8').strip().splitlines(True)
+        lab_list = output[0].decode('utf-8').strip().splitlines()
         for lab in sorted(lab_list):
             #lab = lab[:len(lab)-1] 
             lab = lab.strip()

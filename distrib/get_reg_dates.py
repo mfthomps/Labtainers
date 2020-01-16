@@ -57,7 +57,7 @@ if __name__ == '__main__':
     cmd = 'git ls-files ./ | cut -d/ -f1 | uniq'
     child = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
     output = child.communicate()
-    lab_list = output[0].decode('utf-8').strip().splitlines(True)
+    lab_list = output[0].decode('utf-8').strip().splitlines()
     os.chdir(mycwd)
     if args.dockerhub:
        registry = labtainer_config.default_registry
