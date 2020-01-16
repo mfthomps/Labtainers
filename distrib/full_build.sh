@@ -12,15 +12,23 @@ if [[ $result != 0 ]]; then
     exit 1
 fi
 #
-# The temp dirs align with those created by mkall.sh
-# Use those same files
+# Clone local repo -- TBD do all building from same instance?
 #
 ddir=/tmp/labtainer-distrib
 ldir=$ddir/labtainer
+rm -fr $ldir
 ltrunk=$ldir/trunk
-
-export LABTAINER_DIR=$ltrunk
+mkdir -p $ltrunk
+here=`pwd`
+cd ../
 branch=$(git rev-parse --abbrev-ref HEAD)
+
+git clone --single-branch --branch $branch $LABTAINER_DIR $ltrunk
+
+#
+# switch LABTAINER_DIR to new copy of repo
+#
+export LABTAINER_DIR=$ltrunk
 #
 # Archive from git is not a repo, thus git commands will not work to get branch.  
 # So set in the env
@@ -28,14 +36,18 @@ branch=$(git rev-parse --abbrev-ref HEAD)
 export LABTAINER_BRANCH=$branch
 cd $LABTAINER_DIR/distrib
 # force current branch regsitry to match premaster
-./refresh_branch.py -q
-result=$?
-if [[ $result != 0 ]]; then
-    echo "refresh_branch failed"
-    exit 1
+if [[ $branch != 'premaster' ]]; then
+    ./refresh_branch.py -q
+    result=$?
+    if [[ $result != 0 ]]; then
+        echo "refresh_branch failed"
+        exit 1
+    fi
 fi
 cd $LABTAINER_DIR/scripts/designer/bin
-./mkbases.py
+echo "running from $LABTAINER_DIR"
+./mkbases.py -n
+exit
 result=$?
 if [[ $result != 0 ]]; then
     echo "mkbases failed"
