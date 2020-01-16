@@ -83,7 +83,6 @@ def refreshLab(labdir, lab, role, remote_reg, local_reg, logger, no_copy):
                       local_version, remote_created, remote_version))
                 logger.debug('DIFFERENT: %s:%s local created/version %s/%s  remote: %s/%s' % (lab, container, local_created, 
                       local_version, remote_created, remote_version))
-                tags = InspectRemote.getTags(with_reg, token)
                 pull_push(image, remote_reg, local_reg)
             else:
                 logger.debug('refreshLab, no diff for %s' % image)
@@ -117,7 +116,6 @@ def updateLab(labdir, lab, role, remote_reg, local_reg, logger, no_copy):
                       local_version, remote_created, remote_version))
                 logger.debug('DIFFERENT: %s:%s local created/version %s/%s  remote: %s/%s' % (lab, container, local_created, 
                       local_version, remote_created, remote_version))
-                tags = InspectRemote.getTags(with_reg, token)
                 pull_push(image, local_reg, remote_reg)
             else:
                 logger.debug('updateLab, no diff for %s' % image)
