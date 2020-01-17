@@ -33,6 +33,7 @@ import os
 import ParseLabtainerConfig
 import argparse
 def regFromBranch(branch, registry_file):
+    registry = None
     if os.path.isfile(registry_file):
         with open(registry_file) as fh:
             for line in fh:
