@@ -52,6 +52,11 @@ def inspectRemote(image, lgr, is_rebuild=False, quiet=False, no_pull=False):
             print('Remote image %s is lacking a base version, it needs to be retagged with trunk/distrib/retag_all.py' % image)
             exit(1) 
             #return None, None, None, None
+        ''' fix base to reflect the remote registry '''
+        if '/' in image and '/' in base:
+            my_registry = image.split('/')[0]
+            parts = base.split('/')
+            base = '%s/%s' % (my_registry, parts[1])
         lgr.debug('base is %s' % base)
         base_image, base_id = base.rsplit('.', 1)
         my_id = VersionInfo.getImageId(base_image, quiet)
@@ -175,11 +180,6 @@ def getCreated(token, image, digest):
             version = j['container_config']['Labels']['version'] 
         if 'base' in j['container_config']['Labels']:
             base = j['container_config']['Labels']['base'] 
-        if os.getenv('TEST_REGISTRY') is None:  
-            # HOTFIX until base images are fixed
-            parts = base.split('/')
-            if parts[0] != 'mfthomps':
-                base = 'mfthomps/%s' % parts[1]
         return j['created'], j['container_config']['User'], version, base
     else:
         return None, None, None, None
