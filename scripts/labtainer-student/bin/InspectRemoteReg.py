@@ -47,7 +47,8 @@ def inspectRemote(image, lgr, is_rebuild=False, quiet=False, no_pull=False):
     if digest is None:
         return None, None, None, None
     created, user, version, base = getCreated(token, image, digest)
-    if not no_pull:
+    # TBD until grader gets base labels
+    if not no_pull and not image.endswith('labtainer.grader'):
         if base is None:
             print('Remote image %s is lacking a base version, it needs to be retagged with trunk/distrib/retag_all.py' % image)
             exit(1) 
