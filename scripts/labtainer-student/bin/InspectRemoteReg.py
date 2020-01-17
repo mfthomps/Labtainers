@@ -175,6 +175,11 @@ def getCreated(token, image, digest):
             version = j['container_config']['Labels']['version'] 
         if 'base' in j['container_config']['Labels']:
             base = j['container_config']['Labels']['base'] 
+        if os.getenv('TEST_REGISTRY') is None:  
+            # HOTFIX until base images are fixed
+            parts = base.split('/')
+            if parts[0] != 'mfthomps':
+                base = 'mfthomps/%s' % parts[1]
         return j['created'], j['container_config']['User'], version, base
     else:
         return None, None, None, None
