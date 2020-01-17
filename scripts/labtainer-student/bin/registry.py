@@ -32,6 +32,19 @@ import subprocess
 import os
 import ParseLabtainerConfig
 import argparse
+def getDefaultRegistry():
+    if 'LABTAINER_DIR' in os.environ:
+        labtainer_config_file = os.path.join(os.environ['LABTAINER_DIR'], 'config', 'labtainer.config')
+        if not os.path.isfile(labtainer_config_file):
+            print('This does not look like a LABTAINER_DIR: %s, missing labtainer.config file' % os.environ['LABTAINER_DIR'])
+            exit(1)
+    else:
+        print('LABTAINER_DIR not defined, unable to find labtainer.config')
+        exit(1)
+    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_file, None)
+    registry = labtainer_config.default_registry
+    return registry
+
 def regFromBranch(branch, registry_file):
     registry = None
     if os.path.isfile(registry_file):
@@ -44,6 +57,8 @@ def regFromBranch(branch, registry_file):
     else:
         print('No config/registry.config file %s' % registry_file)
         exit(1)
+    if registry is None:
+        registry = getDefaultRegistry()
     return registry
 
 def getBranchRegistry():
@@ -75,19 +90,6 @@ def getBranchRegistry():
             exit(1)
 
     return branch, registry
-
-def getDefaultRegistry():
-    if 'LABTAINER_DIR' in os.environ:
-        labtainer_config_file = os.path.join(os.environ['LABTAINER_DIR'], 'config', 'labtainer.config')
-        if not os.path.isfile(labtainer_config_file):
-            print('This does not look like a LABTAINER_DIR: %s, missing labtainer.config file' % os.environ['LABTAINER_DIR'])
-            exit(1)
-    else:
-        print('LABTAINER_DIR not defined, unable to find labtainer.config')
-        exit(1)
-    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_file, None)
-    registry = labtainer_config.default_registry
-    return registry
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='registry', description='Get the registry for either the current branch or the default.')
