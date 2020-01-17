@@ -25,7 +25,7 @@ This document is in the public domain and is not subject to copyright.
 \section {Introduction}
 This document is intended for use by developers who maintain the
 Labtainer framework.  It is also applicable to lab designers who wish
-to follow Labtainers configuration managment and testing conventions for  their labs.
+to follow Labtainers configuration management and testing conventions for  their labs.
 It does not address the mechanics lab creation, which is 
 covered in the \textit {Labtainers Lab Designer User Guide}.
 
@@ -34,8 +34,23 @@ covered in the \textit {Labtainers Lab Designer User Guide}.
 The Labtainer framework is developed within and for Linux environments using the command line.
 \end{flushleft} 
 
+The procedures described herein assume development occurs on a Linux VM that itself is hosted on
+a Linux platform using VirtualBox.  That underlying Linux platform also hosts \textit{test VMs} that
+will run regression tests.  Other configurations are certainly possible, but they would require the
+developer to potentially alter procedures and/or scripts.
 
-\section{Installation}
+\subsection{Linux host installation}
+The host platform should include VirtualBox (to host the Development VM and test VMs),  and Docker, 
+(to host a set of test registries).  The host platform should have a directory named SEED that will
+be shared by each of the VMs.  If the host is to publish distributions to the NPS website, then it should
+have an ability to transfer files to 
+\begin{verbatim}
+davs://my.nps.edu/webdav/c3o-staging/document_library/labtainers
+\end{verbatim}
+
+\section{Development VM Installation}
+This section describes installation of software on the development VM, which should have at least 150 GB
+of disk.
 \subsection{Developer Software Prerequisites}
 Labtainers is primarily implemented using python3.  The containers within a lab include python2 scripts that are
 part of the framework, e.g., functions that collect student artifacts.  The following packages are required on a
@@ -53,7 +68,7 @@ Linux distribution to support Labtainer framework development.
 \end {itemize}
 
 The VirtualBox product is used to to run Labtainer VMs for testing.  Currently, tests are performed on 
-Ubuntu16 and Ubuntu18 VMs, the former tests backwards compatability of the frameworks python3 support.
+Ubuntu16 and Ubuntu18 VMs, the former tests backwards compatibility of the frameworks python3 support.
 
 \subsection{Getting Labtainers from Github}
 
@@ -83,13 +98,19 @@ if [[ ":$PATH:" != *":./bin:"* ]]; then
 fi
 	    \end{lstlisting}
 	    \end{mdframed}
-    \item cd into \$LABTAINER\_DIR/setup\_scripts:
-	    \begin{itemize}
-    		\item Run pull-all.py to get all base docker images.
-    		\item Run build-docs.sh to build the lab manuals for all labs.
-	    \end{itemize}
-    \item cd into \$LABTAINER\_DIR/tool-src/capinout and run {\tt ./mkit.sh}
     \end{enumerate}
+\item cd into \$LABTAINER\_DIR/setup\_scripts:
+    \begin{itemize}
+   	\item Run pull-all.py to get all base docker images.
+    	\item Run build-docs.sh to build the lab manuals for all labs.
+    \end{itemize}
+\item cd into \$LABTAINER\_DIR/tool-src/capinout and run {\tt ./mkit.sh}
+\item Add the vbox share group using {\tt setup\_scripts/vbox-share.sh} 
+\item Map the SEED directory on the Linux host as a shared folder. This directory is used
+to share distribution files between the development system and the test VMs.  Accept defaults so its name is 
+\begin{verbatim}
+        /media/sf_SEED
+\end{verbatim}
 \end {itemize}
 
 
@@ -126,7 +147,7 @@ containers, e.g., to hook bash and parameterize containers.
 \item Container scripts -- perform grading functions.
 	\end{itemize}
 
-	\item {\bf Developer} \begin{itemize}
+	\item {\bf Lab designer} \begin{itemize}
 \item Building -- rebuild in labtainers-student/bin 
 \item Publishing labs -- labtainers/distrib/publish.py
 \item Base Labtainer images -- scripts/designer/bin, create and publish the base images.
@@ -138,7 +159,7 @@ VirtualBox and VMWare.
 \item Regression testing of grading functions is performed by labtainer-instructor/regress.py.
 Expected results are stored in the labtainer/testsets directory.
 \item Regression testing of labs and grading combined: scripts in testsets/bin; data sets
-are not distributed, they are in labtainer/simlab/<labname>  Get simlab data sets using
+are not distributed, they are in {\tt labtainer/simlab/<labname>}  Get simlab data sets using
 \begin{verbatim}
 git clone https://gitlab.nps.edu/mfthomps/Labtainers-simlab.git/
 \end{verbatim}
@@ -152,6 +173,10 @@ Student scripts, e.g., {\tt labtainer}, run from the scripts/labtainer-student d
 That directory also contains the bin/labutils.py, which contains most of the framework
 functions.
 
+The first time a given lab is run, the {\tt docker create} function is
+used to create containers.  The {\tt docker start} function is then used to start
+the container, and is used for subsequent starts of the same lab.
+
 When a student container is first started "docker exec" is used
 to run parameterize.sh on the container.
 
@@ -160,9 +185,18 @@ sdtin/stout capturing hook, and adds the startup.sh call
 into the .profile.
 
 The startup.sh uses a lock to control which
-terminal displays the instructions or grading.  In practice most
+terminal displays the instructions.  In practice most
 instructions are now pdf files.
 The startup.sh invoked by student will source a student\_startup.sh if present.
+
+The Student.py script runs when a lab is stopped to collect artifacts and kill lingering
+monitored processes.
+
+Grading is performed on a separate container built for each lab, derived from the 
+labtainer.grader image.
+
+The {\tt checkwork} function forces a collection of artifacts, and a grader container
+is then run to perform grading.
 
 \section{Distribution publishing}
 The Labtainer framework is distributed via the c3o website as a tar file, or, optionally a
@@ -219,7 +253,7 @@ pointed to by the Labtainers web server.
 The appliances automatically update the baselines and the Labtainer scripts on boot, so there
 is only really advantage to doing this for baseline changes, since they take a while to download.
 
-\subsubsection {installation sizes}
+\subsubsection {Installation sizes}
 An initial install, including the base images, requires about 4GB.  Installing a larger lab,
 e.g., snort, requires an additional 1GB.  Running bufoverflow added 22M.
 
@@ -236,7 +270,7 @@ Labtainers development creates the following artifacts:
 \begin{itemize}
 \item The distribution tar file for students
 \item A distribution tar file for lab designers (which is a superset of that for students).
-\item A test script tar distribution containing SimLab scripts. (These come from a seperately managed repo.)
+\item A test script tar distribution containing SimLab scripts. (These come from a separately managed repo.)
 \item The Docker container images for each lab.
 \item The Docker container image for the grader.
 \end{itemize}
@@ -245,6 +279,8 @@ The tar distributions are created using scripts from the {\tt distrib} directory
 a Docker registry using the publish.py script, which includes file dependency logic to only rebuild images when one
 of their sources change.  By default, the publish.py script pushes to a local registry rather than to the DockerHub.  
 Updated images are pushed to the DockerHub as part of publishing a new revision of Labtainers.
+
+Currently, there is no attempt to archive artifacts, i.e., only the latest versions are available on publishing sites.
 
 \subsubsection{Build steps}
 The following steps must be performed for each build to ensure distributions are based on the latest file versions.
@@ -268,7 +304,7 @@ Only the true base images are included in the initial distribution.
 In general, avoid changes to a base docker image because doing so could lead some installations
 to include two copies of the base image, which are very much larger than most other Labtainer images.  
 Modifcations to an xtra extension image will not affect existing installations that have run
-some labs.  Whenever a new lab is started, if it relies on a newer version of the xtra extention, that will be pulled as needed for the 
+some labs.  Whenever a new lab is started, if it relies on a newer version of the xtra extension, that will be pulled as needed for the 
 lab container images.
 
 When a lab container image is created, it is tagged with the base image name and its image ID (a checksum generated by Docker).
@@ -324,14 +360,39 @@ the /etc/docker/daemon.json file to reflect new registries as "insecure".
 \noindent On the Linux system that hosts the development VMs, create the test registries using {\tt host\_scripts/start\_reg.sh}.
 
 \subsection{Testing}
-The smoketest.py scripts represents the test procedures for Labtainers.  
+Regression testing occurs within testing VMs that are provisioned from the Labtainer VBox appliance as follows:
+\begin{itemize}
+\item clone (as linked) a smoketest box
+\item remove ~/.doupdate
+\item echo "frank@beans.com" \textgreater ~/.local/share/labtainers/email.txt
+\item add \$HOME/labtainer/trunk/testsets/bin to path in bashrc
+\item visudo and change sudo etnry to: ALL=(ALL) NOPASSWD:ALL
+\item apt-get install xdotool
+\item apt-get install vim
+\item setup-scripts/prep-testregistry.sh
+\item touch ~/labtainer/.dosmoke
+\item run the {\tt setup\_scripts/smoke-profile-add.sh}
+\item Add the vbox share group using {\tt setup\_scripts/vbox-share.sh} 
+\item Map the SEED directory on the Linux host as a shared folder. Accept defaults so its name is 
+\begin{verbatim}
+    /media/sf_SEED
+\end{verbatim}
+\item Edit the /etc/hosts and /etc/hostname to define a distinctive hostname, e.g., {\tt ubuntu16smoke}.
+\item Create a directory at {\tt SEED/test\_vms/<hostname>}.  
+\item On the development VM, create a script in {\tt testsets/bin} modeled after {\tt test-ubuntu18.sh}
+\item Modify the {\tt setup\_scripts/full\_build.sh} script to invoke the new test script.
+\end{itemize}
+
+
+The {setup\_scripts/smoketest.py} scripts represents the test procedures for Labtainers.  
 It is expected that local repo development branches will be tested prior to pushing them to GitHub.  Similarly, the
 results of premaster branch merges are expected to be tested locally before it is pushed to GitHub. A test run
 from a fresh pull from GitHub premaster branch is a prerequisite to publishing a new release.
 
 Local bench testing, e.g., using {\tt rebuild} for a small set of labs, depends on the git workspace and the test registry for the current branch.
 Local branch testing, i.e., use of full\_build.sh, uses the local repo.  It is up to the developer to ensure that is up to date.
-Release testing pulls from the GitHub repo for the desired branch.
+
+Integration testing pulls from the GitHub repo for the desired branch.
 
 
 \subsection{Merging}
@@ -351,14 +412,20 @@ Development branches are merged into the premaster branch as part of creating a 
 \end{itemize}
 
 Revert to premaster in case of merge issues or other failures using {\tt revert\_premaster.sh}.
+
+\subsection{Publish new release}
 \begin{itemize}
-\item Replace the premaster registry with current published images per DockerHub:
-\begin{verbatim} 
-    refresh_mirror.sh -r
-\end{verbatim} 
-\item Delete premaster branch
-\item Recreate premaster branch:
+\item Merge premaster into master
+\item Created tar files with mkall
+\item Copy labtainer.tar and labtainer-developer.tar to Liferay.
+\item Publish Liferay to live
+\item Push premaster registry to DockerHub: {\tt refresh\_mirror.py}
 \end{itemize}
+
+Note there is no synchronization scheme to coordinate between the publishing of tar files and updating the
+DockerHub.  In some cases, there may be a window in which a Labtainer installation gets a distribution that names
+a lab that is not yet on DockerHub.
+
 \subsection{Examples}
 Example: Create new branch to include changed lab and perhaps changed framework
 Run new\_branch.py.  This will create a new git branch for the local repo and will allocate a test registry to the
@@ -389,23 +456,8 @@ Labtainers will use locally-created container images if they are present -- and 
 	\item )   Please review the lab's manual very closely. This is so that both the lab itself and the lab's manual can receive feedback for improvement. 
 \end{enumerate}
 
-\section {Maintenance notes}
-When working on a significant change, do so in a distinct branch:
-\begin{itemize}
-\item Create a new branch: {\tt git checkout -b newbranch}
-\item Make changes 
-\item Push changes in progress {\tt git push --set-upstream origin newbranch}
-\item Pull new branch from other repo -- first checkin all local changes or stash. 
-\begin{itemize}
-\item {\tt git pull}
-\item {\tt git checkout newbranch}
-\end{itemize}
-\item After testing, merge to branch into master:
-\begin{itemize}
-\item Checkout master: {\tt git checkout master}
-\item merge: {\tt git merge newbranch}
-\end{itemize}
-\end{itemize}
+\section{GNS3 Support}
+Please refer to the guide in {\tt docs/gns3} for information on integrating Labtainers with GNS3.
 
 \section {Notes}
 \subsection {Race condition on checklocal.sh output}
@@ -454,7 +506,7 @@ Metasploit lab now crashes the VM.  g\_array\_unref: assertion 'array' failed.  
 desktop.  Perhaps only occurs after reboot, once, then works ok?  Created both containers with NO\_PRIVILEGE attribute
 in start.config, seems to fix it?
 
-\subsubsection{grader updates}
+\subsubsection{Grader updates}
 Automate detection of need to update a local grader image, e.g., in response to a fix to the grader.
 
 \subsection{ongoing}
@@ -475,11 +527,9 @@ add         ADD-HOST fonts.googleapis.com:127.0.0.1 to start.config to shut it u
 In the VM .profile, move the terminal creation functions to a seperate script run in background -- seems .profile must finish or VMWare Horizen 
 borks the Terminal Server startup.
 
-\subsection{bread crumbs}
+\subsection{Other bread crumbs}
 If you get the dreaded "docker.service: Start request repeated too quickly.", then:
 sudo systemctl daemon-reload
 sudo systemctl restart docker
 
-Builds may be "local", meaning they will use any local (untagged) copy of a base image.
-Publishing NEVER draws from a local copy of a base image.
 \end{document}
