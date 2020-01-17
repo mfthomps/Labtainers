@@ -165,7 +165,7 @@ def doUpdateOrRefresh(local_registry, remote_registry, args, lgr):
             remote_created, remote_user, remote_version, tag = InspectRemoteReg.inspectRemote(with_reg, lgr, no_pull=True)
             lgr.debug('%s  local: %s  remote: %s' % (grader, local_created, remote_created))
             if local_created != remote_created:
-                print('DIFFERENT: %s local created %s  remote: %s' % (grader, local_created, local_created, remote_created))
+                print('DIFFERENT: %s local created %s  remote: %s' % (grader, local_created, remote_created))
                 if not args.no_copy:
                     if not args.refresh:
                         pull_push(grader, local_registry, remote_registry)
