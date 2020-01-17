@@ -27,15 +27,18 @@ def main():
     for line in output[0].splitlines():
         if 'labtainer.grader' in line:
             parts = line.split()
-            image = '%s:%s' % (parts[0], parts[1])
-            image_list.append(image)
+            if parts[1] != '<none>':
+                image = '%s:%s' % (parts[0], parts[1])
+            else:
+                image = '%s' % (parts[0])
+            image_list.append(image.strip())
     if len(image_list) > 0:
         cmd = 'docker rmi -f %s' % ' '.join(image_list)
         print cmd
         os.system(cmd)
     else:
         print('No grader image')
-
+    exit(1)
     #Pull grader image
     cmd = 'docker pull mfthomps/labtainer.grader'
     print(cmd)
