@@ -62,22 +62,27 @@ directory.  For example, a revised telnet-lab manual would have the path:
 \begin{verbatim}
 telnet-lab/docs/telnet-lab.pdf
 \end{verbatim}
-\noindent Note the modified source, e.g., tex files, are not included in the IModule
-archive.
+\noindent Note the modified source, e.g., docx files, need not be included in the IModule
+archive, though the support tools do include them.
 
-Typically, each participating instructor will publish a single archive, using
-{\tt imodule.tar}, as the base name of a URL specific to the instructor or institution. The URL path, 
-less the file name, is distributed to students and entered into their Labtainers 
-instance using the {\tt add-imodule} command.  For example, if the instructor publishes
-at \url{https://myschool/mystuff/labtainers/Imodule.tar}, the students would each issue
+Typically, each participating instructor will publish a single archive (i.e., a tar file)
+at a publically accessible URL specific to the instructor or institution. The URL 
+is distributed to students and entered into their Labtainers 
+instance using the {\tt imodule} command \footnote{The full URL is published because many
+web hosting systems, e.g., box.com make it impossible to construct URLs from relative paths}.  
+For example, if the instructor publishes
+at \url{https://myschool/mystuff/labtainers/imodule.tar}, the students would each issue
 this command to Labtainers:
 \begin{verbatim}
-add-imodule myschool/mystuff/labtainers
+imodule myschool/mystuff/labtainers/imodule.tar
 \end{verbatim} 
+
+The student labs will be updated to include those IModules the next time the student runs
+either {\tt update-labtainer.sh} or {\tt imodule -u}.
 
 IModule support tools rely on instructor contributions existing in local git repositories.
 The tools do not reference remote repositories.  IModule repositories have no relationship
-to the main Labtainers repository, and may (should?) be managed within Labtainer
+to the main Labtainers repository, and should be managed within Labtainer
 distributions rather than within local repo copies of the main Labtainer repository.   \footnote{In general,
 instructors and lab designers are encourage to work from Labtainer distributions rather
 than repos pulled from the Labtainers repo at GitHub to avoid git repository conflicts.}
@@ -98,19 +103,19 @@ git init
 \item Add the original Labtainer file as the baseline: 
 
 \begin{verbatim}
-git add telnet-lab/docs/telnet-lab.tex
+git add telnet-lab/docs/telnet-lab.docx
 \end{verbatim}
-\item Edit the telnet-lab/docs/telnet-lab.tex file
+\item Edit the telnet-lab/docs/telnet-lab.docx file
 \item Commit your change: 
 \begin{verbatim}
-    git commit telnet-lab/docs/telnet-lab.tex
+    git commit telnet-lab/docs/telnet-lab.docx
 \end{verbatim}
 \end{itemize}
 
 This change has no effect on any Docker container, so we need only generate the 
 updated tar:
 \begin{verbatim}
-    create-imodules.py
+    create-imodules.sh
 \end{verbatim}
 
 \noindent Then publish the imodule.tar to the website.
@@ -136,7 +141,7 @@ This example assumes the instructor has created a DockerHub registry that is pub
 \noindent This will rebuild the lab container images and publish them to your DockerHub registry.
 \item Generate the updated IModule tar:
 \begin{verbatim}
-    create-imodules.py
+    create-imodules.sh
 \end{verbatim}
 \item Then publish the imodule.tar to your website.
 \end{itemize}
