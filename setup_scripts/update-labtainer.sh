@@ -101,8 +101,15 @@ grep "^Distribution created:" labtainer/trunk/README.md | awk '{print "Updated t
 grep "^Branch:" labtainer/trunk/README.md | awk '{print "branch: ", $2}'
 grep "^Revision:" labtainer/trunk/README.md | awk '{print "Revision: ", $2}'
 # fix broken LABTAINER_DIR
-sed -i 's%export LABTAINER_DIR=/trunk%export LABTAINER_DIR=$HOME/labtainer/trunk%' $HOME/.bashrc
+isbroken=$(grep LABTAINER_DIR=/trunk ~/.bashrc)
+if [[ ! -z $isbroken ]]; then
+	sed -i '/LABTAINER_DIR=\/trunk/d' ~/.bashrc
+	echo 'export LABTAINER_DIR=$HOME/labtainer/trunk' >> ~/.bashrc
+	export LABTAINER_DIR=$HOME/labtainer/trunk
+fi
+
 add_script=labtainer/trunk/setup_scripts/update-add.sh
 if [[ -f $add_script ]]; then
 	source $add_script
 fi
+labtainer/trunk/scripts/labtainer-student/bin/imodule -u
