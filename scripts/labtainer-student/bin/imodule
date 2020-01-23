@@ -1,0 +1,74 @@
+#!/usr/bin/env python3
+import os
+import argparse
+import subprocess
+import LabtainerLogging
+home = os.getenv('HOME')
+imodule_path = os.path.join(home, '.local/share/labtainers/imodules.txt')
+
+def doUpdates(logger):
+    logger.debug('doUpdates')
+    tfile = '/tmp/imodule.tar'
+    here = os.getcwd()
+    labdir = os.path.join(os.getenv('LABTAINER_DIR'), 'labs')
+    os.chdir(labdir)
+    with open(imodule_path) as fh:
+        for imodule_url in fh:
+            try:
+                os.rm(tfile)
+            except:
+                pass
+            cmd = 'wget -L -O /tmp/imodule.tar %s' % imodule_url.strip()
+            logger.debug('cmd is %s' % cmd)
+            ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            output = ps.communicate()
+            if len(output[1].strip()) > 0:
+                for line in output[1].decode('utf-8').splitlines(True):
+                    logger.debug(line)
+            if len(output[0].strip()) > 0:
+                for line in output[0].decode('utf-8').splitlines(True):
+                    logger.debug(line)
+            if os.path.isfile(tfile):
+                logger.debug('Got tar, expand from %s' % imodule_url)
+                cmd = 'tar -xf %s' % tfile
+                ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+                output = ps.communicate()
+                if len(output[1].strip()) > 0:
+                    for line in output[1].decode('utf-8').splitlines(True):
+                        logger.debug(line)
+                if len(output[0].strip()) > 0:
+                    for line in output[0].decode('utf-8').splitlines(True):
+                        logger.debug(line)
+
+if __name__ == '__main__':
+    ldir = os.getenv('LABTAINER_DIR')
+    if ldir is None:
+        print('LABTAINER_DIR not defined, exiting')
+        exit(1)
+    config_file = os.path.join(os.getenv('LABTAINER_DIR'), 'config', 'labtainer.config') 
+    logger = LabtainerLogging.LabtainerLogging("/tmp/imodule.log", '', config_file)
+    parser = argparse.ArgumentParser(prog='add-imodule', description='Add an imodule URL to extend the set of labs available to this Labtainers installation.')
+    parser.add_argument('path', default='NONE', nargs='?', action='store', help='The url of the imodule')
+    parser.add_argument('-l', '--list', action='store_true', default=False, help='List IModules already added to this installation.')
+    parser.add_argument('-u', '--updates', action='store_true', default=False, help='Update IModules for this installation.')
+    args = parser.parse_args()
+    if args.list:
+        if os.path.isfile(imodule_path):
+            with open(imodule_path) as fh:
+                did_one = False
+                for line in fh:
+                    print(line)
+                    did_one = True
+                if not did_one:
+                    print('No IModules have been added to this installation')
+        else:
+            print('No IModules have been added to this installation')
+    elif args.updates:
+        doUpdates(logger)
+    elif args.path is not None:
+        with open(imodule_path, 'a') as fh:
+            logger.debug('Adding imodule path %s' % args.path)
+            fh.write(args.path+'\n')
+    else:    
+        parser.usage()
+        
