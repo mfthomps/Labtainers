@@ -100,3 +100,9 @@ fi
 grep "^Distribution created:" labtainer/trunk/README.md | awk '{print "Updated to release of: ", $3, $4}'
 grep "^Branch:" labtainer/trunk/README.md | awk '{print "branch: ", $2}'
 grep "^Revision:" labtainer/trunk/README.md | awk '{print "Revision: ", $2}'
+# fix broken LABTAINER_DIR
+sed -i 's%export LABTAINER_DIR=/trunk%export LABTAINER_DIR=$HOME/labtainer/trunk%' $HOME/.bashrc
+add_script=labtainer/trunk/setup_scripts/update-add.sh
+if [[ -f $add_script ]]; then
+	source $add_script
+fi
