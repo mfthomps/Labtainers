@@ -17,6 +17,29 @@ import VersionInfo
 Make all the Labtainer base files based on dates of their docker files,
 and publish to registry of current branch.
 '''
+def rmBase(image_name, registry):
+    cmd = 'docker images'
+    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    image_list = []
+    look_for = '%s/%s' % (registry, image_name)
+    no_reg = '%s ' % image_name
+    print('look for %s   or %s' % (look_for, no_reg))
+    for line in output[0].decode('utf-8').splitlines():
+        #print(line)
+        if (look_for in line) and ' <none> ' not in line:
+            parts = line.split()
+            image = '%s:%s' % (parts[0], parts[1])
+            image_list.append(image)
+        elif (line.startswith(no_reg)) and ' <none> ' not in line:
+            image_list.append(image_name)
+    if len(image_list) > 0:
+        cmd = 'docker rmi -f %s' % ' '.join(image_list)
+        print(cmd)
+        os.system(cmd)
+    else:
+        print('No images for %s' % image_name)
+
 def doBase(image_name, registry):
     image_ext = image_name.split('.',1)[1]
     cmd = './create_image.sh %s -f' % image_ext
@@ -38,7 +61,7 @@ def doBase(image_name, registry):
         
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Rebuild all Labtainer base images (if their Dockerfiles are newer than the base image)')
-    parser.add_argument('-n', '--no_build', action='store_true', default=False, help='Do not rebuild, just report on what would be built')
+    parser.add_argument('-n', '--no_build', action='store_true', default=False, help='Do not rebuild, just report on what would be built, HOWEVER local images may be deleted.')
     args = parser.parse_args()
     labtainer_dir = os.getenv('LABTAINER_DIR')
     labtainer_config_file = os.path.join(labtainer_dir, 'config', 'labtainer.config')
@@ -68,6 +91,7 @@ if __name__ == '__main__':
                 print('skipping %s, is exempt' % image_name)
                 logger.debug('skipping %s, is exempt' % image_name)
                 continue
+            rmBase(image_name, registry)
             image_info = labutils.imageInfo(image_name, registry, labtainer_config)
             if image_info is None:
                 print('No image info for %s, rebuild' % image_name)
