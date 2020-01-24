@@ -279,7 +279,7 @@ If the rebuild fails with a error reflecting a problem resolving hostnames, e.g.
 
 Note the {\tt rebuild} command is not intended for use by students, they would use the ``labtainer'' command.  
 The rebuild utility compares file modification dates to Docker image creation dates to determine if
-a given image needs to be rebuilt.  The rebuild will miss file deletions.  Thus, if files are deleted, you must
+a given image needs to be rebuilt.  The rebuild may miss file deletions.  Thus, if files are deleted, you must
 force the rebuild using the {\tt -f} option at the end of the rebuild command. Also, addition of symbolic links will not
 trigger a rebuild.  Rebuild references git modify dates (vice file modify dates).
 
@@ -2214,6 +2214,12 @@ file will not be collected unless that log file has been named in the results.co
 
 Use {\tt TERMINAL\_GROUPS} in the start.config file to organize terminals if you have more
 than a few.  Otherwise the student will spend time trying to find each terminal.
+
+\subsection {Docker cache}
+By default, a {\tt rebuild} will make use of the Docker cache to speed up the image building process.
+Use the {\tt -N} option to supress use of the cache.  This may be needed if you expect the results of
+a {\tt RUN} command within a Dockerfile to change between builds.  When using the {\tt publish.py} command,
+the cache is disabled by default.
 
 \subsection {Container isolation}
 Docker provides namespace isolation between different containers, and
