@@ -1007,7 +1007,7 @@ def GetBothConfigs(lab_path, logger, servers=None, clone_count=None):
     return labtainer_config, start_config
 
 def RebuildLab(lab_path, force_build=False, quiet_start=False, 
-               just_container=None, run_container=None, servers=None, clone_count=None, no_pull=False):
+               just_container=None, run_container=None, servers=None, clone_count=None, no_pull=False, use_cache=True):
     # Pass 'True' to ignore_stop_error (i.e., ignore certain error encountered during StopLab
     #                                         since it might not even be an error)
     StopLab(lab_path, True, run_container=run_container, servers=servers, clone_count=clone_count)
@@ -1022,7 +1022,7 @@ def RebuildLab(lab_path, force_build=False, quiet_start=False,
     DoRebuildLab(lab_path, force_build=force_build, 
                  just_container=just_container, start_config = start_config, 
                  labtainer_config = labtainer_config, run_container=run_container, 
-                 servers=servers, clone_count=clone_count, no_pull=no_pull)
+                 servers=servers, clone_count=clone_count, no_pull=no_pull, use_cache=use_cache)
 
     # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
     host_home_xfer = labtainer_config.host_home_xfer
@@ -1044,14 +1044,15 @@ def dockerPull(registry, image_name):
     return True
 
 
-def removeStrays(container_dir, name):
+def removeStrays(container_dir, name, labname):
     ''' remove any stray gz files from previous builds '''
     gmask = '/*.%s.student.tar.gz' % name
     gz_list = glob.glob(container_dir+gmask)
     for gz in gz_list:
         logger.debug('Stray gz %s will be deleted' % gz)
         os.remove(gz)
-    gmask = '/Dockerfile.%s.*' % name
+    gmask = '/Dockerfile.%s.%s.*' % (labname, name)
+    #print('gmask %s' % (container_dir+gmask))
     df_list = glob.glob(container_dir+gmask)
     for df in df_list:
         logger.debug('Stray docker file %s will be deleted' % df)
@@ -1059,7 +1060,7 @@ def removeStrays(container_dir, name):
 
 def DoRebuildLab(lab_path, force_build=False, just_container=None, 
                  start_config=None, labtainer_config=None, run_container=None, servers=None, 
-                 clone_count=None, no_pull=False, no_build=False):
+                 clone_count=None, no_pull=False, no_build=False, use_cache=True):
     retval = set()
     labname = os.path.basename(lab_path)
     is_valid_lab(lab_path)
@@ -1068,7 +1069,6 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
     host_home_xfer = labtainer_config.host_home_xfer
 
     build_student = 'bin/buildImage.sh'
-    build_instructor = 'bin/buildInstructorImage.sh'
     LABS_DIR = os.path.abspath('../../labs')
     didfix = False
     ''' hackey assumption about running from labtainers-student or labtainers-instructor '''
@@ -1118,7 +1118,7 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
             os.mkdir(os.path.join(container_dir, 'sys_tar'))
         except:
             pass
-        removeStrays(container_dir, name)
+        removeStrays(container_dir, name, labname)
         ''' make sure big files have been copied before checking tars '''
         BigFiles.BigFiles(lab_path)
         BigExternal.BigExternal(lab_path)
@@ -1140,11 +1140,8 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
                 exit(1)
 
             if os.path.isfile(build_student):
-                cmd = '%s %s %s %s %s %s %s %s %s %s %s' % (build_student, labname, name, container.user, 
-                      container.password, True, LABS_DIR, labtainer_config.apt_source, container_registry, framework_version, str(no_pull))
-            elif os.path.isfile(build_instructor):
-                cmd = '%s %s %s %s %s %s %s %s %s %s %s' % (build_instructor, labname, name, container.user, 
-                      container.password, True, LABS_DIR, labtainer_config.apt_source, container_registry, framework_version, str(no_pull))
+                cmd = '%s %s %s %s %s %s %s %s %s %s %s %s' % (build_student, labname, name, container.user, 
+                      container.password, True, LABS_DIR, labtainer_config.apt_source, container_registry, framework_version, str(no_pull), str(use_cache))
             else:
                 logger.error("no image rebuild script\n")
                 exit(1)
@@ -1755,8 +1752,6 @@ def StartLab(lab_path, force_build=False, is_redo=False, quiet_start=False,
     labtainer_config, start_config = GetBothConfigs(lab_path, logger, servers, clone_count)
     host_home_xfer = os.path.join(labtainer_config.host_home_xfer, labname)
 
-    build_student = 'bin/buildImage.sh'
-    build_instructor = 'bin/buildInstructorImage.sh'
     LABS_DIR = os.path.abspath('../../labs')
     didfix = False
     ''' hackey assumption about running from labtainers-student or labtainers-instructor '''
@@ -1803,19 +1798,7 @@ def StartLab(lab_path, force_build=False, is_redo=False, quiet_start=False,
             if not image_info.local:
                 dockerPull(container_registry, mycontainer_image_name)
         else:
-            if os.path.isfile(build_student):
-                cmd = '%s %s %s %s %s %s %s %s %s %s' % (build_student, labname, name, container.user, container.password, False, 
-                                                  LABS_DIR, labtainer_config.apt_source, container_registry, framework_version)
-            elif os.path.isfile(build_instructor):
-                cmd = '%s %s %s %s %s %s %s %s %s %s' % (build_instructor, labname, name, container.user, container.password, False, 
-                                                  LABS_DIR, labtainer_config.apt_source, container_registry, framework_version)
-            else:
-                logger.error("no image rebuild script\n")
-                exit(1)
-                    
-            if os.system(cmd) != 0:
-                logger.error("build of image failed\n")
-                exit(1)
+            logger.error('Could not find image info for %s, is it built?' % name)
 
     # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
     host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
@@ -1840,13 +1823,17 @@ def DateIsLater(df_utc_string, ts, local=False, debug=False):
     ts = int(ts)
 
     if df_ts > ts:
-        ''' if over a year old, and less than a week, assume build prior to commit '''
+        ''' if over a four months old, and less than a week apart, assume build prior to commit '''
         now = int(time.time())
         since = (now - ts)
-        if ((df_ts - ts) < 60000) and (now - ts) > (86400*365):
-            logger.debug('Less than a week and older than a year (%d), assume no change' % since)
+        diff_max = 604800 
+        old_max = 86400*130
+        if ((df_ts - ts) < diff_max) and (now - ts) > old_max:
+            logger.debug('Less than a week dif and older than four months (%d), assume no change' % since)
             return False
         else:
+            if debug:
+                logger.debug('fd_ts - ts = %d  dif_max %d  now-ts=%d  old_max %d' % ((df_ts - ts), diff_max, (now-ts), old_max))
             return True
     else:
         return False
@@ -1859,28 +1846,29 @@ def EmptyTar(fname):
         return False
 
 def FileModLater(ts, fname, big_list=[]):
+    ''' is the given file later than the given timestamp?  Account for git dates, ie.g., don't let file date override git date '''
     retval = False
     df_utc_string = None
     # start with check of svn status
-    if os.path.isfile(fname):
-        cmd = 'git ls-files -s %s' % fname
-        child = subprocess.Popen(shlex.split(cmd), shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        output = child.communicate()
-        if len(output[0].decode('utf-8').strip()) > 0:
-            has_svn = True
-        else:        
-            has_svn = False
-    else:
+    #if os.path.isfile(fname):
+    cmd = 'git ls-files -s %s' % fname
+    child = subprocess.Popen(shlex.split(cmd), shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output = child.communicate()
+    if len(output[0].decode('utf-8').strip()) > 0:
+        has_svn = True
+    else:        
         has_svn = False
+    #else:
+    #    has_svn = False
     cmd = 'git status -s %s' % fname
-    #logger.debug('cmd: %s' % cmd)
+    logger.debug('cmd: %s' % cmd)
     child = subprocess.Popen(shlex.split(cmd), shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     while True:
         line = child.stdout.readline().decode('utf-8')
         line = line.strip()
         if line == '':
             break
-        #logger.debug('line: <%s>' % line)
+        logger.debug('line: <%s>' % line)
         ''' ignore empty tar archives '''
         if line.startswith('?'):
             if os.path.isfile(fname):
@@ -1899,7 +1887,7 @@ def FileModLater(ts, fname, big_list=[]):
             elif os.path.isfile(f):
                 df_time = os.path.getmtime(f)
                 df_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
-                #logger.debug('df_time %s   string %s' % (df_time, df_utc_string))
+                logger.debug('df_time %s   string %s' % (df_time, df_utc_string))
                 retval = DateIsLater(df_utc_string, ts)
                 if retval:
                     break
@@ -1938,7 +1926,7 @@ def FileModLater(ts, fname, big_list=[]):
         if not has_svn: 
             #logger.debug('not in svn?')
             # assume not in svn
-            #logger.debug("not in svn? %s" % fname)
+            logger.debug("not in svn? %s" % fname)
             if fname.endswith('.tar'):
                 if EmptyTar(fname):
                     # hacky special case for empty tar files.  ug.
@@ -1951,7 +1939,7 @@ def FileModLater(ts, fname, big_list=[]):
                 df_time = os.path.getmtime(fname)
             else:
                 check_file = newest_file_in_tree(fname)
-                #logger.debug('FileModLater, not in svn latest found is %s' % check_file)
+                logger.debug('FileModLater, not in svn latest found is %s' % check_file)
                 if EmptyTar(check_file):
                     # hacky special case for empty tar files.  ug.
                     return False
@@ -1964,33 +1952,33 @@ def FileModLater(ts, fname, big_list=[]):
         else:
             # in svn, look for changed date
             cmd = 'git log -1 --format="%%ad" %s' % fname
-            #logger.debug('in svn, look for changed date %s' % cmd)
+            logger.debug('in svn, look for changed date %s' % cmd)
             child = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             output = child.communicate()
             if len(output[0].decode('utf-8').strip()) > 0:
                 df_utc_string = output[0].decode('utf-8').strip()
-                svn_is_later = DateIsLater(df_utc_string, ts, local=True, debug=False)
-                #logger.debug('git log returned %s  is later? %r' % (df_utc_string, svn_is_later))
+                svn_is_later = DateIsLater(df_utc_string, ts, local=True, debug=True)
+                logger.debug('git log returned %s  is later? %r' % (df_utc_string, svn_is_later))
                 df_time = os.path.getmtime(fname)
                 file_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
-                file_is_later = DateIsLater(file_utc_string, ts, local=False, debug=False)
-                #logger.debug('file time %s  is later? %r' % (file_utc_string, file_is_later))
+                file_is_later = DateIsLater(file_utc_string, ts, local=False, debug=True)
+                logger.debug('file time %s  is later? %r' % (file_utc_string, file_is_later))
                 retval = svn_is_later and file_is_later
 
             if df_utc_string is None:
                 # must be an add
-                #logger.debug('%s must be an add' % fname)
+                logger.debug('%s must be an add' % fname)
                 if os.path.isfile(fname):
                     df_time = os.path.getmtime(fname)
                 else:
                     check_file = newest_file_in_tree(fname)
-                    #logger.debug('latest found is %s' % check_file)
+                    logger.debug('latest found is %s' % check_file)
                     df_time = os.path.getmtime(check_file)
                 df_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
                 retval = DateIsLater(df_utc_string, ts, debug=False)
 
     ''' is the given file later than the timestamp (which is in UTC)? '''
-    #logger.debug('df ts %s' % df_time)
+    logger.debug('df ts %s' % df_time)
     return retval
 
 def BaseImageTime(dockerfile, registry):

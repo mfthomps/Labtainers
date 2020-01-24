@@ -43,6 +43,8 @@ REGISTRY=$8
 VERSION=$9 
 shift 1
 NO_PULL=$9
+shift 1
+USE_CACHE=$9
 #------------------------------------V
 if [ "$#" -ne 9 ]; then
     echo "Usage: buildImage.sh <labname> <imagename> <user_name> <user_password> <force_build> <LAB_TOP> <apt_source> <registry>"
@@ -132,18 +134,22 @@ pull="--pull"
 if [ "$NO_PULL" == "True" ]; then
     pull=''
 fi
+cache=""
+if [ "$USE_CACHE" == "False" ]; then
+    cache="--no-cache"
+fi
 if [ ! -z "$imagecheck" ] && [ $force_build = "False" ]; then 
     echo "use exising image"
 else
     cp ../dockerfiles/$dfile .
-    echo docker build --build-arg lab=$labimage --build-arg labdir="." --build-arg imagedir="." \
+    echo docker build $cache --build-arg lab=$labimage --build-arg labdir="." --build-arg imagedir="." \
                  --build-arg user_name=$user_name --build-arg password=$user_password --build-arg apt_source=$APT_SOURCE \
                  --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY \
                  --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY \
                  --build-arg NO_PROXY=$NO_PROXY  --build-arg no_proxy=$NO_PROXY \
                  --build-arg registry=$REGISTRY --build-arg version=$VERSION \
                $pull -f $dfile -t $labimage .
-    docker build --build-arg lab=$labimage --build-arg labdir="." --build-arg imagedir="." \
+    docker build $cache --build-arg lab=$labimage --build-arg labdir="." --build-arg imagedir="." \
                  --build-arg user_name=$user_name --build-arg password=$user_password --build-arg apt_source=$APT_SOURCE \
                  --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY \
                  --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY \
