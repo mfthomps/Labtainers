@@ -39,6 +39,7 @@ import InspectLocalReg
 import InspectRemoteReg
 import LabtainerLogging
 import ParseLabtainerConfig
+import LabtainerBase
 '''
 Force the test_registry named in labtainer.config to match the content of the
 default registry, e.g., DockerHub.  NOTE: this is only intended to be run when
@@ -79,7 +80,7 @@ def refreshLab(labdir, lab, role, remote_reg, local_reg, logger, no_copy):
         remote_created, remote_user, remote_version, tag = InspectRemoteReg.inspectRemote(with_reg, logger, no_pull=True)
         logger.debug('%s %s' % (with_reg, remote_created))
         if remote_created is not None:
-            local_created, local_user, local_version, tag, base  = InspectLocalReg.inspectLocal(image, logger, local_reg)
+            local_created, local_user, local_version, tag, base  = InspectLocalReg.inspectLocal(image, logger, local_reg, no_pull=True)
             logger.debug('%s %s' % (image, local_created))
             if local_created != remote_created:
                 print('DIFFERENT: %s:%s local created/version %s/%s  remote: %s/%s' % (lab, container, local_created, 
@@ -198,21 +199,20 @@ def doUpdateOrRefresh(local_registry, remote_registry, args, lgr):
                 else:
                     refreshLab(labdir, lab, 'student', remote_registry, local_registry, lgr, args.no_copy)
     
-        base_names = ['base', 'network', 'firefox', 'wireshark', 'java', 'centos', 'centos.xtra', 'lamp', 'lamp.xtra', 'kali', 'metasploitable', 'wine']
         print('Comparing base images in %s to  %s, and replacing content of %s if different' % (local_registry, remote_registry, local_registry))
+        base_names = LabtainerBase.getBaseList()
         for base in base_names:
-            full = 'labtainer.%s' % (base)
-            with_registry = '%s/labtainer.%s' % (remote_registry, base)
-            print(full)
+            with_registry = '%s/%s' % (remote_registry, base)
+            print(base)
             remote_created, remote_user = RemoteBase.inspectRemote(with_registry, lgr)
-            local_created, local_user = LocalBase.inspectLocal(full, lgr, local_registry)
+            local_created, local_user = LocalBase.inspectLocal(base, lgr, local_registry)
             if remote_created != local_created:
-                print('Difference in %s,  local: %s  remote: %s' % (full, local_created, remote_created))
+                print('Difference in %s,  local: %s  remote: %s' % (base, local_created, remote_created))
                 if not args.no_copy:
                     if not args.refresh:
-                        pull_push(full, local_registry, remote_registry)
+                        pull_push(base, local_registry, remote_registry)
                     else:
-                        pull_push(full, remote_registry, local_registry)
+                        pull_push(base, remote_registry, local_registry)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Compare base images and replace if different')

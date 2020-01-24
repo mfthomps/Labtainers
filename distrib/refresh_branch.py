@@ -38,6 +38,7 @@ import InspectLocalReg
 import LabtainerLogging
 import ParseLabtainerConfig
 import registry
+import LabtainerBase
 
 '''
 Force the registry associated with the current git branch (see config/registry.config)
@@ -94,18 +95,17 @@ def doLab(lab_dir, lab, role, source_reg, dest_reg, logger, no_copy):
         checkDates(image, source_reg, dest_reg, no_copy, lab, logger)
 
 def doBases(source_registry, dest_registry, no_copy):
-    base_names = ['base', 'network', 'firefox', 'wireshark', 'java', 'centos', 'centos.xtra', 'lamp', 'lamp.xtra', 'kali', 'metasploitable', 'wine']
     print('Comparing base images in %s to  %s, and replacing content of %s if different' % (dest_registry, source_registry, dest_registry))
+    base_names = LabtainerBase.getBaseList()
     for base in base_names:
-        full = 'labtainer.%s' % (base)
-        with_registry = '%s/labtainer.%s' % (source_registry, base)
-        print(full)
-        source_created, local_user = LocalBase.inspectLocal(full, lgr, source_registry)
-        dest_created, local_user = LocalBase.inspectLocal(full, lgr, dest_registry)
+        with_registry = '%s/%s' % (source_registry, base)
+        print(base)
+        source_created, local_user = LocalBase.inspectLocal(base, lgr, source_registry)
+        dest_created, local_user = LocalBase.inspectLocal(base, lgr, dest_registry)
         if source_created != dest_created:
-            print('Difference in %s,  source: %s  destination: %s' % (full, source_created, dest_created))
+            print('Difference in %s,  source: %s  destination: %s' % (base, source_created, dest_created))
             if not no_copy:
-                pull_push(full, source_registry, dest_registry)
+                pull_push(base, source_registry, dest_registry)
 
 
 def updateRegistry(source_registry, dest_registry, lgr, lab, no_copy, quiet=False):
