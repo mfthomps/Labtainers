@@ -45,6 +45,12 @@ if __name__ == '__main__':
     if ldir is None:
         print('LABTAINER_DIR not defined, exiting')
         exit(1)
+    elif ldir == '/trunk':
+        ''' special case screw-up of the env variable.  fix it locally. Assume we are in labtainer-student '''
+        ldir = os.abspath('../..')
+        os.putenv("LABTAINER_DIR", ldir)
+        os.environ['LABTAINER_DIR'] = ldir
+        
     config_file = os.path.join(os.getenv('LABTAINER_DIR'), 'config', 'labtainer.config') 
     logger = LabtainerLogging.LabtainerLogging("/tmp/imodule.log", '', config_file)
     parser = argparse.ArgumentParser(prog='add-imodule', description='Add an imodule URL to extend the set of labs available to this Labtainers installation.')
