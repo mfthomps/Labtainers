@@ -54,7 +54,8 @@ class ParseStartConfig():
         self.caller = 'student'
         self.host_home_xfer= "" # HOST_HOME_XFER - directory to transfer artifact to/from containers
         self.lab_master_seed= None # LAB_MASTER_SEED - this is the master seed string for to this laboratory
-        self.grade_container = None # GRADE_CONTAINER - this is where the instructor performs the grading
+        self.grade_container = None # Deprecated
+        self.registry = None # Registry used for this lab, defaults to LabtainerConfig default_registry
         self.logger = logger
         self.fname = fname
         self.skip_networks = skip_networks
@@ -351,7 +352,10 @@ class ParseStartConfig():
             if use_test_registry is not None and (use_test_registry.lower() == 'yes' or use_test_registry.lower() == 'true'):
                 self.containers[name].registry = self.labtainer_config.test_registry
             elif self.containers[name].registry == None:
-                self.containers[name].registry = self.labtainer_config.default_registry
+                if self.registry is None:
+                    self.containers[name].registry = self.labtainer_config.default_registry
+                else:
+                    self.containers[name].registry = self.registry
             if self.clone_count is not None and self.containers[name].client == 'yes':
                 if self.containers[name].clone is not None:
                     self.logger.error('Cannot specify clone_count for container having CLONE set in the start.config file')
