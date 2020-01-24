@@ -37,6 +37,10 @@ if [[ "$2" != -f ]]; then
    echo "This will build the labtainer $1 image.  "
    echo "Confirm that the dependent images have been published."
    echo "registry is $LABTAINER_REGISTRY"
+   if [[ "$2" != -c ]]; then
+       echo "This build will not use the docker cache, and may take a long time."
+       echo "Use the -c option to speed things up."
+   fi
    read -p "Continue? (y/n)"
    if [[ ! $REPLY =~ ^[Yy]$ ]]
    then
@@ -46,9 +50,13 @@ if [[ "$2" != -f ]]; then
 else
    echo "registry is $LABTAINER_REGISTRY"
 fi
+CACHE="--no-cache"
+if [[ "$2" == -c ]]; then
+    CACHE=""
+fi
 here=`pwd`
 cd ../
-docker build --build-arg registry=$LABTAINER_REGISTRY -f base_dockerfiles/Dockerfile.labtainer.$1 -t labtainer.$1:latest .
+docker build $CACHE --build-arg registry=$LABTAINER_REGISTRY -f base_dockerfiles/Dockerfile.labtainer.$1 -t labtainer.$1:latest .
 result=$?
 cd $here
 exit $result
