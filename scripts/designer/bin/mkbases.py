@@ -32,6 +32,9 @@ def doBase(image_name, registry):
         os.system(cmd)
         cmd = 'docker push %s/%s' % (registry, image_name)
         os.system(cmd)
+    else:
+        print('Error creating image %s, exit' % image_name)
+        exit(1)
         
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Rebuild all Labtainer base images (if their Dockerfiles are newer than the base image)')
