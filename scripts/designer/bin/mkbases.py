@@ -71,6 +71,7 @@ if __name__ == '__main__':
                 logger.debug('No image info for %s  rebuild' % image_name)
                 if not args.no_build:
                     doBase(image_name, registry)
+                    logger.debug('Did rebuild of %s' % image_name)
                 continue
             x=parse(image_info.creation)
             ts = calendar.timegm(x.timetuple())
