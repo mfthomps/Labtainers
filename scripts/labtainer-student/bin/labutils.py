@@ -1127,7 +1127,7 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
         ''' create sys_tar and home_tar before checking build dependencies '''
         CheckTars.CheckTars(container_dir, name, logger)
         if force_this_build or CheckBuild(lab_path, mycontainer_image_name, image_info, mycontainer_name, 
-                                   name, True, container_bin, start_config, base_registy, container.user):
+                                   name, True, container_bin, start_config, base_registry, container.user):
 
             if no_build:
                 logger.debug("Would (but won't) rebuild %s" % (mycontainer_name))
