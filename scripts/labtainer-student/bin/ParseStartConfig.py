@@ -56,6 +56,7 @@ class ParseStartConfig():
         self.lab_master_seed= None # LAB_MASTER_SEED - this is the master seed string for to this laboratory
         self.grade_container = None # Deprecated
         self.registry = None # Registry used for this lab, defaults to LabtainerConfig default_registry
+        self.base_registry = None # Registry used base images when building this lab, defaults to LabtainerConfig default_registry
         self.logger = logger
         self.fname = fname
         self.skip_networks = skip_networks
@@ -97,6 +98,7 @@ class ParseStartConfig():
             self.script = "bash"
             self.x11 = "no"
             self.registry = None
+            self.base_registry = None
             self.terminal_group = None
             self.add_hosts = []
             self.no_privilege = 'no'
@@ -351,11 +353,17 @@ class ParseStartConfig():
                self.containers[name].script = "";
             if use_test_registry is not None and (use_test_registry.lower() == 'yes' or use_test_registry.lower() == 'true'):
                 self.containers[name].registry = self.labtainer_config.test_registry
-            elif self.containers[name].registry == None:
-                if self.registry is None:
-                    self.containers[name].registry = self.labtainer_config.default_registry
-                else:
-                    self.containers[name].registry = self.registry
+            else:
+                if self.containers[name].registry == None:
+                    if self.registry is None:
+                        self.containers[name].registry = self.labtainer_config.default_registry
+                    else:
+                        self.containers[name].registry = self.registry
+                if self.containers[name].base_registry == None:
+                    if self.base_registry is None:
+                        self.containers[name].base_registry = self.labtainer_config.default_registry
+                    else:
+                        self.containers[name].base_registry = self.base_registry
             if self.clone_count is not None and self.containers[name].client == 'yes':
                 if self.containers[name].clone is not None:
                     self.logger.error('Cannot specify clone_count for container having CLONE set in the start.config file')

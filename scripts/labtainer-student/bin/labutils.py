@@ -1084,8 +1084,10 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
         mycontainer_image_name = container.image_name
         if container.registry == labtainer_config.test_registry:
             branch, container_registry = registry.getBranchRegistry()
+            base_registry = container_registry
         else:
             container_registry = container.registry
+            base_registry = container.base_registry
         retval.add(container_registry)
 
         clone_names = GetContainerCloneNames(container)
@@ -1124,7 +1126,8 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
         BigExternal.BigExternal(lab_path)
         ''' create sys_tar and home_tar before checking build dependencies '''
         CheckTars.CheckTars(container_dir, name, logger)
-        if force_this_build or CheckBuild(lab_path, mycontainer_image_name, image_info, mycontainer_name, name, True, container_bin, start_config, container_registry, container.user):
+        if force_this_build or CheckBuild(lab_path, mycontainer_image_name, image_info, mycontainer_name, 
+                                   name, True, container_bin, start_config, base_registy, container.user):
 
             if no_build:
                 logger.debug("Would (but won't) rebuild %s" % (mycontainer_name))
