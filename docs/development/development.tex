@@ -530,6 +530,23 @@ add         ADD-HOST fonts.googleapis.com:127.0.0.1 to start.config to shut it u
 In the VM .profile, move the terminal creation functions to a seperate script run in background -- seems .profile must finish or VMWare Horizen 
 borks the Terminal Server startup.
 
+Smoketests still sometimes fail with bad routing tables and/or iptables.  Run check\_nets.py to test.
+
+Use of Docker cache leads to build dependency errors in which a source file changes but has not actual effect on the image.  If the image
+checksum matches the cache, the date is not altered, and thus the next build will see a false dependency since the source will continue to
+be newer than the image.  Modified building of base images to default to --no-cache; modified building lab images to allow supressing use of cache,
+though still defaults to use of cache.
+
+Dependence on LABTAINER\_DIR introduced with imodules, and will spread and backfill from there.  However, current installations have an invalid
+value for that env variable.  An updated update-labtainer.sh fixes that.  But update must run twice for it to take effect within the bashrc.
+After the first run of update-labtainer, the imodule function will be available, but without the value being set.  Add diagnostic to imodule to
+prompt for re-run of update-labtainer.  Or just hack around it?
+
+\subsubsection {IModules}
+The DoRebuild function defines a container\_registry, which is then used to query info about this image, but is also used to define the
+registry within the Dockerfile, where the base is pulled, i.e.,the FROM statement.  It seems there needs to be a BASE\_REGISTRY as well as
+a REGISTRY, with the former defaulting to the default registry per LabtainerConfig.
+
 \subsubsection {Base images IDs}
 The base image information placed in labels of lab container images include the registry name for which the image was built.  Since we push
 premaster registry images to DockerHub, the public lab images have a label reflecting the premaster test registry.
