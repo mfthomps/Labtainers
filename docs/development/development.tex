@@ -547,6 +547,9 @@ The DoRebuild function defines a container\_registry, which is then used to quer
 registry within the Dockerfile, where the base is pulled, i.e.,the FROM statement.  It seems there needs to be a BASE\_REGISTRY as well as
 a REGISTRY, with the former defaulting to the default registry per LabtainerConfig.
 
+How do we manage name conflicts between labs?  That works natrually by precidence.  But between base images?  Where a designer wants base
+images from multiple registries, how are they named within the test registry since that collapses all registry designators into the one test?
+
 \subsubsection {Base images IDs}
 The base image information placed in labels of lab container images include the registry name for which the image was built.  Since we push
 premaster registry images to DockerHub, the public lab images have a label reflecting the premaster test registry.
