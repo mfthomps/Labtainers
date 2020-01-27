@@ -61,10 +61,13 @@ if __name__ == '__main__':
     os.chdir(mycwd)
     if args.dockerhub:
        registry = labtainer_config.default_registry
+       print('Get registry dates from Docker Hub')
     elif not args.premaster:
        branch, registry = registry.getBranchRegistry()
+       print('Get registry dates for branch %s from %s' % (branch, registry))
     else:
        registry = labtainer_config.test_registry
+       print('Get registry dates for PREMASTER from %s' % (registry))
     if args.lab == None:
         skip_labs = 'skip-labs'
         skip = []
