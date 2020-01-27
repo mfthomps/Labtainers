@@ -85,7 +85,20 @@ def inspectLocal(image, lgr, test_registry, is_rebuild=False, quiet=False, no_pu
 
     return created, user, version, use_tag, base
 
-
+def checkRegistryExists(test_registry, lgr):
+    cmd = 'curl http://%s/v2/' % test_registry
+    retval = True
+    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if len(output[0]) > 0:
+        val = output[0].decode('utf-8')
+        if val.strip() != '{}':
+            lgr.error('Registry %s not reachable: %s' % (test_registry, output[0].decode('utf-8')))
+            retval = False
+    else:
+        lgr.error('Registry %s not reachable: %s' % (test_registry, output[0].decode('utf-8')))
+        retval = False
+    return retval
     
 def getTags(image, test_registry):
     cmd =   'curl --silent --header "Accept: application/vnd.docker.distribution.manifest.v2+json"  "http://%s/v2/%s/tags/list"' % (test_registry, image)
