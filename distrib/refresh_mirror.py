@@ -111,7 +111,7 @@ def updateLab(labdir, lab, role, remote_reg, local_reg, logger, no_copy):
         except:
             print('could not get image from %s' % df);
             continue
-        local_created, local_user, local_version, tag, base  = InspectLocalReg.inspectLocal(image, logger, local_reg)
+        local_created, local_user, local_version, tag, base  = InspectLocalReg.inspectLocal(image, logger, local_reg, no_pull=True)
 
         if local_created is not None:
             with_reg = '%s/%s' % (remote_reg, image)
