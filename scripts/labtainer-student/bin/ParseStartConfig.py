@@ -270,10 +270,6 @@ class ParseStartConfig():
            self.logger.error("Missing lab_master_seed in start.config!\n")
            exit(1)
 
-        if not self.grade_container:
-            self.logger.error("Missing grade_container in start.config!\n")
-            exit(1)
-        
         if not self.skip_networks:
             for subnet in self.subnets.values():
                 subnet.validate()
@@ -289,10 +285,6 @@ class ParseStartConfig():
         # fixing up global parameters
         self.host_home_xfer = os.path.join(self.host_home_xfer,self.labname)
         self.lab_master_seed = self.labname + self.lab_master_seed
-        if self.grade_container == "default":
-            self.grade_container = self.labname + "." + self.caller 
-        else:
-            self.grade_container = self.labname + "." + self.grade_container + "." + self.caller 
 
         ''' fix macvlan networks, assign use_macvan value based on whether ...'''
         for net in self.subnets:
