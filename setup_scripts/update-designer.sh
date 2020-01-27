@@ -84,8 +84,10 @@ else
     cp /media/sf_SEED/test_vms/$HOSTNAME/labtainer-developer.tar .
     echo "USING SHARED FILE TAR, NOT PULLING FROM WEB"
 fi
-sudo trunk/setup_scripts/dns-add.py
-sudo systemctl restart docker
+if [[ "$TEST_REGISTRY" != TRUE ]]; then
+   sudo trunk/setup_scripts/dns-add.py
+   sudo systemctl restart docker
+fi
 #sudo -H pip install netaddr parse python-dateutil
 cd ..
 # ad-hoc clean up.  remove after a while
