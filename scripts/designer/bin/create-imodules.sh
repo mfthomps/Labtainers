@@ -53,7 +53,7 @@ for lab in $llist; do
     echo "lab is $lab"
         config=$(git ls-files $lab | grep config)
         if [[ ! -z "$config" ]]; then
-            $distrib_dir/fix-git-dates.py $lab/config $ltrunk $branch
+            $distrib_dir/fix-git-dates.py $lab/config $labs $branch
         fi
         instr_config=$(git ls-files $lab | grep instr_config)
         if [[ ! -z "$instr_config" ]]; then
