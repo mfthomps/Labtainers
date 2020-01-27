@@ -4,7 +4,7 @@
 # Expects a directory at /media/sf_SEED into which it
 # will copy the distribution tar.
 #
-revision=`git describe --long`
+revision=`git describe --always`
 myshare=/media/sf_SEED/
 here=`pwd`
 cd ../
