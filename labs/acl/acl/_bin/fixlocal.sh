@@ -12,6 +12,7 @@ echo $1 | sudo -S chmod 660 /shared_data/bob/bobstuff.txt
 echo $1 | sudo -S chown -R alice:alice /shared_data/alice
 echo umask 007 | sudo tee -a /home/bob/.bashrc
 echo umask 007 | sudo tee -a /home/alice/.bashrc
+echo $1 | sudo -S chmod 640 /shared_data/accounting.txt
 echo $1 | sudo -S setfacl -m "u:harry:rw" /shared_data/accounting.txt
 echo $1 | sudo -S setfacl -m "u:alice:r" /shared_data/accounting.txt
 echo $1 | sudo gpasswd -d alice wheel
