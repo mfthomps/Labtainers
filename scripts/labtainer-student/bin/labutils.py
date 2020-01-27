@@ -933,7 +933,7 @@ def inspectImage(image_name):
         version = output[0].decode('utf-8').strip()
     return created, user, version
 
-def imageInfo(image_name, registry, labtainer_config, is_rebuild=False, no_pull=False, quiet=False):
+def imageInfo(image_name, registry, labtainer_config, is_rebuild=False, no_pull=False, quiet=False, local_build=False):
     ''' image_name lacks registry info (always) 
         First look if plain image name exists, suggesting
         an ongoing build/test situation '''    
@@ -950,20 +950,22 @@ def imageInfo(image_name, registry, labtainer_config, is_rebuild=False, no_pull=
         if created is not None:
             retval = ImageInfo(with_registry, created, user, True, False, version, use_tag) 
             logger.debug('%s local from reg, ts %s %s version: %s' % (with_registry, created, user, version)) 
-        elif not no_pull:
+        elif not local_build:
             ''' See if the image exists in the desired registry '''
             reg_host = None
             if ':' in labtainer_config.test_registry:
                 reg_host = labtainer_config.test_registry.split(':')[0]
             if reg_host is not None and registry.startswith(reg_host):
-                created, user, version, use_tag, base = InspectLocalReg.inspectLocal(image_name, logger, registry, is_rebuild, quiet)
+                created, user, version, use_tag, base = InspectLocalReg.inspectLocal(image_name, logger, 
+                                  registry, is_rebuild=is_rebuild, quiet=quiet, no_pull=no_pull)
             else:
-                created, user, version, use_tag = InspectRemoteReg.inspectRemote(with_registry, logger, is_rebuild, quiet)
+                created, user, version, use_tag = InspectRemoteReg.inspectRemote(with_registry, logger, 
+                                  is_rebuild=is_rebuild, quiet=quiet, no_pull=no_pull)
             if created is not None:
                 logger.debug('%s only on registry %s, ts %s %s version %s use_tag %s' % (with_registry, registry, created, user, version, use_tag)) 
                 retval = ImageInfo(with_registry, created, user, False, False, version, use_tag)
     if retval is None:
-        logger.debug('%s not found anywhere' % image_name)
+        logger.debug('%s not found local_build was %r' % (image_name, local_build))
 
     return retval
 
@@ -1006,8 +1008,8 @@ def GetBothConfigs(lab_path, logger, servers=None, clone_count=None):
                        labtainer_config, logger, servers=servers, clone_count=clone_count)
     return labtainer_config, start_config
 
-def RebuildLab(lab_path, force_build=False, quiet_start=False, 
-               just_container=None, run_container=None, servers=None, clone_count=None, no_pull=False, use_cache=True):
+def RebuildLab(lab_path, force_build=False, quiet_start=False, just_container=None, 
+         run_container=None, servers=None, clone_count=None, no_pull=False, use_cache=True, local_build=False):
     # Pass 'True' to ignore_stop_error (i.e., ignore certain error encountered during StopLab
     #                                         since it might not even be an error)
     StopLab(lab_path, True, run_container=run_container, servers=servers, clone_count=clone_count)
@@ -1022,7 +1024,7 @@ def RebuildLab(lab_path, force_build=False, quiet_start=False,
     DoRebuildLab(lab_path, force_build=force_build, 
                  just_container=just_container, start_config = start_config, 
                  labtainer_config = labtainer_config, run_container=run_container, 
-                 servers=servers, clone_count=clone_count, no_pull=no_pull, use_cache=use_cache)
+                 servers=servers, clone_count=clone_count, no_pull=no_pull, use_cache=use_cache, local_build=local_build)
 
     # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
     host_home_xfer = labtainer_config.host_home_xfer
@@ -1060,7 +1062,7 @@ def removeStrays(container_dir, name, labname):
 
 def DoRebuildLab(lab_path, force_build=False, just_container=None, 
                  start_config=None, labtainer_config=None, run_container=None, servers=None, 
-                 clone_count=None, no_pull=False, no_build=False, use_cache=True):
+                 clone_count=None, no_pull=False, no_build=False, use_cache=True, local_build=False):
     retval = set()
     labname = os.path.basename(lab_path)
     is_valid_lab(lab_path)
@@ -1107,9 +1109,16 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
         if container.no_pull == 'YES':
             no_pull = True
         logger.debug('force_this_build: %r no_pull %r' % (force_this_build, no_pull))
-        image_info = imageInfo(mycontainer_image_name, container_registry, labtainer_config, is_rebuild=True, no_pull=no_pull)
+        image_info = imageInfo(mycontainer_image_name, container_registry, labtainer_config, 
+                    is_rebuild=True, no_pull=no_pull, local_build=local_build)
         if not force_this_build and image_info is None:
-            logger.debug('image exists nowhere, so force the build')
+            if not local_build:
+                logger.debug('Image %s exists nowhere, so force the build' % mycontainer_image_name)
+                print('Image %s exists nowhere, so force the build' % mycontainer_image_name)
+            else:
+                logger.debug('Image %s does not exist locally.  Local build requested, so force the build' % mycontainer_image_name)
+                print('Image %s does not exist locally.  Local build requested, so force the build' % mycontainer_image_name)
+                 
             force_this_build = True
         container_dir = os.path.join(lab_path, name)
         try:
@@ -1144,7 +1153,7 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
 
             if os.path.isfile(build_student):
                 cmd = '%s %s %s %s %s %s %s %s %s %s %s %s' % (build_student, labname, name, container.user, 
-                      container.password, True, LABS_DIR, labtainer_config.apt_source, container_registry, framework_version, str(no_pull), str(use_cache))
+                      container.password, True, LABS_DIR, labtainer_config.apt_source, container_registry, framework_version, str(local_build), str(use_cache))
             else:
                 logger.error("no image rebuild script\n")
                 exit(1)
