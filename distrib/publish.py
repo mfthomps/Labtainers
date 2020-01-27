@@ -113,6 +113,8 @@ def pushIt(lab, docker_dir, registry, logger):
 
 def DoLab(lab, labsdir, force, logger, do_login, use_default_registry, default_registry, no_build=False):
     logger.debug('DoLab for %s' % lab)
+    if not no_build:
+        removelab.removeLab(lab)
     lab_dir = os.path.join(labsdir, lab)
     registry_set = rebuild(lab, labsdir, force, no_build, logger)
     if len(registry_set) > 1:
@@ -123,18 +125,19 @@ def DoLab(lab, labsdir, force, logger, do_login, use_default_registry, default_r
         return
     else:
         registry = list(registry_set)[0]
-    logger.debug('back from rebuild with registry of %s' % registry)
-    ''' should we login?  Never if test registry '''
-    if use_default_registry:
-        if registry is not None and registry != default_registry:
-            print('registry %s not equal %s, login' % (registry, default_registry))
-            os.system('docker login -u %s' % registry)
-        else:
-            registry = default_registry
-            if do_login:
+    logger.debug('Back from rebuild with registry of %s' % registry)
+    if not no_build:
+        ''' should we login?  Never if test registry '''
+        if use_default_registry:
+            if registry is not None and registry != default_registry:
+                print('registry %s not equal %s, login' % (registry, default_registry))
                 os.system('docker login -u %s' % registry)
-    docker_dir = os.path.join(labsdir, lab, 'dockerfiles')
-    pushIt(lab, docker_dir, registry, logger)
+            else:
+                registry = default_registry
+                if do_login:
+                    os.system('docker login -u %s' % registry)
+        docker_dir = os.path.join(labsdir, lab, 'dockerfiles')
+        pushIt(lab, docker_dir, registry, logger)
 
 def main():
     parser = argparse.ArgumentParser(description='Build the images labs and publish to a registry')
@@ -185,7 +188,7 @@ def main():
         # Do login here and now so we don't wait for lab to build before prompt
         if args.default_registry:
             os.system('docker login -u %s' % default_registry)
-        DoLab(args.lab, labsdir, args.force, logger, False, args.default_registry, default_registry)
+        DoLab(args.lab, labsdir, args.force, logger, False, args.default_registry, default_registry, no_build=args.no_build)
     else:    
         # do them all.  warn of incomplete git
         mycwd = os.getcwd()
