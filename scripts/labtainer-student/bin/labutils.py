@@ -1153,7 +1153,7 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
 
             if os.path.isfile(build_student):
                 cmd = '%s %s %s %s %s %s %s %s %s %s %s %s' % (build_student, labname, name, container.user, 
-                      container.password, True, LABS_DIR, labtainer_config.apt_source, container_registry, framework_version, str(local_build), str(use_cache))
+                      container.password, True, LABS_DIR, labtainer_config.apt_source, base_registry, framework_version, str(local_build), str(use_cache))
             else:
                 logger.error("no image rebuild script\n")
                 exit(1)
