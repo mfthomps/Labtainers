@@ -72,9 +72,10 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
-January 23, 2020
+January 27, 2020
 - Introduce initial support for IModules (instructor-developed labs).  See docs/imodules.pdf.
-- Fix broken LABTAINER_DIR env variable within update-labtainer
+- Fix broken LABTAINER\_DIR env variable within update-labtainer
+- Fix access mode on accounting.txt file in ACL lab (had become rw-r-r).  Use explicit chmod in fixlocal.sh.
 
 January 14, 2020
 - Port framework and gradelab to Python3 (existing Python2 labs will not change)
