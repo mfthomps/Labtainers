@@ -10,10 +10,6 @@
 # Refer to the "Labtainer Lab Designer User Guide" for details. 
 
 GLOBAL_SETTINGS
-        # GRADE_CONTAINER - container where instructor will perform grading
-        # Change the default to the name of one of your containers, otherwise 
-        # a container will be picked for you.
-	GRADE_CONTAINER default
 
         # HOST_HOME_XFER - directory to transfer artifact to/from containers, relative to the user's HOME
 	HOST_HOME_XFER seed_dir/
