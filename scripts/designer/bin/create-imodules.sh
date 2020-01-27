@@ -82,3 +82,6 @@ for lab in $llist; do
 done
 cd $labs
 tar -cz -f $LABTAINER_DIR/imodule.tar .
+echo "*********************************************************"
+echo "**  Post $LABTAINER_DIR/imodule.tar to your web server **"
+echo "*********************************************************"
