@@ -62,6 +62,7 @@ class LabtainerLogging():
 
         self.logger.addHandler(file_handler)
         self.logger.addHandler(console_handler)
+        self.file_name = logfilename
 
     def debug(self, message):
         func = inspect.currentframe().f_back

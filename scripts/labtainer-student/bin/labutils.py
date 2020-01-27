@@ -1166,9 +1166,8 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
                     #if 'Error in docker build result 1' in line:
                     if 'Error in docker build result 1' in line or 'Error in docker build result 2' in line \
                        or 'syntax error' in line:
-                      handler = logger.handlers[0]
-                      fname = handler.baseFilename
-                      logger.error("%s\nPlease fix Dockerfile.%s.%s.student. Look in %s for specifics on the error." % (line, labname, name, fname))
+                      logger.error("%s\nPlease fix Dockerfile.%s.%s.student. Look in %s for specifics on the error." % (line, 
+                            labname, name, logger.file_name))
                       fatal_error = True
                     else:
                         logger.debug(line)
@@ -1179,9 +1178,8 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
                 if line != '':
                     if 'Error in docker build result 1' in line or 'Error in docker build result 2' in line \
                        or 'syntax error' in line:
-                        handler = logger.handlers[0]
-                        fname = handler.baseFilename
-                        logger.error("%s\nPlease fix Dockerfile.%s.%s.student. Look in %s for specifics on the error." % (line, labname, name, fname))
+                        logger.error("%s\nPlease fix Dockerfile.%s.%s.student. Look in %s for specifics on the error." % (line, 
+                               labname, name, logger.file_name))
                         fatal_error = True
                     else:
                         logger.debug(line)
