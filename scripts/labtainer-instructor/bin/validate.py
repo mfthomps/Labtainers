@@ -425,7 +425,6 @@ def setup_to_validate(lab_path, labname, validatetestsets, validatetestsets_path
     email_labname = "%s.%s" % (user_email.replace("@","_at_"), labname)
 
     container_list = []
-    container_list.append(start_config.grade_container)
     for name, container in start_config.containers.items():
         if container.full_name not in container_list:
             container_list.append(container.full_name)
