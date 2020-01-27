@@ -39,6 +39,8 @@ import ParseLabtainerConfig
 import labutils
 import VersionInfo
 import removelab
+import registry
+import InspectLocalReg
 '''
 Build and publish labtainer images.  Use -h option for help.
 '''
@@ -140,6 +142,11 @@ def DoLab(lab, labsdir, force, logger, do_login, use_default_registry, default_r
         pushIt(lab, docker_dir, registry, logger)
 
 def main():
+    src_path = '../'
+    labtainer_config_file = os.path.join(src_path, 'config', 'labtainer.config')
+    logger = LabtainerLogging.LabtainerLogging("/tmp/labtainer-publish.log", 'publish', labtainer_config_file)
+    labutils.logger = logger
+
     parser = argparse.ArgumentParser(description='Build the images labs and publish to a registry')
     parser.add_argument('-l', '--lab', action='store', help='build and publish just this lab')
     parser.add_argument('-s', '--start', action='store', help='all labs starting with this one')
@@ -150,25 +157,24 @@ def main():
     args = parser.parse_args()
     if not args.default_registry:
         if os.getenv('TEST_REGISTRY') is None:
-            print('use putenv to set it')
+            #print('use putenv to set it')
             os.putenv("TEST_REGISTRY", "TRUE")
             ''' why does putenv not set the value? '''
             os.environ['TEST_REGISTRY'] = 'TRUE'
         else:
-            print('exists, set it true')
+            #print('exists, set it true')
             os.environ['TEST_REGISTRY'] = 'TRUE'
-        print('set TEST REG to %s' % os.getenv('TEST_REGISTRY'))
+        branch, test_registry = registry.getBranchRegistry()
+        print('Using test registry %s' % test_registry)
+        ok = InspectLocalReg.checkRegistryExists(test_registry, logger)
+        if not ok:
+            print('Default is to use a test registry, which does not seem to exist.  Use -d option to force publishing directly to Docker Hub')
+            exit(1)
     else:
         if os.getenv('TEST_REGISTRY') is not None:
             print('Request to use default registry, but TEST_REGISTRY is set.  Unset that first.')
             exit(1)
 
-    src_path = '../'
-    labtainer_config_file = os.path.join(src_path, 'config', 'labtainer.config')
-    logger = LabtainerLogging.LabtainerLogging("/tmp/labtainer-publish.log", 'publish', labtainer_config_file)
-    labutils.logger = logger
-
-    
     skip_labs = 'skip-labs'
 
     skip = []
