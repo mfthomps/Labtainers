@@ -1,4 +1,4 @@
-#~/bin/bash
+#/bin/bash
 #
 # Make distributions of labtainers
 #
