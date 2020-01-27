@@ -191,9 +191,6 @@ def main():
 
     if args.lab is not None:
         logger.debug('Doing just one lab %s labsdir %s' % (args.lab, labsdir))
-        # Do login here and now so we don't wait for lab to build before prompt
-        if args.default_registry:
-            os.system('docker login -u %s' % default_registry)
         DoLab(args.lab, labsdir, args.force, logger, False, args.default_registry, default_registry, no_build=args.no_build)
     else:    
         # do them all.  warn of incomplete git
@@ -211,6 +208,7 @@ def main():
             if not args.quiet:
                 dumb = input("any key to continue") 
     
+        # Do login here and now so we don't wait for lab to build before prompt
         if args.default_registry:
             os.system('docker login -u %s' % default_registry)
         #cmd = 'svn ls  https://tor.ern.nps.edu/svn/proj/labtainer/trunk/labs'
