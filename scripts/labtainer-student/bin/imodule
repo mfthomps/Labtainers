@@ -47,7 +47,7 @@ if __name__ == '__main__':
         exit(1)
     elif ldir == '/trunk':
         ''' special case screw-up of the env variable.  fix it locally. Assume we are in labtainer-student '''
-        ldir = os.abspath('../..')
+        ldir = os.path.abspath('../..')
         os.putenv("LABTAINER_DIR", ldir)
         os.environ['LABTAINER_DIR'] = ldir
         
