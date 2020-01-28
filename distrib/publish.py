@@ -142,13 +142,10 @@ def DoLab(lab, labsdir, force, logger, do_login, use_default_registry, default_r
     registry = None
     for ri in registry_info:
         if registry is not None and ri.registry != registry:
-            logger.error('no current support for images from multiple registries')
+            logger.error('no current support for images from multiple registries, got %s and %s' % (ri.registry, registry))
             exit(1)
         else:
             registry = ri.registry
-    if len(registry_info) > 1:
-        logger.error('no current support for images from multiple registries')
-        exit(1)
     logger.debug('Back from rebuild with registry of %s' % registry)
     if not no_build:
         ''' should we login?  Never if test registry '''
