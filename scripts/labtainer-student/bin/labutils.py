@@ -1062,10 +1062,17 @@ def removeStrays(container_dir, name, labname):
         logger.debug('Stray docker file %s will be deleted' % df)
         os.remove(df)
 
+class RegistryInfo():
+    def __init__(self, name, image_name, registry, base_registry):
+        self.name = name
+        self.image_name = image_name
+        self.registry = registry
+        self.base_registry = base_registry
+
 def DoRebuildLab(lab_path, force_build=False, just_container=None, 
                  start_config=None, labtainer_config=None, run_container=None, servers=None, 
                  clone_count=None, no_pull=False, no_build=False, use_cache=True, local_build=False):
-    retval = set()
+    retval = []
     labname = os.path.basename(lab_path)
     is_valid_lab(lab_path)
     if start_config is None:
@@ -1092,7 +1099,8 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
         else:
             container_registry = container.registry
             base_registry = container.base_registry
-        retval.add(container_registry)
+
+        retval.append(RegistryInfo(name, container.image_name, container_registry, base_registry))
 
         clone_names = GetContainerCloneNames(container)
         for clone_full in clone_names:
@@ -1111,7 +1119,7 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
         if container.no_pull == 'YES':
             no_pull = True
         logger.debug('force_this_build: %r no_pull %r' % (force_this_build, no_pull))
-        image_info = imageInfo(mycontainer_image_name, container_registry, labtainer_config, 
+        image_info = imageInfo(mycontainer_image_name, container_registry, base_registry, labtainer_config, 
                     is_rebuild=True, no_pull=no_pull, local_build=local_build)
         if not force_this_build and image_info is None:
             if not local_build:
