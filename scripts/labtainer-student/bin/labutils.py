@@ -1897,11 +1897,12 @@ def FileModLater(ts, fname, big_list=[]):
         logger.debug('line: <%s>' % line)
         ''' ignore empty tar archives '''
         if line.startswith('?'):
+            f = line.strip().split()[1]
             if os.path.isfile(fname):
                 has_svn = False
             else:
-                has_svn = True
-            f = line.strip().split()[1]
+                if os.path.abspath(f) != fname:
+                    has_svn = True
             if f.endswith('.tar'):
                 if EmptyTar(f):
                     continue
@@ -2039,7 +2040,7 @@ def newest_file_in_tree(rootfolder):
             return max(
                 (os.path.join(dirname, filename)
                 for dirname, dirnames, filenames in os.walk(rootfolder)
-                for filename in filenames),
+                for filename in filenames if not filename == 'home.tar' and not filename == 'sys.tar'),
                 key=lambda fn: os.stat(fn).st_mtime)
         except ValueError:
             return rootfolder
@@ -2134,11 +2135,12 @@ def CheckBuild(lab_path, image_name, image_info, container_name, name, is_redo, 
             flist = os.listdir(container_dir)
             for f in flist:
                 check_file = None
-                if f == 'sys_tar':
-                    check_file = os.path.join(container_dir, f, 'sys.tar')
-                elif f == 'home_tar':
-                    check_file = os.path.join(container_dir, f, 'home.tar')
-                elif os.path.isdir(os.path.join(container_dir,f)):
+                #if f == 'sys_tar':
+                #    check_file = os.path.join(container_dir, f, 'sys.tar')
+                #elif f == 'home_tar':
+                #    check_file = os.path.join(container_dir, f, 'home.tar')
+                #elif os.path.isdir(os.path.join(container_dir,f)):
+                if os.path.isdir(os.path.join(container_dir,f)):
                     check_file = newest_file_in_tree(os.path.join(container_dir, f))
                 else:
                     check_file = os.path.join(container_dir, f)
