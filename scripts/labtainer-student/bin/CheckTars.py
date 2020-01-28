@@ -152,8 +152,8 @@ def CheckTars(container_dir, image_name, logger):
                                 logger.debug('copydir %s' % cfile)
                                 copydir(cfile, os.path.join(tmp_loc, cfile))
                             else:
-                                logger.debug('copytree %s' % cfile)
-                                shutil.copytree(cfile, os.path.join(tmp_loc, cfile))
+                                logger.debug('copyfile %s' % cfile)
+                                shutil.copyfile(cfile, os.path.join(tmp_loc, cfile))
                     os.chdir(tmp_loc)
                     full_tar = os.path.join(full, tar_name)
                     if f == 'home_tar':
@@ -180,7 +180,10 @@ def CheckTars(container_dir, image_name, logger):
                     for f in flist:
                         if f == external:
                             continue
-                        shutil.copytree(f , os.path.join(tmp_loc,f))
+                        if os.path.isdir(os.path.join(tmp_loc,f)):
+                            shutil.copytree(f , os.path.join(tmp_loc,f))
+                        else:
+                            shutil.copyfile(f , os.path.join(tmp_loc,f))
                     ''' something is newer than the tar, need to update tar '''
                     if os.path.isfile(os.path.join('./', external)):
                         expandManifest(full, tar_name)
