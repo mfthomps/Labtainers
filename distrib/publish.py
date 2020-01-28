@@ -147,10 +147,10 @@ def DoLab(lab, labsdir, force, logger, do_login, use_default_registry, default_r
         else:
             registry = ri.registry
     logger.debug('Back from rebuild with registry of %s' % registry)
-    if not no_build:
+    if not no_build and registry is not None:
         ''' should we login?  Never if test registry '''
         if use_default_registry:
-            if registry is not None and registry != default_registry:
+            if registry != default_registry:
                 print('registry %s not equal %s, login' % (registry, default_registry))
                 os.system('docker login -u %s' % registry)
             else:
