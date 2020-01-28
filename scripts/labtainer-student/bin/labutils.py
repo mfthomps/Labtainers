@@ -1100,8 +1100,6 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
             container_registry = container.registry
             base_registry = container.base_registry
 
-        retval.append(RegistryInfo(name, container.image_name, container_registry, base_registry))
-
         clone_names = GetContainerCloneNames(container)
         for clone_full in clone_names:
             cmd = 'docker rm %s' % clone_full
@@ -1160,6 +1158,8 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
             if not os.path.isfile(dfile):
                 logger.error("Dockerfile.%s.%s.student is missing from labs/%s/dockerfiles." % (labname, name, labname))
                 exit(1)
+
+            retval.append(RegistryInfo(name, container.image_name, container_registry, base_registry))
 
             if os.path.isfile(build_student):
                 cmd = '%s %s %s %s %s %s %s %s %s %s %s %s' % (build_student, labname, name, container.user, 
