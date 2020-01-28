@@ -81,7 +81,27 @@ def rebuild(labname, labsdir, force, no_build, logger):
     os.chdir(mycwd)
     return retval
 
-def pushIt(lab, docker_dir, registry, logger):
+def pushImage(lab, docker_dir, registry_info, logger):
+    '''
+    Set the label and tags on any newly built image and push it to the given registry.
+    '''
+    did_one = False
+    for ri in registry_info:
+        df = 'Dockerfile.%s.%s.student' % (lab, ri.name)
+        dfile_path = os.path.join(docker_dir,df)
+        image_base = VersionInfo.getFrom(dfile_path, ri.base_registry)
+        base_id = VersionInfo.getImageId(image_base, True)
+        framework_version = labutils.framework_version
+        relabel(ri.image_name, framework_version, image_base, base_id, ri.registry, logger)
+        logger.debug('Did relabel of %s using base_id %s' % (ri.image_name, base_id))
+        did_one = True
+            
+    ''' Delete the lab images. Two reasons: 1) ensure we run registry or dockerHub copy,
+    2) don't push on a rebuild if not rebuilt. '''
+    if did_one:
+        removelab.removeLab(lab)
+
+def pushIt(lab, docker_dir, registry, base_registry, logger):
     '''
     Set the label and tags on any newly built image and push it to the given registry.
     '''
@@ -100,11 +120,11 @@ def pushIt(lab, docker_dir, registry, logger):
         image_exists, dumb, dumb1 = labutils.ImageExists(image, None)
         if image_exists:
             dfile_path = os.path.join(docker_dir,df)
-            image_base = VersionInfo.getFrom(dfile_path, registry)
+            image_base = VersionInfo.getFrom(dfile_path, base_registry)
             base_id = VersionInfo.getImageId(image_base, True)
             framework_version = labutils.framework_version
             relabel(image, framework_version, image_base, base_id, registry, logger)
-            logger.debug('Did relabel of %s' % image)
+            logger.debug('Did relabel of %s using base_id %s' % (image, base_id))
             did_one = True
         else: 
             logger.debug('Have not built %s, nothing to push' % image)
@@ -118,15 +138,17 @@ def DoLab(lab, labsdir, force, logger, do_login, use_default_registry, default_r
     if not no_build:
         removelab.removeLab(lab)
     lab_dir = os.path.join(labsdir, lab)
-    registry_set = rebuild(lab, labsdir, force, no_build, logger)
-    if len(registry_set) > 1:
+    registry_info = rebuild(lab, labsdir, force, no_build, logger)
+    registry = None
+    for ri in registry_info:
+        if registry is not None and ri.registry != registry:
+            logger.error('no current support for images from multiple registries')
+            exit(1)
+        else:
+            registry = ri.registry
+    if len(registry_info) > 1:
         logger.error('no current support for images from multiple registries')
         exit(1)
-    elif len(registry_set) == 0:
-        logger.debug('DoLab, no registry, just testing?')
-        return
-    else:
-        registry = list(registry_set)[0]
     logger.debug('Back from rebuild with registry of %s' % registry)
     if not no_build:
         ''' should we login?  Never if test registry '''
@@ -139,7 +161,8 @@ def DoLab(lab, labsdir, force, logger, do_login, use_default_registry, default_r
                 if do_login:
                     os.system('docker login -u %s' % registry)
         docker_dir = os.path.join(labsdir, lab, 'dockerfiles')
-        pushIt(lab, docker_dir, registry, logger)
+        #pushIt(lab, docker_dir, registry, base_registry, logger)
+        pushImage(lab, docker_dir, registry_info, logger)
 
 def main():
     src_path = '../'
