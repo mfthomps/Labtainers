@@ -92,7 +92,7 @@ if __name__ == '__main__':
                 logger.debug('skipping %s, is exempt' % image_name)
                 continue
             rmBase(image_name, registry)
-            image_info = labutils.imageInfo(image_name, registry, labtainer_config)
+            image_info = labutils.imageInfo(image_name, registry, registry, labtainer_config)
             if image_info is None:
                 print('No image info for %s, rebuild' % image_name)
                 logger.debug('No image info for %s  rebuild' % image_name)
