@@ -226,7 +226,7 @@ def autoGrade(grade_container, lab_path, labtainer_config, labname, copy_json):
 
 def getGradeImageName(labtainer_config, registry):
     image_name = 'labtainer.grader'
-    image_info = labutils.imageInfo(image_name , registry, labtainer_config)
+    image_info = labutils.imageInfo(image_name , registry, registry, labtainer_config)
     if image_info is None:
         logger.error('Could not find image for %s' % image_name)
         exit(1)
