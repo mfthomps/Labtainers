@@ -37,7 +37,7 @@ import VersionInfo
 Return creation date and user of a given image from the Docker Hub
 without pulling the image.
 '''
-def inspectRemote(image, lgr, is_rebuild=False, quiet=False, no_pull=False):
+def inspectRemote(image, lgr, is_rebuild=False, quiet=False, no_pull=False, base_registry=None):
     lgr.debug('inspectRemote image %s no_pull: %r' % (image, no_pull))
     use_tag = 'latest'
     token = getToken(image)
@@ -53,11 +53,14 @@ def inspectRemote(image, lgr, is_rebuild=False, quiet=False, no_pull=False):
             print('Remote image %s is lacking a base version, it needs to be retagged with trunk/distrib/retag_all.py' % image)
             exit(1) 
             #return None, None, None, None
-        ''' fix base to reflect the remote registry '''
+        ''' fix base to reflect the given or the remote registry '''
         if '/' in image and '/' in base:
-            my_registry = image.split('/')[0]
             parts = base.split('/')
-            base = '%s/%s' % (my_registry, parts[1])
+            if base_registry is None:
+                my_registry = image.split('/')[0]
+                base = '%s/%s' % (my_registry, parts[1])
+            else:
+                base = '%s/%s' % (base_registry, parts[1])
         lgr.debug('base is %s' % base)
         base_image, base_id = base.rsplit('.', 1)
         my_id = VersionInfo.getImageId(base_image, quiet)

@@ -440,9 +440,11 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
     #image_exists, result, new_image_name = ImageExists(container.image_name, container.registry)
     if container.registry == labtainer_config.test_registry:
         branch, container_registry = registry.getBranchRegistry()
+        base_registry = container_registry
     else:
         container_registry = container.registry
-    image_info = imageInfo(container.image_name, container_registry, labtainer_config, quiet=quiet)
+        base_registry = container.base_registry
+    image_info = imageInfo(container.image_name, container_registry, base_registry, labtainer_config, quiet=quiet)
     start_script = container.script     
     if image_info is None:
         logger.error('Could not find image for %s' % container.image_name)
@@ -933,7 +935,7 @@ def inspectImage(image_name):
         version = output[0].decode('utf-8').strip()
     return created, user, version
 
-def imageInfo(image_name, registry, labtainer_config, is_rebuild=False, no_pull=False, quiet=False, local_build=False):
+def imageInfo(image_name, registry, base_registry, labtainer_config, is_rebuild=False, no_pull=False, quiet=False, local_build=False):
     ''' image_name lacks registry info (always) 
         First look if plain image name exists, suggesting
         an ongoing build/test situation '''    
@@ -960,7 +962,7 @@ def imageInfo(image_name, registry, labtainer_config, is_rebuild=False, no_pull=
                                   registry, is_rebuild=is_rebuild, quiet=quiet, no_pull=no_pull)
             else:
                 created, user, version, use_tag = InspectRemoteReg.inspectRemote(with_registry, logger, 
-                                  is_rebuild=is_rebuild, quiet=quiet, no_pull=no_pull)
+                                  is_rebuild=is_rebuild, quiet=quiet, no_pull=no_pull, base_registry=base_registry)
             if created is not None:
                 logger.debug('%s only on registry %s, ts %s %s version %s use_tag %s' % (with_registry, registry, created, user, version, use_tag)) 
                 retval = ImageInfo(with_registry, created, user, False, False, version, use_tag)
@@ -1797,9 +1799,11 @@ def StartLab(lab_path, force_build=False, is_redo=False, quiet_start=False,
         #image_exists, result, dumb = ImageExists(mycontainer_image_name, container.registry)
         if container.registry == labtainer_config.test_registry:
             branch, container_registry = registry.getBranchRegistry()
+            base_registry = container_registry
         else:
             container_registry = container.registry
-        image_info = imageInfo(mycontainer_image_name, container_registry, labtainer_config, quiet=quiet_start)
+            base_registry = container.base_registry
+        image_info = imageInfo(mycontainer_image_name, container_registry, base_registry, labtainer_config, quiet=quiet_start)
         container_images[name] = image_info
         if image_info is not None:
             logger.debug('Image version %s  framework_version %s' % (image_info.version, framework_version))
