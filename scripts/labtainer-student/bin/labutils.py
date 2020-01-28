@@ -1970,6 +1970,8 @@ def FileModLater(ts, fname, big_list=[]):
                 if EmptyTar(check_file):
                     # hacky special case for empty tar files.  ug.
                     return False
+                if os.path.basename(check_file) == 'sys_tar' or os.path.basename(check_file) == 'home_tar':
+                    return False
                 if check_file in big_list:
                     #logger.debug('FileModLater, not in svn is bigfile %s' % check_file)
                     return False
