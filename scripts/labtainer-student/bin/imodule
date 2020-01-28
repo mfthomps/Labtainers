@@ -6,8 +6,20 @@ import LabtainerLogging
 home = os.getenv('HOME')
 imodule_path = os.path.join(home, '.local/share/labtainers/imodules.txt')
 
+def fixLabtainerDir():
+    ldir = os.getenv('LABTAINER_DIR')
+    if ldir is None:
+        print('LABTAINER_DIR not defined, exiting')
+        exit(1)
+    elif ldir == '/trunk':
+        ''' special case screw-up of the env variable.  fix it locally. Assume we are in labtainer-student '''
+        ldir = os.path.abspath('../..')
+        os.putenv("LABTAINER_DIR", ldir)
+        os.environ['LABTAINER_DIR'] = ldir
+
 def doUpdates(logger):
     logger.debug('doUpdates')
+    fixLabtainerDir()
     tfile = '/tmp/imodule.tar'
     here = os.getcwd()
     labdir = os.path.join(os.getenv('LABTAINER_DIR'), 'labs')
@@ -41,16 +53,8 @@ def doUpdates(logger):
                         logger.debug(line)
 
 if __name__ == '__main__':
-    ldir = os.getenv('LABTAINER_DIR')
-    if ldir is None:
-        print('LABTAINER_DIR not defined, exiting')
-        exit(1)
-    elif ldir == '/trunk':
-        ''' special case screw-up of the env variable.  fix it locally. Assume we are in labtainer-student '''
-        ldir = os.path.abspath('../..')
-        os.putenv("LABTAINER_DIR", ldir)
-        os.environ['LABTAINER_DIR'] = ldir
         
+    fixLabtainerDir()
     config_file = os.path.join(os.getenv('LABTAINER_DIR'), 'config', 'labtainer.config') 
     logger = LabtainerLogging.LabtainerLogging("/tmp/imodule.log", '', config_file)
     parser = argparse.ArgumentParser(prog='add-imodule', description='Add an imodule URL to extend the set of labs available to this Labtainers installation.')
