@@ -18,5 +18,5 @@ nohup /usr/bin/unrealircd &
 rm -f /root/.vnc/*.pid
 HOME=/root LOGNAME=root USER=root nohup /usr/bin/vncserver :0 >/root/vnc.log 2>&1 &
 nohup /usr/sbin/druby_timeserver.rb &
-
+/etc/init.d/postgresql-8.3 start
 exit 0
