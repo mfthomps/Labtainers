@@ -136,9 +136,11 @@ This example assumes the instructor has created a DockerHub registry that is pub
 \end{verbatim}
 \item Publish the lab container images: 
 \begin{verbatim}
-    ./publish.py -l my-new-lab
+    ./publish.py -d -l my-new-lab
 \end{verbatim}
-\noindent This will rebuild the lab container images and publish them to your DockerHub registry.
+\noindent This will rebuild the lab container images and publish them to your DockerHub registry.  Note the {\tt -d} option directs the 
+function to publish to the DockerHub registry named in your lab start.config file.  Otherwise, it will try to publish to a test registry.
+Use of test registries is optional, and are described in the \textit{Lab Designer User Guide}.
 \item Generate the updated IModule tar:
 \begin{verbatim}
     create-imodules.sh

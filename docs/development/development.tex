@@ -445,6 +445,17 @@ Note there is no synchronization scheme to coordinate between the publishing of 
 DockerHub.  In some cases, there may be a window in which a Labtainer installation gets a distribution that names
 a lab that is not yet on DockerHub.
 
+\subsection{Remove unused branches}
+Remove local branches with:
+\begin{verbatim}
+    git branch -d <branch>
+\end{verbatim}
+\noindent Or use the {\tt -D} option to force deletion.  But, that not needed if the branch was properly merged.
+Remove remote branches with 
+\begin{verbatim}
+    git push origin --delete <branch>
+\end{verbatim}
+
 \section{Developer guidelines}
 \subsection{Testing and Running Existing Labs}
 When running labs, the goal is to force ourselves to run the distributed labs unless we have specific reasons to do otherwise.
