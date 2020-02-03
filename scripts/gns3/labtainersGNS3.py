@@ -93,6 +93,37 @@ def moreTerm(image, container_id, logger):
     logger.error('moreTerm failed to find container for %s' % image)
     return False
 
+def thumbInsert(image_name, container_id, logger):
+    ''' simulate insertion of usb drive by mounting a volume image using mount arguments
+        found in the start.config THUMB_VOLUME argument '''
+    labutils.logger = logger
+    retval=True
+    start_config, comp_name, labname, lab_path = getStartConfig(image_name, logger)
+    running = labutils.GetContainerId(image_name)
+    logger.debug('running is %s  ' % running)
+
+    cwd = os.getcwd()
+    logger.debug('parameterizeOne in %s need to be in %s' % (cwd, student_dir))
+    os.chdir(student_dir)
+    cmd = None
+    for name, container in start_config.containers.items():
+        if name == comp_name:
+            if container.thumb_drive is not None:
+                logger.debug('thumb command: %s' % container.thumb_volume)
+                print('thumb command: %s' % container.thumb_volume)
+                cmd = container.thumb_volume
+            else:
+                logger.debug('The start.config has not THUMB_VOLUME entry for %s' % name)
+                retval = False
+            break
+    if cmd is not None:
+        dock_cmd = 'docker exec %s script -q -c "sudo mount %s"' % (container_id, cmd)
+        if not labutils.DockerCmd(dock_cmd):
+            logger.error('docker exec failed')
+            retval = False
+    return retval
+        
+
 def gatherZips(zip_list, image, logger):
     labutils.logger = logger
     here = os.path.dirname(os.path.abspath(__file__))
