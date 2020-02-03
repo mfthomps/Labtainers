@@ -413,7 +413,10 @@ the home directory.  For students, this is where the zip files of their results 
 where zip files should be gathered for assessment.
 \item LAB\_MASTER\_SEED [seed] -- The master seed string for this lab.  It is combined with the student email
 address to create an instance seed that controls parameterization of individual student labs.
-\item REGISTRY [registry] -- The id of the Docker Hub registry that is to contain the lab images.
+\item REGISTRY [registry] -- The id of the Docker Hub registry that is to contain the lab images. This defaults to the
+registry value defined in the labtainers.config file.
+\item BASE\_REGISTRY [base\_registry] -- The id of the Docker Hub registry that contains the base image for the container.  This defaults
+to the default registry per the labtainer.config file.
 See \ref{publishing} for details on the use of this keyword.
 \item COLLECT\_DOCS [yes/no] -- Optional directive to collect lab/docs content as part of student artifacts.
 These are then available to the instructor in the labtainer\_xfer/[lab]/docs directory.  Also see \ref{instructions}.
@@ -496,6 +499,10 @@ parameterization as described in section \ref{parameterize}. This option is not 
 labs.
 \item NO\_PULL [YES/NO] -- Use a local instance of the container image rather than pulling it from the Docker hub.
 \item NO\_GW [YES/NO] -- Disable the default gateway, preventing network communication with the host or external devices.
+\item REGISTRY [registry] -- The id of the Docker Hub registry that is to contain the lab images. This overrides the value
+set in the GLOBAL section. 
+\item BASE\_REGISTRY [base\_registry] -- The id of the Docker Hub registry that contains the base image for the container.  This defaults
+to the default registry per the labtainer.config file.
 
 \end{itemize}
 \end{itemize}
@@ -1692,6 +1699,9 @@ NETWORK  LAN
 Also see the description of Multi-user labs in \ref{multi user}.
 
 \section{Building, Maintaining and Publishing Labs} \label{publishing}
+This section describes how labs are built, maintained and published.  Additional information
+on tools and strategies intended for use by outside developers are described in section \ref{imodules}
+
 Typically, when a Labtainer is started, the container's associated Docker images are pulled from
 the Docker Hub if they are not already local on the Linux host.  When building and editing labs,
 the designer desires to run images reflecting recent changes that have been made.  The framework
@@ -1701,12 +1711,12 @@ rebuild those images that have changed.  The designer can force the rebuild of a
 a lab by appending the ``-f'' switch to the end of the ``rebuild.py'' command.  That switch is not
 intended for routine use because it wastes time and masks errors in our dependency logic.
 
-If you build a new Labtainer exerciese, the container images will not be on the Docker Hub unless you put
-them there.  If they are not on the hub, each student's computer will rebuild your lab when they go to run it.
-While this is fully functional, the build time may distract from performance of the lab.  If you
+If you build a new Labtainer exercise, the container images will not be on the Docker Hub unless you put
+them there.  If you
 create your own public repository on the Docker Hub (https://hub.docker.com/), you can populate that
 with your lab(s) by setting the ``REGISTRY\_ID'' value in the start.config file for the lab(s). You
-would then use the distrib/publish.py script to build, tag and push your lab to your registry.
+would then use the distrib/publish.py script to build, tag and push your lab container images to your registry.
+Please refer to the section \ref{imodules}.
 
 \subsection{NPS Development Operations}
 When building lab images at NPS, please set the LABTAINER\_NPS environment variable to "YES", e.g.,
@@ -1884,6 +1894,144 @@ Avoid the use of ``shared folders'' in VMWare and VirtualBox as a means of copyi
 directories.  Use tar and/or scp instead.  Otherwise permissions of directories may
 be changed, e.g., no x access to /etc for other.
 
+
+\section {Labtainer Instructor Modules (IModules)}
+\label{imodules}
+This guide describes how instructors can add content to Labtainers.
+Instructors extend Labtainers with new labs or customized versions of existing
+labs by defining IModules and directing their students to enable the IModules within
+their individual Labtainers instances. 
+(Or, instructors can enable IModules in VMs, and direct students to use those).
+The scope of instructor-generated extensions can range from modified lab manuals 
+to new Labtainer exercises.  The Labtainers framework provides tools
+to assist instructors in creating and publishing these extensions. 
+
+\subsection{Labtainers distribution strategy}
+To understand how IModules are distributed, it is helpful to first review the general
+Labtainers distribution strategy.  A Labtainers installation, (e.g., the initial content of a Labtainers VM 
+appliance, or the results of installing from the distribution),  includes the scripts and configuration files 
+needed to run all Labtainers exercises.  The installation initially only includes a small number of 
+Docker container images that provide the core of container images for each of the labs.   
+When a student first starts a given lab, the framework retrieves all Docker image layers 
+required for that lab.  These layers are retrieved from the Docker Hub, and build upon the core images
+present in the initial distribution.   The scripts and configuration files are 
+published as a tar archive on the Labtainers website.  Whenever a Labtainers installation is updated, 
+the archive is retrieved from the website and used to update the installation.
+
+Files needed to create Docker images are typically not distributed in Labtainers distributions, but are 
+installed when the user runs the update-designer script.  These files are drawn from a separate 
+tar archive on the Labtainers website.  
+
+\subsection{Imodule distribution strategy}
+Instructors place archives on a web server and student
+instances of Labtainers retrieve those archives from the web server while retrieving other
+Labtainer updates.  When creating new labs, instructors publish the lab Docker images to
+DockerHub, where they'll be retrieved by the framework when students run that lab.
+While the publishing of extensions does not depend on any particular 
+source control system, supporting tools that simplify archive creation are built around git.  
+
+Archives published by instructors are tar files that include only changed and new files,
+relative to the Labtainers baseline.  Inclusion of unchanged (relative to the 
+Labtainers baseline) files is discouraged, as is publishing only deltas from previous
+IModule publications.  Put another way, an IModule will contain any 
+and all files
+necessary for running, (not building), all new labs -- or to modify existing labs, 
+relative to the Labtainers baseline as defined by the GitHub master repository.
+
+Support tools simplify creation of IModule tar files through use of git attributes.
+Instructors who chose not to use git are responsible for creating a tar of selected
+files -- which may be trivial, e.g., if the IModule consists of lab manual modifications
+or new lab guides.  Paths within tar files will be relative to the labtainers/lab
+directory.  For example, a revised telnet-lab manual would have the path:
+\begin{verbatim}
+telnet-lab/docs/telnet-lab.pdf
+\end{verbatim}
+\noindent Note the modified source, e.g., docx files, need not be included in the IModule
+archive, though the support tools do include them.
+
+Typically, each participating instructor will publish a single archive (i.e., a tar file)
+at a publically accessible URL specific to the instructor or institution. The URL 
+is distributed to students and entered into their Labtainers 
+instance using the {\tt imodule} command \footnote{The full URL is published because many
+web hosting systems, e.g., box.com make it impossible to construct URLs from relative paths}.  
+For example, if the instructor publishes
+at \url{https://myschool/mystuff/labtainers/imodule.tar}, the students would each issue
+this command to Labtainers:
+\begin{verbatim}
+imodule myschool/mystuff/labtainers/imodule.tar
+\end{verbatim} 
+
+The student labs will be updated to include those IModules the next time the student runs
+either {\tt update-labtainer.sh} or {\tt imodule -u}.
+
+IModule support tools rely on instructor contributions existing in local git repositories.
+The tools do not reference remote repositories.  IModule repositories have no relationship
+to the main Labtainers repository, and should be managed within Labtainer
+distributions rather than within local repo copies of the main Labtainer repository.   \footnote{In general,
+instructors and lab designers are encourage to work from Labtainer distributions rather
+than repos pulled from the Labtainers repo at GitHub to avoid git repository conflicts.}
+
+\subsection {Imodule examples}  
+These examples assume the instructor is working from a Labtainers distribution, e.g., one
+of the VM appliance.
+\subsubsection {Modify a lab manual for the telnet-lab}
+In this example, the instructor wants his or her students to work with a customized version
+of the telnet-lab manual.  
+\begin{itemize}
+\item Change directory to labtainer/labs
+\item Initialize the git archive: 
+\begin{verbatim}
+git init  
+\end{verbatim}
+\noindent (Do this only once, no need to repeat for each IModule.)
+\item Add the original Labtainer file as the baseline: 
+
+\begin{verbatim}
+git add telnet-lab/docs/telnet-lab.docx
+\end{verbatim}
+\item Edit the telnet-lab/docs/telnet-lab.docx file
+\item Commit your change: 
+\begin{verbatim}
+    git commit telnet-lab/docs/telnet-lab.docx
+\end{verbatim}
+\end{itemize}
+
+This change has no effect on any Docker container, so we need only generate the 
+updated tar:
+\begin{verbatim}
+    create-imodules.sh
+\end{verbatim}
+
+\noindent Then publish the imodule.tar to the website.
+
+\subsubsection{Create a new lab}
+In this example, the instructor wants to create a new lab for use by his or her students.
+This example assumes the instructor has created a DockerHub registry that is publicly accessible.
+\begin{itemize}
+\item Change directory to labtainer/labs
+\item Initialize git archive: git init  (Do this only once, no need to repeat for each IModule.)  
+\item Create the lab per the Lab Designer User Guide, for this example, we assume the lab is my-new-lab.
+\item Include the name of your DockerHub registry the lab config/start.config file.
+\item Complete development and testing of the lab, e.g., build a SimLab test.
+\item While in the my-new-lab directory, run {\tt cleanlab4svn.py} to remove temporary files that should not be under source control.
+\item While in the lab directory (parent of my-new-lab), add the lab to source control:
+\begin{verbatim}
+    git add my-new-lab
+    git commit my-new-lab -m "Adding an IModule"
+\end{verbatim}
+\item Publish the lab container images: 
+\begin{verbatim}
+    ./publish.py -d -l my-new-lab
+\end{verbatim}
+\noindent This will rebuild the lab container images and publish them to your DockerHub registry.  Note the {\tt -d} option directs the 
+function to publish to the DockerHub registry named in your lab start.config file.  Otherwise, it will try to publish to a test registry.
+Use of test registries is optional, and are described in the \textit{Lab Designer User Guide}.
+\item Generate the updated IModule tar:
+\begin{verbatim}
+    create-imodules.sh
+\end{verbatim}
+\item Then publish the imodule.tar to your website.
+\end{itemize}
 
 \section {Multi-user Labtainers}
 \label{multi user}
