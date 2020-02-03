@@ -111,6 +111,7 @@ class ParseStartConfig():
             self.disable = None
             self.no_pull = False
             self.no_gw = False
+            self.thumb_volume = False
             self.logger = logger
 
         def add_net(self, name, ipaddr):
