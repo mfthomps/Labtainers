@@ -163,6 +163,7 @@ Create modified Docker images for the lab:
 \begin{verbatim}
       ./noNet.py telnetlab
 \end{verbatim}
+\noindent \textbf{NOTE:} Make note of the container image names displayed.  You will use these when adding appliance templates below.
 
 View the Labtainer network topology.
 \begin{verbatim}
@@ -181,7 +182,8 @@ the lab.
 	will cause the GUI to hide toolbars and widgets that students should not interact with. The container state after quitting gns3 will also persist. Without the student flag a lab's containers state wil reset upon pressing start once.
 	\item Open a new project, assigning the same name as the Labtainers lab, e.g., ``telnetlab''
 	\item Use {\tt Browse all devices / Add appliance template} to add the new container images created
-		via the {\tt noNet.py} command.  Accept all defaults, except set the number of ``Adapaters'' to
+		via the {\tt noNet.py} command (DO NOT select the original container image names, e.g., having ``student'' as a suffix).  
+Accept all defaults, except set the number of ``Adapaters'' to
 		the quantity displayed using {\tt showNet.py} for each component.
 	\item Drag each container image from the list on the left of the GUI onto the workspace.  (Do not try to fix
 		the component names, that will be done later).
@@ -206,7 +208,34 @@ Once the lab is defined for use in GNS3, it can be run by opening the associated
 		by pressing the "Restart Lab" button.
 	\item All Labtainers containers support X11 applications using the host system X11 server.
 	\item Starting the gns3 program with the \-\-student flag will cause the GUI to hide toolbars and widgets that students should not interact with.
+        \item Right clicking on a Labtainer node will display a pop-up menu including an option to insert a thumb drive.  This will cause
+              a {\tt sudo mount} command to be run on the container, with arguments provided in start.config THUMB\_VOLUME configuration
+              value for that container.
 \end{itemize}
+\subsection{Thumb drive simulation example}
+Create a volume image file, e.g., by including the following in the container fixlocal.sh script:
+\begin{verbatim}
+    sudo mkdir /var/stuff
+    sudo chown ubuntu:ubuntu /var/stuff
+    cd /var/stuff
+    dd if=/dev/zero of=usb.img bs=1k count=1k
+    mkfs.ext2 -F usb.img
+    sudo mkdir /media/usb1
+    sudo mount -o loop usb.img /media/usb1
+    sudo chown ubuntu:ubuntu /media/usb1
+    echo “First file created” > /media/usb1/file1
+    echo “Second file created” > /media/usb1/file2
+    echo “Third file” > /media/usb1/file3
+    sudo umount /media/usb1
+\end{verbatim}
+\noindent Alternately, the image can be created outside of labtainers and copied into the lab, e.g., via {\tt \_system/var}.
+
+Then place the arguments to {\tt mount} in the start.config file for the appropriate container, e.g.,:
+\begin{verbatim}
+        THUMB_VOLUME -o loop /var/stuff/usb.img /media/usb1
+\end{verbatim}
+\noindent Then, when the user right clicks on the component, and selects ``insert thumb drive'', the volume will be mounted.
+
 \section{History}
 This section describes steps taken to create the Labtainers version of GNS3.
 The steps outlined here are not intended to be repeated by developers.
