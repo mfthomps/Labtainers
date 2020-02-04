@@ -108,7 +108,7 @@ def thumbInsert(image_name, container_id, logger):
     cmd = None
     for name, container in start_config.containers.items():
         if name == comp_name:
-            if container.thumb_drive is not None:
+            if container.thumb_volume is not None:
                 logger.debug('thumb command: %s' % container.thumb_volume)
                 print('thumb command: %s' % container.thumb_volume)
                 cmd = container.thumb_volume
