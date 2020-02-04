@@ -199,7 +199,11 @@ def doUpdateOrRefresh(local_registry, remote_registry, args, lgr):
                 else:
                     refreshLab(labdir, lab, 'student', remote_registry, local_registry, lgr, args.no_copy)
     
-        print('Comparing base images in %s to  %s, and replacing content of %s if different' % (local_registry, remote_registry, local_registry))
+        if not args.no_copy:
+            if not args.refresh:
+                print('Comparing base images in %s to  %s, and replacing content of %s if different' % (local_registry, remote_registry, remote_registry))
+            else:
+                print('Comparing base images in %s to  %s, and replacing content of %s if different' % (local_registry, remote_registry, local_registry))
         base_names = LabtainerBase.getBaseList()
         for base in base_names:
             with_registry = '%s/%s' % (remote_registry, base)
