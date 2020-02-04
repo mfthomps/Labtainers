@@ -72,6 +72,11 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+February 3, 2020
+- On the metasploit lab, the postgresql service was not running on the victim.
+- Merge the IModule manual content into the Lab Designer guide.
+- More IModule support.
+
 January 27, 2020
 - Introduce initial support for IModules (instructor-developed labs).  See docs/imodules.pdf.
 - Fix broken LABTAINER\_DIR env variable within update-labtainer
