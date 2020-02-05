@@ -2424,9 +2424,28 @@ def StopMyContainer(container_name, ignore_stop_error):
     #    logger.debug('StopMyContainer stdout %s' % output[0])
     #result = subprocess.call(command, shell=True)
 
+def GetContainerID(image):
+    command = "docker ps"
+    ps = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    retval = None
+    if len(output[1].strip()) > 0:
+        logger.error('Fail to get a list of running containers, error returned %s' % output[1].decode('utf-8'))
+        
+    elif len(output[0].decode('utf-8')) > 0:
+        docker_ps_output = output[0].decode('utf-8').split('\n')
+        for line in docker_ps_output:
+            line = line.strip()
+            if image in line:
+                parts = line.split()
+                retval = parts[0]
+                break
+    return retval
+
 # Get a list of running lab names
-def GetListRunningLab():
+def GetListRunningLabType():
     lablist = []
+    is_gns3 = False
     # Note: doing "docker ps" not "docker ps -a" to get just the running container
     command = "docker ps"
     logger.debug("GetListRunningLab Command to execute is (%s)" % command)
@@ -2455,13 +2474,18 @@ def GetListRunningLab():
             elif 'labtainer' in image_name:
                 ''' gns3 labtainer image '''
                 labname = image_name.split('_', 1)[0]
+                is_gns3 = True
             else:
                 logger.debug('not a labtainer: %s' % image_name)
                 continue
             if labname not in lablist:
                 logger.debug('appending %s' % labname)
                 lablist.append(labname)
-    return lablist
+    return lablist, is_gns3
+
+def GetListRunningLab():
+    lab_list, is_gns3 = GetListRunningLabType()
+    return lab_list
 
 # Given a network name, if it is valid, get a list of labname for the container(s) that is(are)
 # using that network. Note: the network name is passed in as an argument
