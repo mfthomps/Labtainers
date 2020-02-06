@@ -503,6 +503,8 @@ labs.
 set in the GLOBAL section. 
 \item BASE\_REGISTRY [base\_registry] -- The id of the Docker Hub registry that contains the base image for the container.  This defaults
 to the default registry per the labtainer.config file.
+\item THUMB\_VOLUME -- Optional arguments to a mount command that will be executed in a GNS3 environment when the student selects
+{\tt insert thumb drive} from a component menu.
 
 \end{itemize}
 \end{itemize}
@@ -2032,6 +2034,66 @@ Use of test registries is optional, and are described in the \textit{Lab Designe
 \end{verbatim}
 \item Then publish the imodule.tar to your website.
 \end{itemize}
+
+\section {Remote control of Labtainer exercises}
+This section describes a feature intended for use within structured environments in which one or more students are performing 
+a lab exercise under supervision of an instructor.  This does not apply to environments in which students 
+individualy run Labtainers on dedicated computers at their own pace. 
+
+Consider an environment in which multiple Labtainer VMs (or custom-built VMs containing Labtainers) run on one or 
+more servers that are networked together.  
+Students interact individually with their allocated
+VM using a tool such as VMWare Horizon, which presents the student with the Linux desktop of their allocated VM.
+We assume that something within this infrastructure allows remote network access by an instructor to each VM, e.g.,
+via port forwarding.  An alternate supported environment is one in which each student has a dedicated computer upon which a 
+Labtainer VM resides.
+
+Labtainer remote access functions allow instructors to query and change the state of the Labtainers exercise 
+currently running on each VM.  The remote access functions available to instructors currently include:
+\begin{itemize}
+\item \textbf{status} -- Display the name of the lab running on a specific VM.
+\item \textbf{copy} -- Copy files into a Labtainer container per a copy directive defined in:
+\begin{verbatim}
+  <lab>/config/copy.config} 
+\end{verbatim}
+\end{itemize}
+
+\subsection{File copying}
+\noindent The {\tt copy.config} file contains one or more directives, one per line as follows:
+\begin{verbatim}
+    <directive> <container> <source> <destination>
+\end{verbatim} 
+\noindent Where:
+\begin{itemize}
+\item \textit{directive} is a arbitrary string identifier that names the directive.
+\item \textit{container} is the name of the container into which the files are to be copied.
+\item \textit{source} is a source path upon the VM.  If this path starts with {\tt \$LAB}, the path is relative to
+the lab directory.  Otherwise, a full pathname is expected, e.g., the path to a folder shared with all VMs on a host.
+\item \textit{destination} is the destination path upon the target container.  Permissions are retained if possible, e.g, if the
+source files are owned by {\tt root:root}, that will be maintained on the destination.
+\end{itemize}
+\noindent The semantics of source and destination are per the Unix {\tt cp -a} command.  Please see the discussion of {\tt SRC\_PATH} 
+and {\tt DEST\_PATH} in \url{https://docs.docker.com/engine/reference/commandline/cp/}
+
+\subsection{Client and server setup}
+The python service at {\tt scripts/remote/remote.py} should be started on each Labtainers VM with the {\tt --daemon} option.
+
+The python client at {\tt host\_scripts/remote/remote.py} should be copied to whatever host the instructor will work from.
+
+Port forwarding for each VM should be defined such that some host port is forwarded to port 60000 on the VM.  You would assign
+each VM on a given host a different host port number. That host port number will be how the instructor names different VMs on the same host.
+For example, on VirtualBox, the port forwarding entry for one VM might look like:
+\begin{verbatim}
+   Host IP     Host Port   Guest IP  Guest Port
+   0.0.0.0     60003       0.0.0.0   60000
+\end{verbatim}
+
+Then, if the instructor is working from the computer that hosts the VM, the following command would cause a copy 
+directive named {\tt one} to occur on that VM if it is
+running a lab named {\tt tlab}:
+\begin{verbatim}
+    ./remote.py -l tlab -c one -p 60003
+\end{verbatim}
 
 \section {Multi-user Labtainers}
 \label{multi user}

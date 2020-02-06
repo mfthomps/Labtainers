@@ -1069,6 +1069,30 @@ class RegistryInfo():
         self.registry = registry
         self.base_registry = base_registry
 
+def CheckBuildError(output, labname, name):
+    fatal_error = False
+    while True:
+        line = output.readline().decode('utf-8').strip()
+        if len(line) > 0:
+            if 'Error in docker build result' in line:
+                code = line.strip().split()[-1]
+                if code in ['1', '2', '9']:
+                    logger.error("%s\nPlease fix Dockerfile.%s.%s.student. Look in %s for specifics on the error." % (line, 
+                       labname, name, logger.file_name))
+                    fatal_error = True
+                else:
+                    logger.debug('*** DOCKER BUILD ERROR: %s' % line)
+
+            elif 'syntax error' in line:
+                logger.error("%s\nPlease fix Dockerfile.%s.%s.student. Look in %s for specifics on the error." % (line, 
+                       labname, name, logger.file_name))
+                fatal_error = True
+            else:
+                logger.debug(line)
+        else:
+            break
+    return fatal_error
+
 def DoRebuildLab(lab_path, force_build=False, just_container=None, 
                  start_config=None, labtainer_config=None, run_container=None, servers=None, 
                  clone_count=None, no_pull=False, no_build=False, use_cache=True, local_build=False):
@@ -1169,38 +1193,11 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
                 exit(1)
             logger.debug('cmd is %s' % cmd)     
             ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-            fatal_error = False
-            while True:
-                line = ps.stdout.readline().decode('utf-8')
-                if line != '':
-                    #if 'Error in docker build result 1' in line:
-                    if 'Error in docker build result 1' in line or 'Error in docker build result 2' in line \
-                       or 'syntax error' in line:
-                      logger.error("%s\nPlease fix Dockerfile.%s.%s.student. Look in %s for specifics on the error." % (line, 
-                            labname, name, logger.file_name))
-                      fatal_error = True
-                    else:
-                        logger.debug(line)
-                else:
-                    break
-            while True:
-                line = ps.stderr.readline().decode('utf-8')
-                if line != '':
-                    if 'Error in docker build result 1' in line or 'Error in docker build result 2' in line \
-                       or 'syntax error' in line:
-                        logger.error("%s\nPlease fix Dockerfile.%s.%s.student. Look in %s for specifics on the error." % (line, 
-                               labname, name, logger.file_name))
-                        fatal_error = True
-                    else:
-                        logger.debug(line)
-                else:
-                    break
+            fatal_error = CheckBuildError(ps.stdout, labname, name)
+            if not fatal_error:
+                fatal_error = CheckBuildError(ps.stderr, labname, name)
             if fatal_error:
                 exit(1)
-            #if os.system(cmd) != 0:
-            #    logger.error("build of image failed\n")
-            #    logger.debug('cmd was %s' % cmd)
-            #    exit(1)
     return retval
 
 def defineAdditionalIP(container_name, post_start_if, post_start_nets):
@@ -2424,9 +2421,28 @@ def StopMyContainer(container_name, ignore_stop_error):
     #    logger.debug('StopMyContainer stdout %s' % output[0])
     #result = subprocess.call(command, shell=True)
 
+def GetContainerID(image):
+    command = "docker ps"
+    ps = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    retval = None
+    if len(output[1].strip()) > 0:
+        logger.error('Fail to get a list of running containers, error returned %s' % output[1].decode('utf-8'))
+        
+    elif len(output[0].decode('utf-8')) > 0:
+        docker_ps_output = output[0].decode('utf-8').split('\n')
+        for line in docker_ps_output:
+            line = line.strip()
+            if image in line:
+                parts = line.split()
+                retval = parts[0]
+                break
+    return retval
+
 # Get a list of running lab names
-def GetListRunningLab():
+def GetListRunningLabType():
     lablist = []
+    is_gns3 = False
     # Note: doing "docker ps" not "docker ps -a" to get just the running container
     command = "docker ps"
     logger.debug("GetListRunningLab Command to execute is (%s)" % command)
@@ -2455,13 +2471,18 @@ def GetListRunningLab():
             elif 'labtainer' in image_name:
                 ''' gns3 labtainer image '''
                 labname = image_name.split('_', 1)[0]
+                is_gns3 = True
             else:
                 logger.debug('not a labtainer: %s' % image_name)
                 continue
             if labname not in lablist:
                 logger.debug('appending %s' % labname)
                 lablist.append(labname)
-    return lablist
+    return lablist, is_gns3
+
+def GetListRunningLab():
+    lab_list, is_gns3 = GetListRunningLabType()
+    return lab_list
 
 # Given a network name, if it is valid, get a list of labname for the container(s) that is(are)
 # using that network. Note: the network name is passed in as an argument
