@@ -1069,6 +1069,30 @@ class RegistryInfo():
         self.registry = registry
         self.base_registry = base_registry
 
+def CheckBuildError(output, labname, name):
+    fatal_error = False
+    while True:
+        line = output.readline().decode('utf-8').strip()
+        if len(line) > 0:
+            if 'Error in docker build result' in line:
+                code = line.strip().split()[-1]
+                if code in ['1', '2', '9']:
+                    logger.error("%s\nPlease fix Dockerfile.%s.%s.student. Look in %s for specifics on the error." % (line, 
+                       labname, name, logger.file_name))
+                    fatal_error = True
+                else:
+                    logger.debug('*** DOCKER BUILD ERROR: %s' % line)
+
+            elif 'syntax error' in line:
+                logger.error("%s\nPlease fix Dockerfile.%s.%s.student. Look in %s for specifics on the error." % (line, 
+                       labname, name, logger.file_name))
+                fatal_error = True
+            else:
+                logger.debug(line)
+        else:
+            break
+    return fatal_error
+
 def DoRebuildLab(lab_path, force_build=False, just_container=None, 
                  start_config=None, labtainer_config=None, run_container=None, servers=None, 
                  clone_count=None, no_pull=False, no_build=False, use_cache=True, local_build=False):
@@ -1169,38 +1193,11 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
                 exit(1)
             logger.debug('cmd is %s' % cmd)     
             ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-            fatal_error = False
-            while True:
-                line = ps.stdout.readline().decode('utf-8')
-                if line != '':
-                    #if 'Error in docker build result 1' in line:
-                    if 'Error in docker build result 1' in line or 'Error in docker build result 2' in line \
-                       or 'syntax error' in line:
-                      logger.error("%s\nPlease fix Dockerfile.%s.%s.student. Look in %s for specifics on the error." % (line, 
-                            labname, name, logger.file_name))
-                      fatal_error = True
-                    else:
-                        logger.debug(line)
-                else:
-                    break
-            while True:
-                line = ps.stderr.readline().decode('utf-8')
-                if line != '':
-                    if 'Error in docker build result 1' in line or 'Error in docker build result 2' in line \
-                       or 'syntax error' in line:
-                        logger.error("%s\nPlease fix Dockerfile.%s.%s.student. Look in %s for specifics on the error." % (line, 
-                               labname, name, logger.file_name))
-                        fatal_error = True
-                    else:
-                        logger.debug(line)
-                else:
-                    break
+            fatal_error = CheckBuildError(ps.stdout, labname, name)
+            if not fatal_error:
+                fatal_error = CheckBuildError(ps.stderr, labname, name)
             if fatal_error:
                 exit(1)
-            #if os.system(cmd) != 0:
-            #    logger.error("build of image failed\n")
-            #    logger.debug('cmd was %s' % cmd)
-            #    exit(1)
     return retval
 
 def defineAdditionalIP(container_name, post_start_if, post_start_nets):
