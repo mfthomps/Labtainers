@@ -72,6 +72,11 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+February 6, 2020
+- Introduce function to remotely manage containers, e.g., push files.
+- Add GNS3 environment function to simulate insertion of a USB drive.
+- Improve handling of Docker build errors.
+
 February 3, 2020
 - On the metasploit lab, the postgresql service was not running on the victim.
 - Merge the IModule manual content into the Lab Designer guide.
