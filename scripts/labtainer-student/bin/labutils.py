@@ -468,6 +468,7 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
             logger.debug('Container %s is systemd' % (new_image_name))
             ''' a systemd container, centos or ubuntu? '''
             if ubuntu_systemd:
+                ''' A one-off run to set some internal values.  This is NOT what runs the lab container '''
                 start_script = ''
                 #volume='--security-opt seccomp=confined --tmpfs /run --tmpfs /run/lock -v /sys/fs/cgroup:/sys/fs/cgroup:ro'
                 volume='--security-opt seccomp=unconfined --tmpfs /run --tmpfs /run/lock -v /sys/fs/cgroup:/sys/fs/cgroup:ro'
@@ -487,7 +488,6 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
             volume = volume+' --env="DISPLAY"  --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw"'
             logger.debug('container using X11')
         add_hosts = ''     
-        logger.debug('dumb debug message')
         for item in container.add_hosts:
             if ':' not in item:
                if item in start_config.lan_hosts:
@@ -506,7 +506,9 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
         priv_param = ''
         if container.no_privilege != 'yes':
             priv_param = '--privileged'
-
+        publish_param = ''
+        if container.publish is not None:
+            publish_param = '--publish %s' % container.publish
         mac = ''
         subnet_ip = ''
         network_param = ''
@@ -529,12 +531,14 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
                 subnet_ip, mac = GetNetParam(start_config, mysubnet_name, mysubnet_ip, clone_fullname)
             #createsinglecommand = "docker create -t %s --ipc host --cap-add NET_ADMIN %s %s %s %s %s --name=%s --hostname %s %s %s %s %s" % (dns_param, 
             if len(container.docker_args) == 0:
-                createsinglecommand = "docker create %s -t %s --cap-add NET_ADMIN %s %s %s %s %s --name=%s --hostname %s %s %s %s %s" % \
-                    (shm, dns_param, network_param, subnet_ip, mac, priv_param, add_host_param,  clone_fullname, clone_host, volume, 
+                createsinglecommand = "docker create %s -t %s --cap-add NET_ADMIN %s %s %s %s %s %s --name=%s --hostname %s %s %s %s %s" % \
+                    (shm, dns_param, network_param, subnet_ip, mac, priv_param, add_host_param,  
+                    publish_param, clone_fullname, clone_host, volume, 
                     multi_user, new_image_name, start_script)
             else:
-                createsinglecommand = "docker create %s %s --shm-size=2g -t %s --cap-add NET_ADMIN %s %s %s %s %s --name=%s --hostname %s %s %s %s %s" % \
-                    (shm, container.docker_args, dns_param, network_param, subnet_ip, mac, priv_param, add_host_param,  clone_fullname, clone_host, volume, 
+                createsinglecommand = "docker create %s %s --shm-size=2g -t %s --cap-add NET_ADMIN %s %s %s %s %s %s --name=%s --hostname %s %s %s %s %s" % \
+                    (shm, container.docker_args, dns_param, network_param, subnet_ip, mac, priv_param, add_host_param,  
+                    publish_param, clone_fullname, clone_host, volume, 
                     multi_user, new_image_name, start_script)
             logger.debug("Command to execute was (%s)" % createsinglecommand)
             ps = subprocess.Popen(shlex.split(createsinglecommand), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
