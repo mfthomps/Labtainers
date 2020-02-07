@@ -97,19 +97,9 @@ cd gns3-gui
 sudo python3 setup.py install
 \end{verbatim}
 \normalsize
-\noindent Run the server from a terminal with LABTAINER\_DIR defined.
 
-\begin{verbatim}
-      gns3server --local --log /tmp/gns3log
-\end{verbatim}
-\noindent The server does not display to stdout.  Tail the /tmp/gns3log to see status.
 
-\noindent Run the gui from a different terminal or tab:
-\begin{verbatim}
-    gns3
-\end{verbatim}
-
-\section{Updating local git repos}
+\subsubsection{Updating local git repos}
 Note below that your Labtainers repo uses the "gns3" branch -- and your GNS3 repo uses the "labtainers" branch.
 From the local GNS3  repo:
 \begin{verbatim}
@@ -124,7 +114,7 @@ git pull origin gns3
 After pulling, always run {\tt sudo python3 setup.py install} to get the latest 
 build of GNS3. Do this as well after making local edits to the source code to see changes in the build.
 
-\section{Updating remote repo}
+\subsubsection{Updating remote repo}
 This step is only for use by Labtainers framework developers.
 The GNS3 repo:
 \begin{verbatim}
@@ -136,6 +126,18 @@ git push --set-upstream origin labtainers
 git push --set-upstream origin gns3
 \end{verbatim}
 
+\section{Starting GNS3}
+Run the server from a terminal with LABTAINER\_DIR defined.
+
+\begin{verbatim}
+      gns3server --local --log /tmp/gns3log
+\end{verbatim}
+\noindent The server does not display to stdout.  Tail the /tmp/gns3log to see status.
+
+\noindent Run the gui from a different terminal or tab:
+\begin{verbatim}
+    gns3
+\end{verbatim}
 
 \section{Porting a Labtainers lab}
 This example illustrates porting the telnetlab from Labtainers to run in the GNS3 environment.
@@ -194,6 +196,10 @@ Accept all defaults, except set the number of ``Adapaters'' to
 \end{itemize}
 Changes made to Labtainers container images will be picked up by GNS3 the next time the GUI is started,
 assuming you re-run the noNet.py command.  There is no need to redefine appliance templates.
+
+\section{Remote access to containers}
+See the \textit{Lab Designer User Guide} section on ``Remote access and control of Labtainers'' for information 
+on remote management and remote access to containers within a lab.
 
 \section{GNS3 interface changes for Labtainers}
 Once the lab is defined for use in GNS3, it can be run by opening the associated project file.  The following features were added to the GNS interface:
