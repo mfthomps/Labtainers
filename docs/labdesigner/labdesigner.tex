@@ -505,6 +505,8 @@ set in the GLOBAL section.
 to the default registry per the labtainer.config file.
 \item THUMB\_VOLUME -- Optional arguments to a mount command that will be executed in a GNS3 environment when the student selects
 {\tt insert thumb drive} from a component menu.
+\item PUBLISH [publish] -- Optional arguments to the Docker {\tt --publish} argument for making container ports visible at the
+host interface.  For example, a value of {\tt 127.0.0.1:60022:22/tcp} will bind host port 60022 to container port 22.
 
 \end{itemize}
 \end{itemize}
@@ -865,6 +867,13 @@ and then check that file and the archive file names during grading.  The framewo
 this automatically and reports on any student archive that does not seem to have
 originated from a Labtainer initiated with that student's email address.
 
+\subsection{Debugging parameterizing}
+The parameterization step occurs the first time each container is started.  
+It occurs by running the .local/bin/parameterize.sh script on the container.  Debugging output from the execution
+of this script can be found on the container in /tmp/parameterize*
+
+Within the labtainer.log, you can see  the step occur following the log entry that reads: ``About to call parameterize.sh...''.
+The parameterizing  step is  preceded by a copying of the files in the labtainer-student/lab\_bin directory into the container.
 
 \section{Automated assessment of student labs}
 \label{assessment}
@@ -2035,20 +2044,25 @@ Use of test registries is optional, and are described in the \textit{Lab Designe
 \item Then publish the imodule.tar to your website.
 \end{itemize}
 
-\section {Remote control of Labtainer exercises}
-This section describes a feature intended for use within structured environments in which one or more students are performing 
-a lab exercise under supervision of an instructor.  This does not apply to environments in which students 
+\section {Remote access and control of Labtainer exercises}
+This section describes features intended for use within structured environments in which one or more students are performing 
+a lab exercise under supervision of an instructor or red-team member.  This does not apply to environments in which students 
 individualy run Labtainers on dedicated computers at their own pace. 
 
-Consider an environment in which multiple Labtainer VMs (or custom-built VMs containing Labtainers) run on one or 
-more servers that are networked together.  
-Students interact individually with their allocated
-VM using a tool such as VMWare Horizon, which presents the student with the Linux desktop of their allocated VM.
-We assume that something within this infrastructure allows remote network access by an instructor to each VM, e.g.,
-via port forwarding.  An alternate supported environment is one in which each student has a dedicated computer upon which a 
-Labtainer VM resides.
+The environment may have one of two forms:
 
-Labtainer remote access functions allow instructors to query and change the state of the Labtainers exercise 
+\begin{enumerate}
+\item Each student has a dedicated computer upon which a Labtainer VM resides, and the instrutor has network access to each computer; or,
+\item Multiple Labtainer VMs (or custom-built VMs containing Labtainers) run on one or more servers that are networked together.  
+Students interact individually with their allocated VM using a tool such as VMWare Horizon or Apache Guacamole, 
+which presents the student with the Linux desktop of their allocated VM via a browser or client application.
+\end{enumerate}
+\noindent We assume that something within the infrastructure allows remote network access by an instructor to each VM, e.g.,
+via port forwarding.  The instructor will use this network access to manage aspects of the lab exercise, and/or remotely access
+selected containers, e.g., as a red-team activity.
+
+\subsection{Remote management}
+Labtainer remote management functions allow instructors to query and change the state of the Labtainers exercise 
 currently running on each VM.  The remote access functions available to instructors currently include:
 \begin{itemize}
 \item \textbf{status} -- Display the name of the lab running on a specific VM.
@@ -2058,7 +2072,7 @@ currently running on each VM.  The remote access functions available to instruct
 \end{verbatim}
 \end{itemize}
 
-\subsection{File copying}
+\subsubsection{File copying}
 \noindent The {\tt copy.config} file contains one or more directives, one per line as follows:
 \begin{verbatim}
     <directive> <container> <source> <destination>
@@ -2075,7 +2089,7 @@ source files are owned by {\tt root:root}, that will be maintained on the destin
 \noindent The semantics of source and destination are per the Unix {\tt cp -a} command.  Please see the discussion of {\tt SRC\_PATH} 
 and {\tt DEST\_PATH} in \url{https://docs.docker.com/engine/reference/commandline/cp/}
 
-\subsection{Client and server setup}
+\subsubsection{Client and server setup}
 The python service at {\tt scripts/remote/remote.py} should be started on each Labtainers VM with the {\tt --daemon} option.
 
 The python client at {\tt host\_scripts/remote/remote.py} should be copied to whatever host the instructor will work from.
@@ -2094,6 +2108,57 @@ running a lab named {\tt tlab}:
 \begin{verbatim}
     ./remote.py -l tlab -c one -p 60003
 \end{verbatim}
+
+\subsection{Remote access to containers}
+This section describes environments in which an instructor or red team member is to interact with containers within the lab,
+e.g., to perform penetration testing.  This interaction would occur via computers external to the lab exercise, e.g., networked
+to a server hosting VMs.  The strategy employed to achieve this depends on whether the lab utilizes GNS3, (which manages the virtual
+networks without relying on Docker networking).
+
+\subsubsection{Remote access without GNS3}
+Docker port publishing provides external network access to containers.
+For example, remote ssh access to a specific container within the lab can be achieved as follows:
+\begin{itemize}
+\item Use the {\tt PUBLISH} directive in the start.config to bind a container port to a host VM port, e.g.,
+\begin{verbatim}
+    PUBLISH 0.0.0.0:60020:20/tcp
+\end{verbatim}
+\item Use port forwarding to bind the VM port to a server port.  Here, the host port would differ for each VM on a server as a
+means of naming the VM whose lab is to accessed.  For example, on VirtualBox, a port forwarding entry might be:
+\begin{verbatim}
+   Host IP     Host Port   Guest IP  Guest Port
+   0.0.0.0     61022       0.0.0.0   60022
+\end{verbatim}
+\end{itemize}
+
+\noindent The above example would then allow an external computer to ssh into the selected container using port 60122,
+assuming the container has SSH enabled (see the telnet-lab server container for an example).  Authentication to control who can SSH
+into a given container could be provided through use of SSH keys.  This remotely accessed container can be hidden from the student, and provide
+the instructor or red-team participant with a means to probe and attempt to compromise the other computers within the Labtainers exercise network.
+
+\subsubsection{Remote access with GNS3}
+For labs that run in the GNS3 environment, remote network access is provided through use of the GNS3 \textit{cloud} 
+endpoint device, which interacts with an Ethernet network interface.
+The following assumes your VM has a virtual bridge Ethernet interface named {\tt virbr0}, with IP address {\tt 192.168.122.1/24}.
+Alternately you could define the VM to share a physical host network, but that is outside the scope of this example.
+
+Define a component within your Labtainers lab that is be remotely accessed, e.g., a workstation or router, and assign it an IP
+address on the {virbr0} subnet, e.g., {\tt 192.168.122.100}.  Then, 
+when defining the GNS3 network topology, i.e., creating and connecting links: 
+\begin{itemize}
+\item Select a {\tt Cloud} component from the {\tt Browse End Devices} menu, and drag it to the desktop.  
+(computer terminal icon).
+\item Right click, select {\tt Configure} and delete the default Ethernet interface if any is selected.
+\item Click the {\tt Show special Ethernet interfaces} checkbox in the lower left.  That should add devices to the pull-down
+list.
+\item Select the {\tt virbr0} device from the pull-down list and click the {\tt Add} button.  Then click {\tt OK}.
+\item Use the network links to connect the cloud to the desired component.
+\item When the lab is started, you should be able to ping the connected container from the VM.
+\item Use port forwarding as described earlier to map host ports to ports on the VM.
+\end{itemize}
+Note that the subnet used for this remote access is defined by the VM's Ethernet device.  Putting multiple lab computers
+on that subnet as part of the lab network topology may be awkward and confusing to students since 192.168 addresses are
+private.  (TBD: The connected component and the cloud device itself should be hidden from the student performing the lab.)
 
 \section {Multi-user Labtainers}
 \label{multi user}
