@@ -19,6 +19,9 @@ def fixLabtainerDir():
 
 def doUpdates(logger):
     logger.debug('doUpdates')
+    if not os.path.isfile(imodule_path):
+        logger.debug('No imodules at %s to update.' % imodule_path)
+        return
     fixLabtainerDir()
     tfile = '/tmp/imodule.tar'
     here = os.getcwd()
