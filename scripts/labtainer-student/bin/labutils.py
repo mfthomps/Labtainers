@@ -1015,7 +1015,8 @@ def GetBothConfigs(lab_path, logger, servers=None, clone_count=None):
     return labtainer_config, start_config
 
 def RebuildLab(lab_path, force_build=False, quiet_start=False, just_container=None, 
-         run_container=None, servers=None, clone_count=None, no_pull=False, use_cache=True, local_build=False):
+         run_container=None, servers=None, clone_count=None, no_pull=False, use_cache=True, 
+         local_build=False, just_build=False):
     # Pass 'True' to ignore_stop_error (i.e., ignore certain error encountered during StopLab
     #                                         since it might not even be an error)
     StopLab(lab_path, True, run_container=run_container, servers=servers, clone_count=clone_count)
@@ -1031,14 +1032,33 @@ def RebuildLab(lab_path, force_build=False, quiet_start=False, just_container=No
                  just_container=just_container, start_config = start_config, 
                  labtainer_config = labtainer_config, run_container=run_container, 
                  servers=servers, clone_count=clone_count, no_pull=no_pull, use_cache=use_cache, local_build=local_build)
-
-    # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
-    host_home_xfer = labtainer_config.host_home_xfer
-    myhomedir = os.environ['HOME']
-    host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
-    CreateHostHomeXfer(host_xfer_dir)
-    DoStart(start_config, labtainer_config, lab_path, quiet_start, 
+    if not just_build:
+        # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
+        host_home_xfer = labtainer_config.host_home_xfer
+        myhomedir = os.environ['HOME']
+        host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
+        CreateHostHomeXfer(host_xfer_dir)
+        DoStart(start_config, labtainer_config, lab_path, quiet_start, 
             run_container, servers, clone_count)
+    if start_config.gns3.lower() == "yes":
+        nonet = os.path.join(os.getenv('LABTAINER_DIR'), 'scripts', 'gns3', 'noNet.py')
+        cmd = '%s %s' % (nonet, labname) 
+        ps = subprocess.Popen(shlex.split(cmd), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+        output = ps.communicate()
+        if len(output[1]) > 0:
+            logger.error(output[1].decode('utf-8'))
+        else:
+            for line in output[0].decode('utf-8').splitlines():
+                print(line)
+        gennet = os.path.join(os.getenv('LABTAINER_DIR'), 'scripts', 'gns3', 'genNet.py')
+        cmd = '%s %s %s' % (gennet, labname, labname) 
+        ps = subprocess.Popen(shlex.split(cmd), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+        output = ps.communicate()
+        if len(output[1]) > 0:
+            logger.error(output[1].decode('utf-8'))
+        else:
+            for line in output[0].decode('utf-8').splitlines():
+                print(line)
 
 def dockerPull(registry, image_name):
     cmd = 'docker pull %s/%s' % (registry, image_name)

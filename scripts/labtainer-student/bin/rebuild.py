@@ -63,6 +63,7 @@ def main():
     parser.add_argument('-n', '--client_count', action='store', help='Number of clones of client containers to create, intended for multi-user labs')
     parser.add_argument('-L', '--local_build', action='store_true', default=False, help='Local building, do not pull or query from internet')
     parser.add_argument('-N', '--no_cache', action='store_true', default=False, help='Build the image without using Docker cache')
+    parser.add_argument('-b', '--just_build', action='store_true', help='Only build the lab, do not start it.')
 
 
     args = parser.parse_args()
@@ -98,7 +99,7 @@ def main():
     use_cache = not args.no_cache
     labutils.RebuildLab(lab_path, force_build=force_build, quiet_start=quiet_start, 
           just_container=args.force_container, run_container=args.only_container, servers=distributed, 
-          clone_count=args.client_count, local_build=args.local_build, use_cache=use_cache)
+          clone_count=args.client_count, local_build=args.local_build, use_cache=use_cache, just_build=args.just_build)
     current_lab = CurrentLab.CurrentLab()
     current_lab.add('lab_name', args.labname)
     current_lab.add('clone_count', args.client_count)

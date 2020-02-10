@@ -68,6 +68,7 @@ class ParseStartConfig():
         # default to NO (i.e., do not collect)
         self.collect_docs = 'yes'
         self.lan_hosts = {}
+        self.gns3 = 'no'
 
         if not os.path.exists(fname):
             self.logger.error("Config file %s does not exists!\n" % fname)
