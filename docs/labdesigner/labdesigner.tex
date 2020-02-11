@@ -2160,7 +2160,10 @@ list.
 \end{itemize}
 Note that the subnet used for this remote access is defined by the VM's Ethernet device.  Putting multiple lab computers
 on that subnet as part of the lab network topology may be awkward and confusing to students since 192.168 addresses are
-private.  (TBD: The connected component and the cloud device itself should be hidden from the student performing the lab.)
+private.  
+
+When a GNS3 Labtainer is run with the {\tt --student} option, the Cloud components are hidden, as are any Labtainer
+components whose {\tt start.config} entries include {\tt HIDE YES}.  Links to hidden devices are also hidden.
 
 \section {Multi-user Labtainers}
 \label{multi user}
