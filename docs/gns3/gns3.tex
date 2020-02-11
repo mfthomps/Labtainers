@@ -217,6 +217,8 @@ Once the lab is defined for use in GNS3, it can be run by opening the associated
         \item Right clicking on a Labtainer node will display a pop-up menu including an option to insert a thumb drive.  This will cause
               a {\tt sudo mount} command to be run on the container, with arguments provided in start.config THUMB\_VOLUME configuration
               value for that container.
+        \item Use of the {\tt -s} option when starting gns3 will cause any cloud endpoint nodes to be hidden from the student,
+along with any links to them.  It will also hide any Labtainer containers having {\tt HIDE YES} in the start.config.
 \end{itemize}
 \subsection{Thumb drive simulation example}
 Create a volume image file, e.g., by including the following in the container fixlocal.sh script:
@@ -280,4 +282,7 @@ To add icons:
 	\item Run 'sudo python3 setup.py install' in the gns3-gui directory.
 \end{itemize}
 Added lab manual button and check work button.
+\section{Notes}
+The startup file is provided to start\_window.py, and that is provided to loadPath, and that results in
+a call to Topology.loadProject.  The nodes and links are created in graphics\_view.py
 \end{document}
