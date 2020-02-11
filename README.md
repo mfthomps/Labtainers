@@ -72,6 +72,10 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+February 11, 2020
+- Update guides to describe remote access to containers withing GNS3 environments
+- Hide selected components and links within GNS3.
+
 February 6, 2020
 - Introduce function to remotely manage containers, e.g., push files.
 - Add GNS3 environment function to simulate insertion of a USB drive.
