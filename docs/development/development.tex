@@ -518,7 +518,9 @@ led the file-deletion lab to fail, being unable to get a loopback device.  Alter
 
 Metasploit lab now crashes the VM.  g\_array\_unref: assertion 'array' failed.   Leads to X server crash, loss of
 desktop.  Perhaps only occurs after reboot, once, then works ok?  Created both containers with NO\_PRIVILEGE attribute
-in start.config, seems to fix it?
+in start.config, seems to fix it?  NO: that breaks it by keeping services from running.  Disabled postgresql service
+in attacker seems to keep the crash from happening?  Also happened in a hackazon container derived from a dockerfile that
+included multiple CMD entries (one in the latest file, one in the parent file).
 
 \subsubsection{Grader updates}
 Automate detection of need to update a local grader image, e.g., in response to a fix to the grader.
