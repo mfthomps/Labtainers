@@ -507,6 +507,8 @@ to the default registry per the labtainer.config file.
 {\tt insert thumb drive} from a component menu.
 \item PUBLISH [publish] -- Optional arguments to the Docker {\tt --publish} argument for making container ports visible at the
 host interface.  For example, a value of {\tt 127.0.0.1:60022:22/tcp} will bind host port 60022 to container port 22.
+\item HIDE [hide] -- If YES, the associated node will be hidden in GNS3 environments when the {\tt --student} option if
+used.
 
 \end{itemize}
 \end{itemize}
@@ -768,7 +770,7 @@ is followed by one of the following operations:
                                        to be used by random generator
    example:
 
-     some_parameter_id : RAND_REPLACE: client:/home/ubuntu/stack.c 
+     some_parameter_id : RAND_REPLACE : client:/home/ubuntu/stack.c 
          : BUFFER_SIZE : 200 : 2000
      (all one line) will randomly replace the token string "BUFFER_SIZE" found in
      file stack.c on the mylab.client.student container with a number ranging from 
