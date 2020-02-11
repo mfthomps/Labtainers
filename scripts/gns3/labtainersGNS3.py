@@ -223,6 +223,16 @@ def extraHosts(image_name, logger):
             break 
     return retval
 
+def isHidden(image_name, logger):
+    labutils.logger = logger
+    retval = False
+    start_config, comp_name, labname, lab_path = getStartConfig(image_name, logger)
+    for name, container in start_config.containers.items():
+        if name == comp_name:
+            if container.hide.lower() == 'yes':
+                retval = True
+    return retval
+
 if __name__ == '__main__':
     ''' only for testing '''
     home = os.getenv("HOME")
