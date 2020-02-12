@@ -75,6 +75,7 @@ first time.
 February 11, 2020
 - Update guides to describe remote access to containers withing GNS3 environments
 - Hide selected components and links within GNS3.
+- Figures in the webtrack lab guide were not visible; typos in this and nmap-ssh
 
 February 6, 2020
 - Introduce function to remotely manage containers, e.g., push files.
