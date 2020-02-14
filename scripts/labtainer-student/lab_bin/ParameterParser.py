@@ -99,10 +99,10 @@ class ParameterParser():
         if sys.version_info >=(3,0):
             randint_compat = lambda lo, hi: lo + int(random.random() * (hi + 1 - lo))
             x = randint_compat(low, high)
-            print('is 3, x %d' % x)
+            #print('is 3, x %d' % x)
         else:
             x = random.randint(low, high)
-            print('is 2, x %d' % x)
+            #print('is 2, x %d' % x)
         return x
  
     def CheckRandReplaceEntry(self, param_id, each_value, unique=False):
