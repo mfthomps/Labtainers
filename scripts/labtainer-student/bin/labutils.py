@@ -1220,6 +1220,8 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
             fatal_error = CheckBuildError(ps.stdout, labname, name)
             if not fatal_error:
                 fatal_error = CheckBuildError(ps.stderr, labname, name)
+            else:
+                CheckBuildError(ps.stderr, labname, name)
             if fatal_error:
                 exit(1)
     return retval
@@ -1919,6 +1921,9 @@ def FileModLater(ts, fname, big_list=[]):
         ''' ignore empty tar archives '''
         if line.startswith('?'):
             f = line.strip().split()[1]
+            if f in big_list:
+                logger.debug('FileModLater, is bigfile %s' % check_file)
+                return False
             if os.path.isfile(fname):
                 has_svn = False
             else:
@@ -1994,7 +1999,7 @@ def FileModLater(ts, fname, big_list=[]):
                 if os.path.basename(check_file) == 'sys_tar' or os.path.basename(check_file) == 'home_tar':
                     return False
                 if check_file in big_list:
-                    #logger.debug('FileModLater, not in svn is bigfile %s' % check_file)
+                    logger.debug('FileModLater, not in svn is bigfile %s' % check_file)
                     return False
                 df_time = os.path.getmtime(check_file)
             df_utc_string = str(datetime.datetime.utcfromtimestamp(df_time))
