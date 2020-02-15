@@ -1,0 +1,13 @@
+[Unit]
+Description=Cadet Service
+
+[Service]
+Type=simple
+ExecStart=/home/ubuntu/cadet01
+StandardOutput=null
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+Alias=cadet.service
+
