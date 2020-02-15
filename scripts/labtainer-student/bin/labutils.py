@@ -1921,13 +1921,14 @@ def FileModLater(ts, fname, big_list=[]):
         ''' ignore empty tar archives '''
         if line.startswith('?'):
             f = line.strip().split()[1]
-            if f in big_list:
-                logger.debug('FileModLater, is bigfile %s' % check_file)
+            abspath = os.path.abspath(f)
+            if abspath in big_list:
+                logger.debug('FileModLater, is bigfile %s' % f)
                 return False
             if os.path.isfile(fname):
                 has_svn = False
             else:
-                if os.path.abspath(f) != fname:
+                if abspath != fname:
                     has_svn = True
             if f.endswith('.tar'):
                 if EmptyTar(f):
