@@ -577,7 +577,7 @@ All files in the
 \begin{verbatim}
     $LABTAINER_DIR/labs/[labname]/[container name]/_system
 \end{verbatim}
-directory will be copied to their corresponding paths relative to the root directory.
+\noindent directory will be copied to their corresponding paths relative to the root directory.
 For example, configuration files for /etc should appear in \_system/etc/.
 
 The initial Dockerfile from the templates include this line:
@@ -592,11 +592,15 @@ can be placed into the directory named:
 \end{verbatim}
 either as individual files, or in a ``sys.tar'' archive.  In the former case,
 the framework will automatically create the sys.tar file.  This technique 
-can save time in building lab images becauase the files do not need to be 
+can save time in building lab images because the files do not need to be 
 archived for each build.  
 
 In general, files modified and maintained by the designer should go into the
 \_system directory while static system files should go into the sys\_tar directory.
+
+\textbf{NOTE:} CentOS systems do not have a {\tt /bin} directory, that is actually a link.  If you
+create a {\tt \_system/bin} directory for the lab, that will trash the {\tt /bin} link and result in 
+an obscure Docker build error.
 
 \subsection {System services}
 The Dockerfile ``ENTRYPOINT'' command can be used to start a system service.  The general Docker 
@@ -2532,6 +2536,13 @@ to port 5000 on the localhost.
 A VM is configured to use the test registry via {\tt setup\_scripts/./prep-testregistry.sh}
 
 The test registry is populated using publish.py -t
+
+\subsection {CentOS containers}
+CentOS base containers do not run 32-bit binaries.  Add the following to your dockerfile to do that:
+\begin{verbatim}
+RUN yum install -y compat-libstdc++-296.i686 compat-libstdc++-33.i686
+\end{verbatim}
+
 \newpage
 \appendix
 \section{\\SimLab for testing labs}
