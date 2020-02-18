@@ -80,7 +80,12 @@ A particular input to the service will cause it to display an Easter egg.  Use G
 Use that knowldege to send the service a string that will cause the Easter egg to display.
 
 \subsection{Crash the service}
-Review how the {cadet01} service handles input read from the network and find an input that will cause the service to crash.
+Review how the {cadet01} service handles input read from the network.  Find the buffer variable into which the service receives
+network data and rename it to "buffer" -- do this in functions that reference the variable.  Make note of the buffer size.
+Also identify the variable that 
+constrains the quantity of bytes that will be read into the buffer.  Give it label of {\tt byte\_count}.
+
+Finally, based on what you found above, find an input that will cause the service to crash.
 You will know it has crashed if {\tt netcat} displays a ``Connection reset by peer'' message.
 
 \section{Submission}
