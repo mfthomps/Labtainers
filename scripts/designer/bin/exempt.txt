@@ -6,3 +6,4 @@ labtainer.centos
 labtainer.centos.xtra2
 labtainer.firefox.splunk
 labtainer.metasploitable
+labtainer.ghidra
