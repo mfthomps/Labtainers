@@ -198,6 +198,11 @@ labtainer.grader image.
 The {\tt checkwork} function forces a collection of artifacts, and a grader container
 is then run to perform grading.
 
+\subsection{mynotify}
+The mynotify runs as a service.  It is installed from the labtainer-student/lab\_bin directory.
+It will exit silently if the lab has no notify file in .local/bin.  See its log on each container
+within /tmp/mynotify.log  The service uses the Linux inotify service to detect and record access to files.
+
 \section{Distribution publishing}
 The Labtainer framework is distributed via the c3o website as a tar file, or, optionally a
 VM applicance (both VMWare and VirtualBox).  The Docker images are distributed via the Docker Hub.
@@ -506,6 +511,8 @@ Validation should catch results.config naming of non-existent container.
 The backups2 lab creates a loopback volume named myfs.img.  The lab does not dismount it.
 This device will go away on a reboot.
 
+Add latex template and makefile when new\_lab\_setup is run.
+
 \subsubsection{Docker problems}
 The check\_nets.py tests for problems that sometimes crop up in Docker.  These include Linux routes defined
 on the host for container networks that no longer exist.  And, loopback devices that are not properly deleted?
@@ -555,6 +562,9 @@ value for that env variable.  An updated update-labtainer.sh fixes that.  But up
 After the first run of update-labtainer, the imodule function will be available, but without the value being set.  Add diagnostic to imodule to
 prompt for re-run of update-labtainer.  Or just hack around it?
 
+\subsection {Build dependence}
+The home\_tar and sys\_tar files as considered for build dependence.  But the home.tar and sys.tar are skipped because they are remade
+from a fresh pull.  This is a problem when we add dated archives.  Must rebuild with a -f.
 \subsubsection {IModules}
 The DoRebuild function defines a container\_registry, which is then used to query info about this image, but is also used to define the
 registry within the Dockerfile, where the base is pulled, i.e.,the FROM statement.  It seems there needs to be a BASE\_REGISTRY as well as
