@@ -72,6 +72,9 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+February 18, 2020
+- Inherit the DISPLAY environment variable from the host (e.g., VM) instead of assuming :0
+
 February 14, 2020
 - Add Ghidra software reverse engineering introduction exercise.
 

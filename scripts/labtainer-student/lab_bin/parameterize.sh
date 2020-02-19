@@ -51,7 +51,7 @@ mkdir "$LOCKDIR" >/dev/null 2>&1
 #echo "number of argument is $#"
 #echo "argument is $@"
 
-if [ $# -ne 7 ]
+if [ $# -ne 8 ]
 then
     echo "Usage: parameterize.sh <CONTAINER_USER> <LAB_INSTANCE_SEED> <USER_EMAIL> <LAB_NAME> <CONTAINER_NAME>"
     echo "       <CONTAINER_USER> -- username of the container"
@@ -61,6 +61,7 @@ then
     echo "       <LAB_NAME> -- name of the lab"
     echo "       <CONTAINER_NAME> -- name of the container"
     echo "       <version> -- version of container image"
+    echo "       <host_display> -- host DISPLAY env variable"
     exit 1
 fi
 
@@ -71,6 +72,7 @@ USER_EMAIL=$4
 LAB_NAME=$5
 CONTAINER_NAME=$6
 IMAGE_VERSION=$7
+HOST_DISPLAY=$8
 echo "email and watermark"
 date
 # Laboratory instance seed is always stored in $LAB_SEEDFILE
@@ -135,6 +137,7 @@ fi
 echo "back from expand hometar.sh"
 date
 
+export DISPLAY=$HOST_DISPLAY
 echo $CONTAINER_PASSWORD | sudo -S $HOME/.local/bin/hookBash.sh $HOME 2>>/tmp/hookBash.output
 
 # restore the apt/yum sources (if not done already)

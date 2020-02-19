@@ -197,7 +197,8 @@ def ParameterizeMyContainer(mycontainer_name, container_user, container_password
         #print(str(image_info))
         if image_info.version is not None:
             version = image_info.version
-    command=['docker', 'exec', '-i',  running_container, cmd_path, container_user, container_password, lab_instance_seed, user_email, labname, mycontainer_name, version ]
+    display = os.getenv('DISPLAY')
+    command=['docker', 'exec', '-i',  running_container, cmd_path, container_user, container_password, lab_instance_seed, user_email, labname, mycontainer_name, version, display ]
     logger.debug("About to call parameterize.sh with : %s" % str(command))
     #return retval 
     child = subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
