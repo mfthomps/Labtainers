@@ -32,7 +32,6 @@ RUN mkdir /var/lib/dbus
 
 RUN yum install -y liberation-sans-fonts xcb-util 
 RUN yum install -y ghex
-RUN yum install -y e2fsprogs libtool-ltdl libudev selinux-policy libaio libXdmcp libXtst mesa-dri-drivers xkeyboard-config xorg-x11-xauth xorg-x11-xkb-utils cups
 #RUN yum install -y http://dl.fedoraproject.org/pub/epel/6/x86_64/Packages/l/leafpad-0.8.18.1-1.el6.x86_64.rpm
 #RUN wget https://forensics.cert.org/cert-forensics-tools-release-el7.rpm -P /tmp
 #RUN  rpm -Uvh /tmp/cert-forensics-tools-release*rpm
