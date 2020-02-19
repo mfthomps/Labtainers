@@ -34,9 +34,9 @@ name {\tt ghidra} contains the Ghidra tool suite and a copy of the service that
 is running on the server.  You have two terminal windows to this computer. Use the
 {\tt moreterm.py} command to get more.
 
-The server IP address is 172.17.0.2.  Use ping to confirm a connection:
+The server IP address is 172.25.0.2.  Use ping to confirm a connection:
 \begin{verbatim}
-ping 172.17.0.2
+ping 172.25.0.2
 \end{verbatim}
 
 \section{Lab Tasks}
@@ -71,7 +71,7 @@ Explore the program by looking at what functions are called by main, and what fu
 Look through the {\tt cadet01} functions to find the port number that is used when binding to the network socket.
 Once you have found the port number, use it to communicate with the service.  For example, use the {\tt netcat} program:
 \begin{verbatim}
-   echo "Hi" | nc 172.17.0.2 <port number>
+   echo "Hi" | nc 172.25.0.2 <port number>
 \end{verbatim}
 \noindent where {\tt port number} is what you found.  If you are successful you should see a reply from the service.
 
