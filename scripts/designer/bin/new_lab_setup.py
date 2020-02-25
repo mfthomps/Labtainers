@@ -185,10 +185,10 @@ def handle_add_container(tdir, newcontainer, basename='base'):
 
 def renameSVN(old, new):
     cmd = 'git status -s %s' % old
-    print('cmd is %s' % cmd)
+    #print('cmd is %s' % cmd)
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
-    print('out[0] %s' % output[0].decode('utf-8'))
+    #print('out[0] %s' % output[0].decode('utf-8'))
     if output[0].decode('utf-8').strip().startswith('??'):
         os.rename(old, new)
     else:
