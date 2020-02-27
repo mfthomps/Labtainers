@@ -115,10 +115,15 @@ class ParseStartConfig():
             self.thumb_volume = False
             self.publish = None
             self.hide = "no"
+            self.tap = "no"
             self.logger = logger
+            self.did_nets = []
 
         def add_net(self, name, ipaddr):
             self.container_nets[name] = ipaddr
+
+        def did_net(self, name):
+            self.did_nets.append(name) 
 
         def validate(self, valid_networks=set(), skip_networks = False):
             self.terminals = int(self.terminals) #replace with something smarter
@@ -160,6 +165,7 @@ class ParseStartConfig():
             self.macvlan_ext = None
             self.macvlan_use = None
             self.ip_range = None
+            self.tap = None
             self.logger = logger
 
         def validate(self):

@@ -434,6 +434,16 @@ def isFirefox(image_name):
 
     return retval
 
+def FindTapMonitor(start_config):
+    for container_name in start_config.containers:
+        logger.debug('FindTapMonitor check %s' % container_name)
+        for subnet in start_config.containers[container_name].container_nets:
+            logger.debug('FindTapMonitor check lan %s' % subnet)
+            if subnet.lower() == 'tap_lan':
+                ip = start_config.containers[container_name].container_nets[subnet]
+                return container_name, ip
+    return None, None
+
 def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_name=None, mysubnet_ip=None, quiet=False):
     ''' create a single container -- or all clones of that container per the start.config '''
     logger.debug("Create Single Container for %s" % container.name)
@@ -503,6 +513,14 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
                add_this = '--add-host %s ' % item
                add_hosts += add_this
         add_host_param = '--add-host my_host:%s %s' % (docker0_IPAddr, add_hosts)
+        if container.tap == 'yes':
+            ''' docker fu when using host networking, sudo hangs looking for host ip? '''
+            add_host_param = '--add-host %s:127.0.0.1 %s' % (container.hostname, add_host_param)
+            monitor_tap, ip = FindTapMonitor(start_config)
+            if monitor_tap is not None:
+                add_host_param = '--add-host monitor_tap:%s %s' % (ip, add_host_param)
+
+            
         dns_param = GetDNS()
         priv_param = ''
         if container.no_privilege != 'yes':
@@ -513,7 +531,10 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
         mac = ''
         subnet_ip = ''
         network_param = ''
-        if mysubnet_name is not None:
+        if container.tap == 'yes':
+            network_param = '--network=host' 
+            
+        elif mysubnet_name is not None:
             network_param = '--network=%s' % mysubnet_name
 
         multi_user = ''
@@ -1096,8 +1117,15 @@ class RegistryInfo():
 
 def CheckBuildError(output, labname, name):
     fatal_error = False
-    while True:
-        line = output.readline().decode('utf-8').strip()
+    logger.debug('CheckBuildError ')
+    #while output is not None: 
+    for line in output.splitlines():
+        #line = output.readline() 
+        logger.debug('CheckBuildError x line %s' % str(line))
+        if len(line) == 0:
+            break 
+        #line = line.decode('utf-8').strip()
+        logger.debug('CheckBuildError line %s' % line)
         if len(line) > 0:
             if 'Error in docker build result' in line:
                 code = line.strip().split()[-1]
@@ -1218,11 +1246,16 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
                 exit(1)
             logger.debug('cmd is %s' % cmd)     
             ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-            fatal_error = CheckBuildError(ps.stdout, labname, name)
+            output = ps.communicate()
+            #fatal_error = CheckBuildError(ps.stdout, labname, name)
+            fatal_error = CheckBuildError(output[0].decode('utf-8'), labname, name)
             if not fatal_error:
-                fatal_error = CheckBuildError(ps.stderr, labname, name)
+                logger.debug('not fatal, do stderr')
+                fatal_error = CheckBuildError(output[1].decode('utf-8'), labname, name)
             else:
-                CheckBuildError(ps.stderr, labname, name)
+                logger.debug('fatal, do stderr')
+                CheckBuildError(output[1].decode('utf-8'), labname, name)
+            logger.debug('done checkerror fatal %r' % fatal_error)
             if fatal_error:
                 exit(1)
     return retval
@@ -1254,7 +1287,26 @@ def defineAdditionalIP(container_name, post_start_if, post_start_nets):
                 print('error doing %s' % cmd)
                 exit(1) 
             count += 1
-     
+    
+def MakeNetMap(start_config, mycontainer_name, container_user): 
+    ''' copy network list to tap '''
+    cmd = "docker network ls"
+    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    nlist = []
+    for subnet in start_config.subnets:
+        if start_config.subnets[subnet].tap == 'yes':
+            nlist.append(subnet)
+    if len(output[1].strip()) == 0:
+        with open('/tmp/net_map.txt', 'w') as fh:
+            for line in output[0].decode('utf-8').splitlines():
+                net = line.split()[1]
+                for subnet in nlist:
+                    if subnet == net:
+                        fh.write(line+'\n')
+                        break
+        cmd = 'docker cp /tmp/net_map.txt  %s:/var/tmp/' % (mycontainer_name)
+        DockerCmd(cmd)
         
     
 def DoStartOne(labname, name, container, start_config, labtainer_config, lab_path,  
@@ -1279,17 +1331,20 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
             # Container does not exist, create the container
             # Use CreateSingleContainer()
             containerCreated = False
-            if len(container.container_nets) == 0:
+            if len(container.container_nets) == 0 or container.tap == 'yes':
                 containerCreated = CreateSingleContainer(labtainer_config, start_config, container, quiet=quiet_start)
             else:
-                mysubnet_name, mysubnet_ip = container.container_nets.popitem()
+                #mysubnet_name, mysubnet_ip = container.container_nets.popitem()
+                mysubnet_name = next(iter(container.container_nets))
+                mysubnet_ip = container.container_nets[mysubnet_name]
+                container.did_net(mysubnet_name)
                 subnet_name = mysubnet_name
                 if ':' in mysubnet_name:
                     subnet_name = mysubnet_name.split(':')[0] 
                     post_start_if[subnet_name] = mysubnet_ip
                 containerCreated = CreateSingleContainer(labtainer_config, start_config, container, subnet_name, mysubnet_ip, quiet=quiet_start)
                 
-            logger.debug("CreateSingleContainer result (%s)" % containerCreated)
+            logger.debug("CreateSingleContainer %s result (%s)" % (mycontainer_name, containerCreated))
             if not containerCreated:
                 logger.error("CreateSingleContainer fails to create container %s!\n" % mycontainer_name)
                 results.append(False)
@@ -1313,6 +1368,9 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
         clone_names = GetContainerCloneNames(container)
         for mycontainer_name in clone_names:
             for mysubnet_name, mysubnet_ip in container.container_nets.items():
+                if mysubnet_name in container.did_nets:
+                    continue
+                
                 subnet_name = mysubnet_name
                 if ':' in mysubnet_name:
                     subnet_name = mysubnet_name.split(':')[0] 
@@ -1356,6 +1414,8 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
             if container.no_gw:
                 cmd = "docker exec %s bash -c 'sudo ip route del 0/0'" % (mycontainer_name)
                 DockerCmd(cmd)
+            if container.tap == 'yes':
+                MakeNetMap(start_config, mycontainer_name, container_user)
     
         results.append(retval)
 
@@ -2699,6 +2759,8 @@ def DoStopOne(start_config, labtainer_config, lab_path, name, container, zip_fil
                 logger.error("Container %s does not exist!\n" % mycontainer_name)
                 retval = False
 
+        elif container.tap == 'yes':
+            StopMyContainer(mycontainer_name, ignore_stop_error)
         else:
             clone_names = GetContainerCloneNames(container)
             for mycontainer_name in clone_names:
