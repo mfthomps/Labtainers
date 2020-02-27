@@ -1,0 +1,5 @@
+FROM mfthomps/labtainer.network
+LABEL description="This is base Docker image for the Labtainer network tap."
+ADD system/bin/labdump.sh /bin/
+ADD system/bin/start_labdump.sh /bin/
+ADD system/bin/labdump_client.py /bin/

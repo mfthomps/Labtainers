@@ -55,8 +55,11 @@ if [[ "$2" == -c ]]; then
     CACHE=""
 fi
 here=`pwd`
-cd ../
-docker build $CACHE --build-arg registry=$LABTAINER_REGISTRY -f base_dockerfiles/Dockerfile.labtainer.$1 -t labtainer.$1:latest .
+dockerfile=Dockerfile.labtainer.$1
+cp -a ../base_dockerfiles/$dockerfile ../workspace/
+cd ../workspace
+docker build $CACHE --build-arg registry=$LABTAINER_REGISTRY -f $dockerfile -t labtainer.$1:latest .
+rm $dockerfile
 result=$?
 cd $here
 exit $result
