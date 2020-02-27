@@ -179,7 +179,9 @@ def main():
             exit(0)
     
     if labname not in dirs:
-        sys.stderr.write("ERROR: Lab named %s was not found!\n" % labname)
+        sys.stderr.write("ERROR: Lab named %s was not found.\n" % labname)
+        sys.stderr.write("Make sure you have all the latest labs by running:\n")
+        sys.stderr.write("   update-labtainer.sh\n")
         sys.exit(1)
     
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
