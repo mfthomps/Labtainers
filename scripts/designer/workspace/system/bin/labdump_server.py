@@ -21,7 +21,7 @@ def handleClient(conn, logging):
         os.mkdir('/taps')
     except:
         pass
-    fname = os.path.join('/taps', net_name)
+    fname = os.path.join('/taps', net_name+'.pcap')
     outfile = open(fname, 'a')
     while True:
         data = conn.recv(1024)
