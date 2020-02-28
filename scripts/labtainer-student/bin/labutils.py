@@ -140,10 +140,9 @@ def get_ip_address(ifname):
     return socket.inet_ntoa(fc[20:24])
 
 def get_hw_address(ifname):
-    #print('get_hw_address for %s' % ifname)
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', ifname[:15]))
-    return ':'.join(['%02x' % ord(char) for char in info[18:24]])
+    info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', bytes(ifname, 'utf-8')[:15]))
+    return ':'.join('%02x' % b for b in info[18:24])
 
 
 def get_new_mac(ifname):
@@ -1289,7 +1288,7 @@ def defineAdditionalIP(container_name, post_start_if, post_start_nets):
             count += 1
     
 def MakeNetMap(start_config, mycontainer_name, container_user): 
-    ''' copy network list to tap '''
+    ''' filter docker network list to include only tapped lans, and append MAC to each line '''
     cmd = "docker network ls"
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
@@ -1299,11 +1298,17 @@ def MakeNetMap(start_config, mycontainer_name, container_user):
             nlist.append(subnet)
     if len(output[1].strip()) == 0:
         with open('/tmp/net_map.txt', 'w') as fh:
+            ''' for each network reported by docker '''
             for line in output[0].decode('utf-8').splitlines():
-                net = line.split()[1]
+                parts = line.split()
+                net = parts[1]
+                eth = 'br-%s' % parts[0]
+                ''' find if it matches a tapped subnet in this lab '''
                 for subnet in nlist:
                     if subnet == net:
-                        fh.write(line+'\n')
+                        mac = get_hw_address(eth)
+                        new_line = '%s %s\n' % (line, mac)
+                        fh.write(new_line)
                         break
         cmd = 'docker cp /tmp/net_map.txt  %s:/var/tmp/' % (mycontainer_name)
         DockerCmd(cmd)
