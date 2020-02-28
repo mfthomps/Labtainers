@@ -1,0 +1,12 @@
+[Unit]
+Description=client to send tcpdump to net monitor
+
+[Service]
+Type=notify
+ExecStart=/bin/start_labdump.sh
+StandardOutput=null
+
+[Install]
+WantedBy=multi-user.target
+Alias=labdump_client.service
+

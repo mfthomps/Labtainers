@@ -1,0 +1,8 @@
+[Unit]
+Description=labdump_client
+
+[Service]
+ExecStart=/bin/start_labdump.sh
+
+[Install]
+WantedBy=multi-user.target

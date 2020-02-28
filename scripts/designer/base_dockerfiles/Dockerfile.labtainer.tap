@@ -3,3 +3,6 @@ LABEL description="This is base Docker image for the Labtainer network tap."
 ADD system/bin/labdump.sh /bin/
 ADD system/bin/start_labdump.sh /bin/
 ADD system/bin/labdump_client.py /bin/
+ADD system/lib/systemd/system/labdump_client.service /lib/systemd/system/
+ADD system/etc/systemd/system/labdump_client.service /etc/systemd/system/
+RUN systemctl enable labdump_client.service

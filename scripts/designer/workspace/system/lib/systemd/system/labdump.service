@@ -1,0 +1,12 @@
+[Unit]
+Description=Server to receive tcpdumps from a tap component
+
+[Service]
+Type=notify
+ExecStart=/bin/labdump_server.py
+StandardOutput=null
+
+[Install]
+WantedBy=multi-user.target
+Alias=labdump.service
+
