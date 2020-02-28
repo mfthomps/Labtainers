@@ -72,6 +72,12 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+February 26, 2020
+- If labtainer command does not find lab, suggest that user run update-labtainer.sh
+- Add support preliminary support for a network tap component to view all network traffic.
+- Script to fetch lab images to prep VMs that will be used without internet.
+- Provide username and password for nmap-discovery lab.
+
 February 18, 2020
 - Inherit the DISPLAY environment variable from the host (e.g., VM) instead of assuming :0
 
