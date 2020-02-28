@@ -1412,7 +1412,9 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                 ParamForStudent(start_config.lab_master_seed, mycontainer_name, container_user, 
                                                  container_password, labname, student_email, lab_path, name, image_info)
             if container.no_gw:
-                cmd = "docker exec %s bash -c 'sudo ip route del 0/0'" % (mycontainer_name)
+                cmd = "docker exec %s bash -c 'sudo /bin/ip route del 0/0'" % (mycontainer_name)
+                DockerCmd(cmd)
+                cmd = "docker exec %s bash -c 'sudo route del default'" % (mycontainer_name)
                 DockerCmd(cmd)
             if container.tap == 'yes':
                 MakeNetMap(start_config, mycontainer_name, container_user)
@@ -2268,8 +2270,16 @@ def CheckBuild(lab_path, image_name, image_info, container_name, name, is_redo, 
         big_external = os.path.join(lab_path, 'config', 'bigexternal.txt')
         if os.path.isfile(big_external):
             if FileModLater(ts, big_external):
-                self.lgr.debug('config/bigexternal.txt is later, will rebuild')
-                retval = True
+                with open(big_external) as fh:
+                    for line in fh:
+                        if not line.startswith('#'):
+                            parts = line.split()
+                            if len(parts) > 1:
+                                dest = parts[1].split('/')[0]
+                                if dest == container_name:
+                                    retval = True
+                                    logger.debug('config/bigexternal.txt is later, will rebuild')
+                                    break
     
     #if not retval and container_bin is not None:
     #    all_bin_files = os.listdir(container_bin)
