@@ -288,4 +288,69 @@ Added lab manual button and check work button.
 \section{Notes}
 The startup file is provided to start\_window.py, and that is provided to loadPath, and that results in
 a call to Topology.loadProject.  The nodes and links are created in graphics\_view.py
+
+\section{Simulated USB drives}
+These instructions were tested on an Ubuntu 18 VM.
+\begin{itemize}
+\item Disable auto mount in the VM:
+\begin{verbatim}
+    gsettings set org.gnome.desktop.media-handling automount false
+    gsettings set org.gnome.desktop.media-handling automount-open false 
+\end{verbatim}
+
+\item Get kernel source: {\tt sudo aptitude install linux-source}
+
+\item Use git clone to retrive from: 
+\begin{verbatim}
+    git clone https://github.com/serianox/DKMS-dummy_hcd.git
+\end{verbatim}
+\item Copy those two files to a new directory created at {\tt /usr/src/dummy\_hcd-01/}
+
+\item Then use dkms to build and install the module, as sudo:
+\begin{verbatim}
+    dkms add -m dummy_hcd -v 0.1
+    dkms build -m dummy_hcd -v 0.1
+    dkms install -m dummy_hcd -v 0.1
+\end{verbatim}
+
+\item Load the module with {\tt modprobe dummy\_hcd}
+
+\item Test by: 
+\begin{itemize}
+
+\item creating a backing file as file system
+\begin{verbatim}
+    dd if=/dev/zero of=/tmp/usb.img bs=1k count=1k
+    mkfs.ext2 -F usb.img
+\end{verbatim}
+
+\item Create the simulated device:
+\begin{verbatim}
+   sudo modprobe g_mass_storage file=/tmp/usb.img \
+      idVendor=0x1d6b idProduct=0x0104 iManufacturer=Myself \
+      iProduct=VirtualBlockDevice iSerialNumber=123
+\end{verbatim}
+
+\item Check that it exists with {\tt lsusb}
+
+\item Delete device with {\tt sudo modprobe -r g\_mass\_storage}
+
+\end{itemize}
+
+\item Set sudoers to not require a password to run the modprobe script.  Add
+something like the following using {\tt visudo -f /etc/sudoers}
+\begin{verbatim}
+mike ALL=(root) NOPASSWD: /home/mike/git/Labtainers/labs/usbtest/host_data/usb_create.sh
+\end{verbatim}
+\noindent and do the same for the script that deletes the device on stop.
+
+\end{itemize}
+
+IMPLEMENTATION NOTES:   Running the modprobe command on the target container has little advantage because the results
+are not seen on the container unless the /dev directory is shared between the container and the host.  In which case,
+all containers having shared /dev will see it.  However you can limited the sharing of /dev to only those containers
+that have dynamic USB requirements.  Those with static "devices" can be mapped at the time the container is created.
+Also, running the {\tt modprobe} on the host lets the backing store file live on the host, where its contents can be
+dynamically modified, e.g., to introduce malware into the usb drive.
 \end{document}
+
