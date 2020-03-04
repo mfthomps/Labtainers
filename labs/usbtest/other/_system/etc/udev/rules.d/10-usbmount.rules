@@ -1,0 +1,1 @@
+KERNEL=="sd*", RUN+="/home/ubuntu/iadrive/doiadrive.sh -u"

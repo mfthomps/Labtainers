@@ -31,6 +31,11 @@ RUN usermod $user_name -a -G wheel
 #  **** Perform all root operations, e.g.,           ****
 #  **** "apt-get install" prior to the USER command. ****
 RUN yum install -y udev
+
+RUN mv /bin/df /bin/mydf
+RUN echo "/bin/mydf $@ | grep -v '/dev/sda1' | sort | uniq -u" > /bin/df
+
+RUN chmod a+x /bin/df
 #
 USER $user_name
 ENV HOME /home/$user_name
