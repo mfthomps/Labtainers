@@ -93,6 +93,21 @@ def moreTerm(image, container_id, logger):
     logger.error('moreTerm failed to find container for %s' % image)
     return False
 
+def hasThumb(image_name, logger):
+    labutils.logger = logger
+    retval=True
+    start_config, comp_name, labname, lab_path = getStartConfig(image_name, logger)
+    running = labutils.GetContainerId(image_name)
+    logger.debug('running is %s  ' % running)
+    for name, container in start_config.containers.items():
+        if name == comp_name:
+            if container.thumb_volume is not None or container.thumb_command is not None:
+                return True
+            else:
+                return False 
+
+    return False 
+
 def thumbInsert(image_name, container_id, logger):
     ''' simulate insertion of usb drive by mounting a volume image using mount arguments
         found in the start.config THUMB_VOLUME argument '''
@@ -105,19 +120,37 @@ def thumbInsert(image_name, container_id, logger):
     cwd = os.getcwd()
     logger.debug('parameterizeOne in %s need to be in %s' % (cwd, student_dir))
     os.chdir(student_dir)
-    cmd = None
+    mount_cmd = None
+    thumb_cmd = None
     for name, container in start_config.containers.items():
         if name == comp_name:
             if container.thumb_volume is not None:
-                logger.debug('thumb command: %s' % container.thumb_volume)
-                print('thumb command: %s' % container.thumb_volume)
-                cmd = container.thumb_volume
+                logger.info('thumb volume: %s' % container.thumb_volume)
+                logger.info('thumb command: %s' % container.thumb_volume)
+                mount_cmd = container.thumb_volume
+                if container.thumb_command is not None:
+                    thumb_cmd = 'sudo '+os.path.join(lab_path, container.thumb_command)
+                    logger.info('thumb_cmd %s' % thumb_cmd)
             else:
-                logger.debug('The start.config has not THUMB_VOLUME entry for %s' % name)
+                logger.debug('The start.config has no THUMB_VOLUME entry for %s' % name)
                 retval = False
             break
-    if cmd is not None:
-        dock_cmd = 'docker exec %s script -q -c "sudo mount %s"' % (container_id, cmd)
+
+    if thumb_cmd is not None:
+        ''' execute vm command, e.g., to attach usb device to a vm '''
+        logger.info('do thumb cmd')
+        ps = subprocess.Popen(shlex.split(thumb_cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        output = ps.communicate()
+        if len(output[1].strip()) > 0:
+            logger.error('ERROR from thumb cmd: %s' % output[1])
+            retval = False
+        else:
+            for line in output[0].decode('utf-8').splitlines():
+                logger.debug('thumb_cmd output: %s' % line)
+
+    if mount_cmd is not None:
+        dock_cmd = 'docker exec %s script -q -c "sudo mount %s"' % (container_id, mount_cmd)
+        logger.info('mount cmd is %s' % dock_cmd)
         if not labutils.DockerCmd(dock_cmd):
             logger.error('docker exec failed')
             retval = False
@@ -159,6 +192,15 @@ def labtainerStop(image, container_id, logger):
             labutils.GatherOtherArtifacts(lab_path, name, container_id, container.user, container.password, True)
             base_file_name, zip_file_name = labutils.CreateCopyChownZip(start_config, labtainer_config, name,
                              container.full_name, container.image_name, container.user, container.password, True, True, running_container=container_id)
+
+            if container.thumb_stop is not None:
+                cmd = 'sudo '+os.path.join(lab_path, container.thumb_stop)
+                ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+                output = ps.communicate()
+                if len(output[1].strip()) > 0:
+                    logger.error('thumb stop failed %s\%s' % (container.thumb_stop, output[1]))
+                    return None
+            
     os.chdir(here)
     return zip_file_name
 

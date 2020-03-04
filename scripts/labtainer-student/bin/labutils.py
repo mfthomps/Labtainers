@@ -214,22 +214,28 @@ def ParameterizeMyContainer(mycontainer_name, container_user, container_password
         logger.debug('ParameterizeMyContainer %s' % out_string)
     return retval
 
+def DoCmd(cmd):
+    ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    retval = True
+    if len(output[1]) > 0:
+        logger.error(output[0].decode('utf-8'))
+        retval = False
+    if len(output[0]) > 0:
+        logger.debug(output[0].decode('utf-8'))
+    return retval
+
 # Start my_container_name container
-def StartMyContainer(mycontainer_name):
+def StartMyContainer(mycontainer_name, container, lab_path):
     retval = True
     if IsContainerRunning(mycontainer_name):
         logger.error("Container %s is already running!\n" % (mycontainer_name))
         sys.exit(1)
-    command = "docker start %s" % mycontainer_name
-    logger.debug("Command to execute is (%s)" % command)
-    ps = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    output = ps.communicate()
-    if len(output[1]) > 0:
-        logger.error('StartMyContainer %s' % output[1].decode('utf-8'))
-        logger.error('command was %s' % command)
-        retval = False
-    if len(output[0]) > 0:
-        logger.debug(output[0].decode('utf-8'))
+    if retval:
+        command = "docker start %s" % mycontainer_name
+        logger.debug("Command to execute is (%s)" % command)
+        if not DoCmd(command):
+            retval = False
     return retval
 
 def AllContainersCreated(container):
@@ -475,7 +481,7 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
         else:
             shm = ''
         if container.script == '' or ubuntu_systemd:
-            logger.debug('Container %s is systemd' % (new_image_name))
+            logger.debug('Container %s is systemd or has script empty <%s>' % (new_image_name, container.script))
             ''' a systemd container, centos or ubuntu? '''
             if ubuntu_systemd:
                 ''' A one-off run to set some internal values.  This is NOT what runs the lab container '''
@@ -489,14 +495,20 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
                 logger.debug('back from docker run, output %s' % (output[0].decode('utf-8')))
                 if len(output[1]) > 0:
                     logger.debug('back from docker run, error %s' % (output[1].decode('utf-8')))
-                
+                volume = '' 
             else:
-                volume='-v /sys/fs/cgroup:/sys/fs/cgroup:ro'
+                pass
+                #volume='-v /sys/fs/cgroup:/sys/fs/cgroup:ro'
                 #volume='--security-opt seccomp=unconfined --tmpfs /run --tmpfs /run/lock -v /sys/fs/cgroup:/sys/fs/cgroup:ro'
         if container.x11.lower() == 'yes':
             #volume = '-e DISPLAY -v /tmp/.Xll-unix:/tmp/.X11-unix --net=host -v$HOME/.Xauthority:/home/developer/.Xauthority'
             volume = volume+' --env="DISPLAY"  --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw"'
             logger.debug('container using X11')
+
+        if container.thumb_volume is not None:
+            volume = volume+' --volume="/dev:/dev:rw"'
+            #volume = volume+' --device="/dev/sdb"'
+
         add_hosts = ''     
         for item in container.add_hosts:
             if ':' not in item:
@@ -1117,9 +1129,9 @@ class RegistryInfo():
 def CheckBuildError(output, labname, name):
     fatal_error = False
     logger.debug('CheckBuildError ')
-    #while output is not None: 
     for line in output.splitlines():
-        #line = output.readline() 
+    #while output is not None: 
+        #line = output.readline().decode('utf-8') 
         logger.debug('CheckBuildError x line %s' % str(line))
         if len(line) == 0:
             break 
@@ -1251,9 +1263,11 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
             if not fatal_error:
                 logger.debug('not fatal, do stderr')
                 fatal_error = CheckBuildError(output[1].decode('utf-8'), labname, name)
+                #fatal_error = CheckBuildError(ps.stderr, labname, name)
             else:
                 logger.debug('fatal, do stderr')
                 CheckBuildError(output[1].decode('utf-8'), labname, name)
+                #CheckBuildError(ps.stderr, labname, name)
             logger.debug('done checkerror fatal %r' % fatal_error)
             if fatal_error:
                 exit(1)
@@ -1391,7 +1405,7 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                     connectNetworkResult = ConnectNetworkToContainer(start_config, mycontainer_name, mysubnet_name, mysubnet_ip)
 
             # Start the container
-            if not StartMyContainer(mycontainer_name):
+            if not StartMyContainer(mycontainer_name, container, lab_path):
                 logger.error("Container %s failed to start!\n" % mycontainer_name)
                 results.append(False)
                 return

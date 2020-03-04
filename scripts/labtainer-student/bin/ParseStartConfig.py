@@ -112,7 +112,9 @@ class ParseStartConfig():
             self.disable = None
             self.no_pull = False
             self.no_gw = False
-            self.thumb_volume = False
+            self.thumb_volume = None
+            self.thumb_command = None
+            self.thumb_stop = None
             self.publish = None
             self.hide = "no"
             self.tap = "no"

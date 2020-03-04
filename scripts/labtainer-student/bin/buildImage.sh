@@ -56,9 +56,9 @@ if [ "$#" -ne 9 ]; then
     echo "   <no_pull> is 'True' to avoid pulling images, e.g., no internet acess"
     exit
 fi
-
+echo "WTF, oVER?"
+exec &> >(tee -a "/tmp/docker_build.log")
 #------------------------------------^
-
 echo "Labname is $lab with image name $imagename"
 
 LAB_DIR=$LAB_TOP/$lab
