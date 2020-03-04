@@ -208,19 +208,16 @@ on remote management and remote access to containers within a lab.
 This section outlines Labtainers/GNS3 support for simulating insertion of USB drives.  The goal is for the udevd on selected containers to
 recognize and respond to these events, i.e., based on rules in {\tt /etc/udev/rules.d}.   
 
-This scheme works by sharing the {\tt /dev} directory between \textbf{selected} containers and the host.  The containers are selected in the
-{\tt start.config} file.  (NOTE: even though the devices do not appear on the other containers, the other container udev rules will trigger,
-and such they should be deleted or replaced with different scripts.)
-
+All containers will see inserted drives, regardless of how the container is configured.  Thus, any udev rules or other logic that queries
+device attributes must be mitiaged on components that are not to react to insertion.  
 
 A summary of the steps are:
 \begin{itemize}
 \item Build and install the linux dummy\_hcd kernel module.
 \item Create a simple script that uses modprobe to create the simulated device on the VM; and a script to remove it.  Put these scripts in a 
 subdirectory of the lab directory along with a disk image for the USB (i.e., the "backing file").  This can be created with  dd and mkext3...
-\item Identify those scripts within the start.config
+\item Identify those scripts within the start.config THUMB.. entries for containers that are to have insertable USB drives.
 \item Gizmo to mount the device on the container after it is \textit{authorized} is TBD, but tractable, e.g., in the rules.d file?
-\item That is it.
 \end{itemize}
 
 \subsection{Linux dummy\_hcd module build and installation}
@@ -268,8 +265,10 @@ These instructions were tested on an Ubuntu 18 VM.
 \end{itemize}
 \end{itemize}
 
-\section{Configure the lab}
+\subsection{Configure the lab}
+See the usbtest lab as an example.
 \begin{itemize}
+\item Start the {\sbin/udevd -d} on each component that is to react to a usb insertion, e.g., in a {\tt faux\_init} file.
 \item Create a subdirectory of your lab, e.g., {\tt host\_data} into which you will place a few scripts and the disk image.
 \item Use the two modprobe commands above as templates for creating two scripts, one for creating the device, and one for removing it (for use
 when stopping the lab so the device does not persist.
@@ -280,6 +279,15 @@ mike ALL=(root) NOPASSWD: /home/mike/git/Labtainers/labs/usbtest/host_data/usb_c
 \end{verbatim}
 \noindent and do the same for the script that deletes the device on stop.
 
+\item Modify the start.config to include THUMB... commands for the components that are to have insertable USB drives.
+Include at least the THUMB\_COMMAND and THUMB\_STOP.  Provide the paths to your scripts, relative to the lab directory.
+
+\item Modify the dockerfiles of components that have THUMB directives to replace filter the {\df} output so that volume lists do not look confusing:
+\begin{verbatim}
+  RUN mv /bin/df /bin/mydf
+  RUN echo "/bin/mydf $@ | grep -v '/dev/sda1' | sort | uniq -u" > /bin/df
+\end{verbatim}
+
 \item Disable auto mount in the VM (TBD, do these gsettings work?):
 \begin{verbatim}
     gsettings set org.gnome.desktop.media-handling automount false
@@ -288,12 +296,23 @@ mike ALL=(root) NOPASSWD: /home/mike/git/Labtainers/labs/usbtest/host_data/usb_c
 
 \end{itemize}
 
-IMPLEMENTATION NOTES:   Running the modprobe command on the target container has little advantage because the results
-are not seen on the container unless the /dev directory is shared between the container and the host.  In which case,
-all containers having shared /dev will see it.  However you can limited the sharing of /dev to only those containers
-that have dynamic USB requirements.  Those with static "devices" can be mapped at the time the container is created.
-Also, running the {\tt modprobe} on the host lets the backing store file live on the host, where its contents can be
+\subsection{Implementation notes}   
+Running modprobe on the container has no advantage, because all containers will see the effects.  Running the {\tt modprobe} on the 
+host lets the backing store file live on the host, where its contents can be
 dynamically modified, e.g., to introduce malware into the usb drive.
+
+
+
+\begin{itemize}
+\item The udevd daemon will cause devices to become visible on those components; and that will occur regardless of sharing /dev or privilege.
+\item GNS3 runs containers as privileged, so consider using the {\tt df} filter on all of them.
+\item Perhaps put the mounting in a second udev rule, to run if the device persists?
+\item Student can insert a USB into a stopped container.  What then is the iadrive supposed to do when the system starts?
+\item Use the {\tt lsusb} command on the VM to see the simulated USB, it has a attributes that include the product info provided by the
+create script and the words {\tt Linux Foundation Multifunction Composite Gadget}
+That entry remains, even after the iadrive deletes the device.  So that entry will be our indication that the drive is still inserted.
+\item Fix thumb drive icon in GNS3
+\end{itemize}
 
 
 \section{GNS3 interface changes for Labtainers}
@@ -310,8 +329,10 @@ Once the lab is defined for use in GNS3, it can be run by opening the associated
 	\item All Labtainers containers support X11 applications using the host system X11 server.
 	\item Starting the gns3 program with the \-\-student flag will cause the GUI to hide toolbars and widgets that students should not interact with.
         \item Right clicking on a Labtainer node will display a pop-up menu including an option to insert a thumb drive.  This will cause
-              a {\tt sudo mount} command to be run on the container, with arguments provided in start.config THUMB\_VOLUME configuration
-              value for that container.
+              a {\tt THUMB\_COMMAND} from the start.config to execute on the VM, i.e., to create a simulated USB device using the dummy\_hcd 
+              kernel module.  Also a {\tt sudo mount} command may run on the container, with arguments provided in start.config THUMB\_VOLUME configuration
+              value for that container.  If the simulated USB drive is already created, then the pop-up menu will include an option to remove the
+              drive, instead of inserting it.  Components that lack THUMB... entries in the start.config will not have any such menu items.
         \item Use of the {\tt -s} option when starting gns3 will cause any cloud endpoint nodes to be hidden from the student,
 along with any links to them.  It will also hide any Labtainer containers having {\tt HIDE YES} in the start.config.
 \end{itemize}
