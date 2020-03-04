@@ -226,7 +226,7 @@ def DoCmd(cmd):
     return retval
 
 # Start my_container_name container
-def StartMyContainer(mycontainer_name, container, lab_path):
+def StartMyContainer(mycontainer_name):
     retval = True
     if IsContainerRunning(mycontainer_name):
         logger.error("Container %s is already running!\n" % (mycontainer_name))
@@ -1405,7 +1405,7 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                     connectNetworkResult = ConnectNetworkToContainer(start_config, mycontainer_name, mysubnet_name, mysubnet_ip)
 
             # Start the container
-            if not StartMyContainer(mycontainer_name, container, lab_path):
+            if not StartMyContainer(mycontainer_name):
                 logger.error("Container %s failed to start!\n" % mycontainer_name)
                 results.append(False)
                 return
