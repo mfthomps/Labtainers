@@ -505,9 +505,9 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
             volume = volume+' --env="DISPLAY"  --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw"'
             logger.debug('container using X11')
 
-        if container.thumb_volume is not None:
-            volume = volume+' --volume="/dev:/dev:rw"'
-            #volume = volume+' --device="/dev/sdb"'
+        #if container.thumb_volume is not None:
+        #    volume = volume+' --volume="/dev:/dev:rw"'
+        #    #volume = volume+' --device="/dev/sdb"'
 
         add_hosts = ''     
         for item in container.add_hosts:
