@@ -504,7 +504,10 @@ set in the GLOBAL section.
 \item BASE\_REGISTRY [base\_registry] -- The id of the Docker Hub registry that contains the base image for the container.  This defaults
 to the default registry per the labtainer.config file.
 \item THUMB\_VOLUME -- Optional arguments to a mount command that will be executed in a GNS3 environment when the student selects
-{\tt insert thumb drive} from a component menu.
+{\tt insert thumb drive} from a component menu.  \textbf{NOTE:} Use of this option will cause the host {\tt /dev} directory to be shared
+with the container.  This allows the container to perform all kinds of mischief.
+\item THUMB\_COMMAND -- Optional command that will run prior mounting the THUMB volume defined above.
+\item THUMB\_STOP -- Optional command that will run when the container is stopped under GNS3.
 \item PUBLISH [publish] -- Optional arguments to the Docker {\tt --publish} argument for making container ports visible at the
 host interface.  For example, a value of {\tt 127.0.0.1:60022:22/tcp} will bind host port 60022 to container port 22.
 \item HIDE [hide] -- If YES, the associated node will be hidden in GNS3 environments when the {\tt --student} option if
