@@ -511,6 +511,7 @@ with the container.  This allows the container to perform all kinds of mischief.
 \item PUBLISH [publish] -- Optional arguments to the Docker {\tt --publish} argument for making container ports visible at the
 host interface.  For example, a value of {\tt 127.0.0.1:60022:22/tcp} will bind host port 60022 to container port 22.
 \item HIDE [hide] -- If YES, the associated node will be hidden in GNS3 environments when the {\tt --student} option if
+\item NO\_PRIVILEGE -- If YES, the container runs without Docker privilege.
 used.
 
 \end{itemize}
