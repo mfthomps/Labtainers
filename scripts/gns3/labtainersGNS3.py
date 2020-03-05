@@ -108,6 +108,54 @@ def hasThumb(image_name, logger):
 
     return False 
 
+def getTokenValue(line, token):
+    parts = line.split()
+    for p in parts:
+        if '=' in p:
+            tok, val = p.split('=')
+            if tok.strip() == token:
+                return val.strip()
+    return None
+        
+
+def isThumbInserted(image_name, logger):
+    ''' determine if a thumb drive for this component is inserted, baed on id info found in the usb create command '''
+    # format of create command is:
+    # idVendor=0x1d6b idProduct=0x0104
+    labutils.logger = logger
+    retval=False
+    start_config, comp_name, labname, lab_path = getStartConfig(image_name, logger)
+    for name, container in start_config.containers.items():
+        if name == comp_name:
+            logger.debug('is thumb inserted?')
+            if container.thumb_command is not None:
+                cmd_file = os.path.join(lab_path, container.thumb_command)
+                if not os.path.isfile(cmd_file):
+                    logger.error('Could not find file %s' % cmd_file)
+                    return False
+                vend_prod = None
+                with open(cmd_file) as fh:
+                    for line in fh:
+                        vend = getTokenValue(line, 'idVendor') 
+                        prod = getTokenValue(line, 'idProduct') 
+                        if vend is not None and prod is not None:
+                            ''' get rid of leading 0x '''
+                            vend_prod = '%s:%s' % (vend[2:], prod[2:])
+                if vend_prod is None:
+                    logger.error('Did not find vendor and product in %s' % cmd_file)
+                    return False
+                cmd = ('lsusb')
+                ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+                output = ps.communicate()
+                for line in output[0].decode('utf-8').splitlines():
+                     parts = line.split()
+                     this_vend_prod = parts[5]
+                     logger.debug('compare %s to %s' % (vend_prod, this_vend_prod))
+                     if vend_prod == this_vend_prod:
+                         retval = True
+                         break
+    return retval
+
 def thumbInsert(image_name, container_id, logger):
     ''' simulate insertion of usb drive by mounting a volume image using mount arguments
         found in the start.config THUMB_VOLUME argument '''
@@ -118,19 +166,18 @@ def thumbInsert(image_name, container_id, logger):
     logger.debug('running is %s  ' % running)
 
     cwd = os.getcwd()
-    logger.debug('parameterizeOne in %s need to be in %s' % (cwd, student_dir))
     os.chdir(student_dir)
     mount_cmd = None
     thumb_cmd = None
     for name, container in start_config.containers.items():
         if name == comp_name:
             if container.thumb_volume is not None:
-                logger.info('thumb volume: %s' % container.thumb_volume)
-                logger.info('thumb command: %s' % container.thumb_volume)
+                logger.debug('thumb volume: %s' % container.thumb_volume)
+                logger.debug('thumb command: %s' % container.thumb_volume)
                 mount_cmd = container.thumb_volume
                 if container.thumb_command is not None:
                     thumb_cmd = 'sudo '+os.path.join(lab_path, container.thumb_command)
-                    logger.info('thumb_cmd %s' % thumb_cmd)
+                    logger.debug('thumb_cmd %s' % thumb_cmd)
             else:
                 logger.debug('The start.config has no THUMB_VOLUME entry for %s' % name)
                 retval = False
@@ -138,7 +185,7 @@ def thumbInsert(image_name, container_id, logger):
 
     if thumb_cmd is not None:
         ''' execute vm command, e.g., to attach usb device to a vm '''
-        logger.info('do thumb cmd')
+        logger.debug('do thumb cmd')
         ps = subprocess.Popen(shlex.split(thumb_cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         output = ps.communicate()
         if len(output[1].strip()) > 0:
@@ -149,13 +196,34 @@ def thumbInsert(image_name, container_id, logger):
                 logger.debug('thumb_cmd output: %s' % line)
 
     if mount_cmd is not None:
-        dock_cmd = 'docker exec %s script -q -c "sudo mount %s"' % (container_id, mount_cmd)
-        logger.info('mount cmd is %s' % dock_cmd)
-        if not labutils.DockerCmd(dock_cmd):
-            logger.error('docker exec failed')
-            retval = False
+        running = labutils.GetContainerId(image_name)
+        if running is not None:
+            dock_cmd = 'docker exec %s script -q -c "sudo mount %s"' % (container_id, mount_cmd)
+            logger.debug('mount cmd is %s' % dock_cmd)
+            if not labutils.DockerCmd(dock_cmd):
+                logger.error('docker exec failed')
+                retval = False
     return retval
-        
+
+def thumbRemove(image_name, logger):        
+    retval=True
+    start_config, comp_name, labname, lab_path = getStartConfig(image_name, logger)
+    cwd = os.getcwd()
+    os.chdir(student_dir)
+    mount_cmd = None
+    thumb_cmd = None
+    for name, container in start_config.containers.items():
+        if name == comp_name:
+            if container.thumb_stop is not None:
+                cmd = 'sudo '+os.path.join(lab_path, container.thumb_stop)
+                logger.debug('thumb_stop command %s' % cmd)
+                ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+                output = ps.communicate()
+                if len(output[1].strip()) > 0:
+                    logger.error('thumb stop failed %s\%s' % (container.thumb_stop, output[1]))
+                    retval = False
+                    break
+    return retval
 
 def gatherZips(zip_list, image, logger):
     labutils.logger = logger
@@ -195,6 +263,7 @@ def labtainerStop(image, container_id, logger):
 
             if container.thumb_stop is not None:
                 cmd = 'sudo '+os.path.join(lab_path, container.thumb_stop)
+                logger.debug('thumb_stop command %s' % cmd)
                 ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
                 output = ps.communicate()
                 if len(output[1].strip()) > 0:
