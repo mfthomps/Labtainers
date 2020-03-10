@@ -302,7 +302,7 @@ class SimLab():
             full_containername = "%s.%s.student" % (labname, container)
             hosturl = waitNetURL_string[1]
 
-        netstat_cmd = "sudo netstat -put -W | grep %s" % hosturl
+        netstat_cmd = "sudo netstat -n -put -W | grep %s" % hosturl
         cmd = 'docker exec %s script -q -c "%s" /dev/null' % (full_containername, netstat_cmd)
         #print "cmd is (%s)" % cmd
         result, output_str = DockerCmd(cmd)
