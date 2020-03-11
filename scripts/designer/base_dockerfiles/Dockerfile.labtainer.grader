@@ -18,5 +18,6 @@ RUN useradd -ms /bin/bash instructor
 RUN echo "instructor:password" | chpasswd
 RUN adduser instructor sudo
 USER root
+RUN apt-get install -y --no-install-recommends unzip
 CMD ["/bin/bash", "-c", "exec /sbin/init --log-target=journal 3>&1"]
 
