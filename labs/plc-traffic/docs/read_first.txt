@@ -1,0 +1,10 @@
+SOFT PLC LAB -- Read this first
+
+The lab manual for this lab is at: 
+   file://LAB_MANUAL
+The GrassMarlin user guide is at:
+   file://LAB_DOCS/GRASSMARLIN_User_Guide.pdf
+
+
+Review the entire lab manual before proceeding with the lab.  
+
