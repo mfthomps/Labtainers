@@ -79,7 +79,8 @@ full=`realpath trunk/setup_scripts/update-designer.sh`
 HOSTNAME=`hostname`
 ln -sf $full trunk/scripts/labtainer-student/bin/update-designer.sh
 if [[ "$TEST_REGISTRY" != TRUE ]]; then
-    wget https://my.nps.edu/documents/107523844/109121513/labtainer-developer.tar/f377285e-23b5-4cd4-a578-c879b0200fff -O labtainer-developer.tar
+    #wget https://my.nps.edu/documents/107523844/109121513/labtainer-developer.tar/f377285e-23b5-4cd4-a578-c879b0200fff -O labtainer-developer.tar
+    wget --quiet https://nps.box.com/shared/static/xk9e07r7m5szrc9owggawyxzy5w3rzrh.tar -O labtainer-developer.tar
 else
     cp /media/sf_SEED/test_vms/$HOSTNAME/labtainer-developer.tar .
     echo "USING SHARED FILE TAR, NOT PULLING FROM WEB"
