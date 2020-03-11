@@ -29,7 +29,7 @@ while True:
 
 logging.debug('labdump client connect success')
 
-cmd = '/usr/bin/tcpdump -U -w - -i %s "not (ether host %s and (port 5353 or icmp))"' % (eth_name, mac)
+cmd = '/usr/bin/tcpdump -U -w - -i %s "not (ether host %s and (port 5353 or icmp or icmp6))"' % (eth_name, mac)
 logging.debug('cmd is %s' % cmd)
 ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 logging.debug('ran popen')
