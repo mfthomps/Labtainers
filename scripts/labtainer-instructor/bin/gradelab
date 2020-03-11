@@ -353,7 +353,10 @@ def main():
     if args.add_terminal:
         moreTerm(labname)
     else:
-        doGrade(labname, args.test_registry, args.debug, args.redo, args.update)
+        redo = args.redo
+        if args.update:
+            redo = True
+        doGrade(labname, args.test_registry, args.debug, redo, args.update)
 
     
 labutils.logger = LabtainerLogging.LabtainerLogging("grader.log", 'instructor', "../../config/labtainer.config")
