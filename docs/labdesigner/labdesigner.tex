@@ -2179,7 +2179,8 @@ list.
 \item Select the {\tt virbr0} device from the pull-down list and click the {\tt Add} button.  Then click {\tt OK}.
 \item Use the network links to connect the cloud to the desired component.
 \item When the lab is started, you should be able to ping the connected container from the VM.
-\item Use port forwarding as described earlier to map host ports to ports on the VM.
+\item Use port forwarding as described earlier to map host ports to ports on the VM.  When defining port forwarding, enter the
+container IP address as the ``Guest IP''.
 \end{itemize}
 Note that the subnet used for this remote access is defined by the VM's Ethernet device.  Putting multiple lab computers
 on that subnet as part of the lab network topology may be awkward and confusing to students since 192.168 addresses are
