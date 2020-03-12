@@ -37,14 +37,9 @@ export TEST_REGISTRY=TRUE
 export LABTAINER_DIR=$HOME/labtainer/trunk
 export PATH="${PATH}:./bin:$LABTAINER_DIR/scripts/designer/bin:$LABTAINER_DIR/testsets/bin"
 
-if [[ ! -f $HOME/.local/share/labtainers/email.txt ]]; then
-    echo "frank@beans.com" > $HOME/.local/share/labtainers/email.txt
-fi
-now=`date +"%s"`
-HOSTNAME=`hostname`
-exec > /media/sf_SEED/smokelogs/log-$HOSTNAME-$now.log
-exec 2>&1
-
+#
+#  destroy first in case we are out of disk storage
+#
 uname -a 
 date
 if [[ "$1" != "-n" ]];then
@@ -54,6 +49,15 @@ if [[ "$1" != "-n" ]];then
     sleep 5
     ./destroy-docker.sh -f
 fi
+
+if [[ ! -f $HOME/.local/share/labtainers/email.txt ]]; then
+    echo "frank@beans.com" > $HOME/.local/share/labtainers/email.txt
+fi
+now=`date +"%s"`
+HOSTNAME=`hostname`
+exec > /media/sf_SEED/smokelogs/log-$HOSTNAME-$now.log
+exec 2>&1
+
 
 # remove labtainer.config to ensure we get the registry from the distribution
 rm -f $LABTAINER_DIR/config/labtainer.config
