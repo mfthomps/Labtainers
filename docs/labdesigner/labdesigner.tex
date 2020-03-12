@@ -1663,6 +1663,21 @@ address.  Additionally, those baseline images include a \textit{togglegw.sh} scr
 can use to toggle the default gateway between one that leads to the host, and one defined for the lab.
 This allows students to add packages on components having lab-specific default gateways.
 
+\subsection{Network Taps}
+In general, Docker containers will only see network traffic addressed to the specific container, (or 
+broadcast traffic).  The behavior is consistent with use of a layer 2 network switch to interconnect
+containers on the same subnet.  In some labs, the designer may wish to provide students with copies of
+all network traffic that occurs on one or more subnets.  Labtainers supports network taps through use of
+two container base images: \textit{tap} and \textit{netmon}.  The {\tt tap} component should not be visible
+to the student, it exists to collect traffic off of all networks whose {\tt start.config} definitions include
+the {\tt TAP YES} attribute.  The {\tt netmon} component should be defined with a single network interface
+to a network called {\tt TAP\_LAN}.  The {\tt netmon} component should be the only one on the {\tt TAP\_LAN}
+network, (do not add the {\tt tap} component to any network).  A service runs on the {\tt netmon} component
+that will receive network traffic sent by the {\tt tap} component, and store it into the {\tt /taps} directory
+within PCAP files named using the network name.  See the {\tt plc-traffic} lab as an example.
+
+The {\tt netmon} base is derived from the wireshark base.  You may add other tools to that containers as needed.
+
 \subsection{Realistic Network Routing and DNS}
 Some labs will strive to represent realistic networking environments, 
 e.g., several networked components including gateways and DNS servers.
