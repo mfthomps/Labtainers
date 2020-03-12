@@ -2163,13 +2163,31 @@ the instructor or red-team participant with a means to probe and attempt to comp
 
 \subsubsection{Remote access with GNS3}
 For labs that run in the GNS3 environment, remote network access is provided through use of the GNS3 \textit{cloud} 
-endpoint device, which interacts with an Ethernet network interface.
-The following assumes your VM has a virtual bridge Ethernet interface named {\tt virbr0}, with IP address {\tt 192.168.122.1/24}.
+endpoint device, which interacts with an Ethernet network interface.  In this example, access is provided from external to
+the VM -- with no network access to the container from within the VM.
+
+The following assumes your VM has a virtual Ethernet interface named {\tt enp0s3}, with IP an address  on the
+{\tt 10.0.2.0/24} subnet.  On your VM, find the Ethernet interface that has an assigned IP address. 
 Alternately you could define the VM to share a physical host network, but that is outside the scope of this example.
 
 Define a component within your Labtainers lab that is be remotely accessed, e.g., a workstation or router, and assign it an IP
-address on the {virbr0} subnet, e.g., {\tt 192.168.122.100}.  Then, 
+address on the {virbr0} subnet, e.g., {\tt .100}.  Then, 
 when defining the GNS3 network topology, i.e., creating and connecting links: 
+
+\begin{itemize}
+\item Select a {\tt Cloud} component from the {\tt Browse End Devices} menu, and drag it to the desktop.  
+(computer terminal icon).
+\item Right click, select {\tt Configure} and confirm that the Ethernet interface that you selected is in the list.
+If it is not there, select the device from the pull-down list and click the {\tt Add} button.  Then click {\tt OK}.
+\item Use the network links to connect the cloud to the desired component.
+\item Use port forwarding as described earlier to map host ports to ports on the VM.  When defining port forwarding, enter the
+{\tt 0.0.0.0} as the ``Host IP'', and the container IP address as the ``Guest IP''.
+\item You should now be able to ssh to the container from outside of the VM.
+\end{itemize}
+
+
+Alternately, to provide access from the VM (but not from external sources), pick virbr Ethernet interface and:
+
 \begin{itemize}
 \item Select a {\tt Cloud} component from the {\tt Browse End Devices} menu, and drag it to the desktop.  
 (computer terminal icon).
