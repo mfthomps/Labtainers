@@ -76,12 +76,15 @@ Instructor assessment of labs takes place from the {\tt labtainer-instructor} di
 \noindent A table of lab results with one row per student and
 a column for each goal will be displayed.  A description of the goals follows the table.
 Note that not all labs include automated assessment.  For those labs, you will see this
-messsage:
+message:
 \begin{verbatim}
   No automated assessment for this lab
 \end{verbatim}
 \noindent Even when no automated assessment is performed, you can still observe student performance
 artifacts, e.g., the {\tt .bash\_history} file as described below in \ref{review-artifacts}.
+
+Use the {\tt -r} option to get perform a fresh grading, e.g., if you've removed files from the {\tt labtainer\_xfer} directory.
+Use the {\tt -u } option to update your gradelab container.  This may be necessary if it reports errors.
 
 Student reports (if any) are  copied into 
 \begin{verbatim}
@@ -95,6 +98,7 @@ be looked for in
 \noindent which also includes reports separately uploaded into the LMS.
 
 \subsubsection{Review artifact details}
+\label{review-artifacts}
 You can view all student results, including their original artifacts by using the {\tt -d} flag
 with the {\tt gradelab} command.  This results in a virtual terminal connected to a grading
 container that contains all student artifacts and results.  If you have not first run the
@@ -139,7 +143,7 @@ using:
 
 \noindent \\If you want to update the labtainer.grader docker image (and delete the previous image and grader containers) use:
 \begin{verbatim}
-   update-gradelab
+   gradelab -u <labname>
 \end{verbatim}
 
 
