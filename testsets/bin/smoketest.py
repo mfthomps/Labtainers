@@ -109,7 +109,7 @@ class SmokeTest():
         if retval and remove_lab:
             cmd = 'removelab.py %s' % lab
             result = subprocess.call(cmd, shell=True, stderr=self.outfile, stdout=self.outfile)
-            self.logger('removelab %s result %d' % (lab, result))
+            self.logger.debug('removelab %s result %d' % (lab, result))
                     
        
         return retval
