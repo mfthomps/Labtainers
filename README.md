@@ -72,6 +72,15 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+March 13, 2020
+- Add plc-traffic lab for use of GrassMarlin with traffic generated during the lab.
+- Introduce ability to add "tap" containers to collect PCAPs from selected networks.
+- Update GNS3 documentation for external access to containers, and use of dummy\_hcd to 
+  simulate USB drives.
+- Change kali template to use faux\_init rather than attempting to use systemd.
+- Moving distributions (tar files) to box.com
+- Change SimLab use of netstat to not do a dns lookup.
+
 February 26, 2020
 - If labtainer command does not find lab, suggest that user run update-labtainer.sh
 - Add support preliminary support for a network tap component to view all network traffic.
