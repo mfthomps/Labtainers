@@ -68,12 +68,10 @@ ADD $labdir/$lab.tar.gz $HOME
 #
 #  The first thing that executes on the container.
 #
+#  Do not try running kali as systemd or init, you can kill your vm.
+#
 USER root
-RUN systemctl enable mynotify
-RUN systemctl enable rc-local
-RUN systemctl enable postgresql
-CMD ["/sbin/init"]
-# replace below with four above for centos
+ENTRYPOINT sudo /sbin/faux_init && bash
 #
 #  DO NOT add below this line.
 #
