@@ -2171,18 +2171,18 @@ The following assumes your VM has a virtual Ethernet interface named {\tt enp0s3
 Alternately you could define the VM to share a physical host network, but that is outside the scope of this example.
 
 Define a component within your Labtainers lab that is be remotely accessed, e.g., a workstation or router, and assign it an IP
-address on the {virbr0} subnet, e.g., {\tt .100}.  Then, 
+address on the {\tt enp0s3} interface subnet, e.g., {\tt 10.0.2.100}.  Then, 
 when defining the GNS3 network topology, i.e., creating and connecting links: 
 
 \begin{itemize}
 \item Select a {\tt Cloud} component from the {\tt Browse End Devices} menu, and drag it to the desktop.  
 (computer terminal icon).
-\item Right click, select {\tt Configure} and confirm that the Ethernet interface that you selected is in the list.
+\item Right click, select {\tt Configure} and confirm that the Ethernet interface that you selected (e.g., enp0s3) is in the list.
 If it is not there, select the device from the pull-down list and click the {\tt Add} button.  Then click {\tt OK}.
 \item Use the network links to connect the cloud to the desired component.
-\item Use port forwarding as described earlier to map host ports to ports on the VM.  When defining port forwarding, enter the
-{\tt 0.0.0.0} as the ``Host IP'', and the container IP address as the ``Guest IP''.
-\item You should now be able to ssh to the container from outside of the VM.
+\item Use port forwarding as described earlier to map host ports to ports on the VM.  When defining port forwarding, enter 
+{\tt 0.0.0.0} as the ``Host IP'', and the container IP address, e.g., {\tt 10.0.2.100} as the ``Guest IP''.
+\item You should now be able to ssh to the container from outside of the VM using the mapped port.
 \end{itemize}
 
 
