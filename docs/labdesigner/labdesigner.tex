@@ -2464,6 +2464,11 @@ ADD system/var/run/sshd /var/run/sshd
 RUN sudo chmod 0755 /var/run/sshd
 \end{verbatim}
 
+For containers derived from the kali base, and others non-labtainer bases, use this line in your dockerfile
+to enable ssh into the box.
+\begin{verbatim}
+RUN sed -i 's/UsePAM yes/UsePAM no/' /etc/ssh/sshd_config
+\end{verbatim}
 \subsubsection{X11 over SSH}
 The scripts/designer/system/etc/ssh/sshd\_conf allows X11 tunneling over ssh, e.g.,
 from a remote VM connected to the same host-only lan as a container running the GUI
