@@ -306,7 +306,18 @@ def parameterizeOne(image_name, logger):
                 labutils.ParamForStudent(start_config.lab_master_seed, container.full_name, container.user, container.password,
                                 labname, email_addr, lab_path, name, None, running_container = running)
                 os.chdir(cwd)
-                return
+                if container.kick_me is not None:
+                    ''' gns3 cloud interfaces that share NICs get hung up after the first container shutdown.
+                        For magical reasons, pinging the container from the VM wakes it up. '''
+                    for subnet in container.container_nets:
+                        if container.kick_me in container.container_nets:
+                            ip = container.container_nets[container.kick_me]
+                            cmd = 'ping -c 1 %s' % ip
+                            os.system(cmd)
+                            logger.info('kicked with %s' % cmd)
+                        else: 
+                            logger.debug('kickme %s not found for %s' % (container.kick_me, name))
+                break
     os.chdir(cwd)
 
 def extraHosts(image_name, logger):
