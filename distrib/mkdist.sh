@@ -83,7 +83,9 @@ if [ $result -ne 0 ]; then
     exit
 fi
 cd $ldir
-myshare=/media/sf_SEED/
+if [[ -z $myshare ]]; then
+    myshare=/media/sf_SEED/
+fi
 
 mv trunk/setup_scripts/install-labtainer.sh .
 ln -s trunk/setup_scripts/update-labtainer.sh .
