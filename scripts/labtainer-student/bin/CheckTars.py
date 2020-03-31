@@ -31,6 +31,7 @@ POSSIBILITY OF SUCH DAMAGE.
 import sys
 import os
 import shutil
+import tempfile
 '''
 Look at _tar directories for the given labs/[lab]/[image] and
 create or update tar files to reflect recent changes.  Uses
@@ -38,7 +39,7 @@ an 'external-manifest' file to identify tars from other labs
 that should be part of this one.
 '''
 external = 'external-manifest'
-tmp_loc = '/tmp/check_tar'
+tmp_loc = tempfile.TemporaryDirectory().name
 def expandManifest(full, tar_name):
     ''' 
     extract files from a tar named in an external manifest file
@@ -203,6 +204,9 @@ def CheckTars(container_dir, image_name, logger):
                         cmd =  'tar tf %s > %s' % (tar_name, manifest) 
                         os.system(cmd)
                         logger.debug(cmd)
+            if os.path.isdir(tmp_loc):
+                logger.debug('remove tree at %s' % tmp_loc)
+                shutil.rmtree(tmp_loc)
         os.chdir(here)
     noskip_file = os.path.join(container_dir,'_bin', 'noskip')
     #print('look for %s' % noskip_file)
