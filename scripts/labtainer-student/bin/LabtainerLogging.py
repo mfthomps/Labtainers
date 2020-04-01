@@ -31,12 +31,18 @@ POSSIBILITY OF SUCH DAMAGE.
 
 import inspect
 import logging
+from logging.handlers import RotatingFileHandler
 import os
 import sys
 import re
 import ParseLabtainerConfig
 
 LABTAINER_CONFIG = os.path.abspath("../../config/labtainer.config")
+
+'''
+NOTE: will redefine logfilename to be relative to LABTAINER_DIR/logs if that
+env variable exists.
+'''
 
 class LabtainerLogging():
     def __init__(self, logfilename, labname, labtainer_config):
@@ -51,8 +57,17 @@ class LabtainerLogging():
         self.logger = logging.getLogger(logname)
         self.logger.setLevel(file_log_level)
         formatter = logging.Formatter('[%(asctime)s - %(levelname)s : %(message)s')
-
-        file_handler = logging.FileHandler(logfilename)
+        ldir = os.getenv('LABTAINER_DIR')
+        if ldir is not None and not logfilename.startswith(ldir):
+           if logfilename.startswith('/tmp/'):
+               logfilename = logfilename[5:]
+           logfilename = os.path.join(ldir,'logs',logfilename)
+           try:
+               os.makedirs(os.path.dirname(logfilename))
+           except:
+               pass
+        #file_handler = logging.FileHandler(logfilename)
+        file_handler = RotatingFileHandler(logfilename, maxBytes=6000000, backupCount=3)
         file_handler.setLevel(file_log_level)
         file_handler.setFormatter(formatter)
 
