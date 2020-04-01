@@ -10,6 +10,7 @@ sys.path.append('../../labtainer-student/bin')
 import LabtainerLogging
 import ParseLabtainerConfig
 import labutils
+import rebuild
 import registry
 import VersionInfo
 
@@ -103,7 +104,7 @@ if __name__ == '__main__':
             x=parse(image_info.creation)
             ts = calendar.timegm(x.timetuple())
             logger.debug('image %s ts %s  %s' % (image_name, ts, image_info.creation))
-            if labutils.FileModLater(ts, full):
+            if rebuild.FileModLater(ts, full):
                 print('WOUlD REBUILD %s' % image_name)
                 logger.debug('WOUlD REBUILD %s' % image_name)
                 if not args.no_build:
