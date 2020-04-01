@@ -1,0 +1,13 @@
+[Unit]
+Description="Labtainer smoke test VirtualBox server"
+
+[Service]
+User=mike
+ExecStart=/home/mike/SEED/host_scripts/testscripts/vboxserver.py
+ExecStop=/usr/bin/killall vboxserver.py
+#Restart=on-failure
+#Restart-sec=2
+
+[Install]
+WantedBy=multi-user.target
+
