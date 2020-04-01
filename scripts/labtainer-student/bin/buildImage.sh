@@ -45,7 +45,6 @@ shift 1
 NO_PULL=$9
 shift 1
 USE_CACHE=$9
-#------------------------------------V
 if [ "$#" -ne 9 ]; then
     echo "Usage: buildImage.sh <labname> <imagename> <user_name> <user_password> <force_build> <LAB_TOP> <apt_source> <registry>"
     echo "   <force_build> is either true or false"
@@ -56,9 +55,8 @@ if [ "$#" -ne 9 ]; then
     echo "   <no_pull> is 'True' to avoid pulling images, e.g., no internet acess"
     exit
 fi
-echo "WTF, oVER?"
-exec &> >(tee -a "/tmp/docker_build.log")
-#------------------------------------^
+mkdir -p $LABTAINER_DIR/logs
+exec &> >(tee -a "$LABTAINER_DIR/logs/docker_build.log")
 echo "Labname is $lab with image name $imagename"
 
 LAB_DIR=$LAB_TOP/$lab
@@ -66,7 +64,6 @@ if [ ! -d $LAB_DIR ]; then
     echo "$LAB_DIR not found as a lab directory"
     exit
 fi
-#------------------------------------V
 #echo "force_build is $force_build"
 if [ $force_build == "False" ]; then
     echo docker pull $REGISTRY/$labimage
@@ -89,7 +86,7 @@ else
     SYS_TAR=$LABIMAGE_DIR/sys_$labimage.tar.gz
     rm -f $LAB_TAR
     rm -f $SYS_TAR
-    TMP_DIR=/tmp/$labimage
+    TMP_DIR=$(mktemp /tmp/$labimage.XXXXXX)
     rm -rf $TMP_DIR
     mkdir $TMP_DIR
     mkdir $TMP_DIR/.local
@@ -124,11 +121,9 @@ else
     cd $TMP_DIR
     tar --atime-preserve -zcvf $LAB_TAR .
 fi
-#---------------------------------------------------------------^
 #cd $LAB_TOP
 cd $LABIMAGE_DIR
 dfile=Dockerfile.$labimage
-#---------------------------------V
 result=0
 pull="--pull"
 if [ "$NO_PULL" == "True" ]; then
