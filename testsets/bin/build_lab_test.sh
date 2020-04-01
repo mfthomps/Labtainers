@@ -12,8 +12,8 @@ cd ../../labs
 rm -fr wiggysinglebase
 mkdir wiggysinglebase 
 cd wiggysinglebase
-new_lab_setup.py
-new_lab_setup.py -a firefox -b firefox
+new_lab_setup.py || exit 1
+new_lab_setup.py -a firefox -b firefox || exit 1
 
 cd wiggysinglebase
 touch hello.py
@@ -30,7 +30,7 @@ cd ..
 cd ../../scripts/labtainer-student
 
 echo "--Rebuild Single Base--"
-rebuild wiggysinglebase
+rebuild wiggysinglebase || exit 1
 stoplab
 echo "--Smoketest Single Base--"
 #SimLab.py wiggysinglebase
