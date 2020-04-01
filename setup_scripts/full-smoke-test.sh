@@ -85,4 +85,5 @@ if [ $RESULT != 0 ]; then
     echo "build_lab_test failed $HOSTNAME"
     exit 1
 fi
+echo "full-smoke-test completed. Success."
 sudo poweroff
