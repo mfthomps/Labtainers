@@ -15,30 +15,46 @@
 \usepackage[colorlinks=true,linkcolor=blue,urlcolor=black]{hyperref}
 \usepackage{bookmark}
 \usepackage{pdfpages}
+\usepackage{graphicx}
 \usepackage[autostyle, english = american]{csquotes}
 \begin{document}
-\title {Labtainer Student Guide}
-\maketitle
+\begin{titlepage}
+\centering
+\vfill
+\vspace*{4\baselineskip}
+{\bfseries\Large
+Labtainers Student Guide\par
+}
+\vspace*{4\baselineskip}
+{\bfseries
+Fully provisioned cybersecurity labs\par
+}
+\vspace*{2\baselineskip}
+\today
+\vfill
+\includegraphics[natwidth=200, natheight=286]{labtainer5-sm.png}
+  %\includegraphics[width=\linewidth, scale=0.50,natwidth=200, natheight=286]{labtainer5-sm.png}
+\vfill
+\end{titlepage}
 
 %----------------
 \section {Introduction}
-This manual is intended for use by students performing labs with Labtainers.
-Labtainers assume you have a Linux system, e.g., a virtual machine.  If you
-do not have a Linux system, our website includes pre-built virtual
-machine images at \url{https://my.nps.edu/web/c3o/virtual-machine-images}.
-Alternately, refer to Appendix A and B for installation of 
-VirtualBox and a Linux system on either a Mac or a Windows computer.
-Note that any Linux system can be used as long as it supports Docker.
+This manual is intended for use by students performing lab exercises with Labtainers.
+Labtainers provide a fully provisioned execution environment for performing
+cybersecurity laboratory exercises, including network topologies that include several different
+interconnected computers.
 
-Labtainers provide a consistent execution environment for performing
-laboratory exercises, and can simulate the execution of several different
-computers interconnected via virtual networks.   
+Labtainers assume you have a Linux system, e.g., a virtual machine appliance described below.
+If you are accessing a Labtainers VM via the web, you can skip to section \ref{performing}.
 
 %----------------
 \subsection{Obtaining and installing Labtainers}
-If you are using one of the pre-configured virtual machines from
-\url{https://my.nps.edu/web/c3o/virtual-machine-images}, you may
-skip this section.
+The easiest way to obtain Labtainers is to download one of the pre-configured virtual machines from
+\url{https://nps.edu/web/c3o/virtual-machine-images}, and import it into either VirtualBox or VMWare.
+Follow the brief instructions on that download page.  You may then skip to section \ref{performing}.
+
+\subsubsection{Installing Labtainers on an existing Linux system}
+Skip this section and go to section \ref{performing} if you are using a Labtainers VM appliance.
 The Labtainer framework is distributed as a tarball from:
 \url{https://my.nps.edu/web/c3o/labtainers}.
 Click the link named: ``Download the Labtainer framework'', and untar the resulting file into 
@@ -64,8 +80,14 @@ Note that older Linux distributions, e.g., Ubuntu 14.* lack the
 After the Linux host reboots, open a terminal to your Linux host and
 change directory to wherever you untarred the tarball, e.g., your HOME directory.
 
+\subsubsection{Installing a new Linux VM}
+Alternately, refer to Appendix A and B for installation of 
+VirtualBox and a Linux system on either a Mac or a Windows computer.
+Note that any Linux system can be used as long as it supports Docker.
+
 %----------------
 \section{Performing a Lab}
+\label{performing}
 All labs are run from the same Labtainer workspace directory, which is typically at:
 \begin{verbatim}
     cd ~/labtainer/labtainer-student
@@ -89,7 +111,7 @@ not perform those again.
 
 A list of labtainer commands can be found in Appendix C of this document. 
 
-Once you start the lab, you will typically see one or more virtual terminals conneted to computers within
+Once you start the lab, you will typically see one or more virtual terminals connected to computers within
 the lab.  While running the lab, if you require more virtual terminals, use:
 \begin{verbatim}
     moreterm.py <labname> <container>
