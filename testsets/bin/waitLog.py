@@ -21,7 +21,7 @@ while result is None:
        elif 'test failed' in last:
            result = False
    count += 1
-   if count > 1000:
+   if count > 2000:
        print('waitLog timed out on %s' % logfile)
        exit(1)
 if not result:
