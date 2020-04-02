@@ -62,5 +62,6 @@ if [[ $result != 0 ]]; then
     exit 1
 fi
 cd $LABTAINER_DIR/testsets/bin
-./test-ubuntu16.sh
-./test-ubuntu18.sh
+./testVMs.sh
+#./test-ubuntu16.sh
+#./test-ubuntu18.sh
