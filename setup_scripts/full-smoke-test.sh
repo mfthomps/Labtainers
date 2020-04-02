@@ -78,12 +78,15 @@ if [ $RESULT != 0 ]; then
     echo "smoke test failed $HOSTNAME"
     exit 1
 fi
-$LABTAINER_DIR/setup_scripts/update-designer.sh
-build_lab_test.sh
-RESULT=$?
-if [ $RESULT != 0 ]; then
-    echo "build_lab_test failed $HOSTNAME"
-    exit 1
+if [[ $HOSTNAME != ubuntu16smoke ]]; then
+#   hack to avoid rebuild on ubuntu16, lacks python3
+    $LABTAINER_DIR/setup_scripts/update-designer.sh
+    build_lab_test.sh
+    RESULT=$?
+    if [ $RESULT != 0 ]; then
+        echo "build_lab_test failed $HOSTNAME"
+        exit 1
+    fi
 fi
 echo "full-smoke-test completed. Success."
 sudo poweroff
