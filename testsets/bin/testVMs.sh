@@ -1,4 +1,7 @@
 #!/bin/bash
+echo "If the labtainer.tar is not up to date, you may want to do that first!"
+echo ""
+echo ""
 echo "start 18"
 ./test-ubuntu18.sh || exit 1
 log18=$(./getLog.sh log-ubuntu18) || exit 1

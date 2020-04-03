@@ -16,7 +16,7 @@ while result is None:
    with open(logfile) as fh:
        lines = fh.readlines()
        last = lines[-1]
-       if 'Succeed' in last:
+       if 'Success' in last:
            result = True
        elif 'test failed' in last:
            result = False
