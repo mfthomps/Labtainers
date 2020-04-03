@@ -19,7 +19,10 @@ else
 fi
 here=`pwd`
 cd ../
-cp ../../distrib/labtainer.tar ./
+mkdir -p workspace_master
+cp base_dockerfiles/Dockerfile.labtainer.master workspace_master/
+cd workspace_master
+cp $LABTAINER_DIR/distrib/labtainer.tar ./
 
 cat <<EOT >bashrc.labtainer.master
    if [[ ":\$PATH:" != *":./bin:"* ]]; then 
@@ -28,6 +31,6 @@ cat <<EOT >bashrc.labtainer.master
    fi
 EOT
 
-cp ../../scripts/labtainer-student/bin/labutils.py ./
-docker build --build-arg DOCKER_GROUP_ID="$(getent group docker | cut -d: -f3)" -f base_dockerfiles/Dockerfile.labtainer.master -t labtainer.master:latest .
+cp $LABTAINER_DIR/scripts/labtainer-student/bin/labutils.py ./
+docker build --build-arg DOCKER_GROUP_ID="$(getent group docker | cut -d: -f3)" -f Dockerfile.labtainer.master -t labtainer.master:latest .
 cd $here
