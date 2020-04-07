@@ -494,6 +494,17 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
             volume = volume+' --env="DISPLAY"  --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw"'
             logger.debug('container using X11')
 
+        if container.mystuff.lower() == 'yes':
+            here = os.getcwd()
+            mystuff_dir = os.path.join(here, 'mystuff')
+            myv = ' --volume="%s:/home/%s/mystuff:rw"' % (mystuff_dir, container.user)
+            volume = volume+myv
+            mystuff_dir = os.path.join(os.environ['LABTAINER_DIR'], 'scripts', 'labtainer-student','mystuff')
+            try:
+                os.mkdir(mystuff_dir)
+            except:
+                pass
+
         #if container.thumb_volume is not None:
         #    volume = volume+' --volume="/dev:/dev:rw"'
         #    #volume = volume+' --device="/dev/sdb"'
