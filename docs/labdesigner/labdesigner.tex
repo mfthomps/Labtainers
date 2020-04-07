@@ -354,11 +354,14 @@ Software packages are defined in each container's Dockerfile, described in
 the subsection below. That is followed by subsection \ref{start config} describing network definitions,
 (and other computer attributes) in the start.config file.  The remaining subsections then
 described populating the user HOME directory and system directories, and methods for starting 
-system services and miscellanious envrionment settings. 
+system services and miscellaneous environment settings. 
 
 Labtainer containers, by default, present students with a virtual terminal and a bash
 shell requiring no login.  Alternate initial environments, including use of the login program, are
 described in section \ref{student start}.
+
+Section \ref{persistent} describes how to
+allow students to share tools they've developed between different labs.  
 
 \subsection {Docker files}
 A default Labtainer-specific Dockerfile is placed in the new lab's ``Dockerfiles'' 
@@ -526,6 +529,7 @@ with the container.  This allows the container to perform all kinds of mischief.
 host interface.  For example, a value of {\tt 127.0.0.1:60022:22/tcp} will bind host port 60022 to container port 22.
 \item HIDE [hide] -- If YES, the associated node will be hidden in GNS3 environments when the {\tt --student} option if
 \item NO\_PRIVILEGE -- If YES, the container runs without Docker privilege.
+\item MYSTUFF -- if YES, the directory at {\tt labtainerstudent/mystuff} is shared with the container in {\tt /home/<user>/mystuff.}
 used.
 
 \end{itemize}
@@ -733,15 +737,19 @@ should be performed as within any Linux system, e.g., via services or rc.local.
 \footnote{Use of {\tt sed -i ...} to modify configuration files (e.g., in etc), might result in overwriting symbolic links.
 Use {\tt sed -i --follow-symlinks ...} to avoid that pit.}
 
-\subsection{Automatic copying files from containers to the host}
-This feature no longer has an intended use, but it is available if you have one.
-Files are identified within
+\subsection{Persistent storage}
+\label{persistent}
+Sequences of labs may benefit from a student's ability to employ tools they have developed within more than one lab.
+For example, a set of data analysis scripts initially developed for one lab may be a useful starting point when
+performing a subsequent, more advanced lab.  You can provide students with persistent storage by defining the
 \begin{verbatim}
-    $LABTAINER_DIR/labs/[labname]/config/files_to_host.config
+   MYSTUFF YES
 \end{verbatim}
-\noindent with a format of ``container:filename''.  Any named files within the home directory of
-the named container will be copied to the host computer into a directory named by the lab, relative
-to the Labtainer working directory.
+\noindent attribute for a container in the start.config file.  That will cause the associated container to have
+a directory at {\tt \$HOME/mystuff} which is mapped to the directory at {\tt labtainer-student/mystuff}
+All labs that employ the {\tt MYSTUFF} attribute will share the same directory.  It is intended that at most one
+container in any given lab will use this directory.  And it is suggested that these directories only be used for
+labs that anticipate evolving development of tools by the student.  
 
 \section{Parameterizing a lab}
 \label{parameterize}
@@ -1273,7 +1281,7 @@ can be processed into a more convenient form through use of a script at:
 \noindent Modify or expand on the default pregrade.sh script.
 In general, the pregrade.sh script is expected to extract or convert
 data from an artifact file, and write it into a new file in the .local/results
-directory of the container.   
+directory of the container.  The {\tt pubkey} lab has an example use of pregrade.sh. 
 
 \subsection{Evaluating results}
 \label{goals.config}
@@ -2417,6 +2425,7 @@ of the containers.
 \section{Notes} \label{Notes}
 \label{Notes}
 \subsection{Firefox}
+\subsubsection{Profile and configuration changes}
 The labtainer.firefox image includes a /var/tmp/home.tar 
 which is expanded into the user home directory when parameterize.sh is run.
 This tar includes a profile in .mozilla that avoids firefox starting with its 
@@ -2424,9 +2433,12 @@ welcome pages and privacy statements.  The labtainer.firefox image includes a
 customized /usr/bin/firefox that starts the browser in a new instance so it does 
 not share existing browsers.  The {\tt about:config}
 was altered to disabled insecure field warnings for the labs that do not use SSL connections to web servers.
+
+\subsubsection{Browser history}
 If you wish to assess places a browser has visited, e.g., use a pregrade.sh to extract sites from the
 firefox places.sqlite file, put {\tt places.sqlite} into the lab's /\_bin/noskip file.
 
+\subsubsection{Slow browser startup}
 Some html, e.g., for the softplc, want to visit fonts.googleapis.com.  If no gateway/dns is available, there is a long timeout.
 Try adding 
 \begin{verbatim}
@@ -2434,7 +2446,7 @@ ADD-HOST fonts.googleapis.com:127.0.0.1
 \end{verbatim}
 \noindent to start.config to avoid the timeout.
 
-
+\subsubsection{Crashes in SimLab}
 See \ref{simlab_notes} for information on avoiding firefox crashes when it is restarted in SimLab.
 
 \subsection{Wireshark}
