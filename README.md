@@ -14,7 +14,7 @@ The Labtainers website, and downloads (including VM appliances with Labtainers p
 [Papers]: https://my.nps.edu/web/c3o/labtainers#papers
 
 Distribution created: mm/dd/yyyy
-Revision: 
+Revision:
 Branch:
 
 ## Content
@@ -72,10 +72,11 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
-April 1, 2020
+April 7, 2020
 - Logs have been moved to $LABTAINER\_DIR/logs
 - Other cleanup to permit rebuilds and tests using Jenkins, including use of unique temporary directories for builds
 - Move build support functions out of labutils into build.py
+- Add pcap-lib lab for PCAP library based development of traffic analysis programs
 
 March 13, 2020
 - Add plc-traffic lab for use of GrassMarlin with traffic generated during the lab.
