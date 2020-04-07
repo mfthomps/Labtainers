@@ -50,10 +50,12 @@ def BigExternal(lab_dir, logger):
                    from_file, to_file = line.split()
                    to_path = os.path.join(lab_dir, to_file)
                    if not os.path.isfile(to_path):
-                       logger.debug('missing %s, get it from %s success %d' % (to_path, from_file, ok))
+                       logger.debug('missing %s, get it from %s success' % (to_path, from_file))
                        cmd = 'curl -L -R --create-dirs -o %s %s' % (to_path, from_file)
                        logger.debug('cmd: %s' % cmd)
                        ok = os.system(cmd)
+                       logger.debug('result: %d' % ok)
+                   
                    else:
                        size = os.stat(to_path).st_size
                        if size < 50000:
