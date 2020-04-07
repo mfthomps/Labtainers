@@ -118,6 +118,7 @@ class ParseStartConfig():
             self.publish = None
             self.hide = "no"
             self.tap = "no"
+            self.mystuff = "no"
             self.logger = logger
             self.did_nets = []
 

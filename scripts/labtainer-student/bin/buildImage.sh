@@ -144,6 +144,7 @@ else
                  --build-arg NO_PROXY=$NO_PROXY  --build-arg no_proxy=$NO_PROXY \
                  --build-arg registry=$REGISTRY --build-arg version=$VERSION \
                $pull -f $dfile -t $labimage .
+    date
     docker build $cache --build-arg lab=$labimage --build-arg labdir="." --build-arg imagedir="." \
                  --build-arg user_name=$user_name --build-arg password=$user_password --build-arg apt_source=$APT_SOURCE \
                  --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY \
@@ -159,6 +160,7 @@ echo "removing temporary $dfile, reference original in $LAB_DIR/dockerfiles/$dfi
 #rm $LABIMAGE_DIR
 cd $ORIG_PWD
 if [ $result != 0 ]; then
+    date
     echo "Error in docker build result $result"
     exit 1
 fi
