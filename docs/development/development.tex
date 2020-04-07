@@ -7,11 +7,26 @@
 \usepackage{enumitem}
 \usepackage[autostyle, english = american]{csquotes}
 \usepackage{courier}
+\usepackage{graphicx}
 \usepackage{mdframed}
 \begin{document}
 \begin{titlepage}
-\title {Labtainer Framework Development Guide}
-\maketitle
+\centering
+\vfill
+\vspace*{4\baselineskip}
+{\bfseries\Large
+Labtainer Framework Development Guide\par
+}
+\vspace*{4\baselineskip}
+{\bfseries
+Fully provisioned cybersecurity labs\par
+}
+\vspace*{2\baselineskip}
+\today
+\vfill
+%\includegraphics[natwidth=200, natheight=286]{labtainer5-sm.png}
+\includegraphics[width=0.4\textwidth]{labtainer5-sm.png}
+\vfill
 
 \vspace{2.0in}
 This document was created by United States Government employees at 
@@ -26,7 +41,7 @@ This document is in the public domain and is not subject to copyright.
 This document is intended for use by developers who maintain the
 Labtainer framework.  It is also applicable to lab designers who wish
 to follow Labtainers configuration management and testing conventions for  their labs.
-It does not address the mechanics lab creation, which is 
+It does not address the mechanics of lab creation, which are 
 covered in the \textit {Labtainers Lab Designer User Guide}.
 
 \begin{flushleft} 
@@ -45,7 +60,7 @@ The host platform should include VirtualBox (to host the Development VM and test
 be shared by each of the VMs.  If the host is to publish distributions to the NPS website, then it should
 have an ability to transfer files to 
 \begin{verbatim}
-davs://my.nps.edu/webdav/c3o-staging/document_library/labtainers
+davs://nps.edu/webdav/c3o-staging/document_library/labtainers
 \end{verbatim}
 
 \section{Development VM Installation}
@@ -59,8 +74,8 @@ Linux distribution to support Labtainer framework development.
 \item {\bf git}
 \item {\bf make}
 \item {\bf g++}
-\item {\bf Latex} (texlive-full)
-\item {\bf Docker (Community Edition)} [See {\bf Docker Installation} Section]
+\item {\bf Latex} (texlive-extra)
+\item {\bf Docker (Community Edition)} [See {\bf Docker Installation} Section \ref{docker-install}]
 \item {\bf pip3} {\tt apt-get install python3-pip}
 \item {\bf dateutil} {\tt pip3 install py-dateutil}
 \item {\bf xdotool} 
@@ -115,6 +130,7 @@ to share distribution files between the development system and the test VMs.  Ac
 
 
 \subsection{Docker Installation}
+\label{docker-install}
 For full and convenient installation of Docker and setting of Docker privileges, run  'install-docker-ubuntu.sh' in 'setup\_scripts', assuming you are developing in Ubuntu. {\bf Note:} Make sure to run the script as user (not sudo), so that your user can be added to the Docker group.\\ 
     
 \noindent Reboot the system, so that user receives Docker privileges.
