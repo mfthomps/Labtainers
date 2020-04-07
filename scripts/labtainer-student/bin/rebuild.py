@@ -592,7 +592,7 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
         removeStrays(container_dir, name, labname)
         ''' make sure big files have been copied before checking tars '''
         BigFiles.BigFiles(lab_path)
-        BigExternal.BigExternal(lab_path)
+        BigExternal.BigExternal(lab_path, labutils.logger)
         ''' create sys_tar and home_tar before checking build dependencies '''
         CheckTars.CheckTars(container_dir, name, labutils.logger)
         if force_this_build or CheckBuild(lab_path, mycontainer_image_name, image_info, mycontainer_name, 
@@ -622,6 +622,7 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
             labutils.logger.debug('cmd is %s' % cmd)     
             ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             output = ps.communicate()
+            labutils.logger.debug('build_image back from communicate')
             #fatal_error = CheckBuildError(ps.stdout, labname, name)
             fatal_error = CheckBuildError(output[0].decode('utf-8'), labname, name)
             if not fatal_error:
@@ -633,6 +634,9 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
                 CheckBuildError(output[1].decode('utf-8'), labname, name)
                 #CheckBuildError(ps.stderr, labname, name)
             labutils.logger.debug('done checkerror fatal %r' % fatal_error)
+            if ps.returncode != 0:
+                labutils.logger.error('Problem building %s, check log at $LABTAINER_DIR/logs/docker_build.log' % labname)
+                exit(1)
             if fatal_error:
                 exit(1)
     return retval
