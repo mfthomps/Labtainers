@@ -31,7 +31,7 @@ POSSIBILITY OF SUCH DAMAGE.
 import sys
 import os
 import shutil
-def BigExternal(lab_dir):
+def BigExternal(lab_dir, logger):
     '''
     Ensure large files named in the config/bigexternal.txt are present in the lab directory
     '''
@@ -39,6 +39,8 @@ def BigExternal(lab_dir):
     if not os.path.isfile(big_list):
         #print('Missing bigexternal.txt from %s' % big_list)
         return
+    else:
+        logger.debug('BigExternal file found: %s' % big_list)
     full = os.path.abspath(lab_dir)
     if os.path.isfile(big_list):
         with open(big_list) as fh:
@@ -48,10 +50,10 @@ def BigExternal(lab_dir):
                    from_file, to_file = line.split()
                    to_path = os.path.join(lab_dir, to_file)
                    if not os.path.isfile(to_path):
+                       logger.debug('missing %s, get it from %s success %d' % (to_path, from_file, ok))
                        cmd = 'curl -L -R --create-dirs -o %s %s' % (to_path, from_file)
-                       print('cmd: %s' % cmd)
+                       logger.debug('cmd: %s' % cmd)
                        ok = os.system(cmd)
-                       print('missing %s, get it from %s success %d' % (to_path, from_file, ok))
                    else:
                        size = os.stat(to_path).st_size
                        if size < 50000:
@@ -62,6 +64,3 @@ def BigExternal(lab_dir):
                                print('Try removing the file and running again.  Or get the correct %s from %s' % (to_path, from_file))
                                exit(1) 
                     
-if __name__ == '__main__':               
-    lab_dir = sys.argv[1]
-    BigExternal(lab_dir)
