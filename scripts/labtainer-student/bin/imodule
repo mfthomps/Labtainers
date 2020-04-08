@@ -60,7 +60,7 @@ if __name__ == '__main__':
     fixLabtainerDir()
     config_file = os.path.join(os.getenv('LABTAINER_DIR'), 'config', 'labtainer.config') 
     logger = LabtainerLogging.LabtainerLogging("/tmp/imodule.log", '', config_file)
-    parser = argparse.ArgumentParser(prog='add-imodule', description='Add an imodule URL to extend the set of labs available to this Labtainers installation.')
+    parser = argparse.ArgumentParser(prog='imodule', description='Add an imodule URL to extend the set of labs available to this Labtainers installation.')
     parser.add_argument('path', default='NONE', nargs='?', action='store', help='The url of the imodule')
     parser.add_argument('-l', '--list', action='store_true', default=False, help='List IModules already added to this installation.')
     parser.add_argument('-u', '--updates', action='store_true', default=False, help='Update IModules for this installation.')
