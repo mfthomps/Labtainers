@@ -637,6 +637,9 @@ which will then fork services, e.g., the sshd, per the /etc/xinet.d/ configurati
 The centos-logs lab provides an example of forcing the student to login using the traditional
 login program, as described in section \ref{student start}.
 
+See section \ref{suggestions} for guidance on including 3rd party applications within your labs (e.g., ones that are
+not simply added to your container via package managers.)
+
 
 \subsection {Lab Text and Instructions for Students} \label{instructions}
 Create a 'docs' directory in the [labname] directory if there isn't one there. This is where most textual information about the lab, as well as the lab manual, should be stored and modified. The 'about.txt' is an exception to this. \\ 
@@ -1067,6 +1070,7 @@ one of the following:
 creation within the named directory.
 \item {\tt ACCESS} will capture any read of the file named by the path.
 \item {\tt MODIFY} will capture any write to the file named by the path.
+\item {\tt OPEN} will capture any open of the file or directory named by the path.
 \end{itemize}
 \noindent The optional {\tt output file} will be used for the timestamped filename of the
 output from the event (instead of the default {\tt notify.stdout.YYMMDDHHMM}
@@ -1958,8 +1962,8 @@ be changed, e.g., no x access to /etc for other.
 This guide describes how instructors can add content to Labtainers.
 Instructors extend Labtainers with new labs or customized versions of existing
 labs by defining IModules and directing their students to enable the IModules within
-their individual Labtainers instances. 
-(Or, instructors can enable IModules in VMs, and direct students to use those).
+their individual Labtainers instances.\footnote{Or, instructors can enable IModules in VMs, and direct students to use those.}
+Students simply type: {\tt imodule <path>} to add a given URL to their Labtainers instance.
 The scope of instructor-generated extensions can range from modified lab manuals 
 to new Labtainer exercises.  The Labtainers framework provides tools
 to assist instructors in creating and publishing these extensions. 
@@ -2029,6 +2033,21 @@ distributions rather than within local repo copies of the main Labtainer reposit
 instructors and lab designers are encourage to work from Labtainer distributions rather
 than repos pulled from the Labtainers repo at GitHub to avoid git repository conflicts.}
 
+\subsection {Custom lab manuals}
+The easiest way to provide your students with a custom version of a lab manual that they can reference from Labtainers
+is descrbed below.  This does not require that you use the Labtainer VM or git. The example assumes you are customizing
+the telnet-lab manual.
+\begin{itemize}
+\item Create your version of the manual in the pdf format (if the manual source is docx, export it as pdf).
+\item Put that manual in a file with the original name, in a directory whose name is the lab, e.g.,
+\begin{verbatim}
+    telnet-lab/telnet-lab.pdf
+\end{verbatim}
+\item Create a tar file of the manual including the lab name in the path.
+\item Publish that tar file onto a web server, i.e., something that responds to {\tt http get} commands.
+\item Instruct your students to provide that URL to the {\tt imodule} command. 
+\end{itemize}
+If you wish to publish multiple custom lab manuals, put them all in the same tar file.
 \subsection {Imodule examples}  
 These examples assume the instructor is working from a Labtainers distribution, e.g., one
 of the VM appliance.
@@ -2550,10 +2569,13 @@ host names.  The script at {\tt setup\_scripts/dns-add.sh} will update those def
 DNS used by the host.
 
 \subsection{Suggestions for Developers}
+\label{suggestions}
+\subsubsection{Testing assessment directives}
 The result and goals configuration files can be revised and tested within a
-running instructor container.  This saves time because you do not need to rebuild
+running grader container by starting grader with the {\tt -d} option.  This saves time because you do not need to rebuild
 the container for each iteration of the development of configuration files.  However,
-be sure to scp the configuration files from the container to your host Linux system.
+be sure to scp the configuration files from the container to your host Linux system.  The files are in
+{\tt .local/instr\_config}.  See the {tt /tmp} directory for logs.
 
 Most result and goal assessment can occur once you have generated a suitable sample of
 expected student artifacts.  In other words, adding new goal does not typically require
@@ -2565,10 +2587,21 @@ that you go back and re-perform student actions.  Exceptions to this are:
 file will not be collected unless that log file has been named in the results.config file.
 \end{enumerate}
 
+\subsubsection{3rd party applications}
+Some applications that you may wish to include in your lab may already have Docker container
+instances.  Bringing those into Labtainers can sometimes be challenging because such containers
+often lack execution environment elements required by Labtainers for configuration steps, e.g.,
+{sudo}.  Most such applications are traditional Docker images whose purpose is to package an
+application.  In contrast, Labtainer Docker containers are intended to look like computers running
+applications -- not as applications packaged as containers.  Is is therefore often easier, (and less
+disruptive to what students see), to include the 3rd party installation procedures, (e.g., what they publish
+to allow you to install their application on a Linux system), within your lab's Labtainer Docker file.
+
+\subsubsection{Msc}
 Use {\tt TERMINAL\_GROUPS} in the start.config file to organize terminals if you have more
 than a few.  Otherwise the student will spend time trying to find each terminal.
 
-\subsection {Docker cache}
+\subsubsection {Docker cache}
 By default, a {\tt rebuild} will make use of the Docker cache to speed up the image building process.
 Use the {\tt -N} option to supress use of the cache.  This may be needed if you expect the results of
 a {\tt RUN} command within a Dockerfile to change between builds.  When using the {\tt publish.py} command,
