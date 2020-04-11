@@ -977,6 +977,9 @@ using systemctl, service or /etc/init.d/...  See section \ref{time delimeter} fo
 Non-system programs can be excluded from stdin/stdout capturing by including their names in
 a ``ignorelocal'' file in that same directory.  \footnote{These should not include path information, just the program name.}
 
+The student commands are parsed to first account for the use of {\tt sudo}, {\tt time}, {\tt python} or {\tt python3}.
+The commands are also processed to account for the use of pipes and redirection. 
+
 \subsubsection{Capturing program file output}
 \label{program output}
 Sometimes program file output is of interest to automated assessment, e.g., the program
