@@ -583,7 +583,7 @@ void getStdInOutFiles(std::vector<std::string> cmd_args, std::vector<std::string
    std::string time_stamp_in = ".stdin."+all_args[ts_index];
    std::string time_stamp_out = ".stdout."+all_args[ts_index];
    int prog_index = 0;  
-   if(cmd_args[0] == "sudo" || cmd_args[0] == "python" || cmd_args[0] == "python3"){
+   if(cmd_args[0] == "sudo" || cmd_args[0] == "python" || cmd_args[0] == "python3" || cmd_args[0] == "time"){
         //cout << "yep is sudo\n";
         prog_index = 1;
    }
