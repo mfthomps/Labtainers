@@ -73,6 +73,10 @@ treatlocal(){
    local orig_command=$2
    #echo "cmd_path is $cmd_path"
    local TAS=$PRECMD_HOME/.local/bin/treataslocal
+   base_cmd=$(basename "$cmd_path")
+   if [[ $base_cmd == 'python' ]] || [[ $base_cmd == 'python3' ]]; then
+       return 1
+   fi
    if [ -f $TAS ]
    then
        local_output=""
@@ -83,7 +87,6 @@ treatlocal(){
            fi
            read -r -a cmd_array <<< "$cmdlocal"
            the_command=${cmd_array[0]}
-           base_cmd=$(basename "$cmd_path")
            base_treat=$(basename "$the_command")
 
            if [[ $the_command == *.service ]]; then
