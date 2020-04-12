@@ -416,7 +416,10 @@ def handle_replace_container(tdir, oldcontainer, newcontainer):
     start_config_file.close()
     start_config_file = open(start_config_filename, 'w')
     for line in config_filelines:
-        newline = line.replace(oldcontainer, newcontainer)
+        if 'LAB_MASTER_SEED' not in line:
+            newline = line.replace(oldcontainer, newcontainer)
+        else:
+            newline = line
         start_config_file.write(newline)
     start_config_file.close()
 
