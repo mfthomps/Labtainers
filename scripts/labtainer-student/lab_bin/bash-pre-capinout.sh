@@ -199,7 +199,7 @@ forcecheck(){
 # but only if it is not a system command.  Checks the
 # ~/.local/bin/treataslocal for exceptions.
 # If the command includes a pipe, look at both sides of the pipe.
-# Ignore sudo, and treats target command as the command.
+# Ignore sudo and time, and treats target command as the command.
 #
 preexec() {
    #echo "just typed $1";
@@ -228,7 +228,7 @@ preexec() {
            counter=$[$counter +1]
        fi
        cmd_line_array=($command)
-       if [ ${cmd_line_array[0]} == "sudo" ]; then
+       if [ ${cmd_line_array[0]} == "sudo" ] || [ ${cmd_line_array[0]} == "time" ]; then
           cmd_path=`which ${cmd_line_array[1]} 2>/dev/null`
        else
           cmd_path=`which ${cmd_line_array[0]} 2>/dev/null`
