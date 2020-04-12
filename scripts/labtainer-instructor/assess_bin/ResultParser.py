@@ -701,7 +701,7 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
             #print token
             if token == "":
                 tagstring = ""
-            elif command == 'CONTAINS' or command == 'FILE_REGX':
+            elif command == 'CONTAINS' or command == 'FILE_REGEX':
                 if token is True:
                     tagstring = token
                     #print('BREAKING token is <%s>' % token)
