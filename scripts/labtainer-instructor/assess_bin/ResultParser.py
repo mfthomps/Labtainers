@@ -690,6 +690,7 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
     # Will ONLY contain one entry, except for the case where astrix is used
     token = None
     #print('len of targetfname_list is %d' % len(targetfname_list))
+    bool_operators = ['CONTAINS', 'FILE_REGEX']
     for current_targetfname in targetfname_list:
         if not os.path.exists(current_targetfname):
             # If file does not exist, treat as can't find token
@@ -701,7 +702,7 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
             #print token
             if token == "":
                 tagstring = ""
-            elif command == 'CONTAINS' or command == 'FILE_REGEX':
+            elif command in bool_operators:
                 if token is True:
                     tagstring = token
                     #print('BREAKING token is <%s>' % token)
@@ -714,7 +715,9 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
                 # found the token - break out of the main for loop
                 #print('BREAKING not contains token is <%s>' % token)
                 break
-    if token is None:
+    if tagstring is None and command in bool_operators:
+        tagstring = False
+    elif token is None:
         tagstring = None
 
     # set nametags - value pair
