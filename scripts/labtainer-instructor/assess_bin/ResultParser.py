@@ -287,7 +287,7 @@ def getToken(linerequested, field_type, token_id, logger):
                     linetokenidx = linetokenidx + 1
                 numlinetokens = len(linetokens)
             elif field_type == 'SEARCH':
-                logger.debug('is search')
+                logger.debug('is search token_id %s  linerequested %s' % (token_id, linerequested))
                 search_results = parse.search(token_id, linerequested)
                 if search_results is not None:
                     token = str(search_results[0])
@@ -462,7 +462,6 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                     remain = remain.split(':', 1)[1].strip()
                     tagstring = False
                     for currentline in targetlines:
-                        #print('look for <%s> in %s' % (remain, currentline))
                         if remain in currentline:
                             tagstring = True
                             break 
@@ -648,15 +647,15 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
     targetfname_list = []
     if targetfile.startswith('*'):
         # Handle 'asterisk' -- 
-        #print "Handling asterisk"
-        #print "containername is %s, targetfile is %s" % (containername, targetfile)
+        #print("Handling asterisk")
+        #print("containername is %s, targetfile is %s" % (containername, targetfile))
         # Replace targetfile as a list of files
         targetfileparts = targetfile.split('.')
         targetfilestdinstdout = None
         if targetfileparts is not None:
             targetfilestdinstdout = targetfileparts[1]
         if targetfilestdinstdout is not None:
-            #print "targetfilestdinstdout is %s" % targetfilestdinstdout
+            #print("targetfilestdinstdout is %s" % targetfilestdinstdout)
             if containername in container_exec_proglist:
                 myproglist = container_exec_proglist[containername]
             else:
@@ -664,7 +663,9 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
             for progname in myproglist:
                 if timestamppart is not None:
                     targetfname = '%s%s.%s.%s' % (result_home, progname, targetfilestdinstdout, timestamppart)
-                    targetfname_list.append(targetfname)
+                    if os.path.isfile(targetfname):
+                        targetfname_list.append(targetfname)
+                        #print('appending %s' % targetfname)
     else:
         #print "Handling non-asterisk"
 
@@ -684,34 +685,42 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
 
     #print "Current targetfname_list is %s" % targetfname_list
 
-    tagstring = ""
+    tagstring = None
     # Loop through targetfname_list
     # Will ONLY contain one entry, except for the case where astrix is used
+    token = None
+    #print('len of targetfname_list is %d' % len(targetfname_list))
     for current_targetfname in targetfname_list:
         if not os.path.exists(current_targetfname):
             # If file does not exist, treat as can't find token
-            token = ""
             logger.debug("No %s file does not exist\n" % current_targetfname)
-            #nametags[result_key] = token
-            return False
         else:
+            #print('get  cmd %s for %s' % (command, current_targetfname))
             token = getTokenFromFile(current_targetfname, command, field_type, token_id, logger, lookupstring, line, result_key)
-            if token is None:
-                return False
-
-        #print token
-        if token == "":
-            tagstring = ""
-        elif token is None:
-            tagstring = None
-        else:
-            tagstring = token
-            # found the token - break out of the main for loop
-            break
+        if token is not None:
+            #print token
+            if token == "":
+                tagstring = ""
+            elif command == 'CONTAINS' or command == 'FILE_REGEX':
+                if token is True:
+                    tagstring = token
+                    #print('BREAKING token is <%s>' % token)
+                    break
+                elif result_key in nametags and nametags[result_key] is not True:
+                    #print('result_key %s going false' % result_key)
+                    tagstring = token
+            else:
+                tagstring = token
+                # found the token - break out of the main for loop
+                #print('BREAKING not contains token is <%s>' % token)
+                break
+    if token is None:
+        tagstring = None
 
     # set nametags - value pair
     if tagstring is not None:
         nametags[result_key] = tagstring
+        #print('nametags %s set to %s' % (result_key, tagstring))
         return True
     else:
         return False

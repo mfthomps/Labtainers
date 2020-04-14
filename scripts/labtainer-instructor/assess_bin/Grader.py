@@ -48,9 +48,11 @@ import string
 import evalBoolean
 import evalExpress
 import InstructorLogging
+import hashlib 
 
 
 default_timestamp = 'default-NONE'
+global seed
 def compare_time_during(goal1timestamp, goal2timestamp):
     goal1start, goal1end = goal1timestamp.split('-')
     goal2start, goal2end = goal2timestamp.split('-')
@@ -306,6 +308,13 @@ def compare_result_answer(current_result, current_answer, operator):
     if operator == "string_equal":
         if current_result == current_answer:
             found = True
+    elif operator == "hash_equal":
+        mymd5 = hashlib.new('md5')
+        mymd5.update(current_result.encode('utf-8'))
+        mymd5_hex_string = mymd5.hexdigest()
+        if mymd5_hex_string == current_answer:
+            found = True
+    
     elif operator == "string_diff":
         if current_result != current_answer:
             found = True
@@ -990,6 +999,24 @@ def processLabExercise(studentlabdir, labidname, grades, goals, bool_results, go
 
     return 0
 
+def getMasterSeed(logger):
+    global seed
+    ''' hack until start.config really parsed '''
+    if seed is None:
+        start_config_file = '.local/config/start.config'
+        if not os.path.isfile(start_config_file):
+            logger.error('Could not find %s' % start_config_file)
+            exit(1)
+        with open(start_config_file) as fh:
+            for line in fh:
+                if line.strip().startswith('#'):
+                    continue
+                if 'LAB_MASTER_SEED' in line:
+                    parts = line.strip.split()
+                    seed = parts[1]
+                    break
+    return seed
+        
 # Usage: ProcessStudentLab <studentlabdir> <labidname>
 #   return a dictionary of grades for this student.
 # Arguments:
@@ -998,6 +1025,8 @@ def processLabExercise(studentlabdir, labidname, grades, goals, bool_results, go
 #     <labidname> - labidname should represent filename of output json file
 def ProcessStudentLab(studentlabdir, labidname, logger):
     # Goals
+    global seed
+    seed = None
     goal_times = GoalTimes()
     grades = OrderedDict()
     resultsdir = os.path.join(studentlabdir, '.local','result')

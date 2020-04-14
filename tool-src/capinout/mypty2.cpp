@@ -356,26 +356,31 @@ int ioLoop()
               /* See if death rattle on stdout */
               int flags = fcntl(fdm_out, F_GETFL, 0);
               fcntl(fdm_out, F_SETFL, flags | O_NONBLOCK);
-              rc = read(fdm_out, input, sizeof(input));
-              if (rc > 0) {
-                // Send data on the master side of PTY
-                //input[rc] = 0;
-                fprintf(debug, "deathbed read master_stdin [%s]\n", input);
-                input[rc] = 0;
-                char *tmp = input;
-                if(tmp[0] == '^' && tmp[1] == 'C' && ctrl_c_hack){
-                      fprintf(debug, "hack the control c\n");
-                      ctrl_c_hack = false;
-                      tmp = tmp+2;
-                }
-                // Send data on standard output
-                int wc = write(master_stdout, tmp, rc);
-                if(wc != rc){
-                    fprintf(debug,"write to fdm_in only wrote %d, expected %d\n", wc, rc);
-                    fflush(debug);
-                }
-                write(stdout_fd, tmp, rc);
+              while(1){
+                  rc = read(fdm_out, input, sizeof(input));
+                  if (rc > 0) {
+                    // Send data on the master side of PTY
+                    //input[rc] = 0;
+                    fprintf(debug, "deathbed read master_stdin [%s]\n", input);
+                    input[rc] = 0;
+                    char *tmp = input;
+                    if(tmp[0] == '^' && tmp[1] == 'C' && ctrl_c_hack){
+                          fprintf(debug, "hack the control c\n");
+                          ctrl_c_hack = false;
+                          tmp = tmp+2;
+                    }
+                    // Send data on standard output
+                    int wc = write(master_stdout, tmp, rc);
+                    if(wc != rc){
+                        fprintf(debug,"write to fdm_in only wrote %d, expected %d\n", wc, rc);
+                        fflush(debug);
+                    }
+                    write(stdout_fd, tmp, rc);
+                  }else{
+                    break;
+                  }
               }
+
               if(use_pty){
                   close(fds_in);
               }
@@ -578,9 +583,12 @@ void getStdInOutFiles(std::vector<std::string> cmd_args, std::vector<std::string
    std::string time_stamp_in = ".stdin."+all_args[ts_index];
    std::string time_stamp_out = ".stdout."+all_args[ts_index];
    int prog_index = 0;  
-   if(cmd_args[0] == "sudo"){
-        //cout << "yep is sudo\n";
-        prog_index = 1;
+   if(cmd_args[0] == "sudo" || cmd_args[0] == "python" || cmd_args[0] == "python3" || cmd_args[0] == "time"){
+        if(cmd_args[1] == "sudo" || cmd_args[1] == "python" || cmd_args[1] == "python3"){
+            prog_index = 2;
+        }else{ 
+            prog_index = 1;
+        }
    }
    if(cmd_args[prog_index] == "systemctl"){
        // systemctl action program
