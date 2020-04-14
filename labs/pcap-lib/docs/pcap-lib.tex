@@ -25,7 +25,8 @@ There are 16 questions in the lab. Submit your written lab report, including you
 This lab includes software development in a UNIX environment.  There exist pcap libraries for all major programming languages; developers of this lab actively use C++ and Python, and have included sample tutorial code for each. Many UNIX distributions include the pcap library and headers by default. Python users are recommended to use the dpkt library. dpkt is readily available via the package manager for most distributions of Linux, and is already installed on this Labtainer. There are a number of resources for understanding the dpkt API; it is recommended you start by reviewing the python tutorial code supplied in the home directory of this lab's computer. 
 There also exist a number of online resources for API documentation.  \footnote{\url{http://dpkt.readthedocs.org/en/latest/api/api\_auto.html\#module-dpkt.pcap}}
 
-The language for completing this lab is up to you, however it is important that you become comfortable writing libpcap programs and are capable of running UNIX-style scripts and tools. 
+The language for completing this lab is up to you, however it is important that you become comfortable writing libpcap programs and are capable of running UNIX-style scripts and tools.  Note that a C++ program may be significanly slower
+than a Pthon program, depending on what kinds of data structures you employ.
 
 You may find the programs that you write for this lab are useful for future labs (or other exploration).  You are encouraged to place your code and scripts
 in the {\tt mystuff} directory as described below in \ref{environment} so that it persists independent of this lab.
@@ -57,9 +58,11 @@ at:
 directory available).  Consider placing your code and scripts there.
 
 \section{Tasks}
+This lab includes some detailed instructions to facilitate grading.  Failure to follow those instructions may result in your
+lab results not being properly recorded.
 \subsection{Unknown trace}
-We will be analyzing an anonymized packet trace taken from an Internet exchange point.  A compressed instance of this trace is
-in your home directory in: trace2.pcap.bz2
+We will be analyzing an anonymized packet trace taken from an Internet exchange point.  This trace is
+in your home directory in: trace2.pcap.  \textbf{Do not move this file.}
 \begin{itemize}
 \item Uncompress (this will take a couple minutes, so be patient): \$ bzip2 -d <file>
 \item Try viewing the trace in either tcpdump or Wireshark.
@@ -80,21 +83,43 @@ alternatives. For example, “PcapNg,” or next-generation pcap, is now the def
 \end{enumerate}
 
 \subsection{Basic traffic stats}
-Add to your pcap analysis program the ability to loop through all of the packets of the trace. Each packet in a pcap trace is preceded by a header as defined in pcap pkthdr. This header contains a UNIX timestamp, among other fields. To iterate through all packets of the trace, you may wish to use, in C, pcap loop() or pcap dispatch() with the appropriate callback (you must create the callback). With python’s dpkt, pcap.Reader provides a similar iterator.
+Add to your pcap analysis program the ability to loop through all of the packets of the trace. Each packet in a pcap trace is preceded by a header as defined in pcap pkthdr. This header contains a UNIX timestamp, among other fields. To iterate through all packets of the trace, you may wish to use, in C, pcap loop() or pcap dispatch() with the appropriate callback (you must create the callback). With python's dpkt, {\tt pcap.Reader} provides a similar iterator.  Note you may wish to place a bound on the number
+of packets processed while you are developing your program -- but do not forget to remove this bound to complete the 
+assignment.
+
+When answering the following questions, your program \textbf{must} output the desired value to stdout with the specified prefix
+(when present).
+For example, if the qustion is:
 \begin{enumerate}
-\item {[5 pts]} How many IPv4 packets does the trace contain?
-\item {[5 pts]} How many non-IPv4 packets does the trace contain?
-\item {[5 pts]} What is the timestamp of the first packet in the trace?
-\item {[5 pts]} What is the average packet rate (in packets per second) of the trace?
+\item {[5 pts]} How many IPv4 packets does the trace contain (as IPv4 count:)?
+\end{enumerate}
+\noindent then, your program should output a line  containing:
+\begin{verbatim}
+   Count IPv4:  343
+\end{verbatim}
+\noindent or whatever the value is.  Unless otherwise directed, output values as 
+an integer with no formatting, e.g., no thousands commas.  
+The order in which your program outputs the answers does not matter.  Nor does it matter
+if different programs output results of different questions.
+
+\begin{enumerate}
+\item {[5 pts]} How many IPv4 packets does the trace contain (as IPv4 count:)?
+\item {[5 pts]} How many non-IPv4 packets does the trace contain (as non-IPv4 count:)?
+\item {[5 pts]} What is the timestamp of the first packet in the trace, including at least two decimal places.
+(as First timestamp:)?
+\item {[5 pts]} What is the average packet rate (in packets per second to two decimal places) of the trace (as Avg packet rate:)?
+\end{enumerate}
 After the per-packet pcap header is the traffic data. Improve your callback to decode IP packets. Your callback should obtain the source and destination IP addresses, the protocol (e.g. TCP, UDP, ICMP, etc), source and destination transport port (where applicable), etc.
 Several questions ask for an answer in the form of a distribution. Please note that a distribution must represent each value in the form of a fraction or percentage of the total. Answer the following questions:
+\begin{enumerate}
+\setcounter{enumi}{4}
 \item {[10 pts]} What is the packet protocol distribution? (A table showing the 5 top protocols and their respective contributions is fine.)
 \item {[10 pts]} Plot a histogram of the packet size distribution (the Python numpy and matplot packages are installed on the Labtainer).
-\item {[5 pts]} How many unique IPv4 source addresses are present in the trace?
-\item {[5 pts]} How many unique IPv4 destination addresses are present in the trace?
+\item {[5 pts]} How many unique IPv4 source addresses are present in the trace (as Unique sources:)?
+\item {[5 pts]} How many unique IPv4 destination addresses are present in the trace (as Unique destinations:)?
 \item {[10 pts]} Create a cumulative distribution function (CDF) plot. The x-axis is the number of bytes sent and the y-axis is the cumulative fraction of sources.
-\item {[5 pts]} Which source sent the most bytes?
-\item {[5 pts]} Which source sent the most packets?
+\item {[5 pts]} Which source sent the most bytes (as Source with most bytes:)?
+\item {[5 pts]} Which source sent the most packets (as Source with most packets:)?
 Based on your analysis of the trace:
 \item {[10 pts]} List 3 characteristics of the traffic that seem unusual to you.
 \item {[5 pts]} Provide a reasonable explanation for what traffic the trace represents, taking into account the unusual characteristics you have identified.
