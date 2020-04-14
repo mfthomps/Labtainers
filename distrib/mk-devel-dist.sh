@@ -16,7 +16,7 @@ fi
 here=`pwd`
 cd ../
 rootdir=`pwd`
-ddir=/tmp/labtainer-distrib
+ddir=$(mktemp -d -t labtainer-distrib-XXXXXXXX)
 ldir=$ddir/labtainer
 ltrunk=$ldir/trunk
 scripts=$ltrunk/scripts

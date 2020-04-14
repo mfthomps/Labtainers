@@ -10,6 +10,7 @@ if [[ -z $myshare ]]; then
     myshare=/media/sf_SEED
 fi
 tmp_dir=/tmp/labtainer_tests
+tmp_dir=$(mktemp -d -t labtainer_tests-XXXXXXXX)
 rm -fr $tmp_dir
 mkdir $tmp_dir
 trunk=$tmp_dir/trunk
