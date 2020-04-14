@@ -477,6 +477,20 @@ Remove remote branches with
     git push origin --delete <branch>
 \end{verbatim}
 
+\section{Continuous integration with Jenkins}
+A Jenkins pipeline automates periodic testing of {\tt premaster} branch of Labtainers.  The pipeline script is backed up in
+{\tt tesetsets/bin/jenkins\_pipeline.txt}.   The pipeline pulls from the premaster branch of the GitHub repo.  It builds any
+changed lab images (**TBD flag those to remind to merge the premaster registry into the master).  It then generates the
+student and designer distributions and uses those to run the smoketest VMs.
+
+\subsection{Jenkins installation}
+The stock Jenkins is installed on the development VM.
+After installing Jenkins, add the jenkins user to the vboxfs and the docker groups
+\begin{verbatim}
+  sudo usermod -a -G vboxfs jenkins
+  sudo usermod -a -G docker jenkins
+\end{verbatim}
+
 \section{Developer guidelines}
 \subsection{Testing and Running Existing Labs}
 When running labs, the goal is to force ourselves to run the distributed labs unless we have specific reasons to do otherwise.
