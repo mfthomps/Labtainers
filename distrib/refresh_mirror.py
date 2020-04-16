@@ -41,10 +41,9 @@ import LabtainerLogging
 import ParseLabtainerConfig
 import LabtainerBase
 '''
-Force the test_registry named in labtainer.config to match the content of the
-default registry, e.g., DockerHub.  NOTE: this is only intended to be run when
-the premaster branch is broken an you want to return to clean premaster.  This
-script should only be called from another script that coordinates that.
+Update the Docker Hub registry to match what is in the registry named in the
+labtainer.config file.  Includes an option to go the other direct for use in
+cases where the premaster registry becomes corrupt.
 '''
 def pull_push(image, remote_registry, local_registry):
     with_registry = '%s/%s' % (remote_registry, image)
@@ -219,7 +218,7 @@ def doUpdateOrRefresh(local_registry, remote_registry, args, lgr):
                         pull_push(base, remote_registry, local_registry)
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Compare base images and replace if different')
+    parser = argparse.ArgumentParser(description='Update the remote (Docker Hub) registry to match the local test registry (premaster).')
     parser.add_argument('-n', '--no_copy', action='store_true', default=False, help='Do not modify registry, just report differences')
     parser.add_argument('-r', '--refresh', action='store_true', default=False, help='Force mirror to match remote')
     parser.add_argument('-q', '--quiet', action='store_true', default=False, help='Do not prompt for confirmation')
