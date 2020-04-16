@@ -41,6 +41,7 @@ import VersionInfo
 import removelab
 import registry
 import InspectLocalReg
+import rebuild
 '''
 Build and publish labtainer images.  Use -h option for help.
 '''
@@ -70,14 +71,14 @@ def relabel(image, version, base_image, base_id, registry, logger):
     #print cmd
     os.system(cmd)
 
-def rebuild(labname, labsdir, force, no_build, logger):
+def doRebuild(labname, labsdir, force, no_build, logger):
     mycwd = os.getcwd()
     path = '../scripts/labtainer-student'
     os.chdir(path)
     #print('now at %s' % os.getcwd())
     lab_dir = os.path.join(labsdir, labname)
     #print('cwd was %s now %s  lab_dir is %s' % (mycwd, os.getcwd(), lab_dir))
-    retval = labutils.DoRebuildLab(lab_dir, force_build=force, no_build=no_build, no_pull=True, use_cache=False)
+    retval = rebuild.DoRebuildLab(lab_dir, force_build=force, no_build=no_build, no_pull=True, use_cache=False)
     os.chdir(mycwd)
     return retval
 
@@ -138,7 +139,7 @@ def DoLab(lab, labsdir, force, logger, do_login, use_default_registry, default_r
     if not no_build:
         removelab.removeLab(lab)
     lab_dir = os.path.join(labsdir, lab)
-    registry_info = rebuild(lab, labsdir, force, no_build, logger)
+    registry_info = doRebuild(lab, labsdir, force, no_build, logger)
     registry = None
     for ri in registry_info:
         if registry is not None and ri.registry != registry:

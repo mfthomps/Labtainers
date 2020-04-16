@@ -2,6 +2,13 @@
 #
 # Start the Ubuntu 18 smoke test with the results of the latest mkall
 #
+isrunning=$(./vbox-client.py "list runningvms")
+echo "isrunning $isrunning"
+ok=$(echo $isrunning | grep -c "LabtainerVM-2-smoketest")
+if [[ $ok != 0 ]]; then
+    echo "ERROR:  Is already running: $isrunning"
+    exit 1
+fi
 vmdir="/media/sf_SEED/test_vms/ubuntu18smoke/"
 if [[ "$1" != "-n" ]]; then 
     cp testvm-do.sh $vmdir/dothis.sh

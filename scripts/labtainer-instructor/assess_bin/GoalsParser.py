@@ -35,7 +35,6 @@ POSSIBILITY OF SUCH DAMAGE.
 '''
 import json
 import glob
-from hashlib import md5
 import os
 import random
 import sys
@@ -207,6 +206,7 @@ def ParseGoals(homedir, studentdir, logger_in):
                     if not (goal_type == "execute"):
                         # If goal_type is not 'execute' then check the goal_operator
                         if not (goal_operator == "string_equal" or
+                            goal_operator == "hash_equal" or
                             goal_operator == "string_diff" or
                             goal_operator == "string_start" or
                             goal_operator == "string_end" or

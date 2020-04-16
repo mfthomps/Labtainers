@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 This software was created by United States Government employees at 
 The Center for the Information Systems Studies and Research (CISR) 
@@ -18,6 +18,7 @@ import sys
 import logging
 sys.path.append('./bin')
 import ParseLabtainerConfig
+import LabtainerLogging
 '''
 Use xdotool to simulate a lab being performed, as driven by
 a simthis.txt file
@@ -28,9 +29,9 @@ def isProcRunning(proc_string):
     cmd = 'ps -ao args'
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output = ps.communicate()
-    for line in output[0].splitlines():
+    for line in output[0].decode('utf-8').splitlines():
         #print('is %s in %s' % (proc_string, line))
-        if proc_string in output[0]:
+        if proc_string in output[0].decode('utf-8'):
             return True
     return False
 
@@ -51,7 +52,7 @@ def DockerCmd(cmd):
         else:
             if len(output[0]) > 0:
                 #print("cmd %s stdout: %s" % (cmd, output[0]))
-                return True, output[0]
+                return True, output[0].decode('utf-8')
             else:
                 #print("cmd %s stdout: ''" % cmd)
                 ok = True
@@ -90,8 +91,8 @@ class SimLab():
         ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output = ps.communicate()
         if len(output[1]) > 0:
-            print output[1]
-        return output[0].strip()
+            print(output[1].decode('utf-8'))
+        return output[0].decode('utf-8').strip()
     
     
     def searchWindows(self, name, wait=False):
@@ -216,7 +217,6 @@ class SimLab():
                     self.typeLine(line.strip())
                     time.sleep(1.1)
                 else:
-                    #print 'sleep 2'
                     time.sleep(2)
 
     def keyFile(self, fname):
@@ -236,7 +236,6 @@ class SimLab():
                     self.dotool(send)
                     time.sleep(1.1)
                 else:
-                    #print 'sleep 2'
                     time.sleep(2)
 
     def cpFile(self, labname, params):
@@ -281,7 +280,6 @@ class SimLab():
                             print('%s' % line.strip())
                             sys.stdout.flush()
                     continue
-                #print line
                 try:
                     cmd, params = line.split(' ', 1)
                 except:
@@ -304,7 +302,6 @@ class SimLab():
 
         netstat_cmd = "sudo netstat -n -put -W | grep %s" % hosturl
         cmd = 'docker exec %s script -q -c "%s" /dev/null' % (full_containername, netstat_cmd)
-        #print "cmd is (%s)" % cmd
         result, output_str = DockerCmd(cmd)
         #print('wait_net %r out is %s' % (result, output_str))
         if not result:
@@ -314,7 +311,6 @@ class SimLab():
             print(output_str)
             sys.stdout.flush()
         if result and output_str == "":
-            #print "After DockerCmd, return False"
             return False
         else:
             for line in output_str.splitlines():
@@ -390,7 +386,7 @@ class SimLab():
             fun_cmd = os.path.join(self.sim_path, params)
             ps = subprocess.Popen(shlex.split(fun_cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             output = ps.communicate()
-            self.typeLine(output[0].strip())
+            self.typeLine(output[0].decode('utf-8').strip())
            
         else:
             print('Unknown command %s %s' % (cmd, params))
@@ -441,15 +437,10 @@ class SimLab():
             output = ps.communicate()
             if len(output[0]) > 0:
                 self.dconf_orig_hud_string_set = True
-                #print "output[0] is (%s)" % output[0].strip()
-                self.dconf_hud_string = output[0].strip()
+                self.dconf_hud_string = output[0].decode('utf-8').strip()
             else:
                 self.dconf_orig_hud_string_set = False
                 result = 1
-            #if self.dconf_orig_hud_string_set:
-            #    print "hud_string is (%s)" % self.dconf_hud_string
-            #else:
-            #    print "hud_string is not SET!"
         return result
 
     def test_for_program(self, myprogram):
@@ -487,7 +478,6 @@ class SimLab():
                             print('%s' % line.strip())
                             sys.stdout.flush()
                     continue
-                #print line
                 try:
                     cmd, params = line.split(' ', 1)
                 except:
@@ -515,26 +505,7 @@ def __main__():
         exit(1)
     labtainer_config_path = os.path.abspath('../../config/labtainer.config')
     labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_path, None)
-    logfilename = '/tmp/simlab.log'
-    logname = "simlab"
-
-    file_log_level = labtainer_config.file_log_level
-    console_log_level = labtainer_config.console_log_level
-
-    logger = logging.getLogger(logname)
-    logger.setLevel(file_log_level)
-    formatter = logging.Formatter('[%(asctime)s - %(levelname)s : %(message)s')
-
-    file_handler = logging.FileHandler(logfilename)
-    file_handler.setLevel(file_log_level)
-    file_handler.setFormatter(formatter)
-
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(console_log_level)
-    console_handler.setFormatter(formatter)
-
-    logger.addHandler(file_handler)
-    logger.addHandler(console_handler)
+    logger = LabtainerLogging.LabtainerLogging("simlab.log", args.labname, labtainer_config_path)
 
     logger.debug('Begin simlab for %s' % lab)
     simlab = SimLab(lab, verbose_level, in_file=args.file, logger=logger)

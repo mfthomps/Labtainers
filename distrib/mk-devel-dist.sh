@@ -10,11 +10,13 @@ if [[ "$1" == "-s" ]]; then
     skip_pdf="YES"
 fi
 revision=`git describe --always`
-myshare=/media/sf_SEED/
+if [[ -z $myshare ]]; then
+    myshare=/media/sf_SEED/
+fi
 here=`pwd`
 cd ../
 rootdir=`pwd`
-ddir=/tmp/labtainer-distrib
+ddir=$(mktemp -d -t labtainer-distrib-XXXXXXXX)
 ldir=$ddir/labtainer
 ltrunk=$ldir/trunk
 scripts=$ltrunk/scripts

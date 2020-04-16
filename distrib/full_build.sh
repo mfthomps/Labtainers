@@ -4,6 +4,11 @@
 # NOTE: this script assumes local repo is up to date and what you want tested
 #
 here=`pwd`
+branch=$(git rev-parse --abbrev-ref HEAD)
+if [[ "$branch" == "master" ]]; then
+    echo "Do not full_build as the master branch."
+    exit 1
+fi
 
 ./mkall.sh -q
 result=$?
@@ -21,8 +26,6 @@ ltrunk=$ldir/trunk
 mkdir -p $ltrunk
 here=`pwd`
 cd ../
-branch=$(git rev-parse --abbrev-ref HEAD)
-
 git clone --single-branch --branch $branch $LABTAINER_DIR $ltrunk
 
 #
@@ -59,5 +62,6 @@ if [[ $result != 0 ]]; then
     exit 1
 fi
 cd $LABTAINER_DIR/testsets/bin
-./test-ubuntu16.sh
-./test-ubuntu18.sh
+./testVMs.sh
+#./test-ubuntu16.sh
+#./test-ubuntu18.sh

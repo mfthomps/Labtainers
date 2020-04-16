@@ -73,6 +73,10 @@ treatlocal(){
    local orig_command=$2
    #echo "cmd_path is $cmd_path"
    local TAS=$PRECMD_HOME/.local/bin/treataslocal
+   base_cmd=$(basename "$cmd_path")
+   if [[ $base_cmd == 'python' ]] || [[ $base_cmd == 'python3' ]]; then
+       return 1
+   fi
    if [ -f $TAS ]
    then
        local_output=""
@@ -83,7 +87,6 @@ treatlocal(){
            fi
            read -r -a cmd_array <<< "$cmdlocal"
            the_command=${cmd_array[0]}
-           base_cmd=$(basename "$cmd_path")
            base_treat=$(basename "$the_command")
 
            if [[ $the_command == *.service ]]; then
@@ -196,7 +199,7 @@ forcecheck(){
 # but only if it is not a system command.  Checks the
 # ~/.local/bin/treataslocal for exceptions.
 # If the command includes a pipe, look at both sides of the pipe.
-# Ignore sudo, and treats target command as the command.
+# Ignore sudo and time, and treats target command as the command.
 #
 preexec() {
    #echo "just typed $1";
@@ -225,7 +228,7 @@ preexec() {
            counter=$[$counter +1]
        fi
        cmd_line_array=($command)
-       if [ ${cmd_line_array[0]} == "sudo" ]; then
+       if [ ${cmd_line_array[0]} == "sudo" ] || [ ${cmd_line_array[0]} == "time" ]; then
           cmd_path=`which ${cmd_line_array[1]} 2>/dev/null`
        else
           cmd_path=`which ${cmd_line_array[0]} 2>/dev/null`

@@ -21,7 +21,7 @@ def getMemoryInGB():
     MemSizeType=None
     # Note: format of MemTotal is "MemTotal: <number> kB"
     if lenMemTotalString != 3:
-        print "Invalid memory total string"
+        print("Invalid memory total string")
         exit(1)
     else:
         MemSize=MemTotalString[1]
@@ -33,7 +33,7 @@ def getMemoryInGB():
         try:
             MemSizeMB = float(MemSize) / 1024
         except:
-            print "Invalid memory size string"
+            print("Invalid memory size string")
             exit(1)
         MemSizeGB = MemSizeMB / 1024
         MemSizeGB = float("%.2f" % MemSizeGB)
@@ -59,21 +59,21 @@ def getNumProcessor():
     try:
         NumProcessor = int(NumProcessorString)
     except:
-        print "Invalid number of processor string"
+        print("Invalid number of processor string")
         exit(1)
     return NumProcessor
 
 def main():
     numprocessor = getNumProcessor()
     memoryinGB = getMemoryInGB()
-    print "Linux host resources:"
-    print "Processors: %d" % numprocessor
-    print "RAM: %.2f GB" % memoryinGB
-    print ""
+    print("Linux host resources:")
+    print("Processors: %d") % numprocessor
+    print("RAM: %.2f GB") % memoryinGB
+    print("")
     if numprocessor == 1:
-        print "Labtainers will perform better with two processors allocated to the Linux host."
+        print("Labtainers will perform better with two processors allocated to the Linux host.")
     if memoryinGB < 1.8:
-        print "Labtainers may perform better with at least 2 GB of RAM allocated to the Linux host."
+        print("Labtainers may perform better with at least 2 GB of RAM allocated to the Linux host.")
     if numprocessor == 1 or memoryinGB < 1.8:
         user_input=None
         user_input=raw_input("Would like to shutdown the host so you can allocate more resources? (yes/no)\n")

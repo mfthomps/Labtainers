@@ -1,44 +1,27 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import subprocess
 import os
 import sys
 import argparse
 import shlex
 import SimLab
-import logging
 import shutil
 import filecmp
 sys.path.append('./bin')
 import ParseLabtainerConfig
 import labutils
+import LabtainerLogging
 
 class SmokeTest():
     def __init__(self, verbose_level):
         self.verbose_level = verbose_level
         labtainer_config_path = os.path.abspath('../../config/labtainer.config')
         self.labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_path, None)
+        self.logger = LabtainerLogging.LabtainerLogging("smoketest.log", 'smoketest', labtainer_config_path)
         self.simlab = None
-        self.outfile = open('./smoke.out', 'w')
-        logfilename = './smokex.log'
-        logname = "smoketest"
-
-        file_log_level = self.labtainer_config.file_log_level
-        console_log_level = self.labtainer_config.console_log_level
-
-        self.logger = logging.getLogger(logname)
-        self.logger.setLevel(file_log_level)
-        formatter = logging.Formatter('[%(asctime)s - %(levelname)s : %(message)s')
-
-        file_handler = logging.FileHandler(logfilename)
-        file_handler.setLevel(file_log_level)
-        file_handler.setFormatter(formatter)
-
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(console_log_level)
-        console_handler.setFormatter(formatter)
-
-        self.logger.addHandler(file_handler)
-        self.logger.addHandler(console_handler)
+        ldir = os.getenv('LABTAINER_DIR')
+        outfile_path = os.path.join(ldir, 'logs', 'smoke.out')
+        self.outfile = open(outfile_path, 'w')
 
         labutils.logger = self.logger
         self.logger.debug('Begin smoke test')
@@ -67,13 +50,13 @@ class SmokeTest():
         cmd = 'stoplab %s' % lab
         ps = subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         output = ps.communicate()
-        self.logger.debug('stoplab output %s' % output[0])
+        self.logger.debug('stoplab output %s' % output[0].decode('utf-8'))
         email = labutils.getLastEmail()
         if email is not None:
             email = email.replace("@","_at_")
         if len(output[1]) > 0:
-            print('%s' % output[0])
-            print('%s' % output[1])
+            print('%s' % output[0].decode('utf-8'))
+            print('%s' % output[1].decode('utf-8'))
             retval = False
         if retval and self.simlab.hasSim():
             here = os.getcwd() 

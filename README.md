@@ -14,7 +14,7 @@ The Labtainers website, and downloads (including VM appliances with Labtainers p
 [Papers]: https://my.nps.edu/web/c3o/labtainers#papers
 
 Distribution created: mm/dd/yyyy
-Revision: 
+Revision:
 Branch:
 
 ## Content
@@ -71,6 +71,18 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+
+April 9, 2020
+- Grader failed assessment of CONTAINS and FILE\_REGX conditions when wildcards were used for file selection.
+- Include hints for using hexedit in the symlab lab.
+- Add hash\_equal operator and hash-goals.py to automated assessment to avoid publishing expected answers in configuration files.
+- Automated assessment for the pcap-lib lab.
+
+April 7, 2020
+- Logs have been moved to $LABTAINER\_DIR/logs
+- Other cleanup to permit rebuilds and tests using Jenkins, including use of unique temporary directories for builds
+- Move build support functions out of labutils into build.py
+- Add pcap-lib lab for PCAP library based development of traffic analysis programs
 
 March 13, 2020
 - Add plc-traffic lab for use of GrassMarlin with traffic generated during the lab.

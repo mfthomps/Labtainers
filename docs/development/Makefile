@@ -1,6 +1,6 @@
 all: development.pdf imodules.pdf
 development.pdf: development.tex
-	latex development
+	pdflatex development
 	pdflatex development
 imodules.pdf: imodules.tex
 	latex imodules

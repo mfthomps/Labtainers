@@ -110,12 +110,15 @@ def showLabs(dirs, path, versions, skip):
     print('Use "-h" for help.')
 
 def getRev():
+    created = ""
     with open('../../README.md') as fh:
         for line in fh:
+            if line.strip().startswith('Distribution created'):
+               created = line.strip()
             if line.strip().startswith('Revision:'):
                 parts = line.split(':')
                 if len(parts) == 2 and len(parts[1].strip())>0:
-                    return 'revision: '+parts[1].strip()
+                    return 'revision: '+parts[1].strip()+" "+created
                 else:
                     return "no revision, build environment"
     return '??'

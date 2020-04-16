@@ -48,6 +48,8 @@ def showMask(mask):
         print('ACCESS')
     if mask & flags.OPEN:
         print('OPEN')
+    if mask & flags.MODIFY:
+        print('MODIFY')
 
 
 def get_flag(flag):
@@ -57,6 +59,8 @@ def get_flag(flag):
         return flags.ACCESS
     elif flag == 'OPEN':
         return flags.OPEN
+    elif flag == 'MODIFY':
+        return flags.MODIFY
     else:
         return None
 

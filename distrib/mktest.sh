@@ -6,7 +6,11 @@
 # are not generally distributed.
 # Assumes the simlab files are in ../../Labtainers-simlab/simlab
 #
+if [[ -z $myshare ]]; then
+    myshare=/media/sf_SEED
+fi
 tmp_dir=/tmp/labtainer_tests
+tmp_dir=$(mktemp -d -t labtainer_tests-XXXXXXXX)
 rm -fr $tmp_dir
 mkdir $tmp_dir
 trunk=$tmp_dir/trunk
@@ -24,4 +28,4 @@ $here/fix-git-dates.py simlab $tmp_dir $branch
 #git archive master simlab | tar -x -C $tmp_dir
 cd $tmp_dir
 tar czf /tmp/labtainer-tests.tar trunk simlab
-mv /tmp/labtainer-tests.tar /media/sf_SEED/
+mv /tmp/labtainer-tests.tar $myshare
