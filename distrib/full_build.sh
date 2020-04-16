@@ -9,7 +9,7 @@ if [[ "$branch" == "master" ]]; then
     echo "Do not full_build as the master branch."
     exit 1
 fi
-
+git pull || exit 1
 ./mkall.sh -q
 result=$?
 if [[ $result != 0 ]]; then
