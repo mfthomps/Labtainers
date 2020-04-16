@@ -6,18 +6,22 @@ pipeline {
     LABTAINER_DIR = "${env.WORKSPACE}/Labtainers"
    }
    stages {
-       /*
-      stage('makeall') {
-         steps {
-            sh "${repo}/distrib/checkAndMake.sh"
-         }
-      }
-      */
+  
       stage('buildlabs'){
           steps{
               sh "${repo}/distrib/cloneOrPull.sh"
               dir('Labtainers/distrib'){
                   sh "./publish.py -q"
+              }
+          }
+      }
+      stage{'makedist'){
+          steps{
+              dir('Labtainers/distrib'){
+                  sh "./mkdist.sh"
+              }
+              dir('Labtainers/distrib'){
+                  sh "./mk-devel-dist.sh"
               }
           }
       }
