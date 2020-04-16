@@ -118,6 +118,7 @@ class ParseStartConfig():
             self.publish = None
             self.hide = "no"
             self.tap = "no"
+            self.kick_me = None  # hack for gns3 cloud interfaces that need a ping to wtfu
             self.mystuff = "no"
             self.logger = logger
             self.did_nets = []

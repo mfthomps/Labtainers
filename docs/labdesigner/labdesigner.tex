@@ -2255,7 +2255,8 @@ The following assumes your VM has a virtual Ethernet interface named {\tt enp0s3
 Alternately you could define the VM to share a physical host network, but that is outside the scope of this example.
 
 Define a component within your Labtainers lab that is be remotely accessed, e.g., a workstation or router, and assign it an IP
-address on the {\tt enp0s3} interface subnet, e.g., {\tt 10.0.2.100}.  Then, 
+address on the {\tt enp0s3} interface subnet, e.g., {\tt 10.0.2.100}.  Within the start.config file, provide the container with
+the {\tt KICK\_ME <LAN>} attribute, where LAN is the name of the network intended to be connected to the cloud component.  Then, 
 when defining the GNS3 network topology, i.e., creating and connecting links: 
 
 \begin{itemize}
