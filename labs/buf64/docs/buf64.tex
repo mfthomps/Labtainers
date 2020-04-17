@@ -1,0 +1,89 @@
+\input{header}
+\begin{document}
+
+\begin{center}
+{\LARGE Buffer Overflow: 64 Bit Application}
+\vspace{0.1in}\\
+\end{center}
+
+\section{Overview}
+The {\tt bufoverflow} lab introduced you to buffer overflow vulnerabilities and potential exploits of those
+vulnerabilities.  That lab included a vulnerable program that ran as a 32-bit x86 application.  
+This lab includes the very same vulnerable program source code, however it compiles and runs as a 64-bit application.
+
+\subsection {Background}
+The student is expected to have an understanding of the Linux command line, and some amount of low level programming.
+It is expected that the student will have completed the {\tt bufoverflow} lab.
+
+\section{Lab Environment}
+\label{environment}
+This lab runs in the Labtainer framework,
+available at http://nps.edu/web/c3o/labtainers.
+That site includes links to a pre-built virtual machine
+that has Labtainers installed, however Labtainers can
+be run on any Linux host that supports Docker containers.
+
+From your labtainer-student directory start the lab using:
+\begin{verbatim}
+    labtainer buf64
+\end{verbatim}
+\noindent A link to this lab manual will be displayed.  
+
+The home directory of the resulting computer contains the source code of the vulnerable program ({\tt stack.c}) and
+a template for the program that constructs the malicious data file ({\tt exploit.c}).  It also includes files for generating
+shell code.  
+
+\section{Tasks}
+You will modify the {\tt exploit.c} program such that it generates a malicious data file that will cause the
+vulnerable program to enter a shell.  This lab does not require that you get a root shell -- an application shell
+is sufficient.  And your exploit need only run with Address Space Layout Randomization disabled, with an executable
+stack, and with stack protection disabled.
+
+A learning objective of this lab is to appreciate some of the differences between 32-bit and 64-bit x86 applications,
+and how those differences might affect vulnerabilities and exploits.
+
+
+\subsection{Explore}
+Review the differences between the files in this lab, and the files in the {\tt bufoverflow} lab.  Note the {\tt stack.c}
+files are the same -- but with potentially different buffer sizes.  Look at the assembly in {\tt shell.c} and compare that
+to the assembly comments to the object code found in the {\tt bufoverflow exploit.c} file.
+
+Disable ASLR:
+\begin{verbatim}
+  sudo sysctl -w kernel.randomize_va_space=0
+\end{verbatim}
+\noindent and use the {\tt compile.sh} script to compile the C programs and assemble the shell.asm
+Run the {\tt stack} program.  Run it in the debugger.  Explore.
+
+\subsection{Shell code}
+In this lab, you will need to update the {\tt exploit.c} program to include the shell code.  Observe that the 64-bit
+shell code has been assembled into the shell.bin file.  You must figure out how to get that into your {\tt exploit.c}
+program.  Note you have been provided with a Python script called {\tt hexit.py}, and that may be of use.  Look at the
+file from the {\tt bufoverflow} lab as an example.
+
+\subsection{Overwriting return address}
+By now you should have observed that the {\tt stack} program crashes when it encounters a bad return address.
+As in the {\tt bufoverflow} lab, you will want to control that return address value.
+
+What might you want that return address value to be?  Consider the properties of such a value and how that might
+affect the {\tt strcpy} function behavior.
+
+\subsection{Get a shell}
+Alter the {\tt exploit.c} so that it generates a badfile that causes the {\tt stack} application to give you  a shell.
+Once you get a shell, cat the exploit.c file from within the shell:
+\begin{verbatim}
+   cat exploit.c
+\end{verbatim}
+
+\subsection{Follow on}
+Think about how you might approach an exploit if the {\tt stack.c} program were compiled without disabling stack protection
+and stack execution.
+
+\section{Submission}
+After finishing the lab, go to the terminal on your Linux system that was used to start the lab and type:
+\begin{verbatim}
+    stoplab 
+\end{verbatim}
+When you stop the lab, the system will display a path to the zipped lab results on your Linux system.  Provide that file to 
+your instructor, e.g., via the Sakai site.
+\end{document}
