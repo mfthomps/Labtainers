@@ -2799,7 +2799,11 @@ The {\tt smoketest.py} utility automates regression testing of labs.  It will au
 labtainer/simlab/<labname>/expected/
 \end{verbatim}
 \end{itemize}
+\noindent Populate the expected results with the results from the labtainer\_xfer directory after you've
+manually determine the results you desire.
 If {\tt smoketest.py} is started with no parameters, it will iterate through each lab in the labs
 directory.  The that lab lacks {\tt simthis.txt} file, then the lab is simply started and stopped
 (hence the tool's name).  The tool will stop upon encountering the first error.
+If a lab's simlab includes an expected directory it will compare the results and report on whether they match.
+If no expected results are found, no status is displayed (unless an error is encountered.)
 \end{document}
