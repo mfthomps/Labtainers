@@ -592,6 +592,8 @@ value for that env variable.  An updated update-labtainer.sh fixes that.  But up
 After the first run of update-labtainer, the imodule function will be available, but without the value being set.  Add diagnostic to imodule to
 prompt for re-run of update-labtainer.  Or just hack around it?
 
+Validation of goals.config should catch answer fields that lack syntax, e.g., foo rather than answer=foo
+
 \subsection {Build dependence}
 The home\_tar and sys\_tar files as considered for build dependence.  But the home.tar and sys.tar are skipped because they are remade
 from a fresh pull.  This is a problem when we add dated archives.  Must rebuild with a -f.
