@@ -559,7 +559,11 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
             output = ps.communicate()
             #labutils.logger.debug("Command was (%s)" % cmd)
             if len(output[1]) > 0:
-                labutils.logger.debug("Error from command %s was  '%s'" % (cmd, output[1].decode('utf-8')))
+                if 'running container' in output[1].decode('utf-8'):
+                    labutils.logger.debug("Error from command %s was  '%s'" % (cmd, output[1].decode('utf-8')))
+                    exit(1)
+                else:
+                    labutils.logger.debug("non-fatal Error from command %s was  '%s'" % (cmd, output[1].decode('utf-8')))
 
         if container.from_image is not None:
             labutils.logger.debug('skip image taken from %s' % container.from_image)
