@@ -124,6 +124,15 @@ def getTags(image, token):
     else:
         return None
 
+def reachDockerHub():
+    cmd = 'curl --silent "https://docker.io"'
+    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if len(output[0].strip()) > 0:
+        return True
+    else:
+        return False
+
 def getToken(image):
     cmd = 'curl --silent "https://auth.docker.io/token?scope=repository:%s:pull&service=registry.docker.io"' % (image) 
     #cmd = 'curl --silent "https://auth.docker.io/token?service=registry.docker.io&scope=repository:%s:pull,push"' % (image)
@@ -136,6 +145,9 @@ def getToken(image):
         j = json.loads(jstring)
         return j['token']
         #return j['access_token']
+    elif len(output[1].strip()) > 0:
+        print('getToken error %s' % output[1])
+        return None
     else:
         return None
 
