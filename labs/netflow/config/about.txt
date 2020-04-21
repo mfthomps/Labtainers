@@ -1,1 +1,1 @@
-Explort the NetFlow network traffic protocol and data record type using the CMU SiLK software suite.
+Explore the NetFlow network traffic protocol and data record type using the CMU SiLK software suite.
