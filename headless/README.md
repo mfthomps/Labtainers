@@ -1,4 +1,5 @@
-#labtainer.headless
+Labtainer Headless Mode
+==================================
 
 Install
 0. Build the fresh-nginx:latest
