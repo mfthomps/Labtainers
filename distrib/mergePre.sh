@@ -6,6 +6,12 @@
 #   -- Creates student and designer distribution from master
 #   -- Pushes premaster and master to github
 #
+branch=$(git rev-parse --abbrev-ref HEAD)
+if [[ "$branch" != "premaster" ]]; then
+    echo "Current branch is not premaster."
+    exit 1
+fi
+git pull
 git checkout master || exit 1
 git merge premaster || exit 1
 ./mkall.sh -q || exit 1
