@@ -1,6 +1,8 @@
 Labtainer Headless Mode
 ==================================
 
+NOTE: this is a work in progress and will be refined over the next few months(summer 2020).  This is not for production, but for dev environments only at this time.
+
 Install steps
 
 1. Optional: rebuild the fresh-nginx:latest
