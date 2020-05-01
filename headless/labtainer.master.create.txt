@@ -1,0 +1,11 @@
+1. move motd docker-entrypoint and wait-for-it.sh into the following directory on labtainer vm: ~/labtainer/trunk/scripts/designer/workspace_master$
+
+2. move the repo file: Dockerfile.labtainer.master to ~/labtainer/trunk/scripts/designer/base_dockerfiles/Dockerfile.labtainer.master
+
+3.  add --no-cache to build line of ./create_master_image.sh in following directory on labtainer vm student@ubuntu:~/labtainer/trunk/scripts/designer/bin$ 
+
+4. then, run these, notice location, and change tag number below, to output of create script (prior step)
+
+student@ubuntu:~/labtainer/trunk/scripts/designer/bin$ ./create_master_image.sh
+student@ubuntu:~/labtainer/trunk/scripts/designer/bin$ docker tag 9b7fdaa3a362 harperaa/labtainer.master
+student@ubuntu:~/labtainer/trunk/scripts/designer/bin$ docker push harperaa/labtainer.master
