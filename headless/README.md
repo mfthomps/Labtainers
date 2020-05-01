@@ -41,7 +41,8 @@ This is tied to this bug in linux docker... https://github.com/docker/for-linux/
 * "Base URL" as "http://localhost/"
 * "Admin URL" as "localhost"
 * "Web Origins" as "localhost"
-8. After saving client, using the credentials tab, copy client secret to nginx.conf and then restart the system.
+
+8. After saving client, using the credentials tab, copy client secret to nginx.conf (2 places) and then restart the system.
 
 In the running shell, hit `CTRL-C` to stop the containers, then `docker-compose up` to restart them.
 
