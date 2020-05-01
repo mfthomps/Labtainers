@@ -8,8 +8,10 @@ Install steps
 2. Optional: rebuild the labtainer.master. On labtainer vm, build the labtainer.master file and push it to docker hub, see instructions in labtainer.master.create.txt
 3. When running docker from linux host: you will have to uncomment the following environment variable in nginx section of the docker-compose.yml file, then set a local environment variable to the local IP (real IP, not 127.0.0.1 or localhost).
   Uncomment these lines:
-    `extra_hosts:
-     - "host.docker.internal:$DOCKER_INTERNAL_IP"`
+  
+    `extra_hosts:`
+    ` - "host.docker.internal:$DOCKER_INTERNAL_IP"`
+    
 then, export the environment variable as follows:
 `export DOCKER_INTERNAL_IP=192.168.10.3` (be sure to use your real IP here)
 This is tied to this bug in linux docker... https://github.com/docker/for-linux/issues/264
