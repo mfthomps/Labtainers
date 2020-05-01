@@ -44,5 +44,5 @@ In the running shell, hit `CTRL-C` to stop the containers, then `docker-compose 
 
 10. While you are at it, be sure to change the admin credentials of the main console.
 
-11. Then goto http://localhost/vnc_auto.html and authenticate as that user.
+11. Then goto http://localhost/vnc_auto.html and authenticate as that user you created in step 9.
 
