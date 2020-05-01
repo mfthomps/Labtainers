@@ -43,7 +43,7 @@ services:
 
 
   nginx:
-    image: fresh-nginx:latest
+    image: harperaa/fresh-nginx:latest
     ports:
       - 80:80
     networks:
