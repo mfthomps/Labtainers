@@ -3,9 +3,12 @@ Labtainer Headless Mode
 
 Install steps
 
-1. Build the fresh-nginx:latest
+1. Optional: rebuild the fresh-nginx:latest
+
 `docker build -t fresh-nginx:latest .`
+
 2. Optional: rebuild the labtainer.master. On labtainer vm, build the labtainer.master file and push it to docker hub, see instructions in labtainer.master.create.txt
+
 3. When running docker from linux host: you will have to uncomment the following environment variable in nginx section of the docker-compose.yml file, then set a local environment variable to the local IP (real IP, not 127.0.0.1 or localhost).
   Uncomment these lines:
   
