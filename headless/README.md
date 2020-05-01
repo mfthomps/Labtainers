@@ -10,13 +10,17 @@ Install steps
   Uncomment these lines:
   
     `extra_hosts:`
+    
     ` - "host.docker.internal:$DOCKER_INTERNAL_IP"`
     
 then, export the environment variable as follows:
 `export DOCKER_INTERNAL_IP=192.168.10.3` (be sure to use your real IP here)
 This is tied to this bug in linux docker... https://github.com/docker/for-linux/issues/264
-4. Then, on any linux/mac (someday windows), run the containers: `docker-compose up`
+4. Then, on any linux/mac (someday windows), run the containers: 
+`docker-compose up`
+
 5. After about 30 seconds the system should settle, goto http://localhost:3333 and select "Administration Console", login (using initial credentials of admin/password). 
+
 6. Set up realm of "myrealm". On Realm page, hover over Master realm icon in upper left corner, select "Add New" popup. Name the new realm "myrealm".  
 7. From Client section on left, setup a client called "nginx" with:
 * "Access Type" set to "confidential"
