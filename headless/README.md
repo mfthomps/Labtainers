@@ -39,7 +39,10 @@ This is tied to this bug in linux docker... https://github.com/docker/for-linux/
 8. After saving client, using the credentials tab, copy client secret to nginx.conf and then restart the system.
 
 In the running shell, hit `CTRL-C` to stop the containers, then `docker-compose up` to restart them.
+
 9. Back in Administration Console, under users section on left, create the first user and set password under credentials.
+
 10. While you are at it, be sure to change the admin credentials of the main console.
+
 11. Then goto http:\\localhost/vnc_auto.html and authenticate as that user.
 
