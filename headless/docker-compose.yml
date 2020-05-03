@@ -1,0 +1,81 @@
+version: "3.7"
+
+networks: 
+  mynetwork:
+    name: mynetwork
+    attachable: true    
+
+services:
+  
+  postgres:
+      image: postgres:12.0-alpine
+      volumes:
+        - ./postgres_data:/var/lib/postgresql/data
+      environment:
+        POSTGRES_DB: keycloak
+        POSTGRES_USER: keycloak
+        POSTGRES_PASSWORD: password
+      ports:
+        - 5432:5432
+      networks:
+       - mynetwork
+
+        
+  keycloak:
+    image: jboss/keycloak:7.0.1
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_SCHEMA: public
+      DB_PASSWORD: password
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: password
+      # Uncomment the line below if you want to specify JDBC parameters. The parameter below is just an example, and it shouldn't be used in production without knowledge. It is highly recommended that you read the PostgreSQL JDBC driver documentation in order to use it.
+      #JDBC_PARAMS: "ssl=true"
+    ports:
+      - 3333:8080
+    depends_on:
+      - postgres
+    networks:
+      - mynetwork
+
+
+  nginx:
+    image: harperaa/fresh-nginx:latest
+    ports:
+      - 80:80
+    networks:
+      - mynetwork
+    volumes: 
+      - ./nginx-default.conf:/etc/nginx/conf.d
+#    extra_hosts:
+#      - "host.docker.internal:$DOCKER_INTERNAL_IP"
+
+  novnc:
+    image: psharkey/novnc:latest
+    #image: theasp/novnc:latest
+    environment:
+      # Adjust to your screen size
+      - DISPLAY_WIDTH=1600
+      - DISPLAY_HEIGHT=968
+      - RUN_XTERM=no
+    #ports:
+      #- "8080:8080"
+    networks:
+      - mynetwork
+
+  labtainer:
+    image: harperaa/labtainer.master
+    environment:
+      - DISPLAY=novnc:0.0 
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - mynetwork
+    depends_on:
+      - novnc
+    entrypoint: ["/docker-entrypoint"]
+    tty: true
+
