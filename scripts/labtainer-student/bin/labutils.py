@@ -523,7 +523,10 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
             else:
                add_this = '--add-host %s ' % item
                add_hosts += add_this
-        add_host_param = '--add-host my_host:%s %s' % (docker0_IPAddr, add_hosts)
+        if docker0_IPAddr is not None:
+            add_host_param = '--add-host my_host:%s %s' % (docker0_IPAddr, add_hosts)
+        else:
+            add_host_param = ''
         if container.tap == 'yes':
             ''' docker fu when using host networking, sudo hangs looking for host ip? '''
             add_host_param = '--add-host %s:127.0.0.1 %s' % (container.hostname, add_host_param)
