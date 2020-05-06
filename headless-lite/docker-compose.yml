@@ -1,0 +1,34 @@
+version: "3.7"
+
+networks: 
+  mynetwork:
+    name: mynetwork
+    attachable: true    
+
+services:
+  
+  novnc:
+    image: harperaa/novnc-xfce
+    #image: theasp/novnc:latest
+    environment:
+      # Adjust to your screen size
+      - DISPLAY_WIDTH=1600
+      - DISPLAY_HEIGHT=968
+      - RUN_XTERM=no
+    ports:
+      - "8080:8080"
+    networks:
+      - mynetwork
+
+  labtainer:
+    image: harperaa/labtainer.master
+    environment:
+      - DISPLAY=novnc:0.0 
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - mynetwork
+    depends_on:
+      - novnc
+    entrypoint: ["/docker-entrypoint"]
+    tty: true
