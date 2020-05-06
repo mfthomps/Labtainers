@@ -56,7 +56,8 @@ RUN  apt-get install -y --no-install-recommends \
 RUN  apt-get install -y --no-install-recommends \
      less \
      iputils-ping \
-     wget
+     wget \
+     vim
 
 # For gnome-terminal
 RUN  apt-get install -y --no-install-recommends \
@@ -87,6 +88,8 @@ RUN cat bashrc.labtainer.master >>/home/labtainer/.bashrc
 COPY --chown=labtainer:labtainer labutils.py /home/labtainer/labtainer/labtainer-student/bin/
 ENV DISPLAY :0
 ENV NO_AT_BRIDGE=1
+ENV VNCHOST=novnc
+
 COPY  --chown=labtainer:labtainer ./motd /etc/motd
 COPY  --chown=labtainer:labtainer ./docker-entrypoint /
 COPY  --chown=labtainer:labtainer ./wait-for-it.sh /
