@@ -8,7 +8,7 @@ networks:
 services:
   
   novnc:
-    image: harperaa/novnc-xfce
+    image: harperaa/novnc-xfce4
     #image: theasp/novnc:latest
     environment:
       # Adjust to your screen size
