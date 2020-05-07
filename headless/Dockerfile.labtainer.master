@@ -94,3 +94,5 @@ COPY  --chown=labtainer:labtainer ./motd /etc/motd
 COPY  --chown=labtainer:labtainer ./docker-entrypoint /
 COPY  --chown=labtainer:labtainer ./wait-for-it.sh /
 
+RUN chmod 744 /docker-entrypoint
+RUN chmod 744 /wait-for-it.sh
