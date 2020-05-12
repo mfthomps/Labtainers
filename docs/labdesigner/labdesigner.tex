@@ -2747,7 +2747,9 @@ to tab over to the desired terminal tab.
 the given text.  Will timeout and fail after 20 seconds.
 \item \textbf{window\_wait} $<$text$>$ -- Like window, but no timeout.  Intended for
 use when the xterm title is changed by a program.
-\item \textbf{type\_line} $<$text$>$ -- Types the given text.
+\item \textbf{type\_line} $<$text$>$ -- Types the given text followed by a newline.
+\item \textbf{type\_lit} $<$text$>$ -- Types a sequence of keys, replacing grave, minus and space with X11 keysims.
+Followed by a newline.
 \item \textbf{key} $<$keysym$>$ -- Performs a keypress for the given X11 keysim, see
 \url{http://xahlee.info/linux/linux\_show\_keycode\_keysym.html} and 
 \url{https://www.in-ulm.de/~mascheck/X11/keysyms.txt}
