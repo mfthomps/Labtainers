@@ -172,9 +172,27 @@ class SimLab():
             else:
                 cmd = 'type "%s\n"' % (string)
             self.dotool(cmd)
-        #cmd = 'key Return'
-        #self.dotool(cmd)
    
+    def typeString(self, string):
+        #cmd = "type --window %d '%s'" % (self.current_wid, string)
+        ''' xdotool cannot handle a mix of single/double quotes.  '''
+        if '"' in string and "'" in string:
+            parts = string.split("'")
+            count = 0
+            for p in parts:
+                count += 1
+                cmd = "type '%s'" % p
+                self.dotool(cmd)
+                if count < len(parts):
+                    cmd = "key apostrophe"
+                    self.dotool(cmd)
+        else:
+            if '"' in string:
+                cmd = "type '%s'" % (string)
+                #print('cmd is %s' % cmd)
+            else:
+                cmd = 'type "%s"' % (string)
+            self.dotool(cmd)
 
     def multilineCommand(self, line, fh):
         cmd = line
@@ -348,6 +366,8 @@ class SimLab():
             self.typeLine(params.strip())
         elif cmd == 'type_lit':
             self.typeLit(params.strip())
+        elif cmd == 'type_string':
+            self.typeString(params.strip())
         elif cmd == 'type_command':
             self.typeLine(params.strip())
             while isProcRunning(params):
