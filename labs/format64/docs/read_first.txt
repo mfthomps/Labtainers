@@ -1,0 +1,6 @@
+buf64 lab-- Read this first
+
+The lab manual for this lab is at: 
+file://LAB_DOCS/format64.pdf
+Right click on the above link to open the lab manual.
+

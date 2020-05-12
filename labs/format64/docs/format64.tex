@@ -1,0 +1,89 @@
+\input{header}
+\begin{document}
+
+\begin{center}
+{\LARGE Format String: 64 Bit Application}
+\vspace{0.1in}\\
+\end{center}
+
+\section{Overview}
+The {\tt formatstring} lab introduced you to {\tt printf} vulnerabilities and potential exploits of those
+vulnerabilities.  That lab included a vulnerable program that ran as a 32-bit x86 application.  
+This lab includes that same source code with one change, however it compiles and runs as a 64-bit application.
+
+\subsection {Background}
+The student is expected to have an understanding of the Linux command line, and some amount of low level programming.
+It is expected that the student will have completed the {\tt formatstring} lab.
+
+\section{Lab Environment}
+\label{environment}
+This lab runs in the Labtainer framework,
+available at http://nps.edu/web/c3o/labtainers.
+That site includes links to a pre-built virtual machine
+that has Labtainers installed, however Labtainers can
+be run on any Linux host that supports Docker containers.
+
+From your labtainer-student directory start the lab using:
+\begin{verbatim}
+    labtainer format64
+\end{verbatim}
+\noindent A link to this lab manual will be displayed.  
+
+The home directory of the resulting computer contains the source code of the vulnerable 
+program ({\tt vul\_prog.c}) and an executable instance of the program.
+
+\section{Tasks}
+
+A learning objective of this lab is to appreciate some of the differences between 32-bit and 64-bit x86 applications,
+and how those differences might affect printf vulnerabilities and exploits.  Program descriptions and background
+material on {\tt printf} behavior are not repeated here.  Refer to the {\tt formatstring} lab manual to refresh
+your memory.
+
+As with the first task of the {\tt formatstring} lab, address space layout randomization ASLR) will be
+enabled in this lab:
+\begin{verbatim}
+  sudo sysctl -w kernel.randomize_va_space=2
+\end{verbatim}
+
+\subsection{Explore}
+Review the {\tt vul\_prog.c} source code and note its single difference from the version found in the
+{\tt formatstring} lab.  Based on your experience with the {\tt formatstring} lab, explain why this
+source code change was made.
+
+Use the {\tt file} command to display properties of the {\tt vul\_prog} executable.
+Run the {\tt vul\_prog} and observe how its interface looks the same as the version from the {\tt formatstring} lab.
+Execute the program within gdb and explore the stack structures at different points in the program execution.  Use
+the gdb disassemble directive to view the assembly language instructions.
+
+\subsection{Task 1: Exploit the vulnerability}
+The program has the two secret values stored in its memory as were found in the {\tt formatstring} lab.
+You will perform a subset of the tasks from the {\tt formatstring} lab, specifically:
+
+\begin{itemize} 
+\item Print out the secret[1] value.
+\item Modify the secret[1] value to equal 0xa.
+\end{itemize} 
+
+For this lab task, you are not to modify the code. Namely, you need to achieve
+the above objectives without modifying the vulnerable code.  The order and sequence in which 
+you achieve the objectives does not matter.  Feel free to explore and experiment as long as you
+succeed in each at least once.
+
+\subsection{Task 2: Memory randomization}
+In the {\tt formatstring} lab, you modified the source code to eliminate setting the {\tt input\_int}
+variable from user input.  You also disabled ASLR to simplify the process of exploiting the program.  
+Your exploit technique then embedded the secret's address within the input string.  That technique
+will not work in this 64-bit environment.  Why is that?  What is the broader implication for 64-bit
+programs?
+
+\section{Submission}
+After finishing the lab, go to the terminal on your Linux system that was used to start the lab and type:
+\begin{verbatim}
+    stoplab 
+\end{verbatim}
+When you stop the lab, the system will display a path to the zipped lab results on your Linux system.  Provide that file to 
+your instructor, e.g., via the Sakai site.
+
+\copyrightnotice
+
+\end{document}
