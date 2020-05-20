@@ -166,6 +166,7 @@ def usage():
     sys.stderr.write("1. Any tarball '*.tar.gz' in the lab directory, i.e., <lab>/*.tar.gz files\n")
     sys.stderr.write("2. Any tar list file, i.e., <lab>/config/*_tar.list files\n")
     sys.stderr.write("3. Any empty tar file, i.e., <lab>/<containers>/*tar/*.tar files\n")
+    sys.stderr.write("** The gitignore file will be updated to reflect files in bigexternal.txt\n")
     sys.exit(1)
 
 # Usage: cleanlab4svn.py [ -h ]
