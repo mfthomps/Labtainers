@@ -7,4 +7,4 @@ imodules.pdf: imodules.tex
 	pdflatex imodules
 clean:
 	rm -fr auto
-	rm -fr development.aux development.pdf
+	rm -fr *.aux *.pdf *.dvi *.log *.ps *.toc

@@ -324,7 +324,7 @@ designer/base\_dockerfiles directory they are not true base images.
 Only the true base images are included in the initial distribution.  
 In general, avoid changes to a base docker image because doing so could lead some installations
 to include two copies of the base image, which are very much larger than most other Labtainer images.  
-Modifcations to an xtra extension image will not affect existing installations that have run
+Modifications to an xtra extension image will not affect existing installations that have run
 some labs.  Whenever a new lab is started, if it relies on a newer version of the xtra extension, that will be pulled as needed for the 
 lab container images.
 
@@ -593,6 +593,14 @@ After the first run of update-labtainer, the imodule function will be available,
 prompt for re-run of update-labtainer.  Or just hack around it?
 
 Validation of goals.config should catch answer fields that lack syntax, e.g., foo rather than answer=foo
+
+\subsection {Mounts for software persistance}
+Consider labs such as IDA.  For licensing, we have the student perform the installation, which involves accepting
+the license.  It would be nice if subsequently performed IDA labs did not require the student to repeat
+the installation.  And with IDA, students may make configuration changes.  To facilitate this, we define
+one or more {\tt mounts} for containers in the start.config file.  The installation package will be distributed
+within each IDA container, but will be deleted by the fixlocal if it seems to have been installed?
+
 
 \subsection {Build dependence}
 The home\_tar and sys\_tar files as considered for build dependence.  But the home.tar and sys.tar are skipped because they are remade
