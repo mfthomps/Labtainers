@@ -438,6 +438,26 @@ def FindTapMonitor(start_config):
                 return container_name, ip
     return None, None
 
+def HandleVolumes(volume, container):
+    for m in container.mounts:
+        logger.debug('adding volume mount %s' % m)
+        ''' host volume is relative to ~/.local/share/labtainers, container relative to Home unless absolute '''
+        try:
+            hostv, containerv = m.split(':') 
+        except:
+            self.lgr.error('Bad mount definition %s' % m)
+            exit(1)
+        homedir = os.environ['HOME']
+        host_path = os.path.join(homedir, '.local', 'share', 'labtainers', hostv)
+        if not os.path.isfile(host_path):
+            try:
+                os.mkdir(host_path)
+            except:
+                pass
+        container_path = os.path.join('/home', container.user, containerv) 
+        volume = volume + ' -v %s:%s:rw' % (host_path, container_path)
+    return volume
+
 def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_name=None, mysubnet_ip=None, quiet=False):
     ''' create a single container -- or all clones of that container per the start.config '''
     logger.debug("Create Single Container for %s" % container.name)
@@ -494,6 +514,7 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
             volume = volume+' --env="DISPLAY"  --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw"'
             logger.debug('container using X11')
 
+        volume = HandleVolumes(volume, container)
         if container.mystuff.lower() == 'yes':
             here = os.getcwd()
             mystuff_dir = os.path.join(here, 'mystuff')
@@ -1003,7 +1024,7 @@ def imageInfo(image_name, registry, base_registry, labtainer_config, is_rebuild=
             else:
                 created, user, version, use_tag = InspectRemoteReg.inspectRemote(with_registry, logger, 
                                   is_rebuild=is_rebuild, quiet=quiet, no_pull=no_pull, base_registry=base_registry)
-                if created is None:
+                if created is None and not is_rebuild:
                     if not InspectRemoteReg.reachDockerHub():
                         logger.error('Unable to reach DockerHub.  \nIs the network functional?\n')
             if created is not None:

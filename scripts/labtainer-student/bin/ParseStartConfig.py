@@ -122,6 +122,7 @@ class ParseStartConfig():
             self.mystuff = "no"
             self.logger = logger
             self.did_nets = []
+            self.mounts = []   # persist licensed sw installations across labs, e.g., IDA
 
         def add_net(self, name, ipaddr):
             self.container_nets[name] = ipaddr
@@ -251,6 +252,8 @@ class ParseStartConfig():
                     active = self.containers[val]
                 elif key == 'add-host':
                     active.add_hosts.append(val)
+                elif key == 'mount':
+                    active.mounts.append(val)
                 elif hasattr(active, key):
                     setattr(active, key, val) 
                 else:
