@@ -1,0 +1,11 @@
+service character_statistics
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/Character_Statistics
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

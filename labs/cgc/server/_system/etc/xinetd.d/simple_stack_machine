@@ -1,0 +1,11 @@
+service simple_stack_machine
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/Simple_Stack_Machine
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

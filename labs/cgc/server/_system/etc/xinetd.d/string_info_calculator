@@ -1,0 +1,11 @@
+service string_info_calculator
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/String_Info_Calculator
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

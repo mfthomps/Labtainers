@@ -1,0 +1,3 @@
+#!/usr/bin/bash
+idafree-7.0/ida64 $@
+

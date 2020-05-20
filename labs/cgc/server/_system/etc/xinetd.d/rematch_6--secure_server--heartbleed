@@ -1,0 +1,11 @@
+service rematch_6--secure_server--heartbleed
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/REMATCH_6--Secure_Server--Heartbleed
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

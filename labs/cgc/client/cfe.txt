@@ -1,0 +1,22 @@
+via unintended means.
+CBID 		As intended 		Description
+CROMU_00046 		Y
+CROMU_00051 		N 		unintended path
+CROMU_00055 		N 		unintended path
+CROMU_00058 		Y
+CROMU_00064 		Y
+CROMU_00065 		N 		unintended path
+CROMU_00073 		N 		unintended path
+CROMU_00088 		N 		unintended vuln
+CROMU_00094 		Y
+CROMU_00095 		N 		unintended vuln
+CROMU_00096 		N 		unintended vuln
+CROMU_00097 		N 		unintended vuln
+CROMU_00098 		Y
+KPRCA_00065 		N 		unintended vuln
+KPRCA_00094 		Y
+NRFIN_00052 		N 		unintended vuln
+NRFIN_00059 		Y
+NRFIN_00063 		Y
+YAN01_00015 		Y
+YAN01_00016 		Y

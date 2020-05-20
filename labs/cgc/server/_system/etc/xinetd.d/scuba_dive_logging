@@ -1,0 +1,11 @@
+service scuba_dive_logging
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/SCUBA_Dive_Logging
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

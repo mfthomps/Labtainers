@@ -1,0 +1,11 @@
+service cloudcompute
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/CLOUDCOMPUTE
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

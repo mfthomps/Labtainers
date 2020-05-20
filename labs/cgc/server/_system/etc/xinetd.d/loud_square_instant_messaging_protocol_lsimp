@@ -1,0 +1,11 @@
+service loud_square_instant_messaging_protocol_lsimp
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/Loud_Square_Instant_Messaging_Protocol_LSIMP
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

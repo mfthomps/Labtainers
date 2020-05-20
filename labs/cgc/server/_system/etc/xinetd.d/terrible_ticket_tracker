@@ -1,0 +1,11 @@
+service terrible_ticket_tracker
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/Terrible_Ticket_Tracker
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

@@ -1,0 +1,11 @@
+service utf-late
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/UTF-late
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

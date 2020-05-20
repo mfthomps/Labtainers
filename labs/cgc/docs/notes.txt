@@ -1,0 +1,24 @@
+A large set of CGC services are included in the lab as xinetd services executing
+on a server.  A client has network access to those services.
+Some services will include their patched versions.  Some will have working PoVs.  Some will have
+both.   Some will include source.  Some polls.
+
+Service		polls	pov	patched	source
+=======         =====   ===     ======= ====== 
+Palindorme	X	X	X	X
+ooo
+
+
+Ida and Ghidra will live on the server, as will Wireshark and gdb.
+Clients will have tool for sending polls.
+And will have sample PoVs (how to throw?  simple python wrapper?)
+Type I PoVs, see crash in server syslog.
+Type II, see disclosure of "secret" page from client script.
+
+Not a competition.  Focus is ability to explore, experiment and build skills.
+The CGC focus was automation of vulnerability discovery and mitigation.  This lab is not
+about any of that.  Rather, the vulnerable CGC services are presented as a set of examples
+that you can explore and experiment with.  Only supported debugger is
+gdb.
+
+Given patched but no source, can you create a PoV?

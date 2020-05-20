@@ -1,0 +1,11 @@
+service flash_file_system
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/Flash_File_System
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

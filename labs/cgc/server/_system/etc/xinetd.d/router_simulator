@@ -1,0 +1,11 @@
+service router_simulator
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/router_simulator
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

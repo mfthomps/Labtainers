@@ -1,0 +1,11 @@
+service square_rabbit
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/Square_Rabbit
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

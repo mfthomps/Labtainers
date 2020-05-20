@@ -1,0 +1,11 @@
+service slur_reference_implementation
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/SLUR_reference_implementation
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

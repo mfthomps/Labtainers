@@ -1,0 +1,11 @@
+service cereal_mixup__a_cereal_vending_machine_controller
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/Cereal_Mixup__A_Cereal_Vending_Machine_Controller
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

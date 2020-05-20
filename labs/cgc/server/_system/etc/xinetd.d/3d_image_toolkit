@@ -1,0 +1,11 @@
+service 3d_image_toolkit
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/3D_Image_Toolkit
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

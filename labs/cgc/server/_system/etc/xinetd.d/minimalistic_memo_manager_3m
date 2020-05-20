@@ -1,0 +1,11 @@
+service minimalistic_memo_manager_3m
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/Minimalistic_Memo_Manager_3M
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

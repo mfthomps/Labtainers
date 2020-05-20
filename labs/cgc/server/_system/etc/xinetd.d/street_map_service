@@ -1,0 +1,11 @@
+service street_map_service
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/Street_map_service
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

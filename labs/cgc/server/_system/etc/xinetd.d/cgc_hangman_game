@@ -1,0 +1,11 @@
+service cgc_hangman_game
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/CGC_Hangman_Game
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

@@ -1,0 +1,11 @@
+service network_file_system_v3
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/Network_File_System_v3
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}
