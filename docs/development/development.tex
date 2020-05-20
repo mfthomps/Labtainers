@@ -508,6 +508,21 @@ Labtainers will use locally-created container images if they are present -- and 
 \section{GNS3 Support}
 Please refer to the guide in {\tt docs/gns3} for information on integrating Labtainers with GNS3.
 
+\section{Dev Ops notes}
+The Jenkins utility and test VMs all run on the Ubuntu18-150 VM (the ``development VM''), which runs on the 
+{\tt mike-Precision-Tower-7910} workstation, which is an Ubuntu 16 distribution.  
+The VM can be remotely started using the {\tt ~/startBigVM.sh} script (TBD make service).
+The {\tt vbox-test-server} service on the workstation will start smoketest VMs in response
+to scripts run on the development VM, e.g., started by Jenkins.
+
+Jenkins is configured to rebuild from GitHub every night.
+
+A cron job is configured to rebuild using the local repo each night.
+An ssh tunnel to the workstation is created to access Jenkins web interface.
+
+Use {\tt vboxmanage list runningvms} to confirm the development VM is running.
+Smoketest logs appear in a shared folder at ~/SEED/smokelogs.
+
 \section {Notes}
 \subsection {Race condition on checklocal.sh output}
 If an mynotify.py event causes an output from checklocal.py, that may conflict with
