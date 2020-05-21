@@ -1,0 +1,11 @@
+service cgc_symbol_viewer_csv
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/CGC_Symbol_Viewer_CSV
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

@@ -1,0 +1,11 @@
+service neural_house
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/Neural_House
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

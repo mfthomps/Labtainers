@@ -1,0 +1,11 @@
+service childs_game
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/Childs_Game
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

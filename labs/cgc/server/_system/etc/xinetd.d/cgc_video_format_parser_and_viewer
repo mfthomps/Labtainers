@@ -1,0 +1,11 @@
+service cgc_video_format_parser_and_viewer
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/CGC_Video_Format_Parser_and_Viewer
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

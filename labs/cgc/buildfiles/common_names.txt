@@ -1,0 +1,109 @@
+Below is an incomplete mapping of CGC service common names to
+the identifiers published on https://www.lungetech.com/cgc-corpus/cfe/
+Not all of the services below were used in CFE, and thus not all are in that corupus.
+		- CROMU_00046: Hug_Game
+		- CROMU_00047: FSK_Messaging_Service
+		- CROMU_00048: Water_Treatment_Facility_Simulator
+		- CROMU_00051: Lazybox
+		- CROMU_00054: ECM_TCM_Simulator
+		- CROMU_00055: Network_File_System
+		- CROMU_00057: Scrum_Database
+		- CROMU_00058: PRU
+		- CROMU_00061: Virtual_Machine
+		- CROMU_00063: LAN_Simulator
+		- CROMU_00064: Thermal_Controller_v2
+		- CROMU_00065: WhackJack
+		- CROMU_00066: Personal_Fitness_Manager
+		- CROMU_00072: Shortest_Path_Tree_Calculator
+		- CROMU_00073: Corinth
+		- CROMU_00076: Monster_Game
+		- CROMU_00077: Network_File_System_v3
+		- CROMU_00078: 3D_Image_Toolkit
+		- CROMU_00079: Query_Calculator
+		- CROMU_00082: Flash_File_System
+		- CROMU_00083: Filesystem_Command_Shell
+		- CROMU_00084: Thermal_Controller_v3
+		- CROMU_00087: Recipe_and_Pantry_Manager
+		- CROMU_00088: FaceMag
+		- CROMU_00092: Facilities_Access_Control_System
+		- CROMU_00093: REMATCH_1--Hat_Trick--Morris_Worm
+		- CROMU_00094: REMATCH_3--Address_Resolution_Service--SQL_Slammer
+		- CROMU_00095: REMATCH_4--CGCRPC_Server--MS08-067
+		- CROMU_00096: REMATCH_5--File_Explorer--LNK_Bug
+		- CROMU_00097: REMATCH_6--Secure_Server--Heartbleed
+		- CROMU_00098: REMATCH_2--Mail_Server--Crackaddr
+		- KPRCA_00062: Multi_User_Calendar
+		- KPRCA_00064: Secure_Compression
+		- KPRCA_00065: OTPSim
+		- KPRCA_00068: Grit
+		- KPRCA_00069: Barcoder
+		- KPRCA_00071: Childs_Game
+		- KPRCA_00073: Pattern_Finder
+		- KPRCA_00074: vFilter
+		- KPRCA_00075: Messaging
+		- KPRCA_00077: Venture_Calculator
+		- KPRCA_00079: Space_Attackers
+		- KPRCA_00081: Fortress
+		- KPRCA_00086: Pac_for_Edges
+		- KPRCA_00087: XStore
+		- KPRCA_00088: Sorter
+		- KPRCA_00091: FailAV
+		- KPRCA_00093: BIRC
+		- KPRCA_00094: ShoutCTF
+		- KPRCA_00097: CML
+		- KPRCA_00099: Neural_House
+		- KPRCA_00100: Finicky_File_Folder
+		- KPRCA_00101: Mount_Filemore
+		- KPRCA_00102: One_Amp
+		- KPRCA_00110: LazyCalc
+		- KPRCA_00111: Blubber
+		- KPRCA_00112: Gridder
+		- KPRCA_00119: Azurad
+		- KPRCA_00120: Terrible_Ticket_Tracker
+		- NRFIN_00043: String_Info_Calculator
+		- NRFIN_00044: Checkmate
+		- NRFIN_00045: Stock_Exchange_Simulator
+		- NRFIN_00046: CLOUDCOMPUTE
+		- NRFIN_00049: Matchmaker
+		- NRFIN_00051: CAT
+		- NRFIN_00052: Overflow_Parking
+		- NRFIN_00053: One_Vote
+		- NRFIN_00054: PTaaS
+		- NRFIN_00055: COLLIDEOSCOPE
+		- NRFIN_00056: EternalPass
+		- NRFIN_00059: Snail_Mail
+		- NRFIN_00061: Rejistar
+		- NRFIN_00063: On_Sale
+		- NRFIN_00064: Dungeon_Master
+		- NRFIN_00065: Game_Night
+		- NRFIN_00066: OUTLAW
+		- NRFIN_00067: Order_Up
+		- NRFIN_00069: Multi_Arena_Pursuit_Simulator
+		- NRFIN_00071: SBTP
+		- NRFIN_00072: A_Game_of_Chance
+		- YAN01_00015: Ghost_In_The_CGC
+		- YAN01_00016: Trust_Platform_Module
+
+		- KPRCA_00055: Matrix math calculator
+		- KPRCA_00056: An interpreter for headscratch language
+		- KPRCA_00057: Glue, a file archiving system
+		- KPRCA_00058: Secure authentication service
+		- KPRCA_00059: Sensor reading software
+		- KPRCA_00060: Simple printer protocol
+		- NRFIN_00028: Software to secure ICS infrastructure
+		- NRFIN_00074: Document rendering engine
+		- NRFIN_00075: Cereal vending machine
+		- NRFIN_00076: Ski resort modeler
+		- NRFIN_00077: Multicast chat server
+		- NRFIN_00078: Eddy text editor
+		- NRFIN_00079: Family tree builder
+		- NRFIN_00080: NOPE tax filing software
+		- NRFIN_00073: CTTP, a reduced overhead web server
+		- CROMU_00070: a GPS package tracking service
+		- CROMU_00071: a flight planning tool
+		- CADET_00001: Simple Palindrome service
+		- EAGLE_00004: Tribute to DEFCON CTF (IPC example)
+		- KPRCA_00001: Gopher-like server
+		- KPRCA_00003: Image compression
+		- YAN01_00002: Tennis ball motion calculator
+

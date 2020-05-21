@@ -1,0 +1,11 @@
+service recipe_and_pantry_manager
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/Recipe_and_Pantry_Manager
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

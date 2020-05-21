@@ -1,0 +1,11 @@
+service rematch_5--file_explorer--lnk_bug
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/REMATCH_5--File_Explorer--LNK_Bug
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

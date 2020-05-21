@@ -1,0 +1,11 @@
+service water_treatment_facility_simulator
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/Water_Treatment_Facility_Simulator
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

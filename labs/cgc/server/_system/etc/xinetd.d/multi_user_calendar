@@ -1,0 +1,11 @@
+service multi_user_calendar
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/Multi_User_Calendar
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

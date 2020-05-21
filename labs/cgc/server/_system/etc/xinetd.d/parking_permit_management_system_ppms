@@ -1,0 +1,11 @@
+service parking_permit_management_system_ppms
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/Parking_Permit_Management_System_PPMS
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

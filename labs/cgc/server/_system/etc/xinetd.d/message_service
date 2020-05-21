@@ -1,0 +1,11 @@
+service message_service
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/Message_Service
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

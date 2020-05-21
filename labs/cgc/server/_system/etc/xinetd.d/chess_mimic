@@ -1,0 +1,11 @@
+service chess_mimic
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/chess_mimic
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

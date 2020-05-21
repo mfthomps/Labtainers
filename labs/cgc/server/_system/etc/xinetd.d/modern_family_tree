@@ -1,0 +1,11 @@
+service modern_family_tree
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/Modern_Family_Tree
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

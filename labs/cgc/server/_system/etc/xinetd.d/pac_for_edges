@@ -1,0 +1,11 @@
+service pac_for_edges
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/Pac_for_Edges
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

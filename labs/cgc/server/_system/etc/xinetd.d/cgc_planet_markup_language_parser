@@ -1,0 +1,11 @@
+service cgc_planet_markup_language_parser
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/CGC_Planet_Markup_Language_Parser
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

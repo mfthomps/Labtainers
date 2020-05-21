@@ -1,0 +1,11 @@
+service dive_logger
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/Dive_Logger
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

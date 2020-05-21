@@ -1,0 +1,11 @@
+service rematch_4--cgcrpc_server--ms08-067
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/REMATCH_4--CGCRPC_Server--MS08-067
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

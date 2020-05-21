@@ -1,0 +1,11 @@
+service on_sale
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/On_Sale
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

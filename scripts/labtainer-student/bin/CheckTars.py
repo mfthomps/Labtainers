@@ -181,10 +181,11 @@ def CheckTars(container_dir, image_name, logger):
                     for f in flist:
                         if f == external:
                             continue
-                        if os.path.isdir(os.path.join(tmp_loc,f)):
-                            shutil.copytree(f , os.path.join(tmp_loc,f))
+                        fpath = os.path.join(tmp_loc,f)
+                        if not os.path.isfile(fpath):
+                            shutil.copytree(f , fpath)
                         else:
-                            shutil.copyfile(f , os.path.join(tmp_loc,f))
+                            shutil.copyfile(f , fpath)
                     ''' something is newer than the tar, need to update tar '''
                     if os.path.isfile(os.path.join('./', external)):
                         expandManifest(full, tar_name)

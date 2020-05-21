@@ -1,0 +1,11 @@
+service cgc_board
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/CGC_Board
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

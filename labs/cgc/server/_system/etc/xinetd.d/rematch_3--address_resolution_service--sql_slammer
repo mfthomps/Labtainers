@@ -1,0 +1,11 @@
+service rematch_3--address_resolution_service--sql_slammer
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/REMATCH_3--Address_Resolution_Service--SQL_Slammer
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

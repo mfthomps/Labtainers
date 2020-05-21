@@ -1,0 +1,11 @@
+service sample_shipgame
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/Sample_Shipgame
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

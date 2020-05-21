@@ -1,0 +1,228 @@
+\input{header}
+\begin{document}
+
+\begin{center}
+{\LARGE Cyber Grand Challenge Services}
+\vspace{0.1in}\\
+\end{center}
+
+\section{Overview}
+A selection of over two hundred vulnerable network services created by DARPA for their 
+Cyber Grand Challenge (CGC)\footnote{\url{https://www.darpa.mil/program/cyber-grand-challenge}}, 
+are available for your exploration and experimentation.  Each of these services include one or more
+deliberately planted vulnerabilities.  The vulnerable services were adapted from 
+the CGC corpus to run within Linux by Trail of Bits\footnote{\url{https://github.com/trailofbits/cb-multios}}.
+
+While these services were created by DARPA for an automated capture-the-flag competition, they represent
+a good collection of memory corruption vulnerabilities that students may explore to better understand
+the properties and mechanics of different types of software flaws.  This lab runs the services
+in a typical client-server environment over a network as \textit{inetd} services.
+
+This collection of services is intended to provide you with examples to explore using static program
+analysis tools as well as debuggers and observation of network traffic.
+
+\subsection {Background}
+The student is expected to have an understanding of the Linux command line, and some amount of low level programming.
+It is expected that the student will have some experience with debuggers and decompilers.
+
+
+\section{Lab Environment}
+\label{environment}
+This lab runs in the Labtainer framework,
+available at http://nps.edu/web/c3o/labtainers.
+That site includes links to a pre-built virtual machine
+that has Labtainers installed, however Labtainers can
+be run on any Linux host that supports Docker containers.
+
+From your labtainer-student directory start the lab using:
+\begin{verbatim}
+    labtainer cgc
+\end{verbatim}
+\noindent A link to this lab manual will be displayed.  
+
+The lab includes two computers, a client and a server.  
+\subsection{Server}
+The \textit{server} runs all of the services as \textit{xinetd}
+services.  This means the services do not execute until a TCP connection is made to the port
+associated with the service.  Each TCP connection gets its own instance of the service.  The
+\textit{client} computer has a network connection to the server, and it includes utilities for
+interacting with services.
+
+The executable binaries for the services are in {\tt /usr/sbin}, as can be seen in the service
+files found in {\tt /etc/xinetd.d/}.  The server includes the Ghidra tool and IDA Free.
+
+Source code for services is in the {\tt \$HOME/challenges} directory.  Each service includes a
+{\tt README.md} file that describes the service and its vulnerabilities.  
+
+\subsection{Client}
+The client computer includes utilities and data sets for interacting with the services.  
+These utilities refer to a {\tt service.map} file that map service names to their TCP port numbers.
+If you create your own scripts or programs to interact with services, consider using that map.
+
+The client includes wireshark for viewing network traffic.
+
+\subsubsection{Service polls}
+The {\tt poll.py}
+script will interact with the service to confirm it is operational (and provide you with sample
+service traffic to help you understand the functions of the service).  The client includes five
+polls per service, and these are named as the integers 1-5.  For example
+{\begin{verbatim}
+    ./poll.py payroll 2
+\end{verbatim}
+\noindent will use the second poll to interact with the payroll service.
+
+\subsubsection{Proofs of vulnerabilities}
+The client includes one or more \textit{proof of vulnerabilities} (PoVs) that exploit software flaws
+identified in the service {\tt README.md} file.  These \textit{PoVs} have one of two forms:
+\begin{itemize}
+\item Type I -- Causes the service to crash with a SEGV.  These crashes can be observed in the
+{\tt /var/log/messages} file, or using gdb.
+\item Type II -- Causes the service to leak 32 bits of ``secret'' data from a page of memory filled
+with random bytes.  The PoV reports this data when successful.
+\end{itemize}
+\noindent The {\tt pov.py} utility on the client executes the PoVs.
+For example, the following will throw the first POV against the payroll services:
+\begin{verbatim}
+   ./pov.py payroll 1
+\end{verbatim}
+\noindent Use of the {\tt -d} option will delay network reading and writing for the given
+number of seconds.  This is intended to let you attach to the service using gdb.
+
+\section{Tasks}
+This exercise is intended to be self directed and at your own pace.  The suggestions below may aid
+your exploration.
+
+\subsection{Review services}
+Browse through the services by reading the {\tt README.md} files in the {\tt \$HOME/challenges} directory
+on the server.  Perhaps start with ``easy'' services such as {\tt Palindrome}.  Many of these
+services were part of the the CGC Final Event.  You can learn about which of those services
+were successfully exploited during the CGC from this web page:
+https://www.lungetech.com/cgc-corpus/cfe   The service identifiers on that page can be 
+(mostly) mapped to their ``common names'' using the {\tt \$HOME/common\_names.txt} file on the client.
+
+The service source code can be viewed along with the {\tt README.md} files.  Note the source code
+uses {\tt ifdef} constructs to either introduce or patch each vulnerability.  The patched instances
+of each executable have the same name as the vulnerable instance within the {\tt /usr/sbin} directory, 
+but with a {\tt \_patched} suffix.
+
+Comparing the vulnerable source code to the patched source code, and comparing vulnerable binaries
+to patch binaries, can be very helpful toward understanding different types of software flaws.
+
+At this point it is worth repeating that this lab is about exploration.  No attempt is made to hide
+information from the student.  It is entirely up to you to hide information from yourself.  
+For example, pick a service
+and try to understand its behavior without referring to the source code. 
+
+
+\subsection{Disassemble using Ghidra}
+If you are not familiar with Ghidra, consider performing the Labtainers {\tt ghidra} lab.
+The Ghidra tool is installed on the server, and can be started using the {\tt ./ghidra} command
+in the home directory.  Your default project directory is {\tt \$HOME/mystuff/ghidra}, which allows your
+Ghidra data to persist beyond the life of the server container.  Create a project with the name of
+one of your selected services.  Once you've created the project, use the {\tt File/Importfile} menu
+option to import the executable binary from {\tt /usr/sbin}.  Then double-click on the newly imported
+file and direct Ghidra to perform analyis.
+
+You will note that the resulting analysis includes a symbols (e.g., helpful variable names).  Consider
+challenging yourself by creating and analyzing a \textit{stripped} version of the binary using the
+Unix {\tt strip} command.
+
+\subsection{Disassemble using IDA Free}
+If you have not yet install IDA Free in a Labtainers lab, you can do so by running the 
+{\tt idafree70\_linux.run} program in your home directory on the server.  Your home directory
+will have a idafree-7.0 subdirectory which is shared with the host, thereby letting you share
+this IDA installation with other Labtainer labs.  After installing IDA, use the {\tt ./ida} command
+in your home directory to start IDA.  For example:
+\begin{verbatim}
+    ./ida /usr/sbin/payroll
+\end{verbatim}
+\noindent \textbf{NOTE:} If windows appear black or as noise, try resizing them.  If they do not resize, closing
+them usually works.
+
+When you first open an executable, IDA will display an error message telling you to choose
+a different directory for the database.  Select the {\tt \$HOME/mystuff/ida} directory so that your IDA
+databases persist.  After you've used IDA to analyze a given executable, you can open it later
+by giving IDA the name of the database, e.g,
+\begin{verbatim}
+   ./ida mysuff/ida/payroll.64
+\end{verbatim}
+
+\subsection{Observe network traffic}
+Start wireshark on the client and capture traffic on eth0.  Then run a poll, e.g.,
+\begin{verbatim}
+    ./poll.py payroll 1
+\end{verbatim}
+\noindent Note that some services use a binary protocol, making it more challenging to understand
+by looking at wireshark captures.
+
+Poll traffic is generated by XML files found in {\tt \$HOME/challenges/<service>/polls}.   View those
+files to help you understand the protocols.   Consider modifying these files to alter the interaction
+with the service.  You may also add a {\tt delay} directive to delay traffic while you attach a debugger
+to the service, e.g., add:
+\begin{verbatim}
+    <delay>10000</delay>
+\end{verbatim}
+\noindent as the first item in the {\tt replay} section of the XML to delay for ten seconds, during which time you could issue this command in the server:
+\begin{verbatim}
+    gdb -p `pgrep payroll`
+\end{verbatim}
+
+Note that gdb is configured (in the {\tt /etc/gdb/gdbinit} file), to provide you with source
+code.  Consider trying debug sessions by first moving the source code (or changing the directive)
+so that you cannot see the source from gdb.  Also consider using the {\tt strip} command to
+remove symbols from some executables.
+
+\subsection{Review PoVs}
+The PoVs available on the client are artifacts from the CGC, in which the authors of vulnerable
+services were required to create example PoVs for each of the deliberately planted service 
+vulnerabilities\footnote{Services also include unintended vulnerabilities common to most
+software development} .  These
+are executable x86 binaries whose source code can be found along side the service source code on
+the server.  The lab environment does not support recompilation of the PoVs.  Consider creating 
+your own tool for generating PoVs.  You can then use the PoV source code to reproduce and expand
+on the sample PoVs, e.g., to take control of an exploited service.
+
+\subsection{Debug service during exploit}
+Use the {\tt pov.py} command to exploit a service.  For example,
+\begin{verbatim}
+    ./pov.py payroll 1 -d 10
+\end{verbatim}
+\noindent And then run this on the server to attach gdb to the service:
+\begin{verbatim}
+    gdb -p `pgrep payroll`
+\end{verbatim}
+If you direct gdb to continue the process, you will see a SEGV (for Type I PoVs).  You can also observe the
+crash in the {\tt /var/log/messages} log.  Type II PoVs do not crash.  They leak ``secret'' information
+from a specific memory page and continue.  The output of the {\tt pov.py} function will tell you the
+location of the page, and the value that was leaked.  It does not tell you the address of the leaked value,
+for that you might use scripting within gdb to find the address of the leaked value, and then set a
+hardware breakpoint on reads of that address to find where the leak occurs.
+
+Consider configuring gdb to not include source code, and the use of stripped binaries to give
+you a better feel for real world analysis.
+
+\subsection{Reverse a patch}
+When vendors release patched versions of applications, those patches can be compared to unpatched
+versions of the software to understand the flaw being patched.  Without referring to source code,
+and using stripped binaries, compare the vulnerable executables to the patched instances.  Attempt
+to use that comparison to create your own PoV.
+
+\subsection{Limitations and notes}
+The CGC included some vulnerable services that ran as two or more processes, communicating through
+shared pipes.  This lab does not include any of those services.
+
+The CGC Archive site includes PoVs and patched services submitted by the automated competitors during
+the competition.  Those executables are linked to run within the DECREE execution environment, and
+thus do not run on Linux. 
+
+\section{Submission}
+After finishing the lab, go to the terminal on your Linux system that was used to start the lab and type:
+\begin{verbatim}
+    stoplab 
+\end{verbatim}
+When you stop the lab, the system will display a path to the zipped lab results on your Linux system.  Provide that file to 
+your instructor, e.g., via the Sakai site.
+
+\copyrightnotice
+
+\end{document}

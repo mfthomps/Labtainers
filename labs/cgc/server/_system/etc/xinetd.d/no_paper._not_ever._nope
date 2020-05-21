@@ -1,0 +1,11 @@
+service no_paper._not_ever._nope
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/No_Paper._Not_Ever._NOPE
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

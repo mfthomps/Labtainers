@@ -1,0 +1,11 @@
+service fsk_bbs
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/FSK_BBS
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}

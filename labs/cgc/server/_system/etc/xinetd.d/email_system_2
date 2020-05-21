@@ -1,0 +1,11 @@
+service email_system_2
+{
+    flags = REUSE
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/sbin/Email_System_2
+    log_on_failure += USERID
+    log_on_success += USERID
+    disable = no
+}
