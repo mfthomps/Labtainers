@@ -31,7 +31,7 @@ POSSIBILITY OF SUCH DAMAGE.
 Utilities for managing Labtainer bases
 '''
 import os
-def getBaseList():
+def getBaseList(skip_exempt=True):
     retval = []
     labtainer_dir= os.getenv('LABTAINER_DIR')
     if labtainer_dir is None:
@@ -53,7 +53,7 @@ def getBaseList():
             image_name = base.split('.',1)[1]
             image_ext = image_name.split('.',1)[1]
             #print(image_name) 
-            if image_name not in exempt_list:
+            if not skip_exempt or image_name not in exempt_list:
                 retval.append(image_name)
     return retval
 
