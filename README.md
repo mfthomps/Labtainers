@@ -72,6 +72,15 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+May 21, 2020
+- Move all repositories to the Docker Hub labtainers registry
+- Support mounts defined in the start.config to allow persistent software installs
+- Change ida lab to use persistent installation of IDA -- new name is ida2
+- Add cgc lab for exploration of over 200 vulnerable services from the DARPA Cyber Grand Challenge
+- Add type\_string command to SimLab
+- Add netflow lab for use of NetFlow network traffic analysis
+- Add 64-bit versions of the bufoverflow and the formatstring labs
+
 April 9, 2020
 - Grader failed assessment of CONTAINS and FILE\_REGX conditions when wildcards were used for file selection.
 - Include hints for using hexedit in the symlab lab.
