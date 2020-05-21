@@ -13,7 +13,8 @@ function contains() {
     return 1
 }
 rootdir=`pwd`
-mkdir -p /tmp/labtainer_pdf
+LABPDF=/tmp/labtainer_pdf_$USER
+mkdir -p $LABPDF
 skip="distrib/skip-labs"
 skiplist=""
 lines=`cat $skip`
@@ -26,12 +27,12 @@ for lab in $llist; do
     if [ $(contains "${skiplist[@]}" $lab) != "y" ]; then
         echo "lab is $lab in dir `pwd`"
         mkdir -p $labs/$lab
-        mkdir -p /tmp/labtainer_pdf/$lab
+        mkdir -p $LABPDF/$lab
         cd $labs/$lab
         if [[ -d docs ]]; then
             echo "lab is $lab"
             cd docs
-            cp -p /tmp/labtainer_pdf/$lab/*.pdf .
+            cp -p $LABPDF/$lab/*.pdf .
             if [[ -f Makefile ]]; then
                 make
             else
@@ -40,9 +41,9 @@ for lab in $llist; do
                     soffice --convert-to pdf $doc --headless
                 fi
             fi
-            cp -p *pdf /tmp/labtainer_pdf/$lab/
+            cp -p *pdf $LABPDF/$lab/
         else
-            cp */instructions.txt /tmp/labtainer_pdf/$lab/ 2>/dev/null
+            cp */instructions.txt $LABPDF/$lab/ 2>/dev/null
         fi
         cd $rootdir
     fi
