@@ -1,10 +1,7 @@
-all: development.pdf imodules.pdf
+all: development.pdf 
 development.pdf: development.tex
 	pdflatex development
 	pdflatex development
-imodules.pdf: imodules.tex
-	latex imodules
-	pdflatex imodules
 clean:
 	rm -fr auto
 	rm -fr *.aux *.pdf *.dvi *.log *.ps *.toc

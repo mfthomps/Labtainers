@@ -373,6 +373,16 @@ the merge completes and the premaster is merged into the master.
 Development of new features and fixes occur within development branches.
 New branches are made off of the premaster branch, but not during a premaster merge.
 
+Remove local branches with:
+\begin{verbatim}
+    git branch -d <branch>
+\end{verbatim}
+\noindent Or use the {\tt -D} option to force deletion.  But, that not needed if the branch was properly merged.
+Remove remote branches with 
+\begin{verbatim}
+    git push origin --delete <branch>
+\end{verbatim}
+
 \subsection{Test registries}
 The test registries are used to test the premaster and development branches of Labtainers.
 
@@ -466,24 +476,14 @@ Note there is no synchronization scheme to coordinate between the publishing of 
 DockerHub.  In some cases, there may be a window in which a Labtainer installation gets a distribution that names
 a lab that is not yet on DockerHub.
 
-\subsection{Remove unused branches}
-Remove local branches with:
-\begin{verbatim}
-    git branch -d <branch>
-\end{verbatim}
-\noindent Or use the {\tt -D} option to force deletion.  But, that not needed if the branch was properly merged.
-Remove remote branches with 
-\begin{verbatim}
-    git push origin --delete <branch>
-\end{verbatim}
 
-\section{Continuous integration with Jenkins}
+\subsection{Continuous integration with Jenkins}
 A Jenkins pipeline automates periodic testing of {\tt premaster} branch of Labtainers.  The pipeline script is backed up in
 {\tt tesetsets/bin/jenkins\_pipeline.txt}.   The pipeline pulls from the premaster branch of the GitHub repo.  It builds any
 changed lab images (**TBD flag those to remind to merge the premaster registry into the master).  It then generates the
 student and designer distributions and uses those to run the smoketest VMs.
 
-\subsection{Jenkins installation}
+\subsubsection{Jenkins installation}
 The stock Jenkins is installed on the development VM.
 After installing Jenkins, add the jenkins user to the vboxfs and the docker groups
 \begin{verbatim}
