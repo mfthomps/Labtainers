@@ -27,7 +27,7 @@ for line in $lines; do
     lab=$(basename $line)
     skiplist+=($lab)
 done
-mkdir -p /tmp/labtainer_pdf
+mkdir -p /tmp/labtainer_pdf_$USER
 here=`pwd`
 cd ../
 rootdir=`pwd`
@@ -75,7 +75,7 @@ for lab in $llist; do
         fi
     fi
 done
-distrib/mk-lab-pdf.sh $labs &> /tmp/mk-lab-pdf.log
+distrib/mk-lab-pdf.sh $labs &> /tmp/mk-lab-pdf_$USER.log
 result=$?
 echo "result of mk-lab-pdf is $result"
 if [ $result -ne 0 ]; then
@@ -92,18 +92,18 @@ ln -s trunk/setup_scripts/update-labtainer.sh .
 ln -s trunk/setup_scripts/update-designer.sh .
 
 cd $ldir/trunk/docs/student
-make &> /tmp/mkstudent.out
+make &> /tmp/mkstudent_$USER.out
 cp labtainer-student.pdf ../../../
 cp labtainer-student.pdf $myshare
 
 cd $ldir/trunk/docs/instructor
-make &> /tmp/mkins.out
+make &> /tmp/mkins_$USER.out
 cp labtainer-instructor.pdf ../../../
 cp labtainer-instructor.pdf $myshare
 
 cd $ldir/trunk/tool-src/capinout
 pwd
-./mkit.sh &> /tmp/mkit.out
+./mkit.sh &> /tmp/mkit_$USER.out
 cd $ddir
 tar -cz -X $here/skip-labs -f $here/labtainer.tar labtainer
 cd /tmp/
