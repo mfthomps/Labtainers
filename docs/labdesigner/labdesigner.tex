@@ -388,7 +388,7 @@ The first line of each Dockerfile identifies the baseline Labtainer image to be 
 The initial default image is a basic Ubuntu system with a minimal set of packages.  To use an
 alternate image having additional networking packges (e.g., tcpdump, xinetd, sshd), change the first line to:
 \begin{verbatim}
-FROM mfthomps/labtainer.network
+FROM $registry/labtainer.network
 \end{verbatim}
 \noindent Other alternate images include:
 \begin{itemize}
