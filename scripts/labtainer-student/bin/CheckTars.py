@@ -158,9 +158,9 @@ def CheckTars(container_dir, image_name, logger):
                     os.chdir(tmp_loc)
                     full_tar = os.path.join(full, tar_name)
                     if f == 'home_tar':
-                        cmd = 'tar czf %s `ls -A -1` > %s' % (full_tar, manifest)
+                        cmd = 'tar czf %s --owner=:1000 --group=:1000 `ls -A -1` > %s' % (full_tar, manifest)
                     else:
-                        cmd = 'tar czf %s `ls -A -1`' % (full_tar)
+                        cmd = 'tar czf %s --owner=root --group=root `ls -A -1`' % (full_tar)
                     os.system(cmd)
                     logger.debug('did %s' % cmd)
             else:
