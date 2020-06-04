@@ -337,7 +337,7 @@ def GetContainerCloneNames(container):
             retval[fullname] = hostname
     return retval
        
-def GetDNS(): 
+def GetDNSXXX(): 
     dns_param = ''
     dns_param = '--dns=8.8.8.8'
     cmd="nmcli dev show | grep 'IP4.DNS'"
@@ -346,6 +346,18 @@ def GetDNS():
     if len(output[0]) > 0: 
         for line in output[0].decode('utf-8').splitlines(True):
             dns_param = '--dns=%s %s' % (line.split()[1].strip(), dns_param)
+            ''' just take first '''
+            break
+    return dns_param
+def GetDNS(): 
+    dns_param = ''
+    dns_param = '--dns=8.8.8.8'
+    cmd="systemd-resolve --status | grep 'DNS Servers:'"
+    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if len(output[0]) > 0: 
+        for line in output[0].decode('utf-8').splitlines(True):
+            dns_param = '--dns=%s %s' % (line.split()[2].strip(), dns_param)
             ''' just take first '''
             break
     return dns_param

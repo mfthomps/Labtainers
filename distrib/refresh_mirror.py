@@ -143,7 +143,7 @@ def doUpdateOrRefresh(local_registry, remote_registry, args, lgr):
             exit(1)
 
     if not args.refresh and not args.no_copy:
-        os.system('docker login -u %s' % remote_registry)
+        os.system('docker login') 
 
     ldir = os.getenv('LABTAINER_DIR')
     if ldir is None:
