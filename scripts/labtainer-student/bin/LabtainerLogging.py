@@ -58,6 +58,18 @@ class LabtainerLogging():
         self.logger.setLevel(file_log_level)
         formatter = logging.Formatter('[%(asctime)s - %(levelname)s : %(message)s')
         ldir = os.getenv('LABTAINER_DIR')
+        if ldir is not None:
+            if not os.path.isdir(ldir):
+                print('Warning, LABTAINER_DIR value %s is not a directory' % ldir)
+                ldir =  os.path.join(os.getenv('HOME'), 'labtainer', 'trunk')
+                if not os.path.isdir(ldir):
+                    print('Unable to find LABAINER_DIR, be sure env variable is set.')
+                    exit(1)
+        else:
+            ldir =  os.path.join(os.getenv('HOME'), 'labtainer', 'trunk')
+            if not os.path.isdir(ldir):
+                print('Unable to find LABAINER_DIR, be sure env variable is set.')
+                exit(1)
         if ldir is not None and not logfilename.startswith(ldir):
            if logfilename.startswith('/tmp/'):
                logfilename = logfilename[5:]
