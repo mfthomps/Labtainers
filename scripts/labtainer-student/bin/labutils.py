@@ -208,7 +208,7 @@ def DoCmd(cmd):
     output = ps.communicate()
     retval = True
     if len(output[1]) > 0:
-        logger.error(output[0].decode('utf-8'))
+        logger.error(output[1].decode('utf-8'))
         retval = False
     if len(output[0]) > 0:
         logger.debug(output[0].decode('utf-8'))

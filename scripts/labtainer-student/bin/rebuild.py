@@ -282,7 +282,10 @@ def BaseImageTime(dockerfile, registry):
             if line.strip().startswith('FROM'):
                 parts = line.strip().split()
                 image_name = parts[1]
-                image_name = image_name.replace("$registry", registry)
+                if registry is not None:
+                    image_name = image_name.replace("$registry", registry)
+                elif '/' in image_name:
+                    image_name = image_name.split('/')[1]
                 break
     if image_name is None:
         labutils.logger.error('no base image found in %s' % dockerfile)
@@ -614,6 +617,21 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
             if not os.path.isfile(dfile):
                 labutils.logger.error("Dockerfile.%s.%s.student is missing from labs/%s/dockerfiles." % (labname, name, labname))
                 exit(1)
+            if local_build:
+                ts, thebase = BaseImageTime(dfile, base_registry)
+                if ts == 0:
+                    labutils.logger.debug('No base found %s, look for local base' % thebase)
+                    ts, thebase = BaseImageTime(dfile, None)
+                    if ts == 0:
+                        labutils.logger.error('No local image for %s and local build requested.' % (thebase))
+                        exit(1)
+                    else:
+                        
+                        labutils.logger.debug('Using local version of base %s' % thebase)
+                        base_registry = 'LOCAL'
+          
+                else:
+                    labutils.logger.debug('got ts, base %s' % thebase)
 
             retval.append(RegistryInfo(name, container.image_name, container_registry, base_registry))
 
