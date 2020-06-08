@@ -371,7 +371,7 @@ def GetImageUser(image_name, container_registry):
         
 
 def CheckBuild(lab_path, image_name, image_info, container_name, name, is_redo, container_bin,
-                 start_config, container_registry, container_user):
+                 start_config, container_registry, container_user, local_build):
     '''
     Determine if a container image needs to be rebuilt, return true if so.
     '''
@@ -400,6 +400,9 @@ def CheckBuild(lab_path, image_name, image_info, container_name, name, is_redo, 
 
     ''' get ts of base image '''
     ts_base, bname = BaseImageTime(df, container_registry)
+    if ts_base == 0 and local_build:
+        ts_base, bname = BaseImageTime(df, None)
+        
     if ts_base > ts:
         labutils.logger.warning('Base image %s changed, will build %s' % (bname, name))
         retval = True
@@ -603,7 +606,8 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
         ''' create sys_tar and home_tar before checking build dependencies '''
         CheckTars.CheckTars(container_dir, name, labutils.logger)
         if force_this_build or CheckBuild(lab_path, mycontainer_image_name, image_info, mycontainer_name, 
-                                   name, True, container_bin, start_config, base_registry, container.user):
+                                   name, True, container_bin, start_config, base_registry, container.user,
+                                   local_build):
 
             if no_build:
                 labutils.logger.debug("Would (but won't) rebuild %s" % (mycontainer_name))
@@ -623,7 +627,7 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
                     labutils.logger.debug('No base found %s, look for local base' % thebase)
                     ts, thebase = BaseImageTime(dfile, None)
                     if ts == 0:
-                        labutils.logger.error('No local image for %s and local build requested.' % (thebase))
+                        labutils.logger.error('No local image for %s and local build requested. Try "docker pull %s/%s"' % (thebase, base_registry, the_base))
                         exit(1)
                     else:
                         
