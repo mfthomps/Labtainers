@@ -1,0 +1,10 @@
+BORDER GATEWAY PROTOCOL LAB -- Read this first
+
+The lab manual for this lab is at: 
+   file://LAB_MANUAL
+The GrassMarlin user guide is at:
+   file://LAB_DOCS/bird.pdf
+
+
+Review the entire lab manual before proceeding with the lab.  
+
