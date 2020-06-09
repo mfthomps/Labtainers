@@ -441,9 +441,9 @@ def isFirefox(image_name):
 
 def FindTapMonitor(start_config):
     for container_name in start_config.containers:
-        logger.debug('FindTapMonitor check %s' % container_name)
+        #logger.debug('FindTapMonitor check %s' % container_name)
         for subnet in start_config.containers[container_name].container_nets:
-            logger.debug('FindTapMonitor check lan %s' % subnet)
+            #logger.debug('FindTapMonitor check lan %s' % subnet)
             if subnet.lower() == 'tap_lan':
                 ip = start_config.containers[container_name].container_nets[subnet]
                 return container_name, ip
@@ -1792,7 +1792,9 @@ def RedoLab(lab_path, force_build=False, is_redo=False, quiet_start=False,
     myhomedir = os.environ['HOME']
     # Pass 'True' to ignore_stop_error (i.e., ignore certain error encountered during StopLab
     #                                         since it might not even be an error)
-    StopLab(lab_path, True)
+    lab_list, dumb = GetListRunningLabType()
+    if len(lab_list) > 0:
+        StopLab(lab_path, True)
     is_redo = True
     StartLab(lab_path, force_build, is_redo=is_redo, quiet_start=quiet_start,
              run_container=run_container, servers=servers, clone_count=clone_count, auto_grade=auto_grade, debug_grade=debug_grade)
@@ -2193,13 +2195,6 @@ def FindNetworkGivenSubnet(subnet):
     return found_match_network, found_match_network_name
 
 def AllContainersRunning(container):
-    clone_names = GetContainerCloneNames(container)
-    for clone_full in clone_names:
-        if not IsContainerRunning(clone_full):
-            return False
-    return True
-
-def AnyContainersRunning(container):
     clone_names = GetContainerCloneNames(container)
     for clone_full in clone_names:
         if not IsContainerRunning(clone_full):
