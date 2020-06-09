@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Perform all build steps needed to run tests, then start smoketests.
-# NOTE: this script assumes local repo is up to date and what you want tested
+# NOTE: this script assumes pulls from github.
 #
 here=`pwd`
 branch=$(git rev-parse --abbrev-ref HEAD)
@@ -45,14 +45,14 @@ if [[ $branch != 'premaster' ]]; then
         exit 1
     fi
 fi
-cd $LABTAINER_DIR/scripts/designer/bin
-echo "running mkbases from $LABTAINER_DIR"
-./mkbases.py 
-result=$?
-if [[ $result != 0 ]]; then
-    echo "mkbases failed"
-    exit 1
-fi
+#cd $LABTAINER_DIR/scripts/designer/bin
+#echo "running mkbases from $LABTAINER_DIR"
+#./mkbases.py 
+#result=$?
+#if [[ $result != 0 ]]; then
+#    echo "mkbases failed"
+#    exit 1
+#fi
 cd $LABTAINER_DIR/distrib
 echo "Now rebuild lab images as needed and publish to branch registry"
 ./publish.py -q
