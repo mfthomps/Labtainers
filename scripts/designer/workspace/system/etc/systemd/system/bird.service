@@ -1,0 +1,11 @@
+[Unit]
+Description=bird
+# wait for parameterization to finish
+After=waitparam.service
+
+[Service]
+ExecStart=/usr/local/sbin/bird -f
+
+[Install]
+WantedBy=multi-user.target
+

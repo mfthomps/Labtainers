@@ -123,6 +123,7 @@ class ParseStartConfig():
             self.logger = logger
             self.did_nets = []
             self.mounts = []   # persist licensed sw installations across labs, e.g., IDA
+            self.lab_gateway = None    # automatic call to set_default_gw.sh
 
         def add_net(self, name, ipaddr):
             self.container_nets[name] = ipaddr
