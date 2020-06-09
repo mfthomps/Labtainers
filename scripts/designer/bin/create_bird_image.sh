@@ -58,7 +58,7 @@ here=`pwd`
 mkdir -p /tmp/bird
 echo "*****************do cp **"
 cp ../base_dockerfiles/*bird /tmp/bird/
-cp ../workspace/system/etc/systemd/system/bird.service /tmp/bird/
+cp -r ../workspace/system /tmp/bird/
 echo "DONE"
 mkdir -p /tmp/bird/zip
 cd /tmp/bird/zip

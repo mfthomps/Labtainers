@@ -109,5 +109,18 @@ if __name__ == '__main__':
                 logger.debug('WOUlD REBUILD %s' % image_name)
                 if not args.no_build:
                     doBase(image_name, registry)
+            else:
+                with open(full) as docker_file:
+                    for line in full:
+                        if line.startswith('ADD'):
+                            parts = line.split()
+                            from_file = parts[2].strip()
+                            if from_file.startswith('system'):
+                                if rebuild.FileModLater(ts, from_file):
+                                    print('%s later, WOUlD REBUILD %s' % (from_file, image_name))
+                                    logger.debug('WOUlD REBUILD %s' % image_name)
+                                    if not args.no_build:
+                                        doBase(image_name, registry)
+                                        break 
 
 
