@@ -337,7 +337,7 @@ def GetContainerCloneNames(container):
             retval[fullname] = hostname
     return retval
        
-def GetDNSXXX(): 
+def GetDNS_NMCLI(): 
     dns_param = ''
     dns_param = '--dns=8.8.8.8'
     cmd="nmcli dev show | grep 'IP4.DNS'"
@@ -360,6 +360,8 @@ def GetDNS():
             dns_param = '--dns=%s %s' % (line.split()[2].strip(), dns_param)
             ''' just take first '''
             break
+    else:
+        dns_param = GetDNS_NMCLI()
     return dns_param
 
 def GetX11SSH():
