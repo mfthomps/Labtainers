@@ -130,9 +130,12 @@ def get_ip_address(ifname):
 
 def get_hw_address(ifname):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', bytes(ifname, 'utf-8')[:15]))
-    return ':'.join('%02x' % b for b in info[18:24])
-
+    if sys.version_info >=(3,0):
+        info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', bytes(ifname, 'utf-8')[:15]))
+        return ':'.join('%02x' % b for b in info[18:24])
+    else:
+        info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', str(ifname[:15])))
+        return ':'.join(['%02x' % ord(char) for char in info[18:24]])
 
 def get_new_mac(ifname):
     ''' use last two byte of mac address to generate a new mac
