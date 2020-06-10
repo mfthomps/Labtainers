@@ -2,7 +2,8 @@
 import os
 import sys
 import argparse
-sys.path.append('../scripts/labtainer-student/bin')
+labtainer_dir=os.getenv('LABTAINER_DIR')
+sys.path.append(os.path.join(labtainer_dir, 'scripts/labtainer-student/bin'))
 import labutils
 import ParseLabtainerConfig
 import LabtainerLogging
