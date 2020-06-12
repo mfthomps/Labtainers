@@ -733,6 +733,7 @@ def CreateSubnets(start_config):
 def RemoveSubnets(subnets, ignore_stop_error):
     for subnet_name in subnets:
         command = "docker network rm %s" % subnet_name
+        loggoer.debug('command %s' % command)
         ps = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         output = ps.communicate()
         if len(output[1].decode('utf-8')) > 0:
