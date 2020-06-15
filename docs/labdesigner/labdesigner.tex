@@ -328,13 +328,13 @@ the student.
 The {\tt new\_lab\_setup.sh} script can be used to create additional containers for use
 in the lab.  For example, from your new lab directory:
 \begin{verbatim}
-    new_lab_setup.sh -a joe_computer
+    new_lab_setup.py -a joe_computer
 \end{verbatim}
 \noindent will create a second container for your lab,
 named ``joe\_computer''.  If you again run the rebuild script, you will see two virtual
 terminals, each connected to one of your two independent computers.  Use 
 \begin{verbatim}
-    new_lab_setup.sh -h
+    new_lab_setup.py -h
 \end{verbatim}
 \noindent to view the operations available in that script.
 
@@ -440,15 +440,17 @@ These are then available to the instructor in the labtainer\_xfer/[lab]/docs dir
 \item CHECKWORK [yes/no] -- Optional directive to disable (set to ``no'') ability of student to check their own work from the labtainer-student directory.
 \end{itemize}
 
-\item NETWORK [network name] -- One of these sections is require for each network within the lab.  In addition to
-providing a name for the network, the following values are defined:
+\item NETWORK [network name] -- One of these sections is required for each network within the lab.  The name
+is used within the start.config file to refer to the network.  It is suggested that this name NOT be
+used in lab guides since it is not visible to students\footnote{You may note several Labtainers labs
+failed to heed this advise.}. Where possible, name networks with their subnet mask, e.g., 10.1.0.0/24.
+In addition to providing a name for the network, the following values are defined for the NETOWRK:
 
 \begin{itemize}
 \item MASK [network address mask] -- The network mask, e.g., 172.25.0.0./24
 \item GATEWAY [gateway address] -- The IP address of the network gateway used by Docker to communicate with the
 host.  Please note that to define a different network gateway for the component, you should 
-use the {\tt set\_default\_gw.sh}.  This GATEWAY field should not name the IP of any of your other components.  
-See the {\tt routing\_basics2} lab for examples.
+use the {\tt LAB\_GATEWAY} parameter for containers.  This GATEWAY field should not name the IP of any of your other components.  
 \item MACVLAN\_EXT [N] -- Optional, causes the Docker network driver to 
 create and use a macvlan tied to the given Nth ethernet interface (in alphabetical order) that lacks an
 assigned IP address.  The network device is expected to be on a ``host-only'' VM network.  The VMM should disable the
@@ -515,7 +517,12 @@ increasing integer starting with one, and this value can be used for the network
 parameterization as described in section \ref{parameterize}. This option is not intended for use in creating multi-user
 labs.
 \item NO\_PULL [YES/NO] -- Use a local instance of the container image rather than pulling it from the Docker hub.
-\item NO\_GW [YES/NO] -- Disable the default gateway, preventing network communication with the host or external devices.
+\item LAB\_GATEWAY -- Optional IP address of the component's default network gateway.   If set, this will replace the
+default Docker gateway.  Students can toggle between gateways by using the togglegw.sh command, e.g., to enable communication
+with the host VM or the internet\footnote{This replaces use of the set\_default\_gw.sh script from 
+within fixlocal.sh scripts}.  This option will also replace the components resolv.conf with the given IP and will cause the
+static route to the {\tt my\_host} address to be deleted.
+\item NO\_GW [YES/NO] -- Disable the Docker default gateway, preventing network communication with the host or external devices.
 \item REGISTRY [registry] -- The id of the Docker Hub registry that is to contain the lab images. This overrides the value
 set in the GLOBAL section. 
 \item BASE\_REGISTRY [base\_registry] -- The id of the Docker Hub registry that contains the base image for the container.  This defaults
@@ -892,7 +899,7 @@ lines would achieve that:
 \subsection{Parameterizing start.config}
 Parameterizing of the start.config file occurs prior to Docker container creation.  The framework 
 modifies a copy of the file stored in {\tt /tmp/start.config} and uses that when assigning attributes to containers,
-e.g., IP addresses. Currently only IP addresses within the start.config can parameteterized (e.g., not user names).
+e.g., IP addresses. Currently only IP addresses within the start.config can be parameteterized (e.g., not user names).
 
 \subsection{Simple Parameterization for Checking Own-work}
 The simplest, though by no means robust, strategy for ensuring students
@@ -1578,6 +1585,21 @@ modify_value = matchany : string_diff : newsecret1value : result.origsecret1valu
 \noindent , which will be TRUE if any of the vul\_prog stdout files include a
 ``newsecret1value'' that differs from its ``oldsecret1value``.
 
+\subsection{Was a log entry written while some command executed?}
+Consider these two entries in {\tt results.config}:
+\begin{verbatim}
+  # Time stamp of log entry containing IP address
+  log-from-w1 = w3:/var/log/myhttplogfile.txt : LOG_TS : 202.25.4.2
+  # Use of wget -- will result in time stamp range: start-finish
+  wget-w1 = w1:wget.stdin : CONTAINS : 202.25.4.2
+\end{verbatim}
+\noindent The following {\tt goals.config} entry will be true if the log entry was 
+ever generated using wget from the w1 computer:
+\begin{verbatim}
+  didit = time_during : log-from-w1 : wget-w1 
+\end{verbatim}
+
+
 \subsubsection{My desired artifacts are not in stdin or stdout, the program outputs a file}
 See section \ref{program output}
 
@@ -1725,8 +1747,12 @@ It also allows the student to reach external networks, e.g., to fetch additional
 support of student exploration.
 
 In many instances, the lab designer will want to define a different default route for a 
-container.  Each container includes a \textit{set\_default\_gw.sh}
-script that can be added to the \textit{/etc/rc.local} file to redefine the default gateway.
+container.  The start.config definitions for each container include an optional {\tt LAB\_GATEWAY} parameter
+that, if set, will replace the default Docker gateway with the given gateway, and it will replace the
+resolv.conf entry and delete the route to the {\tt my\_host} address. 
+That configuration setting is implemented using a \textit{set\_default\_gw.sh}, which designers can 
+optionally chose to directly use instead of {\tt LAB\_GATEWAY}
+in order to get more control over the setting of a default gateway, e.g., as part of parameterization.
 This script will automatically retain a route table entry so that the student can reach the ``my\_host''
 address.  Additionally, those baseline images include a \textit{togglegw.sh} script that the student
 can use to toggle the default gateway between one that leads to the host, and one defined for the lab.
@@ -1741,11 +1767,15 @@ two container base images: \textit{tap} and \textit{netmon}.  The {\tt tap} comp
 to the student, it exists to collect traffic off of all networks whose {\tt start.config} definitions include
 the {\tt TAP YES} attribute.  The {\tt netmon} component should be defined with a single network interface
 to a network called {\tt TAP\_LAN}.  The {\tt netmon} component should be the only one on the {\tt TAP\_LAN}
-network, (do not add the {\tt tap} component to any network).  A service runs on the {\tt netmon} component
+network, (do not add the {\tt tap} component to any network).  The {\tt tap} component must have the {\tt TAP YES}
+attribute.  A service runs on the {\tt netmon} component
 that will receive network traffic sent by the {\tt tap} component, and store it into the {\tt /taps} directory
 within PCAP files named using the network name.  See the {\tt plc-traffic} lab as an example.
 
-The {\tt netmon} base is derived from the wireshark base.  You may add other tools to that containers as needed.
+The {\tt netmon} base is derived from the wireshark base.  You may add other tools to that container as needed.
+
+All containers attached to tapped networks will not be started until the tap and netmon containers are up
+and ready.  This ensures that all startup traffic is captured in the PCAPs.
 
 \subsection{Realistic Network Routing and DNS}
 Some labs will strive to represent realistic networking environments, 
@@ -1802,6 +1832,12 @@ NETWORK  LAN
 \end{figure}
 
 Also see the description of Multi-user labs in \ref{multi user}.
+
+\subsection{Network interface assignments}
+Docker appears to assign network connections to containers in alphabetical order.  E.g., connecting
+networks LAN1 and LAN2 to a container would result in LAN1 being connected to device eth0 -- regardless
+of the order in which LANs are defined within the start.config file.  Understanding this ordering may
+be helpful for networking labs, e.g., when defining routes.
 
 \section{Building, Maintaining and Publishing Labs} \label{publishing}
 This section describes how labs are built, maintained and published.  Additional information
@@ -1867,7 +1903,7 @@ baseline images, it is suggested that all local images be purged from the develo
 \begin{verbatim}
     /trunk/setup_scripts/destroy-docker.sh
 \end{verbatim}
-\noindent This will ensure the new baseline images to not incorporate layer remnants.
+\noindent This will ensure that new baseline images do not incorporate layer remnants.
 
 All new images should be first built and pushed onto the test registry, i.e., using the 
 {\tt ./publish\_image.sh <image> -t}
@@ -1992,6 +2028,16 @@ the old version.
 When the user types the {\tt labtainer} command with no arguments, the list will then
 only include the latest version of that lab.  An exception is if the old lab already
 has been run in this installation, in which case both lab versions will display.
+
+\subsection{Creating new base images}
+Labtainer base images are managed using scripts and configuration files in the {\tt scripts/designer} directory.
+The {\tt bin} subdirectory includes a set of scripts that create various base images, and the
+{\tt base\_dockerfiles} contain their Dockerfiles.  Use those as a template.
+
+Typically, new base images are created to support a new lab.  Proper Labtainer lab Dockerfiles have {\tt FROM} directives
+that include the {\tt \$registry/} qualifier, however your new base image might not yet be published to a registry
+as you test it, and tagging the new base image with the registry name may complicate your desired workflow.  
+Use the {\tt -L} option to the {\tt rebuild} command to direct the build to use unqualified image names if needed.
 
 \subsection{Importing labs: Warning!}
 \label{warnings}

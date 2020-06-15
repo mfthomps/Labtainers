@@ -695,6 +695,9 @@ def CreateSubnets(start_config):
                 found_match_network_name = ""
                 # Before a hard exit - give the user some indication of what to do next
                 # First check to see if a gateway is provided and it is already used
+                if 'no matching subnet' in output[1].decode('utf-8'):
+                    logger.error('Config error: %s' % output[1].decode('utf-8'))
+                    exit(1)
                 if subnets[subnet_name].gateway != None:
                     found_match_network, found_match_network_name = FindNetworkGivenGatewayIP(subnets[subnet_name].gateway)
                     # If Gateway IP address not okay, no need to check subnet anymore

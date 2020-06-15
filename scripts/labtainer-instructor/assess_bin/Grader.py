@@ -844,18 +844,18 @@ def processBoolean(eachgoal, goal_times, logger):
         goal_times.addGoal(goalid, default_timestamp, False)
 
 class ResultSets():
+    ''' Manage result sets, including timestamps for all results. '''
     def addSet(self, result_set, ts, goal_times):
-        #print('addSet')
         if 'PROGRAM_ENDTIME' in result_set:
             fulltimestamp = '%s-%s' % (ts, result_set['PROGRAM_ENDTIME'])
         else:
             fulltimestamp = '%s-0' % (ts)
-            
+            #fulltimestamp = '%s-%s' % (ts, ts)
+        #print('addSet full %s' % fulltimestamp)    
         if ts in self.result_sets:
-            print('ts')
             ''' add boolean results to goals '''
             for key in result_set:
-                print('look at %s, val %s' % (key, result_set[key]))
+                #print('look at %s, val %s' % (key, result_set[key]))
                 self.result_sets[ts][key] = result_set[key]
                 if isinstance(result_set[key], bool):
                     #print('is bool ts is %s' % ts)

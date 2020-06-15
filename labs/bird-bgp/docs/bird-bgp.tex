@@ -13,6 +13,14 @@ allowing students to configure BGP routers and view their behavior.
 The lab uses Bird routers, which is an open source Linux-based router
 implementation.
 
+\subsection{Background}
+This exercise assumes the student has received instruction on functions
+of network routers, and BGP.  A tutorial on BGP can be found at:
+\url{http://www.cs.fsu.edu/~xyuan/cis6930/APRICOT2004-BGP00.pdf}.  It is also assumed
+that the student is familiar with basic Linux routing, e.g., as explored in the
+routing-basics and routing-basics2 labs.
+
+This lab exercise only touches on some of the most basic elements of BGP.
 
 \section{Lab Environment}
 This lab runs in the Labtainer framework,
@@ -31,8 +39,8 @@ user guide.
 \section{Lab topology}
 The lab presents a simplified view of Internet routers implementing BGP.  Each router is connected to one or more notional
 enterprises, respresented by a single computer.  In Figure \ref{fig:topology}, the routers are labled R1-R4.  Enterprises
-are labeled E1-E5.  The routers exchange routing information and traffic over the WAN links.
-Each WAN has a network tap that forwards copies of traffic to the {\tt netmon} component (not pictured), 
+are labeled E1-E5.  The routers exchange routing information and traffic over point-to-point ethernet links.
+Each of these links has a network tap that forwards copies of traffic to the {\tt netmon} component (not pictured), 
 which collects network traffic in files within its {\tt /taps} directory.
 
 Note that E2 and E5 share router R2.  This might reflect that R2 belongs to an ISP, whose customers include
