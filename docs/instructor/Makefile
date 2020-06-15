@@ -1,5 +1,4 @@
 labtainer-instructor.pdf: labtainer-instructor.tex
-	latex labtainer-instructor
 	pdflatex labtainer-instructor
 	pdflatex labtainer-instructor
 clean:
