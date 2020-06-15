@@ -360,12 +360,17 @@ def getTS(line):
     if retval is None:
         ''' httpd format '''
         if '[' in line and ']' in line:
-            ts_string = line[line.find("[")+1:line.find("]")].split()[0]
+            ts_string_full = line[line.find("[")+1:line.find("]")]
             try:
-                time_val = datetime.datetime.strptime(ts_string, '%d/%b/%Y:%H:%M:%S')
+                time_val = datetime.datetime.strptime(ts_string_full.split()[0], '%d/%b/%Y:%H:%M:%S')
                 retval = time_val.strftime("%Y%m%d%H%M%S")
             except:
-                pass
+                try:
+                    time_val = datetime.datetime.strptime(ts_string_full, '%d/%b/%Y %H:%M:%S')
+                    retval = time_val.strftime("%Y%m%d%H%M%S")
+                except:
+                    pass
+
     if retval is None:
         print('ERROR getting timestamp from %s' % line)
     return retval 
@@ -975,7 +980,12 @@ def ParseConfigForFile(studentlabdir, labidname, configfilelines,
                                   container_list, timestamppart, logger, parameter_list)
 
     if end_time is not None:
-        program_end_time = end_time
+        if timestamppart < end_time:
+            program_end_time = end_time
+        else:
+            logger.debug('timestamppart of %s was greater than end_time %s, use it' % (timestamppart, end_time))
+            program_end_time = timestamppart
+ 
     else:
         program_end_time = 'NONE'
     if got_one:
