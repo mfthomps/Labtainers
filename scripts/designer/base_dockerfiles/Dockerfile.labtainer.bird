@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y flex bison libncurses5-dev libreadline6
 RUN mkdir /bird
 ADD zip/bird-2.0.7.tar.gz /bird
 ADD zip/bird-doc-2.0.7.tar.gz /bird
-ADD bird.service /etc/systemd/system/
+ADD system/etc/systemd/system/bird.service /etc/systemd/system/
 WORKDIR /bird/bird-2.0.7
 RUN ./configure
 # fix broken bird makefile
