@@ -1,0 +1,143 @@
+\input{header}
+\begin{document}
+
+\begin{center}
+{\LARGE Routing: Open Shortest First Path}
+\vspace{0.1in}\\
+\end{center}
+
+
+\section{Overview}
+This exercise introduces the Open Shortest First Path (OSPF) routing protocol,
+allowing students to configure OSPF-enabled routers and view their behavior.
+The student will use OSPF to spoof routing tables, leading to malicious mis-routing
+of traffic.
+
+OSPF is an internal gateway protocol (IGP).   The {\tt bird-bgp} lab explored the
+Border Gateway Protocol (BGP), which is an external gateway protocol (EGP) used within the
+Internet backbone, e.g., between ISPs.
+This lab uses routers running the Bird service, which is an open source Linux-based router
+implementation.
+
+\subsection{Background}
+This exercise assumes the student has received instruction on functions
+of network routers, and OSPF.  
+It is also assumed that the student is familiar with basic Linux routing, e.g., as explored in the
+routing-basics and routing-basics2 labs.
+There are a number of web-based resources describing OSPF.  Note however that many focus on Cisco
+command line syntax and semantics.  Look for tutorials that explain concepts and not just rote 
+steps needed to pass a certification.
+
+This lab exercise only touches on some of the most basic elements of OSPF.
+
+\section{Lab Environment}
+This lab runs in the Labtainer framework,
+available at http://my.nps.edu/web/c3o/labtainers.
+That site includes links to a pre-built virtual machine
+that has Labtainers installed, however Labtainers can
+be run on any Linux host that supports Docker containers.
+
+From your labtainer-student directory start the lab using:
+\begin{verbatim}
+    labtainer bird-ospf
+\end{verbatim}
+A link to this lab manual will be displayed, along with a link to the Bird router 
+user guide.
+
+\section{Lab topology}
+The lab presents a simplified topology that includes of routers implementing OSPF within an Autonomous System (AS).  
+
+In Figure \ref{fig:topology}, all of the components except those labeled \textit {External} are within one AS.
+The {\tt BR} router is the border router for the AS.  The {\tt BRX} router is the border router for the 
+notional external system.  The external system includes a web server, labeled {\tt WX}.
+In addition to three internal routers, the AS has one server and three workstations.
+
+The routers exchange routing information and traffic over the point-to-point ethernet
+links.  Each such link has a network tap that forwards copies of traffic to the {\tt netmon} component (not pictured), 
+which collects network traffic in files within its {\tt /taps} directory.
+
+This lab primarily names computers using IP addresses.  Use of DNS is deliberately avoided to keep the focus on routing.
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics [width=0.8\linewidth]{topo.png}
+\end{center}
+\caption{OSPF Routing Topology}
+\label{fig:topology}
+\end{figure}
+
+\section{Tasks}
+
+\subsection{Explore}
+The following items (among other), are available to explore the network:
+\begin{itemize}
+\item Wireshark and tcpdump are installed on the {\tt netmon} computer, use them to review the PCAP files found in
+the {\tt /taps} directory.  When using Wireshark, if you encounter black or otherwise corrupt pulldown windows, try resizing the window,
+or restarting the application.  The {\tt ctrl-r} key sequence will cause Wireshark to reload the PCAP file that is
+currently being viewed, i.e., to see the latest traffic.
+\item The {\tt traceroute} program is install on each computer (all components other than routers).  
+Use that to observe the routes that traffic may take between different computers.
+\item Each router includes the Bird client, which you can start using {\tt sudo birdc}.  Use it to view routes and
+protocol definitions.  Bird is configured via use of configuration files found at {\tt /usr/local/etc/bird.conf}. 
+The bird service runs under systemd.  If you modify a configuration file, you may rstart bird using {\tt systemctl restart
+bird}.  The remaining tasks of this lab assume the bird.conf files on each router have not been modified.  If you do modify
+those, either restore them, or restart that lab (using the {\tt -r} option on the {\tt labtainer} command prior to proceeding
+to next steps.
+
+\end{itemize}
+
+\subsection{Confirm connectivity}
+Use the {\tt ifconfig} command (or {\tt ip addr}) to determine IP addresses of the different computers.  
+You should be able to ping any computer from any other.  You should also be able to use {\tt wget} to retrieve the index.html
+file from the WX web server.
+
+\subsection{Review authentication}
+Look at the {\tt bird.conf} files and determine the type of authentication used for the OSPF protocol.
+Then use Wireshark on the {\tt netmon} computer and find the plain text passwords exchanged by the routers.
+
+\subsection{Hijack the WX address}
+Assume you are a hostile user of the W3 workstation, and you would like to intercept traffic bound for the WX web server
+and replace it with your own.  In this step, assume you have no access to the individual routers and have not seen
+their configuration files.
+
+Playing the role of a potential victim at the W1 computer, use the {\tt wget} command on the {\tt W1} 
+computer to retrieve the default web page from WX and view its content.
+Use {\tt traceroute} to confirm your expectation of the route those packets will follow.
+
+Now, by only accessing W3 -- without directly modifying configuration files or Linux routes on any router -- hijack traffic destined
+for WX and route it to a web server running on W3.  Then confirm your change by going to W1 and repeating the {\tt wget} and 
+observe the new web content.
+
+The following are offered as hints:
+\begin{itemize}
+\item The W3 computer contains the bird service.  It can be started by running {\tt sudo bird}.
+\item The loopback device on W3 ({\tt lo} can be assigned alternate IP addresses using 
+\begin{verbatim}
+    ip addr add <addr/mask> dev lo
+\end{verbatim}
+\item IP packets entering W3 can be routed to the loopback device using
+\begin{verbatim}
+    route add <addr> dev lo
+\end{verbatim}
+\item The W3 computer contains a simple web server program that can be started using
+\begin{verbatim}
+    sudo ./MyHTTPServer.py
+\end{verbatim}
+
+\end{itemize}
+Too receive credit for the lab, you must use wget on W1 to retrieve the bogus web resource from W3, using the IP address of WX.
+
+\subsection{Improve authentication}
+Modify the router configuration files such that passwords discovered in network traffic cannot be used to corrupt 
+routing tables.  Confirm your work by restarting each router and pinging W1 from WX.
+\section{Submission}
+After finishing the lab, go to the terminal on your Linux system that was used to start the lab and type:
+\begin{verbatim}
+    stoplab 
+\end{verbatim}
+When you stop the lab, the system will display a path to the zipped lab results on your Linux system.  Provide that file to 
+your instructor, e.g., via the Sakai site.
+
+\copyrightnotice
+
+\end{document}
