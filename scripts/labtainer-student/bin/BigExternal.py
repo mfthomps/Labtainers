@@ -66,6 +66,10 @@ def BigExternal(lab_dir, logger):
                            logger.debug('result: %d' % ok)
                            shutil.copyfile(to_path, cache_to_path)
                        else:
+                           try:
+                               os.makedirs(os.path.dirname(to_path))
+                           except:
+                               pass
                            logger.debug('got %s from cache' % to_path)
                            shutil.copyfile(cache_to_path, to_path)
                    
