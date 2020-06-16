@@ -54,6 +54,10 @@ def BigExternal(lab_dir, logger):
                    to_path = os.path.join(lab_dir, to_file)
                    if not os.path.isfile(to_path):
                        cache_to_path = os.path.join(lab_cache, to_file)
+                       try:
+                           os.makedirs(os.path.dirname(cache_to_path))
+                       except:
+                           pass
                        if not os.path.isfile(cache_to_path):                       
                            logger.debug('missing %s, get it from %s success' % (to_path, from_file))
                            cmd = 'curl -L -R --create-dirs -o %s %s' % (to_path, from_file)
@@ -61,9 +65,9 @@ def BigExternal(lab_dir, logger):
                            ok = os.system(cmd)
                            logger.debug('result: %d' % ok)
                            shutil.copyfile(to_path, cache_to_path)
-                   else:
-                       logger.debug('got %s from cache' % to_path)
-                       shutil.copyfile(cache_to_path, to_path)
+                       else:
+                           logger.debug('got %s from cache' % to_path)
+                           shutil.copyfile(cache_to_path, to_path)
                    
                    else:
                        size = os.stat(to_path).st_size
