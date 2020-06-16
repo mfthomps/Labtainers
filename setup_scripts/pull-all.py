@@ -30,7 +30,7 @@ if args.test_registry or test_registry:
 else:
     use_registry = labtainer_config.default_registry
 print('registry is: %s' % use_registry)
-config_list = ['base', 'network', 'firefox', 'wireshark', 'java', 'centos', 'lamp', 'ghidra', 'tap']
+config_list = ['base', 'network', 'firefox', 'wireshark', 'java', 'centos', 'lamp', 'netmon', 'tap']
 if args.metasploit:
     config_list.append('metasploitable')
     config_list.append('kali')
