@@ -104,10 +104,9 @@ def checkLoop():
             print('This loopback device may not have been cleaned up by Docker:\n%s' % line)
             dev = line.split(':',1)[0]
             print('Try removing with "sudo losetup -d %s"' % dev)
-      
 
-
-if __name__ == '__main__':
+def checkNets():      
+    retval = True
     if not checkContainers():
         routes = getRoutes()
         nets = getNets()
@@ -117,6 +116,7 @@ if __name__ == '__main__':
                 ip, gw, mask = routes[iface]
                 print('route %s %s for %s may be corrupting labtainers' % (ip, gw, iface))
                 print('try running "docker network delete %s"' % iface)
+                retval = False
         for iface in routes:
             if iface.startswith('br-'):
                 net_id = iface[3:]
@@ -129,7 +129,13 @@ if __name__ == '__main__':
                         print('Also, this IPTABLE entry is maybe a problem: %s' % iptable)
                         num = iptable.split()[0]
                         print('Try: sudo iptables -t nat --delete POSTROUTING %s' % num)
+                        retval = False
            
         checkLoop()
     else:
         print('Containers are running, try stoplab.')
+    return retval
+
+
+if __name__ == '__main__':
+    checkNets()
