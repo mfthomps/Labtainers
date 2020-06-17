@@ -1,6 +1,7 @@
 labtainer.lamp.xtra
 labtainer.wine
 labtainer.centos6
+labtainer.centos6.xtra.cstk
 labtainer.kali
 labtainer.centos
 labtainer.centos.xtra2
@@ -8,3 +9,8 @@ labtainer.firefox.splunk
 labtainer.metasploitable
 labtainer.ghidra
 labtainer.headless
+labtainer.base
+labtainer.wireshark
+labtainer.firefox
+labtainer.network
+labtainer.java
