@@ -72,6 +72,13 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+June 15, 2020
+- New base image contianing the Bird open source router
+- Add bird-bgp Border Gateway Protocol lab.
+- Add bird-ospf Open Shortest Path First routing protocol.
+- Improve handling of DNS changes, external access from some containers was blocked in some sites.
+- Add section to Instructor Guide on using Labtainers in environments lacking Internet access.
+
 May 21, 2020
 - Move all repositories to the Docker Hub labtainers registry
 - Support mounts defined in the start.config to allow persistent software installs

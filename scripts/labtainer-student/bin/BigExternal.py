@@ -42,6 +42,9 @@ def BigExternal(lab_dir, logger):
     else:
         logger.debug('BigExternal file found: %s' % big_list)
     full = os.path.abspath(lab_dir)
+    homedir = os.environ['HOME']
+    cache_path = os.path.join(homedir, '.local', 'share', 'labtainer', 'big_cache')
+    lab_cache = os.path.join(cache_path, os.path.basename(lab_dir))
     if os.path.isfile(big_list):
         with open(big_list) as fh:
             for line in fh:
@@ -50,11 +53,25 @@ def BigExternal(lab_dir, logger):
                    from_file, to_file = line.split()
                    to_path = os.path.join(lab_dir, to_file)
                    if not os.path.isfile(to_path):
-                       logger.debug('missing %s, get it from %s success' % (to_path, from_file))
-                       cmd = 'curl -L -R --create-dirs -o %s %s' % (to_path, from_file)
-                       logger.debug('cmd: %s' % cmd)
-                       ok = os.system(cmd)
-                       logger.debug('result: %d' % ok)
+                       cache_to_path = os.path.join(lab_cache, to_file)
+                       try:
+                           os.makedirs(os.path.dirname(cache_to_path))
+                       except:
+                           pass
+                       if not os.path.isfile(cache_to_path):                       
+                           logger.debug('missing %s, get it from %s success' % (to_path, from_file))
+                           cmd = 'curl -L -R --create-dirs -o %s %s' % (to_path, from_file)
+                           logger.debug('cmd: %s' % cmd)
+                           ok = os.system(cmd)
+                           logger.debug('result: %d' % ok)
+                           shutil.copyfile(to_path, cache_to_path)
+                       else:
+                           try:
+                               os.makedirs(os.path.dirname(to_path))
+                           except:
+                               pass
+                           logger.debug('got %s from cache' % to_path)
+                           shutil.copyfile(cache_to_path, to_path)
                    
                    else:
                        size = os.stat(to_path).st_size

@@ -2,7 +2,10 @@
 import os
 import sys
 import argparse
-sys.path.append('../scripts/labtainer-student/bin')
+labtainer_dir=os.getenv('LABTAINER_DIR')
+if labtainer_dir is None or not os.path.isdir(labtainer_dir):
+    labtainer_dir = '/home/student/labtainer/trunk'
+sys.path.append(os.path.join(labtainer_dir, 'scripts/labtainer-student/bin'))
 import labutils
 import ParseLabtainerConfig
 import LabtainerLogging
@@ -29,7 +32,7 @@ if args.test_registry or test_registry:
 else:
     use_registry = labtainer_config.default_registry
 print('registry is: %s' % use_registry)
-config_list = ['base', 'network', 'firefox', 'wireshark', 'java', 'centos', 'lamp', 'ghidra', 'tap']
+config_list = ['base', 'network', 'firefox', 'wireshark', 'java', 'centos', 'lamp', 'netmon', 'tap']
 if args.metasploit:
     config_list.append('metasploitable')
     config_list.append('kali')

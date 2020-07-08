@@ -130,9 +130,12 @@ def get_ip_address(ifname):
 
 def get_hw_address(ifname):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', bytes(ifname, 'utf-8')[:15]))
-    return ':'.join('%02x' % b for b in info[18:24])
-
+    if sys.version_info >=(3,0):
+        info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', bytes(ifname, 'utf-8')[:15]))
+        return ':'.join('%02x' % b for b in info[18:24])
+    else:
+        info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', str(ifname[:15])))
+        return ':'.join(['%02x' % ord(char) for char in info[18:24]])
 
 def get_new_mac(ifname):
     ''' use last two byte of mac address to generate a new mac
@@ -336,7 +339,7 @@ def GetContainerCloneNames(container):
             retval[fullname] = hostname
     return retval
        
-def GetDNSXXX(): 
+def GetDNS_NMCLI(): 
     dns_param = ''
     dns_param = '--dns=8.8.8.8'
     cmd="nmcli dev show | grep 'IP4.DNS'"
@@ -359,6 +362,8 @@ def GetDNS():
             dns_param = '--dns=%s %s' % (line.split()[2].strip(), dns_param)
             ''' just take first '''
             break
+    else:
+        dns_param = GetDNS_NMCLI()
     return dns_param
 
 def GetX11SSH():
@@ -731,6 +736,7 @@ def CreateSubnets(start_config):
 def RemoveSubnets(subnets, ignore_stop_error):
     for subnet_name in subnets:
         command = "docker network rm %s" % subnet_name
+        logger.debug('command %s' % command)
         ps = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         output = ps.communicate()
         if len(output[1].decode('utf-8')) > 0:

@@ -43,7 +43,10 @@ def rmBase(image_name, registry):
 
 def doBase(image_name, registry):
     image_ext = image_name.split('.',1)[1]
-    cmd = './create_image.sh %s -f' % image_ext
+    if image_name == 'labtainer.bird':
+        cmd = './create_bird_image.sh -f'
+    else:
+        cmd = './create_image.sh %s -f' % image_ext
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     image_list = []
@@ -73,6 +76,7 @@ if __name__ == '__main__':
     branch, registry = registry.getBranchRegistry()
     
     dfile = os.path.abspath('../base_dockerfiles')
+    workspace = os.path.abspath('../workspace')
     base_list = os.listdir(dfile)
     
     exempt_file = 'exempt.txt'
@@ -111,13 +115,17 @@ if __name__ == '__main__':
                     doBase(image_name, registry)
             else:
                 with open(full) as docker_file:
-                    for line in full:
+                    for line in docker_file:
+                        print('line is %s' % line)
                         if line.startswith('ADD'):
+                            print('is add')
                             parts = line.split()
-                            from_file = parts[2].strip()
+                            from_file = parts[1].strip()
                             if from_file.startswith('system'):
-                                if rebuild.FileModLater(ts, from_file):
-                                    print('%s later, WOUlD REBUILD %s' % (from_file, image_name))
+                                full_from = os.path.join(workspace, from_file)
+                                print('full_from is %s' % full_from)
+                                if rebuild.FileModLater(ts, full_from):
+                                    print('%s later, WOUlD REBUILD %s' % (full_from, image_name))
                                     logger.debug('WOUlD REBUILD %s' % image_name)
                                     if not args.no_build:
                                         doBase(image_name, registry)
