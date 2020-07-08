@@ -1736,6 +1736,7 @@ def StartLab(lab_path, force_build=False, is_redo=False, quiet_start=False,
             logger.debug('Cached start.config removed %s' % my_start_config)
             os.remove(my_start_config)
        
+    x11 = False
     container_images = {} 
     for name, container in start_config.containers.items():
         if SkipContainer(run_container, name, start_config, servers):
@@ -1743,6 +1744,8 @@ def StartLab(lab_path, force_build=False, is_redo=False, quiet_start=False,
             continue
         mycontainer_name       = container.full_name
         mycontainer_image_name = container.image_name
+        if container.x11.lower() == 'yes':
+            x11 = True
         if is_redo:
             # If it is a redo then always remove any previous container
             # If it is not a redo, i.e., start.py then DO NOT remove existing container
@@ -1780,6 +1783,11 @@ def StartLab(lab_path, force_build=False, is_redo=False, quiet_start=False,
     # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
     host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
     CreateHostHomeXfer(host_xfer_dir)
+    if x11:
+        sockets = os.listdir('/tmp/.X11-unix')
+        if len(sockets) == 0:
+            self.lgr.error('Cannot create X11 windows, the socket is missing.  Try rebooting your VM')
+            exit(1)
 
     DoStart(start_config, labtainer_config, lab_path, quiet_start, 
             run_container, servers=servers, clone_count=clone_count, auto_grade=auto_grade, 
