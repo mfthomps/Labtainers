@@ -68,8 +68,8 @@ result=$?
 if [[ result -ne 0 ]];then
    cat <<EOT >>$target
    if [[ ":\$PATH:" != *":scripts/designer/bin:"* ]]; then 
-       export PATH="\${PATH}:$labtainer_root/trunk/scripts/designer/bin"
        export LABTAINER_DIR=$labtainer_root/trunk
+       export PATH="\${PATH}:$LABTAINER_DIR/scripts/designer/bin:$LABTAINER_DIR/testsets/bin"
    fi
 EOT
 fi
