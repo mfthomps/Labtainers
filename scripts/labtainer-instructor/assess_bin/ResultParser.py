@@ -52,7 +52,7 @@ container_exec_proglist = {}
 stdoutfnameslist = []
 timestamplist = {}
 line_types = ['CHECKSUM', 'CONTAINS', 'FILE_REGEX', 'FILE_REGEX_TS', 'LINE', 'STARTSWITH', 'NEXT_STARTSWITH', 'HAVESTRING', 
-              'HAVESTRING_TS', 'LOG_TS', 'LOG_RANGE', 'REGEX', 'REGEX_TS', 'LINE_COUNT', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT', 'TIME_DELIM']
+              'HAVESTRING_TS', 'LOG_TS', 'LOG_RANGE', 'RANGE_REGEX', 'REGEX', 'REGEX_TS', 'LINE_COUNT', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT', 'TIME_DELIM']
 just_field_type = ['CHECKSUM', 'LINE_COUNT', 'TIME_DELIM']
 logger = None
 resultidlist = {}
@@ -424,7 +424,7 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                 # If not found - set to None
                 if found_lookupstring == False:
                     linerequested = None
-            elif command == 'HAVESTRING_TS' or command == 'LOG_RANGE' or \
+            elif command == 'HAVESTRING_TS' or command == 'LOG_RANGE' or command == 'RANGE_REGEX' or \
                  command == 'REGEX_TS' or command == 'FILE_REGEX_TS' or command == 'LOG_TS':
                 return None
             elif command == 'LINE_COUNT':
@@ -740,6 +740,17 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
     else:
         return False
 
+def stringMatch(line, sub, command):
+    retval = False
+    if 'REGEX' in command:
+        sobj = re.search(sub, line)
+        if sobj is not None:
+            retval = True
+    else:
+        if sub in line:
+            retval = True
+    return retval
+        
 
 def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfname, container_list, logger, parameter_list):
     ts_nametags = {}
@@ -785,7 +796,7 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
                             ts_nametags[ts]['PROGRAM_ENDTIME'] = 0
                         ts_nametags[ts][result_key] = True
 
-            if command == 'LOG_RANGE':
+            if command == 'LOG_RANGE' or command == 'RANGE_REGEX':
                 if not os.path.isfile(targetfile):
                     continue
                 with open(targetfile, encoding='ascii', errors='ignore') as fh:
@@ -798,7 +809,10 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
                         continue
                     if prev_time_val is None:
                         prev_time_val = time_val
-                    if lookupstring in currentline:
+                    if stringMatch(currentline, lookupstring, command):
+                        if time_val == prev_time_val:
+                            ''' ignore if lacks range '''
+                            continue
                         last_time_val = time_val
                         prev_ts = str(prev_time_val)
                         end_ts = str(time_val)
@@ -811,7 +825,8 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
                         prev_time_val = time_val
                 if last_time_val is not None:
                     prev_ts = str(prev_time_val)
-                    end_ts = str(last_time_val)
+                    ''' set end to end of log '''
+                    end_ts = str(time_val)
                     if prev_ts not in ts_nametags:
                         ts_nametags[prev_ts] = {}
                         ts_nametags[prev_ts]['PROGRAM_ENDTIME'] = end_ts 
