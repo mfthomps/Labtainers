@@ -5,6 +5,9 @@
  */
 package labtainers.mainui;
 
+import java.awt.Dimension;
+import javax.swing.JPanel;
+
 /**
  *
  * @author student
@@ -48,7 +51,7 @@ public class ContainerConfigAddHosts extends javax.swing.JPanel {
         AddHostIpTF = new javax.swing.JTextField();
         AddHostNetworkCombobox = new javax.swing.JComboBox<>();
         AddHostHostTF = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
+        AddHostDeleteButton = new javax.swing.JButton();
 
         setBorder(javax.swing.BorderFactory.createEtchedBorder());
         setMaximumSize(new java.awt.Dimension(545, 58));
@@ -60,7 +63,12 @@ public class ContainerConfigAddHosts extends javax.swing.JPanel {
 
         AddHostHostTF.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
 
-        jButton1.setText("Delete");
+        AddHostDeleteButton.setText("Delete");
+        AddHostDeleteButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                AddHostDeleteButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -74,7 +82,7 @@ public class ContainerConfigAddHosts extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(AddHostIpTF, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton1)
+                .addComponent(AddHostDeleteButton)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -84,17 +92,32 @@ public class ContainerConfigAddHosts extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(AddHostNetworkCombobox, javax.swing.GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE)
                     .addComponent(AddHostHostTF, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton1)
+                    .addComponent(AddHostDeleteButton)
                     .addComponent(AddHostIpTF, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void AddHostDeleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddHostDeleteButtonActionPerformed
+        JPanel containerAddhostPanel = (JPanel)this.getParent();
+       
+       // delete the container from the list
+       containerAddhostPanel.remove(this);
+
+       // Shorten the panel height holding all the containers and resize it.
+       parent.containerAddHostPanelLength-=63;
+       containerAddhostPanel.setPreferredSize(new Dimension(0,parent.containerAddHostPanelLength));
+
+       // Redraw the panel containing the list of containers
+       containerAddhostPanel.revalidate();
+       containerAddhostPanel.repaint(); 
+    }//GEN-LAST:event_AddHostDeleteButtonActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton AddHostDeleteButton;
     private javax.swing.JTextField AddHostHostTF;
     private javax.swing.JTextField AddHostIpTF;
     private javax.swing.JComboBox<String> AddHostNetworkCombobox;
-    private javax.swing.JButton jButton1;
     // End of variables declaration//GEN-END:variables
 }

@@ -5,6 +5,7 @@
  */
 package labtainers.mainui;
 
+import java.awt.Component;
 import java.awt.Dimension;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -733,20 +734,39 @@ private boolean clicked = false;
 
     private void ContainerConfigWindowWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_ContainerConfigWindowWindowClosing
         System.out.println("Closing Config for: " + this.data.name);
+        clearLists();
         clicked = false;
     }//GEN-LAST:event_ContainerConfigWindowWindowClosing
 
     private void ContainerConfigUpdateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigUpdateButtonActionPerformed
        ContainerConfigWindow.setVisible(false);
+       clearLists();
        clicked = false;
     }//GEN-LAST:event_ContainerConfigUpdateButtonActionPerformed
 
     private void ContainerConfigCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigCancelButtonActionPerformed
         ContainerConfigWindow.setVisible(false);
+        clearLists();
         clicked = false;
     }//GEN-LAST:event_ContainerConfigCancelButtonActionPerformed
 
-    
+    private void clearLists(){
+        // Clear Add-host
+        Component[] componentList = AddHostsSubPanel.getComponents();
+        for(Component c: componentList)
+            AddHostsSubPanel.remove(c);
+        
+        containerAddHostPanelLength=0;
+        AddHostsSubPanel.setPreferredSize(new Dimension(0,containerAddHostPanelLength));
+        
+        // Clear network
+        componentList = ContainerConfigNetworksPanel.getComponents();
+        for(Component c: componentList)
+            ContainerConfigNetworksPanel.remove(c);
+        
+        containerConfigNetworksPanelLength=0;
+        ContainerConfigNetworksPanel.setPreferredSize(new Dimension(0,containerConfigNetworksPanelLength));
+    }
     
     private void ContainerConfigNetworksAddButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigNetworksAddButtonActionPerformed
         addContainerNetworkSubPanel("", "");
