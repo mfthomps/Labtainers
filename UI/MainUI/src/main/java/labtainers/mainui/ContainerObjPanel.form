@@ -99,11 +99,11 @@
                               </Group>
                               <Group type="102" attributes="0">
                                   <Group type="103" groupAlignment="1" attributes="0">
-                                      <Component id="jComboBox1" alignment="0" max="32767" attributes="0"/>
-                                      <Component id="AddHostTF1" pref="188" max="32767" attributes="0"/>
+                                      <Component id="AddHostNetworkCombobox" alignment="0" max="32767" attributes="0"/>
+                                      <Component id="AddHostHostTF" pref="158" max="32767" attributes="0"/>
                                   </Group>
                                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                  <Component id="AddHostTF" min="-2" pref="188" max="-2" attributes="0"/>
+                                  <Component id="AddHostIpTF" min="-2" pref="188" max="-2" attributes="0"/>
                                   <EmptySpace min="-2" pref="42" max="-2" attributes="0"/>
                               </Group>
                           </Group>
@@ -130,14 +130,14 @@
                           </Group>
                           <EmptySpace type="separate" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="AddHostTF1" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
-                              <Component id="AddHostTF" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
+                              <Component id="AddHostHostTF" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
+                              <Component id="AddHostIpTF" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
                               <Component id="AddHostLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace type="separate" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="AddHostLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="jComboBox1" alignment="3" pref="34" max="32767" attributes="0"/>
+                              <Component id="AddHostNetworkCombobox" alignment="3" pref="34" max="32767" attributes="0"/>
                           </Group>
                           <EmptySpace max="32767" attributes="0"/>
                       </Group>
@@ -193,7 +193,7 @@
                     <Property name="text" type="java.lang.String" value="ubuntu"/>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JTextField" name="AddHostTF">
+                <Component class="javax.swing.JTextField" name="AddHostIpTF">
                   <Properties>
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                       <Font name="Arial" size="12" style="0"/>
@@ -210,7 +210,7 @@
                     </Property>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JTextField" name="AddHostTF1">
+                <Component class="javax.swing.JTextField" name="AddHostHostTF">
                   <Properties>
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                       <Font name="Arial" size="12" style="0"/>
@@ -225,17 +225,17 @@
                     <Property name="text" type="java.lang.String" value="Add-Host-NET:"/>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JComboBox" name="jComboBox1">
+                <Component class="javax.swing.JComboBox" name="AddHostNetworkCombobox">
                   <Properties>
                     <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-                      <StringArray count="4">
-                        <StringItem index="0" value="Item 1"/>
-                        <StringItem index="1" value="Item 2"/>
-                        <StringItem index="2" value="Item 3"/>
-                        <StringItem index="3" value="Item 4"/>
+                      <StringArray count="1">
+                        <StringItem index="0" value=" "/>
                       </StringArray>
                     </Property>
                   </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="AddHostNetworkComboboxActionPerformed"/>
+                  </Events>
                   <AuxValues>
                     <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
                   </AuxValues>
@@ -269,7 +269,7 @@
                               <Component id="ThumbCommandTextfield" min="-2" pref="189" max="-2" attributes="0"/>
                               <Component id="HideCheckbox" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace pref="239" max="32767" attributes="0"/>
+                          <EmptySpace pref="216" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -373,7 +373,7 @@
                               <Component id="ScriptTextfield" alignment="0" min="-2" pref="188" max="-2" attributes="0"/>
                               <Component id="NoPrivilegeCheckbox" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace pref="249" max="32767" attributes="0"/>
+                          <EmptySpace pref="234" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -520,7 +520,7 @@
                               <Component id="MyStuffCheckbox" min="-2" max="-2" attributes="0"/>
                               <Component id="ClonesSpinner" min="-2" pref="45" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace pref="44" max="32767" attributes="0"/>
+                          <EmptySpace pref="24" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>

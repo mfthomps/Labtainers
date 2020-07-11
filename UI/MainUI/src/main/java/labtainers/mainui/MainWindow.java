@@ -13,6 +13,7 @@ import java.io.IOException;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
+import labtainers.mainui.LabData.ContainerData;
 import labtainers.mainui.LabData.NetworkData;
 
 /**
@@ -506,16 +507,27 @@ public class MainWindow extends javax.swing.JFrame {
         NetworkAddDialog.setVisible(true);
     }//GEN-LAST:event_addNetworkButtonActionPerformed
 
+
+    private void ContainerAddDialogCreateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerAddDialogCreateButtonActionPerformed
+        addContainerPanel(null);
+    }//GEN-LAST:event_ContainerAddDialogCreateButtonActionPerformed
     public int containerPanePanelLength = 0;
     private final JScrollBar containerScrollPaneBar;
-    private void ContainerAddDialogCreateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerAddDialogCreateButtonActionPerformed
+    private void addContainerPanel(ContainerData data){
         //Resize the JPanel Holding all the ContainerObjPanels to fit another ContainerObjPanel 
         //(makes the scroll bar resize and should show all objects listed)
         containerPanePanelLength+=50;
         ContainerPanePanel.setPreferredSize(new Dimension(0,containerPanePanelLength));
         
         // Create the Container Obj Panel and add it
-        ContainerObjPanel newContainer = new ContainerObjPanel(this, ContainerAddDialogNameTextfield.getText());
+        ContainerObjPanel newContainer;
+        if(data == null){
+            newContainer = new ContainerObjPanel(this, ContainerAddDialogNameTextfield.getText());
+        }
+        else {
+            newContainer = new ContainerObjPanel(this, data);
+        }
+
         ContainerPanePanel.add(newContainer);
         
         // Redraw GUI with the new Panel
@@ -527,8 +539,7 @@ public class MainWindow extends javax.swing.JFrame {
         //System.out.println("Max: "+(50+containerScrollPaneBar.getMaximum()));
         containerScrollPaneBar.setValue(50+containerScrollPaneBar.getMaximum());
         ContainerAddDialog.setVisible(false);
-    }//GEN-LAST:event_ContainerAddDialogCreateButtonActionPerformed
-
+    }
 
     private void NetworkAddDialogCreateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NetworkAddDialogCreateButtonActionPerformed
         addNetworkPanel(null);
@@ -622,10 +633,10 @@ public class MainWindow extends javax.swing.JFrame {
             addNetworkPanel(labData.getNetworks().get(i));
         }
         
-        // Load the containers 
-//        for(){
-//            
-//        }
+        //Load the containers 
+        for(int i = 0;i<labData.getContainers().size();i++){
+            addContainerPanel(labData.getContainers().get(i));
+        }
     }
     
     
