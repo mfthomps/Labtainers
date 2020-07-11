@@ -19,7 +19,7 @@ public class ContainerConfigNetworksSubpanel extends javax.swing.JPanel {
      */
     private ContainerObjPanel parent;
     private LabData data;
-    public ContainerConfigNetworksSubpanel(ContainerObjPanel parent,LabData data, String network, String ip) {
+    public ContainerConfigNetworksSubpanel(ContainerObjPanel parent, LabData data, String network, String ip) {
         initComponents();
         this.parent = parent;
         this.data = data;
@@ -47,12 +47,12 @@ public class ContainerConfigNetworksSubpanel extends javax.swing.JPanel {
         ContainerConfigNetworksIPTextfield = new javax.swing.JTextField();
         ContainerConfigNetworksDeleteButton = new javax.swing.JButton();
 
+        setBorder(javax.swing.BorderFactory.createEtchedBorder());
         setMaximumSize(new java.awt.Dimension(543, 53));
         setMinimumSize(new java.awt.Dimension(543, 53));
         setPreferredSize(new java.awt.Dimension(543, 53));
 
         ContainerConfigNetworksNameCombobox.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        ContainerConfigNetworksNameCombobox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { " " }));
 
         ContainerConfigNetworksIPTextfield.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
 

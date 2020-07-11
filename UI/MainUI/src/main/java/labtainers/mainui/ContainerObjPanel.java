@@ -25,6 +25,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
     public ContainerObjPanel(MainWindow mainWindow, String name) {
         initComponents();
         this.mainWindow = mainWindow;
+        this.containerAddHostScrollPaneBar = AddHostsScrollPane.getVerticalScrollBar();
         this.containerConfigNetworksScrollPaneBar = ContainerConfigNetworksScrollpane.getVerticalScrollBar();  
         this.data = new LabData.ContainerData(name);
                 
@@ -35,6 +36,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
     public ContainerObjPanel(MainWindow mainWindow, LabData.ContainerData data){
         initComponents();
         this.mainWindow = mainWindow;
+        this.containerAddHostScrollPaneBar = AddHostsScrollPane.getVerticalScrollBar();
         this.containerConfigNetworksScrollPaneBar = ContainerConfigNetworksScrollpane.getVerticalScrollBar();  
         this.data = data;
         
@@ -49,12 +51,12 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         this.UserTF.setText(data.user);
         this.PasswordTF.setText(data.password);
         this.TerminalQuantitySpinner.setValue(data.terminal_count);
-        this.AddHostHostTF.setText(data.add_host_host);
-        this.AddHostIpTF.setText(data.add_host_ip);
-        for(int i = 0;i<mainWindow.labData.getNetworks().size();i++){
-            this.AddHostNetworkCombobox.addItem(mainWindow.labData.getNetworks().get(i).name);
+        
+            // list of add-hosts
+        for(int i=0;i<data.listOfContainerAddHost.size();i++){
+            addAddHostSubPanel(data.listOfContainerAddHost.get(i).type,        data.listOfContainerAddHost.get(i).add_host_host, 
+                               data.listOfContainerAddHost.get(i).add_host_ip, data.listOfContainerAddHost.get(i).add_host_network);
         }
-        this.AddHostNetworkCombobox.setSelectedItem(data.add_host_network);
         
         // GNS3
         this.ThumbCommandTextfield.setText(data.thumb_command);
@@ -103,14 +105,14 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         UserLabel = new javax.swing.JLabel();
         TerminalCountLabel = new javax.swing.JLabel();
         PasswordLabel = new javax.swing.JLabel();
-        AddHostLabel = new javax.swing.JLabel();
         UserTF = new javax.swing.JTextField();
         PasswordTF = new javax.swing.JTextField();
-        AddHostIpTF = new javax.swing.JTextField();
         TerminalQuantitySpinner = new javax.swing.JSpinner();
-        AddHostHostTF = new javax.swing.JTextField();
         AddHostLabel1 = new javax.swing.JLabel();
-        AddHostNetworkCombobox = new javax.swing.JComboBox<>();
+        AddHostsScrollPane = new javax.swing.JScrollPane();
+        AddHostsSubPanel = new javax.swing.JPanel();
+        ContainerConfigAddHostIPButton = new javax.swing.JButton();
+        ContainerConfigAddHostNetworkButton = new javax.swing.JButton();
         ContainerConfigGNS3Tab = new javax.swing.JPanel();
         ThumbVolumeLabel = new javax.swing.JLabel();
         HideLabel = new javax.swing.JLabel();
@@ -185,29 +187,38 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         PasswordLabel.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         PasswordLabel.setText("Password: ");
 
-        AddHostLabel.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        AddHostLabel.setText("Add-Host:");
-
         UserTF.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         UserTF.setText("ubuntu");
 
         PasswordTF.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         PasswordTF.setText("ubuntu");
 
-        AddHostIpTF.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-
         TerminalQuantitySpinner.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         TerminalQuantitySpinner.setModel(new javax.swing.SpinnerNumberModel(1, -1, null, 1));
 
-        AddHostHostTF.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-
         AddHostLabel1.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        AddHostLabel1.setText("Add-Host-NET:");
+        AddHostLabel1.setText("Add-Hosts:");
 
-        AddHostNetworkCombobox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { " " }));
-        AddHostNetworkCombobox.addActionListener(new java.awt.event.ActionListener() {
+        AddHostsScrollPane.setMaximumSize(new java.awt.Dimension(548, 32767));
+        AddHostsScrollPane.setMinimumSize(new java.awt.Dimension(548, 19));
+        AddHostsScrollPane.setPreferredSize(new java.awt.Dimension(548, 100));
+
+        AddHostsSubPanel.setMaximumSize(new java.awt.Dimension(0, 0));
+        AddHostsSubPanel.setMinimumSize(new java.awt.Dimension(0, 0));
+        AddHostsSubPanel.setPreferredSize(new java.awt.Dimension(0, 0));
+        AddHostsScrollPane.setViewportView(AddHostsSubPanel);
+
+        ContainerConfigAddHostIPButton.setText("Add Host:IP");
+        ContainerConfigAddHostIPButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                AddHostNetworkComboboxActionPerformed(evt);
+                ContainerConfigAddHostIPButtonActionPerformed(evt);
+            }
+        });
+
+        ContainerConfigAddHostNetworkButton.setText("Add Network");
+        ContainerConfigAddHostNetworkButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ContainerConfigAddHostNetworkButtonActionPerformed(evt);
             }
         });
 
@@ -216,29 +227,36 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         ContainerConfigGeneralTabLayout.setHorizontalGroup(
             ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
-                .addGap(10, 10, 10)
-                .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(AddHostLabel1)
-                    .addComponent(UserLabel)
-                    .addComponent(PasswordLabel)
-                    .addComponent(TerminalCountLabel)
-                    .addComponent(AddHostLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
-                        .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(PasswordTF, javax.swing.GroupLayout.DEFAULT_SIZE, 188, Short.MAX_VALUE)
-                                .addComponent(UserTF))
-                            .addComponent(TerminalQuantitySpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
+                        .addGap(71, 71, 71)
                         .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(AddHostNetworkCombobox, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(AddHostHostTF, javax.swing.GroupLayout.DEFAULT_SIZE, 158, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(AddHostIpTF, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(42, 42, 42))))
+                            .addComponent(UserLabel)
+                            .addComponent(PasswordLabel)))
+                    .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(TerminalCountLabel))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ContainerConfigGeneralTabLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(AddHostLabel1)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ContainerConfigGeneralTabLayout.createSequentialGroup()
+                        .addComponent(PasswordTF)
+                        .addGap(212, 212, 212))
+                    .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
+                        .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(TerminalQuantitySpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
+                                .addComponent(ContainerConfigAddHostIPButton)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(ContainerConfigAddHostNetworkButton))
+                            .addComponent(UserTF, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+            .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(AddHostsScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         ContainerConfigGeneralTabLayout.setVerticalGroup(
             ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -247,24 +265,22 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                 .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(UserLabel)
                     .addComponent(UserTF, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(19, 19, 19)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(PasswordLabel)
-                    .addComponent(PasswordTF, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                    .addComponent(PasswordTF, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(PasswordLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(TerminalCountLabel)
-                    .addComponent(TerminalQuantitySpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                    .addComponent(TerminalQuantitySpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(TerminalCountLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(AddHostHostTF, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(AddHostIpTF, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(AddHostLabel))
-                .addGap(18, 18, 18)
-                .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(ContainerConfigAddHostIPButton)
                     .addComponent(AddHostLabel1)
-                    .addComponent(AddHostNetworkCombobox, javax.swing.GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(ContainerConfigAddHostNetworkButton))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(AddHostsScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         containerTabPane.addTab("General ", ContainerConfigGeneralTab);
@@ -319,7 +335,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                 .addGroup(ContainerConfigGNS3TabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(HideLabel)
                     .addComponent(HideCheckbox))
-                .addContainerGap(72, Short.MAX_VALUE))
+                .addContainerGap(96, Short.MAX_VALUE))
         );
 
         containerTabPane.addTab("GNS3", ContainerConfigGNS3Tab);
@@ -391,7 +407,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                 .addGroup(ContainerConfigDockerTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel4)
                     .addComponent(NoPrivilegeCheckbox))
-                .addContainerGap(39, Short.MAX_VALUE))
+                .addContainerGap(61, Short.MAX_VALUE))
         );
 
         containerTabPane.addTab("Docker", ContainerConfigDockerTab);
@@ -587,8 +603,9 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         ContainerConfigWindowLayout.setVerticalGroup(
             ContainerConfigWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ContainerConfigWindowLayout.createSequentialGroup()
-                .addComponent(containerTabPane, javax.swing.GroupLayout.PREFERRED_SIZE, 296, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(10, 10, 10)
+                .addContainerGap()
+                .addComponent(containerTabPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(ContainerConfigWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(ContainerConfigUpdateButton)
                     .addComponent(ContainerConfigCancelButton))
@@ -734,10 +751,6 @@ private boolean clicked = false;
     private void ContainerConfigNetworksAddButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigNetworksAddButtonActionPerformed
         addContainerNetworkSubPanel("", "");
     }//GEN-LAST:event_ContainerConfigNetworksAddButtonActionPerformed
-
-    private void AddHostNetworkComboboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddHostNetworkComboboxActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_AddHostNetworkComboboxActionPerformed
     
     public int containerConfigNetworksPanelLength = 0;
     private final JScrollBar containerConfigNetworksScrollPaneBar;   
@@ -758,15 +771,45 @@ private boolean clicked = false;
         //Lower the Scroll Bar to show the newly added container
         containerConfigNetworksScrollPaneBar.setValue(58+containerConfigNetworksScrollPaneBar.getMaximum());
     }
+    
+    private void ContainerConfigAddHostIPButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigAddHostIPButtonActionPerformed
+        addAddHostSubPanel("ip","","","");
+    }//GEN-LAST:event_ContainerConfigAddHostIPButtonActionPerformed
+
+    private void ContainerConfigAddHostNetworkButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigAddHostNetworkButtonActionPerformed
+        addAddHostSubPanel("network","","","");
+    }//GEN-LAST:event_ContainerConfigAddHostNetworkButtonActionPerformed
+    
+    public int containerAddHostPanelLength = 0;
+    private final JScrollBar containerAddHostScrollPaneBar;   
+    private void addAddHostSubPanel(String type, String host, String ip, String network){
+         //Resize the JPanel Holding all the containerAddHostsPanel to fit another containerAddHostsPanel 
+        //(makes the scroll bar resize and should show all objects listed)
+        containerAddHostPanelLength+=63;
+        AddHostsSubPanel.setPreferredSize(new Dimension(0,containerAddHostPanelLength));
+
+        // Create the Container Obj Panel and add it
+        ContainerConfigAddHosts newContainerConfigAddHost = new ContainerConfigAddHosts(this, mainWindow.labData, type, host, ip, network);
+        AddHostsSubPanel.add(newContainerConfigAddHost);
+
+        // Redraw GUI with the new Panel
+        AddHostsSubPanel.revalidate();
+        AddHostsSubPanel.repaint();
+        
+        //Lower the Scroll Bar to show the newly added container
+        containerAddHostScrollPaneBar.setValue(58+containerAddHostScrollPaneBar.getMaximum());
+    }
+    
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextField AddHostHostTF;
-    private javax.swing.JTextField AddHostIpTF;
-    private javax.swing.JLabel AddHostLabel;
     private javax.swing.JLabel AddHostLabel1;
-    private javax.swing.JComboBox<String> AddHostNetworkCombobox;
+    private javax.swing.JScrollPane AddHostsScrollPane;
+    private javax.swing.JPanel AddHostsSubPanel;
     private javax.swing.JTextField BaseRegistryTextfield;
     private javax.swing.JSpinner ClonesSpinner;
+    private javax.swing.JButton ContainerConfigAddHostIPButton;
+    private javax.swing.JButton ContainerConfigAddHostNetworkButton;
     private javax.swing.JButton ContainerConfigCancelButton;
     private javax.swing.JPanel ContainerConfigDockerTab;
     private javax.swing.JPanel ContainerConfigGNS3Tab;

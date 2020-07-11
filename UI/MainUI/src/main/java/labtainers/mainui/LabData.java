@@ -46,9 +46,7 @@ public class LabData {
         public String password = "";
         public ArrayList<ContainerNetworkSubData> listOfContainerNetworks;
         public String script = "";
-        public String add_host_host = "";
-        public String add_host_ip = "";
-        public String add_host_network = "";
+        public ArrayList<ContainerAddHostSubData> listOfContainerAddHost;
         public boolean x11;
         public int clone;
         public boolean no_pull;
@@ -67,6 +65,7 @@ public class LabData {
         ContainerData(String name){
             this.name = name;
             this.listOfContainerNetworks = new ArrayList();
+            this.listOfContainerAddHost = new ArrayList();
         } 
     }
 
@@ -79,10 +78,22 @@ public class LabData {
             this.network_ipaddress = ipaddress;
         }
         
-
-        
         ContainerNetworkSubData(){
             
+        }
+    }
+    
+    static protected class ContainerAddHostSubData{
+        public String type = "";
+        public String add_host_host = "";
+        public String add_host_ip = "";
+        public String add_host_network = "";
+        
+        ContainerAddHostSubData(String type, String host, String ip, String network){
+            this.type = type;
+            this.add_host_host = host;
+            this.add_host_ip = ip;
+            this.add_host_network = network;
         }
     }
     
@@ -172,11 +183,10 @@ public class LabData {
                                   case "ADD-HOST":
                                       if(line.split("\\s+")[1].contains(":")){ //host:ip
                                           String tmp = line.split("\\s+")[1];
-                                          listOfContainers.get(listOfContainers.size()-1).add_host_host = tmp.split(":")[0];
-                                          listOfContainers.get(listOfContainers.size()-1).add_host_ip = tmp.split(":")[1];
+                                          listOfContainers.get(listOfContainers.size()-1).listOfContainerAddHost.add(new ContainerAddHostSubData("ip",tmp.split(":")[0], tmp.split(":")[1], ""));
                                       }
                                       else { //network
-                                          listOfContainers.get(listOfContainers.size()-1).add_host_network =  line.split("\\s+")[1];    
+                                          listOfContainers.get(listOfContainers.size()-1).listOfContainerAddHost.add(new ContainerAddHostSubData("network","", "", line.split("\\s+")[1]));
                                       }
                                       
                                       break;
@@ -316,9 +326,20 @@ public class LabData {
         
         System.out.println("password: " + data.password);   
         System.out.println("script: " + data.script);  
-        System.out.println("add_host_host: " + data.add_host_host);  
-        System.out.println("add_host_ip: " + data.add_host_ip);  
-        System.out.println("add_host_network: " + data.add_host_network);  
+        
+
+        if(data.listOfContainerAddHost != null){
+            for(int i = 0;i<data.listOfContainerAddHost.size();i++){
+                if(data.listOfContainerAddHost.get(i).type.equals("ip")){
+                    System.out.println("ADD-HOST: " + data.listOfContainerAddHost.get(i).add_host_host + " " + data.listOfContainerAddHost.get(i).add_host_ip);  
+                }
+                else{
+                    System.out.println("ADD-HOST: " + data.listOfContainerAddHost.get(i).add_host_network);  
+                }
+                
+            }
+        }
+        
         System.out.println("x11: " + data.x11);  
         System.out.println("clone: " + data.clone);  
         System.out.println("no_pull: " + data.no_pull);  
