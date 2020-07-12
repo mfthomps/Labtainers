@@ -8,13 +8,24 @@ package labtainers.mainui;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import labtainers.mainui.LabData.ContainerData;
 import labtainers.mainui.LabData.NetworkData;
+
 
 /**
  *
@@ -26,12 +37,59 @@ public class MainWindow extends javax.swing.JFrame {
      * Creates new form MainWindow
      */
     LabData labData;
-    public MainWindow() {
+    String labtainerPath;
+    File labsPath;
+    File currentLab;
+    File iniFile;
+    Properties pathProperties;
+    public MainWindow() throws IOException {
         initComponents();
         containerScrollPaneBar = ContainerScrollPane.getVerticalScrollBar();
         networkScrollPaneBar = NetworkScrollPane.getVerticalScrollBar();
         
         labData = new LabData();
+        
+       
+        try {
+            iniFile = new File("/home/student/dev/Labtainers/UI/bin/mainUI.ini"); //location will need to be updated in final
+            pathProperties  = new Properties();
+            pathProperties.load(new FileInputStream(iniFile)); 
+            
+            
+            //If the labtainers path has not been set in the config 
+            if(pathProperties.getProperty("labtainerPath").isEmpty()){
+                System.out.println("No labtainer path set yet");
+                
+                // update the labtainerPath
+                pathProperties.put("labtainerPath", System.getenv("LABTAINER_DIR"));
+                FileOutputStream out = new FileOutputStream(iniFile);
+                
+                SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                Date date = new Date();
+                pathProperties.store(out, "Updated: "+ formatter.format(date));
+            } 
+            
+            labtainerPath = pathProperties.getProperty("labtainerPath");
+            labsPath = new File(labtainerPath + File.separator + "labs");
+            labChooser.setCurrentDirectory(labsPath);
+            
+            
+                        //if a lab has been loaded before then load that lab initially
+            //If a lab has been opened before
+            String iniPrevLab = pathProperties.getProperty("prevLab").trim();
+            System.out.println("iniPrevlab: "+iniPrevLab);
+            System.out.println();
+            File prevLab = new File(iniPrevLab);
+            if(!iniPrevLab.isEmpty() && prevLab.isDirectory()){
+                System.out.println(prevLab+" is lab!");
+                openLab(prevLab);
+            }
+           
+            
+            
+        } catch (FileNotFoundException ex) {
+            System.out.println(ex);
+        }
     }
     
 
@@ -302,11 +360,16 @@ public class MainWindow extends javax.swing.JFrame {
                 .addGap(68, 68, 68))
         );
 
-        labChooser.setCurrentDirectory(new java.io.File("/home/student/C:/Users/Daniel Liao/Desktop/Labtainers/labs"));
+        labChooser.setCurrentDirectory(new java.io.File("/home/student/dev/Labtainers/UI/bin/C:/Users/Daniel Liao/Desktop/Labtainers/labs"));
         labChooser.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                MainWindow.this.windowClosing(evt);
+            }
+        });
 
         AssessmentButton.setText("ASSESSMENT");
         AssessmentButton.addActionListener(new java.awt.event.ActionListener() {
@@ -580,26 +643,57 @@ public class MainWindow extends javax.swing.JFrame {
     
     
     private void OpenLabMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_OpenLabMenuItemActionPerformed
-           int returnVal = labChooser.showOpenDialog(this);
+            int returnVal = labChooser.showOpenDialog(this);
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 File lab = labChooser.getSelectedFile();
-                String labname = lab.toString().substring(lab.toString().lastIndexOf(File.separator)+1);
-           
-                labData = new LabData(lab, labname); //initialize all data for the lab
-       
-                // Visual load of lab
-                resetWindow();
-                loadLab();
-                labData.printData();
+                openLab(lab);
             } 
             else {
                 System.out.println("File access cancelled by user.");
             }
     }//GEN-LAST:event_OpenLabMenuItemActionPerformed
 
+    
+private void openLab(File lab){
+    currentLab = lab;
+    String labname = lab.toString().substring(lab.toString().lastIndexOf(File.separator)+1);
+           
+    labData = new LabData(lab, labname); //initialize all data for the lab
+
+    // Visual load of lab
+    resetWindow();
+    loadLab();
+    labData.printData();    
+}    
+
     private void NetworkAddDialogCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NetworkAddDialogCancelButtonActionPerformed
         NetworkAddDialog.setVisible(false);
     }//GEN-LAST:event_NetworkAddDialogCancelButtonActionPerformed
+
+    private void windowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_windowClosing
+        //Write the current lab to the ini so that when the app opens again it opens to this lab
+        FileOutputStream out = null;
+        try {
+            out = new FileOutputStream(iniFile);
+            if(out != null){
+                //String tmp = File.toString(currentLab);
+                pathProperties.put("prevLab", currentLab.getPath());
+
+                SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                Date date = new Date();
+
+                pathProperties.store(out, "Updated: "+ formatter.format(date));
+            }
+            
+        } 
+        catch (FileNotFoundException ex) { System.out.println(ex);} 
+        catch (IOException ex) { System.out.println(ex);} 
+        
+        finally {
+            try { if(out != null){out.close();}} 
+            catch (IOException ex) { System.out.println(ex);}
+        }
+    }//GEN-LAST:event_windowClosing
 
     
     
@@ -672,7 +766,11 @@ public class MainWindow extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new MainWindow().setVisible(true);
+                try {
+                    new MainWindow().setVisible(true);
+                } catch (IOException ex) {
+                    System.out.println(ex);
+                }
             }
         });
     }

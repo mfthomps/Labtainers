@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+
+<project name="MainUI" default="main" basedir=".">
+        <description>
+            Main UI to the Labtainers Framework that makes the labs and edits the start configs
+        </description>
+
+        <property name="projectName" value="labtainers.mainui"/>
+        
+        
+        <property name="staging.dir" location="staging" />
+
+        <property name="src.dir" location="src" />
+        
+        <property name="build.dir" location="${staging.dir}/bin" />
+        
+        <property name="dist.dir" location="${staging.dir}/dist" />
+        
+        <target name="main" depends="init, dist" />
+        
+        <target name="init">
+            <mkdir dir="${staging.dir}" />
+            <mkdir dir="${build.dir}" />
+        </target>
+
+        <target name="clean" description="Flush staging directory">
+            <delete dir="${staging.dir}" />
+        </target>
+        
+        <target name="dist" description="package, output to JAR">
+            
+            <mkdir dir="${dist.dir}"/>
+            
+            <jar jarfile="${dist.dir}/${projectName}.jar" basedir="${build.dir}">
+                <manifest>
+                    <attribute name="Main-Class" value="${projectName}/MainWindow" />
+                </manifest>
+            </jar>
+            
+        </target>
+        
+</project>

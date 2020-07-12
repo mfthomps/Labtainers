@@ -115,7 +115,7 @@ public class LabData {
     
     
     
-    boolean retrieveData(){
+    private boolean retrieveData(){
         File startConfig = new File(this.path+"/config/start.config");
         
         try {
@@ -191,35 +191,23 @@ public class LabData {
                                       
                                       break;
                                   case "X11":
-                                      if(line.split("\\s+")[1].equals("YES")){
-                                          listOfContainers.get(listOfContainers.size()-1).x11 = true;
-                                      }
-                                      else{
-                                          listOfContainers.get(listOfContainers.size()-1).x11 = false;
-                                      }
+                                      listOfContainers.get(listOfContainers.size()-1).x11 = line.split("\\s+")[1].equals("YES");
                                       break;
+
                                   case "CLONE":
                                       listOfContainers.get(listOfContainers.size()-1).clone = Integer.parseInt(line.split("\\s+")[1]);      
                                       break;
                                   case "NO_PULL":
-                                      if(line.split("\\s+")[1].equals("YES")){
-                                          listOfContainers.get(listOfContainers.size()-1).no_pull = true;
-                                      }
-                                      else{
-                                          listOfContainers.get(listOfContainers.size()-1).no_pull = false;
-                                      }
+                                      listOfContainers.get(listOfContainers.size()-1).no_pull = line.split("\\s+")[1].equals("YES");
                                       break;
+
                                   case "LAB_GATEWAY":
                                       listOfContainers.get(listOfContainers.size()-1).lab_gateway = line.split("\\s+")[1];
                                       break;
                                   case "NO_GW":
-                                      if(line.split("\\s+")[1].equals("YES")){
-                                          listOfContainers.get(listOfContainers.size()-1).no_gw = true;
-                                      }
-                                      else{
-                                          listOfContainers.get(listOfContainers.size()-1).no_gw = false;
-                                      }
+                                      listOfContainers.get(listOfContainers.size()-1).no_gw = line.split("\\s+")[1].equals("YES");
                                       break;
+
                                   case "REGISTRY":
                                       listOfContainers.get(listOfContainers.size()-1).registry = line.split("\\s+")[1];
                                       break;
@@ -239,29 +227,17 @@ public class LabData {
                                       listOfContainers.get(listOfContainers.size()-1).publish = line.split("PUBLISH\\s+")[1];
                                       break;
                                   case "HIDE":
-                                      if(line.split("\\s+")[1].equals("YES")){
-                                          listOfContainers.get(listOfContainers.size()-1).hide = true;
-                                      }
-                                      else{
-                                          listOfContainers.get(listOfContainers.size()-1).hide = false;
-                                      }
+                                      listOfContainers.get(listOfContainers.size()-1).hide = line.split("\\s+")[1].equals("YES");
                                       break;
+
                                   case "NO_PRIVILEGE":
-                                      if(line.split("\\s+")[1].equals("YES")){
-                                          listOfContainers.get(listOfContainers.size()-1).no_privilege = true;
-                                      }
-                                      else{
-                                          listOfContainers.get(listOfContainers.size()-1).no_privilege = false;
-                                      }
+                                      listOfContainers.get(listOfContainers.size()-1).no_privilege = line.split("\\s+")[1].equals("YES");
                                       break;
+
                                   case "MYSTUFF":
-                                      if(line.split("\\s+")[1].equals("YES")){
-                                          listOfContainers.get(listOfContainers.size()-1).mystuff = true;
-                                      }
-                                      else{
-                                          listOfContainers.get(listOfContainers.size()-1).mystuff = false;
-                                      }
+                                      listOfContainers.get(listOfContainers.size()-1).mystuff = line.split("\\s+")[1].equals("YES");
                                       break;                                                   
+                                                   
                               }
                               //Check the array of network names to check it 
                               for(int i = 0;i <listOfNetworks.size();i++){
