@@ -91,8 +91,11 @@ for your user or group?
 Go to the wireshark window, and stop capturing packets (e.g., the red stop button).
 Enter a display filter of ``ldap'', i.e., near the top where it says "Apply a display filter...".
 Review the LDAP traffic.  Which components are exchanging packets?  Locate the packet that changed
-mike's password and use {\tt File / Export Specified Packets} to save that packet in a file named
-{\tt password.pcapng}
+mike's password and use 
+\begin{verbatim}
+    File / Export Specified Packets 
+\end{verbatim}
+\noindent to save that packet in a file named {\tt password.pcapng}
 
 \subsection{Use the mike credentials to access another server}
 Exit your ssh session from server1.  Then ssh to server2:
