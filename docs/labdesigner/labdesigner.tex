@@ -244,7 +244,7 @@ used by students when starting the lab.  It must be all lower case and not conta
     cd <new lab name>
 \end{verbatim}
 
-\noindent After the new lab directory is created, run the ``new\_lab\_setup.sh'' script.
+\noindent After the new lab directory is created, run the ``new\_lab\_setup.py'' script.
 \footnote {The {\tt \$LABTAINER\_DIR} will have been defined in your .bashrc
 file when you installed Labtainers.  It should point to the {\tt labtainers/trunk}
 directory.  You may need to start a new {\tt bash} shell to inherit the environment
@@ -325,7 +325,7 @@ The following sections describe how to further alter the lab execution environme
 the student.
 
 \subsection {Multiple containers}
-The {\tt new\_lab\_setup.sh} script can be used to create additional containers for use
+The {\tt new\_lab\_setup.py} script can be used to create additional containers for use
 in the lab.  For example, from your new lab directory:
 \begin{verbatim}
     new_lab_setup.py -a joe_computer
@@ -366,7 +366,7 @@ allow students to share tools they've developed between different labs.
 \subsection {Docker files}
 A default Labtainer-specific Dockerfile is placed in the new lab's ``Dockerfiles'' 
 directory when the new lab is created.  And additional Dockerfiles are added when the
-{\tt new\_lab\_setup.sh -a} script adds computers to the lab. We use standard Docker file syntax, which is described at 
+{\tt new\_lab\_setup.py -a} script adds computers to the lab. We use standard Docker file syntax, which is described at 
 \url{https://docs.docker.com/engine/reference/builder/}
 
 Simple labs should be able to use the default Dockerfile copied by the 
@@ -533,7 +533,11 @@ with the container.  This allows the container to perform all kinds of mischief.
 \item THUMB\_COMMAND -- Optional command that will run prior mounting the THUMB volume defined above.
 \item THUMB\_STOP -- Optional command that will run when the container is stopped under GNS3.
 \item PUBLISH [publish] -- Optional arguments to the Docker {\tt --publish} argument for making container ports visible at the
-host interface.  For example, a value of {\tt 127.0.0.1:60022:22/tcp} will bind host port 60022 to container port 22.
+host interface.  For example, a value of 
+\begin{verbatim}
+     127.0.0.1:60022:22/tcp
+\end{verbatim}
+\noindent will bind host port 60022 to container port 22.
 \item HIDE [hide] -- If YES, the associated node will be hidden in GNS3 environments when the {\tt --student} option if
 \item NO\_PRIVILEGE -- If YES, the container runs without Docker privilege.
 \item MYSTUFF -- if YES, the directory at {\tt labtainerstudent/mystuff} is shared with the container in {\tt /home/<user>/mystuff.}
@@ -671,7 +675,7 @@ to a [labname].pdf file within that same docs directory. And ``LAB\_DOCS'' is re
 \noindent An 'about.txt' file will be present in the 'config' directory of the lab. Any text inside will be displayed as a description to the lab when listed from running the 'labtainer' command in \$LABTAINER\_DIR/trunk/scripts/labtainer-student. This text will also appear when clicking on the logo in the GNS3 environment of Labtainers. \\ 
 
 \noindent If the start.config file includes ``COLLECT\_DOCS YES'', the content of the lab/docs directory will be
-included with the student artifacts and available extracted into the intstrutor's 
+included with the student artifacts and available extracted into the instructor's 
 labtainer\_xfer/[lab]/docs directory. \\
 
 \noindent A deprecated feature that still exists in a tiny handful of labs: "Lab instructions for students can be displayed in a virtual terminal by placing an
@@ -685,7 +689,7 @@ Programs can be started automatically within virtual terminals using two methods
 The first is the ``XTERM'' directive in the container section in the start.config file
 described in \ref{start config}.  That is intended for programs whose results are displayed
 within the virtual terminal, (see the plc lab for examples).  The second method is 
-intended for user authentiation and for starting GUI based programs
+intended for user authentication and for starting GUI based programs
 that will use the Linux host Xserver.  If a file exists at:
 \begin{verbatim}
     $LABTAINER_DIR/labs/[labname]/[container name]/_bin/student_startup.sh
