@@ -244,7 +244,7 @@ used by students when starting the lab.  It must be all lower case and not conta
     cd <new lab name>
 \end{verbatim}
 
-\noindent After the new lab directory is created, run the ``new\_lab\_setup.sh'' script.
+\noindent After the new lab directory is created, run the ``new\_lab\_setup.py'' script.
 \footnote {The {\tt \$LABTAINER\_DIR} will have been defined in your .bashrc
 file when you installed Labtainers.  It should point to the {\tt labtainers/trunk}
 directory.  You may need to start a new {\tt bash} shell to inherit the environment
@@ -325,7 +325,7 @@ The following sections describe how to further alter the lab execution environme
 the student.
 
 \subsection {Multiple containers}
-The {\tt new\_lab\_setup.sh} script can be used to create additional containers for use
+The {\tt new\_lab\_setup.py} script can be used to create additional containers for use
 in the lab.  For example, from your new lab directory:
 \begin{verbatim}
     new_lab_setup.py -a joe_computer
@@ -366,7 +366,7 @@ allow students to share tools they've developed between different labs.
 \subsection {Docker files}
 A default Labtainer-specific Dockerfile is placed in the new lab's ``Dockerfiles'' 
 directory when the new lab is created.  And additional Dockerfiles are added when the
-{\tt new\_lab\_setup.sh -a} script adds computers to the lab. We use standard Docker file syntax, which is described at 
+{\tt new\_lab\_setup.py -a} script adds computers to the lab. We use standard Docker file syntax, which is described at 
 \url{https://docs.docker.com/engine/reference/builder/}
 
 Simple labs should be able to use the default Dockerfile copied by the 
@@ -533,7 +533,11 @@ with the container.  This allows the container to perform all kinds of mischief.
 \item THUMB\_COMMAND -- Optional command that will run prior mounting the THUMB volume defined above.
 \item THUMB\_STOP -- Optional command that will run when the container is stopped under GNS3.
 \item PUBLISH [publish] -- Optional arguments to the Docker {\tt --publish} argument for making container ports visible at the
-host interface.  For example, a value of {\tt 127.0.0.1:60022:22/tcp} will bind host port 60022 to container port 22.
+host interface.  For example, a value of 
+\begin{verbatim}
+     127.0.0.1:60022:22/tcp
+\end{verbatim}
+\noindent will bind host port 60022 to container port 22.
 \item HIDE [hide] -- If YES, the associated node will be hidden in GNS3 environments when the {\tt --student} option if
 \item NO\_PRIVILEGE -- If YES, the container runs without Docker privilege.
 \item MYSTUFF -- if YES, the directory at {\tt labtainerstudent/mystuff} is shared with the container in {\tt /home/<user>/mystuff.}
@@ -671,7 +675,7 @@ to a [labname].pdf file within that same docs directory. And ``LAB\_DOCS'' is re
 \noindent An 'about.txt' file will be present in the 'config' directory of the lab. Any text inside will be displayed as a description to the lab when listed from running the 'labtainer' command in \$LABTAINER\_DIR/trunk/scripts/labtainer-student. This text will also appear when clicking on the logo in the GNS3 environment of Labtainers. \\ 
 
 \noindent If the start.config file includes ``COLLECT\_DOCS YES'', the content of the lab/docs directory will be
-included with the student artifacts and available extracted into the intstrutor's 
+included with the student artifacts and available extracted into the instructor's 
 labtainer\_xfer/[lab]/docs directory. \\
 
 \noindent A deprecated feature that still exists in a tiny handful of labs: "Lab instructions for students can be displayed in a virtual terminal by placing an
@@ -685,7 +689,7 @@ Programs can be started automatically within virtual terminals using two methods
 The first is the ``XTERM'' directive in the container section in the start.config file
 described in \ref{start config}.  That is intended for programs whose results are displayed
 within the virtual terminal, (see the plc lab for examples).  The second method is 
-intended for user authentiation and for starting GUI based programs
+intended for user authentication and for starting GUI based programs
 that will use the Linux host Xserver.  If a file exists at:
 \begin{verbatim}
     $LABTAINER_DIR/labs/[labname]/[container name]/_bin/student_startup.sh
@@ -1183,8 +1187,7 @@ Directives within the results.config file each have the following format:
                        underscores permitted.
             file_id -- Identifies a single file, or the set of files to be parsed.  
                   The format of this id is:
-                     [container_name:]<prog>.[stdin | stdout | prgout] | 
-                           [container_name:]file_path[:time_delimiter]
+                     [container_name:]<prog>.[stdin | stdout | prgout] 
                    where <prog> is a program or utility name whose stdin, stdout,
                    or program output (prgout) artifacts will include timestamps.  
                    The optional container_name identifies the container hosting 
@@ -1195,8 +1198,8 @@ Directives within the results.config file each have the following format:
                    absolute, it is relative to the container user's home directory. 
                    The wildcard character '*' can be used in place of <prog>,
                    i.e., *.stdin is for all stdin artifacts and *.stdout is for all 
-                   stdout artifacts.  The optional time_delimiter qualifier is 
-                   explained further below.
+                   stdout artifacts.  
+                   
             field_type - Optional, defaults to "TOKEN", possible values include:
                TOKEN      -- Treat the line as space-delimited tokens
                PARENS     -- The desired value is contained in parenthesis
@@ -1220,7 +1223,6 @@ Directives within the results.config file each have the following format:
                FILE_REGEX_TS Like LOG_TS, but uses regular expressions.
                LOG_RANGE  -- Similar to LOG_TS, except the timestamped entries
                              are ranges delimited by the matching log entries.
-               RANGE_REGEX-- Similar to LOG_RANGE, but takes a regular expression.
                STRING_COUNT--The result value is set to the quantity of
                              occurances of the string represented in field_id.
                COMMAND_COUNT-Intended for use with bash_history files, counts
@@ -1241,7 +1243,8 @@ Directives within the results.config file each have the following format:
                              and their groups are processed using the python
                              re.search semantics.
                TIME_DELIM -- The timestamps of the named files are used to create 
-                             a set of time ranges, e.g., for use in time_during 
+                             a set of time ranges with periods between the 
+                             timestamps of each file, e.g., for use in time_during 
                              goal operators.
                              
                               
@@ -1306,7 +1309,7 @@ the student obtained expected results.  Most lab goals defined in the goals.conf
 will evaluate to TRUE or FALSE, with TRUE reflecting that the student met the defined goal.
 In addition to these binary goals, the designer can capture and report on quantities of events,
 e.g., the number of times a student ran a specific program.
-Once evaluated, a goal may determine the value of subsequent goals within the goals.config file, 
+Once evaluated, a goal value may affect the value of subsequent goals within the goals.config file, 
 i.e., through use of boolean expressions and temporal comparisons between goals.  The evaluated
 state of each goal can then contribute to an overall student assessment.
 
@@ -1314,7 +1317,7 @@ Student results may derive from multiple invocations of the same program or syst
 The framework does not discourage students from continuing to experiment and explore aspects of the 
 exercise subsequent to obtaining the desired results.  In general, Labtainer assessment determines if the student
 obtained expected results during any invocation of a program or system utility, or during a time period
-delineated by timestamp ranges described in section \ref{results.config}.  \footnote{In those cases 
+delineated by timestamp ranges described in \ref{config-ranges}.  \footnote{In those cases 
 where the student is required to obtain the expected results during the final invocation of a program, 
 the \textit{matchlast} goal type may be specified as described below.}
 
@@ -1345,6 +1348,7 @@ A boolean goal\_id is generated for each timestamp range for which there is an i
 in the expression.
 \end{itemize}
 
+\subsubsection{Goal definitions}
 The following syntax defines each goal within the goals.config file.  While the syntax
 may appear complex, most goals can be expressed simply as can be seen in section \ref{examples} and
 in the Labtainer exercises distributed with the framework.
@@ -1480,6 +1484,25 @@ in the Labtainer exercises distributed with the framework.
          Note that values derived from the parameters.config file are assigned the same values as
          were assigned when the lab was parameterized for the student.
 
+\subsubsection{Distinguish between results generated before and after configuration changes}
+\label{config-ranges}
+Some labs direct students to configure a system so that it is ``secure'', or meeting some criteria
+germane to lab learning objectives.  Once the system is so configured, the student is then
+directed to perform a specific set of actions to demonstrate the correctness of the
+configuration.  For purposes of automated assessment, we would like evidence that
+the student performed all the prescribed demonstration steps without intervening
+configuration changes.  In other words, though the student may perform a myriad of
+configuration changes and demonstrate steps (encourage experimentation!), 
+we'd like to know if there ever was a
+single configuration in which all of the demonstration steps were performed.
+
+Labtainers provides the {LOG\_RANGE} and {TIME\_DELIM} result types to establish time
+ranges over which we can assert that no configuration changes were made.  Once those time ranges
+are established, i.e., as a set of results with a single tag, the {\tt time\_during} and
+{\tt time\_not\_during} goal operators bin \textbf{other results} into
+those time ranges.  Once so binned, the boolean operator can be used to determine if
+the desired conditions were met within a single configuration state.  See sections
+\ref{log_range} and \ref{time_delim} for examples.
 \subsubsection{Replace answers with hashes}
 \label{hash-goals}
 Automated assessment files include expected results, which sometimes reflect ``answers'' to problems
@@ -1586,7 +1609,7 @@ modify_value = matchany : string_diff : newsecret1value : result.origsecret1valu
 \noindent , which will be TRUE if any of the vul\_prog stdout files include a
 ``newsecret1value'' that differs from its ``oldsecret1value``.
 
-\subsection{Was a log entry written while some command executed?}
+\subsubsection{Was a log entry written while some command executed?}
 Consider these two entries in {\tt results.config}:
 \begin{verbatim}
   # Time stamp of log entry containing IP address
@@ -1604,60 +1627,98 @@ ever generated using wget from the w1 computer:
 \subsubsection{My desired artifacts are not in stdin or stdout, the program outputs a file}
 See section \ref{program output}
 
-\subsubsection{Distinguish log file entries generated before and after configuration changes}
-\label{time delimeter}
-When log files are named in results.config files, you can qualify the log file name
-with the name of program whose invocation serves as a {\tt time\_delimiter} introduced
-in section \ref{results.config}.
-The {\tt time\_delimiter} identifies some
-monitored program whose start times will be used to organize the log file into
-a set of timestamped results.  This differs from use of HAVESTRING\_TS and
-REGEX\_TS in that those store results as descrete timestamped values for each
-timestamp found in the log file.  The {\tt time\_delimiter} timestamp values are
-based on the start times of the monitored program.  The intended use is to
-group results from programs whose actions result in entries in the log file.
-This can be useful for grouping system log entries based on system configuration
-changes (i.e., accomplished via the {\tt time\_delimiter} program). 
 
-Consider a lab that directs students to alter iptables on a component using the
-/etc/rc.local script.  The student is required to demonstrate a desired iptables
+\subsubsection{Delimiting time using log file entries}
+\label{log_range}
+The LOG\_RANGE result type generates a set of results having timestamp ranges that
+cover the period between specified log entries. For example, a results.config directive of:
+\begin{verbatim}  
+   syslog_slices = server:/var/log/messages : \
+       LOG_RANGE : Started System Logging Service
+\end{verbatim}
+\noindent would create a set of time ranges with periods between each start of
+the system logging service.  The use of {\tt time\_during}
+and/or {\tt time\_not\_during} and {\tt boolean} in the goals.config could then assess whether
+two or more events occurred during a given system log configuration.  For example, assume the
+results.config file also included these directives:  
+\begin{verbatim}  
+   _did_first_thing = client1:did_this.stdout : CONTAINS : Did that thing
+   _did_second_thing = client2:did_other.stdout : CONTAINS : Did that other thing
+\end{verbatim}
+\noindent We'd like to know if the above two results were ever achieved within one configuration
+of the logging system.  This can be determined by first binning the above two results into the 
+time ranges established by the {\tt syslog\_slices} result through use of {\tt time\_during} within
+the goals.config as follows.
+\begin{verbatim}  
+   _did_first_during = time_during : _did_first_thing : syslog_slices
+   _did_second_during = time_during : _did_second_thing : syslog_slices
+\end{verbatim}
+\noindent That yields two sets of goals having time ranges defined by the {\tt LOG\_RANGE}
+results.  We can then use a boolean operator to determine if those two goals were ever
+achived within the same established time range\footnote{Recall that the use of the boolean operator
+only makes sense for goals/results having matching timestamps}:
+\begin{verbatim}  
+   did_both = boolean : (_did_first_during and _did_second_during)
+\end{verbatim}
+
+See the centos-log2 lab for an example. 
+
+\subsubsection{Delimiting time via program invocations}
+\label{time_delim}
+The {\tt TIME\_DELIM} result type is intended to identify some
+program whose invocation times will be used to create a set of time ranges.
+These results, like those from {\tt LOG\_RANGE} differ from other result types
+in that they define ranges between events.  For example, a {\tt CONTAINS} result
+set from {\tt stdout} files would have timestamps reflecting the corresponding program
+start and stop time, while a {\tt TIME\_DELIM} result would have timestamps
+reflecting the periods \textbf{between} invocations of the program named in the directive.
+
+Consider a lab that directs students to alter iptables on a component.
+The student is required to demonstrate a desired iptables
 configuration by running nmap on various other components.  The instructor wants 
 to confirm that some set of expected stdout from nmap running on different
 components all occurred within a single
-configuration of iptables, delimited by the running of rc.local.  In other words,
+configuration of iptables, delimited by the running of the iptables command.  In other words,
 the student cannot succeed by altering iptables between invocations of nmap on
-different components.  In this example, the {\tt file\_path} would name the iptables
-log, and the {\tt time\_delimiter} would name rc.local.  In order to track invocations
-of rc.local, we would add it to the {\tt treataslocal} file described in section \ref{stdin and stdout}.
+different components.  
+
+Note, that to be generally useful, we do not wish to simply look for invocations of iptables
+by the student.
+For example, using the command to view the configuration does not represent a change to
+the configuration.  Also, the iptables may be called from a script, e.g., rc.local, and
+our typical use of stdout files would not see the running of iptables.  It is therefore
+suggested that {\tt TIME\_DELIM} results be tied to files created as an effect of 
+notify events described in \ref{notify}.  In this example, the notify event would be execution
+of /sbin/iptables, and the {\tt notify\_cb.sh} script would determine if a change were being
+made to the configuration.
 
 Then, if the lab results.config were:
 \begin{verbatim}
-    _iplog = outer_gw:/var/log/ulog/syslogemu.log:rc.local : \
-             CONTAINS : IPTABLES DROPPED
+    iptables = firewall:iptables : TIME_DELIM
     _remote_nmap_443 = remote_ws:nmap.stdout : CONTAINS : 443/tcp open  https
     _remote_nmap_sql = remote_ws:nmap.stdout : CONTAINS : 3306/tcp open  mysql
     _local_nmap_443 = ws1:nmap.stdout : CONTAINS : 443/tcp open  https
     _local_nmap_sql = ws1:nmap.stdout : CONTAINS : 3306/tcp open  mysql
 \end{verbatim}
 
-\noindent The {\tt \_iplog} result would then have up to N+1 timestamped instances,
-where N is the quantity of times that rc.local was executed. The first possible
+\noindent The {\tt iptables} result set would then include up to N+1 timestamped instances,
+where N is the quantity of times that iptables was executed to change the configuraion. The first possible
 timestamp would have a starting time of zero and an ending time of the very first
-invocation of rc.local.  The nmap results would each have timestamps corresponding
+consequential invocation of iptables.  The nmap results would each have timestamps corresponding
 to their times of execution.  Note the nmap results include results from two different
 computers, ws1 and remote\_ws.
 
 A goals.config file of:
 \begin{verbatim}
-    remote_nmap_443 = time_during : _remote_nmap_443 : _iplog
-    remote_nmap_sql = time_during : _remote_nmap_sql : _iplog
-    local_nmap_443 = time_during : _local_nmap_443 : _iplog
-    local_nmap_sql = time_during : _local_nmap_sql : _iplog
+    remote_nmap_443 = time_during : _remote_nmap_443 : iptables
+    remote_nmap_sql = time_during : _remote_nmap_sql : iptables
+    local_nmap_443 = time_during : _local_nmap_443 : iptables
+    local_nmap_sql = time_during : _local_nmap_sql : iptables
     remote_correct = boolean : ((remote_nmap_443 and_not remote_nmap_sql) \
                                 and local_nmap_443 and local_nmap_sql)
 \end{verbatim}
-\noindent would generate sets of nmap goals grouped into timestamps corresponding to the
-{\tt \_iplog} results.  The {\tt remote\_correct} boolean expression could then be read as: 
+\noindent would generate sets of nmap goals with timestamp ranges corresponding to the
+{\tt iptables} results.  The {\tt remote\_correct} boolean expression could then be read as: 
 ``Was there any
 single iptables configuration during which the student used nmap to demonstrate that:
 \begin{itemize}
@@ -1665,43 +1726,6 @@ single iptables configuration during which the student used nmap to demonstrate 
 \item The local workstation could reach the HTTPS port and the SQL port.
 \end{itemize}
 
-\subsubsection{Delimiting logs by starting services}
-\label{time delimiter services}
-Another example of the use of {\tt time\_delimiter} log file qualifiers is a web server,
-and its corresponding httpd log.  It may be desired to group log entries generated during a
-single configuration of the web server, delimited by the starting of the web server, e.g., via
-{\tt sudo systemctl restart httpd}.  Here, our {\tt time\_delimiter} program is the use of systemctl
-to start or restart the httpd.  Services are named in the {\tt treataslocal} file by giving them a
-suffix of ``.service'', e.g.,
-\begin{verbatim}
-    httpd.service
-\end{verbatim}
-\noindent and that same name is used for our {\tt time\_delimiter}, e.g.,
-\begin{verbatim}
-   web_log = vuln-site:/var/www/csrflabelgg.com:httpd.service : CONTAINS : GET / HTTP/
-\end{verbatim} 
-\noindent will create time stamp ranges delimited by the starting of the web server.  Results from
-other programs, (or other results derived from the web log), could then be similarly group using 
-the {\tt time\_during} operation, e.g.,
-\begin{verbatim}
-   _some_goal = time_during : other_result : web_log
-   _some_other_goal = time_during : yet_another_result : web_log
-   success = boolean (_some_goal and _some_other_goal) 
-\end{verbatim}
-The success goal would only then be TRUE if the two goals each occurred during a single instance
-of the web server configuration, as delimited by use of {\tt systemctl restart httpd}.
-
-\subsubsection{Delimiting time using log file entries}
-An alternate way to create groupings of log file entries is to use the log\_range 
-result type. For example, a result.config directive of:
-\begin{verbatim}  
-   syslog_slices = /var/log/messages : LOG_RANGE : Started System Logging Service
-\end{verbatim}
-\noindent would create a set of timestamped values whose ranges are based on occurrences
-of the system logging service being started.  The use of {\tt time\_during}
-and/or {\tt time\_not\_during} and {\tt boolean} in the goals.config could then be used to assess whether
-two or more events occurred during a given system log configuration.  See the centos-log lab
-for an example. 
 
 
 \subsection{Debugging automated assessment in labs}
@@ -1712,7 +1736,7 @@ through the process.
 When the {\tt gradelab} script is run from labtainers-instructor,
 the configuration files in labs/[lab name]/instr\_config are validated.
 If syntax errors are found, error messages are displayed at the terminal
-and processing halts.  The error messages identify the offending result.config
+and processing halts.  The error messages identify the offending results.config
 or goals.config entry.  Refer to sections \ref{results.config} and \ref{goals.config} 
 for the expected syntax of these files.
 
@@ -2145,7 +2169,7 @@ of the VM appliance.
 In this example, the instructor wants his or her students to work with a customized version
 of the telnet-lab manual.  
 \begin{itemize}
-\item Change directory to labtainer/labs
+\item Change directory to {\tt \$LABTAINER\_DIR/labs}
 \item Initialize the git archive: 
 \begin{verbatim}
 git init  
@@ -2178,7 +2202,7 @@ This example assumes the instructor has created a DockerHub registry that is pub
 \item Change directory to labtainer/labs
 \item Initialize git archive: git init  (Do this only once, no need to repeat for each IModule.)  
 \item Create the lab per the Lab Designer User Guide, for this example, we assume the lab is my-new-lab.
-\item Include the name of your DockerHub registry the lab config/start.config file.
+\item Include the name of your Docker Hub registry the lab config/start.config file {\tt REGISTRY} attribute.
 \item Complete development and testing of the lab, e.g., build a SimLab test.
 \item While in the my-new-lab directory, run {\tt cleanlab4svn.py} to remove temporary files that should not be under source control.
 \item While in the lab directory (parent of my-new-lab), add the lab to source control:
@@ -2188,15 +2212,20 @@ This example assumes the instructor has created a DockerHub registry that is pub
 \end{verbatim}
 \item Publish the lab container images: 
 \begin{verbatim}
+    cd $LABTAINER_DIR/distrib
     ./publish.py -d -l my-new-lab
 \end{verbatim}
-\noindent This will rebuild the lab container images and publish them to your DockerHub registry.  Note the {\tt -d} option directs the 
+\noindent This will rebuild the lab container images and publish them to your DockerHub registry.  Your {\tt start.config} files for 
+your labs name this registry, and that allows student Labtainer implementations to retrieve your lab images without having to rebuild them.
+Note the {\tt -d} option directs the 
 function to publish to the DockerHub registry named in your lab start.config file.  Otherwise, it will try to publish to a test registry.
 Use of test registries is optional, and are described in the \textit{Lab Designer User Guide}.
 \item Generate the updated IModule tar:
 \begin{verbatim}
     create-imodules.sh
 \end{verbatim}
+\noindent This creates a tar that contains all of your IModule labs, i.e., those you have added to your git repo.  If you do not use git
+to manage your lab source, you will have to create the IModule.tar yourself.
 \item Then publish the imodule.tar to your website.
 \end{itemize}
 
@@ -2750,6 +2779,7 @@ labtainer/simlab/<labname>/simthis.txt
 The {\tt simlab} directory is at the same level as {\tt \$LABTAINER\_DIR}, i.e. at {\tt \$LABTAINER\_DIR/../simlab}.
 Note that simlab files are not in the github repository.  These
 files essentially contain lab solutions, and thus should not be openly published.
+files essentially contain lab solutions, and thus should not be openly published.
 \footnote{If you require simlab files for existing labs, contact me and try to convince
 me you actually need them (mfthomps@nps.edu).}
 
@@ -2837,7 +2867,8 @@ Most GUI's have shortcut keys that can be used to automate their inclusion in a 
 Firefox is brittle when it restarts.  See the {\tt fixfirefox.txt} SimLab script for the snort lab
 for an example of avoiding errors when Firefox restarts.
 
-\subsection{Regression testing with smoketest.py} \label{smoketest}
+\subsection{Regression testing with smoketest.py} 
+\label{smoketest}
 The {\tt smoketest.py} utility automates regression testing of labs.  It will automatically:
 \begin{itemize}
 \item Start a lab
