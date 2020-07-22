@@ -25,6 +25,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import labtainers.mainui.LabData.ContainerData;
 import labtainers.mainui.LabData.NetworkData;
+import java.util.ArrayList;
 
 
 /**
@@ -42,14 +43,15 @@ public class MainWindow extends javax.swing.JFrame {
     File currentLab;
     File iniFile;
     Properties pathProperties;
+    ArrayList<String> baseImages;
     public MainWindow() throws IOException {
         initComponents();
         containerScrollPaneBar = ContainerScrollPane.getVerticalScrollBar();
         networkScrollPaneBar = NetworkScrollPane.getVerticalScrollBar();
         
-        labData = new LabData();
-        
+        labData = new LabData();       
        
+        // Load .ini file information
         try {
             iniFile = new File("/home/student/dev/Labtainers/UI/bin/mainUI.ini"); //location will need to be updated in final
             pathProperties  = new Properties();
@@ -84,12 +86,12 @@ public class MainWindow extends javax.swing.JFrame {
                 System.out.println(prevLab+" is lab!");
                 openLab(prevLab);
             }
-           
-            
-            
         } catch (FileNotFoundException ex) {
             System.out.println(ex);
         }
+        
+        // get list of base images ready for when player wants to make a new lab
+        //File dockerfileBasesPath = new File(labtainerPath + File.seperator + );
     }
     
 
@@ -127,6 +129,11 @@ public class MainWindow extends javax.swing.JFrame {
         NetworkAddDialogMacVLanExtSpinner = new javax.swing.JSpinner();
         NetworkAddDialogMacVLanSpinner = new javax.swing.JSpinner();
         labChooser = new javax.swing.JFileChooser();
+        NewLabDialog = new javax.swing.JDialog();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel14 = new javax.swing.JLabel();
+        jTextField1 = new javax.swing.JTextField();
+        NewLabBaseImageComboBox = new javax.swing.JComboBox<>();
         Header = new javax.swing.JPanel();
         AssessmentButton = new javax.swing.JButton();
         LabnameLabel = new javax.swing.JLabel();
@@ -145,6 +152,8 @@ public class MainWindow extends javax.swing.JFrame {
         NewLabMenuItem = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         OpenLabMenuItem = new javax.swing.JMenuItem();
+        jSeparator2 = new javax.swing.JPopupMenu.Separator();
+        jMenuItem1 = new javax.swing.JMenuItem();
 
         ContainerAddDialog.setTitle("Adding New Container");
         ContainerAddDialog.setMinimumSize(new java.awt.Dimension(433, 220));
@@ -363,6 +372,49 @@ public class MainWindow extends javax.swing.JFrame {
         labChooser.setCurrentDirectory(new java.io.File("/home/student/dev/Labtainers/UI/bin/C:/Users/Daniel Liao/Desktop/Labtainers/labs"));
         labChooser.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
 
+        NewLabDialog.setTitle("Creating New Lab");
+
+        jLabel6.setFont(new java.awt.Font("Dialog", 1, 15)); // NOI18N
+        jLabel6.setText("Name");
+
+        jLabel14.setFont(new java.awt.Font("Dialog", 1, 15)); // NOI18N
+        jLabel14.setText("Base Image");
+
+        jTextField1.setFont(new java.awt.Font("Dialog", 0, 15)); // NOI18N
+
+        NewLabBaseImageComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        javax.swing.GroupLayout NewLabDialogLayout = new javax.swing.GroupLayout(NewLabDialog.getContentPane());
+        NewLabDialog.getContentPane().setLayout(NewLabDialogLayout);
+        NewLabDialogLayout.setHorizontalGroup(
+            NewLabDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(NewLabDialogLayout.createSequentialGroup()
+                .addGap(20, 20, 20)
+                .addGroup(NewLabDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(NewLabDialogLayout.createSequentialGroup()
+                        .addComponent(jLabel14)
+                        .addGap(4, 4, 4)
+                        .addComponent(NewLabBaseImageComboBox, 0, 336, Short.MAX_VALUE))
+                    .addGroup(NewLabDialogLayout.createSequentialGroup()
+                        .addComponent(jLabel6)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jTextField1)))
+                .addContainerGap())
+        );
+        NewLabDialogLayout.setVerticalGroup(
+            NewLabDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(NewLabDialogLayout.createSequentialGroup()
+                .addGap(23, 23, 23)
+                .addGroup(NewLabDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel6)
+                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(22, 22, 22)
+                .addGroup(NewLabDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel14)
+                    .addComponent(NewLabBaseImageComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -516,6 +568,10 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
         FileMenuBar.add(OpenLabMenuItem);
+        FileMenuBar.add(jSeparator2);
+
+        jMenuItem1.setText("Edit Labtainers Directory");
+        FileMenuBar.add(jMenuItem1);
 
         MainMenuBar.add(FileMenuBar);
 
@@ -801,6 +857,8 @@ private void openLab(File lab){
     private javax.swing.JPanel NetworkPanePanel;
     private javax.swing.JPanel NetworkPanel;
     private javax.swing.JScrollPane NetworkScrollPane;
+    private javax.swing.JComboBox<String> NewLabBaseImageComboBox;
+    private javax.swing.JDialog NewLabDialog;
     private javax.swing.JMenuItem NewLabMenuItem;
     private javax.swing.JMenuItem OpenLabMenuItem;
     private javax.swing.JButton addContainerButton;
@@ -810,14 +868,19 @@ private void openLab(File lab){
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JPopupMenu.Separator jSeparator1;
+    private javax.swing.JPopupMenu.Separator jSeparator2;
+    private javax.swing.JTextField jTextField1;
     private javax.swing.JFileChooser labChooser;
     // End of variables declaration//GEN-END:variables
 }
