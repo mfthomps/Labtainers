@@ -72,6 +72,9 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+July 25, 2020
+- Add quiz support
+
 July 21, 2020
 - Add testsets/bin to designer's path
 - Designer guide corrections and explainations for IModule steps.
