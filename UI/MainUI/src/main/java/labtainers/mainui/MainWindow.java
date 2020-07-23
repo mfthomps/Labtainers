@@ -12,6 +12,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -43,14 +44,19 @@ public class MainWindow extends javax.swing.JFrame {
     File currentLab;
     File iniFile;
     Properties pathProperties;
-    ArrayList<String> baseImages;
+    String[] bases;
     public MainWindow() throws IOException {
         initComponents();
         containerScrollPaneBar = ContainerScrollPane.getVerticalScrollBar();
         networkScrollPaneBar = NetworkScrollPane.getVerticalScrollBar();
         
         labData = new LabData();       
-       
+        parseINI();
+        getBaseImageDockerfiles();   
+    }
+    
+    // checks out the ini file to set the labtainers path and also checks if we load a previous lab
+    private void parseINI() throws IOException{
         // Load .ini file information
         try {
             iniFile = new File("/home/student/dev/Labtainers/UI/bin/mainUI.ini"); //location will need to be updated in final
@@ -89,11 +95,38 @@ public class MainWindow extends javax.swing.JFrame {
         } catch (FileNotFoundException ex) {
             System.out.println(ex);
         }
-        
-        // get list of base images ready for when player wants to make a new lab
-        //File dockerfileBasesPath = new File(labtainerPath + File.seperator + );
     }
-    
+
+    // get list of base images ready for when player wants to make a new lab
+    private void getBaseImageDockerfiles(){
+        File dockerfileBasesPath = new File(labtainerPath + File.separator +"scripts"+ File.separator+"designer"+File.separator+"base_dockerfiles");
+        
+        File[] baseFiles = dockerfileBasesPath.listFiles(new FilenameFilter(){
+            public boolean accept(File dockerfileBasesPath, String filename)
+                {return filename.startsWith("Dockerfile.labtainer."); }
+        } );
+        
+        bases = new String[baseFiles.length];
+        for(int i = 0;i<baseFiles.length;i++){
+            bases[i] = baseFiles[i].getName().split("Dockerfile.labtainer.")[1];
+        }
+        
+        String x;
+        for(String i : bases){
+            x = i;
+            System.out.println(x);
+        }
+        
+        //Set the base image combobox options for making new labs and adding containers
+        for(String baseImage : bases){
+            NewLabBaseImageComboBox.addItem(baseImage);
+        }
+        
+        for(String baseImage : bases){
+            ContainerAddDialogBaseImageCombobox.addItem(baseImage);
+        }
+        
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -109,9 +142,9 @@ public class MainWindow extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         ContainerAddDialogNameTextfield = new javax.swing.JTextField();
-        ContainerAddDialogBaseImageTextfield = new javax.swing.JTextField();
         ContainerAddDialogCreateButton = new javax.swing.JButton();
         ContainerAddDialogCancelButton = new javax.swing.JButton();
+        ContainerAddDialogBaseImageCombobox = new javax.swing.JComboBox<>();
         NetworkAddDialog = new javax.swing.JDialog();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
@@ -187,27 +220,28 @@ public class MainWindow extends javax.swing.JFrame {
             .addGroup(ContainerAddDialogLayout.createSequentialGroup()
                 .addGroup(ContainerAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(ContainerAddDialogLayout.createSequentialGroup()
-                        .addGap(0, 282, Short.MAX_VALUE)
+                        .addGap(0, 285, Short.MAX_VALUE)
                         .addComponent(ContainerAddDialogCreateButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(ContainerAddDialogCancelButton))
-                    .addGroup(ContainerAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addGroup(ContainerAddDialogLayout.createSequentialGroup()
-                            .addContainerGap()
-                            .addComponent(jLabel3))
-                        .addGroup(ContainerAddDialogLayout.createSequentialGroup()
-                            .addGap(23, 23, 23)
-                            .addGroup(ContainerAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(ContainerAddDialogLayout.createSequentialGroup()
-                                    .addComponent(jLabel4)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(ContainerAddDialogNameTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGap(0, 18, Short.MAX_VALUE))
-                                .addGroup(ContainerAddDialogLayout.createSequentialGroup()
-                                    .addComponent(jLabel5)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(ContainerAddDialogBaseImageTextfield))))))
-                .addContainerGap(25, Short.MAX_VALUE))
+                    .addGroup(ContainerAddDialogLayout.createSequentialGroup()
+                        .addGroup(ContainerAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(ContainerAddDialogLayout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(jLabel3))
+                            .addGroup(ContainerAddDialogLayout.createSequentialGroup()
+                                .addGap(23, 23, 23)
+                                .addGroup(ContainerAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addGroup(ContainerAddDialogLayout.createSequentialGroup()
+                                        .addComponent(jLabel4)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(ContainerAddDialogNameTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(ContainerAddDialogLayout.createSequentialGroup()
+                                        .addComponent(jLabel5)
+                                        .addGap(4, 4, 4)
+                                        .addComponent(ContainerAddDialogBaseImageCombobox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
+                        .addGap(2, 2, 2)))
+                .addContainerGap(24, Short.MAX_VALUE))
         );
         ContainerAddDialogLayout.setVerticalGroup(
             ContainerAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -218,11 +252,11 @@ public class MainWindow extends javax.swing.JFrame {
                 .addGroup(ContainerAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
                     .addComponent(ContainerAddDialogNameTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(9, 9, 9)
+                .addGap(10, 10, 10)
                 .addGroup(ContainerAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(ContainerAddDialogBaseImageTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ContainerAddDialogBaseImageCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel5))
-                .addGap(26, 26, 26)
+                .addGap(18, 18, 18)
                 .addGroup(ContainerAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(ContainerAddDialogCreateButton)
                     .addComponent(ContainerAddDialogCancelButton))
@@ -369,10 +403,12 @@ public class MainWindow extends javax.swing.JFrame {
                 .addGap(68, 68, 68))
         );
 
-        labChooser.setCurrentDirectory(new java.io.File("/home/student/dev/Labtainers/UI/bin/C:/Users/Daniel Liao/Desktop/Labtainers/labs"));
+        labChooser.setCurrentDirectory(new java.io.File("/home/student/dev3/C:/Users/Daniel Liao/Desktop/Labtainers/labs"));
         labChooser.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
 
         NewLabDialog.setTitle("Creating New Lab");
+        NewLabDialog.setMaximumSize(new java.awt.Dimension(469, 170));
+        NewLabDialog.setMinimumSize(new java.awt.Dimension(469, 170));
 
         jLabel6.setFont(new java.awt.Font("Dialog", 1, 15)); // NOI18N
         jLabel6.setText("Name");
@@ -381,8 +417,6 @@ public class MainWindow extends javax.swing.JFrame {
         jLabel14.setText("Base Image");
 
         jTextField1.setFont(new java.awt.Font("Dialog", 0, 15)); // NOI18N
-
-        NewLabBaseImageComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         javax.swing.GroupLayout NewLabDialogLayout = new javax.swing.GroupLayout(NewLabDialog.getContentPane());
         NewLabDialog.getContentPane().setLayout(NewLabDialogLayout);
@@ -558,6 +592,11 @@ public class MainWindow extends javax.swing.JFrame {
         FileMenuBar.setText("File");
 
         NewLabMenuItem.setText("New Lab");
+        NewLabMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                NewLabMenuItemActionPerformed(evt);
+            }
+        });
         FileMenuBar.add(NewLabMenuItem);
         FileMenuBar.add(jSeparator1);
 
@@ -610,7 +649,6 @@ public class MainWindow extends javax.swing.JFrame {
     
    
     private void addContainerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addContainerButtonActionPerformed
-        ContainerAddDialogBaseImageTextfield.setText("");
         ContainerAddDialogNameTextfield.setText("");
         ContainerAddDialog.setVisible(true);
     }//GEN-LAST:event_addContainerButtonActionPerformed
@@ -719,7 +757,7 @@ private void openLab(File lab){
     // Visual load of lab
     resetWindow();
     loadLab();
-    labData.printData();    
+    //labData.printData();    
 }    
 
     private void NetworkAddDialogCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NetworkAddDialogCancelButtonActionPerformed
@@ -750,6 +788,10 @@ private void openLab(File lab){
             catch (IOException ex) { System.out.println(ex);}
         }
     }//GEN-LAST:event_windowClosing
+
+    private void NewLabMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NewLabMenuItemActionPerformed
+        NewLabDialog.setVisible(true);
+    }//GEN-LAST:event_NewLabMenuItemActionPerformed
 
     
     
@@ -834,7 +876,7 @@ private void openLab(File lab){
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton AssessmentButton;
     private javax.swing.JDialog ContainerAddDialog;
-    private javax.swing.JTextField ContainerAddDialogBaseImageTextfield;
+    private javax.swing.JComboBox<String> ContainerAddDialogBaseImageCombobox;
     private javax.swing.JButton ContainerAddDialogCancelButton;
     private javax.swing.JButton ContainerAddDialogCreateButton;
     private javax.swing.JTextField ContainerAddDialogNameTextfield;
