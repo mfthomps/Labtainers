@@ -1760,6 +1760,53 @@ can be found in \verb!~/[student dir]/[lab].[container].student/.local/result!.
 The mechanics of performing the lab (so that you can test grading for different outcomes)
 can be automated using the SimLab tool described in Appendix \ref{testing}.
 
+\section{Quizzes}
+Labs may include simple quizzes intended to re-enforce a student's understanding of concepts
+necessary to perform the lab.  The quizzes are not intended to be a primary source of
+student assessment, rather, they are intended to help the student understand if they understand.
+No attempt is made to protect quiz answers, or to randomize or parameterize quizzes.
+An example application of quizzes is to allow the student to confirm his or her understanding
+of a security policy prior to trying to implement enforcement of that policy.
+
+Quizzes are performed on the Labtainer host from within the {\tt labtainer-student} directory
+using the {\tt quiz} command.  Use the {\tt -h} option to see its usage.
+
+A lab may have multiple quizzes.  Each is defined in a file in the lab {\tt config} directory
+within a file having an extension of {\tt .quiz}.  Each quiz includes a set of
+questions.  Each question is defined by a comma separated list.  If a line terminates 
+without a comma or a backslash, it is treated as the end of the question, and the next line
+is treated as the beginning of the next question.
+Question types include the following:
+\subsection{True or False}
+A question whose answer is either true or false.
+\begin{verbatim}
+ID, TrueFalse, question, answer, right_response, wrong_response, prerequisit
+\end{verbatim}
+\noindent Where:
+\begin{itemize}
+\item ID -- any string identifier, must be unique.  Currently only used to identify prerequisites as described below.
+\item TrueFalse -- identifies this as a True or False question.
+\item question -- The question, in double quotes.
+\item answer -- Ether T or F.
+\item right\_response -- Message to display if a correct response is provided.  All correct responses cause the word
+\textit{Correct} to be display in bold font.   Use empty double quotes of if that should be the only message.
+\item wrong\_response -- Message to display if a incorrect response is provided.  All incorrect responses cause the word
+\textit{Incorrect} to be display in bold font.   Use empty double quotes of if that should be the only message.
+\item prerequisite -- Optional ID of a another question.  If provided, and that question was answered correctly, then
+this question will be skipped.  This is intended to re-enforce concepts that the student previously answered incorrectly.
+\end{itemize}
+\subsection{Preface}
+Text to display, e.g., prior to a set of questions.
+\begin{verbatim}
+ID, preface, text
+\end{verbatim}
+\noindent Where:
+\begin{itemize}
+\item ID -- any string identifier, must be unique.  
+\item preface -- identifies this as a preface whose text will be displayed.
+\item text -- The text to be displayed.  This text is intended to provide context for whatever questions follow.
+\end{itemize}
+
 \section{Networking} \label{networking}
 Most networking is simply a matter of defining networks and assigning them to containers
 as described in \ref{start config}.  
