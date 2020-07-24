@@ -7,6 +7,7 @@ package labtainers.mainui;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.List;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -27,6 +28,7 @@ import javax.swing.JScrollBar;
 import labtainers.mainui.LabData.ContainerData;
 import labtainers.mainui.LabData.NetworkData;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 /**
@@ -111,11 +113,11 @@ public class MainWindow extends javax.swing.JFrame {
             bases[i] = baseFiles[i].getName().split("Dockerfile.labtainer.")[1];
         }
         
-        String x;
-        for(String i : bases){
-            x = i;
-            System.out.println(x);
-        }
+//        String x;
+//        for(String i : bases){
+//            x = i;
+//            System.out.println(x);
+//        }
         
         //Set the base image combobox options for making new labs and adding containers
         for(String baseImage : bases){
@@ -165,8 +167,10 @@ public class MainWindow extends javax.swing.JFrame {
         NewLabDialog = new javax.swing.JDialog();
         jLabel6 = new javax.swing.JLabel();
         jLabel14 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        NewLabNameTextfield = new javax.swing.JTextField();
         NewLabBaseImageComboBox = new javax.swing.JComboBox<>();
+        NewLabCreateButton = new javax.swing.JButton();
+        NewLabCancelButton = new javax.swing.JButton();
         Header = new javax.swing.JPanel();
         AssessmentButton = new javax.swing.JButton();
         LabnameLabel = new javax.swing.JLabel();
@@ -403,12 +407,13 @@ public class MainWindow extends javax.swing.JFrame {
                 .addGap(68, 68, 68))
         );
 
-        labChooser.setCurrentDirectory(new java.io.File("/home/student/dev3/C:/Users/Daniel Liao/Desktop/Labtainers/labs"));
+        labChooser.setCurrentDirectory(new java.io.File("/home/student/dev/Labtainers/UI/MainUI/target/C:/Users/Daniel Liao/Desktop/Labtainers/labs"));
         labChooser.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
 
         NewLabDialog.setTitle("Creating New Lab");
-        NewLabDialog.setMaximumSize(new java.awt.Dimension(469, 170));
-        NewLabDialog.setMinimumSize(new java.awt.Dimension(469, 170));
+        NewLabDialog.setMaximumSize(new java.awt.Dimension(469, 200));
+        NewLabDialog.setMinimumSize(new java.awt.Dimension(469, 200));
+        NewLabDialog.setPreferredSize(new java.awt.Dimension(469, 200));
 
         jLabel6.setFont(new java.awt.Font("Dialog", 1, 15)); // NOI18N
         jLabel6.setText("Name");
@@ -416,23 +421,44 @@ public class MainWindow extends javax.swing.JFrame {
         jLabel14.setFont(new java.awt.Font("Dialog", 1, 15)); // NOI18N
         jLabel14.setText("Base Image");
 
-        jTextField1.setFont(new java.awt.Font("Dialog", 0, 15)); // NOI18N
+        NewLabNameTextfield.setFont(new java.awt.Font("Dialog", 0, 15)); // NOI18N
+
+        NewLabCreateButton.setText("Create");
+        NewLabCreateButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                NewLabCreateButtonActionPerformed(evt);
+            }
+        });
+
+        NewLabCancelButton.setText("Cancel");
+        NewLabCancelButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                NewLabCancelButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout NewLabDialogLayout = new javax.swing.GroupLayout(NewLabDialog.getContentPane());
         NewLabDialog.getContentPane().setLayout(NewLabDialogLayout);
         NewLabDialogLayout.setHorizontalGroup(
             NewLabDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(NewLabDialogLayout.createSequentialGroup()
-                .addGap(20, 20, 20)
                 .addGroup(NewLabDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(NewLabDialogLayout.createSequentialGroup()
-                        .addComponent(jLabel14)
-                        .addGap(4, 4, 4)
-                        .addComponent(NewLabBaseImageComboBox, 0, 336, Short.MAX_VALUE))
-                    .addGroup(NewLabDialogLayout.createSequentialGroup()
-                        .addComponent(jLabel6)
+                        .addGap(20, 20, 20)
+                        .addGroup(NewLabDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(NewLabDialogLayout.createSequentialGroup()
+                                .addComponent(jLabel14)
+                                .addGap(4, 4, 4)
+                                .addComponent(NewLabBaseImageComboBox, 0, 336, Short.MAX_VALUE))
+                            .addGroup(NewLabDialogLayout.createSequentialGroup()
+                                .addComponent(jLabel6)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(NewLabNameTextfield))))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, NewLabDialogLayout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(NewLabCreateButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField1)))
+                        .addComponent(NewLabCancelButton)))
                 .addContainerGap())
         );
         NewLabDialogLayout.setVerticalGroup(
@@ -441,11 +467,15 @@ public class MainWindow extends javax.swing.JFrame {
                 .addGap(23, 23, 23)
                 .addGroup(NewLabDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(NewLabNameTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(22, 22, 22)
                 .addGroup(NewLabDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel14)
                     .addComponent(NewLabBaseImageComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(NewLabDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(NewLabCreateButton)
+                    .addComponent(NewLabCancelButton))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -790,9 +820,34 @@ private void openLab(File lab){
     }//GEN-LAST:event_windowClosing
 
     private void NewLabMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NewLabMenuItemActionPerformed
+        NewLabNameTextfield.setText("");
         NewLabDialog.setVisible(true);
     }//GEN-LAST:event_NewLabMenuItemActionPerformed
 
+    private void NewLabCreateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NewLabCreateButtonActionPerformed
+        //mkdir newlab (in labs dir if )
+        if(!Arrays.asList(labsPath.list()).contains(NewLabNameTextfield.getText())){ // If lab doesn't exist
+            
+        }
+        else{
+            System.out.println("Lab already exists. Make the lab with a different name other than:");
+            for(String lab : labsPath.list()){
+                System.out.println(lab);
+            }
+        }
+        //call python new_lab_script: new_lab_setup.py -b basename
+    }//GEN-LAST:event_NewLabCreateButtonActionPerformed
+
+    private void NewLabCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NewLabCancelButtonActionPerformed
+        NewLabDialog.setVisible(false);
+    }//GEN-LAST:event_NewLabCancelButtonActionPerformed
+    
+    
+    // 
+    private void getListOfLabs(){
+        
+  
+    }
     
     
     private void resetWindow(){
@@ -900,8 +955,11 @@ private void openLab(File lab){
     private javax.swing.JPanel NetworkPanel;
     private javax.swing.JScrollPane NetworkScrollPane;
     private javax.swing.JComboBox<String> NewLabBaseImageComboBox;
+    private javax.swing.JButton NewLabCancelButton;
+    private javax.swing.JButton NewLabCreateButton;
     private javax.swing.JDialog NewLabDialog;
     private javax.swing.JMenuItem NewLabMenuItem;
+    private javax.swing.JTextField NewLabNameTextfield;
     private javax.swing.JMenuItem OpenLabMenuItem;
     private javax.swing.JButton addContainerButton;
     private javax.swing.JButton addNetworkButton;
@@ -922,7 +980,6 @@ private void openLab(File lab){
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator2;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JFileChooser labChooser;
     // End of variables declaration//GEN-END:variables
 }
