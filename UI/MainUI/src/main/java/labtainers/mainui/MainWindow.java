@@ -8,6 +8,7 @@ package labtainers.mainui;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.List;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -15,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
@@ -431,11 +433,6 @@ public class MainWindow extends javax.swing.JFrame {
         });
 
         NewLabCancelButton.setText("Cancel");
-        NewLabCancelButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                NewLabCancelButtonActionPerformed(evt);
-            }
-        });
 
         javax.swing.GroupLayout NewLabDialogLayout = new javax.swing.GroupLayout(NewLabDialog.getContentPane());
         NewLabDialog.getContentPane().setLayout(NewLabDialogLayout);
@@ -826,28 +823,44 @@ private void openLab(File lab){
 
     private void NewLabCreateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NewLabCreateButtonActionPerformed
         //mkdir newlab (in labs dir if )
-        if(!Arrays.asList(labsPath.list()).contains(NewLabNameTextfield.getText())){ // If lab doesn't exist
+        String newLabName = NewLabNameTextfield.getText();
+        if(!Arrays.asList(labsPath.list()).contains(newLabName)){ // If lab doesn't exist
+            try{
+                System.out.println("made new lab");
+                
+                
+                System.out.println(System.getProperty("user.dir"));
+                
+                
+                String cmd = "./callNewLab.sh "+labsPath+" "+newLabName+" "+NewLabBaseImageComboBox.getSelectedItem();
+                //System.out.println(labsPath);
+                Process pr = Runtime.getRuntime().exec(cmd);
             
+                BufferedReader reader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+                String line;
+                while((line = reader.readLine()) != null){
+                    System.out.println(line);
+                }
+                reader.close();
+            } catch (IOException e){
+                System.out.println(e);
+            }
+           
         }
         else{
             System.out.println("Lab already exists. Make the lab with a different name other than:");
+            int labCount = 1;
             for(String lab : labsPath.list()){
-                System.out.println(lab);
+                System.out.print(lab + ", ");
+                if(labCount % 5 == 0){
+                    System.out.println();
+                }
+                labCount++;
             }
         }
         //call python new_lab_script: new_lab_setup.py -b basename
     }//GEN-LAST:event_NewLabCreateButtonActionPerformed
-
-    private void NewLabCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NewLabCancelButtonActionPerformed
-        NewLabDialog.setVisible(false);
-    }//GEN-LAST:event_NewLabCancelButtonActionPerformed
     
-    
-    // 
-    private void getListOfLabs(){
-        
-  
-    }
     
     
     private void resetWindow(){
