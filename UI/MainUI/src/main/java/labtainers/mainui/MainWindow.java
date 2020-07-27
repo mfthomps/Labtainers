@@ -414,7 +414,7 @@ public class MainWindow extends javax.swing.JFrame {
                 .addGap(68, 68, 68))
         );
 
-        labChooser.setCurrentDirectory(new java.io.File("/home/student/dev/Labtainers/UI/MainUI/target/C:/Users/Daniel Liao/Desktop/Labtainers/labs"));
+        labChooser.setCurrentDirectory(new java.io.File("/var/lib/snapd/void/C:/Users/Daniel Liao/Desktop/Labtainers/labs"));
         labChooser.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
 
         NewLabDialog.setTitle("Creating New Lab");
@@ -881,8 +881,6 @@ private void openLab(File lab){
 
     private void NewLabCreateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NewLabCreateButtonActionPerformed
         LabExistLabel.setVisible(false);
-        NewLabNameTextfield.setText("");
-        NewLabDialog.revalidate();
         
         //mkdir newlab (in labs dir if )
         String newLabName = NewLabNameTextfield.getText();
@@ -893,7 +891,7 @@ private void openLab(File lab){
                 System.out.println("made new lab");
                 //call python new_lab_script: new_lab_setup.py -b basename              
                 String cmd = "./callNewLab.sh "+labsPath+" "+newLabName+" "+NewLabBaseImageComboBox.getSelectedItem();
-                //System.out.println(labsPath);
+                System.out.println(cmd);
                 Process pr = Runtime.getRuntime().exec(cmd);
             
                 BufferedReader reader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
@@ -903,7 +901,11 @@ private void openLab(File lab){
                 }
                 reader.close();
                 NewLabDialog.setVisible(false);
-            } catch (IOException e){
+                
+                //open the new lab
+                openLab(new File(labsPath+File.separator+newLabName));
+            } 
+            catch (IOException e){
                 System.out.println(e);
             }
            
