@@ -1841,7 +1841,7 @@ def PreStop(container_name, ts):
     cmd = "docker exec %s bash -c 'ls -l %s'" % (container_name, cmd_path)
 
     if DockerCmd(cmd, noloop=True):
-        cmd = "docker exec %s bash -c '%s >$HOME/.local/result/prestop.stdout.%s'" % (container_name, cmd_path, ts)
+        cmd = "docker exec %s bash -c '%s >$HOME/.local/result/prestop.stdout.%s 2>&1'" % (container_name, cmd_path, ts)
         DockerCmd(cmd, noloop=True)
 
 def GatherOtherArtifacts(lab_path, name, container_name, container_user, container_password, ignore_stop_error):
@@ -2314,6 +2314,7 @@ def DoStopOne(start_config, labtainer_config, lab_path, name, container, zip_fil
 def SynchStop(start_config, run_container=None):
     threads = []
     now = datetime.datetime.now()
+    ''' NOTE all prestop stdout will have same timestamp. '''
     ts = now.strftime('%Y%m%d%H%M%S')
     for name, container in start_config.containers.items():
         if run_container is not None and container.full_name != run_container:
