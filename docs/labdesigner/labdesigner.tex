@@ -1108,7 +1108,9 @@ one timestamped file allows the designer to identify events that occured as part
 invocation.  Again, see the {\tt acl} lab for an example.
 
 \subsubsection{Generating results upon stopping the lab}
-The lab designer can cause a script to run on selected containers whenever the student stops a lab.
+\label{prestop}
+The lab designer can cause a script to run on selected containers whenever the student stops a lab,
+or when a student issues the {\tt checkwork} command per \ref{checkwork}.
 This is achieved by creating an script or executable program at:
 \begin{verbatim}
 trunk/labtainers/lab/<lab>/_bin/prestop
@@ -1119,7 +1121,8 @@ shutting down any of the containers, and all the timestamps
 will be the same.  Note the Labtainers framework generally allows students to acheive their goals at any
 point in their exploration, and the labs typically do not require the student to leave the system in any
 particular state.  In other words, students should be free to continue experimenting subsequent to getting
-the correct results.  Thus, any use of the prestop feature should be accompanied by a lab manual entry
+the correct results.  Thus, any use of the prestop feature, (other than for \textit{current state assessment}
+per \ref{current-state}), should be accompanied by a lab manual entry
 advising the student that they may restart a lab after issuing the {\tt stoplab} command. \footnote{Perhaps a
 {\tt goalsmet} type of command should be added that does nothing but record prestop results without actually
 stopping the lab?}
@@ -1198,7 +1201,8 @@ Directives within the results.config file each have the following format:
                    absolute, it is relative to the container user's home directory. 
                    The wildcard character '*' can be used in place of <prog>,
                    i.e., *.stdin is for all stdin artifacts and *.stdout is for all 
-                   stdout artifacts.  
+                   stdout artifacts. Note prestop files are excluded from wildcard
+                   results. 
                    
             field_type - Optional, defaults to "TOKEN", possible values include:
                TOKEN      -- Treat the line as space-delimited tokens
@@ -1528,19 +1532,22 @@ It is intended that the goals.answers files will not be distributed, e.g., they 
 SimLab solutions repo.
 
 \subsubsection{Assessment Report}
-Evaluation of student results occurs on an instructor container, via a script named {\tt instructor.py}, which runs
-automatically when the instructor runs the {\tt gradelab [lab]} command.  The script can also be run manually, e.g., to
-test changes and additions to grading configuaration files.  It must be run from the HOME directory
-on the container that results from running the gradelab command with the {\tt -d} option \footnote{Be sure to run
-stopgrade after use of the {\tt -d} option to shut down the grading container when you are done with it}.
+Evaluation of student results occurs on a \textit{grading} container
+that starts when the instructor runs the {\tt gradelab <lab>} command. A report is generated
+and displayed on the screen.  A copy of the report is also placed in the {\tt latainer\_xfer} directory. 
+Debugging your assessment configuration an be aided by using {\tt gradelab -d <lab>}, which will start the
+grading container and give you a shell into it.  From there, run the script named {\tt instructor.py}.
+There is a log in {\tt /tmp/instructor.log} in addition to diagnostics that might be generated on the terminal.
+See section \ref{debug-grading} for additional information on debugging grading.\footnote{Be sure to run
+stoplab after use of the {\tt -d} option to shut down the grading container when you are done with it}.
 By convention, all goals and boolean results whose symbolic names are not prefaced with an
-underscore ({\tt\_}), will have corresponding entries in the assessment report, located in 
+underscore ({\tt\_}) or an {\tt cw\_}(see \ref{checkwork}), will have corresponding entries in the assessment report, located in 
 the home directory in a file named {\tt <lab name>.grades.txt>}
 
 \subsubsection{Document the meaning of goals}
 \label{document goals}
 Instructors will see descriptions of lab goals when they start the lab using {\tt gradelab}.
-These descriptions are embedded within comments in the goals.config and results.config files.
+These descriptions are embedded within directives within the goals.config and results.config files.
 The descriptions are associated with symbolic names that immediately follow the documentation
 directives as described below:
 \begin{verbatim}
@@ -1555,8 +1562,55 @@ directives as described below:
                new comment.
    
 \end{verbatim} 
-\noindent See existing labs for examples.
+\noindent See existing labs for examples.  Also see the \ref{checkwork} for additional directives.
 
+\subsection {Student self-assessment}
+\label{checkwork}
+The {\tt checkwork} command allows students to assess their own work against
+the criteria used by instructors for automated assessment of lab performance.
+This can be disabled on a deployment-wide basis using the {\tt CHECKWORK no} directive
+in the {\tt config/labtainers.config} file.  Of course this assumes you have separately
+provided access control over that file, e.g., through use of a custom VM appliance.\footnote{
+Disabling self-assessment might be useful if Labtainers was repurposed for skills assessment
+testing.}
+
+\subsubsection {Current state assessment}
+\label{current-state}
+The lab designer can define a subset of goals and results that inform the student
+whether the \textit{current} system state is as desired.  This greatly differs
+from typical Labtainer goal assessment, which measure whether the student ever
+achieved expected results, regardless of the system's current state.  These 
+\textit{current state} goals are intended to guide the student with potentially
+more information than is found (or is practical) in the standard goals.  The current state goals
+are not intended to replace other goals, and they are not displayed to instructors.
+
+The current state goals and results must have a prefix of {\tt cw\_}, and they
+are required to have documentation directives of {\tt CHECK\_TRUE} or {\tt CHECK\_FALSE}.
+Text included within the directives will be displayed to students based on the values
+of their associated goals at the time {\tt checkwork} was run.
+
+\subsection {Current state artifacts}
+Results and goals used for current state assessment are typically derived from artifacts generated by {\tt prestop} scripts 
+described in \ref{prestop}.  The system uses the most recent timestamp found for any files named by current state
+results, i.e., those with the {\tt cw\_} prefix.  The designer can name any file for a current state result.
+
+To highlight the differences between current state assessment and standard Labtainers assessment, consider an example
+lab that requires the student to enforce an access control policy on a database having several users with differing
+authorizations.  To support the instructor, we'd like to report on whether the student ever managed to configure the
+database permissions within a single configuration such that all users were prevented from exceeding their authorization and 
+yet were able to access data to which they were authorized.  Providing the instructor with point details of whether individual
+modes of access were permitted or denied at any time in the lab might not be very helpful because the context of such access
+would not be known.  For example, a goal might reflect that John was denied access to some table at some point, but was it due to everyone being 
+denied access?  Or due to John being denied access to everything?  Such intermediate results can be presented to instructors
+(or they can delve into intermediate results themselves on the grader container), but those results lack context within the 
+grading report.  On the other hand, when the student runs {\tt checkwork}, the context is clear and we can provide feedback
+to the student about the current state of the system relative to the goals.  Now the questions are better formed, e.g., 
+does John currently have access to the expected table columns?.
+
+The above discussion is not intended to dissuade lab designers from informing instructors about partial success.  If goals
+can be defined to show the student was able to provide most of the desired access controls though unable to enforce the entire policy, 
+that is to be encouraged.  But that can also be hard to do.  It is often far easier to provide the student with information about partial
+goal achievement because the context is \textit{now}.
 
 \subsection{Assessment examples}
 \label{examples}
@@ -1729,6 +1783,7 @@ single iptables configuration during which the student used nmap to demonstrate 
 
 
 \subsection{Debugging automated assessment in labs}
+\label{debug-grading}
 Developing automated assessment for a new lab typically requires some
 amount of debugging.  This section is intended to guide new developers
 through the process.
@@ -2788,13 +2843,6 @@ scripts so that they happen on each boot.
 
 Note also, that the Docker group (in which containers execute) is root 
 equivalent, and thus a hostile container can do damage to the Linux host.
-
-\subsection {Student self assessment}
-The {\tt checkwork} command allows students to assess their own work against
-the criteria used by instructors for automated assessment of lab performance.
-This can be disabled on deployment-wide basis using the {\tt CHECKWORK no} directive
-in the {\tt config/labtainers.config} file.  Of course this assumes you have separately
-provided access control over that file, e.g., through use of a custom VM appliance.
 
 \subsection {Test registry setup}
 The test registry is a Docker container that runs on the host, i.e., native OS
