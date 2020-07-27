@@ -58,11 +58,13 @@ logger = None
 resultidlist = {}
 
 def GetExecProgramList(containername, studentlabdir, container_list, targetfile):
+    # Intended for use when the named program is just a wildcard.
     # This will return a list of executable program name matching
-    # <directory>/.local/result/<exec_program>.targetfile.*
-    # If containername is "" then loop through all directory of studentlabdir/container
+    # <directory>/.local/result/targetfile.*
+    # If containername is "" then loop through all directories of studentlabdir/container
     # where container is from the container_list
     # If containername is non "" then directory is studentlabdir/containername
+    # NOTE: it excludes prestop files
     myexec_proglist = []
     mylist = []
     if containername == "":
@@ -84,7 +86,7 @@ def GetExecProgramList(containername, studentlabdir, container_list, targetfile)
             #print "split_string is %s" % split_string
             namesplit = basefilename.split(split_string)
             #print namesplit
-            if namesplit[0] not in myexec_proglist:
+            if namesplit[0] not in myexec_proglist and namesplit[0] != 'prestop':
                 myexec_proglist.append(namesplit[0])
     return myexec_proglist
 
@@ -109,7 +111,7 @@ def ProcessConfigLine(actual_parsing, studentlabdir, container_list, labidname, 
     '''
     This function populates a set of global structures used in processing the results
     '''
-    valid_field_types = ['TOKEN', 'GROUP', 'PARENS', 'QUOTES', 'SLASH', 'LINE_COUNT', 'CHECKSUM', 'CONTAINS','FILE_REGEX',  
+    valid_field_types = ['TOKEN', 'GROUP', 'PARENS', 'QUOTES', 'SLASH', 'LINE_COUNT', 'CHECKSUM', 'CONTAINS', 'FILE_REGEX',  
                          'FILE_REGEX_TS', 'SEARCH', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT']
     if not MyUtil.CheckAlphaDashUnder(result_key):
         logger.error("Not allowed characters in results.config's key (%s)" % result_key)
@@ -468,7 +470,7 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                 tagstring = mymd5.hexdigest()
                 return tagstring
             elif command == 'CONTAINS':
-                if token_id == 'CONTAINS':
+                if 'CONTAINS' in token_id:
                     ''' search entire file, vice searching for line '''
                     remain = line.split(command,1)[1]
                     remain = remain.split(':', 1)[1].strip()
@@ -648,13 +650,32 @@ def getConfigItems(labidname, line, studentlabdir, container_list, logger, param
     return containername, targetfile, result_key, command, field_type, token_id, lookupstring, result_home 
 
 
-def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_list, timestamppart, logger, parameter_list):
+def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_list, timestamppart, logger, parameter_list, latest_dict):
     retval = True
     containername, targetfile, result_key, command, field_type, token_id, lookupstring, result_home = getConfigItems(labidname, line, studentlabdir, container_list, logger, parameter_list)
     if targetfile is None:
         nametags[result_key]=None
         logger.error('No target file in %s' % line)
         return retval
+    if result_key.startswith('cw_'):
+        fname = targetfile
+        if fname.endswith('stdout'):
+            fname = targetfile[:-7]
+        elif fname.endswith('stdin'):
+            fname = targetfile[:-6]
+        container_file = '%s:%s' % (containername, fname)
+        logger.debug('is cw %s ts %s file %s' % (result_key, timestamppart, container_file))   
+        if container_file not in latest_dict or timestamppart != latest_dict[container_file]:
+            ''' is a checkwork (current-state) result and is not the latest timestamp for the file, ignore '''
+            logger.debug('NOT the latest')
+            if container_file not in latest_dict:
+                logger.debug('%s not in dict' % container_file) 
+            else:
+                logger.debug('not latest, which is %s' % latest_dict[container_file])
+            
+            return retval
+        else:
+            logger.debug('is the latest')
     logger.debug('command %s, field_type %s, token_id %s' % (command, field_type, token_id))
     targetfname_list = []
     if targetfile.startswith('*'):
@@ -760,7 +781,7 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
             containername, targetfile, result_key, command, field_type, token_id, lookupstring, result_home = getConfigItems(labidname, linestrip, studentlabdir, container_list, logger, parameter_list)
             quiet = False
             if 'mysql' in targetfile:
-                ''' some sql log entries have not ts '''
+                ''' some sql log entries have no ts '''
                 quiet = True
         
             if command == 'HAVESTRING_TS':
@@ -991,7 +1012,7 @@ def ParseConfigForTimeDelim(studentlabdir, labidname, configfilelines, ts_jsonfn
 
 
 def ParseConfigForFile(studentlabdir, labidname, configfilelines, 
-                       outputjsonfname, container_list, timestamppart, end_time, logger, parameter_list):
+                       outputjsonfname, container_list, timestamppart, end_time, logger, parameter_list, latest_dict={}):
     '''
     Invoked for each timestamp to parse results for that timestamp.
     Each config file line is assessed against each results file that corresponds
@@ -1006,7 +1027,7 @@ def ParseConfigForFile(studentlabdir, labidname, configfilelines,
         linestrip = line.rstrip()
         if linestrip is not None and not linestrip.startswith('#') and len(line.strip())>0:
             got_one = got_one | handleConfigFileLine(labidname, linestrip, nametags, studentlabdir, 
-                                  container_list, timestamppart, logger, parameter_list)
+                                  container_list, timestamppart, logger, parameter_list, latest_dict)
 
     if end_time is not None:
         if timestamppart < end_time:
@@ -1061,7 +1082,7 @@ def ParseValidateResultConfig(actual_parsing, homedir, studentlabdir, container_
                 progname_type, cmd = ProcessConfigLine(actual_parsing, studentlabdir, container_list, labidname, result_key, result_value, logger)
                 if result_key not in resultidlist:
                     resultidlist[result_key] = progname_type
-                if cmd == 'CONTAINS' or (cmd is not None and cmd.startswith('FILE_REGEX')):
+                if 'CONTAINS' in cmd or (cmd is not None and cmd.startswith('FILE_REGEX')):
                     bool_results.append(result_key.strip())
         #else:
         #    print "Skipping empty linestrip is (%s)" % linestrip
@@ -1103,6 +1124,7 @@ def ParseStdinStdout(homedir, studentlabdir, container_list, instructordir, labi
     with open(bool_results_file, 'w') as fh:
         json.dump(bool_results, fh, indent=4)
 
+    latest_dict = {}
     '''
     A round-about-way of getting all time stamps
     '''
@@ -1151,18 +1173,25 @@ def ParseStdinStdout(homedir, studentlabdir, container_list, instructordir, labi
                         timestamplist[timestamppart] = targetmtime
                     elif targetmtime > timestamplist[timestamppart]:
                         timestamplist[timestamppart] = targetmtime
+                    container_file = '%s:%s' % (mycontainername, exec_prog)
+                    if container_file not in latest_dict or timestamppart > latest_dict[container_file]:
+                        ''' track the most recent of each file for use if result type is checkwork (cw_ prefix) '''
+                        logger.debug('adding latest_dict[%s] = %s' % (container_file, timestamppart))
+                        latest_dict[container_file] = timestamppart
+                    
                 else:
                     #print "no match"
                     continue
 
     ''' process each timestamped result file. '''
-    for timestamppart in timestamplist:
+    for timestamppart in sorted(timestamplist):
         targetmtime_string = datetime.datetime.fromtimestamp(timestamplist[timestamppart])
         end_time = targetmtime_string.strftime("%Y%m%d%H%M%S")
         outputjsonfname = '%s%s.%s' % (OUTPUTRESULTHOME, jsonoutputfilename, timestamppart)
         logger.debug("ParseStdinStdout (1): Outputjsonfname is (%s)" % outputjsonfname)
         ParseConfigForFile(studentlabdir, labidname, configfilelines, outputjsonfname, 
-                           container_list, timestamppart, end_time, logger, parameter_list)
+                           container_list, timestamppart, end_time, logger, parameter_list, latest_dict=latest_dict)
+        
     ''' process files without timestamps '''
     outputjsonfname = '%s%s' % (OUTPUTRESULTHOME, jsonoutputfilename)
     ParseConfigForFile(studentlabdir, labidname, configfilelines, outputjsonfname, container_list, None, None, logger, parameter_list)

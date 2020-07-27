@@ -202,13 +202,12 @@ def diddleProfile(container_name):
     command = 'docker exec %s script -q -c "/home/instructor/.local/bin/rootprofile.sh" /dev/null' % (container_name)
     logger.debug("Command to execute is (%s)" % command)
     result = subprocess.call(command, shell=True)
-    logger.debug("Result of subprocess.call CopyStudentArtifacts set labname is %s (1=>FAILURE)" % result)
     if result == FAILURE:
-        logger.error("Failed to set labname in container %s!\n" % container_name)
+        logger.error("Failed to diddle profile container %s!\n" % container_name)
         sys.exit(1)
 
-def autoGrade(grade_container, lab_path, labtainer_config, labname, copy_json):
-    cmd = "docker exec %s bash -c 'su - instructor -c \"cd;.local/bin/instructor.py\"'" % (grade_container)
+def autoGrade(grade_container, lab_path, labtainer_config, labname, copy_json, checkwork):
+    cmd = "docker exec %s bash -c 'su - instructor -c \"cd;.local/bin/instructor.py %r\"'" % (grade_container, checkwork)
     if not labutils.DockerCmd(cmd):
         logger.error('trouble with %s' % cmd)
     copyChownGradesFile(labtainer_config, labname, grade_container, 'instructor', copy_json)
@@ -255,8 +254,13 @@ def moreTerm(labname):
     logger.debug("spawn_command is (%s)" % spawn_command)
     os.system(spawn_command)
 
-def doGrade(labname, use_test_registry, debug, redo, update, regress_test=None, copy_json=True):
+def doGrade(labname, use_test_registry, debug, redo, update, regress_test=None, copy_json=True, in_logger=None, checkwork=False):
+    if in_logger is not None:
+        logger = in_logger
+    else:
+        logger = labutils.logger
     grade_container = '%s-igrader' % labname
+    logger.debug('doGrade for %s' % grade_container)
     if redo:
         cmd = 'docker stop %s' % grade_container
         labutils.DockerCmd(cmd)
@@ -300,7 +304,7 @@ def doGrade(labname, use_test_registry, debug, redo, update, regress_test=None, 
         logger.debug("spawn_command is (%s)" % spawn_command)
         os.system(spawn_command)
     else:
-        autoGrade(grade_container, lab_path, labtainer_config, labname, copy_json)
+        autoGrade(grade_container, lab_path, labtainer_config, labname, copy_json, checkwork)
 
 def removeGraders(registry):
     cmd = 'docker ps -a'
