@@ -53,6 +53,7 @@ public class MainWindow extends javax.swing.JFrame {
         initComponents();
         containerScrollPaneBar = ContainerScrollPane.getVerticalScrollBar();
         networkScrollPaneBar = NetworkScrollPane.getVerticalScrollBar();
+        LabExistLabel.setVisible(false);
         
         labData = new LabData();       
         parseINI();
@@ -98,6 +99,9 @@ public class MainWindow extends javax.swing.JFrame {
             }
         } catch (FileNotFoundException ex) {
             System.out.println(ex);
+        } catch (NullPointerException ex) {
+            System.out.println(ex);
+            //resetINIFile();
         }
     }
 
@@ -173,6 +177,7 @@ public class MainWindow extends javax.swing.JFrame {
         NewLabBaseImageComboBox = new javax.swing.JComboBox<>();
         NewLabCreateButton = new javax.swing.JButton();
         NewLabCancelButton = new javax.swing.JButton();
+        LabExistLabel = new javax.swing.JLabel();
         Header = new javax.swing.JPanel();
         AssessmentButton = new javax.swing.JButton();
         LabnameLabel = new javax.swing.JLabel();
@@ -433,6 +438,13 @@ public class MainWindow extends javax.swing.JFrame {
         });
 
         NewLabCancelButton.setText("Cancel");
+        NewLabCancelButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                NewLabCancelButtonActionPerformed(evt);
+            }
+        });
+
+        LabExistLabel.setText("Lab already exists!");
 
         javax.swing.GroupLayout NewLabDialogLayout = new javax.swing.GroupLayout(NewLabDialog.getContentPane());
         NewLabDialog.getContentPane().setLayout(NewLabDialogLayout);
@@ -442,21 +454,26 @@ public class MainWindow extends javax.swing.JFrame {
                 .addGroup(NewLabDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(NewLabDialogLayout.createSequentialGroup()
                         .addGap(20, 20, 20)
+                        .addComponent(jLabel6)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(NewLabNameTextfield))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, NewLabDialogLayout.createSequentialGroup()
+                        .addContainerGap()
                         .addGroup(NewLabDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(NewLabDialogLayout.createSequentialGroup()
                                 .addComponent(jLabel14)
                                 .addGap(4, 4, 4)
-                                .addComponent(NewLabBaseImageComboBox, 0, 336, Short.MAX_VALUE))
-                            .addGroup(NewLabDialogLayout.createSequentialGroup()
-                                .addComponent(jLabel6)
+                                .addComponent(NewLabBaseImageComboBox, 0, 344, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, NewLabDialogLayout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 311, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(NewLabCreateButton)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(NewLabNameTextfield))))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, NewLabDialogLayout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(NewLabCreateButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(NewLabCancelButton)))
+                                .addComponent(NewLabCancelButton)))))
                 .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, NewLabDialogLayout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(LabExistLabel)
+                .addGap(158, 158, 158))
         );
         NewLabDialogLayout.setVerticalGroup(
             NewLabDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -465,7 +482,9 @@ public class MainWindow extends javax.swing.JFrame {
                 .addGroup(NewLabDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
                     .addComponent(NewLabNameTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(22, 22, 22)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(LabExistLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
                 .addGroup(NewLabDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel14)
                     .addComponent(NewLabBaseImageComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -473,7 +492,7 @@ public class MainWindow extends javax.swing.JFrame {
                 .addGroup(NewLabDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(NewLabCreateButton)
                     .addComponent(NewLabCancelButton))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(23, 23, 23))
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -809,6 +828,11 @@ private void openLab(File lab){
         } 
         catch (FileNotFoundException ex) { System.out.println(ex);} 
         catch (IOException ex) { System.out.println(ex);} 
+        catch (NullPointerException ex) {
+            System.out.println(ex);
+            resetINIFile();
+            
+        }
         
         finally {
             try { if(out != null){out.close();}} 
@@ -816,22 +840,58 @@ private void openLab(File lab){
         }
     }//GEN-LAST:event_windowClosing
 
+    
+    // Code taken from Beginners Book: https://beginnersbook.com/2014/05/how-to-copy-a-file-to-another-file-in-java/
+    private void resetINIFile(){
+        FileInputStream instream = null;
+	FileOutputStream outstream = null;
+ 
+    	try{
+    	    File infile = new File("/home/student/dev/Labtainers/UI/bin/mainUI.ini.backup"); //location will need to be updated in final;
+    	    File outfile = iniFile;
+ 
+    	    instream = new FileInputStream(infile);
+    	    outstream = new FileOutputStream(outfile);
+ 
+    	    byte[] buffer = new byte[1024];
+ 
+    	    int length;
+    	    /*copying the contents from input stream to
+    	     * output stream using read and write methods
+    	     */
+    	    while ((length = instream.read(buffer)) > 0){
+    	    	outstream.write(buffer, 0, length);
+    	    }
+
+    	    //Closing the input/output file streams
+    	    instream.close();
+    	    outstream.close();
+
+    	    System.out.println("File copied successfully!!");
+ 
+    	}catch(IOException ioe){
+    		ioe.printStackTrace();
+    	 }
+    }
+    
     private void NewLabMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NewLabMenuItemActionPerformed
         NewLabNameTextfield.setText("");
         NewLabDialog.setVisible(true);
     }//GEN-LAST:event_NewLabMenuItemActionPerformed
 
     private void NewLabCreateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NewLabCreateButtonActionPerformed
+        LabExistLabel.setVisible(false);
+        NewLabNameTextfield.setText("");
+        NewLabDialog.revalidate();
+        
         //mkdir newlab (in labs dir if )
         String newLabName = NewLabNameTextfield.getText();
         if(!Arrays.asList(labsPath.list()).contains(newLabName)){ // If lab doesn't exist
             try{
+                LabExistLabel.setVisible(false);
+                NewLabDialog.revalidate();
                 System.out.println("made new lab");
-                
-                
-                System.out.println(System.getProperty("user.dir"));
-                
-                
+                //call python new_lab_script: new_lab_setup.py -b basename              
                 String cmd = "./callNewLab.sh "+labsPath+" "+newLabName+" "+NewLabBaseImageComboBox.getSelectedItem();
                 //System.out.println(labsPath);
                 Process pr = Runtime.getRuntime().exec(cmd);
@@ -842,6 +902,7 @@ private void openLab(File lab){
                     System.out.println(line);
                 }
                 reader.close();
+                NewLabDialog.setVisible(false);
             } catch (IOException e){
                 System.out.println(e);
             }
@@ -849,6 +910,8 @@ private void openLab(File lab){
         }
         else{
             System.out.println("Lab already exists. Make the lab with a different name other than:");
+            LabExistLabel.setVisible(true);
+            NewLabDialog.revalidate();
             int labCount = 1;
             for(String lab : labsPath.list()){
                 System.out.print(lab + ", ");
@@ -858,8 +921,11 @@ private void openLab(File lab){
                 labCount++;
             }
         }
-        //call python new_lab_script: new_lab_setup.py -b basename
     }//GEN-LAST:event_NewLabCreateButtonActionPerformed
+
+    private void NewLabCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NewLabCancelButtonActionPerformed
+        NewLabDialog.setVisible(false);
+    }//GEN-LAST:event_NewLabCancelButtonActionPerformed
     
     
     
@@ -953,6 +1019,7 @@ private void openLab(File lab){
     private javax.swing.JScrollPane ContainerScrollPane;
     private javax.swing.JMenu FileMenuBar;
     private javax.swing.JPanel Header;
+    private javax.swing.JLabel LabExistLabel;
     private javax.swing.JLabel LabnameLabel;
     private javax.swing.JMenuBar MainMenuBar;
     private javax.swing.JDialog NetworkAddDialog;
