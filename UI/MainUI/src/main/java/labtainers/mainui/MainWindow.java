@@ -178,6 +178,12 @@ public class MainWindow extends javax.swing.JFrame {
         NewLabCreateButton = new javax.swing.JButton();
         NewLabCancelButton = new javax.swing.JButton();
         LabExistLabel = new javax.swing.JLabel();
+        LabtainersDirDialog = new javax.swing.JDialog();
+        jLabel15 = new javax.swing.JLabel();
+        LabtainersDirTextfield = new javax.swing.JTextField();
+        LabtainersDirCancelButton = new javax.swing.JButton();
+        LabtainersDirConfirmButton = new javax.swing.JButton();
+        pathValidLabel = new javax.swing.JLabel();
         Header = new javax.swing.JPanel();
         AssessmentButton = new javax.swing.JButton();
         LabnameLabel = new javax.swing.JLabel();
@@ -197,7 +203,7 @@ public class MainWindow extends javax.swing.JFrame {
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         OpenLabMenuItem = new javax.swing.JMenuItem();
         jSeparator2 = new javax.swing.JPopupMenu.Separator();
-        jMenuItem1 = new javax.swing.JMenuItem();
+        editLabtainersDir = new javax.swing.JMenuItem();
 
         ContainerAddDialog.setTitle("Adding New Container");
         ContainerAddDialog.setMinimumSize(new java.awt.Dimension(433, 220));
@@ -495,6 +501,64 @@ public class MainWindow extends javax.swing.JFrame {
                 .addGap(23, 23, 23))
         );
 
+        LabtainersDirDialog.setTitle("Edit LABTAINERS_DIRECTORY");
+        LabtainersDirDialog.setMaximumSize(new java.awt.Dimension(400, 120));
+        LabtainersDirDialog.setMinimumSize(new java.awt.Dimension(400, 120));
+        LabtainersDirDialog.setPreferredSize(new java.awt.Dimension(400, 120));
+        LabtainersDirDialog.setResizable(false);
+
+        jLabel15.setText("Labtainers Dir:");
+
+        LabtainersDirCancelButton.setText("Cancel");
+        LabtainersDirCancelButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                LabtainersDirCancelButtonActionPerformed(evt);
+            }
+        });
+
+        LabtainersDirConfirmButton.setText("Confirm");
+        LabtainersDirConfirmButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                LabtainersDirConfirmButtonActionPerformed(evt);
+            }
+        });
+
+        pathValidLabel.setText("Path not valid!");
+
+        javax.swing.GroupLayout LabtainersDirDialogLayout = new javax.swing.GroupLayout(LabtainersDirDialog.getContentPane());
+        LabtainersDirDialog.getContentPane().setLayout(LabtainersDirDialogLayout);
+        LabtainersDirDialogLayout.setHorizontalGroup(
+            LabtainersDirDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(LabtainersDirDialogLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel15)
+                .addGap(3, 3, 3)
+                .addGroup(LabtainersDirDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(LabtainersDirDialogLayout.createSequentialGroup()
+                        .addGap(0, 24, Short.MAX_VALUE)
+                        .addComponent(pathValidLabel)
+                        .addGap(18, 18, 18)
+                        .addComponent(LabtainersDirConfirmButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(LabtainersDirCancelButton))
+                    .addComponent(LabtainersDirTextfield))
+                .addContainerGap())
+        );
+        LabtainersDirDialogLayout.setVerticalGroup(
+            LabtainersDirDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(LabtainersDirDialogLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(LabtainersDirDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel15)
+                    .addComponent(LabtainersDirTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(LabtainersDirDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(LabtainersDirCancelButton)
+                    .addComponent(LabtainersDirConfirmButton)
+                    .addComponent(pathValidLabel))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -655,8 +719,13 @@ public class MainWindow extends javax.swing.JFrame {
         FileMenuBar.add(OpenLabMenuItem);
         FileMenuBar.add(jSeparator2);
 
-        jMenuItem1.setText("Edit Labtainers Directory");
-        FileMenuBar.add(jMenuItem1);
+        editLabtainersDir.setText("Edit Labtainers Directory");
+        editLabtainersDir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                editLabtainersDirActionPerformed(evt);
+            }
+        });
+        FileMenuBar.add(editLabtainersDir);
 
         MainMenuBar.add(FileMenuBar);
 
@@ -877,9 +946,14 @@ private void openLab(File lab){
     private void NewLabMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NewLabMenuItemActionPerformed
         NewLabNameTextfield.setText("");
         NewLabDialog.setVisible(true);
+        NewLabNameTextfield.requestFocusInWindow();
     }//GEN-LAST:event_NewLabMenuItemActionPerformed
 
     private void NewLabCreateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NewLabCreateButtonActionPerformed
+        createNewLab();
+    }//GEN-LAST:event_NewLabCreateButtonActionPerformed
+
+    private void createNewLab(){
         LabExistLabel.setVisible(false);
         
         //mkdir newlab (in labs dir if )
@@ -923,12 +997,59 @@ private void openLab(File lab){
                 labCount++;
             }
         }
-    }//GEN-LAST:event_NewLabCreateButtonActionPerformed
-
+    }
+    
     private void NewLabCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NewLabCancelButtonActionPerformed
         NewLabDialog.setVisible(false);
     }//GEN-LAST:event_NewLabCancelButtonActionPerformed
+
+    private void editLabtainersDirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editLabtainersDirActionPerformed
+        LabtainersDirTextfield.setText(labtainerPath);
+        pathValidLabel.setVisible(false);
+        LabtainersDirDialog.setVisible(true);
+    }//GEN-LAST:event_editLabtainersDirActionPerformed
+
+    private void LabtainersDirCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LabtainersDirCancelButtonActionPerformed
+        LabtainersDirDialog.setVisible(false);
+    }//GEN-LAST:event_LabtainersDirCancelButtonActionPerformed
+
+    private void LabtainersDirConfirmButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LabtainersDirConfirmButtonActionPerformed
+        try {
+            setLabtainersDir();
+        } catch (IOException ex) {
+            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_LabtainersDirConfirmButtonActionPerformed
     
+    private void setLabtainersDir() throws IOException{
+            String newLabtainersPath = LabtainersDirTextfield.getText();
+            
+            //check if labtainers path exist
+            if(new File(newLabtainersPath).isDirectory()){
+                pathValidLabel.setVisible(false);
+                // update the labtainerPath property
+                pathProperties  = new Properties();
+                pathProperties.load(new FileInputStream(iniFile)); 
+                pathProperties.put("labtainerPath", newLabtainersPath);
+
+                //write update to the ini File
+                SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                Date date = new Date();
+                FileOutputStream out = new FileOutputStream(iniFile);
+                pathProperties.store(out, "Updated: "+ formatter.format(date));
+
+
+                //update UI state 
+                labtainerPath = pathProperties.getProperty("labtainerPath");
+                labsPath = new File(labtainerPath + File.separator + "labs");
+                labChooser.setCurrentDirectory(labsPath);   
+                
+                LabtainersDirDialog.setVisible(false);
+            }
+            else{
+                pathValidLabel.setVisible(true);
+            }  
+    }
     
     
     private void resetWindow(){
@@ -1023,6 +1144,10 @@ private void openLab(File lab){
     private javax.swing.JPanel Header;
     private javax.swing.JLabel LabExistLabel;
     private javax.swing.JLabel LabnameLabel;
+    private javax.swing.JButton LabtainersDirCancelButton;
+    private javax.swing.JButton LabtainersDirConfirmButton;
+    private javax.swing.JDialog LabtainersDirDialog;
+    private javax.swing.JTextField LabtainersDirTextfield;
     private javax.swing.JMenuBar MainMenuBar;
     private javax.swing.JDialog NetworkAddDialog;
     private javax.swing.JButton NetworkAddDialogCancelButton;
@@ -1045,12 +1170,14 @@ private void openLab(File lab){
     private javax.swing.JMenuItem OpenLabMenuItem;
     private javax.swing.JButton addContainerButton;
     private javax.swing.JButton addNetworkButton;
+    private javax.swing.JMenuItem editLabtainersDir;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -1059,9 +1186,9 @@ private void openLab(File lab){
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
-    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator2;
     private javax.swing.JFileChooser labChooser;
+    private javax.swing.JLabel pathValidLabel;
     // End of variables declaration//GEN-END:variables
 }
