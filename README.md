@@ -72,8 +72,9 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
-July 25, 2020
-- Add quiz support
+July 28, 2020
+- Add quiz support -- these are guidance quizzes, not assessment quizzes.  See the designer guide.
+- Add current-state assessment for use with the checkwork command.
 
 July 21, 2020
 - Add testsets/bin to designer's path
