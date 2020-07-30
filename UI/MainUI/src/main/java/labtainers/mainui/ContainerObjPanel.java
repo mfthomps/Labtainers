@@ -134,6 +134,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         PublishTextfield = new javax.swing.JTextField();
         BaseRegistryTextfield = new javax.swing.JTextField();
         NoPrivilegeCheckbox = new javax.swing.JCheckBox();
+        EditDockerfileButton = new javax.swing.JButton();
         ContainerConfigOtherTab = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
@@ -163,6 +164,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         renameContainerOption = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         deleteContainerOption = new javax.swing.JMenuItem();
+        DockerfileEditorDialog = new javax.swing.JDialog();
         ContainerLabelName = new javax.swing.JLabel();
         RenameContainerTextfield = new javax.swing.JTextField();
 
@@ -336,7 +338,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                 .addGroup(ContainerConfigGNS3TabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(HideLabel)
                     .addComponent(HideCheckbox))
-                .addContainerGap(96, Short.MAX_VALUE))
+                .addContainerGap(103, Short.MAX_VALUE))
         );
 
         containerTabPane.addTab("GNS3", ContainerConfigGNS3Tab);
@@ -364,6 +366,13 @@ public class ContainerObjPanel extends javax.swing.JPanel {
 
         BaseRegistryTextfield.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
 
+        EditDockerfileButton.setText("Edit Dockerfile");
+        EditDockerfileButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                EditDockerfileButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout ContainerConfigDockerTabLayout = new javax.swing.GroupLayout(ContainerConfigDockerTab);
         ContainerConfigDockerTab.setLayout(ContainerConfigDockerTabLayout);
         ContainerConfigDockerTabLayout.setHorizontalGroup(
@@ -371,6 +380,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
             .addGroup(ContainerConfigDockerTabLayout.createSequentialGroup()
                 .addGap(24, 24, 24)
                 .addGroup(ContainerConfigDockerTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(EditDockerfileButton)
                     .addComponent(jLabel4)
                     .addComponent(jLabel2)
                     .addComponent(jLabel3)
@@ -383,7 +393,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                     .addComponent(RegistryTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(ScriptTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(NoPrivilegeCheckbox))
-                .addContainerGap(234, Short.MAX_VALUE))
+                .addContainerGap(233, Short.MAX_VALUE))
         );
         ContainerConfigDockerTabLayout.setVerticalGroup(
             ContainerConfigDockerTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -408,7 +418,9 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                 .addGroup(ContainerConfigDockerTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel4)
                     .addComponent(NoPrivilegeCheckbox))
-                .addContainerGap(61, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(EditDockerfileButton)
+                .addContainerGap(26, Short.MAX_VALUE))
         );
 
         containerTabPane.addTab("Docker", ContainerConfigDockerTab);
@@ -630,6 +642,17 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         });
         ContainerRightClick.add(deleteContainerOption);
 
+        javax.swing.GroupLayout DockerfileEditorDialogLayout = new javax.swing.GroupLayout(DockerfileEditorDialog.getContentPane());
+        DockerfileEditorDialog.getContentPane().setLayout(DockerfileEditorDialogLayout);
+        DockerfileEditorDialogLayout.setHorizontalGroup(
+            DockerfileEditorDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 400, Short.MAX_VALUE)
+        );
+        DockerfileEditorDialogLayout.setVerticalGroup(
+            DockerfileEditorDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 300, Short.MAX_VALUE)
+        );
+
         setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         setMaximumSize(new java.awt.Dimension(340, 50));
         setPreferredSize(new java.awt.Dimension(340, 50));
@@ -781,7 +804,7 @@ private boolean clicked = false;
         ContainerConfigNetworksPanel.setPreferredSize(new Dimension(0,containerConfigNetworksPanelLength));
 
         // Create the Container Obj Panel and add it
-        ContainerConfigNetworksSubpanel newContainerConfigNetwork = new ContainerConfigNetworksSubpanel(this, mainWindow.labData, network, ip);
+        ContainerConfigNetworksSubpanel newContainerConfigNetwork = new ContainerConfigNetworksSubpanel(this, mainWindow.labDataCurrent, network, ip);
         ContainerConfigNetworksPanel.add(newContainerConfigNetwork);
 
         // Redraw GUI with the new Panel
@@ -799,6 +822,10 @@ private boolean clicked = false;
     private void ContainerConfigAddHostNetworkButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigAddHostNetworkButtonActionPerformed
         addAddHostSubPanel("network","","","");
     }//GEN-LAST:event_ContainerConfigAddHostNetworkButtonActionPerformed
+
+    private void EditDockerfileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EditDockerfileButtonActionPerformed
+        DockerfileEditorDialog.setVisible(true);
+    }//GEN-LAST:event_EditDockerfileButtonActionPerformed
     
     public int containerAddHostPanelLength = 0;
     private final JScrollBar containerAddHostScrollPaneBar;   
@@ -809,7 +836,7 @@ private boolean clicked = false;
         AddHostsSubPanel.setPreferredSize(new Dimension(0,containerAddHostPanelLength));
 
         // Create the Container Obj Panel and add it
-        ContainerConfigAddHosts newContainerConfigAddHost = new ContainerConfigAddHosts(this, mainWindow.labData, type, host, ip, network);
+        ContainerConfigAddHosts newContainerConfigAddHost = new ContainerConfigAddHosts(this, mainWindow.labDataCurrent, type, host, ip, network);
         AddHostsSubPanel.add(newContainerConfigAddHost);
 
         // Redraw GUI with the new Panel
@@ -843,6 +870,8 @@ private boolean clicked = false;
     private javax.swing.JDialog ContainerConfigWindow;
     private javax.swing.JLabel ContainerLabelName;
     private javax.swing.JPopupMenu ContainerRightClick;
+    private javax.swing.JDialog DockerfileEditorDialog;
+    private javax.swing.JButton EditDockerfileButton;
     private javax.swing.JCheckBox HideCheckbox;
     private javax.swing.JLabel HideLabel;
     private javax.swing.JTextField LabGatewayTextfield;

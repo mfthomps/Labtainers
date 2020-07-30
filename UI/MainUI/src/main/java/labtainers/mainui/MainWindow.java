@@ -42,7 +42,8 @@ public class MainWindow extends javax.swing.JFrame {
     /**
      * Creates new form MainWindow
      */
-    LabData labData;
+    LabData labDataSaved;
+    LabData labDataCurrent;
     String labtainerPath;
     File labsPath;
     File currentLab;
@@ -55,7 +56,8 @@ public class MainWindow extends javax.swing.JFrame {
         networkScrollPaneBar = NetworkScrollPane.getVerticalScrollBar();
         LabExistLabel.setVisible(false);
         
-        labData = new LabData();       
+        labDataSaved = new LabData();    
+        labDataCurrent = new LabData();   
         parseINI();
         getBaseImageDockerfiles();   
     }
@@ -204,6 +206,9 @@ public class MainWindow extends javax.swing.JFrame {
         OpenLabMenuItem = new javax.swing.JMenuItem();
         jSeparator2 = new javax.swing.JPopupMenu.Separator();
         editLabtainersDir = new javax.swing.JMenuItem();
+        jSeparator3 = new javax.swing.JPopupMenu.Separator();
+        SaveMenuItem = new javax.swing.JMenuItem();
+        SaveAsMenuItem = new javax.swing.JMenuItem();
 
         ContainerAddDialog.setTitle("Adding New Container");
         ContainerAddDialog.setMinimumSize(new java.awt.Dimension(433, 220));
@@ -726,6 +731,23 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
         FileMenuBar.add(editLabtainersDir);
+        FileMenuBar.add(jSeparator3);
+
+        SaveMenuItem.setText("Save Lab");
+        SaveMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                SaveMenuItemActionPerformed(evt);
+            }
+        });
+        FileMenuBar.add(SaveMenuItem);
+
+        SaveAsMenuItem.setText("Save Lab As");
+        SaveAsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                SaveAsMenuItemActionPerformed(evt);
+            }
+        });
+        FileMenuBar.add(SaveAsMenuItem);
 
         MainMenuBar.add(FileMenuBar);
 
@@ -867,8 +889,10 @@ private void openLab(File lab){
     currentLab = lab;
     String labname = lab.toString().substring(lab.toString().lastIndexOf(File.separator)+1);
            
-    labData = new LabData(lab, labname); //initialize all data for the lab
-
+    labDataSaved = new LabData(lab, labname); //initialize all data for the lab
+    labDataCurrent = new LabData(lab, labname); //initialize all data for the lab
+     
+    
     // Visual load of lab
     resetWindow();
     loadLab();
@@ -1020,6 +1044,14 @@ private void openLab(File lab){
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_LabtainersDirConfirmButtonActionPerformed
+
+    private void SaveMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveMenuItemActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_SaveMenuItemActionPerformed
+
+    private void SaveAsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveAsMenuItemActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_SaveAsMenuItemActionPerformed
     
     private void setLabtainersDir() throws IOException{
             String newLabtainersPath = LabtainersDirTextfield.getText();
@@ -1075,16 +1107,16 @@ private void openLab(File lab){
     
     // Load the data visually
     private void loadLab(){
-        LabnameLabel.setText("Lab: "+labData.getName());
+        LabnameLabel.setText("Lab: "+labDataCurrent.getName());
         
         // Load the networks 
-        for(int i = 0;i<labData.getNetworks().size();i++){
-            addNetworkPanel(labData.getNetworks().get(i));
+        for(int i = 0;i<labDataCurrent.getNetworks().size();i++){
+            addNetworkPanel(labDataCurrent.getNetworks().get(i));
         }
         
         //Load the containers 
-        for(int i = 0;i<labData.getContainers().size();i++){
-            addContainerPanel(labData.getContainers().get(i));
+        for(int i = 0;i<labDataCurrent.getContainers().size();i++){
+            addContainerPanel(labDataCurrent.getContainers().get(i));
         }
     }
     
@@ -1168,6 +1200,8 @@ private void openLab(File lab){
     private javax.swing.JMenuItem NewLabMenuItem;
     private javax.swing.JTextField NewLabNameTextfield;
     private javax.swing.JMenuItem OpenLabMenuItem;
+    private javax.swing.JMenuItem SaveAsMenuItem;
+    private javax.swing.JMenuItem SaveMenuItem;
     private javax.swing.JButton addContainerButton;
     private javax.swing.JButton addNetworkButton;
     private javax.swing.JMenuItem editLabtainersDir;
@@ -1188,6 +1222,7 @@ private void openLab(File lab){
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator2;
+    private javax.swing.JPopupMenu.Separator jSeparator3;
     private javax.swing.JFileChooser labChooser;
     private javax.swing.JLabel pathValidLabel;
     // End of variables declaration//GEN-END:variables
