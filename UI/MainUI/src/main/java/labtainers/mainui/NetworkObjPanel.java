@@ -109,7 +109,7 @@ public class NetworkObjPanel extends javax.swing.JPanel {
             }
         });
 
-        NetworkConfigUpdateButton.setText("Update");
+        NetworkConfigUpdateButton.setText("Confirm");
         NetworkConfigUpdateButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 NetworkConfigUpdateButtonActionPerformed(evt);

@@ -46,6 +46,7 @@ public class MainWindow extends javax.swing.JFrame {
     LabData labDataCurrent;
     String labtainerPath;
     File labsPath;
+    String labName;
     File currentLab;
     File iniFile;
     Properties pathProperties;
@@ -782,7 +783,6 @@ public class MainWindow extends javax.swing.JFrame {
     private void AssessmentButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AssessmentButtonActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_AssessmentButtonActionPerformed
-
     
    
     private void addContainerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addContainerButtonActionPerformed
@@ -805,6 +805,10 @@ public class MainWindow extends javax.swing.JFrame {
     private void ContainerAddDialogCreateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerAddDialogCreateButtonActionPerformed
         addContainerPanel(null);
     }//GEN-LAST:event_ContainerAddDialogCreateButtonActionPerformed
+    
+    
+    
+    
     public int containerPanePanelLength = 0;
     private final JScrollBar containerScrollPaneBar;
     private void addContainerPanel(ContainerData data){
@@ -815,8 +819,11 @@ public class MainWindow extends javax.swing.JFrame {
         
         // Create the Container Obj Panel and add it
         ContainerObjPanel newContainer;
-        if(data == null){
+        if(data == null){ //if null then this is a new container being added
             newContainer = new ContainerObjPanel(this, ContainerAddDialogNameTextfield.getText());
+            
+            //Add the container into the labtainers directory
+            addContainer(ContainerAddDialogNameTextfield.getText(), (String)ContainerAddDialogBaseImageCombobox.getSelectedItem());
         }
         else {
             newContainer = new ContainerObjPanel(this, data);
@@ -835,6 +842,26 @@ public class MainWindow extends javax.swing.JFrame {
         ContainerAddDialog.setVisible(false);
     }
 
+    // Deletes the container in the lab directory structure by calling 'new_lab_setup.py -d containername'
+    private void addContainer(String containerName, String baseImage){
+        try{
+                //call python new_lab_script: new_lab_setup.py -b basename
+                String cmd = "./addContainer.sh "+labsPath+" "+labName+" "+containerName+" "+baseImage;
+                System.out.println(cmd);
+                Process pr = Runtime.getRuntime().exec(cmd);
+            
+                BufferedReader reader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+                String line;
+                while((line = reader.readLine()) != null){
+                    System.out.println(line);
+                }
+                reader.close();
+            } 
+            catch (IOException e){
+                System.out.println(e);
+            }
+    }
+    
     private void NetworkAddDialogCreateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NetworkAddDialogCreateButtonActionPerformed
         addNetworkPanel(null);
     }//GEN-LAST:event_NetworkAddDialogCreateButtonActionPerformed
@@ -887,10 +914,10 @@ public class MainWindow extends javax.swing.JFrame {
     
 private void openLab(File lab){
     currentLab = lab;
-    String labname = lab.toString().substring(lab.toString().lastIndexOf(File.separator)+1);
+    labName = lab.toString().substring(lab.toString().lastIndexOf(File.separator)+1);
            
-    labDataSaved = new LabData(lab, labname); //initialize all data for the lab
-    labDataCurrent = new LabData(lab, labname); //initialize all data for the lab
+    labDataSaved = new LabData(lab, labName); //initialize all data for the lab
+    labDataCurrent = new LabData(lab, labName); //initialize all data for the lab
      
     
     // Visual load of lab
@@ -932,7 +959,6 @@ private void openLab(File lab){
             catch (IOException ex) { System.out.println(ex);}
         }
     }//GEN-LAST:event_windowClosing
-
     
     // Code taken from Beginners Book: https://beginnersbook.com/2014/05/how-to-copy-a-file-to-another-file-in-java/
     private void resetINIFile(){
@@ -1118,9 +1144,7 @@ private void openLab(File lab){
         for(int i = 0;i<labDataCurrent.getContainers().size();i++){
             addContainerPanel(labDataCurrent.getContainers().get(i));
         }
-    }
-    
-    
+    }  
     
     
     /**

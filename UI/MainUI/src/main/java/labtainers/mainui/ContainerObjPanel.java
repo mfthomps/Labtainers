@@ -7,6 +7,10 @@ package labtainers.mainui;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
@@ -23,6 +27,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
      */
     private MainWindow mainWindow;
     private LabData.ContainerData data;
+    private String name;
     public ContainerObjPanel(MainWindow mainWindow, String name) {
         initComponents();
         this.mainWindow = mainWindow;
@@ -31,6 +36,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         this.data = new LabData.ContainerData(name);
                 
         this.ContainerLabelName.setText(this.data.name);
+        this.name = this.data.name;
         this.RenameContainerTextfield.setVisible(false);
     }
     
@@ -42,6 +48,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         this.data = data;
         
         this.ContainerLabelName.setText(this.data.name);
+        this.name = this.data.name;
         this.RenameContainerTextfield.setVisible(false);
     }
 
@@ -584,7 +591,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
 
         containerTabPane.addTab("Network", ContainerConfigNetworkTab);
 
-        ContainerConfigUpdateButton.setText("Update");
+        ContainerConfigUpdateButton.setText("Confirm");
         ContainerConfigUpdateButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 ContainerConfigUpdateButtonActionPerformed(evt);
@@ -729,9 +736,31 @@ private boolean clicked = false;
            // Redraw the panel containing the list of containers
            containerPanel.revalidate();
            containerPanel.repaint(); 
+           
+           //delete the container in the lab directory
+           removeContainer();
        }
     }//GEN-LAST:event_deleteContainerOptionActionPerformed
 
+    // Deletes the container in the lab directory structure by calling 'new_lab_setup.py -d containername'
+    private void removeContainer(){
+        try{
+                //call python new_lab_script: new_lab_setup.py -b basename
+                String cmd = "./removeContainer.sh "+mainWindow.labsPath+" "+mainWindow.labName+" "+name;
+                System.out.println(cmd);
+                Process pr = Runtime.getRuntime().exec(cmd);
+            
+                BufferedReader reader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+                String line;
+                while((line = reader.readLine()) != null){
+                    System.out.println(line);
+                }
+                reader.close();
+            } 
+            catch (IOException e){
+                System.out.println(e);
+            }
+    }
 
     private void RenameContainerTextfieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RenameContainerTextfieldActionPerformed
         // Prompt user to confirm their changes
