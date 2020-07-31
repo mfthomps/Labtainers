@@ -5,7 +5,12 @@
  */
 package labtainers.mainui;
 
+import java.awt.Component;
 import java.awt.Dimension;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
@@ -21,16 +26,78 @@ public class ContainerObjPanel extends javax.swing.JPanel {
      * Creates new form ContainerObjPanel
      */
     private MainWindow mainWindow;
-    private String containerName;
+    private LabData.ContainerData data;
+    private String name;
     public ContainerObjPanel(MainWindow mainWindow, String name) {
         initComponents();
-        this.containerName = name;
-        this.ContainerLabelName.setText(containerName);
         this.mainWindow = mainWindow;
-        this.RenameContainerTextfield.setVisible(false);
+        this.containerAddHostScrollPaneBar = AddHostsScrollPane.getVerticalScrollBar();
         this.containerConfigNetworksScrollPaneBar = ContainerConfigNetworksScrollpane.getVerticalScrollBar();  
+        this.data = new LabData.ContainerData(name);
+                
+        this.ContainerLabelName.setText(this.data.name);
+        this.name = this.data.name;
+        this.RenameContainerTextfield.setVisible(false);
+    }
+    
+    public ContainerObjPanel(MainWindow mainWindow, LabData.ContainerData data){
+        initComponents();
+        this.mainWindow = mainWindow;
+        this.containerAddHostScrollPaneBar = AddHostsScrollPane.getVerticalScrollBar();
+        this.containerConfigNetworksScrollPaneBar = ContainerConfigNetworksScrollpane.getVerticalScrollBar();  
+        this.data = data;
+        
+        this.ContainerLabelName.setText(this.data.name);
+        this.name = this.data.name;
+        this.RenameContainerTextfield.setVisible(false);
     }
 
+    private void loadDataIntoContainerPanel(){
+        this.ContainerConfigWindow.setTitle("Container Config: "+this.data.name);
+        
+        // General Tab
+        this.UserTF.setText(data.user);
+        this.PasswordTF.setText(data.password);
+        this.TerminalQuantitySpinner.setValue(data.terminal_count);
+        
+            // list of add-hosts
+        for(int i=0;i<data.listOfContainerAddHost.size();i++){
+            addAddHostSubPanel(data.listOfContainerAddHost.get(i).type,        data.listOfContainerAddHost.get(i).add_host_host, 
+                               data.listOfContainerAddHost.get(i).add_host_ip, data.listOfContainerAddHost.get(i).add_host_network);
+        }
+        
+        // GNS3
+        this.ThumbCommandTextfield.setText(data.thumb_command);
+        this.ThumbStopTextfield.setText(data.thumb_stop);
+        this.ThumbVolumeTextfield.setText(data.thumb_volume);
+        this.HideCheckbox.setSelected(data.hide);
+        
+        // Docker
+        this.ScriptTextfield.setText(data.script);
+        this.RegistryTextfield.setText(data.registry);
+        this.BaseRegistryTextfield.setText(data.base_registry);
+        this.PublishTextfield.setText(data.publish);
+        this.NoPrivilegeCheckbox.setSelected(data.no_privilege);
+        
+        // Other
+        this.TerminalGroupTextfield.setText(data.terminal_group);
+        this.XtermTitleTextfield.setText(data.xterm_title);
+        this.XtermScriptTextfield.setText(data.xterm_script);
+        this.ClonesSpinner.setValue(data.clone);
+        this.X11Checkbox.setSelected(data.x11);
+        this.NoPullCheckbox.setSelected(data.no_pull);
+        this.MyStuffCheckbox.setSelected(data.mystuff);
+        
+        // Network
+        this.LabGatewayTextfield.setText(data.lab_gateway);
+        this.NoGWCheckbox.setSelected(data.no_gw);
+        
+        for(int i=0;i<data.listOfContainerNetworks.size();i++){
+            addContainerNetworkSubPanel(data.listOfContainerNetworks.get(i).network_name, data.listOfContainerNetworks.get(i).network_ipaddress);
+        }
+    }
+    
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -46,14 +113,14 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         UserLabel = new javax.swing.JLabel();
         TerminalCountLabel = new javax.swing.JLabel();
         PasswordLabel = new javax.swing.JLabel();
-        AddHostLabel = new javax.swing.JLabel();
         UserTF = new javax.swing.JTextField();
         PasswordTF = new javax.swing.JTextField();
-        AddHostTF = new javax.swing.JTextField();
         TerminalQuantitySpinner = new javax.swing.JSpinner();
-        AddHostTF1 = new javax.swing.JTextField();
         AddHostLabel1 = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox<>();
+        AddHostsScrollPane = new javax.swing.JScrollPane();
+        AddHostsSubPanel = new javax.swing.JPanel();
+        ContainerConfigAddHostIPButton = new javax.swing.JButton();
+        ContainerConfigAddHostNetworkButton = new javax.swing.JButton();
         ContainerConfigGNS3Tab = new javax.swing.JPanel();
         ThumbVolumeLabel = new javax.swing.JLabel();
         HideLabel = new javax.swing.JLabel();
@@ -74,6 +141,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         PublishTextfield = new javax.swing.JTextField();
         BaseRegistryTextfield = new javax.swing.JTextField();
         NoPrivilegeCheckbox = new javax.swing.JCheckBox();
+        EditDockerfileButton = new javax.swing.JButton();
         ContainerConfigOtherTab = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
@@ -103,6 +171,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         renameContainerOption = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         deleteContainerOption = new javax.swing.JMenuItem();
+        DockerfileEditorDialog = new javax.swing.JDialog();
         ContainerLabelName = new javax.swing.JLabel();
         RenameContainerTextfield = new javax.swing.JTextField();
 
@@ -128,55 +197,76 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         PasswordLabel.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         PasswordLabel.setText("Password: ");
 
-        AddHostLabel.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        AddHostLabel.setText("Add-Host:");
-
         UserTF.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         UserTF.setText("ubuntu");
 
         PasswordTF.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         PasswordTF.setText("ubuntu");
 
-        AddHostTF.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-
         TerminalQuantitySpinner.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         TerminalQuantitySpinner.setModel(new javax.swing.SpinnerNumberModel(1, -1, null, 1));
 
-        AddHostTF1.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-
         AddHostLabel1.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        AddHostLabel1.setText("Add-Host-NET:");
+        AddHostLabel1.setText("Add-Hosts:");
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        AddHostsScrollPane.setMaximumSize(new java.awt.Dimension(548, 32767));
+        AddHostsScrollPane.setMinimumSize(new java.awt.Dimension(548, 19));
+        AddHostsScrollPane.setPreferredSize(new java.awt.Dimension(548, 100));
+
+        AddHostsSubPanel.setMaximumSize(new java.awt.Dimension(0, 0));
+        AddHostsSubPanel.setMinimumSize(new java.awt.Dimension(0, 0));
+        AddHostsSubPanel.setPreferredSize(new java.awt.Dimension(0, 0));
+        AddHostsScrollPane.setViewportView(AddHostsSubPanel);
+
+        ContainerConfigAddHostIPButton.setText("Add Host:IP");
+        ContainerConfigAddHostIPButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ContainerConfigAddHostIPButtonActionPerformed(evt);
+            }
+        });
+
+        ContainerConfigAddHostNetworkButton.setText("Add Network");
+        ContainerConfigAddHostNetworkButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ContainerConfigAddHostNetworkButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout ContainerConfigGeneralTabLayout = new javax.swing.GroupLayout(ContainerConfigGeneralTab);
         ContainerConfigGeneralTab.setLayout(ContainerConfigGeneralTabLayout);
         ContainerConfigGeneralTabLayout.setHorizontalGroup(
             ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
-                .addGap(10, 10, 10)
-                .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(AddHostLabel1)
-                    .addComponent(UserLabel)
-                    .addComponent(PasswordLabel)
-                    .addComponent(TerminalCountLabel)
-                    .addComponent(AddHostLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
-                        .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(PasswordTF, javax.swing.GroupLayout.DEFAULT_SIZE, 188, Short.MAX_VALUE)
-                                .addComponent(UserTF))
-                            .addComponent(TerminalQuantitySpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
+                        .addGap(71, 71, 71)
                         .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jComboBox1, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(AddHostTF1, javax.swing.GroupLayout.DEFAULT_SIZE, 188, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(AddHostTF, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(42, 42, 42))))
+                            .addComponent(UserLabel)
+                            .addComponent(PasswordLabel)))
+                    .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(TerminalCountLabel))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ContainerConfigGeneralTabLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(AddHostLabel1)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ContainerConfigGeneralTabLayout.createSequentialGroup()
+                        .addComponent(PasswordTF)
+                        .addGap(212, 212, 212))
+                    .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
+                        .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(TerminalQuantitySpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
+                                .addComponent(ContainerConfigAddHostIPButton)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(ContainerConfigAddHostNetworkButton))
+                            .addComponent(UserTF, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+            .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(AddHostsScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         ContainerConfigGeneralTabLayout.setVerticalGroup(
             ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -185,24 +275,22 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                 .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(UserLabel)
                     .addComponent(UserTF, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(19, 19, 19)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(PasswordLabel)
-                    .addComponent(PasswordTF, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                    .addComponent(PasswordTF, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(PasswordLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(TerminalCountLabel)
-                    .addComponent(TerminalQuantitySpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                    .addComponent(TerminalQuantitySpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(TerminalCountLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(AddHostTF1, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(AddHostTF, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(AddHostLabel))
-                .addGap(18, 18, 18)
-                .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(ContainerConfigAddHostIPButton)
                     .addComponent(AddHostLabel1)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(ContainerConfigAddHostNetworkButton))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(AddHostsScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         containerTabPane.addTab("General ", ContainerConfigGeneralTab);
@@ -236,7 +324,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                     .addComponent(ThumbVolumeTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(ThumbCommandTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(HideCheckbox))
-                .addContainerGap(239, Short.MAX_VALUE))
+                .addContainerGap(216, Short.MAX_VALUE))
         );
         ContainerConfigGNS3TabLayout.setVerticalGroup(
             ContainerConfigGNS3TabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -257,7 +345,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                 .addGroup(ContainerConfigGNS3TabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(HideLabel)
                     .addComponent(HideCheckbox))
-                .addContainerGap(72, Short.MAX_VALUE))
+                .addContainerGap(103, Short.MAX_VALUE))
         );
 
         containerTabPane.addTab("GNS3", ContainerConfigGNS3Tab);
@@ -285,6 +373,13 @@ public class ContainerObjPanel extends javax.swing.JPanel {
 
         BaseRegistryTextfield.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
 
+        EditDockerfileButton.setText("Edit Dockerfile");
+        EditDockerfileButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                EditDockerfileButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout ContainerConfigDockerTabLayout = new javax.swing.GroupLayout(ContainerConfigDockerTab);
         ContainerConfigDockerTab.setLayout(ContainerConfigDockerTabLayout);
         ContainerConfigDockerTabLayout.setHorizontalGroup(
@@ -292,6 +387,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
             .addGroup(ContainerConfigDockerTabLayout.createSequentialGroup()
                 .addGap(24, 24, 24)
                 .addGroup(ContainerConfigDockerTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(EditDockerfileButton)
                     .addComponent(jLabel4)
                     .addComponent(jLabel2)
                     .addComponent(jLabel3)
@@ -304,7 +400,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                     .addComponent(RegistryTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(ScriptTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(NoPrivilegeCheckbox))
-                .addContainerGap(249, Short.MAX_VALUE))
+                .addContainerGap(233, Short.MAX_VALUE))
         );
         ContainerConfigDockerTabLayout.setVerticalGroup(
             ContainerConfigDockerTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -329,7 +425,9 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                 .addGroup(ContainerConfigDockerTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel4)
                     .addComponent(NoPrivilegeCheckbox))
-                .addContainerGap(39, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(EditDockerfileButton)
+                .addContainerGap(26, Short.MAX_VALUE))
         );
 
         containerTabPane.addTab("Docker", ContainerConfigDockerTab);
@@ -387,7 +485,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                     .addComponent(NoPullCheckbox)
                     .addComponent(MyStuffCheckbox)
                     .addComponent(ClonesSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(44, Short.MAX_VALUE))
+                .addContainerGap(24, Short.MAX_VALUE))
         );
         ContainerConfigOtherTabLayout.setVerticalGroup(
             ContainerConfigOtherTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -493,7 +591,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
 
         containerTabPane.addTab("Network", ContainerConfigNetworkTab);
 
-        ContainerConfigUpdateButton.setText("Update");
+        ContainerConfigUpdateButton.setText("Confirm");
         ContainerConfigUpdateButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 ContainerConfigUpdateButtonActionPerformed(evt);
@@ -525,8 +623,9 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         ContainerConfigWindowLayout.setVerticalGroup(
             ContainerConfigWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ContainerConfigWindowLayout.createSequentialGroup()
-                .addComponent(containerTabPane, javax.swing.GroupLayout.PREFERRED_SIZE, 296, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(10, 10, 10)
+                .addContainerGap()
+                .addComponent(containerTabPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(ContainerConfigWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(ContainerConfigUpdateButton)
                     .addComponent(ContainerConfigCancelButton))
@@ -549,6 +648,17 @@ public class ContainerObjPanel extends javax.swing.JPanel {
             }
         });
         ContainerRightClick.add(deleteContainerOption);
+
+        javax.swing.GroupLayout DockerfileEditorDialogLayout = new javax.swing.GroupLayout(DockerfileEditorDialog.getContentPane());
+        DockerfileEditorDialog.getContentPane().setLayout(DockerfileEditorDialogLayout);
+        DockerfileEditorDialogLayout.setHorizontalGroup(
+            DockerfileEditorDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 400, Short.MAX_VALUE)
+        );
+        DockerfileEditorDialogLayout.setVerticalGroup(
+            DockerfileEditorDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 300, Short.MAX_VALUE)
+        );
 
         setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         setMaximumSize(new java.awt.Dimension(340, 50));
@@ -589,11 +699,10 @@ private boolean clicked = false;
                 //System.out.println("Container Clicked!");
                 if(SwingUtilities.isLeftMouseButton(evt)){
                     clicked = true;
-                    ContainerConfigWindow.setTitle("Container Config: "+containerName);
+                    loadDataIntoContainerPanel(); 
                     ContainerConfigWindow.setVisible(true);  
                 }
                 else if(SwingUtilities.isRightMouseButton(evt)){
-                    //System.out.println("RIGHT");
                     ContainerRightClick.show(this, evt.getX(), evt.getY());
                 }
 
@@ -603,7 +712,7 @@ private boolean clicked = false;
     private boolean outsideRenameTextfield = true;
     private void renameContainerOptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_renameContainerOptionActionPerformed
         // Make the rename textfield visible, active, and all text inside preselected
-        RenameContainerTextfield.setText(this.containerName);
+        RenameContainerTextfield.setText(this.data.name);
         RenameContainerTextfield.setVisible(true);
         RenameContainerTextfield.requestFocusInWindow();
         RenameContainerTextfield.selectAll();
@@ -613,7 +722,7 @@ private boolean clicked = false;
     }//GEN-LAST:event_renameContainerOptionActionPerformed
 
     private void deleteContainerOptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteContainerOptionActionPerformed
-       int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete the container '"+containerName+"'?", "Delete Container",  JOptionPane.YES_NO_OPTION);
+       int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete the container '"+this.data.name+"'?", "Delete Container",  JOptionPane.YES_NO_OPTION);
        if (confirm == JOptionPane.YES_OPTION){
            JPanel containerPanel = (JPanel)this.getParent();
        
@@ -627,18 +736,40 @@ private boolean clicked = false;
            // Redraw the panel containing the list of containers
            containerPanel.revalidate();
            containerPanel.repaint(); 
+           
+           //delete the container in the lab directory
+           removeContainer();
        }
     }//GEN-LAST:event_deleteContainerOptionActionPerformed
 
+    // Deletes the container in the lab directory structure by calling 'new_lab_setup.py -d containername'
+    private void removeContainer(){
+        try{
+                //call python new_lab_script: new_lab_setup.py -b basename
+                String cmd = "./removeContainer.sh "+mainWindow.labsPath+" "+mainWindow.labName+" "+name;
+                System.out.println(cmd);
+                Process pr = Runtime.getRuntime().exec(cmd);
+            
+                BufferedReader reader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+                String line;
+                while((line = reader.readLine()) != null){
+                    System.out.println(line);
+                }
+                reader.close();
+            } 
+            catch (IOException e){
+                System.out.println(e);
+            }
+    }
 
     private void RenameContainerTextfieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RenameContainerTextfieldActionPerformed
         // Prompt user to confirm their changes
-        int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to rename the container '"+this.containerName+"' to '"+RenameContainerTextfield.getText()+"'?", "Rename Container",  JOptionPane.YES_NO_OPTION);
+        int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to rename the container '"+this.data.name+"' to '"+RenameContainerTextfield.getText()+"'?", "Rename Container",  JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION){
             // Rename the container
             ContainerLabelName.setText(RenameContainerTextfield.getText());   
-            this.containerName = RenameContainerTextfield.getText();
-            System.out.println("Renamed container to: "+this.containerName);
+            this.data.name = RenameContainerTextfield.getText();
+            System.out.println("Renamed container to: "+this.data.name);
         }
         
         // hide the textfield and show the container label
@@ -654,31 +785,55 @@ private boolean clicked = false;
     }//GEN-LAST:event_RenameContainerTextfieldFocusLost
 
     private void ContainerConfigWindowWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_ContainerConfigWindowWindowClosing
-        System.out.println("Closing Config for: " + this.containerName);
+        System.out.println("Closing Config for: " + this.data.name);
+        clearLists();
         clicked = false;
     }//GEN-LAST:event_ContainerConfigWindowWindowClosing
 
     private void ContainerConfigUpdateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigUpdateButtonActionPerformed
        ContainerConfigWindow.setVisible(false);
+       clearLists();
        clicked = false;
     }//GEN-LAST:event_ContainerConfigUpdateButtonActionPerformed
 
     private void ContainerConfigCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigCancelButtonActionPerformed
         ContainerConfigWindow.setVisible(false);
+        clearLists();
         clicked = false;
     }//GEN-LAST:event_ContainerConfigCancelButtonActionPerformed
 
+    private void clearLists(){
+        // Clear Add-host
+        Component[] componentList = AddHostsSubPanel.getComponents();
+        for(Component c: componentList)
+            AddHostsSubPanel.remove(c);
+        
+        containerAddHostPanelLength=0;
+        AddHostsSubPanel.setPreferredSize(new Dimension(0,containerAddHostPanelLength));
+        
+        // Clear network
+        componentList = ContainerConfigNetworksPanel.getComponents();
+        for(Component c: componentList)
+            ContainerConfigNetworksPanel.remove(c);
+        
+        containerConfigNetworksPanelLength=0;
+        ContainerConfigNetworksPanel.setPreferredSize(new Dimension(0,containerConfigNetworksPanelLength));
+    }
+    
+    private void ContainerConfigNetworksAddButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigNetworksAddButtonActionPerformed
+        addContainerNetworkSubPanel("", "");
+    }//GEN-LAST:event_ContainerConfigNetworksAddButtonActionPerformed
     
     public int containerConfigNetworksPanelLength = 0;
-    private final JScrollBar containerConfigNetworksScrollPaneBar;  
-    private void ContainerConfigNetworksAddButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigNetworksAddButtonActionPerformed
-        //Resize the JPanel Holding all the containerConfigNetworksPanel to fit another containerConfigNetworksPanel 
+    private final JScrollBar containerConfigNetworksScrollPaneBar;   
+    private void addContainerNetworkSubPanel(String network, String ip){
+         //Resize the JPanel Holding all the containerConfigNetworksPanel to fit another containerConfigNetworksPanel 
         //(makes the scroll bar resize and should show all objects listed)
         containerConfigNetworksPanelLength+=58;
         ContainerConfigNetworksPanel.setPreferredSize(new Dimension(0,containerConfigNetworksPanelLength));
 
         // Create the Container Obj Panel and add it
-        ContainerConfigNetworksSubpanel newContainerConfigNetwork = new ContainerConfigNetworksSubpanel(this);
+        ContainerConfigNetworksSubpanel newContainerConfigNetwork = new ContainerConfigNetworksSubpanel(this, mainWindow.labDataCurrent, network, ip);
         ContainerConfigNetworksPanel.add(newContainerConfigNetwork);
 
         // Redraw GUI with the new Panel
@@ -687,16 +842,50 @@ private boolean clicked = false;
         
         //Lower the Scroll Bar to show the newly added container
         containerConfigNetworksScrollPaneBar.setValue(58+containerConfigNetworksScrollPaneBar.getMaximum());
-    }//GEN-LAST:event_ContainerConfigNetworksAddButtonActionPerformed
+    }
+    
+    private void ContainerConfigAddHostIPButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigAddHostIPButtonActionPerformed
+        addAddHostSubPanel("ip","","","");
+    }//GEN-LAST:event_ContainerConfigAddHostIPButtonActionPerformed
 
+    private void ContainerConfigAddHostNetworkButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigAddHostNetworkButtonActionPerformed
+        addAddHostSubPanel("network","","","");
+    }//GEN-LAST:event_ContainerConfigAddHostNetworkButtonActionPerformed
+
+    private void EditDockerfileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EditDockerfileButtonActionPerformed
+        DockerfileEditorDialog.setVisible(true);
+    }//GEN-LAST:event_EditDockerfileButtonActionPerformed
+    
+    public int containerAddHostPanelLength = 0;
+    private final JScrollBar containerAddHostScrollPaneBar;   
+    private void addAddHostSubPanel(String type, String host, String ip, String network){
+         //Resize the JPanel Holding all the containerAddHostsPanel to fit another containerAddHostsPanel 
+        //(makes the scroll bar resize and should show all objects listed)
+        containerAddHostPanelLength+=63;
+        AddHostsSubPanel.setPreferredSize(new Dimension(0,containerAddHostPanelLength));
+
+        // Create the Container Obj Panel and add it
+        ContainerConfigAddHosts newContainerConfigAddHost = new ContainerConfigAddHosts(this, mainWindow.labDataCurrent, type, host, ip, network);
+        AddHostsSubPanel.add(newContainerConfigAddHost);
+
+        // Redraw GUI with the new Panel
+        AddHostsSubPanel.revalidate();
+        AddHostsSubPanel.repaint();
+        
+        //Lower the Scroll Bar to show the newly added container
+        containerAddHostScrollPaneBar.setValue(58+containerAddHostScrollPaneBar.getMaximum());
+    }
+    
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel AddHostLabel;
     private javax.swing.JLabel AddHostLabel1;
-    private javax.swing.JTextField AddHostTF;
-    private javax.swing.JTextField AddHostTF1;
+    private javax.swing.JScrollPane AddHostsScrollPane;
+    private javax.swing.JPanel AddHostsSubPanel;
     private javax.swing.JTextField BaseRegistryTextfield;
     private javax.swing.JSpinner ClonesSpinner;
+    private javax.swing.JButton ContainerConfigAddHostIPButton;
+    private javax.swing.JButton ContainerConfigAddHostNetworkButton;
     private javax.swing.JButton ContainerConfigCancelButton;
     private javax.swing.JPanel ContainerConfigDockerTab;
     private javax.swing.JPanel ContainerConfigGNS3Tab;
@@ -710,6 +899,8 @@ private boolean clicked = false;
     private javax.swing.JDialog ContainerConfigWindow;
     private javax.swing.JLabel ContainerLabelName;
     private javax.swing.JPopupMenu ContainerRightClick;
+    private javax.swing.JDialog DockerfileEditorDialog;
+    private javax.swing.JButton EditDockerfileButton;
     private javax.swing.JCheckBox HideCheckbox;
     private javax.swing.JLabel HideLabel;
     private javax.swing.JTextField LabGatewayTextfield;
@@ -739,7 +930,6 @@ private boolean clicked = false;
     private javax.swing.JTextField XtermTitleTextfield;
     private javax.swing.JTabbedPane containerTabPane;
     private javax.swing.JMenuItem deleteContainerOption;
-    private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;

@@ -109,7 +109,7 @@ public class NetworkObjPanel extends javax.swing.JPanel {
             }
         });
 
-        NetworkConfigUpdateButton.setText("Update");
+        NetworkConfigUpdateButton.setText("Confirm");
         NetworkConfigUpdateButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 NetworkConfigUpdateButtonActionPerformed(evt);
@@ -272,6 +272,9 @@ public class NetworkObjPanel extends javax.swing.JPanel {
             // Redraw the panel containing the list of networks
             networkPanel.revalidate();
             networkPanel.repaint(); 
+            
+            //update all lists that reference the list of networks
+            
         }
     }//GEN-LAST:event_deleteNetworkOptionActionPerformed
 

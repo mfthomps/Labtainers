@@ -18,9 +18,20 @@ public class ContainerConfigNetworksSubpanel extends javax.swing.JPanel {
      * Creates new form ContainerConfigNetworksSubpanel
      */
     private ContainerObjPanel parent;
-    public ContainerConfigNetworksSubpanel(ContainerObjPanel parent) {
+    private LabData data;
+    public ContainerConfigNetworksSubpanel(ContainerObjPanel parent, LabData data, String network, String ip) {
         initComponents();
         this.parent = parent;
+        this.data = data;
+        
+        for(int i = 0;i<data.getNetworks().size();i++){
+            this.ContainerConfigNetworksNameCombobox.addItem(data.getNetworks().get(i).name);
+        }
+        if(!network.equals("")){
+            this.ContainerConfigNetworksNameCombobox.setSelectedItem(network);  
+        }
+        this.ContainerConfigNetworksIPTextfield.setText(ip);
+        
     }
 
     /**
@@ -36,12 +47,12 @@ public class ContainerConfigNetworksSubpanel extends javax.swing.JPanel {
         ContainerConfigNetworksIPTextfield = new javax.swing.JTextField();
         ContainerConfigNetworksDeleteButton = new javax.swing.JButton();
 
+        setBorder(javax.swing.BorderFactory.createEtchedBorder());
         setMaximumSize(new java.awt.Dimension(543, 53));
         setMinimumSize(new java.awt.Dimension(543, 53));
         setPreferredSize(new java.awt.Dimension(543, 53));
 
         ContainerConfigNetworksNameCombobox.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        ContainerConfigNetworksNameCombobox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         ContainerConfigNetworksIPTextfield.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
 
@@ -101,17 +112,5 @@ public class ContainerConfigNetworksSubpanel extends javax.swing.JPanel {
     private javax.swing.JButton ContainerConfigNetworksDeleteButton;
     private javax.swing.JTextField ContainerConfigNetworksIPTextfield;
     private javax.swing.JComboBox<String> ContainerConfigNetworksNameCombobox;
-    private javax.swing.JPanel ContainerConfigNetworksSubpanel;
-    private javax.swing.JPanel ContainerConfigNetworksSubpanel1;
-    private javax.swing.JPanel ContainerConfigNetworksSubpanel2;
-    private javax.swing.JTextField NetworkIPAddressTextfield1;
-    private javax.swing.JTextField NetworkIPAddressTextfield2;
-    private javax.swing.JTextField NetworkIPAddressTextfield3;
-    private javax.swing.JComboBox<String> NetworkNameCombobox1;
-    private javax.swing.JComboBox<String> NetworkNameCombobox2;
-    private javax.swing.JComboBox<String> NetworkNameCombobox3;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
     // End of variables declaration//GEN-END:variables
 }
