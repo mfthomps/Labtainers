@@ -189,8 +189,8 @@ def renameSVN(old, new):
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     #print('out[0] %s' % output[0].decode('utf-8'))
-    out0 = output[0].docode('utf-8').strip()
-    out1 = output[1].docode('utf-8').strip()
+    out0 = output[0].decode('utf-8').strip()
+    out1 = output[1].decode('utf-8').strip()
     if out0.startswith('??') or out1.startswith('fatal'):
         os.rename(old, new)
     else:
