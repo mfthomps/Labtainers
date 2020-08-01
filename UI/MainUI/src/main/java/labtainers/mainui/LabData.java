@@ -20,6 +20,7 @@ import java.util.ArrayList;
 public class LabData {
     private String name;
     private File path;
+    private ArrayList<String> global_settings_params;
     private ArrayList<ContainerData> listOfContainers;
     private ArrayList<NetworkData> listOfNetworks;
     
@@ -104,6 +105,7 @@ public class LabData {
     LabData(File labPath, String labName){
         this.path = labPath;
         this.name = labName;
+        this.global_settings_params = new ArrayList();
         this.listOfContainers = new ArrayList();
         this.listOfNetworks = new ArrayList();
         
@@ -121,7 +123,7 @@ public class LabData {
         try {
             if(startConfig.exists()){
                 try (FileReader fileReader = new FileReader(startConfig)) {
-                    String parseType = "NETWORK";
+                    String parseType = "GLOBAL_SETTINGS";
                     
                     BufferedReader bufferedReader = new BufferedReader(fileReader);
                     String line = bufferedReader.readLine();
@@ -138,117 +140,122 @@ public class LabData {
                         line = line.trim(); //trim the line for parsing
                         // If not a comment or empty space
                         if(!line.startsWith("#") && !line.isEmpty()){
-                            
-                            String parameter = line.split("\\s+")[0];
-                            if(parseType.equals("NETWORK")){
-                                switch(parameter){
-                                    case "MASK":
-                                        listOfNetworks.get(listOfNetworks .size()-1).mask = line.split("MASK ")[1];
-                                        break;
-                                    case "GATEWAY":
-                                        listOfNetworks.get(listOfNetworks.size()-1).gateway = line.split("GATEWAY ")[1];
-                                        break;
-                                    case "MACVLAN_EXT":
-                                        listOfNetworks.get(listOfNetworks.size()-1).macvlan_ext = Integer.parseInt(line.split("MACVLAN_EXT ")[1]);
-                                        break;
-                                    case "MACVLAN":
-                                        listOfNetworks.get(listOfNetworks.size()-1).macvlan = Integer.parseInt(line.split("MACVLAN ")[1]);
-                                        break;
-                                    case "IP_RANGE":
-                                        listOfNetworks.get(listOfNetworks.size()-1).ip_range = line.split("IP_RANGE ")[1];
-                                        break;
+                            //check if this global_setting info is what we're looking at, 
+                            //which should be at the start before container and network info
+                            if(parseType.equals("GLOBAL_SETTINGS")){
+                                global_settings_params.add(line);
+                            }
+                            else {
+                                String parameter = line.split("\\s+")[0];
+                                if(parseType.equals("NETWORK")){
+                                    switch(parameter){
+                                        case "MASK":
+                                            listOfNetworks.get(listOfNetworks .size()-1).mask = line.split("MASK ")[1];
+                                            break;
+                                        case "GATEWAY":
+                                            listOfNetworks.get(listOfNetworks.size()-1).gateway = line.split("GATEWAY ")[1];
+                                            break;
+                                        case "MACVLAN_EXT":
+                                            listOfNetworks.get(listOfNetworks.size()-1).macvlan_ext = Integer.parseInt(line.split("MACVLAN_EXT ")[1]);
+                                            break;
+                                        case "MACVLAN":
+                                            listOfNetworks.get(listOfNetworks.size()-1).macvlan = Integer.parseInt(line.split("MACVLAN ")[1]);
+                                            break;
+                                        case "IP_RANGE":
+                                            listOfNetworks.get(listOfNetworks.size()-1).ip_range = line.split("IP_RANGE ")[1];
+                                            break;
+                                    }
                                 }
-                          }
-                          else if(parseType.equals("CONTAINER")){
-                              switch(parameter){
-                                  case "TERMINALS":
-                                        listOfContainers.get(listOfContainers.size()-1).terminal_count = Integer.parseInt(line.split("\\s+")[1]);                                      
-                                      break;
-                                  case "TERMINAL_GROUP":
-                                      listOfContainers.get(listOfContainers.size()-1).terminal_group = line.split("TERMINAL_GROUP ")[1];
-                                      break;
-                                  case "XTERM":
-                                      listOfContainers.get(listOfContainers.size()-1).xterm_title = line.split("\\s+")[1];
-                                      listOfContainers.get(listOfContainers.size()-1).xterm_script = line.split("\\s+")[1];
-                                      break;
-                                  case "USER":
-                                      listOfContainers.get(listOfContainers.size()-1).user = line.split("\\s+")[1];
-                                      break;
-                                  case "PASSWORD":
-                                      listOfContainers.get(listOfContainers.size()-1).password = line.split("\\s+")[1];
-                                      break;
-                                  case "SCRIPT":
-                                      listOfContainers.get(listOfContainers.size()-1).script = line.split("\\s+")[1];
-                                      break;
-                                  case "ADD-HOST":
-                                      if(line.split("\\s+")[1].contains(":")){ //host:ip
-                                          String tmp = line.split("\\s+")[1];
-                                          listOfContainers.get(listOfContainers.size()-1).listOfContainerAddHost.add(new ContainerAddHostSubData("ip",tmp.split(":")[0], tmp.split(":")[1], ""));
-                                      }
-                                      else { //network
-                                          listOfContainers.get(listOfContainers.size()-1).listOfContainerAddHost.add(new ContainerAddHostSubData("network","", "", line.split("\\s+")[1]));
-                                      }
-                                      
-                                      break;
-                                  case "X11":
-                                      listOfContainers.get(listOfContainers.size()-1).x11 = line.split("\\s+")[1].equals("YES");
-                                      break;
+                                else if(parseType.equals("CONTAINER")){
+                                    switch(parameter){
+                                        case "TERMINALS":
+                                            listOfContainers.get(listOfContainers.size()-1).terminal_count = Integer.parseInt(line.split("\\s+")[1]);                                      
+                                            break;
+                                        case "TERMINAL_GROUP":
+                                            listOfContainers.get(listOfContainers.size()-1).terminal_group = line.split("TERMINAL_GROUP ")[1];
+                                            break;
+                                        case "XTERM":
+                                            listOfContainers.get(listOfContainers.size()-1).xterm_title = line.split("\\s+")[1];
+                                            listOfContainers.get(listOfContainers.size()-1).xterm_script = line.split("\\s+")[1];
+                                            break;
+                                        case "USER":
+                                            listOfContainers.get(listOfContainers.size()-1).user = line.split("\\s+")[1];
+                                            break;
+                                        case "PASSWORD":
+                                            listOfContainers.get(listOfContainers.size()-1).password = line.split("\\s+")[1];
+                                            break;
+                                        case "SCRIPT":
+                                            listOfContainers.get(listOfContainers.size()-1).script = line.split("\\s+")[1];
+                                            break;
+                                        case "ADD-HOST":
+                                            if(line.split("\\s+")[1].contains(":")){ //host:ip
+                                                String tmp = line.split("\\s+")[1];
+                                                listOfContainers.get(listOfContainers.size()-1).listOfContainerAddHost.add(new ContainerAddHostSubData("ip",tmp.split(":")[0], tmp.split(":")[1], ""));
+                                            }
+                                            else { //network
+                                                listOfContainers.get(listOfContainers.size()-1).listOfContainerAddHost.add(new ContainerAddHostSubData("network","", "", line.split("\\s+")[1]));
+                                            }
 
-                                  case "CLONE":
-                                      listOfContainers.get(listOfContainers.size()-1).clone = Integer.parseInt(line.split("\\s+")[1]);      
-                                      break;
-                                  case "NO_PULL":
-                                      listOfContainers.get(listOfContainers.size()-1).no_pull = line.split("\\s+")[1].equals("YES");
-                                      break;
+                                            break;
+                                        case "X11":
+                                            listOfContainers.get(listOfContainers.size()-1).x11 = line.split("\\s+")[1].equals("YES");
+                                            break;
 
-                                  case "LAB_GATEWAY":
-                                      listOfContainers.get(listOfContainers.size()-1).lab_gateway = line.split("\\s+")[1];
-                                      break;
-                                  case "NO_GW":
-                                      listOfContainers.get(listOfContainers.size()-1).no_gw = line.split("\\s+")[1].equals("YES");
-                                      break;
+                                        case "CLONE":
+                                            listOfContainers.get(listOfContainers.size()-1).clone = Integer.parseInt(line.split("\\s+")[1]);      
+                                            break;
+                                        case "NO_PULL":
+                                            listOfContainers.get(listOfContainers.size()-1).no_pull = line.split("\\s+")[1].equals("YES");
+                                            break;
 
-                                  case "REGISTRY":
-                                      listOfContainers.get(listOfContainers.size()-1).registry = line.split("\\s+")[1];
-                                      break;
-                                  case "BASE_REGISTRY":
-                                      listOfContainers.get(listOfContainers.size()-1).base_registry = line.split("\\s+")[1];
-                                      break;
-                                  case "THUMB_VOLUME":
-                                      listOfContainers.get(listOfContainers.size()-1).thumb_volume = line.split("THUMB_VOLUME\\s+")[1];
-                                      break;
-                                  case "THUMB_COMMAND":
-                                      listOfContainers.get(listOfContainers.size()-1).thumb_command = line.split("THUMB_COMMAND\\s+")[1];
-                                      break;
-                                  case "THUMB_STOP":
-                                      listOfContainers.get(listOfContainers.size()-1).thumb_stop = line.split("THUMB_STOP\\s+")[1];
-                                      break;
-                                  case "PUBLISH":
-                                      listOfContainers.get(listOfContainers.size()-1).publish = line.split("PUBLISH\\s+")[1];
-                                      break;
-                                  case "HIDE":
-                                      listOfContainers.get(listOfContainers.size()-1).hide = line.split("\\s+")[1].equals("YES");
-                                      break;
+                                        case "LAB_GATEWAY":
+                                            listOfContainers.get(listOfContainers.size()-1).lab_gateway = line.split("\\s+")[1];
+                                            break;
+                                        case "NO_GW":
+                                            listOfContainers.get(listOfContainers.size()-1).no_gw = line.split("\\s+")[1].equals("YES");
+                                            break;
 
-                                  case "NO_PRIVILEGE":
-                                      listOfContainers.get(listOfContainers.size()-1).no_privilege = line.split("\\s+")[1].equals("YES");
-                                      break;
+                                        case "REGISTRY":
+                                            listOfContainers.get(listOfContainers.size()-1).registry = line.split("\\s+")[1];
+                                            break;
+                                        case "BASE_REGISTRY":
+                                            listOfContainers.get(listOfContainers.size()-1).base_registry = line.split("\\s+")[1];
+                                            break;
+                                        case "THUMB_VOLUME":
+                                            listOfContainers.get(listOfContainers.size()-1).thumb_volume = line.split("THUMB_VOLUME\\s+")[1];
+                                            break;
+                                        case "THUMB_COMMAND":
+                                            listOfContainers.get(listOfContainers.size()-1).thumb_command = line.split("THUMB_COMMAND\\s+")[1];
+                                            break;
+                                        case "THUMB_STOP":
+                                            listOfContainers.get(listOfContainers.size()-1).thumb_stop = line.split("THUMB_STOP\\s+")[1];
+                                            break;
+                                        case "PUBLISH":
+                                            listOfContainers.get(listOfContainers.size()-1).publish = line.split("PUBLISH\\s+")[1];
+                                            break;
+                                        case "HIDE":
+                                            listOfContainers.get(listOfContainers.size()-1).hide = line.split("\\s+")[1].equals("YES");
+                                            break;
 
-                                  case "MYSTUFF":
-                                      listOfContainers.get(listOfContainers.size()-1).mystuff = line.split("\\s+")[1].equals("YES");
-                                      break;                                                   
-                                                   
-                              }
-                              //Check the array of network names to check it 
-                              for(int i = 0;i <listOfNetworks.size();i++){
-                                  if(listOfNetworks.get(i).name.equals(line.split("\\s+")[0])){
-                                      listOfContainers.get(listOfContainers.size()-1).listOfContainerNetworks.add(new ContainerNetworkSubData(line.split("\\s+")[0], line.split("\\s+")[1]));
-                                  }
-                              }
-                          }
-                                                    
+                                        case "NO_PRIVILEGE":
+                                            listOfContainers.get(listOfContainers.size()-1).no_privilege = line.split("\\s+")[1].equals("YES");
+                                            break;
+
+                                        case "MYSTUFF":
+                                            listOfContainers.get(listOfContainers.size()-1).mystuff = line.split("\\s+")[1].equals("YES");
+                                            break;                                                   
+
+                                    }
+                                    //Check the array of network names to check it
+                                    for(int i = 0;i <listOfNetworks.size();i++){
+                                        if(listOfNetworks.get(i).name.equals(line.split("\\s+")[0])){
+                                            listOfContainers.get(listOfContainers.size()-1).listOfContainerNetworks.add(new ContainerNetworkSubData(line.split("\\s+")[0], line.split("\\s+")[1]));
+                                        }
+                                    }                                  
+                                }   
+                            }  
+                            
                         }                                 
-                        
                         line = bufferedReader.readLine();
                     }
                 }
@@ -340,6 +347,10 @@ public class LabData {
     
 
     public void printData(){
+        for(String line : global_settings_params){
+            System.out.println(line);
+        }
+        
         for(int i = 0;i < listOfNetworks.size();i++){
             printNetworkData(listOfNetworks.get(i));
         }

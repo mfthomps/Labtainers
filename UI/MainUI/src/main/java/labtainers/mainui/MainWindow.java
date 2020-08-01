@@ -923,7 +923,7 @@ private void openLab(File lab){
     // Visual load of lab
     resetWindow();
     loadLab();
-    //labData.printData();    
+    labDataCurrent.printData();    
 }    
 
     private void NetworkAddDialogCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NetworkAddDialogCancelButtonActionPerformed
