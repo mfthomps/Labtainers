@@ -69,11 +69,14 @@ public class MainWindow extends javax.swing.JFrame {
         try {
             iniFile = new File("/home/student/dev/Labtainers/UI/bin/mainUI.ini"); //location will need to be updated in final
             pathProperties  = new Properties();
-            pathProperties.load(new FileInputStream(iniFile)); 
-            
-            
+            try{
+                pathProperties.load(new FileInputStream(iniFile)); 
+            } catch (FileNotFoundException ex) {
+                iniFile = new File("./mainUI.ini"); //location will need to be updated in final
+                pathProperties.load(new FileInputStream(iniFile)); 
+            } 
             //If the labtainers path has not been set in the config 
-            if(pathProperties.getProperty("labtainerPath").isEmpty()){
+            if((pathProperties.getProperty("labtainerPath") == null) || (pathProperties.getProperty("labtainerPath").isEmpty())){
                 System.out.println("No labtainer path set yet");
                 
                 // update the labtainerPath
@@ -111,7 +114,6 @@ public class MainWindow extends javax.swing.JFrame {
     // get list of base images ready for when player wants to make a new lab
     private void getBaseImageDockerfiles(){
         File dockerfileBasesPath = new File(labtainerPath + File.separator +"scripts"+ File.separator+"designer"+File.separator+"base_dockerfiles");
-        
         File[] baseFiles = dockerfileBasesPath.listFiles(new FilenameFilter(){
             public boolean accept(File dockerfileBasesPath, String filename)
                 {return filename.startsWith("Dockerfile.labtainer."); }
