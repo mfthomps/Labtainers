@@ -27,7 +27,6 @@ public class ContainerObjPanel extends javax.swing.JPanel {
      */
     private MainWindow mainWindow;
     private LabData.ContainerData data;
-    private String name;
     public ContainerObjPanel(MainWindow mainWindow, String name) {
         initComponents();
         this.mainWindow = mainWindow;
@@ -36,7 +35,6 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         this.data = new LabData.ContainerData(name);
                 
         this.ContainerLabelName.setText(this.data.name);
-        this.name = this.data.name;
         this.RenameContainerTextfield.setVisible(false);
     }
     
@@ -48,7 +46,6 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         this.data = data;
         
         this.ContainerLabelName.setText(this.data.name);
-        this.name = this.data.name;
         this.RenameContainerTextfield.setVisible(false);
     }
 
@@ -746,7 +743,7 @@ private boolean clicked = false;
     private void removeContainer(){
         try{
                 //call python new_lab_script: new_lab_setup.py -b basename
-                String cmd = "./removeContainer.sh "+mainWindow.labsPath+" "+mainWindow.labName+" "+name;
+                String cmd = "./removeContainer.sh "+mainWindow.labsPath+" "+mainWindow.labName+" "+this.data.name;
                 System.out.println(cmd);
                 Process pr = Runtime.getRuntime().exec(cmd);
             
@@ -766,8 +763,11 @@ private boolean clicked = false;
         // Prompt user to confirm their changes
         int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to rename the container '"+this.data.name+"' to '"+RenameContainerTextfield.getText()+"'?", "Rename Container",  JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION){
-            // Rename the container
-            ContainerLabelName.setText(RenameContainerTextfield.getText());   
+            // Rename the container in directory
+            renameContainer(this.data.name,RenameContainerTextfield.getText());
+            
+            // Rename the container in GUI
+            ContainerLabelName.setText(RenameContainerTextfield.getText()); 
             this.data.name = RenameContainerTextfield.getText();
             System.out.println("Renamed container to: "+this.data.name);
         }
@@ -778,6 +778,26 @@ private boolean clicked = false;
 
     }//GEN-LAST:event_RenameContainerTextfieldActionPerformed
 
+    // Renames the container in the lab directory structure by calling 'new_lab_setup.py -r oldName newName'
+    private void renameContainer(String oldName, String newName){
+        try{
+                //call python new_lab_script: new_lab_setup.py -b basename
+                String cmd = "./renameContainer.sh "+mainWindow.labsPath+" "+mainWindow.labName+" "+oldName+" "+newName;
+                System.out.println(cmd);
+                Process pr = Runtime.getRuntime().exec(cmd);
+            
+                BufferedReader reader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+                String line;
+                while((line = reader.readLine()) != null){
+                    System.out.println(line);
+                }
+                reader.close();
+            } 
+            catch (IOException e){
+                System.out.println(e);
+            }
+    }
+    
     private void RenameContainerTextfieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_RenameContainerTextfieldFocusLost
         // hide the textfield and show the container label
         RenameContainerTextfield.setVisible(false);
