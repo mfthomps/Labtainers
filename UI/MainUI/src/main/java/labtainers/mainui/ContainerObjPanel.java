@@ -873,8 +873,31 @@ private boolean clicked = false;
     }//GEN-LAST:event_ContainerConfigAddHostNetworkButtonActionPerformed
 
     private void EditDockerfileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EditDockerfileButtonActionPerformed
-        DockerfileEditorDialog.setVisible(true);
+        editDockerfile();
     }//GEN-LAST:event_EditDockerfileButtonActionPerformed
+    
+    private void editDockerfile(){
+        try{
+            //call python new_lab_script: new_lab_setup.py -b basename
+            String dockerfilePath = mainWindow.currentLab.getPath()+File.separator+"dockerfiles"+File.separator+
+                                    "Dockerfile."+mainWindow.labName+"."+this.data.name+".student";
+            System.out.println(new File(dockerfilePath).isFile());
+            //System.out.println(dockerfilePath);
+            String cmd = "gnome-terminal -e \"vi "+dockerfilePath+"\"";
+            System.out.println(cmd);
+            Process pr = Runtime.getRuntime().exec(cmd);
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+            String line;
+            while((line = reader.readLine()) != null){
+                System.out.println(line);
+            }
+            reader.close();
+        } 
+        catch (IOException e){
+            System.out.println(e);
+        }
+    }
     
     public int containerAddHostPanelLength = 0;
     private final JScrollBar containerAddHostScrollPaneBar;   
