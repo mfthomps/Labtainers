@@ -881,10 +881,10 @@ private boolean clicked = false;
             //call python new_lab_script: new_lab_setup.py -b basename
             String dockerfilePath = mainWindow.currentLab.getPath()+File.separator+"dockerfiles"+File.separator+
                                     "Dockerfile."+mainWindow.labName+"."+this.data.name+".student";
-            System.out.println(new File(dockerfilePath).isFile());
+            //System.out.println(new File(dockerfilePath).isFile());
             //System.out.println(dockerfilePath);
-            String cmd = "gnome-terminal -e \"vi "+dockerfilePath+"\"";
-            System.out.println(cmd);
+            //System.out.println("Editing: "+mainWindow.textEditorPref);
+            String cmd = "./editDockerfile.sh "+mainWindow.textEditorPref+" "+dockerfilePath;
             Process pr = Runtime.getRuntime().exec(cmd);
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(pr.getInputStream()));

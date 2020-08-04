@@ -51,6 +51,7 @@ public class MainWindow extends javax.swing.JFrame {
     File iniFile;
     Properties pathProperties;
     String[] bases;
+    String textEditorPref;
     public MainWindow() throws IOException {
         initComponents();
         containerScrollPaneBar = ContainerScrollPane.getVerticalScrollBar();
@@ -72,7 +73,7 @@ public class MainWindow extends javax.swing.JFrame {
             try{
                 pathProperties.load(new FileInputStream(iniFile)); 
             } catch (FileNotFoundException ex) {
-                iniFile = new File("./mainUI.ini"); //location will need to be updated in final
+                //iniFile = new File("./mainUI.ini"); //location will need to be updated in final
                 pathProperties.load(new FileInputStream(iniFile)); 
             } 
             //If the labtainers path has not been set in the config 
@@ -93,16 +94,29 @@ public class MainWindow extends javax.swing.JFrame {
             labChooser.setCurrentDirectory(labsPath);
             
             
-                        //if a lab has been loaded before then load that lab initially
-            //If a lab has been opened before
+            //if a lab has been loaded before then load that lab initially
             String iniPrevLab = pathProperties.getProperty("prevLab").trim();
             System.out.println("iniPrevlab: "+iniPrevLab);
-            System.out.println();
             File prevLab = new File(iniPrevLab);
             if(!iniPrevLab.isEmpty() && prevLab.isDirectory()){
                 System.out.println(prevLab+" is lab!");
                 openLab(prevLab);
             }
+            
+            //check textEditor and load save its reference
+            textEditorPref = pathProperties.getProperty("textEditor").trim();
+            //if it's empty set it to 'vi'
+            if(textEditorPref.isEmpty() || textEditorPref == null){
+                textEditorPref = "vi";
+                // update the textEditor
+                pathProperties.put("textEditor", "vi");
+                FileOutputStream out = new FileOutputStream(iniFile);
+                
+                SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                Date date = new Date();
+                pathProperties.store(out, "Updated: "+ formatter.format(date));
+            }
+            
         } catch (FileNotFoundException ex) {
             System.out.println(ex);
         } catch (NullPointerException ex) {
@@ -189,6 +203,11 @@ public class MainWindow extends javax.swing.JFrame {
         LabtainersDirCancelButton = new javax.swing.JButton();
         LabtainersDirConfirmButton = new javax.swing.JButton();
         pathValidLabel = new javax.swing.JLabel();
+        TextEditorDialog = new javax.swing.JDialog();
+        jLabel16 = new javax.swing.JLabel();
+        TextEditorTextfield = new javax.swing.JTextField();
+        TextEditorConfirmButton1 = new javax.swing.JButton();
+        TextEditorCancelButton1 = new javax.swing.JButton();
         Header = new javax.swing.JPanel();
         AssessmentButton = new javax.swing.JButton();
         LabnameLabel = new javax.swing.JLabel();
@@ -209,6 +228,7 @@ public class MainWindow extends javax.swing.JFrame {
         OpenLabMenuItem = new javax.swing.JMenuItem();
         jSeparator2 = new javax.swing.JPopupMenu.Separator();
         editLabtainersDir = new javax.swing.JMenuItem();
+        editTextEditor = new javax.swing.JMenuItem();
         jSeparator3 = new javax.swing.JPopupMenu.Separator();
         SaveMenuItem = new javax.swing.JMenuItem();
         SaveAsMenuItem = new javax.swing.JMenuItem();
@@ -432,9 +452,7 @@ public class MainWindow extends javax.swing.JFrame {
         labChooser.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
 
         NewLabDialog.setTitle("Creating New Lab");
-        NewLabDialog.setMaximumSize(new java.awt.Dimension(469, 200));
         NewLabDialog.setMinimumSize(new java.awt.Dimension(469, 200));
-        NewLabDialog.setPreferredSize(new java.awt.Dimension(469, 200));
 
         jLabel6.setFont(new java.awt.Font("Dialog", 1, 15)); // NOI18N
         jLabel6.setText("Name");
@@ -510,9 +528,7 @@ public class MainWindow extends javax.swing.JFrame {
         );
 
         LabtainersDirDialog.setTitle("Edit LABTAINERS_DIRECTORY");
-        LabtainersDirDialog.setMaximumSize(new java.awt.Dimension(400, 120));
         LabtainersDirDialog.setMinimumSize(new java.awt.Dimension(400, 120));
-        LabtainersDirDialog.setPreferredSize(new java.awt.Dimension(400, 120));
         LabtainersDirDialog.setResizable(false);
 
         jLabel15.setText("Labtainers Dir:");
@@ -564,6 +580,58 @@ public class MainWindow extends javax.swing.JFrame {
                     .addComponent(LabtainersDirCancelButton)
                     .addComponent(LabtainersDirConfirmButton)
                     .addComponent(pathValidLabel))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        TextEditorDialog.setMaximumSize(new java.awt.Dimension(400, 120));
+        TextEditorDialog.setMinimumSize(new java.awt.Dimension(400, 120));
+        TextEditorDialog.setPreferredSize(new java.awt.Dimension(400, 120));
+        TextEditorDialog.setResizable(false);
+
+        jLabel16.setText("Text Editor:");
+
+        TextEditorConfirmButton1.setText("Confirm");
+        TextEditorConfirmButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                TextEditorConfirmButton1ActionPerformed(evt);
+            }
+        });
+
+        TextEditorCancelButton1.setText("Cancel");
+        TextEditorCancelButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                TextEditorCancelButton1ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout TextEditorDialogLayout = new javax.swing.GroupLayout(TextEditorDialog.getContentPane());
+        TextEditorDialog.getContentPane().setLayout(TextEditorDialogLayout);
+        TextEditorDialogLayout.setHorizontalGroup(
+            TextEditorDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(TextEditorDialogLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel16)
+                .addGap(3, 3, 3)
+                .addGroup(TextEditorDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(TextEditorDialogLayout.createSequentialGroup()
+                        .addGap(0, 158, Short.MAX_VALUE)
+                        .addComponent(TextEditorConfirmButton1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(TextEditorCancelButton1))
+                    .addComponent(TextEditorTextfield))
+                .addContainerGap())
+        );
+        TextEditorDialogLayout.setVerticalGroup(
+            TextEditorDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(TextEditorDialogLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(TextEditorDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel16)
+                    .addComponent(TextEditorTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(TextEditorDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(TextEditorCancelButton1)
+                    .addComponent(TextEditorConfirmButton1))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -734,6 +802,14 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
         FileMenuBar.add(editLabtainersDir);
+
+        editTextEditor.setText("Edit Text Editor");
+        editTextEditor.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                editTextEditorActionPerformed(evt);
+            }
+        });
+        FileMenuBar.add(editTextEditor);
         FileMenuBar.add(jSeparator3);
 
         SaveMenuItem.setText("Save Lab");
@@ -925,7 +1001,7 @@ private void openLab(File lab){
     // Visual load of lab
     resetWindow();
     loadLab();
-    labDataCurrent.printData();    
+    //labDataCurrent.printData();    
 }    
 
     private void NetworkAddDialogCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NetworkAddDialogCancelButtonActionPerformed
@@ -1080,6 +1156,23 @@ private void openLab(File lab){
     private void SaveAsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveAsMenuItemActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_SaveAsMenuItemActionPerformed
+
+    private void editTextEditorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editTextEditorActionPerformed
+        TextEditorTextfield.setText(textEditorPref);
+        TextEditorDialog.setVisible(true);
+    }//GEN-LAST:event_editTextEditorActionPerformed
+
+    private void TextEditorConfirmButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TextEditorConfirmButton1ActionPerformed
+        try {
+            setTextEditor();
+        } catch (IOException ex) {
+            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_TextEditorConfirmButton1ActionPerformed
+
+    private void TextEditorCancelButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TextEditorCancelButton1ActionPerformed
+        TextEditorDialog.setVisible(false);
+    }//GEN-LAST:event_TextEditorCancelButton1ActionPerformed
     
     private void setLabtainersDir() throws IOException{
             String newLabtainersPath = LabtainersDirTextfield.getText();
@@ -1111,6 +1204,28 @@ private void openLab(File lab){
             }  
     }
     
+    private void setTextEditor() throws FileNotFoundException, IOException{
+        String newTextEditor = TextEditorTextfield.getText(); 
+        
+        //*Include validation check to see it the file editor is proper program 
+        
+        // update the labtainerPath property
+        pathProperties  = new Properties();
+        pathProperties.load(new FileInputStream(iniFile)); 
+        pathProperties.put("textEditor", newTextEditor);
+
+        //write update to the ini File
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        Date date = new Date();
+        FileOutputStream out = new FileOutputStream(iniFile);
+        pathProperties.store(out, "Updated: "+ formatter.format(date));
+
+
+        //update UI state 
+        textEditorPref = pathProperties.getProperty("textEditor"); 
+
+        TextEditorDialog.setVisible(false);
+    }
     
     private void resetWindow(){
         // Clear Container Panel
@@ -1228,9 +1343,14 @@ private void openLab(File lab){
     private javax.swing.JMenuItem OpenLabMenuItem;
     private javax.swing.JMenuItem SaveAsMenuItem;
     private javax.swing.JMenuItem SaveMenuItem;
+    private javax.swing.JButton TextEditorCancelButton1;
+    private javax.swing.JButton TextEditorConfirmButton1;
+    private javax.swing.JDialog TextEditorDialog;
+    private javax.swing.JTextField TextEditorTextfield;
     private javax.swing.JButton addContainerButton;
     private javax.swing.JButton addNetworkButton;
     private javax.swing.JMenuItem editLabtainersDir;
+    private javax.swing.JMenuItem editTextEditor;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -1238,6 +1358,7 @@ private void openLab(File lab){
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
+    private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
