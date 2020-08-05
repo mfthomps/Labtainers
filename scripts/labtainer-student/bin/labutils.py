@@ -1792,7 +1792,8 @@ def StartLab(lab_path, force_build=False, is_redo=False, quiet_start=False,
     if x11:
         sockets = os.listdir('/tmp/.X11-unix')
         if len(sockets) == 0:
-            self.lgr.error('Cannot create X11 windows, the socket is missing.  Try rebooting your VM')
+            print('Cannot create X11 windows, the socket is missing.  Try rebooting your VM')
+            logger.debug('Cannot create X11 windows, the socket is missing.  Try rebooting your VM')
             exit(1)
 
     DoStart(start_config, labtainer_config, lab_path, quiet_start, 
