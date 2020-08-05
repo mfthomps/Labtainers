@@ -31,6 +31,7 @@ import labtainers.mainui.LabData.ContainerData;
 import labtainers.mainui.LabData.NetworkData;
 import java.util.ArrayList;
 import java.util.Arrays;
+import javax.swing.ImageIcon;
 
 
 /**
@@ -54,6 +55,10 @@ public class MainWindow extends javax.swing.JFrame {
     String textEditorPref;
     public MainWindow() throws IOException {
         initComponents();
+        //Set logo icon 
+        ImageIcon logo = new ImageIcon("images/labtainer5-sm.png");
+        this.setIconImage(logo.getImage());
+        
         containerScrollPaneBar = ContainerScrollPane.getVerticalScrollBar();
         networkScrollPaneBar = NetworkScrollPane.getVerticalScrollBar();
         LabExistLabel.setVisible(false);
@@ -96,10 +101,10 @@ public class MainWindow extends javax.swing.JFrame {
             
             //if a lab has been loaded before then load that lab initially
             String iniPrevLab = pathProperties.getProperty("prevLab").trim();
-            System.out.println("iniPrevlab: "+iniPrevLab);
+            //System.out.println("iniPrevlab: "+iniPrevLab);
             File prevLab = new File(iniPrevLab);
             if(!iniPrevLab.isEmpty() && prevLab.isDirectory()){
-                System.out.println(prevLab+" is lab!");
+                //System.out.println(prevLab+" is lab!");
                 openLab(prevLab);
             }
             
@@ -232,6 +237,8 @@ public class MainWindow extends javax.swing.JFrame {
         jSeparator3 = new javax.swing.JPopupMenu.Separator();
         SaveMenuItem = new javax.swing.JMenuItem();
         SaveAsMenuItem = new javax.swing.JMenuItem();
+        jSeparator4 = new javax.swing.JPopupMenu.Separator();
+        ExitMenuItem = new javax.swing.JMenuItem();
 
         ContainerAddDialog.setTitle("Adding New Container");
         ContainerAddDialog.setMinimumSize(new java.awt.Dimension(433, 220));
@@ -828,6 +835,15 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
         FileMenuBar.add(SaveAsMenuItem);
+        FileMenuBar.add(jSeparator4);
+
+        ExitMenuItem.setText("Exit");
+        ExitMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ExitMenuItemActionPerformed(evt);
+            }
+        });
+        FileMenuBar.add(ExitMenuItem);
 
         MainMenuBar.add(FileMenuBar);
 
@@ -884,9 +900,6 @@ public class MainWindow extends javax.swing.JFrame {
     private void ContainerAddDialogCreateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerAddDialogCreateButtonActionPerformed
         addContainerPanel(null);
     }//GEN-LAST:event_ContainerAddDialogCreateButtonActionPerformed
-    
-    
-    
     
     public int containerPanePanelLength = 0;
     private final JScrollBar containerScrollPaneBar;
@@ -1010,6 +1023,11 @@ private void openLab(File lab){
     }//GEN-LAST:event_NetworkAddDialogCancelButtonActionPerformed
 
     private void windowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_windowClosing
+        exitProgram();
+    }//GEN-LAST:event_windowClosing
+    
+    // When exiting the program save the the current lab into the ini file so that it opens immediately when returning to the program
+    private void exitProgram(){
         //Write the current lab to the ini so that when the app opens again it opens to this lab
         FileOutputStream out = null;
         try {
@@ -1030,15 +1048,13 @@ private void openLab(File lab){
         catch (NullPointerException ex) {
             System.out.println(ex);
             resetINIFile();
-            
         }
         
         finally {
             try { if(out != null){out.close();}} 
             catch (IOException ex) { System.out.println(ex);}
         }
-    }//GEN-LAST:event_windowClosing
-    
+    }
     // Code taken from Beginners Book: https://beginnersbook.com/2014/05/how-to-copy-a-file-to-another-file-in-java/
     private void resetINIFile(){
         FileInputStream instream = null;
@@ -1174,6 +1190,11 @@ private void openLab(File lab){
     private void TextEditorCancelButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TextEditorCancelButton1ActionPerformed
         TextEditorDialog.setVisible(false);
     }//GEN-LAST:event_TextEditorCancelButton1ActionPerformed
+
+    private void ExitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExitMenuItemActionPerformed
+        exitProgram();
+        System.exit(0);
+    }//GEN-LAST:event_ExitMenuItemActionPerformed
     
     private void setLabtainersDir() throws IOException{
             String newLabtainersPath = LabtainersDirTextfield.getText();
@@ -1314,6 +1335,7 @@ private void openLab(File lab){
     private javax.swing.JPanel ContainerPanePanel;
     private javax.swing.JPanel ContainerPanel;
     private javax.swing.JScrollPane ContainerScrollPane;
+    private javax.swing.JMenuItem ExitMenuItem;
     private javax.swing.JMenu FileMenuBar;
     private javax.swing.JPanel Header;
     private javax.swing.JLabel LabExistLabel;
@@ -1371,6 +1393,7 @@ private void openLab(File lab){
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator2;
     private javax.swing.JPopupMenu.Separator jSeparator3;
+    private javax.swing.JPopupMenu.Separator jSeparator4;
     private javax.swing.JFileChooser labChooser;
     private javax.swing.JLabel pathValidLabel;
     // End of variables declaration//GEN-END:variables

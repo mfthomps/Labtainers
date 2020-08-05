@@ -32,8 +32,11 @@ public class LabData {
         public int macvlan;
         public String ip_range = "";
         
+        public ArrayList<String> unknownNetworkParams;
+        
         NetworkData(String name){
             this.name = name;
+            this.unknownNetworkParams = new ArrayList();
         }
     }
     
@@ -63,10 +66,13 @@ public class LabData {
         public boolean no_privilege;
         public boolean mystuff;
         
+        public ArrayList<String> unknownContainerParams;
+        
         ContainerData(String name){
             this.name = name;
             this.listOfContainerNetworks = new ArrayList();
             this.listOfContainerAddHost = new ArrayList();
+            this.unknownContainerParams = new ArrayList();
         } 
     }
 
@@ -148,6 +154,7 @@ public class LabData {
                             else {
                                 String parameter = line.split("\\s+")[0];
                                 if(parseType.equals("NETWORK")){
+                                    NetworkData currNetwork = listOfNetworks.get(listOfNetworks .size()-1);
                                     switch(parameter){
                                         case "MASK":
                                             listOfNetworks.get(listOfNetworks .size()-1).mask = line.split("MASK ")[1];
@@ -167,6 +174,7 @@ public class LabData {
                                     }
                                 }
                                 else if(parseType.equals("CONTAINER")){
+                                    ContainerData currContainer = listOfContainers.get(listOfContainers.size()-1);
                                     switch(parameter){
                                         case "TERMINALS":
                                             listOfContainers.get(listOfContainers.size()-1).terminal_count = Integer.parseInt(line.split("\\s+")[1]);                                      
@@ -243,7 +251,9 @@ public class LabData {
 
                                         case "MYSTUFF":
                                             listOfContainers.get(listOfContainers.size()-1).mystuff = line.split("\\s+")[1].equals("YES");
-                                            break;                                                   
+                                            break;   
+                                        default:
+                                            
 
                                     }
                                     //Check the array of network names to check it

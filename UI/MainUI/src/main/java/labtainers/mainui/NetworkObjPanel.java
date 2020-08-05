@@ -27,6 +27,7 @@ public class NetworkObjPanel extends javax.swing.JPanel {
         this.data = new LabData.NetworkData(name);
         
         this.NetworkLabelName.setText(this.data.name);
+        this.NetworkMaskLabel.setText(this.data.mask);
         this.RenameNetworkTextfield.setVisible(false);
 
     }
@@ -37,6 +38,7 @@ public class NetworkObjPanel extends javax.swing.JPanel {
         this.data = data;
         
         this.NetworkLabelName.setText(this.data.name);
+        this.NetworkMaskLabel.setText(this.data.mask);
         this.RenameNetworkTextfield.setVisible(false);
     }
 
@@ -78,6 +80,7 @@ public class NetworkObjPanel extends javax.swing.JPanel {
         deleteNetworkOption = new javax.swing.JMenuItem();
         RenameNetworkTextfield = new javax.swing.JTextField();
         NetworkLabelName = new javax.swing.JLabel();
+        NetworkMaskLabel = new javax.swing.JLabel();
 
         NetworkConfigWindow.setMinimumSize(new java.awt.Dimension(377, 320));
         NetworkConfigWindow.setResizable(false);
@@ -229,6 +232,11 @@ public class NetworkObjPanel extends javax.swing.JPanel {
         NetworkLabelName.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         NetworkLabelName.setText("network_name");
         add(NetworkLabelName);
+
+        NetworkMaskLabel.setFont(new java.awt.Font("Ubuntu", 0, 15)); // NOI18N
+        NetworkMaskLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        NetworkMaskLabel.setText("000.00.0.000/00");
+        add(NetworkMaskLabel);
     }// </editor-fold>//GEN-END:initComponents
 
     private boolean clicked = false;
@@ -255,6 +263,7 @@ public class NetworkObjPanel extends javax.swing.JPanel {
 
         // Hide the original network label
        NetworkLabelName.setVisible(false);
+       NetworkMaskLabel.setVisible(false);
     }//GEN-LAST:event_renameNetworkOptionActionPerformed
 
     private void deleteNetworkOptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteNetworkOptionActionPerformed
@@ -291,12 +300,14 @@ public class NetworkObjPanel extends javax.swing.JPanel {
         // hide the textfield and show the network label
         RenameNetworkTextfield.setVisible(false);
         NetworkLabelName.setVisible(true);
+        NetworkMaskLabel.setVisible(true);
     }//GEN-LAST:event_RenameNetworkTextfieldActionPerformed
 
     private void RenameNetworkTextfieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_RenameNetworkTextfieldFocusLost
         // hide the textfield and show the network label
         RenameNetworkTextfield.setVisible(false);
         NetworkLabelName.setVisible(true);
+        NetworkMaskLabel.setVisible(true);
     }//GEN-LAST:event_RenameNetworkTextfieldFocusLost
 
     private void NetworkConfigWindowWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_NetworkConfigWindowWindowClosing
@@ -314,6 +325,7 @@ public class NetworkObjPanel extends javax.swing.JPanel {
         
         clicked = false;
         NetworkConfigWindow.setVisible(false);
+        NetworkMaskLabel.setText(this.data.mask);
     }//GEN-LAST:event_NetworkConfigUpdateButtonActionPerformed
 
     private void NetworkConfigCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NetworkConfigCancelButtonActionPerformed
@@ -332,6 +344,7 @@ public class NetworkObjPanel extends javax.swing.JPanel {
     private javax.swing.JButton NetworkConfigUpdateButton;
     private javax.swing.JDialog NetworkConfigWindow;
     private javax.swing.JLabel NetworkLabelName;
+    private javax.swing.JLabel NetworkMaskLabel;
     private javax.swing.JPopupMenu NetworkRightClick;
     private javax.swing.JTextField RenameNetworkTextfield;
     private javax.swing.JMenuItem deleteNetworkOption;
