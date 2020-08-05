@@ -37,7 +37,6 @@ import labutils
 import LabtainerLogging
 import pickle
 import sys
-import csv
 import re
 import codecs
 import os
@@ -45,6 +44,7 @@ import textwrap
 import signal
 import argparse
 import glob
+import csv
 class color:
    PURPLE = '\033[95m'
    CYAN = '\033[96m'
@@ -70,9 +70,9 @@ class TrueFalse():
     def __init__(self, qid, qlist):
         self.qid = str(qid)
         self.question = re.sub(r'^"|"$', '', qlist[0].strip())
-        self.answer = qlist[1]
-        self.right_response = qlist[2]
-        self.wrong_response = qlist[3]
+        self.answer = qlist[1].strip()
+        self.right_response = qlist[2].strip()
+        self.wrong_response = qlist[3].strip()
         if len(qlist) > 4:
             self.prereq = str(qlist[4].strip().lower())
         else:
@@ -110,17 +110,19 @@ class Preface():
         return True
 
 def parseQuest(quest):
-    reader = csv.reader([quest])
-    for p in reader:
-        if len(p) < 2:
-            continue
-        qid = p[0].strip().lower()
-        if p[1].strip().upper() == 'TRUEFALSE':
-            tf = TrueFalse(qid, p[2:])
-            return tf 
-        elif p[1].strip().upper() == 'PREFACE':
-            p = Preface(p[2])
-            return p 
+    qfixed = re.sub(r', *"', ',"', quest)
+    qlist = list(csv.reader([qfixed]))[0]
+
+    if len(qlist) < 2:
+        print('bad line? %s' % quest)
+        return None
+    qid = qlist[0].strip().lower()
+    if qlist[1].strip().upper() == 'TRUEFALSE':
+        tf = TrueFalse(qid, qlist[2:])
+        return tf 
+    elif qlist[1].strip().upper() == 'PREFACE':
+        p = Preface(qlist[2])
+        return p 
     return None
 
 def doQuiz(qfile):
