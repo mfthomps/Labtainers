@@ -134,20 +134,26 @@ public class LabData {
                     BufferedReader bufferedReader = new BufferedReader(fileReader);
                     String line = bufferedReader.readLine();
                     while (line != null) {
+                        //get rid of spaces on edges before parsing
+                        line = line.trim();
                         // Check if we need to switch to Network or Container Parsing mode
-                        if(line.startsWith("NETWORK")){   
+                        if(line.startsWith("NETWORK ")){   
+                            System.out.println("Network");
                             parseType = "NETWORK";
-                            listOfNetworks.add(new NetworkData(line.split("\\s+")[1]));
+                            listOfNetworks.add(new NetworkData(line.split("NETWORK ")[1].trim()));
+                            line = bufferedReader.readLine();
+                            continue;
                         }
-                        else if(line.startsWith("CONTAINER")){
+                        else if(line.startsWith("CONTAINER ")){
                             parseType = "CONTAINER";
-                            listOfContainers.add(new ContainerData(line.split("\\s+")[1]));
+                            listOfContainers.add(new ContainerData(line.split("CONTAINER ")[1].trim()));
+                            line = bufferedReader.readLine();
+                            continue;
                         }
-                        line = line.trim(); //trim the line for parsing
-                        // If not a comment or empty space
-                        if(!line.startsWith("#") && !line.isEmpty()){
+                        if(!line.startsWith("#") && !line.isEmpty()){ // If not a comment or empty space
                             //check if this global_setting info is what we're looking at, 
                             //which should be at the start before container and network info
+                            //may need to actually parse the specified accepted params in the lab designer manual
                             if(parseType.equals("GLOBAL_SETTINGS")){
                                 global_settings_params.add(line);
                             }
@@ -157,19 +163,22 @@ public class LabData {
                                     NetworkData currNetwork = listOfNetworks.get(listOfNetworks .size()-1);
                                     switch(parameter){
                                         case "MASK":
-                                            listOfNetworks.get(listOfNetworks .size()-1).mask = line.split("MASK ")[1];
+                                            currNetwork.mask = line.split("MASK ")[1];
                                             break;
                                         case "GATEWAY":
-                                            listOfNetworks.get(listOfNetworks.size()-1).gateway = line.split("GATEWAY ")[1];
+                                            currNetwork.gateway = line.split("GATEWAY ")[1];
                                             break;
                                         case "MACVLAN_EXT":
-                                            listOfNetworks.get(listOfNetworks.size()-1).macvlan_ext = Integer.parseInt(line.split("MACVLAN_EXT ")[1]);
+                                            currNetwork.macvlan_ext = Integer.parseInt(line.split("MACVLAN_EXT ")[1]);
                                             break;
                                         case "MACVLAN":
-                                            listOfNetworks.get(listOfNetworks.size()-1).macvlan = Integer.parseInt(line.split("MACVLAN ")[1]);
+                                           currNetwork.macvlan = Integer.parseInt(line.split("MACVLAN ")[1]);
                                             break;
                                         case "IP_RANGE":
-                                            listOfNetworks.get(listOfNetworks.size()-1).ip_range = line.split("IP_RANGE ")[1];
+                                           currNetwork.ip_range = line.split("IP_RANGE ")[1];
+                                            break;
+                                        default:
+                                            currNetwork.unknownNetworkParams.add(line);
                                             break;
                                     }
                                 }
@@ -177,95 +186,100 @@ public class LabData {
                                     ContainerData currContainer = listOfContainers.get(listOfContainers.size()-1);
                                     switch(parameter){
                                         case "TERMINALS":
-                                            listOfContainers.get(listOfContainers.size()-1).terminal_count = Integer.parseInt(line.split("\\s+")[1]);                                      
+                                            currContainer.terminal_count = Integer.parseInt(line.split("\\s+")[1]);                                      
                                             break;
                                         case "TERMINAL_GROUP":
-                                            listOfContainers.get(listOfContainers.size()-1).terminal_group = line.split("TERMINAL_GROUP ")[1];
+                                            currContainer.terminal_group = line.split("TERMINAL_GROUP ")[1];
                                             break;
                                         case "XTERM":
-                                            listOfContainers.get(listOfContainers.size()-1).xterm_title = line.split("\\s+")[1];
-                                            listOfContainers.get(listOfContainers.size()-1).xterm_script = line.split("\\s+")[1];
+                                            currContainer.xterm_title = line.split("\\s+")[1];
+                                            currContainer.xterm_script = line.split("\\s+")[1];
                                             break;
                                         case "USER":
-                                            listOfContainers.get(listOfContainers.size()-1).user = line.split("\\s+")[1];
+                                            currContainer.user = line.split("\\s+")[1];
                                             break;
                                         case "PASSWORD":
-                                            listOfContainers.get(listOfContainers.size()-1).password = line.split("\\s+")[1];
+                                            currContainer.password = line.split("\\s+")[1];
                                             break;
                                         case "SCRIPT":
-                                            listOfContainers.get(listOfContainers.size()-1).script = line.split("\\s+")[1];
+                                            currContainer.script = line.split("\\s+")[1];
                                             break;
                                         case "ADD-HOST":
                                             if(line.split("\\s+")[1].contains(":")){ //host:ip
                                                 String tmp = line.split("\\s+")[1];
-                                                listOfContainers.get(listOfContainers.size()-1).listOfContainerAddHost.add(new ContainerAddHostSubData("ip",tmp.split(":")[0], tmp.split(":")[1], ""));
+                                                currContainer.listOfContainerAddHost.add(new ContainerAddHostSubData("ip",tmp.split(":")[0], tmp.split(":")[1], ""));
                                             }
                                             else { //network
-                                                listOfContainers.get(listOfContainers.size()-1).listOfContainerAddHost.add(new ContainerAddHostSubData("network","", "", line.split("\\s+")[1]));
+                                                currContainer.listOfContainerAddHost.add(new ContainerAddHostSubData("network","", "", line.split("\\s+")[1]));
                                             }
-
                                             break;
                                         case "X11":
-                                            listOfContainers.get(listOfContainers.size()-1).x11 = line.split("\\s+")[1].equals("YES");
+                                            currContainer.x11 = line.split("\\s+")[1].equals("YES");
                                             break;
 
                                         case "CLONE":
-                                            listOfContainers.get(listOfContainers.size()-1).clone = Integer.parseInt(line.split("\\s+")[1]);      
+                                            currContainer.clone = Integer.parseInt(line.split("\\s+")[1]);      
                                             break;
                                         case "NO_PULL":
-                                            listOfContainers.get(listOfContainers.size()-1).no_pull = line.split("\\s+")[1].equals("YES");
+                                            currContainer.no_pull = line.split("\\s+")[1].equals("YES");
                                             break;
 
                                         case "LAB_GATEWAY":
-                                            listOfContainers.get(listOfContainers.size()-1).lab_gateway = line.split("\\s+")[1];
+                                            currContainer.lab_gateway = line.split("\\s+")[1];
                                             break;
                                         case "NO_GW":
-                                            listOfContainers.get(listOfContainers.size()-1).no_gw = line.split("\\s+")[1].equals("YES");
+                                            currContainer.no_gw = line.split("\\s+")[1].equals("YES");
                                             break;
 
                                         case "REGISTRY":
-                                            listOfContainers.get(listOfContainers.size()-1).registry = line.split("\\s+")[1];
+                                            currContainer.registry = line.split("\\s+")[1];
                                             break;
                                         case "BASE_REGISTRY":
-                                            listOfContainers.get(listOfContainers.size()-1).base_registry = line.split("\\s+")[1];
+                                            currContainer.base_registry = line.split("\\s+")[1];
                                             break;
                                         case "THUMB_VOLUME":
-                                            listOfContainers.get(listOfContainers.size()-1).thumb_volume = line.split("THUMB_VOLUME\\s+")[1];
+                                            currContainer.thumb_volume = line.split("THUMB_VOLUME\\s+")[1];
                                             break;
                                         case "THUMB_COMMAND":
-                                            listOfContainers.get(listOfContainers.size()-1).thumb_command = line.split("THUMB_COMMAND\\s+")[1];
+                                            currContainer.thumb_command = line.split("THUMB_COMMAND\\s+")[1];
                                             break;
                                         case "THUMB_STOP":
-                                            listOfContainers.get(listOfContainers.size()-1).thumb_stop = line.split("THUMB_STOP\\s+")[1];
+                                            currContainer.thumb_stop = line.split("THUMB_STOP\\s+")[1];
                                             break;
                                         case "PUBLISH":
-                                            listOfContainers.get(listOfContainers.size()-1).publish = line.split("PUBLISH\\s+")[1];
+                                            currContainer.publish = line.split("PUBLISH\\s+")[1];
                                             break;
                                         case "HIDE":
-                                            listOfContainers.get(listOfContainers.size()-1).hide = line.split("\\s+")[1].equals("YES");
+                                            currContainer.hide = line.split("\\s+")[1].equals("YES");
                                             break;
 
                                         case "NO_PRIVILEGE":
-                                            listOfContainers.get(listOfContainers.size()-1).no_privilege = line.split("\\s+")[1].equals("YES");
+                                            currContainer.no_privilege = line.split("\\s+")[1].equals("YES");
                                             break;
 
                                         case "MYSTUFF":
-                                            listOfContainers.get(listOfContainers.size()-1).mystuff = line.split("\\s+")[1].equals("YES");
+                                            currContainer.mystuff = line.split("\\s+")[1].equals("YES");
                                             break;   
                                         default:
-                                            
-
-                                    }
-                                    //Check the array of network names to check it
-                                    for(int i = 0;i <listOfNetworks.size();i++){
-                                        if(listOfNetworks.get(i).name.equals(line.split("\\s+")[0])){
-                                            listOfContainers.get(listOfContainers.size()-1).listOfContainerNetworks.add(new ContainerNetworkSubData(line.split("\\s+")[0], line.split("\\s+")[1]));
-                                        }
-                                    }                                  
+                                            boolean foundMatchingNetwork = false;
+                                            //Check the array of network names to to see if it matches it
+                                            for(int i = 0;i <listOfNetworks.size();i++){
+                                                System.out.println();
+                                                if(listOfNetworks.get(i).name.equals(line.split("\\s+")[0])){
+                                                    currContainer.listOfContainerNetworks.add(new ContainerNetworkSubData(line.split("\\s+")[0], line.split("\\s+")[1]));
+                                                    foundMatchingNetwork = true;
+                                                    break;
+                                                }
+                                            }      
+                                            //if doesn't find a matching network name than this param is unknown
+                                            if(!foundMatchingNetwork) {currContainer.unknownContainerParams.add(line);}
+                                            break;
+                                    }                             
                                 }   
-                            }  
-                            
-                        }                                 
+                            }   
+                        }
+                        
+                        //go to next line
                         line = bufferedReader.readLine();
                     }
                 }
@@ -301,57 +315,69 @@ public class LabData {
     public void printNetworkData(NetworkData data) {
         System.out.println("NETWORK----------------------");
         System.out.println("name: " + data.name);
-        System.out.println("mask: " + data.mask);        
-        System.out.println("gateway: " + data.gateway);
-        System.out.println("macvlan_ext: " + data.macvlan_ext);        
-        System.out.println("macvlan: " + data.macvlan);        
-        System.out.println("ip_range: " + data.ip_range);          
+//        System.out.println("mask: " + data.mask);        
+//        System.out.println("gateway: " + data.gateway);
+//        System.out.println("macvlan_ext: " + data.macvlan_ext);        
+//        System.out.println("macvlan: " + data.macvlan);        
+//        System.out.println("ip_range: " + data.ip_range);  
+
+        System.out.println("UNKNOWN PARAMS: ");
+        for(int i = 0;i<data.unknownNetworkParams.size();i++){
+                System.out.println(data.unknownNetworkParams.get(i));  
+        }        
+        System.out.println("------------------------------------");
     }
     
     public void printContainerData(ContainerData data) {
         System.out.println("CONTAINER----------------------");
         System.out.println("name: " + data.name);
-        System.out.println("terminal_count: " + data.terminal_count);        
-        System.out.println("terminal_group: " + data.terminal_group);
-        System.out.println("xterm_title: " + data.xterm_title);        
-        System.out.println("xterm_script: " + data.xterm_script);        
-        System.out.println("user: " + data.user);  
+//        System.out.println("terminal_count: " + data.terminal_count);        
+//        System.out.println("terminal_group: " + data.terminal_group);
+//        System.out.println("xterm_title: " + data.xterm_title);        
+//        System.out.println("xterm_script: " + data.xterm_script);        
+//        System.out.println("user: " + data.user);  
+//        
+//        System.out.println("password: " + data.password);   
+//        System.out.println("script: " + data.script);  
+//        
+//
+//        if(data.listOfContainerAddHost != null){
+//            for(int i = 0;i<data.listOfContainerAddHost.size();i++){
+//                if(data.listOfContainerAddHost.get(i).type.equals("ip")){
+//                    System.out.println("ADD-HOST: " + data.listOfContainerAddHost.get(i).add_host_host + " " + data.listOfContainerAddHost.get(i).add_host_ip);  
+//                }
+//                else{
+//                    System.out.println("ADD-HOST: " + data.listOfContainerAddHost.get(i).add_host_network);  
+//                }
+//                
+//            }
+//        }
+//        
+//        System.out.println("x11: " + data.x11);  
+//        System.out.println("clone: " + data.clone);  
+//        System.out.println("no_pull: " + data.no_pull);  
+//        System.out.println("lab_gateway: " + data.lab_gateway);  
+//        System.out.println("no_gw: " + data.no_gw);  
+//        System.out.println("registry: " + data.registry);  
+//        System.out.println("base_registry: " + data.base_registry);  
+//        System.out.println("thumb_volume: " + data.thumb_volume);  
+//        System.out.println("thumb_command: " + data.thumb_command);  
+//        System.out.println("thumb_stop: " + data.thumb_stop);  
+//        System.out.println("publish: " + data.publish);  
+//        System.out.println("hide: " + data.hide);  
+//        System.out.println("no_privilege: " + data.no_privilege);  
+//        System.out.println("mystuff: " + data.mystuff);
+//        if(data.listOfContainerNetworks != null){
+//            for(int i = 0;i<data.listOfContainerNetworks.size();i++){
+//                System.out.println(data.listOfContainerNetworks.get(i).network_name + " " + data.listOfContainerNetworks.get(i).network_ipaddress);  
+//            }
+//        }
         
-        System.out.println("password: " + data.password);   
-        System.out.println("script: " + data.script);  
-        
-
-        if(data.listOfContainerAddHost != null){
-            for(int i = 0;i<data.listOfContainerAddHost.size();i++){
-                if(data.listOfContainerAddHost.get(i).type.equals("ip")){
-                    System.out.println("ADD-HOST: " + data.listOfContainerAddHost.get(i).add_host_host + " " + data.listOfContainerAddHost.get(i).add_host_ip);  
-                }
-                else{
-                    System.out.println("ADD-HOST: " + data.listOfContainerAddHost.get(i).add_host_network);  
-                }
-                
-            }
+        System.out.println("UNKNOWN PARAMS: ");
+        for(int i = 0;i<data.unknownContainerParams.size();i++){
+                System.out.println(data.unknownContainerParams.get(i));  
         }
-        
-        System.out.println("x11: " + data.x11);  
-        System.out.println("clone: " + data.clone);  
-        System.out.println("no_pull: " + data.no_pull);  
-        System.out.println("lab_gateway: " + data.lab_gateway);  
-        System.out.println("no_gw: " + data.no_gw);  
-        System.out.println("registry: " + data.registry);  
-        System.out.println("base_registry: " + data.base_registry);  
-        System.out.println("thumb_volume: " + data.thumb_volume);  
-        System.out.println("thumb_command: " + data.thumb_command);  
-        System.out.println("thumb_stop: " + data.thumb_stop);  
-        System.out.println("publish: " + data.publish);  
-        System.out.println("hide: " + data.hide);  
-        System.out.println("no_privilege: " + data.no_privilege);  
-        System.out.println("mystuff: " + data.mystuff);
-        if(data.listOfContainerNetworks != null){
-            for(int i = 0;i<data.listOfContainerNetworks.size();i++){
-                System.out.println(data.listOfContainerNetworks.get(i).network_name + " " + data.listOfContainerNetworks.get(i).network_ipaddress);  
-            }
-        }
+        System.out.println("------------------------------------");
 
     }
     
