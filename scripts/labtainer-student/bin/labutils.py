@@ -176,6 +176,8 @@ def ParameterizeMyContainer(mycontainer_name, container_user, container_password
         running_container = mycontainer_name
     ''' copy lab_bin and lab_sys files into .local/bin and / respectively '''
     CopyLabBin(running_container, container_user, lab_path, name, image_info)
+
+    cmd = 'docker exec %s script -q -c "chown -R %s:%s /home/%s"' % (mycontainer_name, container_user, container_user, container_user)
     cmd_path = '/home/%s/.local/bin/parameterize.sh' % (container_user)
     if container_password == "":
         container_password = container_user
