@@ -177,6 +177,9 @@ def PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, che
                         continue
                     if goalid.startswith('cw_'): 
                         if checkwork:
+                            if goalid not in checkwork_feedback:
+                                print('%s has no feedback defined.' % goalid)
+                                continue
                             expect = checkwork_feedback[goalid].expected
                             if type(goalresult) is bool:
                                if goalresult != expect:
