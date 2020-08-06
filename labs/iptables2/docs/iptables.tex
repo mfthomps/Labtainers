@@ -63,8 +63,15 @@ From your labtainer-student directory start the lab using:
 \end{figure}
 
 \section{Lab Tasks}
+\subsection{Prep quiz}
+Take a quick quiz to confirm you are prepared to perform the lab.
+At the terminal from which you started the lab, type: 
+\begin{verbatim}
+   quiz
+\end{verbatim}
 \subsection{Explore}
-The Wireshark utility is installed on the firewall. 
+\begin{itemize}
+\item The Wireshark utility is installed on the firewall. 
 Use it to view network traffic through the firewall, and to 
 debug your firewall rules.  Start it from the firewall terminal:
 \begin{verbatim}
@@ -72,30 +79,30 @@ wireshark &
 \end{verbatim}
 \noindent Then select the eth0 interface.
 
-On the client terminal use the nmap utility 
+\item On the client terminal use the nmap utility 
 to list (some of the) open ports on the server:
 
 \begin{verbatim}
         nmap server
 \end{verbatim}
-\noindent 
 
-\noindent Use wget to confirm that the server response to HTTP requests:
+\item Use wget to confirm that the server response to HTTP requests:
 \begin{verbatim}
         wget server &
 \end{verbatim}
-\noindent Confirm an ssh service if offered -- you need not login when prompted,
+\item Confirm an ssh service if offered -- you need not login when prompted,
 just use {\tt ctrl C} to exit once you get a response from the server.
 \begin{verbatim}
         ssh server
 \end{verbatim}
-\noindent Finally, confirm that telnet is offered (again, no need to login):
+\item Finally, confirm that telnet is offered (again, no need to login):
 \begin{verbatim}
         telnet server
 \end{verbatim}
-\noindent Observe the traffic in wireshark, making note the
+\item Observe the traffic in wireshark, making note the
 source IP addresses and the destination ports used by the 
 clients when connecting to the server
+\end{itemize}
 
 \subsection{Use iptables to limit traffic}
 The iptables utility is installed on the ``firewall'' component.
@@ -143,6 +150,10 @@ Also, again use nmap to confirm the proper configuration
 \begin{verbatim}
    nmap server
 \end{verbatim}
+
+\subsection{Check your work}
+Use the {\tt checkwork} command from the terminal you used to start the lab.  This will
+provide feedback indicating whether you have achieved the goals of the lab.
 
 \section{Submission}
 After finishing the lab, go to the terminal on your Linux system that was used to start the lab and type:

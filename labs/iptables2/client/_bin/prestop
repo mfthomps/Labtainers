@@ -1,0 +1,3 @@
+#!/bin/bash
+nmap -n 172.25.0.3
+nmap -n 172.25.0.3 -p WIZ_PORT
