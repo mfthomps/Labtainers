@@ -107,7 +107,14 @@ public class ContainerConfigNetworksSubpanel extends javax.swing.JPanel {
            containerConfigNetworksPanel.repaint(); 
     }//GEN-LAST:event_ContainerConfigNetworksDeleteButtonActionPerformed
 
-
+    public javax.swing.JComboBox<String> getNetworkNameCombobox(){
+        return ContainerConfigNetworksNameCombobox;
+    }
+    
+    public javax.swing.JTextField getIPTextField(){
+        return ContainerConfigNetworksIPTextfield;
+    }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton ContainerConfigNetworksDeleteButton;
     private javax.swing.JTextField ContainerConfigNetworksIPTextfield;

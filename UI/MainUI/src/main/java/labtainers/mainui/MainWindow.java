@@ -1015,7 +1015,13 @@ private void openLab(File lab){
     // Visual load of lab
     resetWindow();
     loadLab();
+    System.out.println(labName);
     labDataCurrent.printData();    
+    System.out.println();
+        System.out.println();
+            System.out.println();
+
+
 }    
 
     private void NetworkAddDialogCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NetworkAddDialogCancelButtonActionPerformed
@@ -1167,9 +1173,24 @@ private void openLab(File lab){
     }//GEN-LAST:event_LabtainersDirConfirmButtonActionPerformed
 
     private void SaveMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveMenuItemActionPerformed
-        // TODO add your handling code here:
+        saveLab();
     }//GEN-LAST:event_SaveMenuItemActionPerformed
-
+    
+    private void saveLab(){
+        // Cycle through container objects 
+        labDataSaved.resetContainers();
+        Component[] containers = ContainerPanePanel.getComponents();
+        for(Component container : containers){
+            LabData.ContainerData savedContainerData = ((ContainerObjPanel)container).getConfigData();
+             
+            labDataSaved.getContainers().add(savedContainerData);
+        //(ContainerObjPanel)c
+        }
+        
+        // Cycle through network objects
+        labDataSaved.resetNetworks();
+    }
+    
     private void SaveAsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveAsMenuItemActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_SaveAsMenuItemActionPerformed

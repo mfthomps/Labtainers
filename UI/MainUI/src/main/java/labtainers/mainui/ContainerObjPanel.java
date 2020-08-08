@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
@@ -748,12 +749,12 @@ private boolean clicked = false;
            containerPanel.repaint(); 
            
            //delete the container in the lab directory
-           removeContainer();
+           deleteContainer();
        }
     }//GEN-LAST:event_deleteContainerOptionActionPerformed
 
     // Deletes the container in the lab directory structure by calling 'new_lab_setup.py -d containername'
-    private void removeContainer(){
+    private void deleteContainer(){
         try{
                 //call python new_lab_script: new_lab_setup.py -b basename
                 String cmd = "./removeContainer.sh "+mainWindow.labsPath+" "+mainWindow.labName+" "+this.data.name;
@@ -779,10 +780,10 @@ private boolean clicked = false;
             // Rename the container in directory
             renameContainer(this.data.name,RenameContainerTextfield.getText());
             
-            // Rename the container in GUI
+            // Rename the container in GUI and data object
+            System.out.println("Renaming '"+this.data.name+"'"+"container to: "+RenameContainerTextfield.getText());
             ContainerLabelName.setText(RenameContainerTextfield.getText()); 
             this.data.name = RenameContainerTextfield.getText();
-            System.out.println("Renamed container to: "+this.data.name);
         }
         
         // hide the textfield and show the container label
@@ -818,23 +819,82 @@ private boolean clicked = false;
     }//GEN-LAST:event_RenameContainerTextfieldFocusLost
 
     private void ContainerConfigWindowWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_ContainerConfigWindowWindowClosing
-        System.out.println("Closing Config for: " + this.data.name);
-        clearLists();
-        clicked = false;
+        //System.out.println("Closing Config for: " + this.data.name);
+        closeConfigWindow();
     }//GEN-LAST:event_ContainerConfigWindowWindowClosing
 
     private void ContainerConfigUpdateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigUpdateButtonActionPerformed
-       ContainerConfigWindow.setVisible(false);
-       clearLists();
-       clicked = false;
+    //Update the data 
+
+        // General Tab
+        data.user = UserTF.getText();
+        data.password = PasswordTF.getText();
+        data.terminal_count = (int)TerminalQuantitySpinner.getValue();
+        data.terminal_group = TerminalGroupTextfield.getText();
+        data.lab_gateway = LabGatewayTextfield.getText();
+        data.no_gw = NoGWCheckbox.isSelected();
+            
+        // List of Networks
+        data.listOfContainerNetworks.clear(); //clear the networks so that is can be refilled with updated list of networks
+        Component[] networkPanels = ContainerConfigNetworksPanel.getComponents();
+        for(Component component: networkPanels){
+            ContainerConfigNetworksSubpanel networkPanel = (ContainerConfigNetworksSubpanel)component;
+            
+            String networkName = (String)networkPanel.getNetworkNameCombobox().getSelectedItem();
+            String ipAddr = networkPanel.getIPTextField().getText();
+            data.listOfContainerNetworks.add(new LabData.ContainerNetworkSubData(networkName,ipAddr));
+        }
+                
+
+
+//        // Docker
+//        this.ScriptTextfield.setText(data.script);
+//        this.RegistryTextfield.setText(data.registry);
+//        this.BaseRegistryTextfield.setText(data.base_registry);
+//        this.PublishTextfield.setText(data.publish);
+//        this.NoPrivilegeCheckbox.setSelected(data.no_privilege);
+//        
+
+//        // Hosts
+//            // list of add-hosts
+//        for(int i=0;i<data.listOfContainerAddHost.size();i++){
+//            addAddHostSubPanel(data.listOfContainerAddHost.get(i).type,        data.listOfContainerAddHost.get(i).add_host_host, 
+//                               data.listOfContainerAddHost.get(i).add_host_ip, data.listOfContainerAddHost.get(i).add_host_network);
+//        }
+//        
+//        // Other
+
+//        this.XtermTitleTextfield.setText(data.xterm_title);
+//        this.XtermScriptTextfield.setText(data.xterm_script);
+//        this.ClonesSpinner.setValue(data.clone);
+//        this.X11Checkbox.setSelected(data.x11);
+//        this.NoPullCheckbox.setSelected(data.no_pull);
+//        this.MyStuffCheckbox.setSelected(data.mystuff);
+//        
+//        // GNS3
+//        this.ThumbCommandTextfield.setText(data.thumb_command);
+//        this.ThumbStopTextfield.setText(data.thumb_stop);
+//        this.ThumbVolumeTextfield.setText(data.thumb_volume);
+//        this.HideCheckbox.setSelected(data.hide);
+//        
+        
+        
+        
+        
+        
+       closeConfigWindow();
     }//GEN-LAST:event_ContainerConfigUpdateButtonActionPerformed
 
     private void ContainerConfigCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigCancelButtonActionPerformed
+        closeConfigWindow();
+    }//GEN-LAST:event_ContainerConfigCancelButtonActionPerformed
+    
+    private void closeConfigWindow(){
         ContainerConfigWindow.setVisible(false);
         clearLists();
         clicked = false;
-    }//GEN-LAST:event_ContainerConfigCancelButtonActionPerformed
-
+    }
+    
     private void clearLists(){
         // Clear Add-host
         Component[] componentList = AddHostsSubPanel.getComponents();
@@ -932,6 +992,10 @@ private boolean clicked = false;
         containerAddHostScrollPaneBar.setValue(58+containerAddHostScrollPaneBar.getMaximum());
     }
     
+    
+    public LabData.ContainerData getConfigData(){
+        return this.data;
+    }
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

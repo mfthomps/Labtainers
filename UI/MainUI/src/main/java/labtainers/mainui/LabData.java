@@ -138,7 +138,6 @@ public class LabData {
                         line = line.trim();
                         // Check if we need to switch to Network or Container Parsing mode
                         if(line.startsWith("NETWORK ")){   
-                            System.out.println("Network");
                             parseType = "NETWORK";
                             listOfNetworks.add(new NetworkData(line.split("NETWORK ")[1].trim()));
                             line = bufferedReader.readLine();
@@ -264,7 +263,6 @@ public class LabData {
                                             boolean foundMatchingNetwork = false;
                                             //Check the array of network names to to see if it matches it
                                             for(int i = 0;i <listOfNetworks.size();i++){
-                                                System.out.println();
                                                 if(listOfNetworks.get(i).name.equals(line.split("\\s+")[0])){
                                                     currContainer.listOfContainerNetworks.add(new ContainerNetworkSubData(line.split("\\s+")[0], line.split("\\s+")[1]));
                                                     foundMatchingNetwork = true;
@@ -310,6 +308,14 @@ public class LabData {
     
     public ArrayList<NetworkData> getNetworks(){
         return listOfNetworks;
+    }
+    
+    public void resetContainers(){
+        listOfContainers = new ArrayList<ContainerData>();
+    }
+    
+    public void resetNetworks(){
+        listOfNetworks = new ArrayList<NetworkData>();
     }
     
     public void printNetworkData(NetworkData data) {
