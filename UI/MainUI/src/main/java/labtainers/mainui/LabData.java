@@ -142,7 +142,7 @@ public class LabData {
                         // Check if we need to switch to Network or Container Parsing mode
                         if(line.startsWith("NETWORK ")){   
                             parseType = "NETWORK";
-                            listOfNetworks.add(new NetworkData(line.split("NETWORK ")[1].trim()));
+                            listOfNetworks.add(new NetworkData(line.split("NETWORK ")[1].trim().toUpperCase()));
                             line = bufferedReader.readLine();
                             continue;
                         }
@@ -271,10 +271,12 @@ public class LabData {
                                             break;
                                         default:
                                             boolean foundMatchingNetwork = false;
+                                            String networkName = line.split("\\s+")[0].toUpperCase();
+                                            String ipAddrName = line.split("\\s+")[1].toUpperCase();
                                             //Check the array of network names to to see if it matches it
-                                            for(int i = 0;i <listOfNetworks.size();i++){
-                                                if(listOfNetworks.get(i).name.equals(line.split("\\s+")[0])){
-                                                    currContainer.listOfContainerNetworks.add(new ContainerNetworkSubData(line.split("\\s+")[0], line.split("\\s+")[1]));
+                                            for(int i = 0;i <listOfNetworks.size();i++){ 
+                                                if(listOfNetworks.get(i).name.equals(networkName)){
+                                                    currContainer.listOfContainerNetworks.add(new ContainerNetworkSubData(networkName, ipAddrName));
                                                     foundMatchingNetwork = true;
                                                     break;
                                                 }
