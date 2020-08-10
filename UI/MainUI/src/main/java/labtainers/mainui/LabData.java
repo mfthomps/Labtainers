@@ -31,6 +31,7 @@ public class LabData {
         public int macvlan_ext;
         public int macvlan;
         public String ip_range = "";
+        public boolean tap = false;
         
         public ArrayList<String> unknownNetworkParams;
         
@@ -65,6 +66,8 @@ public class LabData {
         public boolean hide;
         public boolean no_privilege;
         public boolean mystuff;
+        public String mount1;
+        public String mount2;
         
         public ArrayList<String> unknownContainerParams;
         
@@ -162,20 +165,23 @@ public class LabData {
                                     NetworkData currNetwork = listOfNetworks.get(listOfNetworks .size()-1);
                                     switch(parameter){
                                         case "MASK":
-                                            currNetwork.mask = line.split("MASK ")[1];
+                                            currNetwork.mask = line.split("MASK ")[1].trim();
                                             break;
                                         case "GATEWAY":
-                                            currNetwork.gateway = line.split("GATEWAY ")[1];
+                                            currNetwork.gateway = line.split("GATEWAY ")[1].trim();
                                             break;
                                         case "MACVLAN_EXT":
-                                            currNetwork.macvlan_ext = Integer.parseInt(line.split("MACVLAN_EXT ")[1]);
+                                            currNetwork.macvlan_ext = Integer.parseInt(line.split("MACVLAN_EXT ")[1].trim());
                                             break;
                                         case "MACVLAN":
-                                           currNetwork.macvlan = Integer.parseInt(line.split("MACVLAN ")[1]);
+                                           currNetwork.macvlan = Integer.parseInt(line.split("MACVLAN ")[1].trim());
                                             break;
                                         case "IP_RANGE":
-                                           currNetwork.ip_range = line.split("IP_RANGE ")[1];
+                                           currNetwork.ip_range = line.split("IP_RANGE ")[1].trim();
                                             break;
+                                        case "TAP":
+                                            currNetwork.tap = (line.split("TAP ")[1].trim()).equals("YES");
+                                            
                                         default:
                                             currNetwork.unknownNetworkParams.add(line);
                                             break;
@@ -185,80 +191,84 @@ public class LabData {
                                     ContainerData currContainer = listOfContainers.get(listOfContainers.size()-1);
                                     switch(parameter){
                                         case "TERMINALS":
-                                            currContainer.terminal_count = Integer.parseInt(line.split("\\s+")[1]);                                      
+                                            currContainer.terminal_count = Integer.parseInt(line.split("TERMINALS ")[1].trim());                                      
                                             break;
                                         case "TERMINAL_GROUP":
-                                            currContainer.terminal_group = line.split("TERMINAL_GROUP ")[1];
+                                            currContainer.terminal_group = line.split("TERMINAL_GROUP ")[1].trim();
                                             break;
                                         case "XTERM":
-                                            currContainer.xterm_title = line.split("\\s+")[1];
-                                            currContainer.xterm_script = line.split("\\s+")[1];
+                                            String xtermParams = line.split("XTERM ")[1].trim();
+                                            currContainer.xterm_title = xtermParams.split("\\s+")[0].trim();
+                                            currContainer.xterm_script = xtermParams.split("\\s+")[1].trim();
                                             break;
                                         case "USER":
-                                            currContainer.user = line.split("\\s+")[1];
+                                            currContainer.user = line.split("USER ")[1].trim();
                                             break;
                                         case "PASSWORD":
-                                            currContainer.password = line.split("\\s+")[1];
+                                            currContainer.password = line.split("PASSWORD ")[1].trim();
                                             break;
                                         case "SCRIPT":
-                                            currContainer.script = line.split("\\s+")[1];
+                                            currContainer.script = line.split(" SCRIPT ")[1].trim();
                                             break;
                                         case "ADD-HOST":
-                                            if(line.split("\\s+")[1].contains(":")){ //host:ip
-                                                String tmp = line.split("\\s+")[1];
-                                                currContainer.listOfContainerAddHost.add(new ContainerAddHostSubData("ip",tmp.split(":")[0], tmp.split(":")[1], ""));
+                                            String addhostParams = line.split("ADD-HOST ")[1].trim();
+                                            if(addhostParams.contains(":")){ //host:ip
+                                                currContainer.listOfContainerAddHost.add(new ContainerAddHostSubData("ip",addhostParams.split(":")[0].trim(), addhostParams.split(":")[1].trim(), ""));
                                             }
                                             else { //network
-                                                currContainer.listOfContainerAddHost.add(new ContainerAddHostSubData("network","", "", line.split("\\s+")[1]));
+                                                currContainer.listOfContainerAddHost.add(new ContainerAddHostSubData("network","", "", addhostParams));
                                             }
                                             break;
                                         case "X11":
-                                            currContainer.x11 = line.split("\\s+")[1].equals("YES");
+                                            currContainer.x11 = (line.split("X11 ")[1].trim()).equals("YES");
                                             break;
 
                                         case "CLONE":
-                                            currContainer.clone = Integer.parseInt(line.split("\\s+")[1]);      
+                                            currContainer.clone = Integer.parseInt(line.split("CLONE ")[1].trim());      
                                             break;
                                         case "NO_PULL":
-                                            currContainer.no_pull = line.split("\\s+")[1].equals("YES");
+                                            currContainer.no_pull = (line.split("NO_PULL ")[1].trim()).equals("YES");
                                             break;
 
                                         case "LAB_GATEWAY":
-                                            currContainer.lab_gateway = line.split("\\s+")[1];
+                                            currContainer.lab_gateway = line.split("LAB_GATEWAY ")[1].trim();
                                             break;
                                         case "NO_GW":
-                                            currContainer.no_gw = line.split("\\s+")[1].equals("YES");
+                                            currContainer.no_gw = (line.split("NO_GW ")[1].trim()).equals("YES");
                                             break;
 
                                         case "REGISTRY":
-                                            currContainer.registry = line.split("\\s+")[1];
+                                            currContainer.registry = line.split("REGISTRY ")[1].trim();
                                             break;
                                         case "BASE_REGISTRY":
-                                            currContainer.base_registry = line.split("\\s+")[1];
+                                            currContainer.base_registry = line.split("BASE_REGISTRY ")[1].trim();
                                             break;
                                         case "THUMB_VOLUME":
-                                            currContainer.thumb_volume = line.split("THUMB_VOLUME\\s+")[1];
+                                            currContainer.thumb_volume = line.split("THUMB_VOLUME\\s+")[1].trim();
                                             break;
                                         case "THUMB_COMMAND":
-                                            currContainer.thumb_command = line.split("THUMB_COMMAND\\s+")[1];
+                                            currContainer.thumb_command = line.split("THUMB_COMMAND\\s+")[1].trim();
                                             break;
                                         case "THUMB_STOP":
-                                            currContainer.thumb_stop = line.split("THUMB_STOP\\s+")[1];
+                                            currContainer.thumb_stop = line.split("THUMB_STOP\\s+")[1].trim();
                                             break;
                                         case "PUBLISH":
-                                            currContainer.publish = line.split("PUBLISH\\s+")[1];
+                                            currContainer.publish = line.split("PUBLISH\\s+")[1].trim();
                                             break;
                                         case "HIDE":
-                                            currContainer.hide = line.split("\\s+")[1].equals("YES");
+                                            currContainer.hide = (line.split("HIDE\\s+")[1].trim()).equals("YES");
                                             break;
-
                                         case "NO_PRIVILEGE":
-                                            currContainer.no_privilege = line.split("\\s+")[1].equals("YES");
+                                            currContainer.no_privilege = (line.split("NO_PRIVILEGE\\s+")[1].trim()).equals("YES");
                                             break;
-
                                         case "MYSTUFF":
-                                            currContainer.mystuff = line.split("\\s+")[1].equals("YES");
-                                            break;   
+                                            currContainer.mystuff = (line.split("MYSTUFF\\s+")[1].trim()).equals("YES");
+                                            break;  
+                                        case "MOUNT":
+                                            String mountParam = line.split("MOUNT ")[1].trim();
+                                            currContainer.mount1 = mountParam.split(":")[0].trim();
+                                            currContainer.mount2 = mountParam.split(":")[1].trim();
+                                            break;
                                         default:
                                             boolean foundMatchingNetwork = false;
                                             //Check the array of network names to to see if it matches it

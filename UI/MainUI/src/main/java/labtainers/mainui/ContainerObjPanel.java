@@ -154,6 +154,9 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         MyStuffCheckbox = new javax.swing.JCheckBox();
         NoPullCheckbox = new javax.swing.JCheckBox();
         ClonesSpinner = new javax.swing.JSpinner();
+        jLabel13 = new javax.swing.JLabel();
+        MountTextfield1 = new javax.swing.JTextField();
+        MountTextfield2 = new javax.swing.JTextField();
         ContainerConfigGNS3Tab = new javax.swing.JPanel();
         ThumbVolumeLabel = new javax.swing.JLabel();
         HideLabel = new javax.swing.JLabel();
@@ -486,6 +489,13 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         ClonesSpinner.setMinimumSize(new java.awt.Dimension(45, 20));
         ClonesSpinner.setPreferredSize(new java.awt.Dimension(45, 20));
 
+        jLabel13.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel13.setText("Mount:");
+
+        MountTextfield1.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+
+        MountTextfield2.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+
         javax.swing.GroupLayout ContainerConfigOtherTabLayout = new javax.swing.GroupLayout(ContainerConfigOtherTab);
         ContainerConfigOtherTab.setLayout(ContainerConfigOtherTabLayout);
         ContainerConfigOtherTabLayout.setHorizontalGroup(
@@ -514,35 +524,44 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                         .addGap(18, 18, 18)
                         .addComponent(jLabel12)
                         .addGap(1, 1, 1)
-                        .addComponent(MyStuffCheckbox)))
-                .addContainerGap(125, Short.MAX_VALUE))
+                        .addComponent(MyStuffCheckbox))
+                    .addGroup(ContainerConfigOtherTabLayout.createSequentialGroup()
+                        .addComponent(jLabel13)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(MountTextfield1, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(MountTextfield2, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(123, Short.MAX_VALUE))
         );
         ContainerConfigOtherTabLayout.setVerticalGroup(
             ContainerConfigOtherTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(ContainerConfigOtherTabLayout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(18, 18, 18)
                 .addGroup(ContainerConfigOtherTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel8)
                     .addComponent(XtermTitleTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(XtermScriptTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(ContainerConfigOtherTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel13)
+                    .addComponent(MountTextfield1, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(MountTextfield2, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
                 .addGroup(ContainerConfigOtherTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(ContainerConfigOtherTabLayout.createSequentialGroup()
-                        .addGap(28, 28, 28)
+                        .addGap(10, 10, 10)
                         .addComponent(jLabel11))
                     .addGroup(ContainerConfigOtherTabLayout.createSequentialGroup()
-                        .addGap(28, 28, 28)
+                        .addGap(10, 10, 10)
                         .addComponent(jLabel12))
-                    .addGroup(ContainerConfigOtherTabLayout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addGroup(ContainerConfigOtherTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(X11Checkbox, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(ContainerConfigOtherTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(jLabel10)
-                                .addComponent(ClonesSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jLabel9))
-                            .addComponent(NoPullCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(MyStuffCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(188, Short.MAX_VALUE))
+                    .addComponent(X11Checkbox, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(ContainerConfigOtherTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel10)
+                        .addComponent(ClonesSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel9))
+                    .addComponent(NoPullCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(MyStuffCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(138, Short.MAX_VALUE))
         );
 
         containerTabPane.addTab("Other", ContainerConfigOtherTab);
@@ -1024,6 +1043,8 @@ private boolean clicked = false;
     private javax.swing.JCheckBox HideCheckbox;
     private javax.swing.JLabel HideLabel;
     private javax.swing.JTextField LabGatewayTextfield;
+    private javax.swing.JTextField MountTextfield1;
+    private javax.swing.JTextField MountTextfield2;
     private javax.swing.JCheckBox MyStuffCheckbox;
     private javax.swing.JCheckBox NoGWCheckbox;
     private javax.swing.JCheckBox NoPrivilegeCheckbox;
@@ -1054,6 +1075,7 @@ private boolean clicked = false;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;

@@ -74,6 +74,7 @@ public class NetworkObjPanel extends javax.swing.JPanel {
         NetworkConfigUpdateButton = new javax.swing.JButton();
         NetworkConfigMacVLanExtSpinner = new javax.swing.JSpinner();
         NetworkConfigMacVLanSpinner = new javax.swing.JSpinner();
+        TapRadioButton = new javax.swing.JRadioButton();
         NetworkRightClick = new javax.swing.JPopupMenu();
         renameNetworkOption = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
@@ -82,7 +83,8 @@ public class NetworkObjPanel extends javax.swing.JPanel {
         NetworkLabelName = new javax.swing.JLabel();
         NetworkMaskLabel = new javax.swing.JLabel();
 
-        NetworkConfigWindow.setMinimumSize(new java.awt.Dimension(377, 320));
+        NetworkConfigWindow.setMinimumSize(new java.awt.Dimension(377, 335));
+        NetworkConfigWindow.setPreferredSize(new java.awt.Dimension(394, 335));
         NetworkConfigWindow.setResizable(false);
         NetworkConfigWindow.addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
@@ -123,6 +125,9 @@ public class NetworkObjPanel extends javax.swing.JPanel {
 
         NetworkConfigMacVLanSpinner.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
 
+        TapRadioButton.setFont(new java.awt.Font("Ubuntu", 1, 15)); // NOI18N
+        TapRadioButton.setText("TAP");
+
         javax.swing.GroupLayout NetworkConfigWindowLayout = new javax.swing.GroupLayout(NetworkConfigWindow.getContentPane());
         NetworkConfigWindow.getContentPane().setLayout(NetworkConfigWindowLayout);
         NetworkConfigWindowLayout.setHorizontalGroup(
@@ -140,7 +145,8 @@ public class NetworkObjPanel extends javax.swing.JPanel {
                             .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING))
+                            .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(TapRadioButton, javax.swing.GroupLayout.Alignment.TRAILING))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(NetworkConfigWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(NetworkConfigIPRangeTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 229, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -176,11 +182,13 @@ public class NetworkObjPanel extends javax.swing.JPanel {
                 .addGroup(NetworkConfigWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(NetworkConfigIPRangeTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel6))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(TapRadioButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
                 .addGroup(NetworkConfigWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(NetworkConfigCancelButton)
                     .addComponent(NetworkConfigUpdateButton))
-                .addContainerGap(55, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         renameNetworkOption.setText("Rename");
@@ -347,6 +355,7 @@ public class NetworkObjPanel extends javax.swing.JPanel {
     private javax.swing.JLabel NetworkMaskLabel;
     private javax.swing.JPopupMenu NetworkRightClick;
     private javax.swing.JTextField RenameNetworkTextfield;
+    private javax.swing.JRadioButton TapRadioButton;
     private javax.swing.JMenuItem deleteNetworkOption;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
