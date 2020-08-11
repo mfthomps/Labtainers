@@ -542,7 +542,17 @@ host interface.  For example, a value of
 \item NO\_PRIVILEGE -- If YES, the container runs without Docker privilege.
 \item MYSTUFF -- if YES, the directory at {\tt labtainerstudent/mystuff} is shared with the container in {\tt /home/<user>/mystuff.}
 used.
-
+\item MOUNT [hostv:containerv] -- Intended for use with licensed software installations, e.g., IDA Free, will cause a directory 
+located at:
+\begin{verbatim}
+    ~/.local/share/labtainers/[hostv]
+\end{verbatim}
+\noindent at a mount point on the container at:
+\begin{verbatim}
+    ~/[containerv]
+\end{verbatim}
+\noindent The purpose is allow that host directory to be reused across labs to avoid re-installing licensed software, i.e.,
+something where the student takes a distinct action to acknowledge a license.
 \end{itemize}
 \end{itemize}
   
@@ -636,14 +646,26 @@ create a {\tt \_system/bin} directory for the lab, that will trash the {\tt /bin
 an obscure Docker build error.
 
 \subsection {System services}
-The Dockerfile ``ENTRYPOINT'' command can be used to start a system service.  The general Docker 
-model is that a single Docker container runs a single service, with logging being forwarded to 
+The general Docker 
+model is that a single Docker container runs a single service started via the ENTRYPOINT command, with logging being forwarded to 
 the host.  Labtainers disregards this model because our goal is to make a container look more like a Linux
 system rather than a conformant Docker container.  Labtainer Dockerfiles for Ubuntu and Centos containers
 use systemd based images that run the /usr/sbin/init process.  \footnote {Now deprecated Ubuntu-based Labtainer Dockerfiles included an
 ENTRYPOINT command that launches a \textit{faux\_init} script that starts rsyslog, (so that system logs
 appear in /var/log), and runs rc.local.}  The labtainer.network configuration of the baseline Dockerfile also starts xinetd,
 which will then fork services, e.g., the sshd, per the /etc/xinet.d/ configuration files.  
+
+Services should be added using {\tt systemd} constructs.  For those of us who often forget what those are, a simple web server
+service can be added to a container by unpacking this tar from the witin the container's directory:
+\begin{verbatim}
+    tar -xf $LABTAINER_DIR/scripts/designer/services/web-server.tar
+\end{verbatim} 
+\noindent And enable the service in the {\tt \_bin/fixlocal} file with:
+\begin{verbatim}
+  echo $1 | sudo -S systemctl enable httpserver.service
+  echo $1 | sudo -S systemctl start httpserver.service
+\end{verbatim}
+
 
 The centos-logs lab provides an example of forcing the student to login using the traditional
 login program, as described in section \ref{student start}.
@@ -981,9 +1003,6 @@ names appear at the beginning of a line in the \textit{treataslocal} file at
 \end{verbatim}
 \noindent The basename of the treataslocal entries are compared to the basename of each command.
 \footnote{In other words, if the treataslocal entry is: \texttt{usr/bin/nmap}, the path leading to nmap is ignored.}
-Starting of services can be monitored through use of treataslocal entries having a ``.service'' suffix,
-e.g., {\tt httpd.service} would generate timestamped artifact files whenever httpd was started (or restarted)
-using systemctl, service or /etc/init.d/...  See section \ref{time delimeter} for the intended use of this feature.
 
 Non-system programs can be excluded from stdin/stdout capturing by including their names in
 a ``ignorelocal'' file in that same directory.  \footnote{These should not include path information, just the program name.}
@@ -1174,10 +1193,6 @@ sources depending on the nature of the results.config directive:
 program was invoked, (and its corresponding stdin file contains an entry reflecting when the program terminated).
 \item A timestamped entry from a log file, e.g., an entry in a web log, that matches criteria specified in the results.config
 directive.
-\item The invocation times of {\tt time\_delimiter} programs, syntactically associated with system log artifact files.
-This allows designers to temporally group syslog results that were generated between changes to system configurations
-as defined by invocation of the {\tt time\_delimiter} program, e.g., a script that alters the routing table.  See section 
-\ref{time delimeter} for additional information. 
 \end{itemize}
 
 Directives within the results.config file each have the following format:
@@ -1249,8 +1264,10 @@ Directives within the results.config file each have the following format:
                TIME_DELIM -- The timestamps of the named files are used to create 
                              a set of time ranges with periods between the 
                              timestamps of each file, e.g., for use in time_during 
-                             goal operators.
-                             
+                             goal operators. File identifiers should not include
+                             stdin or stdout qualifiers. The file identifier
+                             may be a list of container:file pairs separated
+                             by semicolons.
                               
             field_id -- An integer identifying the nth occurance of the field type.
                         Alternately may be "LAST" for the last occurance of the 
@@ -1507,6 +1524,8 @@ are established, i.e., as a set of results with a single tag, the {\tt time\_dur
 those time ranges.  Once so binned, the boolean operator can be used to determine if
 the desired conditions were met within a single configuration state.  See sections
 \ref{log_range} and \ref{time_delim} for examples.
+
+
 \subsubsection{Replace answers with hashes}
 \label{hash-goals}
 Automated assessment files include expected results, which sometimes reflect ``answers'' to problems
@@ -1789,6 +1808,9 @@ single iptables configuration during which the student used nmap to demonstrate 
 \item The remote workstation could reach the HTTPS port but not the SQL port, and,
 \item The local workstation could reach the HTTPS port and the SQL port.
 \end{itemize}
+The file identifiers for {\tt TIME\_DELIM} commands can be lists of container:file
+pairs separated by semicolons.  This is useful when configuration changes are delimited
+by modifications made on more than one component or by more than one program
 
 
 
