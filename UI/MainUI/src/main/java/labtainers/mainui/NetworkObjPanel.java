@@ -49,6 +49,7 @@ public class NetworkObjPanel extends javax.swing.JPanel {
         this.NetworkConfigIPRangeTextfield.setText(this.data.ip_range);
         this.NetworkConfigMacVLanExtSpinner.setValue(this.data.macvlan_ext);
         this.NetworkConfigMacVLanSpinner.setValue(this.data.macvlan);
+        this.TapRadioButton.setSelected(this.data.tap);
     }
     
     
@@ -301,7 +302,7 @@ public class NetworkObjPanel extends javax.swing.JPanel {
         if (confirm == JOptionPane.YES_OPTION){
             // Rename the network
             NetworkLabelName.setText(RenameNetworkTextfield.getText());   
-            data.name = RenameNetworkTextfield.getText();
+            data.name = RenameNetworkTextfield.getText().toUpperCase();
             System.out.println("Renamed network to: "+data.name);
         }
 

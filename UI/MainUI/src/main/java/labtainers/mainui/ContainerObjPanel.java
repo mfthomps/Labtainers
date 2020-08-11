@@ -85,6 +85,9 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         this.X11Checkbox.setSelected(data.x11);
         this.NoPullCheckbox.setSelected(data.no_pull);
         this.MyStuffCheckbox.setSelected(data.mystuff);
+        this.TapRadioButton.setSelected(data.tap);
+        this.MountTextfield1.setText(data.mount1);
+        this.MountTextfield2.setText(data.mount2);
         
         // Network
         this.LabGatewayTextfield.setText(data.lab_gateway);
@@ -157,6 +160,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         jLabel13 = new javax.swing.JLabel();
         MountTextfield1 = new javax.swing.JTextField();
         MountTextfield2 = new javax.swing.JTextField();
+        TapRadioButton = new javax.swing.JRadioButton();
         ContainerConfigGNS3Tab = new javax.swing.JPanel();
         ThumbVolumeLabel = new javax.swing.JLabel();
         HideLabel = new javax.swing.JLabel();
@@ -279,7 +283,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                         .addComponent(jLabel7)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(ContainerConfigNetworksAddButton)))
-                .addContainerGap(21, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
                     .addGap(25, 25, 25)
@@ -496,6 +500,9 @@ public class ContainerObjPanel extends javax.swing.JPanel {
 
         MountTextfield2.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
 
+        TapRadioButton.setFont(new java.awt.Font("Ubuntu", 1, 15)); // NOI18N
+        TapRadioButton.setText("Tap");
+
         javax.swing.GroupLayout ContainerConfigOtherTabLayout = new javax.swing.GroupLayout(ContainerConfigOtherTab);
         ContainerConfigOtherTab.setLayout(ContainerConfigOtherTabLayout);
         ContainerConfigOtherTabLayout.setHorizontalGroup(
@@ -530,8 +537,9 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(MountTextfield1, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(MountTextfield2, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(123, Short.MAX_VALUE))
+                        .addComponent(MountTextfield2, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(TapRadioButton))
+                .addContainerGap(114, Short.MAX_VALUE))
         );
         ContainerConfigOtherTabLayout.setVerticalGroup(
             ContainerConfigOtherTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -548,20 +556,21 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                     .addComponent(MountTextfield2, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(ContainerConfigOtherTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(ContainerConfigOtherTabLayout.createSequentialGroup()
-                        .addGap(10, 10, 10)
-                        .addComponent(jLabel11))
-                    .addGroup(ContainerConfigOtherTabLayout.createSequentialGroup()
-                        .addGap(10, 10, 10)
-                        .addComponent(jLabel12))
                     .addComponent(X11Checkbox, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(ContainerConfigOtherTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabel10)
                         .addComponent(ClonesSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(jLabel9))
                     .addComponent(NoPullCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(MyStuffCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(138, Short.MAX_VALUE))
+                    .addComponent(MyStuffCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(ContainerConfigOtherTabLayout.createSequentialGroup()
+                        .addGap(10, 10, 10)
+                        .addGroup(ContainerConfigOtherTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel11)
+                            .addComponent(jLabel12))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(TapRadioButton)
+                .addContainerGap(108, Short.MAX_VALUE))
         );
 
         containerTabPane.addTab("Other", ContainerConfigOtherTab);
@@ -854,24 +863,25 @@ private boolean clicked = false;
         data.no_gw = NoGWCheckbox.isSelected();
             
         // List of Networks
-        data.listOfContainerNetworks.clear(); //clear the networks so that is can be refilled with updated list of networks
-        Component[] networkPanels = ContainerConfigNetworksPanel.getComponents();
-        for(Component component: networkPanels){
-            ContainerConfigNetworksSubpanel networkPanel = (ContainerConfigNetworksSubpanel)component;
-            
-            String networkName = (String)networkPanel.getNetworkNameCombobox().getSelectedItem();
-            String ipAddr = networkPanel.getIPTextField().getText();
-            data.listOfContainerNetworks.add(new LabData.ContainerNetworkSubData(networkName,ipAddr));
-        }
+//        data.listOfContainerNetworks.clear(); //clear the networks so that is can be refilled with updated list of networks
+//        Component[] networkPanels = ContainerConfigNetworksPanel.getComponents();
+//        for(Component component: networkPanels){
+//            ContainerConfigNetworksSubpanel networkPanel = (ContainerConfigNetworksSubpanel)component;
+//            
+//            String networkName = (String)networkPanel.getNetworkNameCombobox().getSelectedItem();
+//            String ipAddr = networkPanel.getIPTextField().getText();
+//            data.listOfContainerNetworks.add(new LabData.ContainerNetworkSubData(networkName,ipAddr));
+//        }
                 
 
 
-//        // Docker
-//        this.ScriptTextfield.setText(data.script);
-//        this.RegistryTextfield.setText(data.registry);
-//        this.BaseRegistryTextfield.setText(data.base_registry);
-//        this.PublishTextfield.setText(data.publish);
-//        this.NoPrivilegeCheckbox.setSelected(data.no_privilege);
+        // Docker
+        data.script = ScriptTextfield.getText();
+        data.registry = RegistryTextfield.getText();
+        data.base_registry = BaseRegistryTextfield.getText();    
+        data.publish = PublishTextfield.getText();
+        data.no_privilege = NoPrivilegeCheckbox.isSelected();
+                
 //        
 
 //        // Hosts
@@ -881,27 +891,24 @@ private boolean clicked = false;
 //                               data.listOfContainerAddHost.get(i).add_host_ip, data.listOfContainerAddHost.get(i).add_host_network);
 //        }
 //        
-//        // Other
-
-//        this.XtermTitleTextfield.setText(data.xterm_title);
-//        this.XtermScriptTextfield.setText(data.xterm_script);
-//        this.ClonesSpinner.setValue(data.clone);
-//        this.X11Checkbox.setSelected(data.x11);
-//        this.NoPullCheckbox.setSelected(data.no_pull);
-//        this.MyStuffCheckbox.setSelected(data.mystuff);
+        // Other
+        data.xterm_title = XtermTitleTextfield.getText();
+        data.xterm_script = XtermScriptTextfield.getText();
+        data.clone = (int)(ClonesSpinner.getValue());
+        data.x11 = X11Checkbox.isSelected();
+        data.no_pull = NoPullCheckbox.isSelected();    
+        data.mystuff = MyStuffCheckbox.isSelected(); 
+        data.tap = TapRadioButton.isSelected();
+        data.mount1 = MountTextfield1.getText();       
+        data.mount2 = MountTextfield2.getText();      
 //        
-//        // GNS3
-//        this.ThumbCommandTextfield.setText(data.thumb_command);
-//        this.ThumbStopTextfield.setText(data.thumb_stop);
-//        this.ThumbVolumeTextfield.setText(data.thumb_volume);
-//        this.HideCheckbox.setSelected(data.hide);
-//        
+        // GNS3
+        data.thumb_command = ThumbCommandTextfield.getText();    
+        data.thumb_stop = ThumbStopTextfield.getText();           
+        data.thumb_volume = ThumbVolumeTextfield.getText();           
+        data.hide = HideCheckbox.isSelected();
         
-        
-        
-        
-        
-       closeConfigWindow();
+        closeConfigWindow();
     }//GEN-LAST:event_ContainerConfigUpdateButtonActionPerformed
 
     private void ContainerConfigCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigCancelButtonActionPerformed
@@ -1055,6 +1062,7 @@ private boolean clicked = false;
     private javax.swing.JTextField RegistryTextfield;
     private javax.swing.JTextField RenameContainerTextfield;
     private javax.swing.JTextField ScriptTextfield;
+    private javax.swing.JRadioButton TapRadioButton;
     private javax.swing.JLabel TerminalCountLabel;
     private javax.swing.JTextField TerminalGroupTextfield;
     private javax.swing.JSpinner TerminalQuantitySpinner;

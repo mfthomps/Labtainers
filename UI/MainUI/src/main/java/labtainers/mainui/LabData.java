@@ -66,6 +66,7 @@ public class LabData {
         public boolean hide;
         public boolean no_privilege;
         public boolean mystuff;
+        public boolean tap;
         public String mount1;
         public String mount2;
         
@@ -181,7 +182,7 @@ public class LabData {
                                             break;
                                         case "TAP":
                                             currNetwork.tap = (line.split("TAP ")[1].trim()).equals("YES");
-                                            
+                                            break;
                                         default:
                                             currNetwork.unknownNetworkParams.add(line);
                                             break;
@@ -197,9 +198,13 @@ public class LabData {
                                             currContainer.terminal_group = line.split("TERMINAL_GROUP ")[1].trim();
                                             break;
                                         case "XTERM":
-                                            String xtermParams = line.split("XTERM ")[1].trim();
-                                            currContainer.xterm_title = xtermParams.split("\\s+")[0].trim();
-                                            currContainer.xterm_script = xtermParams.split("\\s+")[1].trim();
+                                            
+                                            currContainer.xterm_title = line.split("\\s+")[1].trim();
+                                            
+                                            if(!currContainer.xterm_title.equals("INSTRUCTIONS")){
+                                                currContainer.xterm_script = line.split("\\s+")[2].trim();
+                                            }
+                                            
                                             break;
                                         case "USER":
                                             currContainer.user = line.split("USER ")[1].trim();
@@ -208,7 +213,7 @@ public class LabData {
                                             currContainer.password = line.split("PASSWORD ")[1].trim();
                                             break;
                                         case "SCRIPT":
-                                            currContainer.script = line.split(" SCRIPT ")[1].trim();
+                                            currContainer.script = line.split("SCRIPT ")[1].trim();
                                             break;
                                         case "ADD-HOST":
                                             String addhostParams = line.split("ADD-HOST ")[1].trim();
@@ -264,6 +269,9 @@ public class LabData {
                                         case "MYSTUFF":
                                             currContainer.mystuff = (line.split("MYSTUFF\\s+")[1].trim()).equals("YES");
                                             break;  
+                                        case "TAP":
+                                            currContainer.tap = (line.split("TAP ")[1].trim()).equals("YES");
+                                            break;
                                         case "MOUNT":
                                             String mountParam = line.split("MOUNT ")[1].trim();
                                             currContainer.mount1 = mountParam.split(":")[0].trim();
@@ -339,11 +347,14 @@ public class LabData {
 //        System.out.println("macvlan: " + data.macvlan);        
 //        System.out.println("ip_range: " + data.ip_range);  
 
-        System.out.println("UNKNOWN PARAMS: ");
-        for(int i = 0;i<data.unknownNetworkParams.size();i++){
-                System.out.println(data.unknownNetworkParams.get(i));  
-        }        
-        System.out.println("------------------------------------");
+        if(data.unknownNetworkParams.size() != 0){
+            System.out.println("UNKNOWN PARAMS: ");
+            for(int i = 0;i<data.unknownNetworkParams.size();i++){
+                    System.out.println(data.unknownNetworkParams.get(i));  
+            }        
+            System.out.println("------------------------------------");
+        }
+        
     }
     
     public void printContainerData(ContainerData data) {
@@ -390,13 +401,13 @@ public class LabData {
 //                System.out.println(data.listOfContainerNetworks.get(i).network_name + " " + data.listOfContainerNetworks.get(i).network_ipaddress);  
 //            }
 //        }
-        
-        System.out.println("UNKNOWN PARAMS: ");
-        for(int i = 0;i<data.unknownContainerParams.size();i++){
-                System.out.println(data.unknownContainerParams.get(i));  
+        if(data.unknownContainerParams.size() != 0){
+            System.out.println("UNKNOWN PARAMS: ");
+            for(int i = 0;i<data.unknownContainerParams.size();i++){
+                    System.out.println(data.unknownContainerParams.get(i));  
+            }
+            System.out.println("------------------------------------");
         }
-        System.out.println("------------------------------------");
-
     }
     
 
