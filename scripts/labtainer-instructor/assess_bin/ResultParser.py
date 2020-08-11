@@ -149,7 +149,8 @@ def ProcessConfigLine(actual_parsing, studentlabdir, container_list, labidname, 
     # <cfgcontainername>:<exec_program>.<type>
     if ':' in newprogname_type:
         '''
-        [container_name:]<prog>.[stdin | stdout] | [container_name:]file_path[:time_program]
+        DEPRECATED: [container_name:]<prog>.[stdin | stdout] | [container_name:]file_path[:time_program]
+        [container_name:]<prog>.[stdin | stdout] | [container_name:]file_path
 
         '''
         cfgcontainername = ''
@@ -962,29 +963,38 @@ def doFileTimeDelim(ts_nametags, result_home, targetfile, result_key, command, l
 
 def ParseConfigForTimeDelim(studentlabdir, labidname, configfilelines, ts_jsonfname, container_list, logger, parameter_list):
     '''
-    Handle case of timestamped log files whose names are qualified by a 
-    "time delimiter" program whose start times will
-    be used to break up a timestamped log file.  The quantity of timestamped groupings
-    of log file results will be one plus the quantity of invocations of the "time delimeter" program.
+    HANDLE TIME_DELIM
+      DEPRECATEND:Handle case of timestamped log files whose names are qualified by a 
+      "time delimiter" program whose start times will
+      be used to break up a timestamped log file.  The quantity of timestamped groupings
+      of log file results will be one plus the quantity of invocations of the "time delimeter" program.
     '''
     ts_nametags = {}
     for line in configfilelines:
         linestrip = line.rstrip()
         if linestrip is not None and not linestrip.startswith('#') and len(line.strip())>0:
             containername, targetfile, result_key, command, field_type, token_id, lookupstring, result_home = getConfigItems(labidname, linestrip, studentlabdir, container_list, logger, parameter_list)
-            if targetfile is not None and ':' in targetfile:
+            if False and targetfile is not None and ':' in targetfile:
+                 ''' DEPRECATED '''
                  doFileTimeDelim(ts_nametags, result_home, targetfile, result_key, command, lookupstring, logger)
             elif targetfile is not None and command == 'TIME_DELIM':
-                ''' set of timestamped values delimited by named program '''
-                logger.debug('targetfile is time delim %s ' % (targetfile))
-                look_for = os.path.join(result_home,'%s.stdout.*' % targetfile)
-                #print('look for %s' % look_for)
-                delim_list = glob.glob(look_for)
+                tf_list = targetfile.split(';')
+                delim_list = []
+                for tf in tf_list:
+                    ''' set of timestamped values delimited by named program '''
+                    logger.debug('targetfile is time delim %s ' % (tf))
+                    look_for = os.path.join(result_home,'%s.stdout.*' % tf)
+                    #print('look for %s' % look_for)
+                    tf_ts = glob.glob(look_for)
+                    for f in tf_ts:
+                        ts = f.rsplit('.', 1)[1]
+                        if ts not in delim_list:
+                            delim_list.append(ts)
+
                 delim_ts_set = []
                 prev_ts = 0
-                for delim_ts_file in sorted(delim_list):
+                for ts in sorted(delim_list):
                     end_time='99999999999999'
-                    ts = delim_ts_file.rsplit('.',1)[1]
                     if ts not in ts_nametags:
                         ts_nametags[ts] = {}
                         ts_nametags[ts]['PROGRAM_ENDTIME'] = end_time
