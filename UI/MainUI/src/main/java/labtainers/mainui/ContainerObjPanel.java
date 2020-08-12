@@ -873,8 +873,6 @@ private boolean clicked = false;
 //            data.listOfContainerNetworks.add(new LabData.ContainerNetworkSubData(networkName,ipAddr));
 //        }
                 
-
-
         // Docker
         data.script = ScriptTextfield.getText();
         data.registry = RegistryTextfield.getText();
@@ -882,15 +880,27 @@ private boolean clicked = false;
         data.publish = PublishTextfield.getText();
         data.no_privilege = NoPrivilegeCheckbox.isSelected();
                 
-//        
-
 //        // Hosts
-//            // list of add-hosts
-//        for(int i=0;i<data.listOfContainerAddHost.size();i++){
-//            addAddHostSubPanel(data.listOfContainerAddHost.get(i).type,        data.listOfContainerAddHost.get(i).add_host_host, 
-//                               data.listOfContainerAddHost.get(i).add_host_ip, data.listOfContainerAddHost.get(i).add_host_network);
-//        }
-//        
+        data.listOfContainerAddHost.clear();
+        Component[] addhostPanels = AddHostsSubPanel.getComponents();
+        for(Component component: addhostPanels){
+            ContainerConfigAddHosts addhostPanel = (ContainerConfigAddHosts)component;
+              
+            //String type
+            String type;
+            if(addhostPanel.getNetworkCombobox().isVisible()){
+                type = "network";
+            }
+            else{
+                type = "ip";
+            }
+            
+            String host = addhostPanel.getHost();
+            String ip = addhostPanel.getIp();
+            String network = addhostPanel.getNetwork();
+            data.listOfContainerAddHost.add(new LabData.ContainerAddHostSubData(type, host, ip, network));
+        }
+
         // Other
         data.xterm_title = XtermTitleTextfield.getText();
         data.xterm_script = XtermScriptTextfield.getText();

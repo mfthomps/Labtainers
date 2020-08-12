@@ -114,6 +114,22 @@ public class ContainerConfigAddHosts extends javax.swing.JPanel {
     }//GEN-LAST:event_AddHostDeleteButtonActionPerformed
 
 
+    public String getNetwork(){
+        return (String)(AddHostNetworkCombobox.getSelectedItem());
+    }
+    
+    public String getHost(){
+        return AddHostHostTF.getText();
+    }
+    
+    public String getIp(){
+        return AddHostIpTF.getText();
+    }
+    
+    public javax.swing.JComboBox<String> getNetworkCombobox(){
+        return AddHostNetworkCombobox;
+    }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton AddHostDeleteButton;
     private javax.swing.JTextField AddHostHostTF;
