@@ -68,6 +68,9 @@ def doFormat(s, first="", subsequent=""):
 
 class TrueFalse():
     def __init__(self, qid, qlist):
+        if len(qlist) < 4:
+            print('Not enough elements in this question: %s' % str(qlist))
+            exit(1)
         self.qid = str(qid)
         self.question = re.sub(r'^"|"$', '', qlist[0].strip())
         self.answer = qlist[1].strip()

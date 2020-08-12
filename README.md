@@ -72,6 +72,12 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+August 12, 2020
+- Add timeout to prestop scripts
+- Add quiz and checkwork to dmz-lab
+- Restarting the dmz-lab without -r option broke routing out of the ISP.
+- Allow multiple files for time\_delim results.
+
 August 6, 2020
 - Bug in error handling when X11 socket is missing
 - Commas in quiz questions led to parse errors
