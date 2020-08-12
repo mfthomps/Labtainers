@@ -193,6 +193,7 @@ public class MainWindow extends javax.swing.JFrame {
         NetworkAddDialogCancelButton = new javax.swing.JButton();
         NetworkAddDialogMacVLanExtSpinner = new javax.swing.JSpinner();
         NetworkAddDialogMacVLanSpinner = new javax.swing.JSpinner();
+        NetworkAddDialogTapRadioButton = new javax.swing.JRadioButton();
         labChooser = new javax.swing.JFileChooser();
         NewLabDialog = new javax.swing.JDialog();
         jLabel6 = new javax.swing.JLabel();
@@ -374,6 +375,9 @@ public class MainWindow extends javax.swing.JFrame {
 
         NetworkAddDialogMacVLanSpinner.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
 
+        NetworkAddDialogTapRadioButton.setFont(new java.awt.Font("Ubuntu", 1, 18)); // NOI18N
+        NetworkAddDialogTapRadioButton.setText("Tap");
+
         javax.swing.GroupLayout NetworkAddDialogLayout = new javax.swing.GroupLayout(NetworkAddDialog.getContentPane());
         NetworkAddDialog.getContentPane().setLayout(NetworkAddDialogLayout);
         NetworkAddDialogLayout.setHorizontalGroup(
@@ -405,18 +409,21 @@ public class MainWindow extends javax.swing.JFrame {
                                         .addComponent(jLabel12)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(NetworkAddDialogMacVLanExtSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(NetworkAddDialogLayout.createSequentialGroup()
+                                    .addGroup(NetworkAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                        .addGroup(NetworkAddDialogLayout.createSequentialGroup()
+                                            .addComponent(NetworkAddDialogCreateButton)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                            .addComponent(NetworkAddDialogCancelButton))
                                         .addGroup(NetworkAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(jLabel11)
-                                            .addComponent(jLabel10))
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addGroup(NetworkAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(NetworkAddDialogIPRangeTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 269, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(NetworkAddDialogMacVLanSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, NetworkAddDialogLayout.createSequentialGroup()
-                                        .addComponent(NetworkAddDialogCreateButton)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(NetworkAddDialogCancelButton)))))))
+                                            .addComponent(NetworkAddDialogTapRadioButton)
+                                            .addGroup(NetworkAddDialogLayout.createSequentialGroup()
+                                                .addGroup(NetworkAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                    .addComponent(jLabel11)
+                                                    .addComponent(jLabel10))
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                .addGroup(NetworkAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                    .addComponent(NetworkAddDialogIPRangeTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 269, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                    .addComponent(NetworkAddDialogMacVLanSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))))))))))
                 .addContainerGap(25, Short.MAX_VALUE))
         );
         NetworkAddDialogLayout.setVerticalGroup(
@@ -449,10 +456,12 @@ public class MainWindow extends javax.swing.JFrame {
                     .addComponent(NetworkAddDialogIPRangeTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel10))
                 .addGap(18, 18, 18)
+                .addComponent(NetworkAddDialogTapRadioButton)
+                .addGap(2, 2, 2)
                 .addGroup(NetworkAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(NetworkAddDialogCreateButton)
                     .addComponent(NetworkAddDialogCancelButton))
-                .addGap(68, 68, 68))
+                .addGap(42, 42, 42))
         );
 
         labChooser.setCurrentDirectory(new java.io.File("/var/lib/snapd/void/C:/Users/Daniel Liao/Desktop/Labtainers/labs"));
@@ -590,9 +599,7 @@ public class MainWindow extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        TextEditorDialog.setMaximumSize(new java.awt.Dimension(400, 120));
         TextEditorDialog.setMinimumSize(new java.awt.Dimension(400, 120));
-        TextEditorDialog.setPreferredSize(new java.awt.Dimension(400, 120));
         TextEditorDialog.setResizable(false);
 
         jLabel16.setText("Text Editor:");
@@ -893,6 +900,7 @@ public class MainWindow extends javax.swing.JFrame {
         NetworkAddDialogMacVLanSpinner.setValue(0);
         NetworkAddDialogMaskTextfield.setText("");
         NetworkAddDialogNameTextfield.setText("");
+        NetworkAddDialogTapRadioButton.setSelected(false);
         NetworkAddDialog.setVisible(true);
     }//GEN-LAST:event_addNetworkButtonActionPerformed
 
@@ -955,7 +963,20 @@ public class MainWindow extends javax.swing.JFrame {
     }
     
     private void NetworkAddDialogCreateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NetworkAddDialogCreateButtonActionPerformed
-        addNetworkPanel(null);
+        //Create new networkData object here based on the field info and feeed it to teh funciton
+        LabData.NetworkData newNetworkData = new LabData.NetworkData(
+            NetworkAddDialogNameTextfield.getText(),
+            NetworkAddDialogMaskTextfield.getText(),
+            NetworkAddDialogGatewayTextfield.getText(),
+            (int)NetworkAddDialogMacVLanExtSpinner.getValue(),
+            (int)NetworkAddDialogMacVLanSpinner.getValue(),
+            NetworkAddDialogIPRangeTextfield.getText(),
+            NetworkAddDialogTapRadioButton.isSelected());
+        
+        //Update the list of labs in the current UI data object
+        labDataCurrent.getNetworks().add(newNetworkData);
+        
+        addNetworkPanel(newNetworkData);
     }//GEN-LAST:event_NetworkAddDialogCreateButtonActionPerformed
    
     //[BUG: 6/25/2020] Not sure Why but the network obj panel needs to be 1 px taller than the container panel to be the same size
@@ -968,16 +989,7 @@ public class MainWindow extends javax.swing.JFrame {
         NetworkPanePanel.setPreferredSize(new Dimension(0,networkPanePanelLength));
         
         // Create the Network Obj Panel and add it
-        NetworkObjPanel newNetwork;
-        if(data == null){
-            newNetwork = new NetworkObjPanel(this, NetworkAddDialogNameTextfield.getText()); 
-        }
-        else {
-            newNetwork = new NetworkObjPanel(this, data); 
-        } 
-            
-        
-        NetworkPanePanel.add(newNetwork);
+        NetworkPanePanel.add(new NetworkObjPanel(this, data));
         
         // Redraw GUI with the new Panel
         NetworkPanePanel.revalidate();
@@ -1375,6 +1387,7 @@ private void openLab(File lab){
     private javax.swing.JSpinner NetworkAddDialogMacVLanSpinner;
     private javax.swing.JTextField NetworkAddDialogMaskTextfield;
     private javax.swing.JTextField NetworkAddDialogNameTextfield;
+    private javax.swing.JRadioButton NetworkAddDialogTapRadioButton;
     private javax.swing.JPanel NetworkPanePanel;
     private javax.swing.JPanel NetworkPanel;
     private javax.swing.JScrollPane NetworkScrollPane;

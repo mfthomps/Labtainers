@@ -39,6 +39,16 @@ public class LabData {
             this.name = name;
             this.unknownNetworkParams = new ArrayList();
         }
+        
+        NetworkData(String name, String mask, String gateway, int macvlan_ext, int macvlan, String ip_range, boolean tap){
+            this.name = name;
+            this.mask = mask;
+            this.gateway = gateway;
+            this.macvlan_ext = macvlan_ext;
+            this.macvlan = macvlan;
+            this.ip_range = ip_range;
+            this.tap = tap;
+        }
     }
     
     static protected class ContainerData{
