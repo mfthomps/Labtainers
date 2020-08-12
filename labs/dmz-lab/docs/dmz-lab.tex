@@ -35,7 +35,8 @@ The outer gateway and the remote gateway each reach the Internet via an ISP with
 address 198.18.0.1.  The local site has a network address of 198.18.1.0/24.  The remote
 site has a network address of 203.0.113.0/24.
 
-Initially, the DMZ is in name only.
+Initially, the DMZ is in name only.  For example, there is nothing stopping the 
+remote workstation from pinging the ws1.
 
 \begin{figure}[H]
 \begin{center}
@@ -46,16 +47,25 @@ Initially, the DMZ is in name only.
 \end{figure}
 
 \section{Lab Tasks}
+\subsection{Explore}
+Use the different terminals to test your ability to reach different computers.
+The nmap utility is installed on the workstations.  
+\subsection{Configure the DMZ}
 Configure the inner\_gateway and outer\_gateway such that:
 \begin{itemize}
 \item Remote users can only access the web server, e.g., via wget www.example.com, using
 HTTP, HTTPS and SSH.
+\item Remove users cannot access any of the other local computers.
 \item Local users can reach the internet via the ISP, e.g., wget www.google.com
 \item Local users can reach the local web server via HTTP, HTTPS, SSH and MYSQL
 \end{itemize}
 
 Use the /etc/rc.local scripts on the inner and outer gateways to issue iptables directives.
 Respect the comments in the rc.local scripts regarding sections that should not be modified.
+Consider using NAT to isolate the local workstations from the Internet (there is no reason
+for workstations to be addressable from outside of example.com.
+
+\subsection{Demonstrate your DMZ}
 Demonstrate your DMZ by issuing the following commands, without any additional changes to iptables.
 \begin{enumerate}
 \item On the remote\_ws (hank): {\tt sudo nmap www.example.com}
@@ -64,6 +74,10 @@ Demonstrate your DMZ by issuing the following commands, without any additional c
 \end{enumerate}
 \noindent If you make any changes to iptables in the course of your testing, restart your testing from
 item (1) above.
+
+\subsection{Check your work}
+Use the {\tt checkwork} command from the terminal at which you started the lab.  This will provide
+feedback informing you of any problems found with your DMZ.
 
 \section{Submission}
 After finishing the lab, go to the terminal on your Linux system that was used to start the lab and type:

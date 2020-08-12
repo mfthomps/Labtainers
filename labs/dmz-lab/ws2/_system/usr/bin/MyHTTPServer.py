@@ -16,7 +16,6 @@ class MyHTTPHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                              self.log_date_time_string(),
                              format%args))
         self.log_file.flush()
-
 Handler = MyHTTPHandler
 
 httpd = SocketServer.TCPServer(("", PORT), Handler)

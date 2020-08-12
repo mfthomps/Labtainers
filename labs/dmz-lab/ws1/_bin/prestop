@@ -1,0 +1,4 @@
+#!/bin/bash
+trap "echo Timed out; exit" SIGTERM
+nmap -n www.example.com
+wget www.google.com -T 2 -t 1
