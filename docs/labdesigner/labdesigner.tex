@@ -1146,6 +1146,13 @@ advising the student that they may restart a lab after issuing the {\tt stoplab}
 {\tt goalsmet} type of command should be added that does nothing but record prestop results without actually
 stopping the lab?}
 
+All {\tt prestop} scripts will timeout after 30 seconds with a SIGTERM.  For debugging support, please consider
+adding signal handling to your prestop scripts. For example, for a bash script, include:
+\begin{verbatim}
+   trap "echo Timed out; exit" SIGTERM
+\end{verbatim}
+
+
 \subsubsection{Artifact archives}
 Artifacts from student labs are combined into a zip file that is placed in the student transfer
 directory, typically at {\tt ~/labtainer/xfer/<labname>}.  Students provide this file to their
