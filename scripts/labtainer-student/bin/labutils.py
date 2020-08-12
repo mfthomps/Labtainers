@@ -1848,7 +1848,7 @@ def PreStop(container_name, ts):
     cmd = "docker exec %s bash -c 'ls -l %s'" % (container_name, cmd_path)
 
     if DockerCmd(cmd, noloop=True):
-        cmd = "docker exec %s bash -c '%s >$HOME/.local/result/prestop.stdout.%s 2>&1'" % (container_name, cmd_path, ts)
+        cmd = "docker exec %s bash -c 'timeout -s SIGTERM 20s %s >$HOME/.local/result/prestop.stdout.%s 2>&1'" % (container_name, cmd_path, ts)
         DockerCmd(cmd, noloop=True)
 
 def GatherOtherArtifacts(lab_path, name, container_name, container_user, container_password, ignore_stop_error):
