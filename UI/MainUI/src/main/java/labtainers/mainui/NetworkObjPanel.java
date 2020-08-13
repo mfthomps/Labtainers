@@ -276,7 +276,10 @@ public class NetworkObjPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_renameNetworkOptionActionPerformed
 
     private void deleteNetworkOptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteNetworkOptionActionPerformed
-        int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete the network '"+data.name+"'?", "Delete Network",  JOptionPane.YES_NO_OPTION);
+        int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete the network '"+data.name+"'?\n"
+                                                                     + "Deleting this network will delete all references \n"
+                                                                     + "to this network in the Container Configurations as well.", 
+                                                    "Delete Network",  JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION){
             mainWindow.labDataCurrent.deleteReferenceToNetwork(data.name);
             JPanel networkPanel = (JPanel)this.getParent();
