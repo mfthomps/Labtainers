@@ -348,6 +348,34 @@ public class LabData {
         listOfNetworks = new ArrayList<NetworkData>();
     }
     
+    //Called when a user renames a network. 
+    //The function will overwrite any instances of the old Network Name with the new Network Name in this state object
+    public void refactorNetworkName(String oldName, String newName){
+        //Rename the network in the list of networks
+        for(NetworkData network : listOfNetworks){
+            if(network.name.equals(oldName)){
+                network.name = newName;
+                break;
+            }
+        }
+        
+        //Rename the network in list of Networks and list of addHosts for each container 
+        for(ContainerData container : listOfContainers){
+            // check list of networks
+            for(ContainerNetworkSubData networkSubData: container.listOfContainerNetworks){
+                if(networkSubData.network_name.equals(oldName)){
+                    networkSubData.network_name = newName;
+                }
+            }
+            //check list of add-hosts
+            for(ContainerAddHostSubData addHostSubData: container.listOfContainerAddHost){
+                if(addHostSubData.add_host_network.equals(oldName)){
+                    addHostSubData.add_host_network = newName;
+                }
+            }
+        }
+    }
+    
     public void printNetworkData(NetworkData data) {
         System.out.println("NETWORK----------------------");
         System.out.println("name: " + data.name);

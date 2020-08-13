@@ -279,10 +279,14 @@ public class NetworkObjPanel extends javax.swing.JPanel {
         int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete the network '"+data.name+"'?", "Delete Network",  JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION){
             JPanel networkPanel = (JPanel)this.getParent();
+            
+            //update the list of networks (delete the params that include the named network???)
+            mainWindow.labDataCurrent.getNetworks().remove(this.data.name);
 
             // delete the network from the list
             networkPanel.remove(this);
-
+            
+            
             // Shorten the panel height holding all the containers and resize it.
             mainWindow.networkPanePanelLength-=51;
             networkPanel.setPreferredSize(new Dimension(0,mainWindow.networkPanePanelLength));
@@ -298,11 +302,13 @@ public class NetworkObjPanel extends javax.swing.JPanel {
 
     private void RenameNetworkTextfieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RenameNetworkTextfieldActionPerformed
         // Prompt user to confirm their changes
-        int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to rename the network '"+data.name+"' to '"+RenameNetworkTextfield.getText()+"'?", "Rename Network",  JOptionPane.YES_NO_OPTION);
+        String newNetworkName = RenameNetworkTextfield.getText().toUpperCase();
+        int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to rename the network '"+data.name+"' to '"+newNetworkName+"'?", "Rename Network",  JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION){
+            mainWindow.labDataCurrent.refactorNetworkName(data.name,newNetworkName);
             // Rename the network
-            NetworkLabelName.setText(RenameNetworkTextfield.getText());   
-            data.name = RenameNetworkTextfield.getText().toUpperCase();
+            NetworkLabelName.setText(newNetworkName);   
+            data.name = newNetworkName;
             System.out.println("Renamed network to: "+data.name);
         }
 

@@ -965,7 +965,7 @@ public class MainWindow extends javax.swing.JFrame {
     private void NetworkAddDialogCreateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NetworkAddDialogCreateButtonActionPerformed
         //Create new networkData object here based on the field info and feeed it to teh funciton
         LabData.NetworkData newNetworkData = new LabData.NetworkData(
-            NetworkAddDialogNameTextfield.getText(),
+            NetworkAddDialogNameTextfield.getText().toUpperCase(),
             NetworkAddDialogMaskTextfield.getText(),
             NetworkAddDialogGatewayTextfield.getText(),
             (int)NetworkAddDialogMacVLanExtSpinner.getValue(),
@@ -1000,9 +1000,7 @@ public class MainWindow extends javax.swing.JFrame {
         //System.out.println("Max: "+(51+networkScrollPaneBar.getMaximum()));
         networkScrollPaneBar.setValue(networkScrollPaneBar.getMaximum());
         NetworkAddDialog.setVisible(false);
-    }
-    
-    
+    }    
     
     private void OpenLabMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_OpenLabMenuItemActionPerformed
             int returnVal = labChooser.showOpenDialog(this);
@@ -1014,7 +1012,6 @@ public class MainWindow extends javax.swing.JFrame {
                 System.out.println("File access cancelled by user.");
             }
     }//GEN-LAST:event_OpenLabMenuItemActionPerformed
-
     
 private void openLab(File lab){
     currentLab = lab;

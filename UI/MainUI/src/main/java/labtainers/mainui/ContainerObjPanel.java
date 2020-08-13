@@ -1027,8 +1027,7 @@ private boolean clicked = false;
         //Lower the Scroll Bar to show the newly added container
         containerAddHostScrollPaneBar.setValue(58+containerAddHostScrollPaneBar.getMaximum());
     }
-    
-    
+      
     public LabData.ContainerData getConfigData(){
         return this.data;
     }
