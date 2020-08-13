@@ -278,10 +278,8 @@ public class NetworkObjPanel extends javax.swing.JPanel {
     private void deleteNetworkOptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteNetworkOptionActionPerformed
         int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete the network '"+data.name+"'?", "Delete Network",  JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION){
+            mainWindow.labDataCurrent.deleteReferenceToNetwork(data.name);
             JPanel networkPanel = (JPanel)this.getParent();
-            
-            //update the list of networks (delete the params that include the named network???)
-            mainWindow.labDataCurrent.getNetworks().remove(this.data.name);
 
             // delete the network from the list
             networkPanel.remove(this);
@@ -295,7 +293,6 @@ public class NetworkObjPanel extends javax.swing.JPanel {
             networkPanel.revalidate();
             networkPanel.repaint(); 
             
-            //update all lists that reference the list of networks
             
         }
     }//GEN-LAST:event_deleteNetworkOptionActionPerformed

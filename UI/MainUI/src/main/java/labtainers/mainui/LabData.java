@@ -376,6 +376,37 @@ public class LabData {
         }
     }
     
+    // Called when a user renames a network
+    // The function deletes any instances of the Network name being referenced in the Lab data
+    public void deleteReferenceToNetwork(String networkName){
+        // Delete the network in the list of networks
+        for(NetworkData network : listOfNetworks){
+            if(network.name.equals(networkName)){
+                listOfNetworks.remove(network);
+                break;
+            }
+        }
+        
+        // Rename the network in list of Networks and list of addHosts for each container 
+        for(ContainerData container : listOfContainers){
+            // check list of networks 
+//            for(ContainerNetworkSubData networkSubData: container.listOfContainerNetworks){
+//                if(networkSubData.network_name.equals(networkName)){
+//                    container.listOfContainerNetworks.remove(networkSubData);
+//                }
+//            }
+            //check list of add-hosts 
+            ArrayList<ContainerAddHostSubData> addHostsToRemove = new ArrayList();
+            for(ContainerAddHostSubData addHostSubData: container.listOfContainerAddHost){
+                if(addHostSubData.add_host_network.equals(networkName)){
+                    System.out.println(addHostSubData.add_host_network);
+                    addHostsToRemove.add(addHostSubData);   
+                }
+            }
+            container.listOfContainerAddHost.removeAll(addHostsToRemove);
+        }
+    }
+    
     public void printNetworkData(NetworkData data) {
         System.out.println("NETWORK----------------------");
         System.out.println("name: " + data.name);
