@@ -24,12 +24,15 @@ public class ContainerConfigNetworksSubpanel extends javax.swing.JPanel {
         this.parent = parent;
         this.data = data;
         
+        //Fill the combobox with the current list of Networks
         for(int i = 0;i<data.getNetworks().size();i++){
             this.ContainerConfigNetworksNameCombobox.addItem(data.getNetworks().get(i).name);
         }
-        if(!network.equals("")){
-            this.ContainerConfigNetworksNameCombobox.setSelectedItem(network);  
-        }
+        
+//        if(!network.equals("")){
+//            this.ContainerConfigNetworksNameCombobox.setSelectedItem(network);  
+//        }
+        this.ContainerConfigNetworksNameCombobox.setSelectedItem(network);  
         this.ContainerConfigNetworksIPTextfield.setText(ip);
         
     }
@@ -107,12 +110,12 @@ public class ContainerConfigNetworksSubpanel extends javax.swing.JPanel {
            containerConfigNetworksPanel.repaint(); 
     }//GEN-LAST:event_ContainerConfigNetworksDeleteButtonActionPerformed
 
-    public javax.swing.JComboBox<String> getNetworkNameCombobox(){
-        return ContainerConfigNetworksNameCombobox;
+    public String getNetwork(){
+        return (String)(ContainerConfigNetworksNameCombobox.getSelectedItem());
     }
     
-    public javax.swing.JTextField getIPTextField(){
-        return ContainerConfigNetworksIPTextfield;
+    public String getIP(){
+        return ContainerConfigNetworksIPTextfield.getText();
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables

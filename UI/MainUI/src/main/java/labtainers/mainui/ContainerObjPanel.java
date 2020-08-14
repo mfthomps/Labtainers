@@ -852,8 +852,11 @@ private boolean clicked = false;
     }//GEN-LAST:event_ContainerConfigWindowWindowClosing
 
     private void ContainerConfigUpdateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigUpdateButtonActionPerformed
-    //Update the data 
-
+        //Update the data 
+        updateData();
+    }//GEN-LAST:event_ContainerConfigUpdateButtonActionPerformed
+    
+    private void updateData(){
         // General Tab
         data.user = UserTF.getText();
         data.password = PasswordTF.getText();
@@ -863,15 +866,17 @@ private boolean clicked = false;
         data.no_gw = NoGWCheckbox.isSelected();
             
         // List of Networks
-//        data.listOfContainerNetworks.clear(); //clear the networks so that is can be refilled with updated list of networks
-//        Component[] networkPanels = ContainerConfigNetworksPanel.getComponents();
-//        for(Component component: networkPanels){
-//            ContainerConfigNetworksSubpanel networkPanel = (ContainerConfigNetworksSubpanel)component;
-//            
-//            String networkName = (String)networkPanel.getNetworkNameCombobox().getSelectedItem();
-//            String ipAddr = networkPanel.getIPTextField().getText();
-//            data.listOfContainerNetworks.add(new LabData.ContainerNetworkSubData(networkName,ipAddr));
-//        }
+        data.listOfContainerNetworks.clear(); //clear the networks so that is can be refilled with updated list of networks
+        Component[] networkPanels = ContainerConfigNetworksPanel.getComponents();
+        for(Component component: networkPanels){
+            ContainerConfigNetworksSubpanel networkPanel = (ContainerConfigNetworksSubpanel)component;
+            
+            String networkName = networkPanel.getNetwork();
+            System.out.println("hi: \'"+networkName+"\'");
+            //System.out.println(networkName);
+            String ipAddr = networkPanel.getIP();
+            data.listOfContainerNetworks.add(new LabData.ContainerNetworkSubData(networkName,ipAddr));
+        }
                 
         // Docker
         data.script = ScriptTextfield.getText();
@@ -880,7 +885,7 @@ private boolean clicked = false;
         data.publish = PublishTextfield.getText();
         data.no_privilege = NoPrivilegeCheckbox.isSelected();
                 
-//        // Hosts
+        // Hosts
         data.listOfContainerAddHost.clear();
         Component[] addhostPanels = AddHostsSubPanel.getComponents();
         for(Component component: addhostPanels){
@@ -910,8 +915,7 @@ private boolean clicked = false;
         data.mystuff = MyStuffCheckbox.isSelected(); 
         data.tap = TapRadioButton.isSelected();
         data.mount1 = MountTextfield1.getText();       
-        data.mount2 = MountTextfield2.getText();      
-//        
+        data.mount2 = MountTextfield2.getText();              
         // GNS3
         data.thumb_command = ThumbCommandTextfield.getText();    
         data.thumb_stop = ThumbStopTextfield.getText();           
@@ -919,8 +923,9 @@ private boolean clicked = false;
         data.hide = HideCheckbox.isSelected();
         
         closeConfigWindow();
-    }//GEN-LAST:event_ContainerConfigUpdateButtonActionPerformed
-
+    }
+    
+    
     private void ContainerConfigCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigCancelButtonActionPerformed
         closeConfigWindow();
     }//GEN-LAST:event_ContainerConfigCancelButtonActionPerformed

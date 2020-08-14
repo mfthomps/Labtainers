@@ -30,9 +30,11 @@ public class ContainerConfigAddHosts extends javax.swing.JPanel {
             this.AddHostNetworkCombobox.setVisible(false);
         }
         else {
+            //Fill the combobox with the current list of Networks
             for(int i = 0;i<data.getNetworks().size();i++){
                 this.AddHostNetworkCombobox.addItem(data.getNetworks().get(i).name);
             }
+            
             this.AddHostNetworkCombobox.setSelectedItem(network); 
             this.AddHostHostTF.setVisible(false);
             this.AddHostIpTF.setVisible(false);
