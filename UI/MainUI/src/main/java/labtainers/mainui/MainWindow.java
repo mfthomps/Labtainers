@@ -1192,7 +1192,7 @@ private void openLab(File lab){
     
     private void saveLab() throws FileNotFoundException{
         //Get path to start.config
-        String startConfigPath = currentLab.getPath()+File.separator+"config"+File.separator+"test.config";
+        String startConfigPath = currentLab.getPath()+File.separator+"config"+File.separator+"start.config";
         PrintWriter writer = new PrintWriter(startConfigPath);
         String startConfigText = ""; 
          
@@ -1206,34 +1206,40 @@ private void openLab(File lab){
         for(Component network : networks){
             NetworkData data = ((NetworkObjPanel)network).getConfigData();
             startConfigText += "NETWORK "+data.name+"\n";
-            startConfigText += "MASK "+data.mask+"\n";
-            startConfigText += "GATEWAY "+data.gateway+"\n";
+            startConfigText += "     MASK "+data.mask+"\n";
+            startConfigText += "     GATEWAY "+data.gateway+"\n";
             
             if(data.macvlan > 0){
-                startConfigText += "MACVLAN "+data.macvlan+"\n";
+                startConfigText += "     MACVLAN "+data.macvlan+"\n";
             }
             if(data.macvlan_ext > 0){
-                startConfigText += "MACVLAN_EXT" +data.macvlan_ext+"\n";
+                startConfigText += "     MACVLAN_EXT" +data.macvlan_ext+"\n";
             }
             
             if(!data.ip_range.isEmpty()){
-                startConfigText += "IP_RANGE "+data.ip_range+"\n";
+                startConfigText += "     IP_RANGE "+data.ip_range+"\n";
             }        
 
             if(data.tap){
-                startConfigText += "TAP YES"+"\n";
+                startConfigText += "     TAP YES"+"\n";
             }
         }
         
         // Cycle through container objects and write 
         Component[] containers = ContainerPanePanel.getComponents();
         for(Component container : containers){
-            
-
+            ContainerData data = ((ContainerObjPanel)container).getConfigData(); 
+            startConfigText += "CONTAINER "+data.name+"\n";
+            startConfigText += "     USER "+data.user+"\n";
+            startConfigText += "     SCRIPT "+data.script+"\n";
+            if(data.x11){
+                startConfigText += "     X11 YES"+"\n"; 
+            }
+            else{
+                startConfigText += "     X11 NO"+"\n";
+            }
+           //startConfigText += "TERMINALS "+data.name+"\n";
         }
-        
-
-        
         
         //Write to File
         writer.print(startConfigText);
