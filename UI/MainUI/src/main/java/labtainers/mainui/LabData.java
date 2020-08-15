@@ -134,8 +134,7 @@ public class LabData {
         
         retrieveData();
     }
-    
-    
+        
     
     private boolean retrieveData(){
         File startConfig = new File(this.path+"/config/start.config");
@@ -340,6 +339,10 @@ public class LabData {
         return listOfNetworks;
     }
     
+    public ArrayList<String> getGlobals(){
+        return global_settings_params;
+    }
+    
     public void resetContainers(){
         listOfContainers = new ArrayList<ContainerData>();
     }
@@ -347,6 +350,7 @@ public class LabData {
     public void resetNetworks(){
         listOfNetworks = new ArrayList<NetworkData>();
     }
+    
     
     //Called when a user renames a network. 
     //The function will overwrite any instances of the old Network Name with the new Network Name in this state object

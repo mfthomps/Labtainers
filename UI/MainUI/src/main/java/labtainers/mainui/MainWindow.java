@@ -17,6 +17,7 @@ import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
@@ -1182,22 +1183,61 @@ private void openLab(File lab){
     }//GEN-LAST:event_LabtainersDirConfirmButtonActionPerformed
 
     private void SaveMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveMenuItemActionPerformed
-        saveLab();
+        try {
+            saveLab();
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_SaveMenuItemActionPerformed
     
-    private void saveLab(){
-        // Cycle through container objects 
-        labDataSaved.resetContainers();
-        Component[] containers = ContainerPanePanel.getComponents();
-        for(Component container : containers){
-            LabData.ContainerData savedContainerData = ((ContainerObjPanel)container).getConfigData();
-             
-            labDataSaved.getContainers().add(savedContainerData);
-        //(ContainerObjPanel)c
+    private void saveLab() throws FileNotFoundException{
+        //Get path to start.config
+        String startConfigPath = currentLab.getPath()+File.separator+"config"+File.separator+"test.config";
+        PrintWriter writer = new PrintWriter(startConfigPath);
+        String startConfigText = ""; 
+         
+        // Write Global Params
+        for(String line : labDataCurrent.getGlobals()){
+            startConfigText += line+"\n";
+        }
+
+        // Cycle through network objects and write
+        Component[] networks = NetworkPanePanel.getComponents();
+        for(Component network : networks){
+            NetworkData data = ((NetworkObjPanel)network).getConfigData();
+            startConfigText += "NETWORK "+data.name+"\n";
+            startConfigText += "MASK "+data.mask+"\n";
+            startConfigText += "GATEWAY "+data.gateway+"\n";
+            
+            if(data.macvlan > 0){
+                startConfigText += "MACVLAN "+data.macvlan+"\n";
+            }
+            if(data.macvlan_ext > 0){
+                startConfigText += "MACVLAN_EXT" +data.macvlan_ext+"\n";
+            }
+            
+            if(!data.ip_range.isEmpty()){
+                startConfigText += "IP_RANGE "+data.ip_range+"\n";
+            }        
+
+            if(data.tap){
+                startConfigText += "TAP YES"+"\n";
+            }
         }
         
-        // Cycle through network objects
-        labDataSaved.resetNetworks();
+        // Cycle through container objects and write 
+        Component[] containers = ContainerPanePanel.getComponents();
+        for(Component container : containers){
+            
+
+        }
+        
+
+        
+        
+        //Write to File
+        writer.print(startConfigText);
+        writer.close();
     }
     
     private void SaveAsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveAsMenuItemActionPerformed

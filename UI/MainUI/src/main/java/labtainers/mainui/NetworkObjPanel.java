@@ -186,9 +186,9 @@ public class NetworkObjPanel extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(TapRadioButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
-                .addGroup(NetworkConfigWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(NetworkConfigCancelButton)
-                    .addComponent(NetworkConfigUpdateButton))
+                .addGroup(NetworkConfigWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(NetworkConfigUpdateButton)
+                    .addComponent(NetworkConfigCancelButton))
                 .addContainerGap())
         );
 
@@ -337,6 +337,7 @@ public class NetworkObjPanel extends javax.swing.JPanel {
         this.data.ip_range = this.NetworkConfigIPRangeTextfield.getText();
         this.data.macvlan_ext = (int) this.NetworkConfigMacVLanExtSpinner.getValue();
         this.data.macvlan = (int) this.NetworkConfigMacVLanSpinner.getValue();
+        this.data.tap = this.TapRadioButton.isSelected();
         
         clicked = false;
         NetworkConfigWindow.setVisible(false);
@@ -348,6 +349,10 @@ public class NetworkObjPanel extends javax.swing.JPanel {
         NetworkConfigWindow.setVisible(false);
     }//GEN-LAST:event_NetworkConfigCancelButtonActionPerformed
 
+    
+    public LabData.NetworkData getConfigData(){
+        return this.data;
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton NetworkConfigCancelButton;

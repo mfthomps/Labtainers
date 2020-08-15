@@ -872,8 +872,7 @@ private boolean clicked = false;
             ContainerConfigNetworksSubpanel networkPanel = (ContainerConfigNetworksSubpanel)component;
             
             String networkName = networkPanel.getNetwork();
-            System.out.println("hi: \'"+networkName+"\'");
-            //System.out.println(networkName);
+            //System.out.println("hi: \'"+networkName+"\'");
             String ipAddr = networkPanel.getIP();
             data.listOfContainerNetworks.add(new LabData.ContainerNetworkSubData(networkName,ipAddr));
         }

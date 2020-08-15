@@ -86,9 +86,9 @@
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Component id="TapRadioButton" min="-2" max="-2" attributes="0"/>
                   <EmptySpace pref="13" max="32767" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="NetworkConfigCancelButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="NetworkConfigUpdateButton" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Component id="NetworkConfigCancelButton" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
