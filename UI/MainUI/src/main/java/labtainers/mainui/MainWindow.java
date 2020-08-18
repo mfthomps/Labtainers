@@ -1223,6 +1223,9 @@ private void openLab(File lab){
             if(data.tap){
                 startConfigText += "     TAP YES"+"\n";
             }
+            for(String unknownParam : data.unknownNetworkParams){
+                startConfigText += "     "+unknownParam+"\n";
+            }
         }
         
         // Cycle through container objects and write 
@@ -1238,7 +1241,67 @@ private void openLab(File lab){
             else{
                 startConfigText += "     X11 NO"+"\n";
             }
-           //startConfigText += "TERMINALS "+data.name+"\n";
+            // Not default
+            if(data.terminal_count != 1)
+                startConfigText += "     TERMINALS "+data.terminal_count+"\n";
+            if(!data.terminal_group.isEmpty())
+                startConfigText += "     TERMINAL_GROUP "+data.terminal_group+"\n";
+            if(!data.xterm_title.isEmpty())
+                startConfigText += "     XTERM "+data.xterm_title+" "+data.xterm_script+"\n";
+            if(!data.password.isEmpty())
+                startConfigText += "     PASSWORD "+data.password+"\n";
+            for(LabData.ContainerAddHostSubData addHost : data.listOfContainerAddHost){
+                if(addHost.type.equals("network"))
+                    startConfigText += "     ADD-HOST "+addHost.add_host_network+"\n";
+                else if(addHost.type.equals("ip"))
+                    startConfigText += "     ADD-HOST "+addHost.add_host_host+":"+addHost.add_host_ip+"\n";    
+            }
+            for(LabData.ContainerNetworkSubData network : data.listOfContainerNetworks){
+                    startConfigText += "     "+network.network_name+" "+network.network_ipaddress+"\n";  
+            }
+            if(data.clone > 0){
+                startConfigText += "     CLONE "+data.clone+"\n";
+            }
+            if(!data.lab_gateway.isEmpty()){
+                startConfigText += "     LAB_GATEWAY "+data.lab_gateway+"\n";
+            }
+            if(data.no_gw){
+                startConfigText += "     NO_GW YES"+"\n";
+            }
+            if(!data.base_registry.isEmpty()){
+                startConfigText += "     BASE_REGISTRY "+data.base_registry+"\n";
+            }
+            if(!data.thumb_volume.isEmpty()){
+                startConfigText += "     THUMB_VOLUME "+data.thumb_volume+"\n";
+            }
+            if(!data.thumb_command.isEmpty()){
+                startConfigText += "     THUMB_COMMAND "+data.thumb_command+"\n";
+            }
+            if(!data.thumb_stop.isEmpty()){
+                startConfigText += "     THUMB_STOP "+data.thumb_stop+"\n";
+            }
+            if(!data.publish.isEmpty()){
+                startConfigText += "     PUBLISH "+data.publish+"\n";
+            }
+            if(data.hide){
+                startConfigText += "     HIDE YES"+"\n";
+            }
+            if(data.no_privilege){
+                startConfigText += "     NO_PRIVILEGE YES"+"\n";
+            }
+            if(data.no_pull){
+                startConfigText += "     NO_PULL YES"+"\n";
+            }
+            if(data.mystuff){
+                startConfigText += "     MYSTUFF YES"+"\n";
+            }
+            if(data.tap){
+                startConfigText += "     TAP YES"+"\n";
+            }
+            if(!data.mount1.isEmpty() && !data.mount2.isEmpty()){
+                startConfigText += "     MOUNT "+data.mount1+":"+data.mount2;
+            }
+            
         }
         
         //Write to File
