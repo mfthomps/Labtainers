@@ -215,6 +215,11 @@ public class MainWindow extends javax.swing.JFrame {
         TextEditorTextfield = new javax.swing.JTextField();
         TextEditorConfirmButton1 = new javax.swing.JButton();
         TextEditorCancelButton1 = new javax.swing.JButton();
+        SaveAsDialog = new javax.swing.JDialog();
+        SaveAsLabNameTextField = new javax.swing.JTextField();
+        SaveAsErrorLabel = new javax.swing.JLabel();
+        SaveAsCancelButton = new javax.swing.JButton();
+        SaveAsConfirmButton = new javax.swing.JButton();
         Header = new javax.swing.JPanel();
         AssessmentButton = new javax.swing.JButton();
         LabnameLabel = new javax.swing.JLabel();
@@ -648,6 +653,52 @@ public class MainWindow extends javax.swing.JFrame {
                     .addComponent(TextEditorCancelButton1)
                     .addComponent(TextEditorConfirmButton1))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        SaveAsDialog.setTitle("Save As");
+        SaveAsDialog.setMinimumSize(new java.awt.Dimension(400, 140));
+        SaveAsDialog.setPreferredSize(new java.awt.Dimension(400, 140));
+
+        SaveAsLabNameTextField.setFont(new java.awt.Font("Ubuntu", 0, 18)); // NOI18N
+        SaveAsLabNameTextField.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+
+        SaveAsErrorLabel.setText("Lab Already Exists!");
+
+        SaveAsCancelButton.setText("Cancel");
+
+        SaveAsConfirmButton.setText("Confirm");
+
+        javax.swing.GroupLayout SaveAsDialogLayout = new javax.swing.GroupLayout(SaveAsDialog.getContentPane());
+        SaveAsDialog.getContentPane().setLayout(SaveAsDialogLayout);
+        SaveAsDialogLayout.setHorizontalGroup(
+            SaveAsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(SaveAsDialogLayout.createSequentialGroup()
+                .addGap(134, 134, 134)
+                .addComponent(SaveAsErrorLabel)
+                .addContainerGap(139, Short.MAX_VALUE))
+            .addGroup(SaveAsDialogLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(SaveAsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(SaveAsLabNameTextField)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, SaveAsDialogLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(SaveAsConfirmButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(SaveAsCancelButton)))
+                .addContainerGap())
+        );
+        SaveAsDialogLayout.setVerticalGroup(
+            SaveAsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(SaveAsDialogLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(SaveAsLabNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(SaveAsErrorLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(SaveAsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(SaveAsCancelButton)
+                    .addComponent(SaveAsConfirmButton))
+                .addContainerGap())
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -1316,9 +1367,37 @@ private void openLab(File lab){
     }
     
     private void SaveAsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveAsMenuItemActionPerformed
-        // TODO add your handling code here:
+        SaveAsDialog.setVisible(true);
+        //saveAs();
     }//GEN-LAST:event_SaveAsMenuItemActionPerformed
-
+    
+    private void saveAs(){
+        // Read in new lab name input
+        // Call Clone Script, feeding in the new lab name
+        String newLabName ="";
+        try{
+                //call python new_lab_script: new_lab_setup.py -b basename
+                String cmd = "./cloneLab.sh "+labsPath+" "+labName+" "+newLabName;
+                System.out.println(cmd);
+                Process pr = Runtime.getRuntime().exec(cmd);
+            
+                BufferedReader reader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+                String line;
+                while((line = reader.readLine()) != null){
+                    System.out.println(line);
+                }
+                reader.close();
+            } 
+            catch (IOException e){
+                System.out.println(e);
+            }
+        //if cloning is successful, proceed with teh following
+        //set new lab path
+        //set new lab name
+        //save the lab
+        
+    }
+    
     private void editTextEditorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editTextEditorActionPerformed
         TextEditorTextfield.setText(textEditorPref);
         TextEditorDialog.setVisible(true);
@@ -1510,6 +1589,11 @@ private void openLab(File lab){
     private javax.swing.JMenuItem NewLabMenuItem;
     private javax.swing.JTextField NewLabNameTextfield;
     private javax.swing.JMenuItem OpenLabMenuItem;
+    private javax.swing.JButton SaveAsCancelButton;
+    private javax.swing.JButton SaveAsConfirmButton;
+    private javax.swing.JDialog SaveAsDialog;
+    private javax.swing.JLabel SaveAsErrorLabel;
+    private javax.swing.JTextField SaveAsLabNameTextField;
     private javax.swing.JMenuItem SaveAsMenuItem;
     private javax.swing.JMenuItem SaveMenuItem;
     private javax.swing.JButton TextEditorCancelButton1;
