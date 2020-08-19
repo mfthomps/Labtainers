@@ -665,8 +665,18 @@ public class MainWindow extends javax.swing.JFrame {
         SaveAsErrorLabel.setText("Lab Already Exists!");
 
         SaveAsCancelButton.setText("Cancel");
+        SaveAsCancelButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                SaveAsCancelButtonActionPerformed(evt);
+            }
+        });
 
         SaveAsConfirmButton.setText("Confirm");
+        SaveAsConfirmButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                SaveAsConfirmButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout SaveAsDialogLayout = new javax.swing.GroupLayout(SaveAsDialog.getContentPane());
         SaveAsDialog.getContentPane().setLayout(SaveAsDialogLayout);
@@ -1367,36 +1377,10 @@ private void openLab(File lab){
     }
     
     private void SaveAsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveAsMenuItemActionPerformed
+        SaveAsLabNameTextField.setText("");
+        SaveAsErrorLabel.setVisible(false);
         SaveAsDialog.setVisible(true);
-        //saveAs();
     }//GEN-LAST:event_SaveAsMenuItemActionPerformed
-    
-    private void saveAs(){
-        // Read in new lab name input
-        // Call Clone Script, feeding in the new lab name
-        String newLabName ="";
-        try{
-                //call python new_lab_script: new_lab_setup.py -b basename
-                String cmd = "./cloneLab.sh "+labsPath+" "+labName+" "+newLabName;
-                System.out.println(cmd);
-                Process pr = Runtime.getRuntime().exec(cmd);
-            
-                BufferedReader reader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-                String line;
-                while((line = reader.readLine()) != null){
-                    System.out.println(line);
-                }
-                reader.close();
-            } 
-            catch (IOException e){
-                System.out.println(e);
-            }
-        //if cloning is successful, proceed with teh following
-        //set new lab path
-        //set new lab name
-        //save the lab
-        
-    }
     
     private void editTextEditorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editTextEditorActionPerformed
         TextEditorTextfield.setText(textEditorPref);
@@ -1419,6 +1403,63 @@ private void openLab(File lab){
         exitProgram();
         System.exit(0);
     }//GEN-LAST:event_ExitMenuItemActionPerformed
+
+    private void SaveAsCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveAsCancelButtonActionPerformed
+        SaveAsDialog.setVisible(false);
+    }//GEN-LAST:event_SaveAsCancelButtonActionPerformed
+
+    private void SaveAsConfirmButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveAsConfirmButtonActionPerformed
+        //Check if the input is valid (lcase and no spaces)
+        String input = SaveAsLabNameTextField.getText();
+        
+        if(input.contains(" ") || !input.equals(input.toLowerCase())){            
+            SaveAsErrorLabel.setText("Lab name must be lowercase and contain no spaces!");
+            SaveAsErrorLabel.setVisible(true);
+        }
+        //Check if lab already exists
+        if(Arrays.asList(labsPath.list()).contains(input)){ 
+            SaveAsErrorLabel.setText("Lab already exits!");
+            SaveAsErrorLabel.setVisible(true);
+        }
+        else{
+            SaveAsErrorLabel.setVisible(false);
+            //saveAs(input);
+            SaveAsDialog.setVisible(false);
+        }
+    }//GEN-LAST:event_SaveAsConfirmButtonActionPerformed
+    
+    private void saveAs(String newLabName){
+        // Call Clone Script, feeding in the new lab name
+        try{
+                //call python new_lab_script: new_lab_setup.py -c newLabName
+                String cmd = "./cloneLab.sh "+labsPath+" "+labName+" "+newLabName;
+                System.out.println(cmd);
+                Process pr = Runtime.getRuntime().exec(cmd);
+            
+                BufferedReader reader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+                String line;
+                while((line = reader.readLine()) != null){
+                    System.out.println(line);
+                }
+                reader.close();
+            } 
+            catch (IOException e){
+                System.out.println(e);
+            }
+        
+            //if cloning is successful, proceed with teh following
+            //set new lab path
+            //set new lab name
+            //save the lab
+        try {
+            saveLab();
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        SaveAsDialog.setVisible(false);
+    }
+    
     
     private void setLabtainersDir() throws IOException{
             String newLabtainersPath = LabtainersDirTextfield.getText();
