@@ -1234,12 +1234,18 @@ private void openLab(File lab){
             ContainerData data = ((ContainerObjPanel)container).getConfigData(); 
             startConfigText += "CONTAINER "+data.name+"\n";
             startConfigText += "     USER "+data.user+"\n";
-            startConfigText += "     SCRIPT "+data.script+"\n";
-            if(data.x11){
-                startConfigText += "     X11 YES"+"\n"; 
+            if(data.script.isEmpty()){
+               startConfigText += "     SCRIPT NONE\n";
             }
             else{
-                startConfigText += "     X11 NO"+"\n";
+               startConfigText += "     SCRIPT "+data.script+"\n"; 
+            }
+                
+            if(data.x11){
+                startConfigText += "     X11 YES\n"; 
+            }
+            else{
+                startConfigText += "     X11 NO\n";
             }
             // Not default
             if(data.terminal_count != 1)
@@ -1266,7 +1272,7 @@ private void openLab(File lab){
                 startConfigText += "     LAB_GATEWAY "+data.lab_gateway+"\n";
             }
             if(data.no_gw){
-                startConfigText += "     NO_GW YES"+"\n";
+                startConfigText += "     NO_GW YES\n";
             }
             if(!data.base_registry.isEmpty()){
                 startConfigText += "     BASE_REGISTRY "+data.base_registry+"\n";
@@ -1284,22 +1290,22 @@ private void openLab(File lab){
                 startConfigText += "     PUBLISH "+data.publish+"\n";
             }
             if(data.hide){
-                startConfigText += "     HIDE YES"+"\n";
+                startConfigText += "     HIDE YES\n";
             }
             if(data.no_privilege){
-                startConfigText += "     NO_PRIVILEGE YES"+"\n";
+                startConfigText += "     NO_PRIVILEGE YES\n";
             }
             if(data.no_pull){
-                startConfigText += "     NO_PULL YES"+"\n";
+                startConfigText += "     NO_PULL YES\n";
             }
             if(data.mystuff){
-                startConfigText += "     MYSTUFF YES"+"\n";
+                startConfigText += "     MYSTUFF YES\n";
             }
             if(data.tap){
-                startConfigText += "     TAP YES"+"\n";
+                startConfigText += "     TAP YES\n";
             }
             if(!data.mount1.isEmpty() && !data.mount2.isEmpty()){
-                startConfigText += "     MOUNT "+data.mount1+":"+data.mount2;
+                startConfigText += "     MOUNT "+data.mount1+":"+data.mount2+"\n";
             }
             
         }

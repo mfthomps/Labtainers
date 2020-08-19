@@ -77,8 +77,8 @@ public class LabData {
         public boolean no_privilege;
         public boolean mystuff;
         public boolean tap;
-        public String mount1;
-        public String mount2;
+        public String mount1 = "";
+        public String mount2 = "";
         
         public ArrayList<String> unknownContainerParams;
         
