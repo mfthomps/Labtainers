@@ -5,6 +5,7 @@
  */
 package labtainers.mainui;
 
+import labtainers.resultsui.ResultsUI;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.List;
@@ -33,6 +34,7 @@ import labtainers.mainui.LabData.NetworkData;
 import java.util.ArrayList;
 import java.util.Arrays;
 import javax.swing.ImageIcon;
+import labtainers.resultsui.ResultsUI;
 
 
 /**
@@ -945,7 +947,7 @@ public class MainWindow extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void AssessmentButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AssessmentButtonActionPerformed
-        // TODO add your handling code here:
+        ResultsUI resultsUI = new ResultsUI(this, false);
     }//GEN-LAST:event_AssessmentButtonActionPerformed
     
    
