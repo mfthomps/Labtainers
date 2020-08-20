@@ -683,15 +683,15 @@ public class MainWindow extends javax.swing.JFrame {
         SaveAsDialogLayout.setHorizontalGroup(
             SaveAsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(SaveAsDialogLayout.createSequentialGroup()
-                .addGap(134, 134, 134)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(SaveAsErrorLabel)
-                .addContainerGap(139, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(SaveAsDialogLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(SaveAsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(SaveAsLabNameTextField)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, SaveAsDialogLayout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addGap(0, 242, Short.MAX_VALUE)
                         .addComponent(SaveAsConfirmButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(SaveAsCancelButton)))
@@ -1417,13 +1417,13 @@ private void openLab(File lab){
             SaveAsErrorLabel.setVisible(true);
         }
         //Check if lab already exists
-        if(Arrays.asList(labsPath.list()).contains(input)){ 
-            SaveAsErrorLabel.setText("Lab already exits!");
+        else if(Arrays.asList(labsPath.list()).contains(input)){ 
+            SaveAsErrorLabel.setText("Lab already exists!");
             SaveAsErrorLabel.setVisible(true);
         }
         else{
             SaveAsErrorLabel.setVisible(false);
-            //saveAs(input);
+            saveAs(input);
             SaveAsDialog.setVisible(false);
         }
     }//GEN-LAST:event_SaveAsConfirmButtonActionPerformed
@@ -1431,33 +1431,34 @@ private void openLab(File lab){
     private void saveAs(String newLabName){
         // Call Clone Script, feeding in the new lab name
         try{
-                //call python new_lab_script: new_lab_setup.py -c newLabName
-                String cmd = "./cloneLab.sh "+labsPath+" "+labName+" "+newLabName;
-                System.out.println(cmd);
-                Process pr = Runtime.getRuntime().exec(cmd);
-            
-                BufferedReader reader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-                String line;
-                while((line = reader.readLine()) != null){
-                    System.out.println(line);
-                }
-                reader.close();
-            } 
-            catch (IOException e){
-                System.out.println(e);
+            //call python new_lab_script: new_lab_setup.py -c newLabName
+            String cmd = "./cloneLab.sh "+labsPath+" "+labName+" "+newLabName;
+            System.out.println(cmd);
+            Process pr = Runtime.getRuntime().exec(cmd);
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+            String line;
+            while((line = reader.readLine()) != null){
+                System.out.println(line);
             }
+            reader.close();
         
-            //if cloning is successful, proceed with teh following
-            //set new lab path
-            //set new lab name
-            //save the lab
-        try {
-            saveLab();
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        //Rename to current lab and set the path to the new lab
+        this.labName = newLabName;
+        LabnameLabel.setText("Lab: "+this.labName);
+        this.currentLab = new File(labsPath+File.separator+this.labName);
+        this.labDataCurrent.setName(this.labName);
+        this.labDataCurrent.setPath(this.currentLab);
+        
+        
+        //Write the current state to the new lab's start.config
+        //saveLab();
         
         SaveAsDialog.setVisible(false);
+        } 
+        catch (IOException e){
+            System.out.println(e);
+        }
     }
     
     

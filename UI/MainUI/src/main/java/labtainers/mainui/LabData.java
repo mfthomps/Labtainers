@@ -48,6 +48,7 @@ public class LabData {
             this.macvlan = macvlan;
             this.ip_range = ip_range;
             this.tap = tap;
+            this.unknownNetworkParams = new ArrayList();
         }
     }
     
@@ -330,6 +331,12 @@ public class LabData {
         return name;
     }
     
+    public void setName(String newName){
+        name = newName;
+    }
+    public void setPath(File newPath){
+        path = newPath;
+    }
      
     public ArrayList<ContainerData> getContainers(){
         return listOfContainers;
