@@ -5,6 +5,11 @@
  */
 package labtainers.resultsui;
 
+import java.awt.Component;
+import java.awt.Dimension;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollBar;
+
 /**
  *
  * @author student
@@ -14,10 +19,16 @@ public class ResultsUI extends javax.swing.JDialog {
     /**
      * Creates new form NewJDialog
      */
+    ResultsData data;
+    
     public ResultsUI(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
         this.setVisible(true);
+        
+        data = new ResultsData(); 
+        
+        resultsScrollPaneBar = ScrollPaneOfArtifacts.getVerticalScrollBar();
     }
 
     /**
@@ -42,7 +53,7 @@ public class ResultsUI extends javax.swing.JDialog {
         setPreferredSize(new java.awt.Dimension(1590, 500));
         setResizable(false);
 
-        PanelofArtifacts.setLayout(new javax.swing.BoxLayout(PanelofArtifacts, javax.swing.BoxLayout.PAGE_AXIS));
+        PanelofArtifacts.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 5, 0));
         ScrollPaneOfArtifacts.setViewportView(PanelofArtifacts);
 
         CreateButton.setText("Create");
@@ -53,6 +64,11 @@ public class ResultsUI extends javax.swing.JDialog {
         });
 
         RemoveAllButton.setText("Remove All");
+        RemoveAllButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                RemoveAllButtonActionPerformed(evt);
+            }
+        });
 
         UpdateButton.setText("Update");
 
@@ -89,19 +105,63 @@ public class ResultsUI extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void CreateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CreateButtonActionPerformed
-        createFreshArtifact();
+        //createFreshArtifact();
+        addResultsPanel();
     }//GEN-LAST:event_CreateButtonActionPerformed
 
+    private void RemoveAllButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RemoveAllButtonActionPerformed
+        removeAllButton();
+    }//GEN-LAST:event_RemoveAllButtonActionPerformed
+
+    private void removeAllButton(){
+           if(JOptionPane.showConfirmDialog(null, "Are you sure you want to remove all?") == JOptionPane.YES_OPTION){
+                removeAllArtifacts();
+                data.rowCount = 0;
+        
+           }          
+    }
+    
+     //Removes all the artifact lines for the lab *note: this doesn't update results.config or the resultsData until the user hits the update button
+    private void removeAllArtifacts(){
+        Component[] componentList = PanelofArtifacts.getComponents();
+        for(Component c: componentList)
+            PanelofArtifacts.remove(c);
+
+        PanelofArtifacts.revalidate();
+        PanelofArtifacts.repaint();
+    }
+    
+    
     //Creates and loads a new artifact row
     private void createFreshArtifact(){
         //if(dataUI.labloaded){
         //    dataUI.rowCount++;
-            ArtifactPanel newArtifact = new ArtifactPanel();
+            ArtifactPanels newArtifact = new ArtifactPanels();
             PanelofArtifacts.add(newArtifact);
             PanelofArtifacts.revalidate();
             PanelofArtifacts.repaint(); 
         //}  
     }
+    
+    
+    public int resultsPanePanelLength = 0;
+    private JScrollBar resultsScrollPaneBar;
+    private void addResultsPanel(){
+        //Resize the JPanel Holding all the ResultArtifactsPanels to fit another one (makes the scroll bar resize and should show all objects listed)
+        resultsPanePanelLength+=86;
+        PanelofArtifacts.setPreferredSize(new Dimension(0,resultsPanePanelLength));
+        
+        // Create the Result Artifact Panel and add it
+        data.rowCount++;
+        PanelofArtifacts.add(new ArtifactPanels()); //takes in parent(this), containerlist, rowcount
+        
+        // Redraw GUI with the new Panel
+        PanelofArtifacts.revalidate();
+        PanelofArtifacts.repaint(); 
+        
+        //Lower the Scroll Bar to show the newly added container (BUG[6/25/20]: still always off by a single panel)
+        resultsScrollPaneBar.setValue(resultsScrollPaneBar.getMaximum());
+    }    
     
     
     

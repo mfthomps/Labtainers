@@ -73,8 +73,8 @@
       <SubComponents>
         <Container class="javax.swing.JPanel" name="PanelofArtifacts">
 
-          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout">
-            <Property name="axis" type="int" value="3"/>
+          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignFlowLayout">
+            <Property name="verticalGap" type="int" value="0"/>
           </Layout>
         </Container>
       </SubComponents>
@@ -91,6 +91,9 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Remove All"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="RemoveAllButtonActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="UpdateButton">
       <Properties>
