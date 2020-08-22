@@ -117,15 +117,17 @@ public class ResultsUI extends javax.swing.JDialog {
            if(JOptionPane.showConfirmDialog(null, "Are you sure you want to remove all?") == JOptionPane.YES_OPTION){
                 removeAllArtifacts();
                 data.rowCount = 0;
-        
+                resultsPanePanelLength = 0;
+                PanelofArtifacts.setPreferredSize(new Dimension(0,resultsPanePanelLength));
            }          
     }
     
      //Removes all the artifact lines for the lab *note: this doesn't update results.config or the resultsData until the user hits the update button
     private void removeAllArtifacts(){
         Component[] componentList = PanelofArtifacts.getComponents();
-        for(Component c: componentList)
+        for(Component c: componentList){
             PanelofArtifacts.remove(c);
+        }
 
         PanelofArtifacts.revalidate();
         PanelofArtifacts.repaint();

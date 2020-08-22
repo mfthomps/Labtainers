@@ -35,8 +35,9 @@ public class ResultsData {
     boolean labloaded;
     String labname;
     int rowCount;
+    File labPath;
     
-    ResultsData(){
+    public ResultsData(){
         listofArtifacts = new ArrayList<>(); 
         containerList = new ArrayList<>();
         labloaded = false;
@@ -44,12 +45,13 @@ public class ResultsData {
         rowCount = 0;
     }
     
-    ResultsData(String labname){
+    public ResultsData(String labname, File labPath){
         listofArtifacts = new ArrayList<>(); 
         containerList = new ArrayList<>();
         labloaded = false;
         this.labname = labname;
         rowCount = 0;
+        this.labPath = labPath;
         
         getData();
     }
@@ -58,16 +60,8 @@ public class ResultsData {
     
     //Checks if the lab exists and will get lab's result config data if it does
     private void getData(){
-        //Check if the Folder exists
-        String userHomeFolder = System.getProperty("user.home");
-        File lab = new File(userHomeFolder + File.separator + "labtainer" + File.separator + "trunk" + File.separator + "labs" + File.separator+ labname);
-
-        if(lab.isDirectory()){
-            if(getContainers(lab) && getArtifacts())
-                labloaded = true;
-        }
-        else
-            System.out.println("Lab does not exist!");  
+        if(getContainers(labPath) && getArtifacts())
+            labloaded = true;
     }
     
     //Updates the containerlist (all artifct panels refer to this list to fill in the container combobox)

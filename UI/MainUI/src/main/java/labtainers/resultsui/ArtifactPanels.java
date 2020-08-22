@@ -81,7 +81,7 @@ public class ArtifactPanels extends javax.swing.JPanel {
             }
         });
 
-        ArtifactPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        ArtifactPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
         FieldTypeComboBox.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {

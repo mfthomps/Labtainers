@@ -11,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import labtainers.resultsui.ResultsData;
 
 /**
  *
@@ -23,6 +24,9 @@ public class LabData {
     private ArrayList<String> global_settings_params;
     private ArrayList<ContainerData> listOfContainers;
     private ArrayList<NetworkData> listOfNetworks;
+    
+    private ResultsData resultsData;
+    //private GoalsData goalsData;
     
     static protected class NetworkData {
         public String name = "";
@@ -134,6 +138,7 @@ public class LabData {
         //System.out.println("Lab Name: "+labName);
         
         retrieveData();
+        //resultsData = new ResultsData(labName,labPath);
     }
         
     

@@ -1454,7 +1454,7 @@ private void openLab(File lab){
         
         
         //Write the current state to the new lab's start.config
-        //saveLab();
+        saveLab();
         
         SaveAsDialog.setVisible(false);
         } 
