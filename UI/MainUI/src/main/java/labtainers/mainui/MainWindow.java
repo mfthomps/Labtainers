@@ -1081,8 +1081,8 @@ private void openLab(File lab){
     currentLab = lab;
     labName = lab.toString().substring(lab.toString().lastIndexOf(File.separator)+1);
            
-    labDataSaved = new LabData(lab, labName); //initialize all data for the lab
-    labDataCurrent = new LabData(lab, labName); //initialize all data for the lab
+    labDataSaved = new LabData(this, lab, labName); //initialize all data for the lab
+    labDataCurrent = new LabData(this, lab, labName); //initialize all data for the lab
      
     
     // Visual load of lab
@@ -1553,7 +1553,9 @@ private void openLab(File lab){
         }
     }  
     
-    
+    public LabData getCurrentData(){
+        return labDataCurrent;
+    }
     /**
      * @param args the command line arguments
      */

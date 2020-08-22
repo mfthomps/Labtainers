@@ -25,6 +25,7 @@ public class LabData {
     private ArrayList<ContainerData> listOfContainers;
     private ArrayList<NetworkData> listOfNetworks;
     
+    private MainWindow mainUI;
     private ResultsData resultsData;
     //private GoalsData goalsData;
     
@@ -127,21 +128,20 @@ public class LabData {
         
     }
     
-    LabData(File labPath, String labName){
+    LabData(MainWindow main, File labPath, String labName){
         this.path = labPath;
         this.name = labName;
         this.global_settings_params = new ArrayList();
         this.listOfContainers = new ArrayList();
         this.listOfNetworks = new ArrayList();
-        
+        this.mainUI = main;
         //System.out.println("Lab Path: "+labPath);
         //System.out.println("Lab Name: "+labName);
         
         retrieveData();
-        //resultsData = new ResultsData(labName,labPath);
+        resultsData = new ResultsData(main, labName,labPath);
     }
         
-    
     private boolean retrieveData(){
         File startConfig = new File(this.path+"/config/start.config");
         
@@ -316,6 +316,9 @@ public class LabData {
                         line = bufferedReader.readLine();
                     }
                 }
+                //Retrieve data for results UI
+                resultsData.getData();
+                
                 return true;
             }
             else{
@@ -346,6 +349,15 @@ public class LabData {
     public ArrayList<ContainerData> getContainers(){
         return listOfContainers;
     }
+    
+    public ArrayList<String> getContainerNames(){
+       ArrayList<String> names = new ArrayList();
+       for (ContainerData container : mainUI.getCurrentData().getContainers()) {
+            names.add(container.name);
+        } 
+       return names;
+    }
+    
     
     public ArrayList<NetworkData> getNetworks(){
         return listOfNetworks;
@@ -403,7 +415,7 @@ public class LabData {
             }
         }
         
-        // Rename the network in list of Networks and list of addHosts for each container 
+        // Delete the network in list of Networks and list of addHosts for each container 
         for(ContainerData container : listOfContainers){
             // check list of networks 
             ArrayList<ContainerNetworkSubData> networksToRemove = new ArrayList();
@@ -424,6 +436,21 @@ public class LabData {
             }
             container.listOfContainerAddHost.removeAll(addHostsToRemove);
         }
+    }
+    
+    // The function deletes any instances of the Container name being referenced in the Lab data
+    public void deleteReferenceToContainer(String networkName){
+        // Delete the network in the list of networks
+        for(ContainerData container : listOfContainers){
+            if(container.name.equals(networkName)){
+                listOfNetworks.remove(container);
+                break;
+            }
+        }
+        
+        // Delete the container referenced in the list of containers in results config. [TODO]
+        
+
     }
     
     public void printNetworkData(NetworkData data) {

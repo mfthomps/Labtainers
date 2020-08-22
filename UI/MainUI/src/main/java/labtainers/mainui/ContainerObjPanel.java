@@ -761,11 +761,15 @@ private boolean clicked = false;
     }//GEN-LAST:event_renameContainerOptionActionPerformed
 
     private void deleteContainerOptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteContainerOptionActionPerformed
-       int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete the container '"+this.data.name+"'?", "Delete Container",  JOptionPane.YES_NO_OPTION);
+       int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete the container '"+this.data.name+"'?\n"+
+                                                                      "Deleting this will delete all references to this container, \n"+
+                                                                      " Namely in the Results and Goals Configuration."
+                                                                    , "Delete Container",  JOptionPane.YES_NO_OPTION);
        if (confirm == JOptionPane.YES_OPTION){
            JPanel containerPanel = (JPanel)this.getParent();
-       
+           
            // delete the container from the list
+           mainWindow.labDataCurrent.deleteReferenceToContainer(data.name);
            containerPanel.remove(this);
 
            // Shorten the panel height holding all the containers and resize it.

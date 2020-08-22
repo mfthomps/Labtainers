@@ -15,11 +15,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import labtainers.mainui.LabData;
+import labtainers.mainui.MainWindow;
 import static labtainers.resultsui.ParamReferenceStorage.justFieldType;
 import static labtainers.resultsui.ParamReferenceStorage.lineParamAccessible;
 import static labtainers.resultsui.ParamReferenceStorage.timeStampDelimiterAccessible;
@@ -36,6 +39,7 @@ public class ResultsData {
     String labname;
     int rowCount;
     File labPath;
+    MainWindow mainUI;
     
     public ResultsData(){
         listofArtifacts = new ArrayList<>(); 
@@ -45,64 +49,31 @@ public class ResultsData {
         rowCount = 0;
     }
     
-    public ResultsData(String labname, File labPath){
+    public ResultsData(MainWindow main, String labname, File labPath){
         listofArtifacts = new ArrayList<>(); 
         containerList = new ArrayList<>();
         labloaded = false;
-        this.labname = labname;
         rowCount = 0;
+        
+        this.mainUI = main;
+        this.labname = labname;
         this.labPath = labPath;
         
-        getData();
+        //getData();
     }
     
 //LOADING~~~~~~~~~~~~~~~~~~~~~~~~~
     
     //Checks if the lab exists and will get lab's result config data if it does
-    private void getData(){
-        if(getContainers(labPath) && getArtifacts())
+    public void getData(){
+        getContainers();
+        if(getArtifacts())
             labloaded = true;
     }
     
     //Updates the containerlist (all artifct panels refer to this list to fill in the container combobox)
-    private boolean getContainers(File lab){
-        File startConfig = new File(lab+"/config/start.config");
-        
-        try {
-            if(startConfig.exists()){
-                try (FileReader fileReader = new FileReader(startConfig)) {
-                    BufferedReader bufferedReader = new BufferedReader(fileReader);
-                    
-                    String line = bufferedReader.readLine();
-                    while (line != null) {
-                        if(line.startsWith("CONTAINER")){
-                            containerList.add(line.split("\\s+")[1]);
-                        }
-                        line = bufferedReader.readLine();
-                    }
-                }
-                
-                //Every list of containers should include "ALL" to signify when the container_name is not specified in the file ID
-                if(containerList.size() > 1)
-                    containerList.add("ALL");
-                
-                return true;
-            }
-            else{
-                System.out.println("start.config is missing");
-                return false;
-            }
-        } 
-        catch (FileNotFoundException ex) {
-            Logger.getLogger(ResultsUI.class.getName()).log(Level.SEVERE, null, ex);
-            System.out.println("Issue with getting containers");
-            return false;
-        } catch (IOException ex) {
-           Logger.getLogger(ResultsUI.class.getName()).log(Level.SEVERE, null, ex);
-           System.out.println("Issue with getting containers");
-            return false;
-        }
-        
+    private void getContainers(){
+        containerList = mainUI.getCurrentData().getContainerNames();
     }
      
     //Parses the results.config to obtain all the relevant artifact lines, 
@@ -541,7 +512,7 @@ public class ResultsData {
     
 
 //GENERAL~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    //Gets the artifact lines in the goals.config
+    //Gets the artifact lines in the results.config
     protected ArrayList<String> getArtifactLines(){
         ArrayList<String> artifacts = new ArrayList<>();
         
