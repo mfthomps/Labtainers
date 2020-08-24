@@ -42,6 +42,8 @@ def update(logger, imodule_url):
         logger.debug('Got tar, expand from %s' % imodule_url)
         cmd = 'tar -xf %s' % tfile
         print('Updating IModule from %s' % imodule_url.strip())
+        print('expand into %s with command:' % os.getcwd())
+        print(cmd)
         ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         output = ps.communicate()
         if len(output[1].strip()) > 0:
@@ -54,19 +56,30 @@ def update(logger, imodule_url):
     else:
         print('Unable to retreive IModule from %s' % imodule_url)
 
-def doUpdates(logger):
-    logger.debug('doUpdates')
-    if not os.path.isfile(imodule_path):
-        logger.debug('No imodules at %s to update.' % imodule_path)
-        print('No imodules defined.')
-        return
+def doChdir():
+    retval = True
     fixLabtainerDir()
     here = os.getcwd()
     labdir = os.path.join(os.getenv('LABTAINER_DIR'), 'labs')
-    os.chdir(labdir)
-    with open(imodule_path) as fh:
-        for imodule_url in fh:
-            update(logger, imodule_path)
+    try:
+        os.chdir(labdir)
+    except:
+        print('could not cd to %s' % labdir)
+        retval = False
+    return retval
+
+def doUpdates(logger):
+    logger.debug('doUpdates')
+    if not doChdir():
+        print('IModule update failed')
+    else:
+        if not os.path.isfile(imodule_path):
+            logger.debug('No imodules at %s to update.' % imodule_path)
+            print('No imodules defined.')
+            return 
+        with open(imodule_path) as fh:
+            for imodule_url in fh:
+                update(logger, imodule_path)
 
 if __name__ == '__main__':
         
@@ -103,7 +116,10 @@ if __name__ == '__main__':
             logger.debug('Adding imodule path %s' % args.path)
             print('Adding imodule path %s' % args.path)
             fh.write(args.path+'\n')
-        update(logger, args.path)
+        if doChdir():
+            update(logger, args.path)
+        else:
+            print('IModule failed')
     else:    
         parser.usage()
         
