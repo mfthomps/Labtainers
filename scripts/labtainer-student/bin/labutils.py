@@ -1954,8 +1954,9 @@ def CreateCopyChownZip(start_config, labtainer_config, name, container_name, con
     logger.debug('cmd: %s' % str(command))
     child = subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output = child.communicate()
-    if keep_running and len(output[0].strip()) > 0:
-        print('\n<<<<< You may need to stop: %s in order to obtain a complete assessment. >>>>>\n' % output[0].decode('utf-8').strip())
+    ''' TBD remaining problems with flushing stdout? '''
+    #if keep_running and len(output[0].strip()) > 0:
+    #    print('\n<<<<< You may need to stop: %s in order to obtain a complete assessment. >>>>>\n' % output[0].decode('utf-8').strip())
     if len(output[1].strip()) > 0:
         if ignore_stop_error:
             logger.debug("Container %s fail on executing Student.py %s \n" % (running_container, output[1].decode('utf-8')))
