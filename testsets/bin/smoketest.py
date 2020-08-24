@@ -157,6 +157,7 @@ def __main__():
     parser.add_argument('-v', '--verbose', action='count', default=0, help="Use -v to see comments as they are encountered, -vv to see each line")
     parser.add_argument('-t', '--test_registry', action='store_true', default=False, help='Run with images from the test registry')
     parser.add_argument('-r', '--remove_lab', action='store_true', default=False, help='Remove lab after test')
+    parser.add_argument('-f', '--file', action='store', help='Test all labs listed in the given file')
 
     args = parser.parse_args()
     smoketest = SmokeTest(args.verbose)
@@ -164,6 +165,13 @@ def __main__():
         result = smoketest.checkLab(args.lab, args.test_registry, args.remove_lab)
         if not result:
             exit(1)
+    elif args.file is not None:
+        if os.path.isfile(args.file):
+            with open(args.file) as fh:
+                for l in fh:
+                    result = smoketest.checkLab(l.strip(), args.test_registry, args.remove_lab)
+                    print('result: %r' % result)
+                
     else:
         smoketest.checkAll(args.start_with, args.test_registry, args.remove_lab)
 
