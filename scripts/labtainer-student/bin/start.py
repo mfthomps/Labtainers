@@ -173,7 +173,7 @@ def main():
     args = parser.parse_args()
     labname = args.labname
     if labname == 'NONE' and not args.diagnose:
-        sys.stderr.write("Missing lab name\n" % labname)
+        sys.stderr.write("Missing lab name\n")
         parser.usage()
         sys.exit(1)
     if args.diagnose:
