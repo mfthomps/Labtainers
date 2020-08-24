@@ -99,7 +99,7 @@ def getIPTable(ip):
 
 def checkLoop():
     retval = None
-    cmd = 'sudo losetup -a'
+    cmd = 'losetup -a'
     ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     for line in output[0].decode('utf-8').splitlines(True):
