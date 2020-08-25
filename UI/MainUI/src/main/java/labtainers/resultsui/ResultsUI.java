@@ -85,6 +85,7 @@ public class ResultsUI extends javax.swing.JDialog {
         setPreferredSize(new java.awt.Dimension(1590, 500));
         setResizable(false);
 
+        PanelofArtifacts.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
         ScrollPaneOfArtifacts.setViewportView(PanelofArtifacts);
 
         CreateButton.setText("Create");
@@ -137,11 +138,11 @@ public class ResultsUI extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addGap(91, 91, 91)
                 .addComponent(jLabel1)
-                .addGap(28, 28, 28)
+                .addGap(79, 79, 79)
                 .addComponent(jLabel2)
-                .addGap(60, 60, 60)
+                .addGap(73, 73, 73)
                 .addComponent(jLabel5)
-                .addGap(119, 119, 119)
+                .addGap(111, 111, 111)
                 .addComponent(jLabel3)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
