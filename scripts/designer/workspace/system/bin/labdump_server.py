@@ -4,6 +4,13 @@ import threading
 import struct
 import os
 import logging
+def getFname(net_name):
+    fname = os.path.join('/taps', net_name+'.pcap')
+    i = 1
+    while os.path.isfile(fname): 
+        fname = os.path.join('/taps', (net_name+'.%d.pcap' % i))
+        i += 1
+    return fname
 def handleClient(conn, logging):
     nlen = conn.recv(4)
     ''' look for test connections and bail '''
@@ -21,13 +28,13 @@ def handleClient(conn, logging):
         os.mkdir('/taps')
     except:
         pass
-    fname = os.path.join('/taps', net_name+'.pcap')
+    fname = getFname(net_name)
     outfile = open(fname, 'a')
     while True:
         data = conn.recv(1024)
         if len(data) == 0:
             break
-        logging.debug('got %d bytes' % len(data))
+        #logging.debug('got %d bytes' % len(data))
         outfile.write(data)
         outfile.flush()
 

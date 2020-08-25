@@ -244,7 +244,7 @@ used by students when starting the lab.  It must be all lower case and not conta
     cd <new lab name>
 \end{verbatim}
 
-\noindent After the new lab directory is created, run the ``new\_lab\_setup.sh'' script.
+\noindent After the new lab directory is created, run the ``new\_lab\_setup.py'' script.
 \footnote {The {\tt \$LABTAINER\_DIR} will have been defined in your .bashrc
 file when you installed Labtainers.  It should point to the {\tt labtainers/trunk}
 directory.  You may need to start a new {\tt bash} shell to inherit the environment
@@ -325,16 +325,16 @@ The following sections describe how to further alter the lab execution environme
 the student.
 
 \subsection {Multiple containers}
-The {\tt new\_lab\_setup.sh} script can be used to create additional containers for use
+The {\tt new\_lab\_setup.py} script can be used to create additional containers for use
 in the lab.  For example, from your new lab directory:
 \begin{verbatim}
-    new_lab_setup.sh -a joe_computer
+    new_lab_setup.py -a joe_computer
 \end{verbatim}
 \noindent will create a second container for your lab,
 named ``joe\_computer''.  If you again run the rebuild script, you will see two virtual
 terminals, each connected to one of your two independent computers.  Use 
 \begin{verbatim}
-    new_lab_setup.sh -h
+    new_lab_setup.py -h
 \end{verbatim}
 \noindent to view the operations available in that script.
 
@@ -366,7 +366,7 @@ allow students to share tools they've developed between different labs.
 \subsection {Docker files}
 A default Labtainer-specific Dockerfile is placed in the new lab's ``Dockerfiles'' 
 directory when the new lab is created.  And additional Dockerfiles are added when the
-{\tt new\_lab\_setup.sh -a} script adds computers to the lab. We use standard Docker file syntax, which is described at 
+{\tt new\_lab\_setup.py -a} script adds computers to the lab. We use standard Docker file syntax, which is described at 
 \url{https://docs.docker.com/engine/reference/builder/}
 
 Simple labs should be able to use the default Dockerfile copied by the 
@@ -440,15 +440,17 @@ These are then available to the instructor in the labtainer\_xfer/[lab]/docs dir
 \item CHECKWORK [yes/no] -- Optional directive to disable (set to ``no'') ability of student to check their own work from the labtainer-student directory.
 \end{itemize}
 
-\item NETWORK [network name] -- One of these sections is require for each network within the lab.  In addition to
-providing a name for the network, the following values are defined:
+\item NETWORK [network name] -- One of these sections is required for each network within the lab.  The name
+is used within the start.config file to refer to the network.  It is suggested that this name NOT be
+used in lab guides since it is not visible to students\footnote{You may note several Labtainers labs
+failed to heed this advise.}. Where possible, name networks with their subnet mask, e.g., 10.1.0.0/24.
+In addition to providing a name for the network, the following values are defined for the NETOWRK:
 
 \begin{itemize}
 \item MASK [network address mask] -- The network mask, e.g., 172.25.0.0./24
 \item GATEWAY [gateway address] -- The IP address of the network gateway used by Docker to communicate with the
 host.  Please note that to define a different network gateway for the component, you should 
-use the {\tt set\_default\_gw.sh}.  This GATEWAY field should not name the IP of any of your other components.  
-See the {\tt routing\_basics2} lab for examples.
+use the {\tt LAB\_GATEWAY} parameter for containers.  This GATEWAY field should not name the IP of any of your other components.  
 \item MACVLAN\_EXT [N] -- Optional, causes the Docker network driver to 
 create and use a macvlan tied to the given Nth ethernet interface (in alphabetical order) that lacks an
 assigned IP address.  The network device is expected to be on a ``host-only'' VM network.  The VMM should disable the
@@ -515,7 +517,12 @@ increasing integer starting with one, and this value can be used for the network
 parameterization as described in section \ref{parameterize}. This option is not intended for use in creating multi-user
 labs.
 \item NO\_PULL [YES/NO] -- Use a local instance of the container image rather than pulling it from the Docker hub.
-\item NO\_GW [YES/NO] -- Disable the default gateway, preventing network communication with the host or external devices.
+\item LAB\_GATEWAY -- Optional IP address of the component's default network gateway.   If set, this will replace the
+default Docker gateway.  Students can toggle between gateways by using the togglegw.sh command, e.g., to enable communication
+with the host VM or the internet\footnote{This replaces use of the set\_default\_gw.sh script from 
+within fixlocal.sh scripts}.  This option will also replace the components resolv.conf with the given IP and will cause the
+static route to the {\tt my\_host} address to be deleted.
+\item NO\_GW [YES/NO] -- Disable the Docker default gateway, preventing network communication with the host or external devices.
 \item REGISTRY [registry] -- The id of the Docker Hub registry that is to contain the lab images. This overrides the value
 set in the GLOBAL section. 
 \item BASE\_REGISTRY [base\_registry] -- The id of the Docker Hub registry that contains the base image for the container.  This defaults
@@ -526,12 +533,26 @@ with the container.  This allows the container to perform all kinds of mischief.
 \item THUMB\_COMMAND -- Optional command that will run prior mounting the THUMB volume defined above.
 \item THUMB\_STOP -- Optional command that will run when the container is stopped under GNS3.
 \item PUBLISH [publish] -- Optional arguments to the Docker {\tt --publish} argument for making container ports visible at the
-host interface.  For example, a value of {\tt 127.0.0.1:60022:22/tcp} will bind host port 60022 to container port 22.
+host interface.  For example, a value of 
+\begin{verbatim}
+     127.0.0.1:60022:22/tcp
+\end{verbatim}
+\noindent will bind host port 60022 to container port 22.
 \item HIDE [hide] -- If YES, the associated node will be hidden in GNS3 environments when the {\tt --student} option if
 \item NO\_PRIVILEGE -- If YES, the container runs without Docker privilege.
 \item MYSTUFF -- if YES, the directory at {\tt labtainerstudent/mystuff} is shared with the container in {\tt /home/<user>/mystuff.}
 used.
-
+\item MOUNT [hostv:containerv] -- Intended for use with licensed software installations, e.g., IDA Free, will cause a directory 
+located at:
+\begin{verbatim}
+    ~/.local/share/labtainers/[hostv]
+\end{verbatim}
+\noindent at a mount point on the container at:
+\begin{verbatim}
+    ~/[containerv]
+\end{verbatim}
+\noindent The purpose is allow that host directory to be reused across labs to avoid re-installing licensed software, i.e.,
+something where the student takes a distinct action to acknowledge a license.
 \end{itemize}
 \end{itemize}
   
@@ -625,14 +646,26 @@ create a {\tt \_system/bin} directory for the lab, that will trash the {\tt /bin
 an obscure Docker build error.
 
 \subsection {System services}
-The Dockerfile ``ENTRYPOINT'' command can be used to start a system service.  The general Docker 
-model is that a single Docker container runs a single service, with logging being forwarded to 
+The general Docker 
+model is that a single Docker container runs a single service started via the ENTRYPOINT command, with logging being forwarded to 
 the host.  Labtainers disregards this model because our goal is to make a container look more like a Linux
 system rather than a conformant Docker container.  Labtainer Dockerfiles for Ubuntu and Centos containers
 use systemd based images that run the /usr/sbin/init process.  \footnote {Now deprecated Ubuntu-based Labtainer Dockerfiles included an
 ENTRYPOINT command that launches a \textit{faux\_init} script that starts rsyslog, (so that system logs
 appear in /var/log), and runs rc.local.}  The labtainer.network configuration of the baseline Dockerfile also starts xinetd,
 which will then fork services, e.g., the sshd, per the /etc/xinet.d/ configuration files.  
+
+Services should be added using {\tt systemd} constructs.  For those of us who often forget what those are, a simple web server
+service can be added to a container by unpacking this tar from the witin the container's directory:
+\begin{verbatim}
+    tar -xf $LABTAINER_DIR/scripts/designer/services/web-server.tar
+\end{verbatim} 
+\noindent And enable the service in the {\tt \_bin/fixlocal} file with:
+\begin{verbatim}
+  echo $1 | sudo -S systemctl enable httpserver.service
+  echo $1 | sudo -S systemctl start httpserver.service
+\end{verbatim}
+
 
 The centos-logs lab provides an example of forcing the student to login using the traditional
 login program, as described in section \ref{student start}.
@@ -664,7 +697,7 @@ to a [labname].pdf file within that same docs directory. And ``LAB\_DOCS'' is re
 \noindent An 'about.txt' file will be present in the 'config' directory of the lab. Any text inside will be displayed as a description to the lab when listed from running the 'labtainer' command in \$LABTAINER\_DIR/trunk/scripts/labtainer-student. This text will also appear when clicking on the logo in the GNS3 environment of Labtainers. \\ 
 
 \noindent If the start.config file includes ``COLLECT\_DOCS YES'', the content of the lab/docs directory will be
-included with the student artifacts and available extracted into the intstrutor's 
+included with the student artifacts and available extracted into the instructor's 
 labtainer\_xfer/[lab]/docs directory. \\
 
 \noindent A deprecated feature that still exists in a tiny handful of labs: "Lab instructions for students can be displayed in a virtual terminal by placing an
@@ -678,7 +711,7 @@ Programs can be started automatically within virtual terminals using two methods
 The first is the ``XTERM'' directive in the container section in the start.config file
 described in \ref{start config}.  That is intended for programs whose results are displayed
 within the virtual terminal, (see the plc lab for examples).  The second method is 
-intended for user authentiation and for starting GUI based programs
+intended for user authentication and for starting GUI based programs
 that will use the Linux host Xserver.  If a file exists at:
 \begin{verbatim}
     $LABTAINER_DIR/labs/[labname]/[container name]/_bin/student_startup.sh
@@ -892,7 +925,7 @@ lines would achieve that:
 \subsection{Parameterizing start.config}
 Parameterizing of the start.config file occurs prior to Docker container creation.  The framework 
 modifies a copy of the file stored in {\tt /tmp/start.config} and uses that when assigning attributes to containers,
-e.g., IP addresses. Currently only IP addresses within the start.config can parameteterized (e.g., not user names).
+e.g., IP addresses. Currently only IP addresses within the start.config can be parameteterized (e.g., not user names).
 
 \subsection{Simple Parameterization for Checking Own-work}
 The simplest, though by no means robust, strategy for ensuring students
@@ -970,9 +1003,6 @@ names appear at the beginning of a line in the \textit{treataslocal} file at
 \end{verbatim}
 \noindent The basename of the treataslocal entries are compared to the basename of each command.
 \footnote{In other words, if the treataslocal entry is: \texttt{usr/bin/nmap}, the path leading to nmap is ignored.}
-Starting of services can be monitored through use of treataslocal entries having a ``.service'' suffix,
-e.g., {\tt httpd.service} would generate timestamped artifact files whenever httpd was started (or restarted)
-using systemctl, service or /etc/init.d/...  See section \ref{time delimeter} for the intended use of this feature.
 
 Non-system programs can be excluded from stdin/stdout capturing by including their names in
 a ``ignorelocal'' file in that same directory.  \footnote{These should not include path information, just the program name.}
@@ -1097,7 +1127,9 @@ one timestamped file allows the designer to identify events that occured as part
 invocation.  Again, see the {\tt acl} lab for an example.
 
 \subsubsection{Generating results upon stopping the lab}
-The lab designer can cause a script to run on selected containers whenever the student stops a lab.
+\label{prestop}
+The lab designer can cause a script to run on selected containers whenever the student stops a lab,
+or when a student issues the {\tt checkwork} command per \ref{checkwork}.
 This is achieved by creating an script or executable program at:
 \begin{verbatim}
 trunk/labtainers/lab/<lab>/_bin/prestop
@@ -1108,10 +1140,18 @@ shutting down any of the containers, and all the timestamps
 will be the same.  Note the Labtainers framework generally allows students to acheive their goals at any
 point in their exploration, and the labs typically do not require the student to leave the system in any
 particular state.  In other words, students should be free to continue experimenting subsequent to getting
-the correct results.  Thus, any use of the prestop feature should be accompanied by a lab manual entry
+the correct results.  Thus, any use of the prestop feature, (other than for \textit{current state assessment}
+per \ref{current-state}), should be accompanied by a lab manual entry
 advising the student that they may restart a lab after issuing the {\tt stoplab} command. \footnote{Perhaps a
 {\tt goalsmet} type of command should be added that does nothing but record prestop results without actually
 stopping the lab?}
+
+All {\tt prestop} scripts will timeout after 30 seconds with a SIGTERM.  For debugging support, please consider
+adding signal handling to your prestop scripts. For example, for a bash script, include:
+\begin{verbatim}
+   trap "echo Timed out; exit" SIGTERM
+\end{verbatim}
+
 
 \subsubsection{Artifact archives}
 Artifacts from student labs are combined into a zip file that is placed in the student transfer
@@ -1160,10 +1200,6 @@ sources depending on the nature of the results.config directive:
 program was invoked, (and its corresponding stdin file contains an entry reflecting when the program terminated).
 \item A timestamped entry from a log file, e.g., an entry in a web log, that matches criteria specified in the results.config
 directive.
-\item The invocation times of {\tt time\_delimiter} programs, syntactically associated with system log artifact files.
-This allows designers to temporally group syslog results that were generated between changes to system configurations
-as defined by invocation of the {\tt time\_delimiter} program, e.g., a script that alters the routing table.  See section 
-\ref{time delimeter} for additional information. 
 \end{itemize}
 
 Directives within the results.config file each have the following format:
@@ -1176,8 +1212,7 @@ Directives within the results.config file each have the following format:
                        underscores permitted.
             file_id -- Identifies a single file, or the set of files to be parsed.  
                   The format of this id is:
-                     [container_name:]<prog>.[stdin | stdout | prgout] | 
-                           [container_name:]file_path[:time_delimiter]
+                     [container_name:]<prog>.[stdin | stdout | prgout] 
                    where <prog> is a program or utility name whose stdin, stdout,
                    or program output (prgout) artifacts will include timestamps.  
                    The optional container_name identifies the container hosting 
@@ -1188,8 +1223,9 @@ Directives within the results.config file each have the following format:
                    absolute, it is relative to the container user's home directory. 
                    The wildcard character '*' can be used in place of <prog>,
                    i.e., *.stdin is for all stdin artifacts and *.stdout is for all 
-                   stdout artifacts.  The optional time_delimiter qualifier is 
-                   explained further below.
+                   stdout artifacts. Note prestop files are excluded from wildcard
+                   results. 
+                   
             field_type - Optional, defaults to "TOKEN", possible values include:
                TOKEN      -- Treat the line as space-delimited tokens
                PARENS     -- The desired value is contained in parenthesis
@@ -1233,9 +1269,12 @@ Directives within the results.config file each have the following format:
                              and their groups are processed using the python
                              re.search semantics.
                TIME_DELIM -- The timestamps of the named files are used to create 
-                             a set of time ranges, e.g., for use in time_during 
-                             goal operators.
-                             
+                             a set of time ranges with periods between the 
+                             timestamps of each file, e.g., for use in time_during 
+                             goal operators. File identifiers should not include
+                             stdin or stdout qualifiers. The file identifier
+                             may be a list of container:file pairs separated
+                             by semicolons.
                               
             field_id -- An integer identifying the nth occurance of the field type.
                         Alternately may be "LAST" for the last occurance of the 
@@ -1298,7 +1337,7 @@ the student obtained expected results.  Most lab goals defined in the goals.conf
 will evaluate to TRUE or FALSE, with TRUE reflecting that the student met the defined goal.
 In addition to these binary goals, the designer can capture and report on quantities of events,
 e.g., the number of times a student ran a specific program.
-Once evaluated, a goal may determine the value of subsequent goals within the goals.config file, 
+Once evaluated, a goal value may affect the value of subsequent goals within the goals.config file, 
 i.e., through use of boolean expressions and temporal comparisons between goals.  The evaluated
 state of each goal can then contribute to an overall student assessment.
 
@@ -1306,7 +1345,7 @@ Student results may derive from multiple invocations of the same program or syst
 The framework does not discourage students from continuing to experiment and explore aspects of the 
 exercise subsequent to obtaining the desired results.  In general, Labtainer assessment determines if the student
 obtained expected results during any invocation of a program or system utility, or during a time period
-delineated by timestamp ranges described in section \ref{results.config}.  \footnote{In those cases 
+delineated by timestamp ranges described in \ref{config-ranges}.  \footnote{In those cases 
 where the student is required to obtain the expected results during the final invocation of a program, 
 the \textit{matchlast} goal type may be specified as described below.}
 
@@ -1337,6 +1376,7 @@ A boolean goal\_id is generated for each timestamp range for which there is an i
 in the expression.
 \end{itemize}
 
+\subsubsection{Goal definitions}
 The following syntax defines each goal within the goals.config file.  While the syntax
 may appear complex, most goals can be expressed simply as can be seen in section \ref{examples} and
 in the Labtainer exercises distributed with the framework.
@@ -1472,6 +1512,27 @@ in the Labtainer exercises distributed with the framework.
          Note that values derived from the parameters.config file are assigned the same values as
          were assigned when the lab was parameterized for the student.
 
+\subsubsection{Distinguish between results generated before and after configuration changes}
+\label{config-ranges}
+Some labs direct students to configure a system so that it is ``secure'', or meeting some criteria
+germane to lab learning objectives.  Once the system is so configured, the student is then
+directed to perform a specific set of actions to demonstrate the correctness of the
+configuration.  For purposes of automated assessment, we would like evidence that
+the student performed all the prescribed demonstration steps without intervening
+configuration changes.  In other words, though the student may perform a myriad of
+configuration changes and demonstrate steps (encourage experimentation!), 
+we'd like to know if there ever was a
+single configuration in which all of the demonstration steps were performed.
+
+Labtainers provides the {LOG\_RANGE} and {TIME\_DELIM} result types to establish time
+ranges over which we can assert that no configuration changes were made.  Once those time ranges
+are established, i.e., as a set of results with a single tag, the {\tt time\_during} and
+{\tt time\_not\_during} goal operators bin \textbf{other results} into
+those time ranges.  Once so binned, the boolean operator can be used to determine if
+the desired conditions were met within a single configuration state.  See sections
+\ref{log_range} and \ref{time_delim} for examples.
+
+
 \subsubsection{Replace answers with hashes}
 \label{hash-goals}
 Automated assessment files include expected results, which sometimes reflect ``answers'' to problems
@@ -1497,19 +1558,22 @@ It is intended that the goals.answers files will not be distributed, e.g., they 
 SimLab solutions repo.
 
 \subsubsection{Assessment Report}
-Evaluation of student results occurs on an instructor container, via a script named {\tt instructor.py}, which runs
-automatically when the instructor runs the {\tt gradelab [lab]} command.  The script can also be run manually, e.g., to
-test changes and additions to grading configuaration files.  It must be run from the HOME directory
-on the container that results from running the gradelab command with the {\tt -d} option \footnote{Be sure to run
-stopgrade after use of the {\tt -d} option to shut down the grading container when you are done with it}.
+Evaluation of student results occurs on a \textit{grading} container
+that starts when the instructor runs the {\tt gradelab <lab>} command. A report is generated
+and displayed on the screen.  A copy of the report is also placed in the {\tt latainer\_xfer} directory. 
+Debugging your assessment configuration an be aided by using {\tt gradelab -d <lab>}, which will start the
+grading container and give you a shell into it.  From there, run the script named {\tt instructor.py}.
+There is a log in {\tt /tmp/instructor.log} in addition to diagnostics that might be generated on the terminal.
+See section \ref{debug-grading} for additional information on debugging grading.\footnote{Be sure to run
+stoplab after use of the {\tt -d} option to shut down the grading container when you are done with it}.
 By convention, all goals and boolean results whose symbolic names are not prefaced with an
-underscore ({\tt\_}), will have corresponding entries in the assessment report, located in 
+underscore ({\tt\_}) or an {\tt cw\_}(see \ref{checkwork}), will have corresponding entries in the assessment report, located in 
 the home directory in a file named {\tt <lab name>.grades.txt>}
 
 \subsubsection{Document the meaning of goals}
 \label{document goals}
 Instructors will see descriptions of lab goals when they start the lab using {\tt gradelab}.
-These descriptions are embedded within comments in the goals.config and results.config files.
+These descriptions are embedded within directives within the goals.config and results.config files.
 The descriptions are associated with symbolic names that immediately follow the documentation
 directives as described below:
 \begin{verbatim}
@@ -1524,8 +1588,65 @@ directives as described below:
                new comment.
    
 \end{verbatim} 
-\noindent See existing labs for examples.
+\noindent See existing labs for examples.  Also see the \ref{checkwork} for additional directives.
 
+\subsection {Student self-assessment}
+\label{checkwork}
+The {\tt checkwork} command allows students to assess their own work against
+the criteria used by instructors for automated assessment of lab performance.
+This can be disabled on a deployment-wide basis using the {\tt CHECKWORK no} directive
+in the {\tt config/labtainers.config} file.  Of course this assumes you have separately
+provided access control over that file, e.g., through use of a custom VM appliance.\footnote{
+Disabling self-assessment might be useful if Labtainers was repurposed for skills assessment
+testing.}
+
+\subsubsection {Current state assessment}
+\label{current-state}
+The lab designer can define a subset of goals and results that inform the student
+whether the \textit{current} system state is as desired.  This greatly differs
+from typical Labtainer goal assessment, which measure whether the student ever
+achieved expected results, regardless of the system's current state.  These 
+\textit{current state} goals are intended to guide the student with potentially
+more information than is found (or is practical) in the standard goals.  The current state goals
+are not intended to replace other goals, and they are not displayed to instructors.
+
+The current state goals and results must have a prefix of {\tt cw\_}, and they
+are required to have documentation directives of {\tt CHECK\_TRUE} or {\tt CHECK\_FALSE}.
+Text included within a directive will be displayed to students if the value
+of the associated goals at the time {\tt checkwork} was run does not match the directive value.  
+In the example below the documentation directive will be displayed if the {\tt cw\_ssh\_open}
+value is {\tt False}.
+\begin{verbatim}
+    #CHECK_TRUE: The SSH port is not open. 
+    cw_ssh_open = client:prestop.stdout : FILE_REGEX : 22/tcp.*open
+\end{verbatim}
+\noindent Current state goals
+are expected reflect the current state of the computers as described below.
+
+\subsection {Current state artifacts}
+Results and goals used for current state assessment should primarily be derived from artifacts generated by {\tt prestop} scripts 
+described in \ref{prestop}.  The system uses the most recent timestamp found for any files named by current state
+results, i.e., those with the {\tt cw\_} prefix.  The designer can name any file for a current state result -- but note it may
+be difficult to divine current state solely from previous artifacts, e.g., the state may have changed.  For this reason, we
+suggest use of prestop scripts.
+
+To highlight the differences between current state assessment and standard Labtainers assessment, consider an example
+lab that requires the student to enforce an access control policy on a database having several users with differing
+authorizations.  To support the instructor, we'd like to report on whether the student ever managed to configure the
+database permissions within a single configuration such that all users were prevented from exceeding their authorization and 
+yet were able to access data to which they were authorized.  Providing the instructor with point details of whether individual
+modes of access were permitted or denied at any time in the lab might not be very helpful because the context of such access
+would not be known.  For example, a goal might reflect that John was denied access to some table at some point, but was it due to everyone being 
+denied access?  Or due to John being denied access to everything?  Such intermediate results can be presented to instructors
+(or they can delve into intermediate results themselves on the grader container), but those results lack context within the 
+grading report.  On the other hand, when the student runs {\tt checkwork}, the context is clear and we can provide feedback
+to the student about the current state of the system relative to the goals.  Now the questions are better formed, e.g., 
+does John currently have access to the expected table columns?.
+
+The above discussion is not intended to dissuade lab designers from informing instructors about partial success.  If goals
+can be defined to show the student was able to provide most of the desired access controls though unable to enforce the entire policy, 
+that is to be encouraged.  But that can also be hard to do.  It is often far easier to provide the student with information about partial
+goal achievement because the context is \textit{now}.
 
 \subsection{Assessment examples}
 \label{examples}
@@ -1578,110 +1699,130 @@ modify_value = matchany : string_diff : newsecret1value : result.origsecret1valu
 \noindent , which will be TRUE if any of the vul\_prog stdout files include a
 ``newsecret1value'' that differs from its ``oldsecret1value``.
 
+\subsubsection{Was a log entry written while some command executed?}
+Consider these two entries in {\tt results.config}:
+\begin{verbatim}
+  # Time stamp of log entry containing IP address
+  log-from-w1 = w3:/var/log/myhttplogfile.txt : LOG_TS : 202.25.4.2
+  # Use of wget -- will result in time stamp range: start-finish
+  wget-w1 = w1:wget.stdin : CONTAINS : 202.25.4.2
+\end{verbatim}
+\noindent The following {\tt goals.config} entry will be true if the log entry was 
+ever generated using wget from the w1 computer:
+\begin{verbatim}
+  didit = time_during : log-from-w1 : wget-w1 
+\end{verbatim}
+
+
 \subsubsection{My desired artifacts are not in stdin or stdout, the program outputs a file}
 See section \ref{program output}
 
-\subsubsection{Distinguish log file entries generated before and after configuration changes}
-\label{time delimeter}
-When log files are named in results.config files, you can qualify the log file name
-with the name of program whose invocation serves as a {\tt time\_delimiter} introduced
-in section \ref{results.config}.
-The {\tt time\_delimiter} identifies some
-monitored program whose start times will be used to organize the log file into
-a set of timestamped results.  This differs from use of HAVESTRING\_TS and
-REGEX\_TS in that those store results as descrete timestamped values for each
-timestamp found in the log file.  The {\tt time\_delimiter} timestamp values are
-based on the start times of the monitored program.  The intended use is to
-group results from programs whose actions result in entries in the log file.
-This can be useful for grouping system log entries based on system configuration
-changes (i.e., accomplished via the {\tt time\_delimiter} program). 
 
-Consider a lab that directs students to alter iptables on a component using the
-/etc/rc.local script.  The student is required to demonstrate a desired iptables
+\subsubsection{Delimiting time using log file entries}
+\label{log_range}
+The LOG\_RANGE result type generates a set of results having timestamp ranges that
+cover the period between specified log entries. For example, a results.config directive of:
+\begin{verbatim}  
+   syslog_slices = server:/var/log/messages : \
+       LOG_RANGE : Started System Logging Service
+\end{verbatim}
+\noindent would create a set of time ranges with periods between each start of
+the system logging service.  The use of {\tt time\_during}
+and/or {\tt time\_not\_during} and {\tt boolean} in the goals.config could then assess whether
+two or more events occurred during a given system log configuration.  For example, assume the
+results.config file also included these directives:  
+\begin{verbatim}  
+   _did_first_thing = client1:did_this.stdout : CONTAINS : Did that thing
+   _did_second_thing = client2:did_other.stdout : CONTAINS : Did that other thing
+\end{verbatim}
+\noindent We'd like to know if the above two results were ever achieved within one configuration
+of the logging system.  This can be determined by first binning the above two results into the 
+time ranges established by the {\tt syslog\_slices} result through use of {\tt time\_during} within
+the goals.config as follows.
+\begin{verbatim}  
+   _did_first_during = time_during : _did_first_thing : syslog_slices
+   _did_second_during = time_during : _did_second_thing : syslog_slices
+\end{verbatim}
+\noindent That yields two sets of goals having time ranges defined by the {\tt LOG\_RANGE}
+results.  We can then use a boolean operator to determine if those two goals were ever
+achived within the same established time range\footnote{Recall that the use of the boolean operator
+only makes sense for goals/results having matching timestamps}:
+\begin{verbatim}  
+   did_both = boolean : (_did_first_during and _did_second_during)
+\end{verbatim}
+
+See the centos-log2 lab for an example. 
+
+\subsubsection{Delimiting time via program invocations}
+\label{time_delim}
+The {\tt TIME\_DELIM} result type is intended to identify some
+program whose invocation times will be used to create a set of time ranges.
+These results, like those from {\tt LOG\_RANGE} differ from other result types
+in that they define ranges between events.  For example, a {\tt CONTAINS} result
+set from {\tt stdout} files would have timestamps reflecting the corresponding program
+start and stop time, while a {\tt TIME\_DELIM} result would have timestamps
+reflecting the periods \textbf{between} invocations of the program named in the directive.
+
+Consider a lab that directs students to alter iptables on a component.
+The student is required to demonstrate a desired iptables
 configuration by running nmap on various other components.  The instructor wants 
 to confirm that some set of expected stdout from nmap running on different
 components all occurred within a single
-configuration of iptables, delimited by the running of rc.local.  In other words,
+configuration of iptables, delimited by the running of the iptables command.  In other words,
 the student cannot succeed by altering iptables between invocations of nmap on
-different components.  In this example, the {\tt file\_path} would name the iptables
-log, and the {\tt time\_delimiter} would name rc.local.  In order to track invocations
-of rc.local, we would add it to the {\tt treataslocal} file described in section \ref{stdin and stdout}.
+different components.  
+
+Note, that to be generally useful, we do not wish to simply look for invocations of iptables
+by the student.
+For example, using the command to view the configuration does not represent a change to
+the configuration.  Also, the iptables may be called from a script, e.g., rc.local, and
+our typical use of stdout files would not see the running of iptables.  It is therefore
+suggested that {\tt TIME\_DELIM} results be tied to files created as an effect of 
+notify events described in \ref{notify}.  In this example, the notify event would be execution
+of /sbin/iptables, and the {\tt notify\_cb.sh} script would determine if a change were being
+made to the configuration.
 
 Then, if the lab results.config were:
 \begin{verbatim}
-    _iplog = outer_gw:/var/log/ulog/syslogemu.log:rc.local : \
-             CONTAINS : IPTABLES DROPPED
+    iptables = firewall:iptables : TIME_DELIM
     _remote_nmap_443 = remote_ws:nmap.stdout : CONTAINS : 443/tcp open  https
     _remote_nmap_sql = remote_ws:nmap.stdout : CONTAINS : 3306/tcp open  mysql
     _local_nmap_443 = ws1:nmap.stdout : CONTAINS : 443/tcp open  https
     _local_nmap_sql = ws1:nmap.stdout : CONTAINS : 3306/tcp open  mysql
 \end{verbatim}
 
-\noindent The {\tt \_iplog} result would then have up to N+1 timestamped instances,
-where N is the quantity of times that rc.local was executed. The first possible
+\noindent The {\tt iptables} result set would then include up to N+1 timestamped instances,
+where N is the quantity of times that iptables was executed to change the configuraion. The first possible
 timestamp would have a starting time of zero and an ending time of the very first
-invocation of rc.local.  The nmap results would each have timestamps corresponding
+consequential invocation of iptables.  The nmap results would each have timestamps corresponding
 to their times of execution.  Note the nmap results include results from two different
 computers, ws1 and remote\_ws.
 
 A goals.config file of:
 \begin{verbatim}
-    remote_nmap_443 = time_during : _remote_nmap_443 : _iplog
-    remote_nmap_sql = time_during : _remote_nmap_sql : _iplog
-    local_nmap_443 = time_during : _local_nmap_443 : _iplog
-    local_nmap_sql = time_during : _local_nmap_sql : _iplog
+    remote_nmap_443 = time_during : _remote_nmap_443 : iptables
+    remote_nmap_sql = time_during : _remote_nmap_sql : iptables
+    local_nmap_443 = time_during : _local_nmap_443 : iptables
+    local_nmap_sql = time_during : _local_nmap_sql : iptables
     remote_correct = boolean : ((remote_nmap_443 and_not remote_nmap_sql) \
                                 and local_nmap_443 and local_nmap_sql)
 \end{verbatim}
-\noindent would generate sets of nmap goals grouped into timestamps corresponding to the
-{\tt \_iplog} results.  The {\tt remote\_correct} boolean expression could then be read as: 
+\noindent would generate sets of nmap goals with timestamp ranges corresponding to the
+{\tt iptables} results.  The {\tt remote\_correct} boolean expression could then be read as: 
 ``Was there any
 single iptables configuration during which the student used nmap to demonstrate that:
 \begin{itemize}
 \item The remote workstation could reach the HTTPS port but not the SQL port, and,
 \item The local workstation could reach the HTTPS port and the SQL port.
 \end{itemize}
+The file identifiers for {\tt TIME\_DELIM} commands can be lists of container:file
+pairs separated by semicolons.  This is useful when configuration changes are delimited
+by modifications made on more than one component or by more than one program
 
-\subsubsection{Delimiting logs by starting services}
-\label{time delimiter services}
-Another example of the use of {\tt time\_delimiter} log file qualifiers is a web server,
-and its corresponding httpd log.  It may be desired to group log entries generated during a
-single configuration of the web server, delimited by the starting of the web server, e.g., via
-{\tt sudo systemctl restart httpd}.  Here, our {\tt time\_delimiter} program is the use of systemctl
-to start or restart the httpd.  Services are named in the {\tt treataslocal} file by giving them a
-suffix of ``.service'', e.g.,
-\begin{verbatim}
-    httpd.service
-\end{verbatim}
-\noindent and that same name is used for our {\tt time\_delimiter}, e.g.,
-\begin{verbatim}
-   web_log = vuln-site:/var/www/csrflabelgg.com:httpd.service : CONTAINS : GET / HTTP/
-\end{verbatim} 
-\noindent will create time stamp ranges delimited by the starting of the web server.  Results from
-other programs, (or other results derived from the web log), could then be similarly group using 
-the {\tt time\_during} operation, e.g.,
-\begin{verbatim}
-   _some_goal = time_during : other_result : web_log
-   _some_other_goal = time_during : yet_another_result : web_log
-   success = boolean (_some_goal and _some_other_goal) 
-\end{verbatim}
-The success goal would only then be TRUE if the two goals each occurred during a single instance
-of the web server configuration, as delimited by use of {\tt systemctl restart httpd}.
-
-\subsubsection{Delimiting time using log file entries}
-An alternate way to create groupings of log file entries is to use the log\_range 
-result type. For example, a result.config directive of:
-\begin{verbatim}  
-   syslog_slices = /var/log/messages : LOG_RANGE : Started System Logging Service
-\end{verbatim}
-\noindent would create a set of timestamped values whose ranges are based on occurrences
-of the system logging service being started.  The use of {\tt time\_during}
-and/or {\tt time\_not\_during} and {\tt boolean} in the goals.config could then be used to assess whether
-two or more events occurred during a given system log configuration.  See the centos-log lab
-for an example. 
 
 
 \subsection{Debugging automated assessment in labs}
+\label{debug-grading}
 Developing automated assessment for a new lab typically requires some
 amount of debugging.  This section is intended to guide new developers
 through the process.
@@ -1689,7 +1830,7 @@ through the process.
 When the {\tt gradelab} script is run from labtainers-instructor,
 the configuration files in labs/[lab name]/instr\_config are validated.
 If syntax errors are found, error messages are displayed at the terminal
-and processing halts.  The error messages identify the offending result.config
+and processing halts.  The error messages identify the offending results.config
 or goals.config entry.  Refer to sections \ref{results.config} and \ref{goals.config} 
 for the expected syntax of these files.
 
@@ -1713,6 +1854,65 @@ can be found in \verb!~/[student dir]/[lab].[container].student/.local/result!.
 The mechanics of performing the lab (so that you can test grading for different outcomes)
 can be automated using the SimLab tool described in Appendix \ref{testing}.
 
+\section{Quizzes}
+Labs may include simple quizzes intended to re-enforce a student's understanding of concepts
+necessary to perform the lab.  The quizzes are not intended to be a primary source of
+student assessment, rather, they are intended to help the student understand if they understand.
+No attempt is made to protect quiz answers, or to randomize or parameterize quizzes.
+An example application of quizzes is to allow the student to confirm his or her understanding
+of a security policy prior to trying to implement enforcement of that policy.
+
+Quizzes are performed on the Labtainer host from within the {\tt labtainer-student} directory
+using the {\tt quiz} command.  Use the {\tt -h} option to see its usage.
+
+A lab may have multiple quizzes.  Each is defined in a file in the lab {\tt config} directory
+within a file having an extension of {\tt .quiz}.  Each quiz includes a set of
+questions.  Each question is defined by a comma separated list.  If a line terminates 
+without a comma or a backslash, it is treated as the end of the question, and the next line
+is treated as the beginning of the next question.
+Question types include the following:
+\subsection{True or False}
+A question whose answer is either true or false.
+\begin{verbatim}
+ID, TrueFalse, question, answer, right_response, wrong_response, prerequisit
+\end{verbatim}
+\noindent Where:
+\begin{itemize}
+\item ID -- any string identifier, must be unique.  Currently only used to identify prerequisites as described below.
+\item TrueFalse -- identifies this as a True or False question.
+\item question -- The question, in double quotes.
+\item answer -- Ether T or F.
+\item right\_response -- Message to display if a correct response is provided.  All correct responses cause the word
+\textit{Correct} to be display in bold font.   Use empty double quotes of if that should be the only message.
+\item wrong\_response -- Message to display if a incorrect response is provided.  All incorrect responses cause the word
+\textit{Incorrect} to be display in bold font.   Use empty double quotes of if that should be the only message.
+\item prerequisite -- Optional ID of a another question.  If provided, and that question was answered correctly, then
+this question will be skipped.  This is intended to re-enforce concepts that the student previously answered incorrectly.
+\end{itemize}
+\subsection{Preface}
+Text to display, e.g., prior to a set of questions.
+\begin{verbatim}
+ID, preface, text
+\end{verbatim}
+\noindent Where:
+\begin{itemize}
+\item ID -- any string identifier, must be unique.  
+\item preface -- identifies this as a preface whose text will be displayed.
+\item text -- The text to be displayed.  This text is intended to provide context for whatever questions follow.
+\end{itemize}
+Here is an example quiz question and prefix:
+\begin{verbatim}
+   0, Preface, 
+   "The following quiz is intended to help you determine if you are \
+   ready to perform the lab."
+   1, TrueFalse, 
+   "In this lab, you will configure a firewall to use malware signatures to block \
+    traffic destined for a server.", F,
+   "This lab will use iptables to filter network traffic destined for a server.",
+   "This lab will use iptables to filter network traffic destined for a \
+    server based on IP packet addresses and port numbers."
+\end{verbatim}
+
 \section{Networking} \label{networking}
 Most networking is simply a matter of defining networks and assigning them to containers
 as described in \ref{start config}.  
@@ -1725,8 +1925,12 @@ It also allows the student to reach external networks, e.g., to fetch additional
 support of student exploration.
 
 In many instances, the lab designer will want to define a different default route for a 
-container.  Each container includes a \textit{set\_default\_gw.sh}
-script that can be added to the \textit{/etc/rc.local} file to redefine the default gateway.
+container.  The start.config definitions for each container include an optional {\tt LAB\_GATEWAY} parameter
+that, if set, will replace the default Docker gateway with the given gateway, and it will replace the
+resolv.conf entry and delete the route to the {\tt my\_host} address. 
+That configuration setting is implemented using a \textit{set\_default\_gw.sh}, which designers can 
+optionally chose to directly use instead of {\tt LAB\_GATEWAY}
+in order to get more control over the setting of a default gateway, e.g., as part of parameterization.
 This script will automatically retain a route table entry so that the student can reach the ``my\_host''
 address.  Additionally, those baseline images include a \textit{togglegw.sh} script that the student
 can use to toggle the default gateway between one that leads to the host, and one defined for the lab.
@@ -1741,11 +1945,15 @@ two container base images: \textit{tap} and \textit{netmon}.  The {\tt tap} comp
 to the student, it exists to collect traffic off of all networks whose {\tt start.config} definitions include
 the {\tt TAP YES} attribute.  The {\tt netmon} component should be defined with a single network interface
 to a network called {\tt TAP\_LAN}.  The {\tt netmon} component should be the only one on the {\tt TAP\_LAN}
-network, (do not add the {\tt tap} component to any network).  A service runs on the {\tt netmon} component
+network, (do not add the {\tt tap} component to any network).  The {\tt tap} component must have the {\tt TAP YES}
+attribute.  A service runs on the {\tt netmon} component
 that will receive network traffic sent by the {\tt tap} component, and store it into the {\tt /taps} directory
 within PCAP files named using the network name.  See the {\tt plc-traffic} lab as an example.
 
-The {\tt netmon} base is derived from the wireshark base.  You may add other tools to that containers as needed.
+The {\tt netmon} base is derived from the wireshark base.  You may add other tools to that container as needed.
+
+All containers attached to tapped networks will not be started until the tap and netmon containers are up
+and ready.  This ensures that all startup traffic is captured in the PCAPs.
 
 \subsection{Realistic Network Routing and DNS}
 Some labs will strive to represent realistic networking environments, 
@@ -1802,6 +2010,12 @@ NETWORK  LAN
 \end{figure}
 
 Also see the description of Multi-user labs in \ref{multi user}.
+
+\subsection{Network interface assignments}
+Docker appears to assign network connections to containers in alphabetical order.  E.g., connecting
+networks LAN1 and LAN2 to a container would result in LAN1 being connected to device eth0 -- regardless
+of the order in which LANs are defined within the start.config file.  Understanding this ordering may
+be helpful for networking labs, e.g., when defining routes.
 
 \section{Building, Maintaining and Publishing Labs} \label{publishing}
 This section describes how labs are built, maintained and published.  Additional information
@@ -1867,7 +2081,7 @@ baseline images, it is suggested that all local images be purged from the develo
 \begin{verbatim}
     /trunk/setup_scripts/destroy-docker.sh
 \end{verbatim}
-\noindent This will ensure the new baseline images to not incorporate layer remnants.
+\noindent This will ensure that new baseline images do not incorporate layer remnants.
 
 All new images should be first built and pushed onto the test registry, i.e., using the 
 {\tt ./publish\_image.sh <image> -t}
@@ -1993,6 +2207,16 @@ When the user types the {\tt labtainer} command with no arguments, the list will
 only include the latest version of that lab.  An exception is if the old lab already
 has been run in this installation, in which case both lab versions will display.
 
+\subsection{Creating new base images}
+Labtainer base images are managed using scripts and configuration files in the {\tt scripts/designer} directory.
+The {\tt bin} subdirectory includes a set of scripts that create various base images, and the
+{\tt base\_dockerfiles} contain their Dockerfiles.  Use those as a template.
+
+Typically, new base images are created to support a new lab.  Proper Labtainer lab Dockerfiles have {\tt FROM} directives
+that include the {\tt \$registry/} qualifier, however your new base image might not yet be published to a registry
+as you test it, and tagging the new base image with the registry name may complicate your desired workflow.  
+Use the {\tt -L} option to the {\tt rebuild} command to direct the build to use unqualified image names if needed.
+
 \subsection{Importing labs: Warning!}
 \label{warnings}
 Avoid the use of ``shared folders'' in VMWare and VirtualBox as a means of copying lab
@@ -2049,7 +2273,7 @@ files -- which may be trivial, e.g., if the IModule consists of lab manual modif
 or new lab guides.  Paths within tar files will be relative to the labtainers/lab
 directory.  For example, a revised telnet-lab manual would have the path:
 \begin{verbatim}
-telnet-lab/docs/telnet-lab.pdf
+    telnet-lab/docs/telnet-lab.pdf
 \end{verbatim}
 \noindent Note the modified source, e.g., docx files, need not be included in the IModule
 archive, though the support tools do include them.
@@ -2063,11 +2287,11 @@ For example, if the instructor publishes
 at \url{https://myschool/mystuff/labtainers/imodule.tar}, the students would each issue
 this command to Labtainers:
 \begin{verbatim}
-imodule myschool/mystuff/labtainers/imodule.tar
+    imodule myschool/mystuff/labtainers/imodule.tar
 \end{verbatim} 
 
-The student labs will be updated to include those IModules the next time the student runs
-either {\tt update-labtainer.sh} or {\tt imodule -u}.
+The student labs will be updated to include those IModules.  Student labs
+will be updated whenever the student runs either {\tt update-labtainer.sh} or {\tt imodule -u}.
 
 IModule support tools rely on instructor contributions existing in local git repositories.
 The tools do not reference remote repositories.  IModule repositories have no relationship
@@ -2076,9 +2300,19 @@ distributions rather than within local repo copies of the main Labtainer reposit
 instructors and lab designers are encourage to work from Labtainer distributions rather
 than repos pulled from the Labtainers repo at GitHub to avoid git repository conflicts.}
 
+\subsection{Testing IModules}
+Use a separate VM to test your IModules, i.e., not the VM used to develop the lab.  A separate
+Labtainer VM is suggested.  Use this independent VM to mimic what a student will see and do.  If
+you'd prefer to test an IModule prior to publishing the imodule.tar file, place the file on the
+test system and use the {\tt file://} URL syntax, e.g.,
+\begin{verbatim}
+    imodule file://home/student/imodules/imodule.tar
+\end{verbatim} 
+\noindent Use of SimLab, as described in \ref{testing} is encouraged to ensure the lab behaves as intended.
+
 \subsection {Custom lab manuals}
 The easiest way to provide your students with a custom version of a lab manual that they can reference from Labtainers
-is descrbed below.  This does not require that you use the Labtainer VM or git. The example assumes you are customizing
+is described below.  This does not require that you use the Labtainer VM or git. The example assumes you are customizing
 the telnet-lab manual.
 \begin{itemize}
 \item Create your version of the manual in the pdf format (if the manual source is docx, export it as pdf).
@@ -2098,7 +2332,7 @@ of the VM appliance.
 In this example, the instructor wants his or her students to work with a customized version
 of the telnet-lab manual.  
 \begin{itemize}
-\item Change directory to labtainer/labs
+\item Change directory to {\tt \$LABTAINER\_DIR/labs}
 \item Initialize the git archive: 
 \begin{verbatim}
 git init  
@@ -2131,7 +2365,7 @@ This example assumes the instructor has created a DockerHub registry that is pub
 \item Change directory to labtainer/labs
 \item Initialize git archive: git init  (Do this only once, no need to repeat for each IModule.)  
 \item Create the lab per the Lab Designer User Guide, for this example, we assume the lab is my-new-lab.
-\item Include the name of your DockerHub registry the lab config/start.config file.
+\item Include the name of your Docker Hub registry the lab config/start.config file {\tt REGISTRY} attribute.
 \item Complete development and testing of the lab, e.g., build a SimLab test.
 \item While in the my-new-lab directory, run {\tt cleanlab4svn.py} to remove temporary files that should not be under source control.
 \item While in the lab directory (parent of my-new-lab), add the lab to source control:
@@ -2141,16 +2375,21 @@ This example assumes the instructor has created a DockerHub registry that is pub
 \end{verbatim}
 \item Publish the lab container images: 
 \begin{verbatim}
+    cd $LABTAINER_DIR/distrib
     ./publish.py -d -l my-new-lab
 \end{verbatim}
-\noindent This will rebuild the lab container images and publish them to your DockerHub registry.  Note the {\tt -d} option directs the 
+\noindent This will rebuild the lab container images and publish them to your DockerHub registry.  Your {\tt start.config} files for 
+your labs name this registry, and that allows student Labtainer implementations to retrieve your lab images without having to rebuild them.
+Note the {\tt -d} option directs the 
 function to publish to the DockerHub registry named in your lab start.config file.  Otherwise, it will try to publish to a test registry.
 Use of test registries is optional, and are described in the \textit{Lab Designer User Guide}.
 \item Generate the updated IModule tar:
 \begin{verbatim}
     create-imodules.sh
 \end{verbatim}
-\item Then publish the imodule.tar to your website.
+\noindent This creates a tar that contains all of your IModule labs, i.e., those you have added to your git repo.  If you do not use git
+to manage your lab source, you will have to create the IModule.tar yourself.
+\item Then publish the imodule.tar to your website and distribute the URL to whoever you want to have access to your labs. 
 \end{itemize}
 
 \section {Remote access and control of Labtainer exercises}
@@ -2666,13 +2905,6 @@ scripts so that they happen on each boot.
 Note also, that the Docker group (in which containers execute) is root 
 equivalent, and thus a hostile container can do damage to the Linux host.
 
-\subsection {Student self assessment}
-The {\tt checkwork} command allows students to assess their own work against
-the criteria used by instructors for automated assessment of lab performance.
-This can be disabled on deployment-wide basis using the {\tt CHECKWORK no} directive
-in the {\tt config/labtainers.config} file.  Of course this assumes you have separately
-provided access control over that file, e.g., through use of a custom VM appliance.
-
 \subsection {Test registry setup}
 The test registry is a Docker container that runs on the host, i.e., native OS
 upon which the VMs run.  The same test registry is shared by multiple development VMs.
@@ -2700,7 +2932,9 @@ sequence of directives stored in a file at this location:
 \begin{verbatim}
 labtainer/simlab/<labname>/simthis.txt
 \end{verbatim}
-Note that simlab files are not in the svn trunk or in the github repository.  These
+The {\tt simlab} directory is at the same level as {\tt \$LABTAINER\_DIR}, i.e. at {\tt \$LABTAINER\_DIR/../simlab}.
+Note that simlab files are not in the github repository.  These
+files essentially contain lab solutions, and thus should not be openly published.
 files essentially contain lab solutions, and thus should not be openly published.
 \footnote{If you require simlab files for existing labs, contact me and try to convince
 me you actually need them (mfthomps@nps.edu).}
@@ -2789,7 +3023,8 @@ Most GUI's have shortcut keys that can be used to automate their inclusion in a 
 Firefox is brittle when it restarts.  See the {\tt fixfirefox.txt} SimLab script for the snort lab
 for an example of avoiding errors when Firefox restarts.
 
-\subsection{Regression testing with smoketest.py} \label{smoketest}
+\subsection{Regression testing with smoketest.py} 
+\label{smoketest}
 The {\tt smoketest.py} utility automates regression testing of labs.  It will automatically:
 \begin{itemize}
 \item Start a lab

@@ -137,6 +137,10 @@ if [ ! -z "$imagecheck" ] && [ $force_build = "False" ]; then
     echo "use exising image"
 else
     cp ../dockerfiles/$dfile .
+    if [[ $REGISTRY == "LOCAL" ]]; then
+        echo "using local registry"
+        sed -i 's/$registry\///' Docker*
+    fi
     echo docker build $cache --build-arg lab=$labimage --build-arg labdir="." --build-arg imagedir="." \
                  --build-arg user_name=$user_name --build-arg password=$user_password --build-arg apt_source=$APT_SOURCE \
                  --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY \

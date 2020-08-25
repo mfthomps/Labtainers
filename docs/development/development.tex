@@ -54,6 +54,10 @@ a Linux platform using VirtualBox.  That underlying Linux platform also hosts \t
 will run regression tests.  Other configurations are certainly possible, but they would require the
 developer to potentially alter procedures and/or scripts.
 
+The VirtualBox product is used to to run Labtainer VMs for testing.  Currently, tests are performed on 
+Ubuntu16 and Ubuntu18 VMs, the former tests backwards compatibility of the frameworks python3 support.
+
+
 \subsection{Linux host installation}
 The host platform should include VirtualBox (to host the Development VM and test VMs),  and Docker, 
 (to host a set of test registries).  The host platform should have a directory named SEED that will
@@ -69,21 +73,19 @@ of disk.
 \subsection{Developer Software Prerequisites}
 Labtainers is primarily implemented using python3.  The containers within a lab include python2 scripts that are
 part of the framework, e.g., functions that collect student artifacts.  The following packages are required on a
-Linux distribution to support Labtainer framework development.
+Linux distribution to support Labtainer framework development.  The packages can be installed using the
+{\tt setup\_scripts/dev-pkg.sh} script.
+
 \begin {itemize}
 \item {\bf git}
 \item {\bf make}
 \item {\bf g++}
-\item {\bf Latex} (texlive-extra)
+\item {\bf Latex} (texlive-latex-base and texlive-latex-extra)
 \item {\bf Docker (Community Edition)} [See {\bf Docker Installation} Section \ref{docker-install}]
 \item {\bf pip3} {\tt apt-get install python3-pip}
 \item {\bf dateutil} {\tt pip3 install py-dateutil}
 \item {\bf xdotool} 
-\item {\bf VirtualBox} 
 \end {itemize}
-
-The VirtualBox product is used to to run Labtainer VMs for testing.  Currently, tests are performed on 
-Ubuntu16 and Ubuntu18 VMs, the former tests backwards compatibility of the frameworks python3 support.
 
 \subsection{Getting Labtainers from Github}
 
@@ -116,7 +118,6 @@ fi
     \end{enumerate}
 \item cd into \$LABTAINER\_DIR/setup\_scripts:
     \begin{itemize}
-   	\item Run pull-all.py to get all base docker images.
     	\item Run build-docs.sh to build the lab manuals for all labs.
     \end{itemize}
 \item cd into \$LABTAINER\_DIR/tool-src/capinout and run {\tt ./mkit.sh}
@@ -133,7 +134,6 @@ to share distribution files between the development system and the test VMs.  Ac
 \label{docker-install}
 For full and convenient installation of Docker and setting of Docker privileges, run  'install-docker-ubuntu.sh' in 'setup\_scripts', assuming you are developing in Ubuntu. {\bf Note:} Make sure to run the script as user (not sudo), so that your user can be added to the Docker group.\\ 
     
-\noindent Reboot the system, so that user receives Docker privileges.
 
     \begin {itemize}
     \item If on a different Linux distribution look in the same folder for your corresponding distribution (CentOS, Debian, Fedora). 
@@ -141,6 +141,9 @@ For full and convenient installation of Docker and setting of Docker privileges,
     \item {\bf NOTE:} These install-docker scripts include the installation of other packages outside Docker that are necessary for building labs. 
     \end {itemize}
 
+\noindent Reboot the system, so that user receives Docker privileges.
+
+\noindent Run pull-all.py to get all base docker images.
 
 
 \section {Framework implementation overview}
@@ -417,7 +420,7 @@ Regression testing occurs within testing VMs that are provisioned from the Labta
 \item visudo and change sudo etnry to: ALL=(ALL) NOPASSWD:ALL
 \item apt-get install xdotool
 \item apt-get install vim
-\item setup-scripts/prep-testregistry.sh
+\item setup\_scripts/prep-testregistry.sh
 \item touch ~/labtainer/.dosmoke
 \item run the {\tt setup\_scripts/smoke-profile-add.sh}
 \item Add the vbox share group using {\tt setup\_scripts/vbox-share.sh} 
@@ -637,5 +640,21 @@ This is worked around with in the InspectRemoteReg.py.
 If you get the dreaded "docker.service: Start request repeated too quickly.", then:
 sudo systemctl daemon-reload
 sudo systemctl restart docker
+
+\subsection{tap/netmon Boot synchronization}
+Capturing network traffic using tap/netmon components may depend on those components being up with their respective
+services prior to other components generating network traffic.  Typical Unix-based synchronization is not possible
+because the netmon component is not on other networks.  No communication paths between components and the tap/netmon
+components are visible to the student, and thus mechanisms that reflect such communication are an anachronism.
+
+That implies use of a hidden synchronziation scheme.  Or sleep based hacks.  This synchronization must(should?) occur on 
+each start, not just the first parameterization.  Once a container starts, we cannot delay their services without adding
+something new to each.
+Delay start of other components until tap/netmon have started?
+Add new service similar to wait\_param that will wait for tap/netmon to run?  Automatically add to each component
+on a tapped network?
+
+Add volume to tap and use subdirectory as a lock.  Sleep docker start threads for components that attach to
+tapped networks?  Advantage is designer need not configure individual components.  
 
 \end{document}

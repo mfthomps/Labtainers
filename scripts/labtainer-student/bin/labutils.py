@@ -130,9 +130,12 @@ def get_ip_address(ifname):
 
 def get_hw_address(ifname):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', bytes(ifname, 'utf-8')[:15]))
-    return ':'.join('%02x' % b for b in info[18:24])
-
+    if sys.version_info >=(3,0):
+        info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', bytes(ifname, 'utf-8')[:15]))
+        return ':'.join('%02x' % b for b in info[18:24])
+    else:
+        info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', str(ifname[:15])))
+        return ':'.join(['%02x' % ord(char) for char in info[18:24]])
 
 def get_new_mac(ifname):
     ''' use last two byte of mac address to generate a new mac
@@ -173,6 +176,12 @@ def ParameterizeMyContainer(mycontainer_name, container_user, container_password
         running_container = mycontainer_name
     ''' copy lab_bin and lab_sys files into .local/bin and / respectively '''
     CopyLabBin(running_container, container_user, lab_path, name, image_info)
+
+    cmd = 'docker exec %s script -q -c "chown -R %s:%s /home/%s"' % (mycontainer_name, container_user, container_user, container_user)
+    if not DockerCmd(cmd):
+        logger.error('failed %s' % cmd)
+        exit(1)
+        
     cmd_path = '/home/%s/.local/bin/parameterize.sh' % (container_user)
     if container_password == "":
         container_password = container_user
@@ -208,7 +217,7 @@ def DoCmd(cmd):
     output = ps.communicate()
     retval = True
     if len(output[1]) > 0:
-        logger.error(output[0].decode('utf-8'))
+        logger.error(output[1].decode('utf-8'))
         retval = False
     if len(output[0]) > 0:
         logger.debug(output[0].decode('utf-8'))
@@ -220,11 +229,10 @@ def StartMyContainer(mycontainer_name):
     if IsContainerRunning(mycontainer_name):
         logger.error("Container %s is already running!\n" % (mycontainer_name))
         sys.exit(1)
-    if retval:
-        command = "docker start %s" % mycontainer_name
-        logger.debug("Command to execute is (%s)" % command)
-        if not DoCmd(command):
-            retval = False
+    command = "docker start %s" % mycontainer_name
+    logger.debug("Command to execute is (%s)" % command)
+    if not DoCmd(command):
+        retval = False
     return retval
 
 def AllContainersCreated(container):
@@ -337,7 +345,7 @@ def GetContainerCloneNames(container):
             retval[fullname] = hostname
     return retval
        
-def GetDNS(): 
+def GetDNS_NMCLI(): 
     dns_param = ''
     dns_param = '--dns=8.8.8.8'
     cmd="nmcli dev show | grep 'IP4.DNS'"
@@ -348,6 +356,20 @@ def GetDNS():
             dns_param = '--dns=%s %s' % (line.split()[1].strip(), dns_param)
             ''' just take first '''
             break
+    return dns_param
+def GetDNS(): 
+    dns_param = ''
+    dns_param = '--dns=8.8.8.8'
+    cmd="systemd-resolve --status | grep 'DNS Servers:'"
+    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if len(output[0]) > 0: 
+        for line in output[0].decode('utf-8').splitlines(True):
+            dns_param = '--dns=%s %s' % (line.split()[2].strip(), dns_param)
+            ''' just take first '''
+            break
+    else:
+        dns_param = GetDNS_NMCLI()
     return dns_param
 
 def GetX11SSH():
@@ -430,9 +452,9 @@ def isFirefox(image_name):
 
 def FindTapMonitor(start_config):
     for container_name in start_config.containers:
-        logger.debug('FindTapMonitor check %s' % container_name)
+        #logger.debug('FindTapMonitor check %s' % container_name)
         for subnet in start_config.containers[container_name].container_nets:
-            logger.debug('FindTapMonitor check lan %s' % subnet)
+            #logger.debug('FindTapMonitor check lan %s' % subnet)
             if subnet.lower() == 'tap_lan':
                 ip = start_config.containers[container_name].container_nets[subnet]
                 return container_name, ip
@@ -511,7 +533,7 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
                 #volume='--security-opt seccomp=unconfined --tmpfs /run --tmpfs /run/lock -v /sys/fs/cgroup:/sys/fs/cgroup:ro'
         if container.x11.lower() == 'yes':
             #volume = '-e DISPLAY -v /tmp/.Xll-unix:/tmp/.X11-unix --net=host -v$HOME/.Xauthority:/home/developer/.Xauthority'
-            volume = volume+' --env="DISPLAY"  --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw"'
+            volume = volume+' --env="DISPLAY" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw"'
             logger.debug('container using X11')
 
         volume = HandleVolumes(volume, container)
@@ -554,6 +576,8 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
             monitor_tap, ip = FindTapMonitor(start_config)
             if monitor_tap is not None:
                 add_host_param = '--add-host monitor_tap:%s %s' % (ip, add_host_param)
+                wait_tap_dir = GetWaitTapDir()
+                volume = '%s --volume %s:/tmp/wait_tap_dir' % (volume, wait_tap_dir)
 
             
         dns_param = GetDNS()
@@ -629,12 +653,15 @@ def CheckPromisc(iface):
 
 # Create SUBNETS
 def CreateSubnets(start_config):
+    has_tap = False
     subnets = start_config.subnets
     #for (subnet_name, subnet_network_mask) in networklist.iteritems():
     for subnet_name in subnets:
         subnet_network_mask = subnets[subnet_name].mask
         logger.debug("subnet_name is %s" % subnet_name)
         logger.debug("subnet_network_mask is %s" % subnet_network_mask)
+        if subnets[subnet_name].tap:
+            has_tap = True
 
         command = "docker network inspect %s" % subnet_name
         logger.debug("Command to execute is (%s)" % command)
@@ -674,6 +701,9 @@ def CreateSubnets(start_config):
                 found_match_network_name = ""
                 # Before a hard exit - give the user some indication of what to do next
                 # First check to see if a gateway is provided and it is already used
+                if 'no matching subnet' in output[1].decode('utf-8'):
+                    logger.error('Config error: %s' % output[1].decode('utf-8'))
+                    exit(1)
                 if subnets[subnet_name].gateway != None:
                     found_match_network, found_match_network_name = FindNetworkGivenGatewayIP(subnets[subnet_name].gateway)
                     # If Gateway IP address not okay, no need to check subnet anymore
@@ -708,10 +738,11 @@ def CreateSubnets(start_config):
                         sys.exit(1)
         else:
             logger.warning("Already exists! Not creating %s subnet at %s!\n" % (subnet_name, subnet_network_mask))
-
+    return has_tap
 def RemoveSubnets(subnets, ignore_stop_error):
     for subnet_name in subnets:
         command = "docker network rm %s" % subnet_name
+        logger.debug('command %s' % command)
         ps = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         output = ps.communicate()
         if len(output[1].decode('utf-8')) > 0:
@@ -1110,7 +1141,13 @@ def MakeNetMap(start_config, mycontainer_name, container_user):
                         break
         cmd = 'docker cp /tmp/net_map.txt  %s:/var/tmp/' % (mycontainer_name)
         DockerCmd(cmd)
-        
+       
+def WaitForTap():
+    tap_dir = GetWaitTapDir()
+    tap_lock = os.path.join(tap_dir,'lock')
+    while not os.path.isdir(tap_lock):
+        logger.debug('tap dir does not yet exist')
+        time.sleep(1)
     
 def DoStartOne(labname, name, container, start_config, labtainer_config, lab_path,  
                student_email, quiet_start, results, auto_grade, image_info):
@@ -1170,7 +1207,10 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
        
         clone_names = GetContainerCloneNames(container)
         for mycontainer_name in clone_names:
+            wait_for_tap = False
             for mysubnet_name, mysubnet_ip in container.container_nets.items():
+                if start_config.subnets[mysubnet_name].tap:
+                    wait_for_tap = True
                 if mysubnet_name in container.did_nets:
                     continue
                 
@@ -1187,7 +1227,8 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                         post_start_nets[subnet_name].append(mysubnet_ip)
                 else:
                     connectNetworkResult = ConnectNetworkToContainer(start_config, mycontainer_name, mysubnet_name, mysubnet_ip)
-
+            if wait_for_tap:
+                WaitForTap()
             # Start the container
             if not StartMyContainer(mycontainer_name):
                 logger.error("Container %s failed to start!\n" % mycontainer_name)
@@ -1221,6 +1262,21 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                 DockerCmd(cmd)
             if container.tap == 'yes':
                 MakeNetMap(start_config, mycontainer_name, container_user)
+            if container.lab_gateway is not None:
+                cmd = "docker exec %s bash -c 'sudo /usr/bin/set_default_gw.sh %s'" % (mycontainer_name, 
+                        container.lab_gateway)
+                if not DockerCmd(cmd):
+                    logger.error('Fatal error in docker command %s' % cmd) 
+                    results.append(False)
+                    return
+                cmd = "docker exec %s bash -c 'sudo echo \"nameserver %s\" >/etc/resolv.conf'" % (mycontainer_name, 
+                        container.lab_gateway)
+                if not DockerCmd(cmd):
+                    logger.error('Fatal error in docker command %s' % cmd) 
+                    results.append(False)
+                    return
+                cmd = "docker exec %s bash -c 'sudo route del my_host'" % (mycontainer_name)
+                DockerCmd(cmd)
     
         results.append(retval)
 
@@ -1497,6 +1553,11 @@ def DoTerminals(start_config, lab_path, run_container=None, servers=None, contai
         logger.debug("gnome spawn: %s" % spawn_command)
         #os.system(spawn_command)
 
+def GetWaitTapDir():
+    user = os.getenv('USER')
+    wait_tap_dir = os.path.join('/tmp', user, 'wait_tap_dir')
+    return wait_tap_dir
+
 def DoStart(start_config, labtainer_config, lab_path, 
             quiet_start, run_container, servers, clone_count, auto_grade=False, debug_grade=False, container_images=None):
     labname = os.path.basename(lab_path)
@@ -1528,7 +1589,19 @@ def DoStart(start_config, labtainer_config, lab_path,
                 sys.exit(1)
 
     # Create SUBNETS
-    CreateSubnets(start_config)
+    if CreateSubnets(start_config):
+        ''' don't create tapped containers until tap is ready '''
+        tap_lock_dir = GetWaitTapDir()
+        lock = os.path.join(tap_lock_dir, 'lock')
+        try:
+            os.rmdir(lock)
+        except:
+            pass
+        try:
+            os.makedirs(tap_lock_dir)
+        except:
+            pass
+        
     student_email = None
     threads = []
     results = []
@@ -1675,6 +1748,7 @@ def StartLab(lab_path, force_build=False, is_redo=False, quiet_start=False,
             logger.debug('Cached start.config removed %s' % my_start_config)
             os.remove(my_start_config)
        
+    x11 = False
     container_images = {} 
     for name, container in start_config.containers.items():
         if SkipContainer(run_container, name, start_config, servers):
@@ -1682,6 +1756,8 @@ def StartLab(lab_path, force_build=False, is_redo=False, quiet_start=False,
             continue
         mycontainer_name       = container.full_name
         mycontainer_image_name = container.image_name
+        if container.x11.lower() == 'yes':
+            x11 = True
         if is_redo:
             # If it is a redo then always remove any previous container
             # If it is not a redo, i.e., start.py then DO NOT remove existing container
@@ -1719,6 +1795,12 @@ def StartLab(lab_path, force_build=False, is_redo=False, quiet_start=False,
     # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
     host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
     CreateHostHomeXfer(host_xfer_dir)
+    if x11:
+        sockets = os.listdir('/tmp/.X11-unix')
+        if len(sockets) == 0:
+            print('Cannot create X11 windows, the socket is missing.  Try rebooting your VM')
+            logger.debug('Cannot create X11 windows, the socket is missing.  Try rebooting your VM')
+            exit(1)
 
     DoStart(start_config, labtainer_config, lab_path, quiet_start, 
             run_container, servers=servers, clone_count=clone_count, auto_grade=auto_grade, 
@@ -1734,7 +1816,9 @@ def RedoLab(lab_path, force_build=False, is_redo=False, quiet_start=False,
     myhomedir = os.environ['HOME']
     # Pass 'True' to ignore_stop_error (i.e., ignore certain error encountered during StopLab
     #                                         since it might not even be an error)
-    StopLab(lab_path, True)
+    lab_list, dumb = GetListRunningLabType()
+    if len(lab_list) > 0:
+        StopLab(lab_path, True)
     is_redo = True
     StartLab(lab_path, force_build, is_redo=is_redo, quiet_start=quiet_start,
              run_container=run_container, servers=servers, clone_count=clone_count, auto_grade=auto_grade, debug_grade=debug_grade)
@@ -1764,7 +1848,7 @@ def PreStop(container_name, ts):
     cmd = "docker exec %s bash -c 'ls -l %s'" % (container_name, cmd_path)
 
     if DockerCmd(cmd, noloop=True):
-        cmd = "docker exec %s bash -c '%s >$HOME/.local/result/prestop.stdout.%s'" % (container_name, cmd_path, ts)
+        cmd = "docker exec %s bash -c 'timeout -s SIGTERM 20s %s >$HOME/.local/result/prestop.stdout.%s 2>&1'" % (container_name, cmd_path, ts)
         DockerCmd(cmd, noloop=True)
 
 def GatherOtherArtifacts(lab_path, name, container_name, container_user, container_password, ignore_stop_error):
@@ -2141,13 +2225,6 @@ def AllContainersRunning(container):
             return False
     return True
 
-def AnyContainersRunning(container):
-    clone_names = GetContainerCloneNames(container)
-    for clone_full in clone_names:
-        if not IsContainerRunning(clone_full):
-            return False
-    return True
-
 def IsContainerRunning(mycontainer_name):
     cmd = 'docker ps -f id=%s' % mycontainer_name
     try:
@@ -2244,6 +2321,7 @@ def DoStopOne(start_config, labtainer_config, lab_path, name, container, zip_fil
 def SynchStop(start_config, run_container=None):
     threads = []
     now = datetime.datetime.now()
+    ''' NOTE all prestop stdout will have same timestamp. '''
     ts = now.strftime('%Y%m%d%H%M%S')
     for name, container in start_config.containers.items():
         if run_container is not None and container.full_name != run_container:

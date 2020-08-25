@@ -9,7 +9,6 @@
 if [[ -z $myshare ]]; then
     myshare=/media/sf_SEED
 fi
-tmp_dir=/tmp/labtainer_tests
 tmp_dir=$(mktemp -d -t labtainer_tests-XXXXXXXX)
 rm -fr $tmp_dir
 mkdir $tmp_dir
@@ -27,5 +26,8 @@ echo "Make simlab distribution from branch: $branch"
 $here/fix-git-dates.py simlab $tmp_dir $branch
 #git archive master simlab | tar -x -C $tmp_dir
 cd $tmp_dir
-tar czf /tmp/labtainer-tests.tar trunk simlab
-mv /tmp/labtainer-tests.tar $myshare
+mkdir -p /tmp/$USER
+tar czf /tmp/$USER/labtainer-tests.tar trunk simlab
+mv /tmp/$USER/labtainer-tests.tar $myshare
+tar --exclude expected -czf /tmp/$USER/simlab-dist.tar simlab
+mv /tmp/$USER/simlab-dist.tar $myshare

@@ -10,6 +10,7 @@ import filecmp
 sys.path.append('./bin')
 import ParseLabtainerConfig
 import labutils
+import check_nets
 import LabtainerLogging
 
 class SmokeTest():
@@ -93,7 +94,14 @@ class SmokeTest():
             cmd = 'removelab.py %s' % lab
             result = subprocess.call(cmd, shell=True, stderr=self.outfile, stdout=self.outfile)
             self.logger.debug('removelab %s result %d' % (lab, result))
-                    
+            
+        print('do check_nets')       
+        if not check_nets.checkNets(True):
+            if not check_nets.checkNets(False):
+                retval = False
+                self.logger.error('check_net error')
+            else:
+                self.logger.debug('check_net fixed docker errors')
        
         return retval
 

@@ -26,5 +26,6 @@ while read line; do
     ( /bin/labdump.sh $br $net $mac $SERVER $PORT & )
     echo "started for $br $net $mac $SERVER $PORT"
 done </var/tmp/net_map.txt
+mkdir -p /tmp/wait_tap_dir/lock
 sleep infinity
 

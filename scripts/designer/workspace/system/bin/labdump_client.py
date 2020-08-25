@@ -65,7 +65,7 @@ try:
                 logging.error('send error %s\n' % e)
                 exit(1)
         else:
-            logging.debug('labdump client, no data')
+            #logging.debug('labdump client, no data')
             pass
 except:
     e = sys.exc_info()[0]

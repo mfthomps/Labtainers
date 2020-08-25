@@ -153,11 +153,11 @@ def DoLab(lab, labsdir, force, logger, do_login, use_default_registry, default_r
         if use_default_registry:
             if registry != default_registry:
                 print('registry %s not equal %s, login' % (registry, default_registry))
-                os.system('docker login -u %s' % registry)
+                os.system('docker login')
             else:
                 registry = default_registry
                 if do_login:
-                    os.system('docker login -u %s' % registry)
+                    os.system('docker login')
         docker_dir = os.path.join(labsdir, lab, 'dockerfiles')
         #pushIt(lab, docker_dir, registry, base_registry, logger)
         pushImage(lab, docker_dir, registry_info, logger)
@@ -231,7 +231,7 @@ def main():
     
         # Do login here and now so we don't wait for lab to build before prompt
         if args.default_registry:
-            os.system('docker login -u %s' % default_registry)
+            os.system('docker login')
         #cmd = 'svn ls  https://tor.ern.nps.edu/svn/proj/labtainer/trunk/labs'
         cmd = 'git ls-files ./ | cut -d/ -f1 | uniq'
         child = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)

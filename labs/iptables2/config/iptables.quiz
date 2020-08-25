@@ -1,0 +1,7 @@
+# iptables quiz
+0, Preface, "The following quiz is intended to help you determine if you are ready to perform the lab."
+1, TrueFalse, "In this lab, you will configure a firewall to use malware signatures to block traffic destined for a server.", F, 
+"This lab will use iptables to filter network traffic destined for a server.", 
+"This lab will use iptables to filter network traffic destined for a server based on IP packet addresses and port numbers."
+2, TrueFalse, "Packet filtering occurs within the Linux kernel based on rules defined by the iptables program.", T, "", ""
+3, TrueFalse, "The nmap utility can be used to find open ports on a network connection.", T, "",""

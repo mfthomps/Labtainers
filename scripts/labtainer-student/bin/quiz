@@ -1,0 +1,198 @@
+#!/usr/bin/env python3
+'''
+This software was created by United States Government employees at 
+The Center for Cybersecurity and Cyber Operations (C3O) 
+at the Naval Postgraduate School NPS.  Please note that within the 
+United States, copyright protection is not available for any works 
+created  by United States Government employees, pursuant to Title 17 
+United States Code Section 105.   This software is in the public 
+domain and is not subject to copyright. 
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+'''
+
+'''
+Administer a quiz base on the content of a lab quiz file found
+in the lab's config directory.
+'''
+import labutils
+import LabtainerLogging
+import pickle
+import sys
+import re
+import codecs
+import os
+import textwrap
+import signal
+import argparse
+import glob
+import csv
+class color:
+   PURPLE = '\033[95m'
+   CYAN = '\033[96m'
+   DARKCYAN = '\033[36m'
+   BLUE = '\033[94m'
+   GREEN = '\033[92m'
+   YELLOW = '\033[93m'
+   RED = '\033[91m'
+   BOLD = '\033[1m'
+   UNDERLINE = '\033[4m'
+   END = '\033[0m'
+
+def signal_handler(sig, frame):
+    print('\n\nExiting at user request.')
+    sys.exit(0)
+
+def doFormat(s, first="", subsequent=""):
+    f = textwrap.fill(s, initial_indent=first, subsequent_indent=subsequent)
+    formatted = codecs.decode(f, "unicode_escape")
+    return formatted
+
+class TrueFalse():
+    def __init__(self, qid, qlist):
+        if len(qlist) < 4:
+            print('Not enough elements in this question: %s' % str(qlist))
+            exit(1)
+        self.qid = str(qid)
+        self.question = re.sub(r'^"|"$', '', qlist[0].strip())
+        self.answer = qlist[1].strip()
+        self.right_response = qlist[2].strip()
+        self.wrong_response = qlist[3].strip()
+        if len(qlist) > 4:
+            self.prereq = str(qlist[4].strip().lower())
+        else:
+            self.prereq = None
+    def ask(self):
+        retval = None
+        a = input(doFormat(self.question, 'Question: ', '          ')+' (T/F)?')
+        
+        if a.upper() == self.answer.upper():
+            print(color.BOLD+'Correct.'+color.END+' %s' % doFormat(self.right_response, "", "         "))
+        else:
+            print(color.BOLD+'Incorrect.'+color.END+'  %s' % doFormat(self.wrong_response, "", "         "))
+            retval = a.upper()
+        return retval 
+    def prereqCheck(self, results):
+        ''' if this question has a prerequisite, determine if the answer to that qid was wrong and if so, return False '''
+        ''' Retrun true if the question should be asked '''
+        retval = True
+        if self.prereq is not None:
+            if self.prereq not in results:
+                retval = False
+ 
+        return retval
+class Preface():
+    def __init__(self, preface):
+        self.preface = re.sub(r'^"|"$', '', preface.strip())
+        self.qid = ''
+
+    def ask(self):
+
+        l = textwrap.fill(self.preface)
+        formatted = codecs.decode(l, "unicode_escape")
+        print('%s' % formatted)
+    def prereqCheck(self, dumb):
+        return True
+
+def parseQuest(quest):
+    qfixed = re.sub(r', *"', ',"', quest)
+    qlist = list(csv.reader([qfixed]))[0]
+
+    if len(qlist) < 2:
+        print('bad line? %s' % quest)
+        return None
+    qid = qlist[0].strip().lower()
+    if qlist[1].strip().upper() == 'TRUEFALSE':
+        tf = TrueFalse(qid, qlist[2:])
+        return tf 
+    elif qlist[1].strip().upper() == 'PREFACE':
+        p = Preface(qlist[2])
+        return p 
+    return None
+
+def doQuiz(qfile):
+    results = {}
+    quest_list = []
+    signal.signal(signal.SIGINT, signal_handler)
+    with open(qfile) as fh:
+        quest = ''
+        for line in fh:
+            line = line.strip()
+            if line.startswith('#'):
+                continue
+            if not line.endswith('\\'):
+                quest = quest+line
+                if not line.endswith(','):
+                    q = parseQuest(quest)
+                    if q is not None:
+                        if q.prereqCheck(results):
+                            result = q.ask()
+                            if result is not None:
+                                results[q.qid]=result
+                            print('')
+                    quest = ''
+            else:
+                quest = quest+line[:-1]
+    if len(results) == 0:
+        print('\n\n You answered all questions correctly.')
+    else:
+        print('\n\n You had %d incorrect answers.' % len(results))
+            
+if __name__ == '__main__': 
+    parser = argparse.ArgumentParser(description='Take a quiz.  If no lab name is given, the quiz is assumed to be for the currently running lab.')
+    parser.add_argument('-l', '--lab', action='store', default=None, help='Lab whose quiz is to be taken.  Defaults to currently running lab.')
+    parser.add_argument('-q', '--quiz', action='store', default=None, help='Name of the quiz to take.  Only required if the lab has more than one quiz.')
+    args = parser.parse_args()
+    labname = None 
+    lablist = []
+    labutils.logger = LabtainerLogging.LabtainerLogging("quiz.log", 'quiz', "../../config/labtainer.config")
+    lablist = labutils.GetListRunningLab()
+    if args.lab is not None:
+        labname = args.lab
+    else:
+        if len(lablist) > 1:
+            print('multiple labs running, specify the name of the lab whose quiz is to be taken with the -l option.')
+            sys.exit(0)
+        elif len(lablist) == 0:
+            print('No labs are currently running. Specify the name of the lab with the -l option.')
+            sys.exit(0)
+        else:
+            labname = lablist[0]
+
+    labutils.logger.debug("Begin logging quiz for %s lab" % labname)
+    
+    lab_path = os.path.join(os.path.abspath('../../labs'), labname)
+    quizzes = glob.glob(lab_path+'/config/*.quiz') 
+    qnames = [os.path.basename(item)[:-5] for item in quizzes]
+    if len(quizzes) == 0:
+        print('The lab has no quizzes')
+        exit(0)
+    if len(quizzes) > 1 and args.quiz is None:
+        print('Multiple quizzes for this lab.  Pick one with the -q option: %s' % (' '.join(qnames)))
+        exit(0)
+    if len(quizzes) > 1 and args.quiz not in qnames:
+        print('Given quiz %s not one of the quizzes for this lab, which are: %s' %(' ',join(qnames)))
+        exit(0)
+    if args.quiz is None:
+        quiz = os.path.join(lab_path,'config', qnames[0]+'.quiz')
+    else:
+        quiz = os.path.join(lab_path,'config', args.quiz+'.quiz')
+    doQuiz(quiz)

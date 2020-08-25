@@ -21,8 +21,8 @@ Fully provisioned cybersecurity labs\par
 \vspace*{2\baselineskip}
 \today
 \vfill
-\includegraphics[natwidth=200, natheight=286]{labtainer5-sm.png}
-  %\includegraphics[width=\linewidth, scale=0.50,natwidth=200, natheight=286]{labtainer5-sm.png}
+\includegraphics[width=2in]{labtainer5-sm.png}
+%\includegraphics[width=\linewidth, scale=0.50,natwidth=200, natheight=286]{labtainer5-sm.png}
 \vfill
 \end{titlepage}
 
@@ -169,8 +169,31 @@ A student's work on any given lab is preserved until and unless the student rest
 option on the {\tt labtainer <labname> -r} command.  When taking a break from work on a lab, the student can
 either stop the lab using {\tt stoplab}, or simply pause the VM.  However, if the student wishes to perform other
 Labtainer-related work on the VM, (e.g., revisit a previous lab), they should first use {\tt stoplab} for the current
-lab.  When the restart the lab, none of their work will be lost.
+lab.  When they restart the lab, none of their work will be lost.
 
+\subsection{Deploying without the Internet}
+Labtainers pulls Docker images from Docker Hub when a student first runs any given lab.  You can deploy
+Labtainers within environments that have no Internet connection by first creating your own 
+VM template.  Start with the standard Labtainers VM, and run the script at 
+\begin{verbatim}
+   $LABTAINER_HOME/setup_scripts/pull_lab.py
+\end{verbatim}
+\noindent to pull images for your desired labs onto the VM.  Then replicate that VM for each user, e.g., by
+exporting it as an appliance.
+
+\subsection{Deploying on servers}
+Labtainer VMs can run on servers that students access via web browsers using tools such as VMWare Horizon 
+and Apache Guacamole. In these environments, each student is allocated a VM, and that VM's desktop is seen 
+by the student in the browser.  Students deliver their results to instructors by starting a browser
+within the VM, e.g., to access an LMS or web-mail account.
+
+\section{Customizing Labtainers}
+Creating new labs and modifying existing labs is described in the \textit{Labtainers Lab Designer User Guide}.
+\url{https://nps.box.com/shared/static/12n0y4yue49xcxtpv0jybgqiiskx8pr6.pdf}
+
+That guide also describes how to provide your students with custom versions of the lab manuals, and how to
+publish new labs so that they can be incorporated into your student's Labtainers instances, and shared
+with other educators.
 
 \newpage
 \appendix

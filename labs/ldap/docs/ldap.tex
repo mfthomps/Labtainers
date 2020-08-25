@@ -115,7 +115,8 @@ LDAP addition is to be made.  Use {\tt man ldapadd} to learn more about the synt
 that command. 
 The initial password for the mike user was created with this command:
 \begin{verbatim}
-ldappasswd -s password123 -W -D "cn=admin,dc=example,dc=com" -x "uid=mike,ou=users,dc=example,dc=com"
+ldappasswd -s password123 -W -D "cn=admin,dc=example,dc=com" \
+   -x "uid=mike,ou=users,dc=example,dc=com"
 \end{verbatim}
 
 Create ldif files to define a new group named ``qa'' and a new user having an ID of ``mary''.

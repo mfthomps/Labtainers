@@ -25,7 +25,7 @@ if os.path.isfile(jfile):
 else:
     print('no file at %s' % jfile)
     if not os.path.isdir('/etc/docker'):
-        os.path.mkdir('/etc/docker')
+        os.mkdir('/etc/docker')
     data = {}
 
 if 'dns' in data:
