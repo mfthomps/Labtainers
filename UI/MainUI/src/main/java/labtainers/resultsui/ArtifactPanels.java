@@ -9,6 +9,7 @@ import java.awt.Dimension;
 import java.util.ArrayList;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 import static labtainers.resultsui.ParamReferenceStorage.FieldType_ITEMS;
 import static labtainers.resultsui.ParamReferenceStorage.LOG_ACCESIBLE_FieldType;
@@ -117,6 +118,11 @@ public class ArtifactPanels extends javax.swing.JPanel {
         jLabel3.setText("10");
 
         jButton1.setText("Delete");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         UpButton.setFont(new java.awt.Font("Ubuntu", 0, 15)); // NOI18N
         UpButton.setText("^");
@@ -267,6 +273,13 @@ public class ArtifactPanels extends javax.swing.JPanel {
     private void TimeStampComboBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_TimeStampComboBoxItemStateChanged
         timeStampListener();
     }//GEN-LAST:event_TimeStampComboBoxItemStateChanged
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+       JPanel container = (JPanel)this.getParent();
+       container.remove(this);
+       uiResult.data.rowCount--;
+       uiResult.refresh();
+    }//GEN-LAST:event_jButton1ActionPerformed
 
         //The listeners sees what values are present in their respective fields and then changes the interface based on that(remove or adding other fields)
     private void lineTypeListener(){

@@ -231,6 +231,12 @@ public class ResultsUI extends javax.swing.JDialog {
     protected JPanel getPanelofArtifacts(){
         return PanelofArtifacts;
     }
+    
+     //Updates the list of artifacts and redraws them on screen
+    void refresh(){
+       data.updateListofArtifacts(PanelofArtifacts);       
+       loadUI();
+    }
 
     /**
      * @param args the command line arguments
