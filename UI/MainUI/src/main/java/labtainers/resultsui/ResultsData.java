@@ -573,6 +573,7 @@ public class ResultsData {
             case "DOWN":
                 //System.out.println(rowCount);
                 //System.out.println("RowINdex: " + rowIndex + " RowCount-1: "+ (rowCount-1));
+                System.out.println(rowIndex < rowCount-1);
                 if(rowIndex < rowCount-1){
                     //System.out.println("DOWN: "+listofArtifacts.get(rowIndex).resultTag);
                     Collections.swap(listofArtifacts, rowIndex, rowIndex+1);

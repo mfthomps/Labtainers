@@ -8,6 +8,7 @@ package labtainers.resultsui;
 import java.awt.Component;
 import java.awt.Dimension;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import labtainers.mainui.MainWindow;
 
@@ -102,7 +103,12 @@ public class ResultsUI extends javax.swing.JDialog {
             }
         });
 
-        UpdateButton.setText("Update");
+        UpdateButton.setText("Confirm Changes");
+        UpdateButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                UpdateButtonActionPerformed(evt);
+            }
+        });
 
         jLabel5.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
         jLabel5.setText("File");
@@ -125,25 +131,26 @@ public class ResultsUI extends javax.swing.JDialog {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(ScrollPaneOfArtifacts, javax.swing.GroupLayout.PREFERRED_SIZE, 1566, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(CreateButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(RemoveAllButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(UpdateButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
-            .addGroup(layout.createSequentialGroup()
-                .addGap(91, 91, 91)
-                .addComponent(jLabel1)
-                .addGap(79, 79, 79)
-                .addComponent(jLabel2)
-                .addGap(73, 73, 73)
-                .addComponent(jLabel5)
-                .addGap(111, 111, 111)
-                .addComponent(jLabel3)
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(ScrollPaneOfArtifacts, javax.swing.GroupLayout.PREFERRED_SIZE, 1566, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(CreateButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(RemoveAllButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(UpdateButton, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(91, 91, 91)
+                        .addComponent(jLabel1)
+                        .addGap(79, 79, 79)
+                        .addComponent(jLabel2)
+                        .addGap(73, 73, 73)
+                        .addComponent(jLabel5)
+                        .addGap(111, 111, 111)
+                        .addComponent(jLabel3)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -169,25 +176,29 @@ public class ResultsUI extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void CreateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CreateButtonActionPerformed
-        data.rowCount++;
-        addResultsPanel(new ArtifactPanels(this, data.containerList,data.rowCount));
+        addResultsPanel(new ArtifactPanels(this, data.containerList,data.rowCount+1));
+        resultsScrollPaneBar.setValue(resultsScrollPaneBar.getMaximum());
     }//GEN-LAST:event_CreateButtonActionPerformed
 
     private void RemoveAllButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RemoveAllButtonActionPerformed
         removeAllButton();
     }//GEN-LAST:event_RemoveAllButtonActionPerformed
 
+    private void UpdateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UpdateButtonActionPerformed
+        //data.writeResultsConfig(PanelofArtifacts);
+    }//GEN-LAST:event_UpdateButtonActionPerformed
+
     private void removeAllButton(){
            if(JOptionPane.showConfirmDialog(null, "Are you sure you want to remove all?") == JOptionPane.YES_OPTION){
                 removeAllArtifacts();
-                data.rowCount = 0;
-                resultsPanePanelLength = 0;
-                PanelofArtifacts.setPreferredSize(new Dimension(0,resultsPanePanelLength));
            }          
     }
     
      //Removes all the artifact lines for the lab *note: this doesn't update results.config or the resultsData until the user hits the update button
     private void removeAllArtifacts(){
+        data.rowCount = 0;
+        resultsPanePanelLength = 0;
+        PanelofArtifacts.setPreferredSize(new Dimension(0,resultsPanePanelLength));
         Component[] componentList = PanelofArtifacts.getComponents();
         for(Component c: componentList){
             PanelofArtifacts.remove(c);
@@ -207,22 +218,20 @@ public class ResultsUI extends javax.swing.JDialog {
         PanelofArtifacts.setPreferredSize(new Dimension(0,resultsPanePanelLength));
         
         // Create the Result Artifact Panel and add it
+        data.rowCount++;
         PanelofArtifacts.add(panel); //takes in parent(this), containerlist, rowcount
         
         // Redraw GUI with the new Panel
         PanelofArtifacts.revalidate();
         PanelofArtifacts.repaint(); 
-        
-        //Lower the Scroll Bar to show the newly added container (BUG[6/25/20]: still always off by a single panel)
-        resultsScrollPaneBar.setValue(resultsScrollPaneBar.getMaximum());
     }    
     
     
-    
-    
-    
-    
-    
+    //Gets the panel holding the artifacts
+    protected JPanel getPanelofArtifacts(){
+        return PanelofArtifacts;
+    }
+
     /**
      * @param args the command line arguments
      */

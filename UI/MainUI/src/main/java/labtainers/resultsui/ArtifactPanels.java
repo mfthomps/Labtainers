@@ -249,11 +249,11 @@ public class ArtifactPanels extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void UpButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UpButtonActionPerformed
-        // TODO add your handling code here:
+         swapUpdate("UP", rowNum-1); //Subtract rowNum by one to get the proper index number
     }//GEN-LAST:event_UpButtonActionPerformed
 
     private void DownButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DownButtonActionPerformed
-        // TODO add your handling code here:
+         swapUpdate("DOWN", rowNum-1); //Subtract rowNum by one to get the proper index number
     }//GEN-LAST:event_DownButtonActionPerformed
 
     private void FieldTypeComboBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_FieldTypeComboBoxItemStateChanged
@@ -365,7 +365,13 @@ public class ArtifactPanels extends javax.swing.JPanel {
         ArtifactPanel.repaint();
     }
     
-    
+    //Swaps artifact order in the list of artifacts and then redraws them
+    void swapUpdate(String type, int rowIndex){
+        //System.out.println("RowCOUNT(swap): " +dataUI.rowCount);
+        dataUI.updateListofArtifacts(uiResult.getPanelofArtifacts());
+        dataUI.swapArtifacts(type, rowIndex);
+        uiResult.loadUI();
+    }
     
         //Field Getters
     public JComboBox<String> getContainerComboBox(){
