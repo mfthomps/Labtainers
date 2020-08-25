@@ -44,7 +44,6 @@ public class ResultsData {
     public ResultsData(){
         listofArtifacts = new ArrayList<>(); 
         containerList = new ArrayList<>();
-        labloaded = false;
         labname = "";
         rowCount = 0;
     }
@@ -52,48 +51,33 @@ public class ResultsData {
     public ResultsData(MainWindow main, String labname, File labPath){
         listofArtifacts = new ArrayList<>(); 
         containerList = new ArrayList<>();
-        labloaded = false;
         rowCount = 0;
         
         this.mainUI = main;
         this.labname = labname;
         this.labPath = labPath;
-        
-        //getData();
     }
     
-//LOADING~~~~~~~~~~~~~~~~~~~~~~~~~
+//Retrieving and Setting Data~~~~~~~~~~~~~~~~~~~~~~~~~
     
-    //Checks if the lab exists and will get lab's result config data if it does
-    public void getData(){
-        getContainers();
-        if(getArtifacts())
-            labloaded = true;
-    }
-    
-    //Updates the containerlist (all artifct panels refer to this list to fill in the container combobox)
-    private void getContainers(){
-        containerList = mainUI.getCurrentData().getContainerNames();
-    }
-     
     //Parses the results.config to obtain all the relevant artifact lines, 
     //extracts the values of each artifact line  
     //and then loads each artifact line's value into the list of Artifacts
-    private boolean getArtifacts(){
+    public void getData(){
         ArrayList<String> artifacts = getArtifactLines();
         
         if(artifacts != null){
             //Fill the list of artifacts
             for(String artifactLine : artifacts){
-                ArtifactValues values = new ArtifactValues(artifactLine);
-                listofArtifacts.add(values);
+                listofArtifacts.add(new ArtifactValues(artifactLine));
                 rowCount++;
             }
-            return true;
         }
-        else
-            return false;
-        
+    }
+    
+    //Updates the containerlist (all artifct panels refer to this list to fill in the container combobox)
+    public void setContainerList(ArrayList<String> containerList){
+        this.containerList = containerList;
     }
     
    
@@ -517,9 +501,7 @@ public class ResultsData {
         ArrayList<String> artifacts = new ArrayList<>();
         
         try {
-            String userHomeFolder = System.getProperty("user.home");
-            File lab = new File(userHomeFolder + File.separator + "labtainer" + File.separator + "trunk" + File.separator + "labs" + File.separator+ labname);
-            File resultsConfig = new File(lab+"/instr_config/results.config");
+            File resultsConfig = new File(mainUI.getCurrentLab()+File.separator+"instr_config"+File.separator+"results.config");
 
             //Get the artifact lines
             if(resultsConfig.exists()){
@@ -539,7 +521,9 @@ public class ResultsData {
             }
             else{
                 System.out.println("No results.config file in the loaded lab!");
-                return null;
+                //Create the missing results.config file
+                resultsConfig.createNewFile();
+                return artifacts;
             }
         } 
         catch (IOException e) {

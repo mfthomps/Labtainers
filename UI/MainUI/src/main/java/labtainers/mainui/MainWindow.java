@@ -47,7 +47,7 @@ public class MainWindow extends javax.swing.JFrame {
      * Creates new form MainWindow
      */
     LabData labDataSaved;
-    LabData labDataCurrent;
+    public LabData labDataCurrent;
     String labtainerPath;
     File labsPath;
     String labName;
@@ -65,9 +65,7 @@ public class MainWindow extends javax.swing.JFrame {
         containerScrollPaneBar = ContainerScrollPane.getVerticalScrollBar();
         networkScrollPaneBar = NetworkScrollPane.getVerticalScrollBar();
         LabExistLabel.setVisible(false);
-        
-        labDataSaved = new LabData();    
-        labDataCurrent = new LabData();   
+         
         parseINI();
         getBaseImageDockerfiles();   
     }
@@ -128,7 +126,7 @@ public class MainWindow extends javax.swing.JFrame {
         } catch (FileNotFoundException ex) {
             System.out.println(ex);
         } catch (NullPointerException ex) {
-            System.out.println(ex);
+            System.out.println("Parsing .ini file: "+ex);
             //resetINIFile();
         }
     }
@@ -1082,8 +1080,7 @@ private void openLab(File lab){
     labName = lab.toString().substring(lab.toString().lastIndexOf(File.separator)+1);
            
     labDataSaved = new LabData(this, lab, labName); //initialize all data for the lab
-    labDataCurrent = new LabData(this, lab, labName); //initialize all data for the lab
-     
+    labDataCurrent = new LabData(this, lab, labName); //initialize all data for the lab 
     
     // Visual load of lab
     resetWindow();
@@ -1555,6 +1552,10 @@ private void openLab(File lab){
     
     public LabData getCurrentData(){
         return labDataCurrent;
+    }
+    
+    public File getCurrentLab(){
+        return currentLab;
     }
     /**
      * @param args the command line arguments

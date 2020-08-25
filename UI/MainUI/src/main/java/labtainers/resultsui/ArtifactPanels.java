@@ -5,17 +5,22 @@
  */
 package labtainers.resultsui;
 
+import java.awt.Dimension;
+import java.util.ArrayList;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
+import static labtainers.resultsui.ParamReferenceStorage.FieldType_ITEMS;
 import static labtainers.resultsui.ParamReferenceStorage.LOG_ACCESIBLE_FieldType;
 import static labtainers.resultsui.ParamReferenceStorage.LOG_TS_ACCESSIBLE_LineType;
 import static labtainers.resultsui.ParamReferenceStorage.LineType_ITEMS;
 import static labtainers.resultsui.ParamReferenceStorage.SpecialTimeStampType;
+import static labtainers.resultsui.ParamReferenceStorage.TimestampType_ITEMS;
 import static labtainers.resultsui.ParamReferenceStorage.justFieldType;
 import static labtainers.resultsui.ParamReferenceStorage.lineParamAccessible;
 import static labtainers.resultsui.ParamReferenceStorage.timeStampDelimiterAccessible;
 import labtainers.resultsui.ToolTipHandlers.ToolTipWrapper;
+import static labtainers.resultsui.ToolTipHandlers.setComboItems;
 
 /**
  *
@@ -23,13 +28,61 @@ import labtainers.resultsui.ToolTipHandlers.ToolTipWrapper;
  */
 public class ArtifactPanels extends javax.swing.JPanel {
 
+    static Dimension dim = new Dimension(975, 100);
+    ResultsUI uiResult;
+    ResultsData dataUI;
+    int rowNum;
+    
     /**
      * Creates new form ArtifactsPanel
      */
-    public ArtifactPanels() {
+    //Creating fresh artifact line
+    public ArtifactPanels(ResultsUI ui, ArrayList<String> containers, int rowNum) {
         initComponents();
+        this.uiResult = ui;
+        this.dataUI = ui.data;
+        this.rowNum = rowNum;
+        jLabel3.setText(Integer.toString(rowNum));
+        TimeDelimiterTextField.setVisible(false);
+                
+        //Load ComboBox Items
+        ContainerComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(containers.toArray(new String[containers.size()])));   
+        setComboItems(FieldTypeComboBox, FieldType_ITEMS);
+        setComboItems(LineTypeComboBox, LineType_ITEMS);
+        setComboItems(TimeStampComboBox, TimestampType_ITEMS);   
     }
 
+    //Loading artifact line
+    public ArtifactPanels(ResultsUI ui, ArrayList<String> containers, int rowNum, String resultTag, String container, String fileID, ToolTipWrapper fieldType, String fieldID, ToolTipWrapper lineType, String lineID, ToolTipWrapper timeStampType, String timeStampDelimiter) {
+        initComponents();
+        this.uiResult = ui;
+        this.dataUI = ui.data;
+        this.rowNum = rowNum;
+        jLabel3.setText(Integer.toString(rowNum));      
+        if(!timeStampDelimiterAccessible.contains(timeStampType.getItem()))
+            TimeDelimiterTextField.setVisible(false);
+        
+        //Load ComboBox Items
+        ContainerComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(containers.toArray(new String[containers.size()])));
+        setComboItems(FieldTypeComboBox, FieldType_ITEMS);
+        setComboItems(LineTypeComboBox, LineType_ITEMS);
+        setComboItems(TimeStampComboBox, TimestampType_ITEMS);
+        
+        //Set Values
+        setContainerComboBox(container);       
+        setFieldIDTextField(fieldID);      
+        setTagTextField(resultTag);
+        setFileTextField(fileID);        
+        setFieldTypeComboBox(fieldType);         
+        setLineIDTextField(lineID);         
+        setLineTypeComboBox(lineType);          
+        setTimeStampComboBox(timeStampType);          
+        setTimeDelimiterTextField(timeStampDelimiter);
+        
+        this.revalidate();
+        this.repaint();
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

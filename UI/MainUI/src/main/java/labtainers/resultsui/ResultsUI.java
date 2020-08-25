@@ -9,6 +9,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollBar;
+import labtainers.mainui.MainWindow;
 
 /**
  *
@@ -20,17 +21,44 @@ public class ResultsUI extends javax.swing.JDialog {
      * Creates new form NewJDialog
      */
     ResultsData data;
+    MainWindow mainUI;
     
     public ResultsUI(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
         this.setVisible(true);
-        
-        data = new ResultsData(); 
-        
         resultsScrollPaneBar = ScrollPaneOfArtifacts.getVerticalScrollBar();
+        
+        this.mainUI = (MainWindow)parent;
+        this.data = this.mainUI.getCurrentData().getResultsData();
+        
+        loadUI();
     }
 
+    void loadUI(){
+        removeAllArtifacts();               
+        //redraw the artifacts
+        for(int i=0; i < data.listofArtifacts.size(); i++){
+            loadArtifact(data.listofArtifacts.get(i), i+1);
+        }
+    }
+    
+      //Load's the artifactlinePanel into GUI
+    private void loadArtifact(ArtifactValues artifactVal, int rowNum){
+        ArtifactPanels newArtifact = new ArtifactPanels(this, data.containerList, rowNum,
+                                                        artifactVal.resultTag, 
+                                                        artifactVal.container, 
+                                                        artifactVal.fileID, 
+                                                        artifactVal.fieldType, 
+                                                        artifactVal.fieldID, 
+                                                        artifactVal.lineType, 
+                                                        artifactVal.lineID, 
+                                                        artifactVal.timeStampType, 
+                                                        artifactVal.timeStampDelimiter);
+        addResultsPanel(newArtifact);
+    }
+    
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -45,15 +73,18 @@ public class ResultsUI extends javax.swing.JDialog {
         CreateButton = new javax.swing.JButton();
         RemoveAllButton = new javax.swing.JButton();
         UpdateButton = new javax.swing.JButton();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Results Configuration");
-        setMaximumSize(new java.awt.Dimension(1590, 500));
+        setMaximumSize(new java.awt.Dimension(1590, 10000));
         setMinimumSize(new java.awt.Dimension(1590, 500));
         setPreferredSize(new java.awt.Dimension(1590, 500));
         setResizable(false);
 
-        PanelofArtifacts.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 5, 0));
         ScrollPaneOfArtifacts.setViewportView(PanelofArtifacts);
 
         CreateButton.setText("Create");
@@ -72,6 +103,22 @@ public class ResultsUI extends javax.swing.JDialog {
 
         UpdateButton.setText("Update");
 
+        jLabel5.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        jLabel5.setText("File");
+        jLabel5.setToolTipText("File should either be a file path or a program/utility name with the \".stdin\", \".stdout\", or \".prgout\" extension.\n\n Ex. \"test.stdin\", \".local/result/sniff.txt\" ");
+
+        jLabel3.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        jLabel3.setText("Field Type");
+        jLabel3.setToolTipText("The mode in which a value is found.");
+
+        jLabel2.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        jLabel2.setText("Container");
+        jLabel2.setToolTipText("Identifies the container hosting the file. \nIf \"ALL\" is selected, then the file is across all the containers.");
+
+        jLabel1.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        jLabel1.setText("Result Tag");
+        jLabel1.setToolTipText("The symbolic name of the result, which will be referenced in the goals configuration file. \n\n(It must be alphanumeric, underscores permitted) ");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -87,6 +134,16 @@ public class ResultsUI extends javax.swing.JDialog {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(UpdateButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addGap(91, 91, 91)
+                .addComponent(jLabel1)
+                .addGap(28, 28, 28)
+                .addComponent(jLabel2)
+                .addGap(60, 60, 60)
+                .addComponent(jLabel5)
+                .addGap(119, 119, 119)
+                .addComponent(jLabel3)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -96,7 +153,13 @@ public class ResultsUI extends javax.swing.JDialog {
                     .addComponent(CreateButton)
                     .addComponent(RemoveAllButton)
                     .addComponent(UpdateButton))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 49, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel5)
+                    .addComponent(jLabel3))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(ScrollPaneOfArtifacts, javax.swing.GroupLayout.PREFERRED_SIZE, 397, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -105,8 +168,8 @@ public class ResultsUI extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void CreateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CreateButtonActionPerformed
-        //createFreshArtifact();
-        addResultsPanel();
+        data.rowCount++;
+        addResultsPanel(new ArtifactPanels(this, data.containerList,data.rowCount));
     }//GEN-LAST:event_CreateButtonActionPerformed
 
     private void RemoveAllButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RemoveAllButtonActionPerformed
@@ -132,30 +195,18 @@ public class ResultsUI extends javax.swing.JDialog {
         PanelofArtifacts.revalidate();
         PanelofArtifacts.repaint();
     }
-    
-    
-    //Creates and loads a new artifact row
-    private void createFreshArtifact(){
-        //if(dataUI.labloaded){
-        //    dataUI.rowCount++;
-            ArtifactPanels newArtifact = new ArtifactPanels();
-            PanelofArtifacts.add(newArtifact);
-            PanelofArtifacts.revalidate();
-            PanelofArtifacts.repaint(); 
-        //}  
-    }
-    
+      
     
     public int resultsPanePanelLength = 0;
     private JScrollBar resultsScrollPaneBar;
-    private void addResultsPanel(){
+    private void addResultsPanel(ArtifactPanels panel){
         //Resize the JPanel Holding all the ResultArtifactsPanels to fit another one (makes the scroll bar resize and should show all objects listed)
-        resultsPanePanelLength+=86;
+        //as of 8/24/2020 the PanelofArtifacts uses a flow layout with a horizontal gap of 5, that's where the 5 comes from in the line below
+        resultsPanePanelLength+=panel.getPreferredSize().height+5;
         PanelofArtifacts.setPreferredSize(new Dimension(0,resultsPanePanelLength));
         
         // Create the Result Artifact Panel and add it
-        data.rowCount++;
-        PanelofArtifacts.add(new ArtifactPanels()); //takes in parent(this), containerlist, rowcount
+        PanelofArtifacts.add(panel); //takes in parent(this), containerlist, rowcount
         
         // Redraw GUI with the new Panel
         PanelofArtifacts.revalidate();
@@ -220,5 +271,9 @@ public class ResultsUI extends javax.swing.JDialog {
     private javax.swing.JButton RemoveAllButton;
     private javax.swing.JScrollPane ScrollPaneOfArtifacts;
     private javax.swing.JButton UpdateButton;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel5;
     // End of variables declaration//GEN-END:variables
 }

@@ -124,10 +124,6 @@ public class LabData {
         }
     }
     
-    LabData(){
-        
-    }
-    
     LabData(MainWindow main, File labPath, String labName){
         this.path = labPath;
         this.name = labName;
@@ -135,11 +131,12 @@ public class LabData {
         this.listOfContainers = new ArrayList();
         this.listOfNetworks = new ArrayList();
         this.mainUI = main;
+        this.resultsData = new ResultsData(main, labName,labPath);
         //System.out.println("Lab Path: "+labPath);
         //System.out.println("Lab Name: "+labName);
         
-        retrieveData();
-        resultsData = new ResultsData(main, labName,labPath);
+        retrieveData(); //data from the start.config
+        
     }
         
     private boolean retrieveData(){
@@ -148,6 +145,8 @@ public class LabData {
         try {
             if(startConfig.exists()){
                 try (FileReader fileReader = new FileReader(startConfig)) {
+                    ArrayList<String> containerNames = new ArrayList();
+                    
                     String parseType = "GLOBAL_SETTINGS";
                     
                     BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -165,6 +164,7 @@ public class LabData {
                         else if(line.startsWith("CONTAINER ")){
                             parseType = "CONTAINER";
                             listOfContainers.add(new ContainerData(line.split("CONTAINER ")[1].trim()));
+                            containerNames.add(line.split("CONTAINER ")[1].trim());
                             line = bufferedReader.readLine();
                             continue;
                         }
@@ -315,10 +315,12 @@ public class LabData {
                         //go to next line
                         line = bufferedReader.readLine();
                     }
+                    //Set the list of containers the results UI will references, then parse the results.config file
+                    //System.out.println(containerNames);
+                    //System.out.println(resultsData);
+                    resultsData.setContainerList(containerNames);
+                    resultsData.getData();
                 }
-                //Retrieve data for results UI
-                resultsData.getData();
-                
                 return true;
             }
             else{
@@ -352,7 +354,7 @@ public class LabData {
     
     public ArrayList<String> getContainerNames(){
        ArrayList<String> names = new ArrayList();
-       for (ContainerData container : mainUI.getCurrentData().getContainers()) {
+       for (ContainerData container : listOfContainers) {
             names.add(container.name);
         } 
        return names;
@@ -373,6 +375,10 @@ public class LabData {
     
     public void resetNetworks(){
         listOfNetworks = new ArrayList<NetworkData>();
+    }
+    
+    public ResultsData getResultsData(){
+        return resultsData;
     }
     
     
