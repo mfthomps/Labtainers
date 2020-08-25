@@ -657,4 +657,9 @@ on a tapped network?
 Add volume to tap and use subdirectory as a lock.  Sleep docker start threads for components that attach to
 tapped networks?  Advantage is designer need not configure individual components.  
 
+\subsection{IModule testing at NPS}
+Labs having defined registries do not have test registry images.  The ParseStartConfig.py does not insert a test registry
+for these labs, thus any running of IModules on test or development systems will cause the Docker Hub instance of container
+images to run.
+
 \end{document}
