@@ -124,16 +124,20 @@ public class ArtifactPanels extends javax.swing.JPanel {
             }
         });
 
-        UpButton.setFont(new java.awt.Font("Ubuntu", 0, 15)); // NOI18N
+        UpButton.setFont(new java.awt.Font("Ubuntu Condensed", 0, 12)); // NOI18N
         UpButton.setText("^");
+        UpButton.setMaximumSize(new java.awt.Dimension(19, 50));
+        UpButton.setMinimumSize(new java.awt.Dimension(19, 31));
+        UpButton.setPreferredSize(new java.awt.Dimension(19, 31));
         UpButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 UpButtonActionPerformed(evt);
             }
         });
 
-        DownButton.setFont(new java.awt.Font("Ubuntu", 0, 15)); // NOI18N
-        DownButton.setText("V");
+        DownButton.setFont(new java.awt.Font("Ubuntu Condensed", 0, 12)); // NOI18N
+        DownButton.setText("v");
+        DownButton.setToolTipText("");
         DownButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 DownButtonActionPerformed(evt);
@@ -247,9 +251,9 @@ public class ArtifactPanels extends javax.swing.JPanel {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(UpButton)
+                                .addComponent(UpButton, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(DownButton)))))
+                                .addComponent(DownButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
