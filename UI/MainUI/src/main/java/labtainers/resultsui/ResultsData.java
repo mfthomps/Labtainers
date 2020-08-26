@@ -5,6 +5,7 @@
  */
 package labtainers.resultsui;
 
+import labtainers.mainui.ToolTipHandlers;
 import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -26,7 +27,7 @@ import labtainers.mainui.MainWindow;
 import static labtainers.resultsui.ParamReferenceStorage.justFieldType;
 import static labtainers.resultsui.ParamReferenceStorage.lineParamAccessible;
 import static labtainers.resultsui.ParamReferenceStorage.timeStampDelimiterAccessible;
-import labtainers.resultsui.ToolTipHandlers.ToolTipWrapper;
+import labtainers.mainui.ToolTipHandlers.ToolTipWrapper;
 
 /**
  *

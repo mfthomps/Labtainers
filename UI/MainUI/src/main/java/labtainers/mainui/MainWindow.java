@@ -34,6 +34,7 @@ import labtainers.mainui.LabData.NetworkData;
 import java.util.ArrayList;
 import java.util.Arrays;
 import javax.swing.ImageIcon;
+import labtainers.goalsui.GoalsUI;
 import labtainers.resultsui.ResultsUI;
 
 
@@ -56,6 +57,8 @@ public class MainWindow extends javax.swing.JFrame {
     Properties pathProperties;
     String[] bases;
     String textEditorPref;
+    
+    boolean resultsOpened;
     public MainWindow() throws IOException {
         initComponents();
         //Set logo icon 
@@ -223,6 +226,7 @@ public class MainWindow extends javax.swing.JFrame {
         Header = new javax.swing.JPanel();
         AssessmentButton = new javax.swing.JButton();
         LabnameLabel = new javax.swing.JLabel();
+        AssessmentButton1 = new javax.swing.JButton();
         ContainerPanel = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         ContainerScrollPane = new javax.swing.JScrollPane();
@@ -657,7 +661,6 @@ public class MainWindow extends javax.swing.JFrame {
 
         SaveAsDialog.setTitle("Save As");
         SaveAsDialog.setMinimumSize(new java.awt.Dimension(400, 140));
-        SaveAsDialog.setPreferredSize(new java.awt.Dimension(400, 140));
 
         SaveAsLabNameTextField.setFont(new java.awt.Font("Ubuntu", 0, 18)); // NOI18N
         SaveAsLabNameTextField.setHorizontalAlignment(javax.swing.JTextField.CENTER);
@@ -720,7 +723,7 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
 
-        AssessmentButton.setText("ASSESSMENT");
+        AssessmentButton.setText("Results Config");
         AssessmentButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 AssessmentButtonActionPerformed(evt);
@@ -731,6 +734,13 @@ public class MainWindow extends javax.swing.JFrame {
         LabnameLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         LabnameLabel.setText("Lab:");
 
+        AssessmentButton1.setText("Goals Config");
+        AssessmentButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                AssessmentButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout HeaderLayout = new javax.swing.GroupLayout(Header);
         Header.setLayout(HeaderLayout);
         HeaderLayout.setHorizontalGroup(
@@ -739,6 +749,8 @@ public class MainWindow extends javax.swing.JFrame {
                 .addGap(20, 20, 20)
                 .addComponent(LabnameLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(AssessmentButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(AssessmentButton, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(35, 35, 35))
         );
@@ -748,7 +760,9 @@ public class MainWindow extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(HeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(LabnameLabel)
-                    .addComponent(AssessmentButton))
+                    .addGroup(HeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(AssessmentButton)
+                        .addComponent(AssessmentButton1)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -945,9 +959,15 @@ public class MainWindow extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void AssessmentButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AssessmentButtonActionPerformed
-        ResultsUI resultsUI = new ResultsUI(this, false);
+        if(!resultsOpened){
+            ResultsUI resultsUI = new ResultsUI(this, false);
+            resultsOpened = true;
+        }
     }//GEN-LAST:event_AssessmentButtonActionPerformed
     
+    public void setResultsClosed(){
+        resultsOpened = false;
+    }
    
     private void addContainerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addContainerButtonActionPerformed
         ContainerAddDialogNameTextfield.setText("");
@@ -1429,6 +1449,11 @@ private void openLab(File lab){
             SaveAsDialog.setVisible(false);
         }
     }//GEN-LAST:event_SaveAsConfirmButtonActionPerformed
+
+    private void AssessmentButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AssessmentButton1ActionPerformed
+         GoalsUI goalsUI = new GoalsUI(this, false);
+         System.out.println("hi");
+    }//GEN-LAST:event_AssessmentButton1ActionPerformed
     
     private void saveAs(String newLabName){
         // Call Clone Script, feeding in the new lab name
@@ -1462,8 +1487,7 @@ private void openLab(File lab){
             System.out.println(e);
         }
     }
-    
-    
+        
     private void setLabtainersDir() throws IOException{
             String newLabtainersPath = LabtainersDirTextfield.getText();
             
@@ -1601,6 +1625,7 @@ private void openLab(File lab){
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton AssessmentButton;
+    private javax.swing.JButton AssessmentButton1;
     private javax.swing.JDialog ContainerAddDialog;
     private javax.swing.JComboBox<String> ContainerAddDialogBaseImageCombobox;
     private javax.swing.JButton ContainerAddDialogCancelButton;

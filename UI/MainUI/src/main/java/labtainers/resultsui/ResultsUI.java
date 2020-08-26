@@ -86,8 +86,12 @@ public class ResultsUI extends javax.swing.JDialog {
         setTitle("Results Configuration");
         setMaximumSize(new java.awt.Dimension(1590, 10000));
         setMinimumSize(new java.awt.Dimension(1590, 500));
-        setPreferredSize(new java.awt.Dimension(1590, 500));
         setResizable(false);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         PanelofArtifacts.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
         ScrollPaneOfArtifacts.setViewportView(PanelofArtifacts);
@@ -191,6 +195,10 @@ public class ResultsUI extends javax.swing.JDialog {
         data.updateListofArtifacts(PanelofArtifacts);
         saved = new ResultsData(data);
     }//GEN-LAST:event_UpdateButtonActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+       mainUI.setResultsClosed();
+    }//GEN-LAST:event_formWindowClosing
 
     private void removeAllButton(){
            if(JOptionPane.showConfirmDialog(null, "Are you sure you want to remove all?") == JOptionPane.YES_OPTION){

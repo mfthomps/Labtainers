@@ -905,6 +905,8 @@
                   <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
                   <Component id="LabnameLabel" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="32767" attributes="0"/>
+                  <Component id="AssessmentButton1" min="-2" pref="160" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
                   <Component id="AssessmentButton" min="-2" pref="160" max="-2" attributes="0"/>
                   <EmptySpace min="-2" pref="35" max="-2" attributes="0"/>
               </Group>
@@ -916,7 +918,10 @@
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="LabnameLabel" min="-2" max="-2" attributes="0"/>
-                      <Component id="AssessmentButton" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="AssessmentButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="AssessmentButton1" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
               </Group>
@@ -926,7 +931,7 @@
       <SubComponents>
         <Component class="javax.swing.JButton" name="AssessmentButton">
           <Properties>
-            <Property name="text" type="java.lang.String" value="ASSESSMENT"/>
+            <Property name="text" type="java.lang.String" value="Results Config"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="AssessmentButtonActionPerformed"/>
@@ -940,6 +945,14 @@
             <Property name="horizontalAlignment" type="int" value="0"/>
             <Property name="text" type="java.lang.String" value="Lab:"/>
           </Properties>
+        </Component>
+        <Component class="javax.swing.JButton" name="AssessmentButton1">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Goals Config"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="AssessmentButton1ActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>

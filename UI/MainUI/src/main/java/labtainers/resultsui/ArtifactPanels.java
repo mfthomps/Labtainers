@@ -20,8 +20,8 @@ import static labtainers.resultsui.ParamReferenceStorage.TimestampType_ITEMS;
 import static labtainers.resultsui.ParamReferenceStorage.justFieldType;
 import static labtainers.resultsui.ParamReferenceStorage.lineParamAccessible;
 import static labtainers.resultsui.ParamReferenceStorage.timeStampDelimiterAccessible;
-import labtainers.resultsui.ToolTipHandlers.ToolTipWrapper;
-import static labtainers.resultsui.ToolTipHandlers.setComboItems;
+import labtainers.mainui.ToolTipHandlers.ToolTipWrapper;
+import static labtainers.mainui.ToolTipHandlers.setComboItems;
 
 /**
  *

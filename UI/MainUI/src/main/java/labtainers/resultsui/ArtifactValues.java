@@ -5,6 +5,7 @@
  */
 package labtainers.resultsui;
 
+import labtainers.mainui.ToolTipHandlers;
 import static labtainers.resultsui.ParamReferenceStorage.FieldType_ITEMS;
 import static labtainers.resultsui.ParamReferenceStorage.LineType_ITEMS;
 import static labtainers.resultsui.ParamReferenceStorage.SpecialTimeStampType;

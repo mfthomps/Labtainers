@@ -8,7 +8,7 @@ package labtainers.resultsui;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import labtainers.resultsui.ToolTipHandlers.ToolTipWrapper;
+import labtainers.mainui.ToolTipHandlers.ToolTipWrapper;
 
 /**
  *

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package labtainers.resultsui;
+package labtainers.mainui;
 
 import java.awt.Component;
 import javax.swing.DefaultListCellRenderer;
