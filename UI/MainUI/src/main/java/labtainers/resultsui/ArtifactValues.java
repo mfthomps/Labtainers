@@ -173,6 +173,19 @@ public class ArtifactValues {
             this.timeStampDelimiter = timeStampDelimiter;
         }
         
+        //Clones the original Artifact Values
+        ArtifactValues(ArtifactValues original){
+            this.resultTag =  original.resultTag; 
+            this.container = original.container;
+            this.fileID = original.fileID; 
+            this.fieldType = original.fieldType;
+            this.fieldID = original.fieldID;
+            this.lineType = original.lineType;
+            this.lineID = original.lineID;
+            this.timeStampType = original.timeStampType;
+            this.timeStampDelimiter = original.timeStampDelimiter;
+        }
+        
         private void handleFileRef(String fileRef){
             //Case 1: <prog>.[stdin | stdout | prgout] or file_path
             if(!fileRef.contains(":")){

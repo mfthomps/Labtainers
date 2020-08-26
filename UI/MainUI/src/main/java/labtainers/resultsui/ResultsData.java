@@ -35,7 +35,6 @@ import labtainers.resultsui.ToolTipHandlers.ToolTipWrapper;
 public class ResultsData {
     List<ArtifactValues> listofArtifacts;
     ArrayList<String> containerList;
-    boolean labloaded;
     String labname;
     int rowCount;
     File labPath;
@@ -58,6 +57,21 @@ public class ResultsData {
         this.labPath = labPath;
     }
     
+    // Creates a deep copy of the original (shallow with containerList and mainUI)
+    public ResultsData(ResultsData original){
+        List<ArtifactValues> listofArtifacts = new ArrayList();
+        //Deep copy the list of artifacts
+        for(ArtifactValues artifact : original.listofArtifacts){
+            listofArtifacts.add(new ArtifactValues(artifact));
+        }
+        
+        this.labname = new String(original.getLabname());
+        this.labPath = new File(original.getLabPath().getPath());
+        this.rowCount = original.getRowCount();
+                
+        this.containerList = original.containerList;
+        this.mainUI = original.getMainWindow();
+    }
 //Retrieving and Setting Data~~~~~~~~~~~~~~~~~~~~~~~~~
     
     //Parses the results.config to obtain all the relevant artifact lines, 
@@ -691,4 +705,27 @@ public class ResultsData {
     protected List<ArtifactValues> getListofArtifacts(){
         return listofArtifacts;
     }
+ 
+    
+    
+    
+    protected ArrayList<String> getContainerList(){
+        return containerList;
+    }
+            
+    protected String getLabname(){
+        return labname;
+    }        
+       
+    protected int getRowCount(){
+        return rowCount;
+    }  
+    
+    protected File getLabPath(){
+        return labPath;
+    }  
+    
+    protected MainWindow getMainWindow(){
+        return mainUI;
+    }  
 }

@@ -7,10 +7,12 @@ package labtainers.resultsui;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import labtainers.mainui.MainWindow;
+import static labtainers.resultsui.ResultsData.artifactValuesDiffer;
 
 /**
  *
@@ -22,6 +24,7 @@ public class ResultsUI extends javax.swing.JDialog {
      * Creates new form NewJDialog
      */
     ResultsData data;
+    ResultsData saved;
     MainWindow mainUI;
     
     public ResultsUI(java.awt.Frame parent, boolean modal) {
@@ -32,7 +35,7 @@ public class ResultsUI extends javax.swing.JDialog {
         
         this.mainUI = (MainWindow)parent;
         this.data = this.mainUI.getCurrentData().getResultsData();
-        
+        this.saved = new ResultsData(this.data);
         loadUI();
     }
 
@@ -237,6 +240,25 @@ public class ResultsUI extends javax.swing.JDialog {
        data.updateListofArtifacts(PanelofArtifacts);       
        loadUI();
     }
+    
+     //Check if the the current state of the UI matches with what's saved in the results.config
+    void checkUnsavedChangesMade(){
+            data.updateListofArtifacts(PanelofArtifacts);
+
+            if(artifactValuesDiffer(data.listofArtifacts, data.getArtifactValuesOfConfigFile())){
+                int confirmed = JOptionPane.showConfirmDialog(null, 
+                    "There are Unsaved Changes. Are you sure you want to exit the program?", "Unsaved Changes",
+                    JOptionPane.YES_NO_OPTION);
+
+                if (confirmed == JOptionPane.YES_OPTION) 
+                    dispose();
+                else
+                    setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+            }
+            else
+                dispose();
+    }
+    
 
     /**
      * @param args the command line arguments
