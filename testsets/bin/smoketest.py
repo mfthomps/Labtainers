@@ -7,6 +7,7 @@ import shlex
 import SimLab
 import shutil
 import filecmp
+import datetime
 sys.path.append('./bin')
 import ParseLabtainerConfig
 import labutils
@@ -29,6 +30,9 @@ class SmokeTest():
 
     def checkLab(self, lab, test_registry, remove_lab):
         FAILURE=1
+        now = datetime.now()
+        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+        print('smoketest start lab %s at %s' % (lab, dt_string))
         retval = True
         xfer_dir = os.path.join(os.getenv('HOME'), self.labtainer_config.host_home_xfer, lab)
         self.logger.debug('checkLab xfer is %s' % xfer_dir)
