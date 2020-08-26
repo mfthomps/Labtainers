@@ -188,7 +188,8 @@ public class ResultsUI extends javax.swing.JDialog {
     }//GEN-LAST:event_RemoveAllButtonActionPerformed
 
     private void UpdateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UpdateButtonActionPerformed
-        //data.writeResultsConfig(PanelofArtifacts);
+        data.updateListofArtifacts(PanelofArtifacts);
+        saved = new ResultsData(data);
     }//GEN-LAST:event_UpdateButtonActionPerformed
 
     private void removeAllButton(){

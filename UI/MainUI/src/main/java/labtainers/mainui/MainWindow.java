@@ -1373,6 +1373,9 @@ private void openLab(File lab){
         //Write to File
         writer.print(startConfigText);
         writer.close();
+        
+        //Save results.config file
+        labDataCurrent.getResultsData().writeResultsConfig();
     }
     
     private void SaveAsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveAsMenuItemActionPerformed

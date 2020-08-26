@@ -98,9 +98,8 @@ public class ResultsData {
 //WRITING~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
     //Update the results.config file with the user's input
-    protected void writeResultsConfig(JPanel PanelofArtifacts){
+    public void writeResultsConfig(){
          try {
-            updateListofArtifacts(PanelofArtifacts);
             String resultTag,
                        container,
                        file,
@@ -252,7 +251,7 @@ public class ResultsData {
                 //Otherwise the overallPass of the user input is false
                 if(error.userInputCheck(i+1)){
                     if(i < listofArtifacts.size()-1)
-                        artifactConfigLine+= System.lineSeparator();
+                        artifactConfigLine+= "\n";
                     //Add the artifact config line to the Results Config text
                     resultsConfigText += artifactConfigLine; 
                 }
@@ -287,8 +286,7 @@ public class ResultsData {
     //Checks if the results.config file exists and prepares the result.config file for the lab
     private File initializeResultConfig() throws IOException{
         //Get the filepath for the lab's results.config
-        String userHomeFolder = System.getProperty("user.home");
-        File resultsConfigFile = new File(userHomeFolder + File.separator + "labtainer" + File.separator + "trunk" + File.separator + "labs" + File.separator + labname + File.separator + "instr_config" + File.separator + "results.config");
+        File resultsConfigFile = new File(labPath + File.separator + "instr_config" + File.separator + "results.config");
         
         //May not be necessary, subject to remove the base text, perhaps there is an option for the user to add their own comments
         String baseText = 
