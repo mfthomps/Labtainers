@@ -11,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import labtainers.goalsui.GoalsData;
 import labtainers.resultsui.ResultsData;
 
 /**
@@ -27,7 +28,7 @@ public class LabData {
     
     private MainWindow mainUI;
     private ResultsData resultsData;
-    //private GoalsData goalsData;
+    private GoalsData goalsData;
     
     static protected class NetworkData {
         public String name = "";
@@ -135,7 +136,7 @@ public class LabData {
         //System.out.println("Lab Path: "+labPath);
         //System.out.println("Lab Name: "+labName);
         
-        retrieveData(); //data from the start.config
+        retrieveData(); 
         
     }
         
@@ -320,6 +321,8 @@ public class LabData {
                     //System.out.println(resultsData);
                     resultsData.setContainerList(containerNames);
                     resultsData.getData();
+                    
+                    //goalsData.getData();
                 }
                 return true;
             }
@@ -379,6 +382,10 @@ public class LabData {
     
     public ResultsData getResultsData(){
         return resultsData;
+    }
+    
+       public GoalsData getGoalsData(){
+        return goalsData;
     }
     
     

@@ -23,6 +23,9 @@ import javax.swing.JPanel;
 import static labtainers.goalsui.ParamReferenceStorage.GoalType_ITEMS;
 import static labtainers.goalsui.ParamReferenceStorage.answerTypes;
 import static labtainers.goalsui.ParamReferenceStorage.booleanResultTypes;
+import static labtainers.goalsui.ParamReferenceStorage.goalInput;
+import static labtainers.goalsui.ParamReferenceStorage.opInput;
+import static labtainers.goalsui.ParamReferenceStorage.resultTagInput;
 import labtainers.mainui.ToolTipHandlers;
 import labtainers.mainui.ToolTipHandlers.ToolTipWrapper;
 
@@ -184,198 +187,198 @@ public class GoalsData {
     
 //WRITING~~~~~~~~~~~~~~~~~~~~~~~~          
         
-//    //Update the results.config file with the user's input
-//    protected void writeGoalsConfig(JPanel PanelofGoals){
-//         try {
-//            Component[] goals = PanelofGoals.getComponents(); //Access the list of goals
-//            String goalID,
-//                   goalType,
-//                   
-//                   operator,
-//                   resultTag,
-//                   answerType,
-//                    
-//                   booleanExp,
-//                    
-//                   goal1,
-//                   goal2,
-//                   
-//                   value,
-//                   subgoalList,
-//            
-//                   executableFile;
-//            String goalsConfigText = "";
-//            ErrorHandler error = new ErrorHandler();
-//            List<String> goalIDs = new ArrayList(); //Used for goal ID duplication check
-//            
-//            //Iterate through each goal
-//            for(int i=0;i < goals.length;i++){
-//                error.checkReset(); //Reset the error statuses for a new goal line
-//                
-//                String goalConfigLine = "";
-//                
-//                //Goal ID
-//                goalID = ((GoalPanels)goals[i]).getGoalIDTextField().getText();
-//                goalIDs.add(goalID);
-//                //Checks if goal ID is valid or inputted
-//                if(error.checkGoalID(goalID))
-//                   goalConfigLine += (goalID + " = "); //add to goal ID Config line
-//                
-//                //Goal Type
-//                ToolTipHandlers.ToolTipWrapper goalTypeTTW = (ToolTipHandlers.ToolTipWrapper)(((GoalPanels)goals[i]).getGoalTypeComboBox().getSelectedItem());
-//                goalType = goalTypeTTW.getItem();
-//                
-//                switch (goalType) {
-//                    case "matchExpression":
-//                        goalConfigLine += "matchany : ";
-//                        break;
-//                    case "count_value":
-//                    case "count_matches":
-//                        goalConfigLine += "count : ";
-//                        break;
-//                    default:
-//                        goalConfigLine += goalType+" : ";
-//                        break;
-//                }
-//                
-//                if(opInput.contains(goalType)){
-//                    ToolTipHandlers.ToolTipWrapper operatorTTW = (ToolTipHandlers.ToolTipWrapper)(((GoalPanels)goals[i]).getOperatorComboBox().getSelectedItem());
-//                    operator = operatorTTW.getItem();
-//                    resultTag = (String)((GoalPanels)goals[i]).getResultTagComboBox().getSelectedItem();
-//                    answerType = (String)((GoalPanels)goals[i]).getAnswerTypeComboBox().getSelectedItem();
-//
-//                    goalConfigLine += operator+" : ";
-//                    goalConfigLine += resultTag+" : ";
-//                    goalConfigLine += answerHandler(answerType, (GoalPanels)goals[i]);
-//                }
-//                
-//                else if(goalInput.contains(goalType)){  
-//                    goal1 = ((GoalPanels)goals[i]).getGoal1TextField().getText();
-//                    goal2 = ((GoalPanels)goals[i]).getGoal2TextField().getText();
-//                    
-//                    ArrayList<String> listOfAboveGoals = getAboveGoals("GOAL1&2", i, goals);
-//                    if(error.checkGoal1(goal1, listOfAboveGoals))
-//                        goalConfigLine += goal1+" : ";                    
-//                    if(error.checkGoal2(goal2, listOfAboveGoals))
-//                        goalConfigLine += goal2;
-//                }
-//                
-//                else if(resultTagInput.contains(goalType)){  
-//                    resultTag = (String)((GoalPanels)goals[i]).getResultTagComboBox().getSelectedItem();
-//                    goalConfigLine += resultTag;
-//                }
-//                
-//                else if("boolean".equals(goalType)){
-//                    booleanExp = ((GoalPanels)goals[i]).getBooleanTextField().getText();
-//                    
-//                    if(error.checkBooleanExp(booleanExp, getAboveGoals("BOOLEAN", i, goals), booleanResults)){
-//                        goalConfigLine += booleanExp;
-//                    } 
-//                }
-//                
-//                else if("count_greater".equals(goalType)){
-//                    value = ((GoalPanels)goals[i]).getValueTextField().getText();
-//                    subgoalList = ((GoalPanels)goals[i]).getSubgoalTextField().getText();
-//                     
-//                    if(error.checkValueAndSubgoals(value, subgoalList, getAboveGoals("ALL", i, goals), booleanResults)){
-//                        goalConfigLine += value+" : ";
-//                        goalConfigLine += "(";
-//                        goalConfigLine += subgoalList;
-//                        goalConfigLine += ")";
-//                    }  
-//                    
-//                    
-//                        
-//                }
-//                else if("execute".equals(goalType)){
-//                   executableFile = ((GoalPanels)goals[i]).getExecutableFileTextField().getText();
-//                   resultTag = (String)((GoalPanels)goals[i]).getResultTagComboBox().getSelectedItem();
-//                   answerType = (String)((GoalPanels)goals[i]).getAnswerTypeComboBox().getSelectedItem();
-//
-//                   goalConfigLine += executableFile+" : ";
-//                   goalConfigLine += resultTag+" : ";
-//                   goalConfigLine += answerHandler(answerType, (GoalPanels)goals[i]);
-//                }
-//                else if("matchExpression".equals(goalType)){
-//                   ToolTipHandlers.ToolTipWrapper operatorTTW = (ToolTipHandlers.ToolTipWrapper)(((GoalPanels)goals[i]).getOperatorComboBox().getSelectedItem());
-//                   operator = operatorTTW.getItem();
-//                   
-//                   //May need modification /validation
-//                   String rt = (String)((GoalPanels)goals[i]).getArithmeticResultTagTextField().getText();
-//                   resultTag="";
-//                   if(error.checkArithRT(rt)){ //NOTE: the checkArithRT is incomplete and simply returns 'true' 
-//                       resultTag += "(";
-//                       resultTag += rt;
-//                       resultTag += ")";
-//                   }
-//                   
-//                   answerType = (String)((GoalPanels)goals[i]).getAnswerTypeComboBox().getSelectedItem();
-//
-//                   goalConfigLine += operator+" : ";
-//                   goalConfigLine += resultTag+" : ";
-//                   goalConfigLine += answerHandler(answerType, (GoalPanels)goals[i]);
-//                }    
-//                
-//
-//                //If there's no error, put the goalConfigLine in the resultsConfigText string, 
-//                //Otherwise the overallPass of the user input is false
-//                if(error.userInputCheck(i+1)){
-//                    if(i < goals.length-1)
-//                        goalConfigLine+= System.lineSeparator();
-//                    //Add the goal config line to the Results Config text
-//                    goalsConfigText += goalConfigLine; 
-//                }
-//                else
-//                    error.fail();         
-//            }
-//            
-//            //Check for duplicate goal IDs
-//            error.checkDuplicateGoalIDs(goalIDs, booleanResults);
-//            
-//            
-//            if(error.passStatus()){
-//                //Resets the results.config file
-//                File goalsConfigFile = initializeGoalsConfig();
-//
-//                try ( //Write the resultsConfigText to the results.config
-//                    BufferedWriter writer = new BufferedWriter(new FileWriter(goalsConfigFile, true))) {
-//                    writer.write(goalsConfigText);
-//                }
-//            }
-//            else
-//                 JOptionPane.showMessageDialog(null, error.toString(), "INPUT ERROR", JOptionPane.ERROR_MESSAGE);
-//        } 
-//         catch (IOException ex) {
-//            Logger.getLogger(GoalsUI.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//    }
-//    
-//    //Builds the string bit to be added in the goals.config that describes the answer for a goal
-//    private String answerHandler(String answerType, GoalPanels goal){
-//        String answer = "";
-//        
-//        if(answerType.equals(answerTypes[0])){ //Literal
-//            answer += "answer=";
-//            answer += goal.getAnswerTagTextField().getText();
-//        }
-//        else if(answerType.equals(answerTypes[1])){ //Result Tag
-//            answer += "result.";
-//            answer += (String)(goal.getResultTag2ComboBox().getSelectedItem());                        
-//        }
-//        else if(answerType.equals(answerTypes[2])){ //Parameter
-//            answer += "parameter.";   
-//            answer += (String)(goal.getParameterComboBox().getSelectedItem());   
-//        }
-//        else if(answerType.equals(answerTypes[3])){ //Parameter ASCII
-//            answer += "parameter_ascii.";    
-//            answer += (String)(goal.getParameterComboBox().getSelectedItem());
-//        }
-//        else
-//            System.out.println("Issue writing answer in the goals.config");
-//        
-//        return answer;
-//    } 
-//    
+    //Update the results.config file with the user's input
+    protected void writeGoalsConfig(JPanel PanelofGoals){
+         try {
+            Component[] goals = PanelofGoals.getComponents(); //Access the list of goals
+            String goalID,
+                   goalType,
+                   
+                   operator,
+                   resultTag,
+                   answerType,
+                    
+                   booleanExp,
+                    
+                   goal1,
+                   goal2,
+                   
+                   value,
+                   subgoalList,
+            
+                   executableFile;
+            String goalsConfigText = "";
+            ErrorHandler error = new ErrorHandler();
+            List<String> goalIDs = new ArrayList(); //Used for goal ID duplication check
+            
+            //Iterate through each goal
+            for(int i=0;i < goals.length;i++){
+                error.checkReset(); //Reset the error statuses for a new goal line
+                
+                String goalConfigLine = "";
+                
+                //Goal ID
+                goalID = ((GoalPanels)goals[i]).getGoalIDTextField().getText();
+                goalIDs.add(goalID);
+                //Checks if goal ID is valid or inputted
+                if(error.checkGoalID(goalID))
+                   goalConfigLine += (goalID + " = "); //add to goal ID Config line
+                
+                //Goal Type
+                ToolTipHandlers.ToolTipWrapper goalTypeTTW = (ToolTipHandlers.ToolTipWrapper)(((GoalPanels)goals[i]).getGoalTypeComboBox().getSelectedItem());
+                goalType = goalTypeTTW.getItem();
+                
+                switch (goalType) {
+                    case "matchExpression":
+                        goalConfigLine += "matchany : ";
+                        break;
+                    case "count_value":
+                    case "count_matches":
+                        goalConfigLine += "count : ";
+                        break;
+                    default:
+                        goalConfigLine += goalType+" : ";
+                        break;
+                }
+                
+                if(opInput.contains(goalType)){
+                    ToolTipHandlers.ToolTipWrapper operatorTTW = (ToolTipHandlers.ToolTipWrapper)(((GoalPanels)goals[i]).getOperatorComboBox().getSelectedItem());
+                    operator = operatorTTW.getItem();
+                    resultTag = (String)((GoalPanels)goals[i]).getResultTagComboBox().getSelectedItem();
+                    answerType = (String)((GoalPanels)goals[i]).getAnswerTypeComboBox().getSelectedItem();
+
+                    goalConfigLine += operator+" : ";
+                    goalConfigLine += resultTag+" : ";
+                    goalConfigLine += answerHandler(answerType, (GoalPanels)goals[i]);
+                }
+                
+                else if(goalInput.contains(goalType)){  
+                    goal1 = ((GoalPanels)goals[i]).getGoal1TextField().getText();
+                    goal2 = ((GoalPanels)goals[i]).getGoal2TextField().getText();
+                    
+                    ArrayList<String> listOfAboveGoals = getAboveGoals("GOAL1&2", i, goals);
+                    if(error.checkGoal1(goal1, listOfAboveGoals))
+                        goalConfigLine += goal1+" : ";                    
+                    if(error.checkGoal2(goal2, listOfAboveGoals))
+                        goalConfigLine += goal2;
+                }
+                
+                else if(resultTagInput.contains(goalType)){  
+                    resultTag = (String)((GoalPanels)goals[i]).getResultTagComboBox().getSelectedItem();
+                    goalConfigLine += resultTag;
+                }
+                
+                else if("boolean".equals(goalType)){
+                    booleanExp = ((GoalPanels)goals[i]).getBooleanTextField().getText();
+                    
+                    if(error.checkBooleanExp(booleanExp, getAboveGoals("BOOLEAN", i, goals), booleanResults)){
+                        goalConfigLine += booleanExp;
+                    } 
+                }
+                
+                else if("count_greater".equals(goalType)){
+                    value = ((GoalPanels)goals[i]).getValueTextField().getText();
+                    subgoalList = ((GoalPanels)goals[i]).getSubgoalTextField().getText();
+                     
+                    if(error.checkValueAndSubgoals(value, subgoalList, getAboveGoals("ALL", i, goals), booleanResults)){
+                        goalConfigLine += value+" : ";
+                        goalConfigLine += "(";
+                        goalConfigLine += subgoalList;
+                        goalConfigLine += ")";
+                    }  
+                    
+                    
+                        
+                }
+                else if("execute".equals(goalType)){
+                   executableFile = ((GoalPanels)goals[i]).getExecutableFileTextField().getText();
+                   resultTag = (String)((GoalPanels)goals[i]).getResultTagComboBox().getSelectedItem();
+                   answerType = (String)((GoalPanels)goals[i]).getAnswerTypeComboBox().getSelectedItem();
+
+                   goalConfigLine += executableFile+" : ";
+                   goalConfigLine += resultTag+" : ";
+                   goalConfigLine += answerHandler(answerType, (GoalPanels)goals[i]);
+                }
+                else if("matchExpression".equals(goalType)){
+                   ToolTipHandlers.ToolTipWrapper operatorTTW = (ToolTipHandlers.ToolTipWrapper)(((GoalPanels)goals[i]).getOperatorComboBox().getSelectedItem());
+                   operator = operatorTTW.getItem();
+                   
+                   //May need modification /validation
+                   String rt = (String)((GoalPanels)goals[i]).getArithmeticResultTagTextField().getText();
+                   resultTag="";
+                   if(error.checkArithRT(rt)){ //NOTE: the checkArithRT is incomplete and simply returns 'true' 
+                       resultTag += "(";
+                       resultTag += rt;
+                       resultTag += ")";
+                   }
+                   
+                   answerType = (String)((GoalPanels)goals[i]).getAnswerTypeComboBox().getSelectedItem();
+
+                   goalConfigLine += operator+" : ";
+                   goalConfigLine += resultTag+" : ";
+                   goalConfigLine += answerHandler(answerType, (GoalPanels)goals[i]);
+                }    
+                
+
+                //If there's no error, put the goalConfigLine in the resultsConfigText string, 
+                //Otherwise the overallPass of the user input is false
+                if(error.userInputCheck(i+1)){
+                    if(i < goals.length-1)
+                        goalConfigLine+= System.lineSeparator();
+                    //Add the goal config line to the Results Config text
+                    goalsConfigText += goalConfigLine; 
+                }
+                else
+                    error.fail();         
+            }
+            
+            //Check for duplicate goal IDs
+            error.checkDuplicateGoalIDs(goalIDs, booleanResults);
+            
+            
+            if(error.passStatus()){
+                //Resets the results.config file
+                File goalsConfigFile = initializeGoalsConfig();
+
+                try ( //Write the resultsConfigText to the results.config
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(goalsConfigFile, true))) {
+                    writer.write(goalsConfigText);
+                }
+            }
+            else
+                 JOptionPane.showMessageDialog(null, error.toString(), "INPUT ERROR", JOptionPane.ERROR_MESSAGE);
+        } 
+         catch (IOException ex) {
+            Logger.getLogger(GoalsUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    //Builds the string bit to be added in the goals.config that describes the answer for a goal
+    private String answerHandler(String answerType, GoalPanels goal){
+        String answer = "";
+        
+        if(answerType.equals(answerTypes[0])){ //Literal
+            answer += "answer=";
+            answer += goal.getAnswerTagTextField().getText();
+        }
+        else if(answerType.equals(answerTypes[1])){ //Result Tag
+            answer += "result.";
+            answer += (String)(goal.getResultTag2ComboBox().getSelectedItem());                        
+        }
+        else if(answerType.equals(answerTypes[2])){ //Parameter
+            answer += "parameter.";   
+            answer += (String)(goal.getParameterComboBox().getSelectedItem());   
+        }
+        else if(answerType.equals(answerTypes[3])){ //Parameter ASCII
+            answer += "parameter_ascii.";    
+            answer += (String)(goal.getParameterComboBox().getSelectedItem());
+        }
+        else
+            System.out.println("Issue writing answer in the goals.config");
+        
+        return answer;
+    } 
+    
     //Checks if the goals.config file exists and prepares the goals.config file for the lab
     private File initializeGoalsConfig() throws IOException{
         //Get the filepath for the lab's goals.config
@@ -1018,67 +1021,67 @@ public class GoalsData {
     }
     
     
-//    //Updates the list of goals
-//    protected void updateListofGoals(JPanel PanelofGoals){
-//        Component[] goals = PanelofGoals.getComponents(); //Access the list of goals
-//                
-//        ArrayList<GoalValues> listofGoalsTMP = new ArrayList<>();
-//        
-//        //Iterate through each goal panel in the UI and add its values to the temp list of goal values
-//        for (Component goal : goals) {
-//            //Goal ID
-//            String goalID = ((GoalPanels) goal).getGoalIDTextField().getText();
-//            //GoalType
-//            ToolTipWrapper goalType = (ToolTipWrapper)((GoalPanels) goal).getGoalTypeComboBox().getSelectedItem();
-//            
-//            
-//            //Operator
-//            ToolTipWrapper operator = (ToolTipWrapper)((GoalPanels) goal).getOperatorComboBox().getSelectedItem();
-//            String resultTag = "";
-//            if(goalType.equals(GoalType_ITEMS[12])){ //matchExpression              
-//                resultTag = ((GoalPanels) goal).getArithmeticResultTagTextField().getText();
-//            }
-//            else{
-//                //Result Tag
-//                resultTag = (String)((GoalPanels) goal).getResultTagComboBox().getSelectedItem();
-//            }
-//            //Answer Type
-//            String answerType = (String)((GoalPanels) goal).getAnswerTypeComboBox().getSelectedItem();
-//            //Answer Tag
-//            String answerTag = "";
-//            if(answerType.equals(answerTypes[0])) //Literal
-//                answerTag = ((GoalPanels) goal).getAnswerTagTextField().getText();
-//            else if(answerType.equals(answerTypes[1])) //Result Tag
-//                answerTag = (String)(((GoalPanels) goal).getResultTag2ComboBox().getSelectedItem());            
-//            else if(answerType.equals(answerTypes[2]) || answerType.equals(answerTypes[3])) //Parameter and Parameter ASCII
-//                answerTag = (String)(((GoalPanels) goal).getParameterComboBox().getSelectedItem()); 
-//
-//            
-//            
-//            //Boolean Expression
-//            String booleanExp = ((GoalPanels) goal).getBooleanTextField().getText();
-//            
-//            
-//            //Goal 1
-//            String goal1 = ((GoalPanels) goal).getGoal1TextField().getText();
-//            //Goal 2
-//            String goal2 = ((GoalPanels) goal).getGoal2TextField().getText();
-//            
-//            
-//            //Value
-//            String value = ((GoalPanels) goal).getValueTextField().getText();
-//            //Subgoal List
-//            String subgoalList = ((GoalPanels) goal).getSubgoalTextField().getText();
-//            
-//            
-//            //Executable File
-//            String executableFile = ((GoalPanels) goal).getExecutableFileTextField().getText();
-//
-//            listofGoalsTMP.add(new GoalValues(goalID, goalType, operator, resultTag, answerType, answerTag, booleanExp, goal1, goal2, value, subgoalList, executableFile));
-//       }
-//       listofGoals = listofGoalsTMP; //overwrite the old listofGoals with the temp listofGoals
-//    }
-//     
+    //Updates the list of goals
+    protected void updateListofGoals(JPanel PanelofGoals){
+        Component[] goals = PanelofGoals.getComponents(); //Access the list of goals
+                
+        ArrayList<GoalValues> listofGoalsTMP = new ArrayList<>();
+        
+        //Iterate through each goal panel in the UI and add its values to the temp list of goal values
+        for (Component goal : goals) {
+            //Goal ID
+            String goalID = ((GoalPanels) goal).getGoalIDTextField().getText();
+            //GoalType
+            ToolTipWrapper goalType = (ToolTipWrapper)((GoalPanels) goal).getGoalTypeComboBox().getSelectedItem();
+            
+            
+            //Operator
+            ToolTipWrapper operator = (ToolTipWrapper)((GoalPanels) goal).getOperatorComboBox().getSelectedItem();
+            String resultTag = "";
+            if(goalType.equals(GoalType_ITEMS[12])){ //matchExpression              
+                resultTag = ((GoalPanels) goal).getArithmeticResultTagTextField().getText();
+            }
+            else{
+                //Result Tag
+                resultTag = (String)((GoalPanels) goal).getResultTagComboBox().getSelectedItem();
+            }
+            //Answer Type
+            String answerType = (String)((GoalPanels) goal).getAnswerTypeComboBox().getSelectedItem();
+            //Answer Tag
+            String answerTag = "";
+            if(answerType.equals(answerTypes[0])) //Literal
+                answerTag = ((GoalPanels) goal).getAnswerTagTextField().getText();
+            else if(answerType.equals(answerTypes[1])) //Result Tag
+                answerTag = (String)(((GoalPanels) goal).getResultTag2ComboBox().getSelectedItem());            
+            else if(answerType.equals(answerTypes[2]) || answerType.equals(answerTypes[3])) //Parameter and Parameter ASCII
+                answerTag = (String)(((GoalPanels) goal).getParameterComboBox().getSelectedItem()); 
+
+            
+            
+            //Boolean Expression
+            String booleanExp = ((GoalPanels) goal).getBooleanTextField().getText();
+            
+            
+            //Goal 1
+            String goal1 = ((GoalPanels) goal).getGoal1TextField().getText();
+            //Goal 2
+            String goal2 = ((GoalPanels) goal).getGoal2TextField().getText();
+            
+            
+            //Value
+            String value = ((GoalPanels) goal).getValueTextField().getText();
+            //Subgoal List
+            String subgoalList = ((GoalPanels) goal).getSubgoalTextField().getText();
+            
+            
+            //Executable File
+            String executableFile = ((GoalPanels) goal).getExecutableFileTextField().getText();
+
+            listofGoalsTMP.add(new GoalValues(goalID, goalType, operator, resultTag, answerType, answerTag, booleanExp, goal1, goal2, value, subgoalList, executableFile));
+       }
+       listofGoals = listofGoalsTMP; //overwrite the old listofGoals with the temp listofGoals
+    }
+     
     //Swaps goal order in the list of goals and then redraws them
     protected void swapGoals(String type, int rowIndex){
         switch(type){
@@ -1139,33 +1142,33 @@ public class GoalsData {
     }
        
     //Gets a list of the goal IDs before a certain row
-//    private ArrayList<String> getAboveGoals(String type, int rowIndex, Component[] goals){
-//        ArrayList<String> aboveGoals = new ArrayList<>();
-//        for(int i=0;i<rowIndex;i++){
-//            ToolTipHandlers.ToolTipWrapper goalTypeTTW = (ToolTipWrapper)(((GoalPanels)goals[i]).getGoalTypeComboBox().getSelectedItem());
-//            String goalType = goalTypeTTW.getItem();
-//            
-//            String goalID = ((GoalPanels)goals[i]).getGoalIDTextField().getText();
-//            
-//            switch(type){
-//                case "ALL": 
-//                    aboveGoals.add(goalID);
-//                    break;
-//                case "GOAL1&2": //Only matchany and boolean
-//                    if(goalType.equals("matchany") || goalType.equals("boolean"))
-//                        aboveGoals.add(goalID);
-//                    break;
-//                case "BOOLEAN": //Non Match across
-//                    if(!goalType.equals("matchacross"))
-//                        aboveGoals.add(goalID);
-//                    break;
-//                default:
-//                    System.out.println("GetAboveGoals type is invalid");      
-//            }   
-//        }
-//        return aboveGoals;
-//    }
-//    
+    private ArrayList<String> getAboveGoals(String type, int rowIndex, Component[] goals){
+        ArrayList<String> aboveGoals = new ArrayList<>();
+        for(int i=0;i<rowIndex;i++){
+            ToolTipHandlers.ToolTipWrapper goalTypeTTW = (ToolTipWrapper)(((GoalPanels)goals[i]).getGoalTypeComboBox().getSelectedItem());
+            String goalType = goalTypeTTW.getItem();
+            
+            String goalID = ((GoalPanels)goals[i]).getGoalIDTextField().getText();
+            
+            switch(type){
+                case "ALL": 
+                    aboveGoals.add(goalID);
+                    break;
+                case "GOAL1&2": //Only matchany and boolean
+                    if(goalType.equals("matchany") || goalType.equals("boolean"))
+                        aboveGoals.add(goalID);
+                    break;
+                case "BOOLEAN": //Non Match across
+                    if(!goalType.equals("matchacross"))
+                        aboveGoals.add(goalID);
+                    break;
+                default:
+                    System.out.println("GetAboveGoals type is invalid");      
+            }   
+        }
+        return aboveGoals;
+    }
+    
     //Resets the list of goals and the row count
     protected void resetData(){
         listofGoals = new ArrayList<>(); 
@@ -1179,6 +1182,10 @@ public class GoalsData {
     
     void decreaseRowCount(){
         rowCount--;
+    }
+    
+    void resetRowCount(){
+        rowCount = 0;
     }
     
 //Getters

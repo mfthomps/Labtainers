@@ -6,6 +6,7 @@
 package labtainers.mainui;
 
 import java.awt.Component;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -67,6 +68,7 @@ public class ToolTipHandlers {
         combobox.setRenderer(renderer);
         
         for (ToolTipWrapper item : items) {
+            if(((DefaultComboBoxModel)combobox.getModel()).getIndexOf(item) == -1) 
             combobox.addItem(item);
         }
     }

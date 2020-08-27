@@ -5,21 +5,55 @@
  */
 package labtainers.goalsui;
 
+import java.awt.Component;
+import java.awt.Dimension;
+import javax.swing.JPanel;
+import javax.swing.JScrollBar;
+import labtainers.mainui.MainWindow;
+
 /**
  *
  * @author student
  */
+
+
 public class GoalsUI extends javax.swing.JDialog {
 
     /**
      * Creates new form GoalsUI
      */
+    GoalsData data;
+    GoalsData saved;
+    MainWindow mainUI;
+    
     public GoalsUI(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
         this.setVisible(true);
+        
+        goalsScrollPaneBar = ScrollPaneOfGoals.getVerticalScrollBar();
+        
+        this.mainUI = (MainWindow)parent;
+        this.data = this.mainUI.getCurrentData().getGoalsData();
+        //this.saved = new GoalsData(this.data);
+        loadUI();
     }
 
+    protected void loadUI(){
+        removeAllGoals();               
+        //redraw the artifacts
+        for(int i=0; i < data.getListofGoals().size(); i++){
+            loadGoal(data.getListofGoals().get(i), i+1);
+        }
+    }
+    
+        //Load's the goals into GUI
+    private void loadGoal(GoalValues goalVal, int rowNum){
+        GoalPanels newGoal = new GoalPanels(this, data, goalVal, rowNum);
+        addGoalsPanel(newGoal);
+    }
+    
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -73,8 +107,6 @@ public class GoalsUI extends javax.swing.JDialog {
 
         ScrollPaneOfGoals.setAutoscrolls(true);
         ScrollPaneOfGoals.setMaximumSize(new java.awt.Dimension(1300, 800));
-
-        PanelofGoals.setLayout(new javax.swing.BoxLayout(PanelofGoals, javax.swing.BoxLayout.PAGE_AXIS));
         ScrollPaneOfGoals.setViewportView(PanelofGoals);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -127,10 +159,56 @@ public class GoalsUI extends javax.swing.JDialog {
         //removeAllButton();
     }//GEN-LAST:event_RemoveAllButtonActionPerformed
 
+    //Removes all the goal lines for the lab *note: this doesn't update results.config until the user hits the update button
+    private void removeAllGoals(){
+        data.resetRowCount();
+        goalsPanePanelLength = 0;
+        PanelofGoals.setPreferredSize(new Dimension(0,goalsPanePanelLength));
+        
+        Component[] componentList = PanelofGoals.getComponents();
+        for(Component c: componentList)
+            PanelofGoals.remove(c);
+        
+        
+        PanelofGoals.revalidate();
+        PanelofGoals.repaint();
+    }
+    
+    
+    
     private void UpdateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UpdateButtonActionPerformed
         //update();
     }//GEN-LAST:event_UpdateButtonActionPerformed
 
+    public int goalsPanePanelLength = 0;
+    private JScrollBar goalsScrollPaneBar;
+    private void addGoalsPanel(GoalPanels panel){
+        //Resize the JPanel Holding all the Goal Panels to fit another one (makes the scroll bar resize and should show all objects listed)
+        //as of 8/24/2020 the PanelofArtifacts uses a flow layout with a horizontal gap of 5, that's where the 5 comes from in the line below
+        goalsPanePanelLength+=panel.getPreferredSize().height+5;
+        PanelofGoals.setPreferredSize(new Dimension(0,goalsPanePanelLength));
+        
+        // Create the Goal Panel and add it
+        data.increaseRowCount();
+        PanelofGoals.add(panel); //takes in parent(this), containerlist, rowcount
+        
+        // Redraw GUI with the new Panel
+        PanelofGoals.revalidate();
+        PanelofGoals.repaint(); 
+    }    
+    
+    //Updates the list of goals and redraws them on screen
+    void refresh(){
+       data.updateListofGoals(PanelofGoals);       
+       loadUI();
+    }
+    
+    //Gets the panel holding the goals
+    protected JPanel getPanelofGoals(){
+        return PanelofGoals;
+    }
+
+    
     /**
      * @param args the command line arguments
      */

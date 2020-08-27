@@ -39,7 +39,7 @@ public class ResultsUI extends javax.swing.JDialog {
         loadUI();
     }
 
-    void loadUI(){
+    protected void loadUI(){
         removeAllArtifacts();               
         //redraw the artifacts
         for(int i=0; i < data.listofArtifacts.size(); i++){
