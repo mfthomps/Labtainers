@@ -30,7 +30,7 @@ class SmokeTest():
 
     def checkLab(self, lab, test_registry, remove_lab):
         FAILURE=1
-        now = datetime.now()
+        now = datetime.datetime.now()
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
         print('smoketest start lab %s at %s' % (lab, dt_string))
         retval = True
