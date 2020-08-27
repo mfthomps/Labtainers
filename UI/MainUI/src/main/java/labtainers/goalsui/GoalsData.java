@@ -26,6 +26,7 @@ import static labtainers.goalsui.ParamReferenceStorage.booleanResultTypes;
 import static labtainers.goalsui.ParamReferenceStorage.goalInput;
 import static labtainers.goalsui.ParamReferenceStorage.opInput;
 import static labtainers.goalsui.ParamReferenceStorage.resultTagInput;
+import labtainers.mainui.MainWindow;
 import labtainers.mainui.ToolTipHandlers;
 import labtainers.mainui.ToolTipHandlers.ToolTipWrapper;
 
@@ -38,55 +39,40 @@ public class GoalsData {
     final private List<String> resultTagList;
     final private List<String> parameters;
     final private List<String> booleanResults;
-    private boolean labloaded;
-    final private String labname;
     private int rowCount;
+    File labPath;
+    MainWindow mainUI;
      
     GoalsData(){
         listofGoals = new ArrayList<>(); 
         resultTagList = new ArrayList<>();
         parameters = new ArrayList<>();
         booleanResults = new ArrayList<>();
-        labloaded = false;
-        labname = "";
         rowCount = 0;
     }
     
-    GoalsData(String labname){
+    public GoalsData(MainWindow main, File labPath){
         listofGoals = new ArrayList<>(); 
         resultTagList = new ArrayList<>();
         parameters = new ArrayList<>();
         booleanResults = new ArrayList<>();
-        labloaded = false;
-        this.labname = labname;
         rowCount = 0;
-        
-        getData();
     }
     
     
 //LOADING~~~~~~~~~~~~~~~~~~~~~~~~
     
     //Checks if the lab exists and will load lab's goals.config if it does
-    private void getData(){
-        //Check if the Folder exists
-        String userHomeFolder = System.getProperty("user.home");
-        File lab = new File(userHomeFolder + File.separator + "labtainer" + File.separator + "trunk" + File.separator + "labs" + File.separator+ labname);
-        
-        if(lab.isDirectory()){
-            if(getResultTags(lab) && getGoals()){
-                labloaded = true;
-                getParameters(lab);
-                getBooleanResults(lab);
-            }
+    public void getData(){
+        if(getResultTags() && getGoals()){
+            retrieveParameters();
+            retrieveBooleanResults();
         }
-        else
-            System.out.println("Lab does not exist!"); 
     }
     
     //Updates the resultTagList (all goal panels refer to this list to fill in the resultTag combobox)
-    private boolean getResultTags(File lab){
-        File resultsConfig = new File(lab + File.separator + "instr_config" + File.separator + "results.config");
+    private boolean getResultTags(){
+        File resultsConfig = new File(labPath + File.separator + "instr_config" + File.separator + "results.config");
         try {
             if(resultsConfig.exists()){
                 try (FileReader fileReader = new FileReader(resultsConfig)) {
@@ -130,8 +116,8 @@ public class GoalsData {
     }
     
     //Get the parameter.config IDs
-    private void getParameters(File lab){        
-        File parameterConfig = new File(lab + File.separator + "config" + File.separator + "parameter.config");
+    private void retrieveParameters(){        
+        File parameterConfig = new File(labPath + File.separator + "config" + File.separator + "parameter.config");
         try {
             if(parameterConfig.exists()){
                 try (FileReader fileReader = new FileReader(parameterConfig)) {
@@ -157,8 +143,8 @@ public class GoalsData {
     }
     
     //Get the result tags that are boolean result types
-    private void getBooleanResults(File lab){
-        File resultsConfig = new File(lab + File.separator + "instr_config" + File.separator + "results.config");
+    private void retrieveBooleanResults(){
+        File resultsConfig = new File(labPath + File.separator + "instr_config" + File.separator + "results.config");
         try {
             if(resultsConfig.exists()){
                 try (FileReader fileReader = new FileReader(resultsConfig)) {
@@ -382,8 +368,7 @@ public class GoalsData {
     //Checks if the goals.config file exists and prepares the goals.config file for the lab
     private File initializeGoalsConfig() throws IOException{
         //Get the filepath for the lab's goals.config
-        String userHomeFolder = System.getProperty("user.home");
-        File goalsConfigFile = new File(userHomeFolder + File.separator + "labtainer" + File.separator + "trunk" + File.separator + "labs" + File.separator + labname + File.separator + "instr_config" + File.separator + "goals.config");
+        File goalsConfigFile = new File(labPath + File.separator + "instr_config" + File.separator + "goals.config");
         
         //May not be necessary, subject to remove the base text, perhaps there is an option for the user to add their own comments
         String baseText = 
@@ -989,9 +974,7 @@ public class GoalsData {
         ArrayList<String> goals = new ArrayList<>();
         
         try {
-            String userHomeFolder = System.getProperty("user.home");
-            File lab = new File(userHomeFolder + File.separator + "labtainer" + File.separator + "trunk" + File.separator + "labs" + File.separator+ labname);
-            File goalsConfig = new File(lab+"/instr_config/goals.config");
+            File goalsConfig = new File(labPath+File.separator+"instr_config"+File.separator+"goals.config");
 
             //Get the artifact lines
             if(goalsConfig.exists()){
@@ -1189,10 +1172,6 @@ public class GoalsData {
     }
     
 //Getters
-    boolean isLoaded(){
-        return labloaded;
-    }
-    
     int getRowCount(){
         return rowCount;
     }

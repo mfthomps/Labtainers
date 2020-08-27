@@ -132,7 +132,8 @@ public class LabData {
         this.listOfContainers = new ArrayList();
         this.listOfNetworks = new ArrayList();
         this.mainUI = main;
-        this.resultsData = new ResultsData(main, labName,labPath);
+        this.resultsData = new ResultsData(main,labPath);
+        this.goalsData = new GoalsData(main, labPath);
         //System.out.println("Lab Path: "+labPath);
         //System.out.println("Lab Name: "+labName);
         
@@ -322,7 +323,7 @@ public class LabData {
                     resultsData.setContainerList(containerNames);
                     resultsData.getData();
                     
-                    //goalsData.getData();
+                    goalsData.getData();
                 }
                 return true;
             }

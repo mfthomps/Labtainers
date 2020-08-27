@@ -37,15 +37,9 @@ public class GoalPanels extends javax.swing.JPanel {
     private List<String> parameterIDs;
     private List<String> booleanResultTags;
      
-    public GoalPanels() {
-        initComponents();
-    }
-    
     //Creating fresh goal line
     public GoalPanels(GoalsUI ui, GoalsData dataUI) {
         initiateGoalPanel(ui, dataUI, dataUI.getRowCount());    
-        this.revalidate();
-        this.repaint();
     }
 
     //Loading goal line

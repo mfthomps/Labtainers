@@ -36,7 +36,7 @@ import labtainers.mainui.ToolTipHandlers.ToolTipWrapper;
 public class ResultsData {
     List<ArtifactValues> listofArtifacts;
     ArrayList<String> containerList;
-    String labname;
+    //String labname;
     int rowCount;
     File labPath;
     MainWindow mainUI;
@@ -44,17 +44,17 @@ public class ResultsData {
     public ResultsData(){
         listofArtifacts = new ArrayList<>(); 
         containerList = new ArrayList<>();
-        labname = "";
+        //labname = "";
         rowCount = 0;
     }
     
-    public ResultsData(MainWindow main, String labname, File labPath){
+    public ResultsData(MainWindow main, File labPath){
         listofArtifacts = new ArrayList<>(); 
         containerList = new ArrayList<>();
         rowCount = 0;
         
         this.mainUI = main;
-        this.labname = labname;
+        //this.labname = labname;
         this.labPath = labPath;
     }
     
@@ -66,7 +66,7 @@ public class ResultsData {
             listofArtifacts.add(new ArtifactValues(artifact));
         }
         
-        this.labname = new String(original.getLabname());
+        //this.labname = new String(original.getLabname());
         this.labPath = new File(original.getLabPath().getPath());
         this.rowCount = original.getRowCount();
                 
@@ -712,9 +712,9 @@ public class ResultsData {
         return containerList;
     }
             
-    protected String getLabname(){
-        return labname;
-    }        
+//    protected String getLabname(){
+//        return labname;
+//    }        
        
     protected int getRowCount(){
         return rowCount;

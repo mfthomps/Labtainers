@@ -131,7 +131,9 @@
       <SubComponents>
         <Container class="javax.swing.JPanel" name="PanelofGoals">
 
-          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignFlowLayout"/>
+          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignFlowLayout">
+            <Property name="alignment" type="int" value="0"/>
+          </Layout>
         </Container>
       </SubComponents>
     </Container>

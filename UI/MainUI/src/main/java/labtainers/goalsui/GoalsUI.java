@@ -30,13 +30,12 @@ public class GoalsUI extends javax.swing.JDialog {
         super(parent, modal);
         initComponents();
         this.setVisible(true);
-        
         goalsScrollPaneBar = ScrollPaneOfGoals.getVerticalScrollBar();
         
         this.mainUI = (MainWindow)parent;
         this.data = this.mainUI.getCurrentData().getGoalsData();
         //this.saved = new GoalsData(this.data);
-        loadUI();
+        //loadUI();
     }
 
     protected void loadUI(){
@@ -107,6 +106,8 @@ public class GoalsUI extends javax.swing.JDialog {
 
         ScrollPaneOfGoals.setAutoscrolls(true);
         ScrollPaneOfGoals.setMaximumSize(new java.awt.Dimension(1300, 800));
+
+        PanelofGoals.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
         ScrollPaneOfGoals.setViewportView(PanelofGoals);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -152,7 +153,8 @@ public class GoalsUI extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void CreateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CreateButtonActionPerformed
-        //createFreshGoal();
+        addGoalsPanel(new GoalPanels(this, data));
+        goalsScrollPaneBar.setValue(goalsScrollPaneBar.getMaximum());
     }//GEN-LAST:event_CreateButtonActionPerformed
 
     private void RemoveAllButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RemoveAllButtonActionPerformed
