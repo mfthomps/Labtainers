@@ -12,7 +12,7 @@ def getMemoryInGB():
     command="cat /proc/meminfo | grep MemTotal"
     #print "command is (%s)" % command
     result=subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    MemTotalString=result.stdout.read().strip().split()
+    MemTotalString=result.stdout.read().decode('utf-8').strip().split()
     lenMemTotalString=len(MemTotalString)
     #print "MemTotal is (%s)" % MemTotalString
     #print "length MemTotal is (%d)" % lenMemTotalString
@@ -54,7 +54,7 @@ def getNumProcessor():
     command="cat /proc/cpuinfo | grep processor | wc -l"
     #print "command is (%s)" % command
     result=subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    NumProcessorString=result.stdout.read().strip()
+    NumProcessorString=result.stdout.read().decode('utf-8').strip()
     #print "NumProcessor is (%s)" % NumProcessor
     try:
         NumProcessor = int(NumProcessorString)
