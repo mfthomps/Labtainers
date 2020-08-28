@@ -1,3 +1,3 @@
 #!/bin/bash
 #
-./pull-all.py > ../logs/pull.log 2>&1
+./pull-all.py 2>&1 | tee ../logs/pull.log 
