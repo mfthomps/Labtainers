@@ -41,8 +41,8 @@ if [[ result -ne 0 ]];then
    cat <<EOT >>$target
    if [[ ":\$PATH:" != *":./bin:"* ]]; then 
        export PATH="\${PATH}:./bin:$here/trunk/scripts/designer/bin"
-       export LABTAINER_DIR=$pwd/trunk
    fi
+   export LABTAINER_DIR=$here/trunk
 EOT
 fi
 
