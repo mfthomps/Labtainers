@@ -1049,7 +1049,7 @@ def imageInfo(image_name, registry, base_registry, labtainer_config, is_rebuild=
             reg_host = None
             if ':' in labtainer_config.test_registry:
                 reg_host = labtainer_config.test_registry.split(':')[0]
-            self.lgr.debug('imageInfo reg_host: %s  registry: %s' % reg_host, registry)
+            logger.debug('imageInfo reg_host: %s  registry: %s' % (reg_host, registry))
             if reg_host is not None and registry.startswith(reg_host):
                 created, user, version, use_tag, base = InspectLocalReg.inspectLocal(image_name, logger, 
                                   registry, is_rebuild=is_rebuild, quiet=quiet, no_pull=no_pull)
