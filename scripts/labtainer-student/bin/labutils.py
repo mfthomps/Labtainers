@@ -482,7 +482,6 @@ def HandleVolumes(volume, container):
 
 def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_name=None, mysubnet_ip=None, quiet=False):
     ''' create a single container -- or all clones of that container per the start.config '''
-    logger.debug("Create Single Container for %s" % container.name)
     retval = True
     #image_exists, result, new_image_name = ImageExists(container.image_name, container.registry)
     if container.registry == labtainer_config.test_registry:
@@ -491,6 +490,7 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
     else:
         container_registry = container.registry
         base_registry = container.base_registry
+    logger.debug("Create Single Container for %s using registry %s" % (container.name, container_registry))
     image_info = imageInfo(container.image_name, container_registry, base_registry, labtainer_config, quiet=quiet)
     start_script = container.script     
     if image_info is None:
@@ -1049,6 +1049,7 @@ def imageInfo(image_name, registry, base_registry, labtainer_config, is_rebuild=
             reg_host = None
             if ':' in labtainer_config.test_registry:
                 reg_host = labtainer_config.test_registry.split(':')[0]
+            self.lgr.debug('imageInfo reg_host: %s  registry: %s' % reg_host, registry)
             if reg_host is not None and registry.startswith(reg_host):
                 created, user, version, use_tag, base = InspectLocalReg.inspectLocal(image_name, logger, 
                                   registry, is_rebuild=is_rebuild, quiet=quiet, no_pull=no_pull)
