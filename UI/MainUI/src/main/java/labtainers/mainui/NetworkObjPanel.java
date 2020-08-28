@@ -6,6 +6,7 @@
 package labtainers.mainui;
 
 import java.awt.Dimension;
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -352,6 +353,10 @@ public class NetworkObjPanel extends javax.swing.JPanel {
     
     public LabData.NetworkData getConfigData(){
         return this.data;
+    }
+    
+    public JDialog getNetworkConfigDialog(){
+        return NetworkConfigWindow;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

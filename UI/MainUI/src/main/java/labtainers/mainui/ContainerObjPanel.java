@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
@@ -176,14 +177,11 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         renameContainerOption = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         deleteContainerOption = new javax.swing.JMenuItem();
-        DockerfileEditorDialog = new javax.swing.JDialog();
         ContainerLabelName = new javax.swing.JLabel();
         RenameContainerTextfield = new javax.swing.JTextField();
 
         ContainerConfigWindow.setTitle("Container Configuration: ");
-        ContainerConfigWindow.setMaximumSize(new java.awt.Dimension(601, 400));
         ContainerConfigWindow.setMinimumSize(new java.awt.Dimension(601, 400));
-        ContainerConfigWindow.setPreferredSize(new java.awt.Dimension(601, 400));
         ContainerConfigWindow.setResizable(false);
         ContainerConfigWindow.addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
@@ -688,17 +686,6 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         });
         ContainerRightClick.add(deleteContainerOption);
 
-        javax.swing.GroupLayout DockerfileEditorDialogLayout = new javax.swing.GroupLayout(DockerfileEditorDialog.getContentPane());
-        DockerfileEditorDialog.getContentPane().setLayout(DockerfileEditorDialogLayout);
-        DockerfileEditorDialogLayout.setHorizontalGroup(
-            DockerfileEditorDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        DockerfileEditorDialogLayout.setVerticalGroup(
-            DockerfileEditorDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
-
         setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         setMaximumSize(new java.awt.Dimension(340, 50));
         setPreferredSize(new java.awt.Dimension(340, 50));
@@ -770,6 +757,7 @@ private boolean clicked = false;
            
            // delete the container from the list
            mainWindow.labDataCurrent.deleteReferenceToContainer(data.name);
+           mainWindow.resultsUI.refresh(); // Updates the resultsUI with the updated list of Containers
            containerPanel.remove(this);
 
            // Shorten the panel height holding all the containers and resize it.
@@ -1040,6 +1028,10 @@ private boolean clicked = false;
         return this.data;
     }
     
+    public JDialog getContainerConfigDialog(){
+        return ContainerConfigWindow;
+    }
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel AddHostLabel3;
@@ -1062,7 +1054,6 @@ private boolean clicked = false;
     private javax.swing.JDialog ContainerConfigWindow;
     private javax.swing.JLabel ContainerLabelName;
     private javax.swing.JPopupMenu ContainerRightClick;
-    private javax.swing.JDialog DockerfileEditorDialog;
     private javax.swing.JButton EditDockerfileButton;
     private javax.swing.JCheckBox HideCheckbox;
     private javax.swing.JLabel HideLabel;

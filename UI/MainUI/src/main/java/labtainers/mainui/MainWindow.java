@@ -58,6 +58,8 @@ public class MainWindow extends javax.swing.JFrame {
     String[] bases;
     String textEditorPref;
     
+    ResultsUI resultsUI;
+    GoalsUI goalsUI;
     boolean resultsOpened;
     boolean goalsOpened;
     public MainWindow() throws IOException {
@@ -961,7 +963,7 @@ public class MainWindow extends javax.swing.JFrame {
 
     private void AssessmentButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AssessmentButtonActionPerformed
         if(!resultsOpened){
-            ResultsUI resultsUI = new ResultsUI(this, false);
+            resultsUI = new ResultsUI(this, false);
             resultsOpened = true;
         }
     }//GEN-LAST:event_AssessmentButtonActionPerformed
@@ -1010,6 +1012,8 @@ public class MainWindow extends javax.swing.JFrame {
         }
         else {
             newContainer = new ContainerObjPanel(this, data);
+            labDataCurrent.addReferenceContainer(data);
+            resultsUI.refresh(); // Updates the resultsUI with the updated list of Containers
         }
 
         ContainerPanePanel.add(newContainer);
@@ -1097,6 +1101,8 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_OpenLabMenuItemActionPerformed
     
     private void openLab(File lab){
+        closeAllDialogs(); // Closes all dialogs of previous lab before loading the new lab
+        
         currentLab = lab;
         labName = lab.toString().substring(lab.toString().lastIndexOf(File.separator)+1);
 
@@ -1106,11 +1112,11 @@ public class MainWindow extends javax.swing.JFrame {
         // Visual load of lab
         resetWindow();
         loadLab();
-        System.out.println(labName);
-        labDataCurrent.printData();    
-        System.out.println();
-            System.out.println();
-                System.out.println();
+//        System.out.println(labName);
+//        labDataCurrent.printData();    
+//        System.out.println();
+//            System.out.println();
+//                System.out.println();
 
 
     }    
@@ -1398,6 +1404,8 @@ public class MainWindow extends javax.swing.JFrame {
         //Save results.config file
         labDataCurrent.getResultsData().writeResultsConfig();
         labDataCurrent.getGoalsData().writeGoalsConfig();
+        
+        System.out.println("Lab Saved");
     }
     
     private void SaveAsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveAsMenuItemActionPerformed
@@ -1454,7 +1462,7 @@ public class MainWindow extends javax.swing.JFrame {
 
     private void AssessmentButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AssessmentButton1ActionPerformed
         if(!goalsOpened){
-            GoalsUI goalsUI = new GoalsUI(this, false);
+            goalsUI = new GoalsUI(this, false);
             goalsOpened = true;
         }
     }//GEN-LAST:event_AssessmentButton1ActionPerformed
@@ -1592,6 +1600,24 @@ public class MainWindow extends javax.swing.JFrame {
     public File getCurrentLab(){
         return currentLab;
     }
+    
+    //Closes/disposes all windows for the current lab
+    //BUG: Doesn't close the terminal window used to edit a dockerfile for a container
+    private void closeAllDialogs(){
+        if(resultsUI != null)
+            resultsUI.dispose();
+        if(goalsUI != null)
+            goalsUI.dispose();
+        
+        for(Component container : ContainerPanePanel.getComponents()){
+            ((ContainerObjPanel)container).getContainerConfigDialog().dispose();
+        }
+        
+        for(Component network : NetworkPanePanel.getComponents()){
+            ((NetworkObjPanel)network).getNetworkConfigDialog().dispose();
+        }
+    }
+    
     /**
      * @param args the command line arguments
      */

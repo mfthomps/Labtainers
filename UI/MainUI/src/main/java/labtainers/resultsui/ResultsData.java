@@ -729,4 +729,5 @@ public class ResultsData {
     protected MainWindow getMainWindow(){
         return mainUI;
     }  
+    
 }

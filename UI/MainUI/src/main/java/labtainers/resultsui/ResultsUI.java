@@ -246,7 +246,7 @@ public class ResultsUI extends javax.swing.JDialog {
     }
     
      //Updates the list of artifacts and redraws them on screen
-    void refresh(){
+    public void refresh(){
        data.updateListofArtifacts(PanelofArtifacts);       
        loadUI();
     }

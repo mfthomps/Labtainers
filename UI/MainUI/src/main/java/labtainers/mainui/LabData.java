@@ -453,18 +453,27 @@ public class LabData {
     }
     
     // The function deletes any instances of the Container name being referenced in the Lab data
-    public void deleteReferenceToContainer(String networkName){
+    public void deleteReferenceToContainer(String containerName){
         // Delete the network in the list of networks
         for(ContainerData container : listOfContainers){
-            if(container.name.equals(networkName)){
-                listOfNetworks.remove(container);
+            if(container.name.equals(containerName)){
+                listOfContainers.remove(container);
                 break;
             }
         }
         
-        // Delete the container referenced in the list of containers in results config. [TODO]
-        
-
+        // Delete the container referenced in the list of containers in results.config. [TODO]
+        updateResultDataContainerList();
+    }
+    
+    //The function adds the container to all references of the list of containers
+    public void addReferenceContainer(ContainerData container){
+        listOfContainers.add(container);
+        updateResultDataContainerList();
+    }
+    
+    public void updateResultDataContainerList(){
+        resultsData.setContainerList(getContainerNames());
     }
     
     public void printNetworkData(NetworkData data) {
