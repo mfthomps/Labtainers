@@ -1024,6 +1024,18 @@ private boolean clicked = false;
         containerAddHostScrollPaneBar.setValue(58+containerAddHostScrollPaneBar.getMaximum());
     }
       
+    public void updateNetworkComboBoxes(String newNetworkName){
+        //Add new item to the networks subpanels
+        for(Component network : ContainerConfigNetworksPanel.getComponents()){
+            ((ContainerConfigNetworksSubpanel)network).addNetworkToComboBox(newNetworkName);
+        }
+        //Add new item to the add-host subpanels
+        for(Component network : AddHostsSubPanel.getComponents()){
+            ((ContainerConfigAddHosts)network).addNetworkToComboBox(newNetworkName);
+        }
+    }
+    
+    
     public LabData.ContainerData getConfigData(){
         return this.data;
     }

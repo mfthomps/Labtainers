@@ -369,6 +369,14 @@ public class LabData {
         return listOfNetworks;
     }
     
+    public ArrayList<String> getNetworkNames(){
+       ArrayList<String> names = new ArrayList();
+       for (NetworkData network : listOfNetworks) {
+            names.add(network.name);
+        } 
+       return names;
+    }
+    
     public ArrayList<String> getGlobals(){
         return global_settings_params;
     }
@@ -466,13 +474,8 @@ public class LabData {
         updateResultDataContainerList();
     }
     
-    //The function adds the container to all references of the list of containers
-    public void addReferenceContainer(ContainerData container){
-        listOfContainers.add(container);
-        updateResultDataContainerList();
-    }
-    
     public void updateResultDataContainerList(){
+        System.out.println(getContainerNames());
         resultsData.setContainerList(getContainerNames());
     }
     

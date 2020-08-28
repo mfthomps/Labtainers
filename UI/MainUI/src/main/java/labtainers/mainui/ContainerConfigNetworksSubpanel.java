@@ -6,6 +6,7 @@
 package labtainers.mainui;
 
 import java.awt.Dimension;
+import java.util.ArrayList;
 import javax.swing.JPanel;
 
 /**
@@ -116,6 +117,10 @@ public class ContainerConfigNetworksSubpanel extends javax.swing.JPanel {
     
     public String getIP(){
         return ContainerConfigNetworksIPTextfield.getText();
+    }
+    
+    protected void addNetworkToComboBox(String newNetworkName){
+        ContainerConfigNetworksNameCombobox.addItem(newNetworkName);
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables

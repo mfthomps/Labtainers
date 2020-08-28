@@ -278,6 +278,11 @@ public class MainWindow extends javax.swing.JFrame {
         });
 
         ContainerAddDialogCancelButton.setText("Cancel");
+        ContainerAddDialogCancelButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ContainerAddDialogCancelButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout ContainerAddDialogLayout = new javax.swing.GroupLayout(ContainerAddDialog.getContentPane());
         ContainerAddDialog.getContentPane().setLayout(ContainerAddDialogLayout);
@@ -1007,13 +1012,16 @@ public class MainWindow extends javax.swing.JFrame {
         if(data == null){ //if null then this is a new container being added
             newContainer = new ContainerObjPanel(this, ContainerAddDialogNameTextfield.getText());
             
+            //Update the Results UI to include the new Container
+            labDataCurrent.getContainers().add(new ContainerData(ContainerAddDialogNameTextfield.getText()));
+            labDataCurrent.updateResultDataContainerList();
+            resultsUI.refresh(); // Updates the resultsUI with the updated list of Containers
+            
             //Add the container into the labtainers directory
             addContainer(ContainerAddDialogNameTextfield.getText(), (String)ContainerAddDialogBaseImageCombobox.getSelectedItem());
         }
         else {
             newContainer = new ContainerObjPanel(this, data);
-            labDataCurrent.addReferenceContainer(data);
-            resultsUI.refresh(); // Updates the resultsUI with the updated list of Containers
         }
 
         ContainerPanePanel.add(newContainer);
@@ -1064,6 +1072,9 @@ public class MainWindow extends javax.swing.JFrame {
         labDataCurrent.getNetworks().add(newNetworkData);
         
         addNetworkPanel(newNetworkData);
+        
+        //update the Container Config dialogs to include the new network
+        updateContainerConfigDialogWithNewNetwork(NetworkAddDialogNameTextfield.getText().toUpperCase());
     }//GEN-LAST:event_NetworkAddDialogCreateButtonActionPerformed
    
     //[BUG: 6/25/2020] Not sure Why but the network obj panel needs to be 1 px taller than the container panel to be the same size
@@ -1077,6 +1088,7 @@ public class MainWindow extends javax.swing.JFrame {
         
         // Create the Network Obj Panel and add it
         NetworkPanePanel.add(new NetworkObjPanel(this, data));
+          
         
         // Redraw GUI with the new Panel
         NetworkPanePanel.revalidate();
@@ -1088,6 +1100,12 @@ public class MainWindow extends javax.swing.JFrame {
         networkScrollPaneBar.setValue(networkScrollPaneBar.getMaximum());
         NetworkAddDialog.setVisible(false);
     }    
+    
+    private void updateContainerConfigDialogWithNewNetwork(String newNetworkName){
+        for(Component container : ContainerPanePanel.getComponents()){
+            ((ContainerObjPanel)container).updateNetworkComboBoxes(newNetworkName);
+        }
+    }
     
     private void OpenLabMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_OpenLabMenuItemActionPerformed
             int returnVal = labChooser.showOpenDialog(this);
@@ -1466,6 +1484,10 @@ public class MainWindow extends javax.swing.JFrame {
             goalsOpened = true;
         }
     }//GEN-LAST:event_AssessmentButton1ActionPerformed
+
+    private void ContainerAddDialogCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerAddDialogCancelButtonActionPerformed
+        ContainerAddDialog.setVisible(false);
+    }//GEN-LAST:event_ContainerAddDialogCancelButtonActionPerformed
     
     public void setGoalsClosed(){
         goalsOpened = false;

@@ -132,6 +132,10 @@ public class ContainerConfigAddHosts extends javax.swing.JPanel {
         return AddHostNetworkCombobox;
     }
     
+    protected void addNetworkToComboBox(String newNetworkName){
+        AddHostNetworkCombobox.addItem(newNetworkName);
+    }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton AddHostDeleteButton;
     private javax.swing.JTextField AddHostHostTF;
