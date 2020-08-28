@@ -97,20 +97,23 @@ public class ContainerConfigNetworksSubpanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void ContainerConfigNetworksDeleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigNetworksDeleteButtonActionPerformed
-        JPanel containerConfigNetworksPanel = (JPanel)this.getParent();
-       
-           // delete the container from the list
-           containerConfigNetworksPanel.remove(this);
-
-           // Shorten the panel height holding all the containers and resize it.
-           parent.containerConfigNetworksPanelLength-=53;
-           containerConfigNetworksPanel.setPreferredSize(new Dimension(0,parent.containerConfigNetworksPanelLength));
-
-           // Redraw the panel containing the list of containers
-           containerConfigNetworksPanel.revalidate();
-           containerConfigNetworksPanel.repaint(); 
+        remove();
     }//GEN-LAST:event_ContainerConfigNetworksDeleteButtonActionPerformed
 
+    protected void remove(){
+        JPanel containerConfigNetworksPanel = (JPanel)this.getParent();
+       // delete the container from the list
+       containerConfigNetworksPanel.remove(this);
+
+       // Shorten the panel height holding all the containers and resize it.
+       parent.containerConfigNetworksPanelLength-=53;
+       containerConfigNetworksPanel.setPreferredSize(new Dimension(0,parent.containerConfigNetworksPanelLength));
+
+       // Redraw the panel containing the list of containers
+       containerConfigNetworksPanel.revalidate();
+       containerConfigNetworksPanel.repaint(); 
+    }
+    
     public String getNetwork(){
         return (String)(ContainerConfigNetworksNameCombobox.getSelectedItem());
     }
@@ -119,8 +122,16 @@ public class ContainerConfigNetworksSubpanel extends javax.swing.JPanel {
         return ContainerConfigNetworksIPTextfield.getText();
     }
     
+    public javax.swing.JComboBox<String> getNetworkComboBox(){
+        return ContainerConfigNetworksNameCombobox;
+    }
+    
     protected void addNetworkToComboBox(String newNetworkName){
         ContainerConfigNetworksNameCombobox.addItem(newNetworkName);
+    }
+    
+    protected void deleteNetworkInComboBox(String deletedNetwork){
+         ContainerConfigNetworksNameCombobox.removeItem(deletedNetwork);
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables

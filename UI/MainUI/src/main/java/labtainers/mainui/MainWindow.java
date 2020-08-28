@@ -1074,7 +1074,7 @@ public class MainWindow extends javax.swing.JFrame {
         addNetworkPanel(newNetworkData);
         
         //update the Container Config dialogs to include the new network
-        updateContainerConfigDialogWithNewNetwork(NetworkAddDialogNameTextfield.getText().toUpperCase());
+        updateNetworkReferenceInContainerConfigDialogs("Add", NetworkAddDialogNameTextfield.getText().toUpperCase());
     }//GEN-LAST:event_NetworkAddDialogCreateButtonActionPerformed
    
     //[BUG: 6/25/2020] Not sure Why but the network obj panel needs to be 1 px taller than the container panel to be the same size
@@ -1100,12 +1100,7 @@ public class MainWindow extends javax.swing.JFrame {
         networkScrollPaneBar.setValue(networkScrollPaneBar.getMaximum());
         NetworkAddDialog.setVisible(false);
     }    
-    
-    private void updateContainerConfigDialogWithNewNetwork(String newNetworkName){
-        for(Component container : ContainerPanePanel.getComponents()){
-            ((ContainerObjPanel)container).updateNetworkComboBoxes(newNetworkName);
-        }
-    }
+
     
     private void OpenLabMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_OpenLabMenuItemActionPerformed
             int returnVal = labChooser.showOpenDialog(this);
@@ -1637,6 +1632,12 @@ public class MainWindow extends javax.swing.JFrame {
         
         for(Component network : NetworkPanePanel.getComponents()){
             ((NetworkObjPanel)network).getNetworkConfigDialog().dispose();
+        }
+    }
+    
+    protected void updateNetworkReferenceInContainerConfigDialogs(String type, String network){
+        for(Component container : ContainerPanePanel.getComponents()){
+            ((ContainerObjPanel)container).updateNetworkComboBoxes(type, network);
         }
     }
     

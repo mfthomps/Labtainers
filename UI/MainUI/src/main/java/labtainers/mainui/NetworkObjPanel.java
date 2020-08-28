@@ -282,7 +282,8 @@ public class NetworkObjPanel extends javax.swing.JPanel {
                                                                      + "to this network in the Container Configurations as well.", 
                                                     "Delete Network",  JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION){
-            mainWindow.labDataCurrent.deleteReferenceToNetwork(data.name);
+            mainWindow.labDataCurrent.deleteReferenceToNetwork(data.name); //Delete the network in data object
+            mainWindow.updateNetworkReferenceInContainerConfigDialogs("Delete",data.name); //Delete the network on the immediate UI interface
             JPanel networkPanel = (JPanel)this.getParent();
 
             // delete the network from the list

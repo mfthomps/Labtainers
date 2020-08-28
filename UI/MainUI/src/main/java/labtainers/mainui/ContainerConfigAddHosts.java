@@ -101,6 +101,10 @@ public class ContainerConfigAddHosts extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void AddHostDeleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddHostDeleteButtonActionPerformed
+        remove();
+    }//GEN-LAST:event_AddHostDeleteButtonActionPerformed
+
+    protected void remove(){
         JPanel containerAddhostPanel = (JPanel)this.getParent();
        
        // delete the container from the list
@@ -113,8 +117,7 @@ public class ContainerConfigAddHosts extends javax.swing.JPanel {
        // Redraw the panel containing the list of containers
        containerAddhostPanel.revalidate();
        containerAddhostPanel.repaint(); 
-    }//GEN-LAST:event_AddHostDeleteButtonActionPerformed
-
+    }
 
     public String getNetwork(){
         return (String)(AddHostNetworkCombobox.getSelectedItem());
@@ -134,6 +137,10 @@ public class ContainerConfigAddHosts extends javax.swing.JPanel {
     
     protected void addNetworkToComboBox(String newNetworkName){
         AddHostNetworkCombobox.addItem(newNetworkName);
+    }
+    
+    protected void deleteNetworkInComboBox(String deletedNetwork){
+        AddHostNetworkCombobox.removeItem(deletedNetwork);
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables

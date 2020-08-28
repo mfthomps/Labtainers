@@ -1024,15 +1024,47 @@ private boolean clicked = false;
         containerAddHostScrollPaneBar.setValue(58+containerAddHostScrollPaneBar.getMaximum());
     }
       
-    public void updateNetworkComboBoxes(String newNetworkName){
-        //Add new item to the networks subpanels
-        for(Component network : ContainerConfigNetworksPanel.getComponents()){
-            ((ContainerConfigNetworksSubpanel)network).addNetworkToComboBox(newNetworkName);
-        }
-        //Add new item to the add-host subpanels
-        for(Component network : AddHostsSubPanel.getComponents()){
-            ((ContainerConfigAddHosts)network).addNetworkToComboBox(newNetworkName);
-        }
+    public void updateNetworkComboBoxes(String type, String network){
+        switch(type){
+            case "Add":
+                //Add new item to the networks subpanels
+                for(Component panel : ContainerConfigNetworksPanel.getComponents()){
+                    ((ContainerConfigNetworksSubpanel)panel).addNetworkToComboBox(network);
+                }
+                //Add new item to the add-host subpanels
+                for(Component panel : AddHostsSubPanel.getComponents()){
+                    ((ContainerConfigAddHosts)panel).addNetworkToComboBox(network);
+                }
+                break;
+            case "Delete":
+                //Delete network in network subpanels
+                for(Component panel : ContainerConfigNetworksPanel.getComponents()){
+                    if(((ContainerConfigNetworksSubpanel)panel).getNetworkComboBox().getSelectedItem().equals(network)){
+                        ((ContainerConfigNetworksSubpanel)panel).remove();
+                    }
+                    else{
+                        ((ContainerConfigNetworksSubpanel)panel).deleteNetworkInComboBox(network);
+                    }
+                }
+                ContainerConfigNetworksPanel.revalidate();
+                ContainerConfigNetworksPanel.repaint();
+                //Delete network in add-host subpanels
+                for(Component panel : AddHostsSubPanel.getComponents()){
+                    //If the panel has the network selected, then remove the entire panel, otherwise just delete the network in the combobox list
+                    if(((ContainerConfigAddHosts)panel).getNetworkCombobox().getSelectedItem().equals(network)){
+                        ((ContainerConfigAddHosts)panel).remove();
+                    }
+                    else{
+                        ((ContainerConfigAddHosts)panel).deleteNetworkInComboBox(network);
+                    }
+                }
+                AddHostsSubPanel.revalidate();
+                AddHostsSubPanel.repaint();
+                break;
+            default:
+                System.out.println("Not valid updateNetworkComboBoxes() option.");
+                break;
+    }
     }
     
     
