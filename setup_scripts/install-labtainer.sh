@@ -93,6 +93,7 @@ case "$distrib" in
         exit 1
 esac
 if [[ "$RESULT" -eq 0 ]]; then
+    mkdir -p ../logs
     /usr/bin/newgrp docker <<EONG
     /usr/bin/newgrp $USER 
     source ./pull-all.sh
