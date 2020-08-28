@@ -72,6 +72,14 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+August 28, 2020
+- Fix install script to use python3-pip and fix broken scripts: getinfo.py and pull-all.py
+- Registry logic was broken, test systems were not using the test registry, add development documentation.
+- Add juiceshop and owasp base files for OWASP-based web security labs
+- Remove unnecessary sudos from check\_nets
+- Add CHECK\_OK documentation directive for automated assessment
+- Change check\_nets to fix iptables and routing issues if so directed.
+
 August 12, 2020
 - Add timeout to prestop scripts
 - Add quiz and checkwork to dmz-lab
