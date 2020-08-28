@@ -7,6 +7,7 @@ package labtainers.goalsui;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import labtainers.mainui.MainWindow;
@@ -97,7 +98,7 @@ public class GoalsUI extends javax.swing.JDialog {
         jLabel3.setText("Goal Type");
         jLabel3.setToolTipText("The mode in which a value is found.");
 
-        UpdateButton.setText("Update");
+        UpdateButton.setText("Confirm Changes");
         UpdateButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 UpdateButtonActionPerformed(evt);
@@ -158,9 +159,14 @@ public class GoalsUI extends javax.swing.JDialog {
     }//GEN-LAST:event_CreateButtonActionPerformed
 
     private void RemoveAllButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RemoveAllButtonActionPerformed
-        //removeAllButton();
+        removeAllButton();
     }//GEN-LAST:event_RemoveAllButtonActionPerformed
 
+    private void removeAllButton(){
+        if(JOptionPane.showConfirmDialog(null, "Are you sure you want to remove all?") == JOptionPane.YES_OPTION){
+            removeAllGoals();
+        }          
+    }
     //Removes all the goal lines for the lab *note: this doesn't update results.config until the user hits the update button
     private void removeAllGoals(){
         data.resetRowCount();
@@ -179,7 +185,8 @@ public class GoalsUI extends javax.swing.JDialog {
     
     
     private void UpdateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UpdateButtonActionPerformed
-        //update();
+        data.updateListofGoals(PanelofGoals);
+        saved = new GoalsData(data);
     }//GEN-LAST:event_UpdateButtonActionPerformed
 
     public int goalsPanePanelLength = 0;

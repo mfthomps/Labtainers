@@ -108,6 +108,20 @@ public class GoalValues {
             this.executableFile = executableFile;
         }
         
+        //Deep copy
+        GoalValues(GoalValues original){
+            goalID = original.goalID;
+            resultTag = original.resultTag;
+            answerTag = original.answerTag;
+            answerType = original.answerType;
+            booleanExp = original.booleanExp;
+            goal1 = original.goal1;
+            goal2 = original.goal2;
+            value = original.value;
+            subgoalList = original.subgoalList;
+            executableFile = original.executableFile;
+        }
+        
         //set the answertype & answertag to be displayed on the gui based on the config's answer tag
         private void answerTagModifier(String aT, List<String> resultTags){
                 if(aT.contains("answer=")){

@@ -1396,6 +1396,7 @@ private void openLab(File lab){
         
         //Save results.config file
         labDataCurrent.getResultsData().writeResultsConfig();
+        labDataCurrent.getGoalsData().writeGoalsConfig();
     }
     
     private void SaveAsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveAsMenuItemActionPerformed
