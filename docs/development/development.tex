@@ -395,7 +395,9 @@ config/registry.config file.
 The rebuild.py command pulls from the registry associated with the current branch.
 
 All development systems are intended to have the {\tt TEST\_REGISTRY} environment variable set to YES so that images are
-pulled and pushed to the appropriate test registry.
+pulled and pushed to the appropriate test registry, which is determined based on the current git branch.  Test systems
+will have a {\tt REGISTRY\_BRANCH} environment variable that explicitly identifies the branch for mapping to a regisitry
+using the registry.config file.
 
 Within the test systems and the development host , i.e., the computer that builds distributions and docker images, update 
 the /etc/docker/daemon.json file to reflect new registries as "insecure".
@@ -525,6 +527,11 @@ An ssh tunnel to the workstation is created to access Jenkins web interface.
 
 Use {\tt vboxmanage list runningvms} to confirm the development VM is running.
 Smoketest logs appear in a shared folder at ~/SEED/smokelogs.
+
+\subsection{Test VMs}
+The host directory at {\tt SEED/test\_vms/<vmname>} is used to communicate with test VMs.
+The {\tt CURRENT\_BRANCH} environment variable is set to determine which test repo
+will be used as found in the config/registry.config file.
 
 \section {Notes}
 \subsection {Race condition on checklocal.sh output}
