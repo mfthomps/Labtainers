@@ -70,8 +70,8 @@ def main():
         return 0
     memoryinGB = getMemoryInGB()
     print("Linux host resources:")
-    print("Processors: %d") % numprocessor
-    print("RAM: %.2f GB") % memoryinGB
+    print("Processors: %d" % numprocessor)
+    print("RAM: %.2f GB" % memoryinGB)
     print("")
     if numprocessor == 1:
         print("Labtainers will perform better with two processors allocated to the Linux host.")
