@@ -59,6 +59,7 @@ public class MainWindow extends javax.swing.JFrame {
     String textEditorPref;
     
     boolean resultsOpened;
+    boolean goalsOpened;
     public MainWindow() throws IOException {
         initComponents();
         //Set logo icon 
@@ -1095,24 +1096,24 @@ public class MainWindow extends javax.swing.JFrame {
             }
     }//GEN-LAST:event_OpenLabMenuItemActionPerformed
     
-private void openLab(File lab){
-    currentLab = lab;
-    labName = lab.toString().substring(lab.toString().lastIndexOf(File.separator)+1);
-           
-    labDataSaved = new LabData(this, lab, labName); //initialize all data for the lab
-    labDataCurrent = new LabData(this, lab, labName); //initialize all data for the lab 
-    
-    // Visual load of lab
-    resetWindow();
-    loadLab();
-    System.out.println(labName);
-    labDataCurrent.printData();    
-    System.out.println();
+    private void openLab(File lab){
+        currentLab = lab;
+        labName = lab.toString().substring(lab.toString().lastIndexOf(File.separator)+1);
+
+        labDataSaved = new LabData(this, lab, labName); //initialize all data for the lab
+        labDataCurrent = new LabData(this, lab, labName); //initialize all data for the lab 
+
+        // Visual load of lab
+        resetWindow();
+        loadLab();
+        System.out.println(labName);
+        labDataCurrent.printData();    
         System.out.println();
             System.out.println();
+                System.out.println();
 
 
-}    
+    }    
 
     private void NetworkAddDialogCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NetworkAddDialogCancelButtonActionPerformed
         NetworkAddDialog.setVisible(false);
@@ -1452,9 +1453,15 @@ private void openLab(File lab){
     }//GEN-LAST:event_SaveAsConfirmButtonActionPerformed
 
     private void AssessmentButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AssessmentButton1ActionPerformed
-         GoalsUI goalsUI = new GoalsUI(this, false);
-         System.out.println("hi");
+        if(!goalsOpened){
+            GoalsUI goalsUI = new GoalsUI(this, false);
+            goalsOpened = true;
+        }
     }//GEN-LAST:event_AssessmentButton1ActionPerformed
+    
+    public void setGoalsClosed(){
+        goalsOpened = false;
+    }
     
     private void saveAs(String newLabName){
         // Call Clone Script, feeding in the new lab name

@@ -35,8 +35,8 @@ public class GoalsUI extends javax.swing.JDialog {
         
         this.mainUI = (MainWindow)parent;
         this.data = this.mainUI.getCurrentData().getGoalsData();
-        //this.saved = new GoalsData(this.data);
-        //loadUI();
+        this.saved = new GoalsData(this.data);
+        loadUI();
     }
 
     protected void loadUI(){
@@ -73,6 +73,11 @@ public class GoalsUI extends javax.swing.JDialog {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(1590, 500));
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         CreateButton.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
         CreateButton.setText("Create");
@@ -188,6 +193,10 @@ public class GoalsUI extends javax.swing.JDialog {
         data.updateListofGoals(PanelofGoals);
         saved = new GoalsData(data);
     }//GEN-LAST:event_UpdateButtonActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+       mainUI.setGoalsClosed();
+    }//GEN-LAST:event_formWindowClosing
 
     public int goalsPanePanelLength = 0;
     private JScrollBar goalsScrollPaneBar;

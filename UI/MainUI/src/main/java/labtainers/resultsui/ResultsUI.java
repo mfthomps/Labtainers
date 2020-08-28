@@ -198,6 +198,7 @@ public class ResultsUI extends javax.swing.JDialog {
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
        mainUI.setResultsClosed();
+       //Smaa
     }//GEN-LAST:event_formWindowClosing
 
     private void removeAllButton(){

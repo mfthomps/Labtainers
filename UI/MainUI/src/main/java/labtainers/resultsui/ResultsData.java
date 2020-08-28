@@ -150,9 +150,11 @@ public class ResultsData {
                     if(!file.contains("."))
                         error.fileError = true;
                     else{
-                        String dotTag = file.substring(file.indexOf("."),file.length());
-                        if(!(dotTag.equals(".stdin") || dotTag.equals(".stdout") || dotTag.equals(".prgout")))
+                        String dotTag = file.substring(file.lastIndexOf("."),file.length());
+                        if(!(dotTag.equals(".stdin") || dotTag.equals(".stdout") || dotTag.equals(".prgout"))){
+                            System.out.println(dotTag);
                             error.fileError = true;
+                        }
                     }
                 }
                     
