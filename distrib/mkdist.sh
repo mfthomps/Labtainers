@@ -3,8 +3,6 @@
 #  Create an end-user distribution of Labtainers.
 #  This uses git archive, basing the distribution on committed content of the 
 #  current branch of the local repo.
-#  Will modify the labtainer.config TEST_REGISTRY entry unless -n is provided
-#  as the first argument.
 #
 #
 function contains() {
