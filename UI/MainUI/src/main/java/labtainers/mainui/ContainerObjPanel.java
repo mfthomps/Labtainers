@@ -757,7 +757,8 @@ private boolean clicked = false;
            
            // delete the container from the list
            mainWindow.labDataCurrent.deleteReferenceToContainer(data.name);
-           mainWindow.resultsUI.refresh(); // Updates the resultsUI with the updated list of Containers
+           if(mainWindow.resultsUI != null)
+               mainWindow.resultsUI.refresh(); // Updates the resultsUI with the updated list of Containers
            containerPanel.remove(this);
 
            // Shorten the panel height holding all the containers and resize it.
@@ -798,7 +799,10 @@ private boolean clicked = false;
         int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to rename the container '"+this.data.name+"' to '"+RenameContainerTextfield.getText()+"'?", "Rename Container",  JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION){
            // Rename the container referenced in the results ui
-           mainWindow.resultsUI.refactorReferenceToContainer(data.name, RenameContainerTextfield.getText());
+            //Refactor the mainUI's current LabData.ResultsData obj
+            mainWindow.labDataCurrent.getResultsData().refactorContainerReference(data.name, RenameContainerTextfield.getText());
+            if(mainWindow.resultsUI != null)
+                mainWindow.resultsUI.refactorReferenceToContainer(data.name, RenameContainerTextfield.getText());
             
             // Rename the container in directory
             renameContainer(this.data.name,RenameContainerTextfield.getText());
@@ -1052,6 +1056,7 @@ private boolean clicked = false;
                 //Delete network in add-host subpanels
                 for(Component panel : AddHostsSubPanel.getComponents()){
                     //If the panel has the network selected, then remove the entire panel, otherwise just delete the network in the combobox list
+                    System.out.println(((ContainerConfigAddHosts)panel).getNetworkCombobox());
                     if(((ContainerConfigAddHosts)panel).getNetworkCombobox().getSelectedItem().equals(network)){
                         ((ContainerConfigAddHosts)panel).remove();
                     }

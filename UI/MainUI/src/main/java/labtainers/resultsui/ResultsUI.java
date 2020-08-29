@@ -253,9 +253,6 @@ public class ResultsUI extends javax.swing.JDialog {
     
     //Refactors all references to the old container name to the new container name
     public void refactorReferenceToContainer(String oldContainer, String newContainer){
-        //Refactor the mainUI's current LabData.ResultsData obj
-        mainUI.labDataCurrent.getResultsData().refactorContainerReference(oldContainer, newContainer);
-        
         //Refactor the saved and current results data objs in this Results UI
         data.updateListofArtifacts(PanelofArtifacts); 
         data.refactorContainerReference(oldContainer, newContainer);

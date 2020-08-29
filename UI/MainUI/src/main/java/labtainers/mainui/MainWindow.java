@@ -1015,7 +1015,8 @@ public class MainWindow extends javax.swing.JFrame {
             //Update the Results UI to include the new Container
             labDataCurrent.getContainers().add(new ContainerData(ContainerAddDialogNameTextfield.getText()));
             labDataCurrent.updateResultDataContainerList();
-            resultsUI.refresh(); // Updates the resultsUI with the updated list of Containers
+            if(resultsUI!= null)
+                resultsUI.refresh(); // Updates the resultsUI with the updated list of Containers
             
             //Add the container into the labtainers directory
             addContainer(ContainerAddDialogNameTextfield.getText(), (String)ContainerAddDialogBaseImageCombobox.getSelectedItem());
