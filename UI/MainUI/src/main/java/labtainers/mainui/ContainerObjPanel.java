@@ -809,7 +809,6 @@ private boolean clicked = false;
         // hide the textfield and show the container label
         RenameContainerTextfield.setVisible(false);
         ContainerLabelName.setVisible(true);
-
     }//GEN-LAST:event_RenameContainerTextfieldActionPerformed
 
     // Renames the container in the lab directory structure by calling 'new_lab_setup.py -r oldName newName'
@@ -1024,7 +1023,7 @@ private boolean clicked = false;
         containerAddHostScrollPaneBar.setValue(58+containerAddHostScrollPaneBar.getMaximum());
     }
       
-    public void updateNetworkComboBoxes(String type, String network){
+    public void updateNetworkComboBoxes(String type, String network, String network2){
         switch(type){
             case "Add":
                 //Add new item to the networks subpanels
@@ -1046,8 +1045,7 @@ private boolean clicked = false;
                         ((ContainerConfigNetworksSubpanel)panel).deleteNetworkInComboBox(network);
                     }
                 }
-                ContainerConfigNetworksPanel.revalidate();
-                ContainerConfigNetworksPanel.repaint();
+                
                 //Delete network in add-host subpanels
                 for(Component panel : AddHostsSubPanel.getComponents()){
                     //If the panel has the network selected, then remove the entire panel, otherwise just delete the network in the combobox list
@@ -1058,13 +1056,26 @@ private boolean clicked = false;
                         ((ContainerConfigAddHosts)panel).deleteNetworkInComboBox(network);
                     }
                 }
-                AddHostsSubPanel.revalidate();
-                AddHostsSubPanel.repaint();
+                
+                break;
+            case "Rename":
+                //Rename item to the networks subpanels
+                for(Component panel : ContainerConfigNetworksPanel.getComponents()){
+                    ((ContainerConfigNetworksSubpanel)panel).renameNetworkToComboBox(network, network2);
+                }
+                //Rename item to the add-host subpanels
+                for(Component panel : AddHostsSubPanel.getComponents()){
+                    ((ContainerConfigAddHosts)panel).renameNetworkToComboBox(network, network2);
+                }
                 break;
             default:
                 System.out.println("Not valid updateNetworkComboBoxes() option.");
                 break;
-    }
+        }
+        ContainerConfigNetworksPanel.revalidate();
+        ContainerConfigNetworksPanel.repaint();
+        AddHostsSubPanel.revalidate();
+        AddHostsSubPanel.repaint();
     }
     
     

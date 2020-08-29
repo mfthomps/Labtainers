@@ -6,6 +6,7 @@
 package labtainers.mainui;
 
 import java.awt.Dimension;
+import java.util.ArrayList;
 import javax.swing.JPanel;
 
 /**
@@ -142,6 +143,30 @@ public class ContainerConfigAddHosts extends javax.swing.JPanel {
     protected void deleteNetworkInComboBox(String deletedNetwork){
         AddHostNetworkCombobox.removeItem(deletedNetwork);
     }
+    
+    protected void renameNetworkToComboBox(String oldNetwork, String newNetwork){
+        boolean updateSelectedItem = AddHostNetworkCombobox.getSelectedItem().equals(oldNetwork);
+        
+        ArrayList<String> tmp = new ArrayList();
+        //Create new list to set as the combobox items
+        for(int i=0;i<AddHostNetworkCombobox.getItemCount();i++){
+            if(AddHostNetworkCombobox.getItemAt(i).equals(oldNetwork)){
+                tmp.add(newNetwork);
+            }
+            else{
+                tmp.add(AddHostNetworkCombobox.getItemAt(i));
+            }
+        }
+        
+        AddHostNetworkCombobox.removeAllItems();
+        for(int i=0;i<tmp.size();i++){
+            AddHostNetworkCombobox.addItem(tmp.get(i));
+        }
+        
+        if(updateSelectedItem)
+            AddHostNetworkCombobox.setSelectedItem(newNetwork);
+    }
+    
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton AddHostDeleteButton;

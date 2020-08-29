@@ -134,6 +134,28 @@ public class ContainerConfigNetworksSubpanel extends javax.swing.JPanel {
          ContainerConfigNetworksNameCombobox.removeItem(deletedNetwork);
     }
     
+    protected void renameNetworkToComboBox(String oldNetwork, String newNetwork){
+        boolean updateSelectedItem = ContainerConfigNetworksNameCombobox.getSelectedItem().equals(oldNetwork);
+        
+        ArrayList<String> tmp = new ArrayList();
+        //Create new list to set as the combobox items
+        for(int i=0;i<ContainerConfigNetworksNameCombobox.getItemCount();i++){
+            if(ContainerConfigNetworksNameCombobox.getItemAt(i).equals(oldNetwork)){
+                tmp.add(newNetwork);
+            }
+            else{
+                tmp.add(ContainerConfigNetworksNameCombobox.getItemAt(i));
+            }
+        }
+        ContainerConfigNetworksNameCombobox.removeAllItems();
+        for(int i=0;i<tmp.size();i++){
+            ContainerConfigNetworksNameCombobox.addItem(tmp.get(i));
+        }
+        
+        if(updateSelectedItem)
+            ContainerConfigNetworksNameCombobox.setSelectedItem(newNetwork);
+    }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton ContainerConfigNetworksDeleteButton;
     private javax.swing.JTextField ContainerConfigNetworksIPTextfield;

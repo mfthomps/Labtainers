@@ -283,7 +283,7 @@ public class NetworkObjPanel extends javax.swing.JPanel {
                                                     "Delete Network",  JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION){
             mainWindow.labDataCurrent.deleteReferenceToNetwork(data.name); //Delete the network in data object
-            mainWindow.updateNetworkReferenceInContainerConfigDialogs("Delete",data.name); //Delete the network on the immediate UI interface
+            mainWindow.updateNetworkReferenceInContainerConfigDialogs("Delete",data.name, null); //Delete the network on the immediate UI interface
             JPanel networkPanel = (JPanel)this.getParent();
 
             // delete the network from the list
@@ -305,9 +305,11 @@ public class NetworkObjPanel extends javax.swing.JPanel {
     private void RenameNetworkTextfieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RenameNetworkTextfieldActionPerformed
         // Prompt user to confirm their changes
         String newNetworkName = RenameNetworkTextfield.getText().toUpperCase();
-        int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to rename the network '"+data.name+"' to '"+newNetworkName+"'?", "Rename Network",  JOptionPane.YES_NO_OPTION);
+        String oldName = data.name;
+        int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to rename the network '"+oldName+"' to '"+newNetworkName+"'?", "Rename Network",  JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION){
-            mainWindow.labDataCurrent.refactorNetworkName(data.name,newNetworkName);
+            mainWindow.labDataCurrent.refactorNetworkName(oldName,newNetworkName);
+            mainWindow.updateNetworkReferenceInContainerConfigDialogs("Rename",oldName, newNetworkName); //Rename the network on the immediate UI interface
             // Rename the network
             NetworkLabelName.setText(newNetworkName);   
             data.name = newNetworkName;
