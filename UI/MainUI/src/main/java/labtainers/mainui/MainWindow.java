@@ -1010,13 +1010,16 @@ public class MainWindow extends javax.swing.JFrame {
         // Create the Container Obj Panel and add it
         ContainerObjPanel newContainer;
         if(data == null){ //if null then this is a new container being added
+            //Update the main UI
             newContainer = new ContainerObjPanel(this, ContainerAddDialogNameTextfield.getText());
+            //Update the current state object 
+            labDataCurrent.getContainers().add(new ContainerData(ContainerAddDialogNameTextfield.getText()));
             
             //Update the Results UI to include the new Container
-            labDataCurrent.getContainers().add(new ContainerData(ContainerAddDialogNameTextfield.getText()));
             labDataCurrent.updateResultDataContainerList();
-            if(resultsUI!= null)
-                resultsUI.refresh(); // Updates the resultsUI with the updated list of Containers
+            if(resultsUI!= null){
+                resultsUI.addReferenceToContainer(ContainerAddDialogNameTextfield.getText());
+            }
             
             //Add the container into the labtainers directory
             addContainer(ContainerAddDialogNameTextfield.getText(), (String)ContainerAddDialogBaseImageCombobox.getSelectedItem());

@@ -758,7 +758,7 @@ private boolean clicked = false;
            // delete the container from the list
            mainWindow.labDataCurrent.deleteReferenceToContainer(data.name);
            if(mainWindow.resultsUI != null)
-               mainWindow.resultsUI.refresh(); // Updates the resultsUI with the updated list of Containers
+               mainWindow.resultsUI.deleteReferenceToContainer(data.name); // Updates the resultsUI with the updated list of Containers
            containerPanel.remove(this);
 
            // Shorten the panel height holding all the containers and resize it.

@@ -261,6 +261,18 @@ public class ResultsUI extends javax.swing.JDialog {
         loadUI();
     }
     
+    public void deleteReferenceToContainer(String container){
+        data.updateListofArtifacts(PanelofArtifacts); 
+        data.removeContainerReference(container);
+        saved.removeContainerReference(container);
+        loadUI();
+    }
+    
+    public void addReferenceToContainer(String container){
+        saved.addContainerReference(container);
+        loadUI();
+    }
+    
      //Check if the the current state of the UI matches with what's saved in the results.config
     void checkUnsavedChangesMade(){
             data.updateListofArtifacts(PanelofArtifacts);

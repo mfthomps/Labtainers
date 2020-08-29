@@ -478,8 +478,8 @@ public class LabData {
         updateResultDataContainerList();
     }
     
+    
     public void updateResultDataContainerList(){
-        System.out.println(getContainerNames());
         resultsData.setContainerList(getContainerNames());
     }
     

@@ -704,7 +704,7 @@ public class ResultsData {
     
     //Updates container list and Artifact Value objects that reference the old Container to the new Container name
     public void refactorContainerReference(String oldContainer, String newContainer){
-        //Updates the listOfValues to reflect a change of a network name to a new name
+        //Updates the listOfValues to reflect a change of a conainer name to a new name
         for(ArtifactValues artifact : listofArtifacts){
             if(artifact.container.equals(oldContainer)){
                 artifact.container = newContainer;
@@ -720,6 +720,25 @@ public class ResultsData {
                 tmp.add(container);
         }
         containerList = tmp;
+    }
+    
+    //Updates container list and removes Artifact Value objects that reference the container
+    public void removeContainerReference(String container){
+        //Update delete the container in the container list
+        containerList.remove(container);
+        
+        //Updates the listOfValues to reflect deletion of container
+        ArrayList<ArtifactValues> toRemove = new ArrayList();
+        for(ArtifactValues artifact : listofArtifacts){
+            if(artifact.container.equals(container)){
+                toRemove.add(artifact);
+            }
+        }
+        listofArtifacts.removeAll(toRemove);
+    }
+    
+    public void addContainerReference(String container){
+        containerList.add(container);
     }
     
 //GETTERS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
