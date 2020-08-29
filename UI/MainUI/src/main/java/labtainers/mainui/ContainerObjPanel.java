@@ -797,6 +797,9 @@ private boolean clicked = false;
         // Prompt user to confirm their changes
         int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to rename the container '"+this.data.name+"' to '"+RenameContainerTextfield.getText()+"'?", "Rename Container",  JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION){
+           // Rename the container referenced in the results ui
+           mainWindow.resultsUI.refactorReferenceToContainer(data.name, RenameContainerTextfield.getText());
+            
             // Rename the container in directory
             renameContainer(this.data.name,RenameContainerTextfield.getText());
             

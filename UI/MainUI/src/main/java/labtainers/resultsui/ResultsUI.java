@@ -34,7 +34,7 @@ public class ResultsUI extends javax.swing.JDialog {
         resultsScrollPaneBar = ScrollPaneOfArtifacts.getVerticalScrollBar();
         
         this.mainUI = (MainWindow)parent;
-        this.data = this.mainUI.getCurrentData().getResultsData();
+        this.data = new ResultsData(this.mainUI.getCurrentData().getResultsData());
         this.saved = new ResultsData(this.data);
         loadUI();
     }
@@ -194,11 +194,11 @@ public class ResultsUI extends javax.swing.JDialog {
     private void UpdateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UpdateButtonActionPerformed
         data.updateListofArtifacts(PanelofArtifacts);
         saved = new ResultsData(data);
+        this.mainUI.getCurrentData().setResultsData(saved);
     }//GEN-LAST:event_UpdateButtonActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
        mainUI.setResultsClosed();
-       //Smaa
     }//GEN-LAST:event_formWindowClosing
 
     private void removeAllButton(){
@@ -249,6 +249,19 @@ public class ResultsUI extends javax.swing.JDialog {
     public void refresh(){
        data.updateListofArtifacts(PanelofArtifacts);       
        loadUI();
+    }
+    
+    //Refactors all references to the old container name to the new container name
+    public void refactorReferenceToContainer(String oldContainer, String newContainer){
+        //Refactor the mainUI's current LabData.ResultsData obj
+        mainUI.labDataCurrent.getResultsData().refactorContainerReference(oldContainer, newContainer);
+        
+        //Refactor the saved and current results data objs in this Results UI
+        data.updateListofArtifacts(PanelofArtifacts); 
+        data.refactorContainerReference(oldContainer, newContainer);
+        saved.refactorContainerReference(oldContainer, newContainer);
+        //Update the results UI to reflect the refactoring
+        loadUI();
     }
     
      //Check if the the current state of the UI matches with what's saved in the results.config

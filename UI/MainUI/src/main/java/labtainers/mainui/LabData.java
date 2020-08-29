@@ -393,7 +393,11 @@ public class LabData {
         return resultsData;
     }
     
-       public GoalsData getGoalsData(){
+    public void setResultsData(ResultsData data){
+        resultsData = new ResultsData(data);
+    }
+    
+    public GoalsData getGoalsData(){
         return goalsData;
     }
     

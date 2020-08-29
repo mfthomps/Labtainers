@@ -60,7 +60,7 @@ public class ResultsData {
     
     // Creates a deep copy of the original (shallow with containerList and mainUI)
     public ResultsData(ResultsData original){
-        List<ArtifactValues> listofArtifacts = new ArrayList();
+        listofArtifacts = new ArrayList();
         //Deep copy the list of artifacts
         for(ArtifactValues artifact : original.listofArtifacts){
             listofArtifacts.add(new ArtifactValues(artifact));
@@ -152,7 +152,7 @@ public class ResultsData {
                     else{
                         String dotTag = file.substring(file.lastIndexOf("."),file.length());
                         if(!(dotTag.equals(".stdin") || dotTag.equals(".stdout") || dotTag.equals(".prgout"))){
-                            System.out.println(dotTag);
+                            //System.out.println(dotTag);
                             error.fileError = true;
                         }
                     }
@@ -702,21 +702,34 @@ public class ResultsData {
                 
     }
     
+    //Updates container list and Artifact Value objects that reference the old Container to the new Container name
+    public void refactorContainerReference(String oldContainer, String newContainer){
+        //Updates the listOfValues to reflect a change of a network name to a new name
+        for(ArtifactValues artifact : listofArtifacts){
+            if(artifact.container.equals(oldContainer)){
+                artifact.container = newContainer;
+            }
+        }
+        
+        //Update the container list with the renamed container
+        ArrayList<String> tmp = new ArrayList();
+        for(String container : containerList){
+            if(container.equals(oldContainer))
+                tmp.add(newContainer);
+            else
+                tmp.add(container);
+        }
+        containerList = tmp;
+    }
+    
 //GETTERS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     protected List<ArtifactValues> getListofArtifacts(){
         return listofArtifacts;
     }
  
-    
-    
-    
     protected ArrayList<String> getContainerList(){
         return containerList;
-    }
-            
-//    protected String getLabname(){
-//        return labname;
-//    }        
+    }     
        
     protected int getRowCount(){
         return rowCount;

@@ -1621,10 +1621,14 @@ public class MainWindow extends javax.swing.JFrame {
     //Closes/disposes all windows for the current lab
     //BUG: Doesn't close the terminal window used to edit a dockerfile for a container
     private void closeAllDialogs(){
-        if(resultsUI != null)
+        if(resultsUI != null){
             resultsUI.dispose();
-        if(goalsUI != null)
+            setResultsClosed();
+        }
+        if(goalsUI != null){
             goalsUI.dispose();
+            setGoalsClosed();
+        }
         
         for(Component container : ContainerPanePanel.getComponents()){
             ((ContainerObjPanel)container).getContainerConfigDialog().dispose();
@@ -1640,6 +1644,8 @@ public class MainWindow extends javax.swing.JFrame {
             ((ContainerObjPanel)container).updateNetworkComboBoxes(type, network, network2);
         }
     }
+    
+    
     
     /**
      * @param args the command line arguments
