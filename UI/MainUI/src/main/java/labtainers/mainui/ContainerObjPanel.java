@@ -1056,12 +1056,16 @@ private boolean clicked = false;
                 //Delete network in add-host subpanels
                 for(Component panel : AddHostsSubPanel.getComponents()){
                     //If the panel has the network selected, then remove the entire panel, otherwise just delete the network in the combobox list
-                    System.out.println(((ContainerConfigAddHosts)panel).getNetworkCombobox());
-                    if(((ContainerConfigAddHosts)panel).getNetworkCombobox().getSelectedItem().equals(network)){
-                        ((ContainerConfigAddHosts)panel).remove();
-                    }
-                    else{
-                        ((ContainerConfigAddHosts)panel).deleteNetworkInComboBox(network);
+                    boolean networkComboBoxExists = ((ContainerConfigAddHosts)panel).getNetworkCombobox().isVisible();
+                    if(networkComboBoxExists){
+                        //This nested if statement is neccessary since the boolean above could have nullpointerexcption 
+                        //from getSelectedItem() if the addhosts panel doesn't feature networks
+                        boolean networkIsSelected = ((ContainerConfigAddHosts)panel).getNetworkCombobox().getSelectedItem().equals(network);
+                        if(networkIsSelected) 
+                            ((ContainerConfigAddHosts)panel).remove();
+                        else{
+                            ((ContainerConfigAddHosts)panel).deleteNetworkInComboBox(network);
+                        }
                     }
                 }
                 
