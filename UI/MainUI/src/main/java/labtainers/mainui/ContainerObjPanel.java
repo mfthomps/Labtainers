@@ -11,7 +11,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -27,79 +26,28 @@ public class ContainerObjPanel extends javax.swing.JPanel {
     /**
      * Creates new form ContainerObjPanel
      */
-    private MainWindow mainWindow;
+    private final MainWindow mainWindow;
     private LabData.ContainerData data;
     public ContainerObjPanel(MainWindow mainWindow, String name) {
         initComponents();
+        this.data = new LabData.ContainerData(name);   
         this.mainWindow = mainWindow;
         this.containerAddHostScrollPaneBar = AddHostsScrollPane.getVerticalScrollBar();
         this.containerConfigNetworksScrollPaneBar = ContainerConfigNetworksScrollpane.getVerticalScrollBar();  
-        this.data = new LabData.ContainerData(name);
-                
         this.ContainerLabelName.setText(this.data.name);
         this.RenameContainerTextfield.setVisible(false);
     }
     
     public ContainerObjPanel(MainWindow mainWindow, LabData.ContainerData data){
         initComponents();
+        this.data = data;
         this.mainWindow = mainWindow;
         this.containerAddHostScrollPaneBar = AddHostsScrollPane.getVerticalScrollBar();
         this.containerConfigNetworksScrollPaneBar = ContainerConfigNetworksScrollpane.getVerticalScrollBar();  
-        this.data = data;
-        
         this.ContainerLabelName.setText(this.data.name);
         this.RenameContainerTextfield.setVisible(false);
     }
 
-    private void loadDataIntoContainerPanel(){
-        this.ContainerConfigWindow.setTitle("Container Config: "+this.data.name);
-        
-        // General Tab
-        this.UserTF.setText(data.user);
-        this.PasswordTF.setText(data.password);
-        this.TerminalQuantitySpinner.setValue(data.terminal_count);
-        
-            // list of add-hosts
-        for(int i=0;i<data.listOfContainerAddHost.size();i++){
-            addAddHostSubPanel(data.listOfContainerAddHost.get(i).type,        data.listOfContainerAddHost.get(i).add_host_host, 
-                               data.listOfContainerAddHost.get(i).add_host_ip, data.listOfContainerAddHost.get(i).add_host_network);
-        }
-        
-        // GNS3
-        this.ThumbCommandTextfield.setText(data.thumb_command);
-        this.ThumbStopTextfield.setText(data.thumb_stop);
-        this.ThumbVolumeTextfield.setText(data.thumb_volume);
-        this.HideCheckbox.setSelected(data.hide);
-        
-        // Docker
-        this.ScriptTextfield.setText(data.script);
-        this.RegistryTextfield.setText(data.registry);
-        this.BaseRegistryTextfield.setText(data.base_registry);
-        this.PublishTextfield.setText(data.publish);
-        this.NoPrivilegeCheckbox.setSelected(data.no_privilege);
-        
-        // Other
-        this.TerminalGroupTextfield.setText(data.terminal_group);
-        this.XtermTitleTextfield.setText(data.xterm_title);
-        this.XtermScriptTextfield.setText(data.xterm_script);
-        this.ClonesSpinner.setValue(data.clone);
-        this.X11Checkbox.setSelected(data.x11);
-        this.NoPullCheckbox.setSelected(data.no_pull);
-        this.MyStuffCheckbox.setSelected(data.mystuff);
-        this.TapRadioButton.setSelected(data.tap);
-        this.MountTextfield1.setText(data.mount1);
-        this.MountTextfield2.setText(data.mount2);
-        
-        // Network
-        this.LabGatewayTextfield.setText(data.lab_gateway);
-        this.NoGWCheckbox.setSelected(data.no_gw);
-        
-        for(int i=0;i<data.listOfContainerNetworks.size();i++){
-            addContainerNetworkSubPanel(data.listOfContainerNetworks.get(i).network_name, data.listOfContainerNetworks.get(i).network_ipaddress);
-        }
-    }
-    
-    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -719,24 +667,102 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         add(RenameContainerTextfield);
     }// </editor-fold>//GEN-END:initComponents
 
-private boolean clicked = false;
     private void formMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseClicked
-            if(!clicked){
-                //System.out.println("Container Clicked!");
-                if(SwingUtilities.isLeftMouseButton(evt)){
-                    clicked = true;
-                    loadDataIntoContainerPanel(); 
-                    ContainerConfigWindow.setVisible(true);  
-                }
-                else if(SwingUtilities.isRightMouseButton(evt)){
-                    ContainerRightClick.show(this, evt.getX(), evt.getY());
-                }
-
-            }
+        containerPanelClickHandler(evt);
     }//GEN-LAST:event_formMouseClicked
-
-    private boolean outsideRenameTextfield = true;
+    
     private void renameContainerOptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_renameContainerOptionActionPerformed
+        renameContainerButton();
+    }//GEN-LAST:event_renameContainerOptionActionPerformed
+    
+    private void deleteContainerOptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteContainerOptionActionPerformed
+        deleteButton();
+    }//GEN-LAST:event_deleteContainerOptionActionPerformed
+
+    private void RenameContainerTextfieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RenameContainerTextfieldActionPerformed
+        renameButton();
+    }//GEN-LAST:event_RenameContainerTextfieldActionPerformed
+
+    private void RenameContainerTextfieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_RenameContainerTextfieldFocusLost
+        // hide the textfield and show the container label
+        RenameContainerTextfield.setVisible(false);
+        ContainerLabelName.setVisible(true);
+    }//GEN-LAST:event_RenameContainerTextfieldFocusLost
+
+    private void ContainerConfigWindowWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_ContainerConfigWindowWindowClosing
+        closeConfigWindow();
+    }//GEN-LAST:event_ContainerConfigWindowWindowClosing
+
+    private void ContainerConfigUpdateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigUpdateButtonActionPerformed
+        updateData();
+    }//GEN-LAST:event_ContainerConfigUpdateButtonActionPerformed
+    
+    private void ContainerConfigCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigCancelButtonActionPerformed
+        closeConfigWindow();
+    }//GEN-LAST:event_ContainerConfigCancelButtonActionPerformed
+   
+    private void EditDockerfileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EditDockerfileButtonActionPerformed
+        editDockerfile();
+    }//GEN-LAST:event_EditDockerfileButtonActionPerformed
+
+    private void ContainerConfigNetworksAddButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigNetworksAddButtonActionPerformed
+         addContainerNetworkSubPanel("", "");
+    }//GEN-LAST:event_ContainerConfigNetworksAddButtonActionPerformed
+
+    private void ContainerConfigAddHostIPButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigAddHostIPButtonActionPerformed
+        addAddHostSubPanel("ip","","","");
+    }//GEN-LAST:event_ContainerConfigAddHostIPButtonActionPerformed
+
+    private void ContainerConfigAddHostNetworkButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigAddHostNetworkButtonActionPerformed
+        addAddHostSubPanel("network","","","");
+    }//GEN-LAST:event_ContainerConfigAddHostNetworkButtonActionPerformed
+    
+    // BUTTONS/HANDLERS //
+    
+    // Handle left-click or right-click event for the container obj panel
+    private boolean clicked = false;
+    private void containerPanelClickHandler(java.awt.event.MouseEvent evt){
+       if(!clicked){
+            if(SwingUtilities.isLeftMouseButton(evt)){
+                clicked = true;
+                loadDataIntoContainerPanel(); 
+                ContainerConfigWindow.setVisible(true);  
+            }
+            else if(SwingUtilities.isRightMouseButton(evt)){
+                ContainerRightClick.show(this, evt.getX(), evt.getY());
+            }
+        } 
+    }
+    
+    // Handler for when Container Config Window closes
+    private void closeConfigWindow(){
+        ContainerConfigWindow.setVisible(false);
+        clearLists();
+        clicked = false;
+    }
+    
+    // Clears the list of Networks and Add-Hosts Container Config Window UI
+    private void clearLists(){
+        // Clear Add-host
+        Component[] componentList = AddHostsSubPanel.getComponents();
+        for(Component c: componentList)
+            AddHostsSubPanel.remove(c);
+        
+        containerAddHostPanelLength=0;
+        AddHostsSubPanel.setPreferredSize(new Dimension(0,containerAddHostPanelLength));
+        
+        // Clear network
+        componentList = ContainerConfigNetworksPanel.getComponents();
+        for(Component c: componentList)
+            ContainerConfigNetworksPanel.remove(c);
+        
+        containerConfigNetworksPanelLength=0;
+        ContainerConfigNetworksPanel.setPreferredSize(new Dimension(0,containerConfigNetworksPanelLength));
+    }
+       
+    // Prompt textfield for renaming 
+    private boolean outsideRenameTextfield = true;
+    private void renameContainerButton(){
         // Make the rename textfield visible, active, and all text inside preselected
         RenameContainerTextfield.setText(this.data.name);
         RenameContainerTextfield.setVisible(true);
@@ -745,35 +771,41 @@ private boolean clicked = false;
         
         // Hide the original container label
         ContainerLabelName.setVisible(false);
-    }//GEN-LAST:event_renameContainerOptionActionPerformed
-
-    private void deleteContainerOptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteContainerOptionActionPerformed
-       int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete the container '"+this.data.name+"'?\n"+
+    }
+    
+    // Prompts the user to confirm deletion of container and removes all traces of the container
+    private void deleteButton(){
+        int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete the container '"+this.data.name+"'?\n"+
                                                                       "Deleting this will delete all references to this container, \n"+
                                                                       " Namely in the Results and Goals Configuration."
                                                                     , "Delete Container",  JOptionPane.YES_NO_OPTION);
-       if (confirm == JOptionPane.YES_OPTION){
-           JPanel containerPanel = (JPanel)this.getParent();
+        if (confirm == JOptionPane.YES_OPTION){
+            JPanel containerPanel = (JPanel)this.getParent();
            
-           // delete the container from the list
-           mainWindow.labDataCurrent.deleteReferenceToContainer(data.name);
-           if(mainWindow.getResultsUI() != null)
-               mainWindow.getResultsUI().deleteReferenceToContainer(data.name); // Updates the resultsUI with the updated list of Containers
-           containerPanel.remove(this);
+            // Delete the container from the container list in the main data object
+            mainWindow.labDataCurrent.deleteReferenceToContainer(data.name);
+            
+            // Updates the Results Conguration UI with the updated list of Containers 
+            // and removes all results artifact lines with the container name in it
+            if(mainWindow.getResultsUI() != null)
+               mainWindow.getResultsUI().deleteReferenceToContainer(data.name); 
+            
+            // Remove the panel
+            containerPanel.remove(this);
 
-           // Shorten the panel height holding all the containers and resize it.
-           mainWindow.containerPanePanelLength-=50;
-           containerPanel.setPreferredSize(new Dimension(0,mainWindow.containerPanePanelLength));
+            // Shorten the panel height holding all the containers and resize it.
+            mainWindow.containerPanePanelLength-=50;
+            containerPanel.setPreferredSize(new Dimension(0,mainWindow.containerPanePanelLength));
 
-           // Redraw the panel containing the list of containers
-           containerPanel.revalidate();
-           containerPanel.repaint(); 
+            // Redraw the panel containing the list of containers
+            containerPanel.revalidate();
+            containerPanel.repaint(); 
            
-           //delete the container in the lab directory
-           deleteContainer();
+            // Delete the container in the file system
+            deleteContainer();
        }
-    }//GEN-LAST:event_deleteContainerOptionActionPerformed
-
+    }
+    
     // Deletes the container in the lab directory structure by calling 'new_lab_setup.py -d containername'
     private void deleteContainer(){
         try{
@@ -794,31 +826,35 @@ private boolean clicked = false;
             }
     }
 
-    private void RenameContainerTextfieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RenameContainerTextfieldActionPerformed
+    // Prompts the user to confirm renaming the container
+    private void renameButton(){
         // Prompt user to confirm their changes
-        int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to rename the container '"+this.data.name+"' to '"+RenameContainerTextfield.getText()+"'?", "Rename Container",  JOptionPane.YES_NO_OPTION);
+        int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to rename the container '"+this.data.name+"' to '"+
+                                                                        RenameContainerTextfield.getText()+"'?", "Rename Container",  JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION){
-           // Rename the container referenced in the results ui
+            String newName = RenameContainerTextfield.getText();
+            
             //Refactor the mainUI's current LabData.ResultsData obj
-            mainWindow.labDataCurrent.getResultsData().refactorContainerReference(data.name, RenameContainerTextfield.getText());
+            mainWindow.labDataCurrent.getResultsData().refactorContainerReference(data.name, newName);
+            
+            // Refactor the container name in the results UI
             if(mainWindow.getResultsUI() != null)
-                mainWindow.getResultsUI().refactorReferenceToContainer(data.name, RenameContainerTextfield.getText());
+                mainWindow.getResultsUI().refactorReferenceToContainer(data.name, newName);
             
             // Rename the container in directory
-            renameContainer(this.data.name,RenameContainerTextfield.getText());
+            renameContainer(this.data.name,newName);
             
             // Rename the container in GUI and data object
-            System.out.println("Renaming '"+this.data.name+"'"+"container to: "+RenameContainerTextfield.getText());
-            ContainerLabelName.setText(RenameContainerTextfield.getText()); 
-            this.data.name = RenameContainerTextfield.getText();
+            System.out.println(this.data.name);
+            this.data.name = newName;
         }
         
         // hide the textfield and show the container label
         RenameContainerTextfield.setVisible(false);
         ContainerLabelName.setVisible(true);
-    }//GEN-LAST:event_RenameContainerTextfieldActionPerformed
-
-    // Renames the container in the lab directory structure by calling 'new_lab_setup.py -r oldName newName'
+    }
+    
+     // Renames the container in the lab directory structure by calling 'new_lab_setup.py -r oldName newName'
     private void renameContainer(String oldName, String newName){
         try{
                 //call python new_lab_script: new_lab_setup.py -b basename
@@ -838,22 +874,7 @@ private boolean clicked = false;
             }
     }
     
-    private void RenameContainerTextfieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_RenameContainerTextfieldFocusLost
-        // hide the textfield and show the container label
-        RenameContainerTextfield.setVisible(false);
-        ContainerLabelName.setVisible(true);
-    }//GEN-LAST:event_RenameContainerTextfieldFocusLost
-
-    private void ContainerConfigWindowWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_ContainerConfigWindowWindowClosing
-        //System.out.println("Closing Config for: " + this.data.name);
-        closeConfigWindow();
-    }//GEN-LAST:event_ContainerConfigWindowWindowClosing
-
-    private void ContainerConfigUpdateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigUpdateButtonActionPerformed
-        //Update the data 
-        updateData();
-    }//GEN-LAST:event_ContainerConfigUpdateButtonActionPerformed
-    
+    // Sets the data info based on the fields in the Container Configuration Window
     private void updateData(){
         // General Tab
         data.user = UserTF.getText();
@@ -890,12 +911,10 @@ private boolean clicked = false;
               
             //String type
             String type;
-            if(addhostPanel.getNetworkCombobox().isVisible()){
+            if(addhostPanel.getNetworkCombobox().isVisible())
                 type = "network";
-            }
-            else{
+            else
                 type = "ip";
-            }
             
             String host = addhostPanel.getHost();
             String ip = addhostPanel.getIp();
@@ -922,79 +941,12 @@ private boolean clicked = false;
         closeConfigWindow();
     }
     
-    
-    private void ContainerConfigCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigCancelButtonActionPerformed
-        closeConfigWindow();
-    }//GEN-LAST:event_ContainerConfigCancelButtonActionPerformed
-    
-    private void closeConfigWindow(){
-        ContainerConfigWindow.setVisible(false);
-        clearLists();
-        clicked = false;
-    }
-    
-    private void clearLists(){
-        // Clear Add-host
-        Component[] componentList = AddHostsSubPanel.getComponents();
-        for(Component c: componentList)
-            AddHostsSubPanel.remove(c);
-        
-        containerAddHostPanelLength=0;
-        AddHostsSubPanel.setPreferredSize(new Dimension(0,containerAddHostPanelLength));
-        
-        // Clear network
-        componentList = ContainerConfigNetworksPanel.getComponents();
-        for(Component c: componentList)
-            ContainerConfigNetworksPanel.remove(c);
-        
-        containerConfigNetworksPanelLength=0;
-        ContainerConfigNetworksPanel.setPreferredSize(new Dimension(0,containerConfigNetworksPanelLength));
-    }
-        
-    public int containerConfigNetworksPanelLength = 0;
-    private final JScrollBar containerConfigNetworksScrollPaneBar;   
-    private void addContainerNetworkSubPanel(String network, String ip){
-         //Resize the JPanel Holding all the containerConfigNetworksPanel to fit another containerConfigNetworksPanel 
-        //(makes the scroll bar resize and should show all objects listed)
-        containerConfigNetworksPanelLength+=58;
-        ContainerConfigNetworksPanel.setPreferredSize(new Dimension(0,containerConfigNetworksPanelLength));
-
-        // Create the Container Obj Panel and add it
-        ContainerConfigNetworksSubpanel newContainerConfigNetwork = new ContainerConfigNetworksSubpanel(this, mainWindow.labDataCurrent, network, ip);
-        ContainerConfigNetworksPanel.add(newContainerConfigNetwork);
-
-        // Redraw GUI with the new Panel
-        ContainerConfigNetworksPanel.revalidate();
-        ContainerConfigNetworksPanel.repaint();
-        
-        //Lower the Scroll Bar to show the newly added container
-        containerConfigNetworksScrollPaneBar.setValue(58+containerConfigNetworksScrollPaneBar.getMaximum());
-    }
-    
-    private void EditDockerfileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EditDockerfileButtonActionPerformed
-        editDockerfile();
-    }//GEN-LAST:event_EditDockerfileButtonActionPerformed
-
-    private void ContainerConfigNetworksAddButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigNetworksAddButtonActionPerformed
-         addContainerNetworkSubPanel("", "");
-    }//GEN-LAST:event_ContainerConfigNetworksAddButtonActionPerformed
-
-    private void ContainerConfigAddHostIPButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigAddHostIPButtonActionPerformed
-        addAddHostSubPanel("ip","","","");
-    }//GEN-LAST:event_ContainerConfigAddHostIPButtonActionPerformed
-
-    private void ContainerConfigAddHostNetworkButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigAddHostNetworkButtonActionPerformed
-        addAddHostSubPanel("network","","","");
-    }//GEN-LAST:event_ContainerConfigAddHostNetworkButtonActionPerformed
-    
+    // Opens the container's dockerfile file in a terminal text editor
     private void editDockerfile(){
         try{
-            //call python new_lab_script: new_lab_setup.py -b basename
+            // Call python new_lab_script: new_lab_setup.py -b basename
             String dockerfilePath = mainWindow.getCurrentLab().getPath()+File.separator+"dockerfiles"+File.separator+
                                     "Dockerfile."+mainWindow.getLabName()+"."+this.data.name+".student";
-            //System.out.println(new File(dockerfilePath).isFile());
-            //System.out.println(dockerfilePath);
-            //System.out.println("Editing: "+mainWindow.textEditorPref);
             String cmd = "./editDockerfile.sh "+mainWindow.getTextEditorPref()+" "+dockerfilePath;
             Process pr = Runtime.getRuntime().exec(cmd);
 
@@ -1010,11 +962,31 @@ private boolean clicked = false;
         }
     }
     
+    // Add Network Subpanel to the Container Config Window
+    public int containerConfigNetworksPanelLength = 0;
+    private final JScrollBar containerConfigNetworksScrollPaneBar;   
+    private void addContainerNetworkSubPanel(String network, String ip){
+         //Resize the JPanel Holding all the containerConfigNetworksPanel to fit another containerConfigNetworksPanel 
+        containerConfigNetworksPanelLength+=58;
+        ContainerConfigNetworksPanel.setPreferredSize(new Dimension(0,containerConfigNetworksPanelLength));
+
+        // Create the Container Obj Panel and add it
+        ContainerConfigNetworksSubpanel newContainerConfigNetwork = new ContainerConfigNetworksSubpanel(this, mainWindow.labDataCurrent, network, ip);
+        ContainerConfigNetworksPanel.add(newContainerConfigNetwork);
+
+        // Redraw GUI with the new Panel
+        ContainerConfigNetworksPanel.revalidate();
+        ContainerConfigNetworksPanel.repaint();
+        
+        // Lower the Scroll Bar to show the newly added container
+        containerConfigNetworksScrollPaneBar.setValue(58+containerConfigNetworksScrollPaneBar.getMaximum());
+    }
+   
+    // Add Add-host Subpanel to Container Config Window
     public int containerAddHostPanelLength = 0;
     private final JScrollBar containerAddHostScrollPaneBar;   
     private void addAddHostSubPanel(String type, String host, String ip, String network){
-         //Resize the JPanel Holding all the containerAddHostsPanel to fit another containerAddHostsPanel 
-        //(makes the scroll bar resize and should show all objects listed)
+        // Resize the JPanel Holding all the containerAddHostsPanel to fit another containerAddHostsPanel 
         containerAddHostPanelLength+=63;
         AddHostsSubPanel.setPreferredSize(new Dimension(0,containerAddHostPanelLength));
 
@@ -1026,31 +998,72 @@ private boolean clicked = false;
         AddHostsSubPanel.revalidate();
         AddHostsSubPanel.repaint();
         
-        //Lower the Scroll Bar to show the newly added container
-        containerAddHostScrollPaneBar.setValue(58+containerAddHostScrollPaneBar.getMaximum());
+        // Lower the Scroll Bar to show the newly added container
+        containerAddHostScrollPaneBar.setValue(63+containerAddHostScrollPaneBar.getMaximum());
     }
-      
+    
+    // Set the fields of the Container Dialog Window with the data
+    private void loadDataIntoContainerPanel(){
+        this.ContainerConfigWindow.setTitle("Container Config: "+this.data.name);
+        
+        // General Tab
+        this.UserTF.setText(data.user);
+        this.PasswordTF.setText(data.password);
+        this.TerminalQuantitySpinner.setValue(data.terminal_count);
+        this.LabGatewayTextfield.setText(data.lab_gateway);
+        this.NoGWCheckbox.setSelected(data.no_gw);
+        for(int i=0;i<data.listOfContainerNetworks.size();i++)
+            addContainerNetworkSubPanel(data.listOfContainerNetworks.get(i).network_name, data.listOfContainerNetworks.get(i).network_ipaddress);
+        
+        // Add-hosts
+        for(int i=0;i<data.listOfContainerAddHost.size();i++)
+            addAddHostSubPanel(data.listOfContainerAddHost.get(i).type,        data.listOfContainerAddHost.get(i).add_host_host, 
+                               data.listOfContainerAddHost.get(i).add_host_ip, data.listOfContainerAddHost.get(i).add_host_network);
+        
+        // GNS3
+        this.ThumbCommandTextfield.setText(data.thumb_command);
+        this.ThumbStopTextfield.setText(data.thumb_stop);
+        this.ThumbVolumeTextfield.setText(data.thumb_volume);
+        this.HideCheckbox.setSelected(data.hide);
+        
+        // Docker
+        this.ScriptTextfield.setText(data.script);
+        this.RegistryTextfield.setText(data.registry);
+        this.BaseRegistryTextfield.setText(data.base_registry);
+        this.PublishTextfield.setText(data.publish);
+        this.NoPrivilegeCheckbox.setSelected(data.no_privilege);
+        
+        // Other
+        this.TerminalGroupTextfield.setText(data.terminal_group);
+        this.XtermTitleTextfield.setText(data.xterm_title);
+        this.XtermScriptTextfield.setText(data.xterm_script);
+        this.ClonesSpinner.setValue(data.clone);
+        this.X11Checkbox.setSelected(data.x11);
+        this.NoPullCheckbox.setSelected(data.no_pull);
+        this.MyStuffCheckbox.setSelected(data.mystuff);
+        this.TapRadioButton.setSelected(data.tap);
+        this.MountTextfield1.setText(data.mount1);
+        this.MountTextfield2.setText(data.mount2);
+    }
+    
+    // Updates the comboboxes that reference the networks: ADDING, DELETING, RENAMING
     public void updateNetworkComboBoxes(String type, String network, String network2){
         switch(type){
             case "Add":
                 //Add new item to the networks subpanels
-                for(Component panel : ContainerConfigNetworksPanel.getComponents()){
+                for(Component panel : ContainerConfigNetworksPanel.getComponents())
                     ((ContainerConfigNetworksSubpanel)panel).addNetworkToComboBox(network);
-                }
                 //Add new item to the add-host subpanels
-                for(Component panel : AddHostsSubPanel.getComponents()){
+                for(Component panel : AddHostsSubPanel.getComponents())
                     ((ContainerConfigAddHosts)panel).addNetworkToComboBox(network);
-                }
                 break;
             case "Delete":
                 //Delete network in network subpanels
                 for(Component panel : ContainerConfigNetworksPanel.getComponents()){
-                    if(((ContainerConfigNetworksSubpanel)panel).getNetworkComboBox().getSelectedItem().equals(network)){
+                    if(((ContainerConfigNetworksSubpanel)panel).getNetworkComboBox().getSelectedItem().equals(network))
                         ((ContainerConfigNetworksSubpanel)panel).remove();
-                    }
-                    else{
+                    else
                         ((ContainerConfigNetworksSubpanel)panel).deleteNetworkInComboBox(network);
-                    }
                 }
                 
                 //Delete network in add-host subpanels
@@ -1058,14 +1071,13 @@ private boolean clicked = false;
                     //If the panel has the network selected, then remove the entire panel, otherwise just delete the network in the combobox list
                     boolean networkComboBoxExists = ((ContainerConfigAddHosts)panel).getNetworkCombobox().isVisible();
                     if(networkComboBoxExists){
-                        //This nested if statement is neccessary since the boolean above could have nullpointerexcption 
+                        //This nested if statement is neccessary since the boolean above could have nullpointerexception 
                         //from getSelectedItem() if the addhosts panel doesn't feature networks
                         boolean networkIsSelected = ((ContainerConfigAddHosts)panel).getNetworkCombobox().getSelectedItem().equals(network);
                         if(networkIsSelected) 
                             ((ContainerConfigAddHosts)panel).remove();
-                        else{
+                        else
                             ((ContainerConfigAddHosts)panel).deleteNetworkInComboBox(network);
-                        }
                     }
                 }
                 
@@ -1090,6 +1102,7 @@ private boolean clicked = false;
         AddHostsSubPanel.repaint();
     }
     
+    // GETTERS //
     
     public LabData.ContainerData getConfigData(){
         return this.data;

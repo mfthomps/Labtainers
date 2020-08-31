@@ -93,7 +93,7 @@ public class LabData {
             this.listOfContainerNetworks = new ArrayList();
             this.listOfContainerAddHost = new ArrayList();
             this.unknownContainerParams = new ArrayList();
-        } 
+        }
     }
 
     static protected class ContainerNetworkSubData{
@@ -321,9 +321,9 @@ public class LabData {
     
     public ArrayList<String> getContainerNames(){
        ArrayList<String> names = new ArrayList();
-       for (ContainerData container : listOfContainers) {
+       for (ContainerData container : listOfContainers) 
             names.add(container.name);
-        } 
+       
        return names;
     }
      
@@ -333,9 +333,9 @@ public class LabData {
     
     public ArrayList<String> getNetworkNames(){
        ArrayList<String> names = new ArrayList();
-       for (NetworkData network : listOfNetworks) {
+       for (NetworkData network : listOfNetworks) 
             names.add(network.name);
-        } 
+       
        return names;
     }
     
@@ -464,7 +464,7 @@ public class LabData {
         System.out.println("macvlan: " + data.macvlan);        
         System.out.println("ip_range: " + data.ip_range);  
 
-        if(data.unknownNetworkParams.size() != 0){
+        if(!data.unknownNetworkParams.isEmpty()){
             System.out.println("UNKNOWN PARAMS: ");
             for(int i = 0;i<data.unknownNetworkParams.size();i++){
                     System.out.println(data.unknownNetworkParams.get(i));  
@@ -526,16 +526,15 @@ public class LabData {
     }
     
     public void printData(){
-        for(String line : global_settings_params){
+        for(String line : global_settings_params)
             System.out.println(line);
-        }
         
-        for(int i = 0;i < listOfNetworks.size();i++){
+        for(int i = 0;i < listOfNetworks.size();i++)
             printNetworkData(listOfNetworks.get(i));
-        }
-        for(int i = 0;i < listOfContainers.size();i++){
+        
+        for(int i = 0;i < listOfContainers.size();i++)
             printContainerData(listOfContainers.get(i));
-        }
+        
     }
 }
 
