@@ -937,7 +937,7 @@
             <Property name="text" type="java.lang.String" value="Results Config"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="AssessmentButtonActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ResultsConfigButtonActionPerformed"/>
           </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="LabnameLabel">
@@ -954,7 +954,7 @@
             <Property name="text" type="java.lang.String" value="Goals Config"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="AssessmentButton1ActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="GoalsConfigButtonActionPerformed"/>
           </Events>
         </Component>
       </SubComponents>

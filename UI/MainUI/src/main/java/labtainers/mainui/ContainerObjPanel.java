@@ -757,8 +757,8 @@ private boolean clicked = false;
            
            // delete the container from the list
            mainWindow.labDataCurrent.deleteReferenceToContainer(data.name);
-           if(mainWindow.resultsUI != null)
-               mainWindow.resultsUI.deleteReferenceToContainer(data.name); // Updates the resultsUI with the updated list of Containers
+           if(mainWindow.getResultsUI() != null)
+               mainWindow.getResultsUI().deleteReferenceToContainer(data.name); // Updates the resultsUI with the updated list of Containers
            containerPanel.remove(this);
 
            // Shorten the panel height holding all the containers and resize it.
@@ -778,7 +778,7 @@ private boolean clicked = false;
     private void deleteContainer(){
         try{
                 //call python new_lab_script: new_lab_setup.py -b basename
-                String cmd = "./removeContainer.sh "+mainWindow.labsPath+" "+mainWindow.labName+" "+this.data.name;
+                String cmd = "./removeContainer.sh "+mainWindow.getLabsPath()+" "+mainWindow.getLabName()+" "+this.data.name;
                 System.out.println(cmd);
                 Process pr = Runtime.getRuntime().exec(cmd);
             
@@ -801,8 +801,8 @@ private boolean clicked = false;
            // Rename the container referenced in the results ui
             //Refactor the mainUI's current LabData.ResultsData obj
             mainWindow.labDataCurrent.getResultsData().refactorContainerReference(data.name, RenameContainerTextfield.getText());
-            if(mainWindow.resultsUI != null)
-                mainWindow.resultsUI.refactorReferenceToContainer(data.name, RenameContainerTextfield.getText());
+            if(mainWindow.getResultsUI() != null)
+                mainWindow.getResultsUI().refactorReferenceToContainer(data.name, RenameContainerTextfield.getText());
             
             // Rename the container in directory
             renameContainer(this.data.name,RenameContainerTextfield.getText());
@@ -822,7 +822,7 @@ private boolean clicked = false;
     private void renameContainer(String oldName, String newName){
         try{
                 //call python new_lab_script: new_lab_setup.py -b basename
-                String cmd = "./renameContainer.sh "+mainWindow.labsPath+" "+mainWindow.labName+" "+oldName+" "+newName;
+                String cmd = "./renameContainer.sh "+mainWindow.getLabsPath()+" "+mainWindow.getLabName()+" "+oldName+" "+newName;
                 System.out.println(cmd);
                 Process pr = Runtime.getRuntime().exec(cmd);
             
@@ -990,12 +990,12 @@ private boolean clicked = false;
     private void editDockerfile(){
         try{
             //call python new_lab_script: new_lab_setup.py -b basename
-            String dockerfilePath = mainWindow.currentLab.getPath()+File.separator+"dockerfiles"+File.separator+
-                                    "Dockerfile."+mainWindow.labName+"."+this.data.name+".student";
+            String dockerfilePath = mainWindow.getCurrentLab().getPath()+File.separator+"dockerfiles"+File.separator+
+                                    "Dockerfile."+mainWindow.getLabName()+"."+this.data.name+".student";
             //System.out.println(new File(dockerfilePath).isFile());
             //System.out.println(dockerfilePath);
             //System.out.println("Editing: "+mainWindow.textEditorPref);
-            String cmd = "./editDockerfile.sh "+mainWindow.textEditorPref+" "+dockerfilePath;
+            String cmd = "./editDockerfile.sh "+mainWindow.getTextEditorPref()+" "+dockerfilePath;
             Process pr = Runtime.getRuntime().exec(cmd);
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
