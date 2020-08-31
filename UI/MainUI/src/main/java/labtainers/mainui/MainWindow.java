@@ -898,7 +898,11 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_NetworkAddDialogCreateButtonActionPerformed
     
     private void OpenLabMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_OpenLabMenuItemActionPerformed
-        openLabButton();
+        try {
+            openLabButton();
+        } catch (IOException ex) {
+            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_OpenLabMenuItemActionPerformed
    
     private void NetworkAddDialogCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NetworkAddDialogCancelButtonActionPerformed
@@ -1034,7 +1038,7 @@ public class MainWindow extends javax.swing.JFrame {
     
     // Opens up file chooser window that defaults to the labs directory relative to the set labtainerPath
     // and opens the lab based on the lab directory chosen
-    private void openLabButton(){
+    private void openLabButton() throws IOException{
         int returnVal = labChooser.showOpenDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File lab = labChooser.getSelectedFile();
@@ -1193,7 +1197,7 @@ public class MainWindow extends javax.swing.JFrame {
     }    
 
     // Loads data and UI for the selected lab
-    private void openLab(File lab){        
+    private void openLab(File lab) throws IOException{        
         // Load data
         currentLab = lab;
         labName = lab.toString().substring(lab.toString().lastIndexOf(File.separator)+1);
