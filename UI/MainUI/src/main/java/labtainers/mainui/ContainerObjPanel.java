@@ -28,16 +28,8 @@ public class ContainerObjPanel extends javax.swing.JPanel {
      */
     private final MainWindow mainWindow;
     private LabData.ContainerData data;
-    public ContainerObjPanel(MainWindow mainWindow, String name) {
-        initComponents();
-        this.data = new LabData.ContainerData(name);   
-        this.mainWindow = mainWindow;
-        this.containerAddHostScrollPaneBar = AddHostsScrollPane.getVerticalScrollBar();
-        this.containerConfigNetworksScrollPaneBar = ContainerConfigNetworksScrollpane.getVerticalScrollBar();  
-        this.ContainerLabelName.setText(this.data.name);
-        this.RenameContainerTextfield.setVisible(false);
-    }
-    
+
+    // Constructor for loading a container object panel based on a container data object
     public ContainerObjPanel(MainWindow mainWindow, LabData.ContainerData data){
         initComponents();
         this.data = data;
@@ -783,7 +775,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
             JPanel containerPanel = (JPanel)this.getParent();
            
             // Delete the container from the container list in the main data object
-            mainWindow.labDataCurrent.deleteReferenceToContainer(data.name);
+            mainWindow.getCurrentData().deleteReferenceToContainer(data.name);
             
             // Updates the Results Conguration UI with the updated list of Containers 
             // and removes all results artifact lines with the container name in it
@@ -835,7 +827,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
             String newName = RenameContainerTextfield.getText();
             
             //Refactor the mainUI's current LabData.ResultsData obj
-            mainWindow.labDataCurrent.getResultsData().refactorContainerReference(data.name, newName);
+            mainWindow.getCurrentData().getResultsData().refactorContainerReference(data.name, newName);
             
             // Refactor the container name in the results UI
             if(mainWindow.getResultsUI() != null)
@@ -971,7 +963,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         ContainerConfigNetworksPanel.setPreferredSize(new Dimension(0,containerConfigNetworksPanelLength));
 
         // Create the Container Obj Panel and add it
-        ContainerConfigNetworksSubpanel newContainerConfigNetwork = new ContainerConfigNetworksSubpanel(this, mainWindow.labDataCurrent, network, ip);
+        ContainerConfigNetworksSubpanel newContainerConfigNetwork = new ContainerConfigNetworksSubpanel(this, mainWindow.getCurrentData(), network, ip);
         ContainerConfigNetworksPanel.add(newContainerConfigNetwork);
 
         // Redraw GUI with the new Panel
@@ -991,7 +983,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         AddHostsSubPanel.setPreferredSize(new Dimension(0,containerAddHostPanelLength));
 
         // Create the Container Obj Panel and add it
-        ContainerConfigAddHosts newContainerConfigAddHost = new ContainerConfigAddHosts(this, mainWindow.labDataCurrent, type, host, ip, network);
+        ContainerConfigAddHosts newContainerConfigAddHost = new ContainerConfigAddHosts(this, mainWindow.getCurrentData(), type, host, ip, network);
         AddHostsSubPanel.add(newContainerConfigAddHost);
 
         // Redraw GUI with the new Panel

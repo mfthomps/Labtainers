@@ -22,17 +22,8 @@ public class NetworkObjPanel extends javax.swing.JPanel {
      */
     private final MainWindow mainWindow;
     private LabData.NetworkData data;
-    public NetworkObjPanel(MainWindow mainWindow, String name) {
-        initComponents();
-        this.mainWindow = mainWindow;
-        this.data = new LabData.NetworkData(name);
-        
-        this.NetworkLabelName.setText(this.data.name);
-        this.NetworkMaskLabel.setText(this.data.mask);
-        this.RenameNetworkTextfield.setVisible(false);
-
-    }
-
+    
+    // Constructor for loading a network object panel based on a network data object
     NetworkObjPanel(MainWindow mainWindow, LabData.NetworkData data) {
         initComponents();
         this.mainWindow = mainWindow;
@@ -42,17 +33,6 @@ public class NetworkObjPanel extends javax.swing.JPanel {
         this.NetworkMaskLabel.setText(this.data.mask);
         this.RenameNetworkTextfield.setVisible(false);
     }
-
-    private void loadDataIntoNetworkPanel(){
-        this.NetworkConfigWindow.setTitle("NetworkConfig: "+this.data.name);
-        this.NetworkConfigMaskTextfield.setText(this.data.mask);
-        this.NetworkConfigGatewayTextField.setText(this.data.gateway);
-        this.NetworkConfigIPRangeTextfield.setText(this.data.ip_range);
-        this.NetworkConfigMacVLanExtSpinner.setValue(this.data.macvlan_ext);
-        this.NetworkConfigMacVLanSpinner.setValue(this.data.macvlan);
-        this.TapRadioButton.setSelected(this.data.tap);
-    }
-    
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -282,7 +262,7 @@ public class NetworkObjPanel extends javax.swing.JPanel {
                                                                      + "to this network in the Container Configurations as well.", 
                                                     "Delete Network",  JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION){
-            mainWindow.labDataCurrent.deleteReferenceToNetwork(data.name); //Delete the network in data object
+            mainWindow.getCurrentData().deleteReferenceToNetwork(data.name); //Delete the network in data object
             mainWindow.updateNetworkReferenceInContainerConfigDialogs("Delete",data.name, null); //Delete the network on the immediate UI interface
             JPanel networkPanel = (JPanel)this.getParent();
 
@@ -306,35 +286,58 @@ public class NetworkObjPanel extends javax.swing.JPanel {
         // Prompt user to confirm their changes
         String newNetworkName = RenameNetworkTextfield.getText().toUpperCase();
         String oldName = data.name;
-        int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to rename the network '"+oldName+"' to '"+newNetworkName+"'?", "Rename Network",  JOptionPane.YES_NO_OPTION);
+        
+        int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to rename the network '"+oldName+"' to '"+newNetworkName+"'?", 
+                                                    "Rename Network",  JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION){
-            mainWindow.labDataCurrent.refactorNetworkName(oldName,newNetworkName);
-            mainWindow.updateNetworkReferenceInContainerConfigDialogs("Rename",oldName, newNetworkName); //Rename the network on the immediate UI interface
+            // Rename the network on the data level
+            mainWindow.getCurrentData().refactorNetworkName(oldName,newNetworkName);
+            
+            //Rename the network on the immediate Contaienr Dilaog interface
+            mainWindow.updateNetworkReferenceInContainerConfigDialogs("Rename",oldName, newNetworkName); 
+            
             // Rename the network
             NetworkLabelName.setText(newNetworkName);   
             data.name = newNetworkName;
-            System.out.println("Renamed network to: "+data.name);
+            //System.out.println("Renamed network to: "+data.name);
         }
 
-        // hide the textfield and show the network label
+        // Hide the textfield and show the network label
         RenameNetworkTextfield.setVisible(false);
         NetworkLabelName.setVisible(true);
         NetworkMaskLabel.setVisible(true);
     }//GEN-LAST:event_RenameNetworkTextfieldActionPerformed
 
     private void RenameNetworkTextfieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_RenameNetworkTextfieldFocusLost
-        // hide the textfield and show the network label
-        RenameNetworkTextfield.setVisible(false);
-        NetworkLabelName.setVisible(true);
-        NetworkMaskLabel.setVisible(true);
+        RenameNetworkTextfieldFocusLost();
     }//GEN-LAST:event_RenameNetworkTextfieldFocusLost
 
     private void NetworkConfigWindowWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_NetworkConfigWindowWindowClosing
-        System.out.println("Closing Config for: " + data.name);
         clicked = false;
     }//GEN-LAST:event_NetworkConfigWindowWindowClosing
 
     private void NetworkConfigUpdateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NetworkConfigUpdateButtonActionPerformed
+        NetworkConfigUpdateButton();
+    }//GEN-LAST:event_NetworkConfigUpdateButtonActionPerformed
+
+    private void NetworkConfigCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NetworkConfigCancelButtonActionPerformed
+        clicked = false;
+        NetworkConfigWindow.setVisible(false);
+    }//GEN-LAST:event_NetworkConfigCancelButtonActionPerformed
+
+    // BUTTONS and HANDLERS //
+    
+    // When User clicks off of the rename textfield
+    private void RenameNetworkTextfieldFocusLost(){
+        // hide the textfield and show the network label
+        RenameNetworkTextfield.setVisible(false);
+        NetworkLabelName.setVisible(true);
+        NetworkMaskLabel.setVisible(true);
+    }
+    
+    // Updates the data object based on whats in the fields, closes the network configuration window, 
+    // (and sets the mask label on the network panel)
+    private void NetworkConfigUpdateButton(){
         // Set the textfield and spinner values into the data Objects
         this.data.mask = this.NetworkConfigMaskTextfield.getText();
         this.data.gateway = this.NetworkConfigGatewayTextField.getText();
@@ -346,13 +349,22 @@ public class NetworkObjPanel extends javax.swing.JPanel {
         clicked = false;
         NetworkConfigWindow.setVisible(false);
         NetworkMaskLabel.setText(this.data.mask);
-    }//GEN-LAST:event_NetworkConfigUpdateButtonActionPerformed
-
-    private void NetworkConfigCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NetworkConfigCancelButtonActionPerformed
-        clicked = false;
-        NetworkConfigWindow.setVisible(false);
-    }//GEN-LAST:event_NetworkConfigCancelButtonActionPerformed
-
+    }
+    
+    
+     // Set the fields of the Network Dialog Window with the data
+    private void loadDataIntoNetworkPanel(){
+        this.NetworkConfigWindow.setTitle("NetworkConfig: "+this.data.name);
+        this.NetworkConfigMaskTextfield.setText(this.data.mask);
+        this.NetworkConfigGatewayTextField.setText(this.data.gateway);
+        this.NetworkConfigIPRangeTextfield.setText(this.data.ip_range);
+        this.NetworkConfigMacVLanExtSpinner.setValue(this.data.macvlan_ext);
+        this.NetworkConfigMacVLanSpinner.setValue(this.data.macvlan);
+        this.TapRadioButton.setSelected(this.data.tap);
+    }
+    
+    
+    // GETTERS //
     
     public LabData.NetworkData getConfigData(){
         return this.data;

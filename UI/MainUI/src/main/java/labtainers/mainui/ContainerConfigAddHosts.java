@@ -11,30 +11,29 @@ import javax.swing.JPanel;
 
 /**
  *
- * @author student
+ * @author Daniel Liao
  */
 public class ContainerConfigAddHosts extends javax.swing.JPanel {
 
     /**
      * Creates new form ContainerConfigAddHosts
      */
-    private ContainerObjPanel parent;
-    private LabData data;
+    private final ContainerObjPanel parent;
     public ContainerConfigAddHosts(ContainerObjPanel parent, LabData data, String type, String host, String ip, String network) {
         initComponents();
         this.parent = parent;
-        this.data = data;
         
+        // IP MODE
         if(type.equals("ip")){
             this.AddHostHostTF.setText(host);
             this.AddHostIpTF.setText(ip);
             this.AddHostNetworkCombobox.setVisible(false);
         }
+        // NETWORK MODE
         else {
             //Fill the combobox with the current list of Networks
-            for(int i = 0;i<data.getNetworks().size();i++){
+            for(int i = 0;i<data.getNetworks().size();i++)
                 this.AddHostNetworkCombobox.addItem(data.getNetworks().get(i).name);
-            }
             
             this.AddHostNetworkCombobox.setSelectedItem(network); 
             this.AddHostHostTF.setVisible(false);
@@ -105,6 +104,9 @@ public class ContainerConfigAddHosts extends javax.swing.JPanel {
         remove();
     }//GEN-LAST:event_AddHostDeleteButtonActionPerformed
 
+    // MANIPULATION //
+    
+    // Deletes this object
     protected void remove(){
         JPanel containerAddhostPanel = (JPanel)this.getParent();
        
@@ -120,6 +122,43 @@ public class ContainerConfigAddHosts extends javax.swing.JPanel {
        containerAddhostPanel.repaint(); 
     }
 
+    // Adds network to combobox
+    protected void addNetworkToComboBox(String newNetworkName){
+        AddHostNetworkCombobox.addItem(newNetworkName);
+    }
+    
+    // Deletes network from combobox
+    protected void deleteNetworkInComboBox(String deletedNetwork){
+        AddHostNetworkCombobox.removeItem(deletedNetwork);
+    }
+    
+    // Updates the combobox list with the renamed network
+    protected void renameNetworkToComboBox(String oldNetwork, String newNetwork){
+        boolean updateSelectedItem = AddHostNetworkCombobox.getSelectedItem().equals(oldNetwork);
+        ArrayList<String> tmp = new ArrayList();
+        
+        //Create new list to set as the combobox items
+        for(int i=0;i<AddHostNetworkCombobox.getItemCount();i++){
+            if(AddHostNetworkCombobox.getItemAt(i).equals(oldNetwork))
+                tmp.add(newNetwork);
+            else
+                tmp.add(AddHostNetworkCombobox.getItemAt(i));
+        }
+        
+        // Empty the combobox items
+        AddHostNetworkCombobox.removeAllItems();
+        
+        // Fill the combobox with updated list of items
+        for(int i=0;i<tmp.size();i++)
+            AddHostNetworkCombobox.addItem(tmp.get(i));
+        
+        // Set the selected item if the selected network was renamed
+        if(updateSelectedItem)
+            AddHostNetworkCombobox.setSelectedItem(newNetwork);
+    }
+    
+    // GETTERS //
+    
     public String getNetwork(){
         return (String)(AddHostNetworkCombobox.getSelectedItem());
     }
@@ -134,37 +173,6 @@ public class ContainerConfigAddHosts extends javax.swing.JPanel {
     
     public javax.swing.JComboBox<String> getNetworkCombobox(){
         return AddHostNetworkCombobox;
-    }
-    
-    protected void addNetworkToComboBox(String newNetworkName){
-        AddHostNetworkCombobox.addItem(newNetworkName);
-    }
-    
-    protected void deleteNetworkInComboBox(String deletedNetwork){
-        AddHostNetworkCombobox.removeItem(deletedNetwork);
-    }
-    
-    protected void renameNetworkToComboBox(String oldNetwork, String newNetwork){
-        boolean updateSelectedItem = AddHostNetworkCombobox.getSelectedItem().equals(oldNetwork);
-        
-        ArrayList<String> tmp = new ArrayList();
-        //Create new list to set as the combobox items
-        for(int i=0;i<AddHostNetworkCombobox.getItemCount();i++){
-            if(AddHostNetworkCombobox.getItemAt(i).equals(oldNetwork)){
-                tmp.add(newNetwork);
-            }
-            else{
-                tmp.add(AddHostNetworkCombobox.getItemAt(i));
-            }
-        }
-        
-        AddHostNetworkCombobox.removeAllItems();
-        for(int i=0;i<tmp.size();i++){
-            AddHostNetworkCombobox.addItem(tmp.get(i));
-        }
-        
-        if(updateSelectedItem)
-            AddHostNetworkCombobox.setSelectedItem(newNetwork);
     }
     
     

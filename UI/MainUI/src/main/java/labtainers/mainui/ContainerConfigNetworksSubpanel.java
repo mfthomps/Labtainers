@@ -18,24 +18,18 @@ public class ContainerConfigNetworksSubpanel extends javax.swing.JPanel {
     /**
      * Creates new form ContainerConfigNetworksSubpanel
      */
-    private ContainerObjPanel parent;
-    private LabData data;
+    private final ContainerObjPanel parent;
     public ContainerConfigNetworksSubpanel(ContainerObjPanel parent, LabData data, String network, String ip) {
         initComponents();
         this.parent = parent;
-        this.data = data;
         
         //Fill the combobox with the current list of Networks
-        for(int i = 0;i<data.getNetworks().size();i++){
+        for(int i = 0;i<data.getNetworks().size();i++)
             this.ContainerConfigNetworksNameCombobox.addItem(data.getNetworks().get(i).name);
-        }
         
-//        if(!network.equals("")){
-//            this.ContainerConfigNetworksNameCombobox.setSelectedItem(network);  
-//        }
+        // Set fields
         this.ContainerConfigNetworksNameCombobox.setSelectedItem(network);  
         this.ContainerConfigNetworksIPTextfield.setText(ip);
-        
     }
 
     /**
@@ -100,9 +94,12 @@ public class ContainerConfigNetworksSubpanel extends javax.swing.JPanel {
         remove();
     }//GEN-LAST:event_ContainerConfigNetworksDeleteButtonActionPerformed
 
+    // MANIPULATION //
+    
+    // Deletes this object 
     protected void remove(){
-        JPanel containerConfigNetworksPanel = (JPanel)this.getParent();
-       // delete the container from the list
+       JPanel containerConfigNetworksPanel = (JPanel)this.getParent();
+       // Delete the container from the list
        containerConfigNetworksPanel.remove(this);
 
        // Shorten the panel height holding all the containers and resize it.
@@ -113,6 +110,43 @@ public class ContainerConfigNetworksSubpanel extends javax.swing.JPanel {
        containerConfigNetworksPanel.revalidate();
        containerConfigNetworksPanel.repaint(); 
     }
+    
+    // Adds a network into the combobox
+    protected void addNetworkToComboBox(String newNetworkName){
+        ContainerConfigNetworksNameCombobox.addItem(newNetworkName);
+    }
+    
+    // Deletes a network from the combobox
+    protected void deleteNetworkInComboBox(String deletedNetwork){
+         ContainerConfigNetworksNameCombobox.removeItem(deletedNetwork);
+    }
+    
+    // Updates the combobox list with the renamed network
+    protected void renameNetworkToComboBox(String oldNetwork, String newNetwork){
+        boolean updateSelectedItem = ContainerConfigNetworksNameCombobox.getSelectedItem().equals(oldNetwork);
+        ArrayList<String> tmp = new ArrayList();
+        
+        //Create new list to set as the combobox items
+        for(int i=0;i<ContainerConfigNetworksNameCombobox.getItemCount();i++){
+            if(ContainerConfigNetworksNameCombobox.getItemAt(i).equals(oldNetwork))
+                tmp.add(newNetwork);
+            else
+                tmp.add(ContainerConfigNetworksNameCombobox.getItemAt(i));
+        }
+        
+        // Empty the combobox items
+        ContainerConfigNetworksNameCombobox.removeAllItems();
+        
+        // Fill the combobox with updated list of items
+        for(int i=0;i<tmp.size();i++)
+            ContainerConfigNetworksNameCombobox.addItem(tmp.get(i));
+        
+        // Set the selected item if the selected network was renamed
+        if(updateSelectedItem)
+            ContainerConfigNetworksNameCombobox.setSelectedItem(newNetwork);
+    }
+    
+    // GETTERS //
     
     public String getNetwork(){
         return (String)(ContainerConfigNetworksNameCombobox.getSelectedItem());
@@ -126,35 +160,6 @@ public class ContainerConfigNetworksSubpanel extends javax.swing.JPanel {
         return ContainerConfigNetworksNameCombobox;
     }
     
-    protected void addNetworkToComboBox(String newNetworkName){
-        ContainerConfigNetworksNameCombobox.addItem(newNetworkName);
-    }
-    
-    protected void deleteNetworkInComboBox(String deletedNetwork){
-         ContainerConfigNetworksNameCombobox.removeItem(deletedNetwork);
-    }
-    
-    protected void renameNetworkToComboBox(String oldNetwork, String newNetwork){
-        boolean updateSelectedItem = ContainerConfigNetworksNameCombobox.getSelectedItem().equals(oldNetwork);
-        
-        ArrayList<String> tmp = new ArrayList();
-        //Create new list to set as the combobox items
-        for(int i=0;i<ContainerConfigNetworksNameCombobox.getItemCount();i++){
-            if(ContainerConfigNetworksNameCombobox.getItemAt(i).equals(oldNetwork)){
-                tmp.add(newNetwork);
-            }
-            else{
-                tmp.add(ContainerConfigNetworksNameCombobox.getItemAt(i));
-            }
-        }
-        ContainerConfigNetworksNameCombobox.removeAllItems();
-        for(int i=0;i<tmp.size();i++){
-            ContainerConfigNetworksNameCombobox.addItem(tmp.get(i));
-        }
-        
-        if(updateSelectedItem)
-            ContainerConfigNetworksNameCombobox.setSelectedItem(newNetwork);
-    }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton ContainerConfigNetworksDeleteButton;

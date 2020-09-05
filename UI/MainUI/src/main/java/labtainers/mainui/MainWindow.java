@@ -36,18 +36,16 @@ import labtainers.resultsui.ResultsUI;
  * @author Daniel Liao
  */
 public class MainWindow extends javax.swing.JFrame {
-    public LabData labDataCurrent;
+    private LabData labDataCurrent;
     private String labtainerPath;
     private File labsPath;
     private String labName;
     private File currentLab;
-    private File iniFile;
-    private Properties pathProperties;
+    private final File iniFile;
+    private final Properties pathProperties;
     private String[] bases;
     private String textEditorPref;
     
-    private FileOutputStream iniFileOutputStream;
-    private FileInputStream iniFileInputStream;
     SimpleDateFormat formatter;
     Date date;
             
@@ -1121,10 +1119,11 @@ public class MainWindow extends javax.swing.JFrame {
         if(data == null){
             String containerName = ContainerAddDialogNameTextfield.getText(); 
             String baseImage = (String)ContainerAddDialogBaseImageCombobox.getSelectedItem();
-            newContainer = new ContainerObjPanel(this, containerName);
+            ContainerData freshContainerdata = new ContainerData(containerName);
+            newContainer = new ContainerObjPanel(this, freshContainerdata);
             
             // Update the data object to include the new container
-            labDataCurrent.getContainers().add(new ContainerData(containerName));
+            labDataCurrent.getContainers().add(freshContainerdata);
             
             // Update the Results UI to include the new container
             labDataCurrent.updateResultDataContainerList();

@@ -27,7 +27,6 @@ import static labtainers.goalsui.ParamReferenceStorage.goalInput;
 import static labtainers.goalsui.ParamReferenceStorage.opInput;
 import static labtainers.goalsui.ParamReferenceStorage.resultTagInput;
 import labtainers.mainui.MainWindow;
-import labtainers.mainui.ToolTipHandlers;
 import labtainers.mainui.ToolTipHandlers.ToolTipWrapper;
 
 /**
