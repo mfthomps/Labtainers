@@ -36,6 +36,7 @@ import sys
 import argparse
 import subprocess
 import time
+import re
 
 # Filename: new_lab_setup.py
 # Description:
@@ -202,13 +203,14 @@ def renameSVN(old, new):
  
 def handle_rename_lab(newlabname):
     here = os.getcwd()
+    os.chdir('../')
     oldlabname = os.path.basename(here)
     currentlabpath = os.path.abspath(here)
-    newlabpath = currentlabpath.replace(oldlabname, newlabname)
+    newlabpath = os.path.join(os.path.dirname(currentlabpath), newlabname)
     if os.path.exists(newlabpath):
         print('%s already exists' % newlabpath)
         exit(1)
-    shutil.move(here, newlabpath)
+    shutil.move(currentlabpath, newlabpath)
     # Rename dockerfiles
     newlabname_olddockerfilename = os.path.join(newlabpath, 'dockerfiles')
     newlabname_olddockerfiles = glob.glob('%s/*' % newlabname_olddockerfilename)
@@ -217,7 +219,7 @@ def handle_rename_lab(newlabname):
         # Replace only the first occurence to prevent replacing the container name portion
         newfname = fname.replace(oldlabname, newlabname, 1)
         newname = os.path.join(os.path.dirname(name), newfname)
-        #print "name is (%s) newname is (%s)" % (name, newname)
+        #print("name is (%s) newname is (%s)" % (name, newname))
         # Rename dockerfiles as new labname dockerfiles
         try:
             renameSVN(name, newname)
@@ -256,9 +258,13 @@ def handle_rename_lab(newlabname):
         start_config_file.close()
         start_config_file = open(start_config_filename, 'w')
         for line in config_filelines:
-            newline = line.replace(oldlabname, newlabname)
-            newline = re.sub((r"%s$" % oldlabname.strip()), newlabname, line)
+            newline = line
+            if line.strip().startswith("CONTAINER"):
+                parts = line.strip().split()
+                if len(parts) > 0 and parts[1].strip() == oldlabname:
+                    newline = 'CONTAINER %s\n' % newlabname
             start_config_file.write(newline)
+    os.chdir(newlabpath)
 
 def handle_clone_lab(tdir, newlabname):
     if newlabname != newlabname.lower():
