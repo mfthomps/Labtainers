@@ -28,6 +28,7 @@ import labtainers.mainui.LabData.NetworkData;
 import java.util.Arrays;
 import javax.swing.ImageIcon;
 import labtainers.goalsui.GoalsUI;
+import labtainers.resultsui.ResultsData;
 import labtainers.resultsui.ResultsUI;
 
 
@@ -1119,16 +1120,16 @@ public class MainWindow extends javax.swing.JFrame {
         if(data == null){
             String containerName = ContainerAddDialogNameTextfield.getText(); 
             String baseImage = (String)ContainerAddDialogBaseImageCombobox.getSelectedItem();
-            ContainerData freshContainerdata = new ContainerData(containerName);
-            newContainer = new ContainerObjPanel(this, freshContainerdata);
+            ContainerData freshContainerData = new ContainerData(containerName);
+            newContainer = new ContainerObjPanel(this, freshContainerData);
             
             // Update the data object to include the new container
-            labDataCurrent.getContainers().add(freshContainerdata);
+            labDataCurrent.getContainers().add(freshContainerData);
+            ResultsData.containerList.add(containerName);
             
             // Update the Results UI to include the new container
-            labDataCurrent.updateResultDataContainerList();
             if(resultsUI!= null)
-                resultsUI.addReferenceToContainer(containerName);
+                resultsUI.refresh();
             
             // Add the container into the user's file system
             addContainer(containerName, baseImage);

@@ -25,7 +25,7 @@ import static labtainers.mainui.ToolTipHandlers.setComboItems;
 
 /**
  *
- * @author student
+ * @author Daniel Liao
  */
 public class ArtifactPanels extends javax.swing.JPanel {
 
@@ -47,6 +47,8 @@ public class ArtifactPanels extends javax.swing.JPanel {
         TimeDelimiterTextField.setVisible(false);
                 
         //Load ComboBox Items
+         if(containers.size() > 1 && !containers.contains("ALL"))
+            containers.add(0, "ALL");
         ContainerComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(containers.toArray(new String[containers.size()])));   
         setComboItems(FieldTypeComboBox, FieldType_ITEMS);
         setComboItems(LineTypeComboBox, LineType_ITEMS);
@@ -64,6 +66,10 @@ public class ArtifactPanels extends javax.swing.JPanel {
             TimeDelimiterTextField.setVisible(false);
         
         //Load ComboBox Items
+        if(containers.size() > 1 && !containers.contains("ALL"))
+            containers.add(0, "ALL");
+        else if(containers.size() == 2 && containers.contains("ALL"))
+            containers.remove("ALL");
         ContainerComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(containers.toArray(new String[containers.size()])));
         setComboItems(FieldTypeComboBox, FieldType_ITEMS);
         setComboItems(LineTypeComboBox, LineType_ITEMS);
@@ -279,13 +285,18 @@ public class ArtifactPanels extends javax.swing.JPanel {
     }//GEN-LAST:event_TimeStampComboBoxItemStateChanged
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-       JPanel container = (JPanel)this.getParent();
-       container.remove(this);
+        deleteButton();
+    }//GEN-LAST:event_jButton1ActionPerformed
+    
+    private void deleteButton(){
+       JPanel panelOfArtifacts = (JPanel)this.getParent();
+       panelOfArtifacts.remove(this);
        uiResult.data.rowCount--;
        uiResult.refresh();
-    }//GEN-LAST:event_jButton1ActionPerformed
-
-        //The listeners sees what values are present in their respective fields and then changes the interface based on that(remove or adding other fields)
+    }
+    
+    
+    //The listeners sees what values are present in their respective fields and then changes the interface based on that(remove or adding other fields)
     private void lineTypeListener(){
         ToolTipWrapper lineType = (ToolTipWrapper)LineTypeComboBox.getSelectedItem();
         

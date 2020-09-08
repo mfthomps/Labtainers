@@ -28,46 +28,31 @@ import labtainers.mainui.ToolTipHandlers.ToolTipWrapper;
 
 /**
  *
- * @author student
+ * @author Daniel Liao
  */
 public class ResultsData {
-    List<ArtifactValues> listofArtifacts;
-    ArrayList<String> containerList;
-    //String labname;
-    int rowCount;
-    File labPath;
+    protected List<ArtifactValues> listofArtifacts;
+    static public ArrayList<String> containerList = new ArrayList<>();
+    protected int rowCount;
     MainWindow mainUI;
-    
-    public ResultsData(){
-        listofArtifacts = new ArrayList<>(); 
-        containerList = new ArrayList<>();
-        //labname = "";
-        rowCount = 0;
-    }
+    public int test = 0;
     
     public ResultsData(MainWindow main, File labPath){
         listofArtifacts = new ArrayList<>(); 
-        containerList = new ArrayList<>();
         rowCount = 0;
         
         this.mainUI = main;
-        //this.labname = labname;
-        this.labPath = labPath;
     }
     
     // Creates a deep copy of the original (shallow with containerList and mainUI)
     public ResultsData(ResultsData original){
         listofArtifacts = new ArrayList();
         //Deep copy the list of artifacts
-        for(ArtifactValues artifact : original.listofArtifacts){
+        for(ArtifactValues artifact : original.listofArtifacts)
             listofArtifacts.add(new ArtifactValues(artifact));
-        }
         
-        //this.labname = new String(original.getLabname());
-        this.labPath = new File(original.getLabPath().getPath());
         this.rowCount = original.getRowCount();
                 
-        this.containerList = original.containerList;
         this.mainUI = original.getMainWindow();
     }
 //Retrieving and Setting Data~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -75,7 +60,7 @@ public class ResultsData {
     //Parses the results.config to obtain all the relevant artifact lines, 
     //extracts the values of each artifact line  
     //and then loads each artifact line's value into the list of Artifacts
-    public void getData(){
+    public void retrieveData(){
         ArrayList<String> artifacts = getArtifactLines();
         
         if(artifacts != null){
@@ -88,8 +73,8 @@ public class ResultsData {
     }
     
     //Updates the containerlist (all artifct panels refer to this list to fill in the container combobox)
-    public void setContainerList(ArrayList<String> containerList){
-        this.containerList = containerList;
+    static public void setContainerList(ArrayList<String> newContainerList){
+        containerList = newContainerList;
     }
     
    
@@ -286,7 +271,7 @@ public class ResultsData {
     //Checks if the results.config file exists and prepares the result.config file for the lab
     private File initializeResultConfig() throws IOException{
         //Get the filepath for the lab's results.config
-        File resultsConfigFile = new File(labPath + File.separator + "instr_config" + File.separator + "results.config");
+        File resultsConfigFile = new File(mainUI.getCurrentLab() + File.separator + "instr_config" + File.separator + "results.config");
         
         //May not be necessary, subject to remove the base text, perhaps there is an option for the user to add their own comments
         String baseText = 
@@ -557,6 +542,7 @@ public class ResultsData {
            //FILEID CONFIG
            String file = ((ArtifactPanels) artifact).getFileTextField().getText();
            String container = (String) (((ArtifactPanels) artifact).getContainerComboBox().getSelectedItem());
+           System.out.println(container);
            ToolTipHandlers.ToolTipWrapper timeStampType = (ToolTipHandlers.ToolTipWrapper) (((ArtifactPanels) artifact).getTimeStampComboBox().getSelectedItem());
            String timeStampDelimiter = ((ArtifactPanels) artifact).getTimeStampTextField().getText();
            //FieldType
@@ -699,14 +685,16 @@ public class ResultsData {
                 
     }
     
-    //Updates container list and Artifact Value objects that reference the old Container to the new Container name
+    // Artifact Value objects that reference the old Container to the new Container name
     public void refactorContainerReference(String oldContainer, String newContainer){
         //Updates the listOfValues to reflect a change of a conainer name to a new name
         for(ArtifactValues artifact : listofArtifacts){
+            //System.out.println(artifact.container + " " + oldContainer);
             if(artifact.container.equals(oldContainer)){
                 artifact.container = newContainer;
+                System.out.println(artifact.container);
             }
-        }
+        }  
         
         //Update the container list with the renamed container
         ArrayList<String> tmp = new ArrayList();
@@ -721,22 +709,18 @@ public class ResultsData {
     
     //Updates container list and removes Artifact Value objects that reference the container
     public void removeContainerReference(String container){
-        //Update delete the container in the container list
-        containerList.remove(container);
-        
-        //Updates the listOfValues to reflect deletion of container
+        // Deletes all artifact lines that include the container
         ArrayList<ArtifactValues> toRemove = new ArrayList();
         for(ArtifactValues artifact : listofArtifacts){
-            if(artifact.container.equals(container)){
+            if(artifact.container.equals(container))
                 toRemove.add(artifact);
-            }
         }
         listofArtifacts.removeAll(toRemove);
+        
+        //Update delete the container in the container list
+        containerList.remove(container);
     }
     
-    public void addContainerReference(String container){
-        containerList.add(container);
-    }
     
 //GETTERS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     protected List<ArtifactValues> getListofArtifacts(){
@@ -749,10 +733,6 @@ public class ResultsData {
        
     protected int getRowCount(){
         return rowCount;
-    }  
-    
-    protected File getLabPath(){
-        return labPath;
     }  
     
     protected MainWindow getMainWindow(){

@@ -31,7 +31,7 @@ import labtainers.mainui.ToolTipHandlers.ToolTipWrapper;
 
 /**
  *
- * @author student
+ * @author Daniel Liao
  */
 public class GoalsData {
     private List<GoalValues> listofGoals; 
@@ -39,16 +39,7 @@ public class GoalsData {
     final private List<String> parameters;
     final private List<String> booleanResults;
     private int rowCount;
-    File labPath;
     MainWindow mainUI;
-     
-    GoalsData(){
-        listofGoals = new ArrayList<>(); 
-        resultTagList = new ArrayList<>();
-        parameters = new ArrayList<>();
-        booleanResults = new ArrayList<>();
-        rowCount = 0;
-    }
     
     public GoalsData(MainWindow main, File labPath){
         listofGoals = new ArrayList<>();
@@ -56,7 +47,6 @@ public class GoalsData {
         parameters = new ArrayList<>();
         booleanResults = new ArrayList<>();
         rowCount = 0;
-        this.labPath = labPath;
         this.mainUI = main;
     }
     
@@ -79,7 +69,6 @@ public class GoalsData {
             booleanResults.add(booleanResult);
         
         rowCount = original.getRowCount();
-        labPath = original.getLabPath();
         mainUI = original.getMainUI();
     }
     
@@ -87,16 +76,16 @@ public class GoalsData {
 //LOADING~~~~~~~~~~~~~~~~~~~~~~~~
     
     //Checks if the lab exists and will load lab's goals.config if it does
-    public void getData(){
-        if(getResultTags() && getGoals()){
+    public void retrieveData(){
+        if(retrieveResultTags() && retrieveGoals()){
             retrieveParameters();
             retrieveBooleanResults();
         }
     }
     
     //Updates the resultTagList (all goal panels refer to this list to fill in the resultTag combobox)
-    private boolean getResultTags(){
-        File resultsConfig = new File(labPath + File.separator + "instr_config" + File.separator + "results.config");
+    private boolean retrieveResultTags(){
+        File resultsConfig = new File(mainUI.getCurrentLab() + File.separator + "instr_config" + File.separator + "results.config");
         try {
             if(resultsConfig.exists()){
                 try (FileReader fileReader = new FileReader(resultsConfig)) {
@@ -128,7 +117,7 @@ public class GoalsData {
     
     //Parses the goals.config to obtain all the relevant goal lines, 
     //extracts the values of each goal line and stores them into a list of "goals"(Goal Values)
-    private boolean getGoals(){
+    private boolean retrieveGoals(){
         //Attempt to set the listofGoals, if it ends up being null then there was an issue accessing the goal lines, which would be paresd into Goal Values
         listofGoals = getGoalValuesOfConfigFile();
         if(listofGoals != null){
@@ -141,7 +130,7 @@ public class GoalsData {
     
     //Get the parameter.config IDs
     private void retrieveParameters(){        
-        File parameterConfig = new File(labPath + File.separator + "config" + File.separator + "parameter.config");
+        File parameterConfig = new File(mainUI.getCurrentLab() + File.separator + "config" + File.separator + "parameter.config");
         try {
             if(parameterConfig.exists()){
                 try (FileReader fileReader = new FileReader(parameterConfig)) {
@@ -168,7 +157,7 @@ public class GoalsData {
     
     //Get the result tags that are boolean result types
     private void retrieveBooleanResults(){
-        File resultsConfig = new File(labPath + File.separator + "instr_config" + File.separator + "results.config");
+        File resultsConfig = new File(mainUI.getCurrentLab() + File.separator + "instr_config" + File.separator + "results.config");
         try {
             if(resultsConfig.exists()){
                 try (FileReader fileReader = new FileReader(resultsConfig)) {
@@ -381,7 +370,7 @@ public class GoalsData {
     //Checks if the goals.config file exists and prepares the goals.config file for the lab
     private File initializeGoalsConfig() throws IOException{
         //Get the filepath for the lab's goals.config
-        File goalsConfigFile = new File(labPath + File.separator + "instr_config" + File.separator + "goals.config");
+        File goalsConfigFile = new File(mainUI.getCurrentLab() + File.separator + "instr_config" + File.separator + "goals.config");
         
         //May not be necessary, subject to remove the base text, perhaps there is an option for the user to add their own comments
         String baseText = 
@@ -989,7 +978,7 @@ public class GoalsData {
         ArrayList<String> goals = new ArrayList<>();
         
         try {
-            File goalsConfig = new File(labPath+File.separator+"instr_config"+File.separator+"goals.config");
+            File goalsConfig = new File(mainUI.getCurrentLab()+File.separator+"instr_config"+File.separator+"goals.config");
 
             //Get the artifact lines
             if(goalsConfig.exists()){
@@ -1210,9 +1199,6 @@ public class GoalsData {
         return mainUI;
     }
 
-    File getLabPath() {
-        return labPath;
-    }
     
 //Debug
     static private void goalValuesDifferDEBUG(List<GoalValues> list1, List<GoalValues> list2, int i){

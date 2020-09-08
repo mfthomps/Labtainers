@@ -16,7 +16,7 @@ import labtainers.mainui.ToolTipHandlers;
 
 /**
  *
- * @author student
+ * @author Daniel Liao
  */
 public class GoalValues {
     //Values to be obtained

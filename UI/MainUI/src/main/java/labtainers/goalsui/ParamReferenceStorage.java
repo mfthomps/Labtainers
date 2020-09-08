@@ -12,7 +12,7 @@ import labtainers.mainui.ToolTipHandlers.ToolTipWrapper;
 
 /**
  *
- * @author student
+ * @author Daniel Liao
  */
 public class ParamReferenceStorage {
     public static final ToolTipWrapper[] GoalType_ITEMS = new ToolTipWrapper[] {

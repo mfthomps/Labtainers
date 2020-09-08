@@ -192,7 +192,7 @@ public class LabData {
                                         break;
                                 }
                             }
-                            else if(parseType.equals("CONTAINER")){
+                            else if(parseType.equals("CONTAINER")){                         
                                 ContainerData currContainer = listOfContainers.get(listOfContainers.size()-1);
                                 switch(parameter){
                                     case "TERMINALS":
@@ -297,11 +297,11 @@ public class LabData {
                     line = bufferedReader.readLine();
                 }
                 //Set the list of containers the results UI will references, then parse the results.config file
-                resultsData.setContainerList(getContainerNames());
-                resultsData.getData();
+                ResultsData.setContainerList(getContainerNames());
+                resultsData.retrieveData();
 
                 //Parse the goals.config
-                goalsData.getData();
+                goalsData.retrieveData();
             }
         }
         else{
@@ -364,6 +364,10 @@ public class LabData {
     
     public void setResultsData(ResultsData data){
         resultsData = new ResultsData(data);
+    }
+    
+    public void setGoalsData(GoalsData data){
+        goalsData = new GoalsData(data);
     }
     
     public void resetContainers(){
@@ -445,13 +449,10 @@ public class LabData {
             }
         }
         
-        updateResultDataContainerList();
+        // Update the results data to not include the container reference
+        resultsData.removeContainerReference(containerName);
     }
-    
-    // Updates the Results Data's list of containers to match the higher level's (this) list of containers
-    public void updateResultDataContainerList(){
-        resultsData.setContainerList(getContainerNames());
-    }
+   
     
     // PRINT //
     

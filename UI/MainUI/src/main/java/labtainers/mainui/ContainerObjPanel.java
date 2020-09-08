@@ -27,7 +27,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
      * Creates new form ContainerObjPanel
      */
     private final MainWindow mainWindow;
-    private LabData.ContainerData data;
+    private final LabData.ContainerData data;
 
     // Constructor for loading a container object panel based on a container data object
     public ContainerObjPanel(MainWindow mainWindow, LabData.ContainerData data){
@@ -753,7 +753,6 @@ public class ContainerObjPanel extends javax.swing.JPanel {
     }
        
     // Prompt textfield for renaming 
-    private boolean outsideRenameTextfield = true;
     private void renameContainerButton(){
         // Make the rename textfield visible, active, and all text inside preselected
         RenameContainerTextfield.setText(this.data.name);
@@ -777,10 +776,10 @@ public class ContainerObjPanel extends javax.swing.JPanel {
             // Delete the container from the container list in the main data object
             mainWindow.getCurrentData().deleteReferenceToContainer(data.name);
             
-            // Updates the Results Conguration UI with the updated list of Containers 
-            // and removes all results artifact lines with the container name in it
-            if(mainWindow.getResultsUI() != null)
-               mainWindow.getResultsUI().deleteReferenceToContainer(data.name); 
+            // Removes all results artifact lines with the container name in it in Results Conguration UI 
+            if(mainWindow.getResultsUI() != null){
+               mainWindow.getResultsUI().refresh(); 
+            }
             
             // Remove the panel
             containerPanel.remove(this);
@@ -829,16 +828,18 @@ public class ContainerObjPanel extends javax.swing.JPanel {
             //Refactor the mainUI's current LabData.ResultsData obj
             mainWindow.getCurrentData().getResultsData().refactorContainerReference(data.name, newName);
             
-            // Refactor the container name in the results UI
-            if(mainWindow.getResultsUI() != null)
-                mainWindow.getResultsUI().refactorReferenceToContainer(data.name, newName);
+            // Refactor the container name in the result s UI
+            if(mainWindow.getResultsUI() != null){
+                mainWindow.getResultsUI().refactorContainerReferenceInUI(data.name, newName);
+            }
             
             // Rename the container in directory
             renameContainer(this.data.name,newName);
             
             // Rename the container in GUI and data object
-            System.out.println(this.data.name);
             this.data.name = newName;
+            ContainerLabelName.setText(newName);
+            
         }
         
         // hide the textfield and show the container label

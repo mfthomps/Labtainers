@@ -130,8 +130,6 @@ public class GoalPanels extends javax.swing.JPanel {
     }
     
     
-    
-    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -346,15 +344,6 @@ public class GoalPanels extends javax.swing.JPanel {
         deleteButton();
     }//GEN-LAST:event_DeleteButtonActionPerformed
 
-    
-    private void deleteButton(){
-       JPanel container = (JPanel)this.getParent();
-       container.remove(this);
-       goalsUI.data.decreaseRowCount();
-       goalsUI.refresh();
-    }
-    
-    
     private void UpButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UpButtonActionPerformed
         swapUpdate("UP", rowNum-1); //Subtract rowNum by one to get the proper index number
     }//GEN-LAST:event_UpButtonActionPerformed
@@ -363,6 +352,14 @@ public class GoalPanels extends javax.swing.JPanel {
         swapUpdate("DOWN", rowNum-1); //Subtract rowNum by one to get the proper index number
     }//GEN-LAST:event_DownButtonActionPerformed
 
+    // BUTTONS and LISTENERS //
+    
+    private void deleteButton(){
+       JPanel container = (JPanel)this.getParent();
+       container.remove(this);
+       goalsUI.data.decreaseRowCount();
+       goalsUI.refresh();
+    }
     
     private void goalTypeListener(){
         String goalType = ((ToolTipWrapper)GoalTypeComboBox.getSelectedItem()).getItem();

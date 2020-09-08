@@ -15,7 +15,7 @@ import static labtainers.resultsui.ParamReferenceStorage.lineParamAccessible;
 
 /**
  *
- * @author student
+ * @author Daniel Liao
  */
 public class ArtifactValues {
     //Values to be obtained

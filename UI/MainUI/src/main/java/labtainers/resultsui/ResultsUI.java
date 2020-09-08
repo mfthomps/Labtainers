@@ -16,7 +16,7 @@ import static labtainers.resultsui.ResultsData.artifactValuesDiffer;
 
 /**
  *
- * @author student
+ * @author Daniel Liao
  */
 public class ResultsUI extends javax.swing.JDialog {
 
@@ -36,33 +36,10 @@ public class ResultsUI extends javax.swing.JDialog {
         this.mainUI = (MainWindow)parent;
         this.data = new ResultsData(this.mainUI.getCurrentData().getResultsData());
         this.saved = new ResultsData(this.data);
+        
         loadUI();
     }
 
-    protected void loadUI(){
-        removeAllArtifacts();               
-        //redraw the artifacts
-        for(int i=0; i < data.listofArtifacts.size(); i++){
-            loadArtifact(data.listofArtifacts.get(i), i+1);
-        }
-    }
-    
-      //Load's the artifactlinePanel into GUI
-    private void loadArtifact(ArtifactValues artifactVal, int rowNum){
-        ArtifactPanels newArtifact = new ArtifactPanels(this, data.containerList, rowNum,
-                                                        artifactVal.resultTag, 
-                                                        artifactVal.container, 
-                                                        artifactVal.fileID, 
-                                                        artifactVal.fieldType, 
-                                                        artifactVal.fieldID, 
-                                                        artifactVal.lineType, 
-                                                        artifactVal.lineID, 
-                                                        artifactVal.timeStampType, 
-                                                        artifactVal.timeStampDelimiter);
-        addResultsPanel(newArtifact);
-    }
-    
-    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -183,45 +160,47 @@ public class ResultsUI extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void CreateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CreateButtonActionPerformed
-        addResultsPanel(new ArtifactPanels(this, data.containerList,data.rowCount+1));
-        resultsScrollPaneBar.setValue(resultsScrollPaneBar.getMaximum());
+       createButton();
     }//GEN-LAST:event_CreateButtonActionPerformed
-
+    
     private void RemoveAllButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RemoveAllButtonActionPerformed
         removeAllButton();
     }//GEN-LAST:event_RemoveAllButtonActionPerformed
 
     private void UpdateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UpdateButtonActionPerformed
-        data.updateListofArtifacts(PanelofArtifacts);
-        saved = new ResultsData(data);
-        this.mainUI.getCurrentData().setResultsData(saved);
+        updateButon();
     }//GEN-LAST:event_UpdateButtonActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
        mainUI.setResultsClosed();
     }//GEN-LAST:event_formWindowClosing
 
+    // BUTTONS //
+    
+    // Adds a new artifact panel
+    private void createButton(){
+        addResultsPanel(new ArtifactPanels(this, ResultsData.containerList,data.rowCount+1));
+        resultsScrollPaneBar.setValue(resultsScrollPaneBar.getMaximum());
+    }
+    
+    // Updates the results data object basd on the current results configuration UI state
+    private void updateButon(){
+        data.updateListofArtifacts(PanelofArtifacts);
+        saved = new ResultsData(data);
+        this.mainUI.getCurrentData().setResultsData(saved);
+    }
+    
+    // Removes all the artifact panels
     private void removeAllButton(){
-           if(JOptionPane.showConfirmDialog(null, "Are you sure you want to remove all?") == JOptionPane.YES_OPTION){
-                removeAllArtifacts();
-           }          
+       if(JOptionPane.showConfirmDialog(null, "Are you sure you want to remove all?") == JOptionPane.YES_OPTION){
+            removeAllArtifacts();
+       }          
     }
     
-     //Removes all the artifact lines for the lab *note: this doesn't update results.config or the resultsData until the user hits the update button
-    private void removeAllArtifacts(){
-        data.rowCount = 0;
-        resultsPanePanelLength = 0;
-        PanelofArtifacts.setPreferredSize(new Dimension(0,resultsPanePanelLength));
-        Component[] componentList = PanelofArtifacts.getComponents();
-        for(Component c: componentList){
-            PanelofArtifacts.remove(c);
-        }
-
-        PanelofArtifacts.revalidate();
-        PanelofArtifacts.repaint();
-    }
+    
+    // CORE FUNCTIONS//
       
-    
+    // Adds artifact panel
     public int resultsPanePanelLength = 0;
     private JScrollBar resultsScrollPaneBar;
     private void addResultsPanel(ArtifactPanels panel){
@@ -239,41 +218,60 @@ public class ResultsUI extends javax.swing.JDialog {
         PanelofArtifacts.repaint(); 
     }    
     
-    
-    //Gets the panel holding the artifacts
-    protected JPanel getPanelofArtifacts(){
-        return PanelofArtifacts;
+    // Removes all the artifact lines for the lab *note: this doesn't update results.config or the resultsData until the user hits the update button
+    private void removeAllArtifacts(){
+        data.rowCount = 0;
+        resultsPanePanelLength = 0;
+        PanelofArtifacts.setPreferredSize(new Dimension(0,resultsPanePanelLength));
+        Component[] componentList = PanelofArtifacts.getComponents();
+        for(Component c: componentList){
+            PanelofArtifacts.remove(c);
+        }
+
+        PanelofArtifacts.revalidate();
+        PanelofArtifacts.repaint();
     }
     
-     //Updates the list of artifacts and redraws them on screen
+    // loads the artifact panels based on the current data
+    protected void loadUI(){
+        removeAllArtifacts();               
+        //redraw the artifacts
+        for(int i=0; i < data.listofArtifacts.size(); i++)
+            loadArtifact(data.listofArtifacts.get(i), i+1);
+    }
+    
+    // Load the artifactlinePanel into GUI
+    private void loadArtifact(ArtifactValues artifactVal, int rowNum){
+        ArtifactPanels newArtifact = new ArtifactPanels(this, ResultsData.containerList, rowNum,
+                                                        artifactVal.resultTag, 
+                                                        artifactVal.container, 
+                                                        artifactVal.fileID, 
+                                                        artifactVal.fieldType, 
+                                                        artifactVal.fieldID, 
+                                                        artifactVal.lineType, 
+                                                        artifactVal.lineID, 
+                                                        artifactVal.timeStampType, 
+                                                        artifactVal.timeStampDelimiter);
+        addResultsPanel(newArtifact);
+    }
+    
+    //Updates the list of artifacts and redraws them on screen
     public void refresh(){
        data.updateListofArtifacts(PanelofArtifacts);       
        loadUI();
     }
     
-    //Refactors all references to the old container name to the new container name
-    public void refactorReferenceToContainer(String oldContainer, String newContainer){
-        //Refactor the saved and current results data objs in this Results UI
+    
+    // OTHER //
+    
+    public void refactorContainerReferenceInUI(String oldName, String newName){
         data.updateListofArtifacts(PanelofArtifacts); 
-        data.refactorContainerReference(oldContainer, newContainer);
-        saved.refactorContainerReference(oldContainer, newContainer);
-        //Update the results UI to reflect the refactoring
+        data.refactorContainerReference(oldName, newName);
+        saved.refactorContainerReference(oldName, newName);
         loadUI();
     }
     
-    public void deleteReferenceToContainer(String container){
-        data.updateListofArtifacts(PanelofArtifacts); 
-        data.removeContainerReference(container);
-        saved.removeContainerReference(container);
-        loadUI();
-    }
-    
-    public void addReferenceToContainer(String container){
-        saved.addContainerReference(container);
-        loadUI();
-    }
-    
-     //Check if the the current state of the UI matches with what's saved in the results.config
+    //Check if the the current state of the UI matches with what's saved in the results.config
     void checkUnsavedChangesMade(){
             data.updateListofArtifacts(PanelofArtifacts);
 
@@ -289,6 +287,14 @@ public class ResultsUI extends javax.swing.JDialog {
             }
             else
                 dispose();
+    }
+    
+    
+    // GETTERS //
+    
+    //Gets the panel holding the artifacts
+    protected JPanel getPanelofArtifacts(){
+        return PanelofArtifacts;
     }
     
 

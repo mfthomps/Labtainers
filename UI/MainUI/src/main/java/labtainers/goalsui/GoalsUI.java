@@ -39,21 +39,6 @@ public class GoalsUI extends javax.swing.JDialog {
         loadUI();
     }
 
-    protected void loadUI(){
-        removeAllGoals();               
-        //redraw the artifacts
-        for(int i=0; i < data.getListofGoals().size(); i++){
-            loadGoal(data.getListofGoals().get(i), i+1);
-        }
-    }
-    
-        //Load's the goals into GUI
-    private void loadGoal(GoalValues goalVal, int rowNum){
-        GoalPanels newGoal = new GoalPanels(this, data, goalVal, rowNum);
-        addGoalsPanel(newGoal);
-    }
-    
-    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -159,19 +144,43 @@ public class GoalsUI extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void CreateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CreateButtonActionPerformed
-        addGoalsPanel(new GoalPanels(this, data));
-        goalsScrollPaneBar.setValue(goalsScrollPaneBar.getMaximum());
+        createButton();
     }//GEN-LAST:event_CreateButtonActionPerformed
 
     private void RemoveAllButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RemoveAllButtonActionPerformed
         removeAllButton();
     }//GEN-LAST:event_RemoveAllButtonActionPerformed
+    
+    private void UpdateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UpdateButtonActionPerformed
+        updateButton();
+    }//GEN-LAST:event_UpdateButtonActionPerformed
 
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+       mainUI.setGoalsClosed();
+    }//GEN-LAST:event_formWindowClosing
+
+    // BUTTONS //
+    
+    private void createButton(){
+        addGoalsPanel(new GoalPanels(this, data));
+        goalsScrollPaneBar.setValue(goalsScrollPaneBar.getMaximum());
+    }
+    
     private void removeAllButton(){
         if(JOptionPane.showConfirmDialog(null, "Are you sure you want to remove all?") == JOptionPane.YES_OPTION){
             removeAllGoals();
         }          
     }
+    
+    private void updateButton(){
+        data.updateListofGoals(PanelofGoals);
+        saved = new GoalsData(data);
+        this.mainUI.getCurrentData().setGoalsData(saved);
+    }
+    
+    
+    // CORE FUNCTIONS//
+    
     //Removes all the goal lines for the lab *note: this doesn't update results.config until the user hits the update button
     private void removeAllGoals(){
         data.resetRowCount();
@@ -188,16 +197,23 @@ public class GoalsUI extends javax.swing.JDialog {
     }
     
     
+    // Loads all goals into GUI
+    protected void loadUI(){
+        removeAllGoals();               
+        //redraw the artifacts
+        for(int i=0; i < data.getListofGoals().size(); i++){
+            loadGoal(data.getListofGoals().get(i), i+1);
+        }
+    }
     
-    private void UpdateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UpdateButtonActionPerformed
-        data.updateListofGoals(PanelofGoals);
-        saved = new GoalsData(data);
-    }//GEN-LAST:event_UpdateButtonActionPerformed
-
-    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-       mainUI.setGoalsClosed();
-    }//GEN-LAST:event_formWindowClosing
-
+    //Loads the goal into GUI
+    private void loadGoal(GoalValues goalVal, int rowNum){
+        GoalPanels newGoal = new GoalPanels(this, data, goalVal, rowNum);
+        addGoalsPanel(newGoal);
+    }
+    
+    
+    // Add the goals panel into GUI
     public int goalsPanePanelLength = 0;
     private JScrollBar goalsScrollPaneBar;
     private void addGoalsPanel(GoalPanels panel){
