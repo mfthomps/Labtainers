@@ -21,7 +21,7 @@ Prereqs: linux system with git and docker installed.  Note: Labtainer VM is a go
 `cp Dockerfile.labtainer.master ../scripts/designer/base_dockerfiles/`
 9. Cd to correct directory. `cd ../scripts/designer/bin`
 10. Run create_master_image.sh. `./create_master_image.sh`
-11. The below docker-compose.yml leverages a container called harperaa/labtainer.master and may be pulled down from docker hub.  However, you may change that file, to use your own file, created by previous step, stored on your own docker hub.  You would do that as follows.
+11. The below docker-compose.yml leverages a container called harperaa/labtainer.master and may be pulled down from docker hub.  However, you may change that file, to use your own file, created by previous step, stored on your own docker hub.  You would do that as follows.  
 a. Create an account on docker hub.  
 b. Tag the container created in previous step (create_master_image.sh) to match harperaa/labtainer.master. `docker tag 259872983749[replace this with yours] harperaa/labtainer.master`.  
 c. Optionally, use your own name and/or docker hub repository. Look at the ending output of above command (create_master_image.sh), copy and replace hash identifyer from your output in the following command:  
