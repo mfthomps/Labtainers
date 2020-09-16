@@ -1,8 +1,8 @@
-#Quick Start
+#Quick Start#
 Here is the one liner, to run the headless-lite labtainer master container and web interface, from a linux/mac system with docker installed.
 `curl https://raw.githubusercontent.com/mfthomps/Labtainers/premaster/headless-lite/docker-compose.yml > docker-compose.yml && docker-compose up`
 
-#Build the labtainer.master File
+#Build the labtainer.master File#
 
 Here are the instructions to create a new labtainer.master file.
 
