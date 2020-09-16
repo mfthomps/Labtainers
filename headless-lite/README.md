@@ -13,7 +13,7 @@ Prereqs: linux system with git and docker installed.  Note: Labtainer VM is a go
 2. Pull down files from Git repository. `git clone  https://github.com/mfthomps/Labtainers.git`
 3. Move to that directory.  `cd Labtainers`
 4. Change to the premaster branch `git checkout premaster`
-5. Set $LABTAINER_DIR to root of Git Repo Files. ``export $LABTAINER_DIR=`pwd` ``
+5. Set $LABTAINER_DIR to root of Git Repo Files. ``export LABTAINER_DIR=`pwd` ``
 6. Create workspace_master folder. `mkdir -p ../scripts/designer/workspace_master/` 
 7. Copy the motd, docker-entrypoint, and wait-for-it.sh files to $LABTAINER_DIR/scripts/designer/workspace_master folder.  
 `cd headless-lite && cp motd docker-entrypoint wait-for-it.sh ../scripts/designer/workspace_master/` 
