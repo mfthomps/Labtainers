@@ -1,0 +1,6 @@
+#!/bin/bash
+
+cat /etc/motd
+
+#Login with user : labtainer
+/wait-for-it.sh $VNCHOST:5900 -- xterm > /dev/null 2>&1
