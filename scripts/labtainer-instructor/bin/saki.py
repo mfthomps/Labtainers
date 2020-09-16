@@ -173,9 +173,12 @@ def extract(zip_fname, xfer, expect_lab):
    
                
 
-def checkBulkSaki(lab):
+def checkBulkSaki(lab, logger=None):
     labtainer_config_dir = '../../config/labtainer.config'
-    labutils.logger = LabtainerLogging.LabtainerLogging("saki.log", 'none', labtainer_config_dir)
+    if logger is None:
+        labutils.logger = LabtainerLogging.LabtainerLogging("saki.log", 'none', labtainer_config_dir)
+    else:
+        labutils.logger = logger
     labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_dir, labutils.logger)
     home = os.getenv('HOME')
     xfer = os.path.join(home, labtainer_config.host_home_xfer)

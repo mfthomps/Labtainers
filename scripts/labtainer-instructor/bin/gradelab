@@ -20,7 +20,6 @@ student_cwd = instructor_cwd.replace('labtainer-instructor', 'labtainer-student'
 sys.path.append(student_cwd+"/bin")
 sys.path.append(os.path.join(instructor_cwd, 'assess_bin'))
 import labutils
-import logging
 import LabtainerLogging
 import docgoals
 FAILURE=1
@@ -207,22 +206,29 @@ def diddleProfile(container_name):
         sys.exit(1)
 
 def autoGrade(grade_container, lab_path, labtainer_config, labname, copy_json, checkwork):
+    retval = True
     cmd = "docker exec %s bash -c 'su - instructor -c \"cd;.local/bin/instructor.py %r\"'" % (grade_container, checkwork)
     if not labutils.DockerCmd(cmd):
-        logger.error('trouble with %s' % cmd)
-    copyChownGradesFile(labtainer_config, labname, grade_container, 'instructor', copy_json)
-    username = getpass.getuser()
-    host_xfer = os.path.join('/home', username, labtainer_config.host_home_xfer, labname)
-    fglob = glob.glob(host_xfer+'/*grades.txt')
-    if len(fglob) == 0:
-        print('No grades.txt file at %s' % host_xfer)
+        logger.error('Error occurred within the grader container.  \nSee $LABTAINER_DIR/logs/grader.log')
+        command = 'docker cp %s:"/tmp/instructor.log" ../../logs/instructor.log' % (grade_container)
+        logger.debug("Command to execute is (%s)" % command)
+        result = subprocess.call(shlex.split(command))
+        retval = False
     else:
-        with open(fglob[0]) as fh:
-            for line in fh:
-                print(line.rstrip())
+        copyChownGradesFile(labtainer_config, labname, grade_container, 'instructor', copy_json)
+        username = getpass.getuser()
+        host_xfer = os.path.join('/home', username, labtainer_config.host_home_xfer, labname)
+        fglob = glob.glob(host_xfer+'/*grades.txt')
+        if len(fglob) == 0:
+            print('No grades.txt file at %s' % host_xfer)
+        else:
+            with open(fglob[0]) as fh:
+                for line in fh:
+                    print(line.rstrip())
     cmd = 'docker stop %s' % grade_container
     labutils.DockerCmd(cmd)
-
+    return retval
+   
 def getGradeImageName(labtainer_config, registry):
     image_name = 'labtainer.grader'
     image_info = labutils.imageInfo(image_name , registry, registry, labtainer_config)
@@ -276,7 +282,7 @@ def doGrade(labname, use_test_registry, debug, redo, update, regress_test=None, 
     grade_image = getGradeImageName(labtainer_config, registry)
     if update:
         removeGraders(registry)
-    saki.checkBulkSaki(labname)
+    saki.checkBulkSaki(labname, logger)
     if not labutils.IsContainerCreated(grade_container):
         docker0_IPAddr = labutils.getDocker0IPAddr()
         add_host_param = '--add-host my_host:%s' % (docker0_IPAddr)
