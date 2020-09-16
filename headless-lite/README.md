@@ -1,4 +1,7 @@
 Here are the instructions to create a new labtainer.master file.
+
+Prereqs: linux system with git and docker installed.  Note: Labtainer VM is a good place to do this.
+
 1. Make directory to house files from Git Repo and change dir to that directory. `mkdir foo && cd foo`
 2. Pull down files from Git repository. `git clone  https://github.com/mfthomps/Labtainers.git`
 3. Move to that directory.  `cd Labtainers`
