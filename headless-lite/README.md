@@ -1,6 +1,6 @@
 Here are the instructions to create a new labtainer.master file.
 1. Make directory to house files from Git Repo and change dir to that directory. `mkdir foo && cd foo`
-2. Git pull the files in this headless-lite folder. `git clone  https://github.com/mfthomps/Labtainers.git`
+2. Pull down files from Git repository. `git clone  https://github.com/mfthomps/Labtainers.git`
 3. Move to that directory.  `cd Labtainers`
 4. Change to the premaster branch `git checkout premaster`
 5. Set $LABTAINERDIR to root of Git Repo Files. ``export $LABTAINERDIR=`pwd` ``
