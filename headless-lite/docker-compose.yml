@@ -6,29 +6,29 @@ networks:
     attachable: true    
 
 services:
-  
-  novnc:
-    image: harperaa/novnc-xfce4
-    #image: theasp/novnc:latest
-    environment:
-      # Adjust to your screen size
-      - DISPLAY_WIDTH=1600
-      - DISPLAY_HEIGHT=968
-      - RUN_XTERM=no
-    ports:
-      - "8080:8080"
-    networks:
-      - mynetwork
 
+
+#docker run -v '/tmp/.X11-unix:/tmp/.X11-unix:rw' -v "/var/lib/.Xauthority:/headless/.Xauthority:rw" --rm -p 6901:6901 consol/centos-xfce-vnc
+  novnc:
+    image: accetto/ubuntu-vnc-xfce  
+    environment:
+      - VNC_PW=changeme
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /var/lib/.Xauthority:/home/headless/.Xauthority:rw
+    ports:
+      - "6901:6901"
+
+#docker run -v '/tmp/.X11-unix:/tmp/.X11-unix:rw' -e DISPLAY=:1 -v /var/run/docker.sock:/var/run/docker.sock harperaa/labtainer.master /docker-entrypoint
   labtainer:
     image: harperaa/labtainer.master
     environment:
-      - DISPLAY=novnc:0.0 
+      - DISPLAY=:1 
     volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      - mynetwork
     depends_on:
       - novnc
     entrypoint: ["/docker-entrypoint"]
     tty: true
+    
