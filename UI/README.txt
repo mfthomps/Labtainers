@@ -76,8 +76,40 @@ NOTES AND CONCERNS TO ADDRESS:
   adding and removing subpanels from the JPanel to adjust for the exact needed height
   to fit all the subpanels visibly.  
 
-
-
+UI DEVELOPER NOTE:
+- To ensure you can build and run the netbeans project for the UI, follow these steps:
+   Installing Netbeans:
+      1) sudo apt-get update
+      2) sudo snap install netbeans --classic
+      3) bash
+      
+   Installing Java JDK 14 (from method 2 of https://computingforgeeks.com/how-to-install-java-14-on-ubuntu-debian/)
+      4) sudo add-apt-repository ppa:linuxuprising/java
+      5) sudo apt -y install oracle-java14-installer
+      6) sudo apt -y install oracle-java14-set-default
+      7) sudo nano /etc/profile.d/jdk.sh
+         a) Add "export PATH=$PATH:$JAVA_HOME/bin"
+      8) source /etc/profile.d/jdk.sh
+      
+   Opening Netbeans and Setting the environment
+      9) netbeans
+      In the netbeans program...
+      10) open the netbeans project folder 'MainUI'
+      11) install the plugins that pop up
+      12) Right-click 'MainUI' in the 'Projects' tab and select 'Resolve Project Problems'
+      13) Select Resolve
+      14) If the Java Platform Manager pops up then select 'Add Platform'
+      15) Make sure 'Java Standard Edition' is selected and press Next. 
+      15) Find the folder '/usr/lib/jvm/java-14-oracle' 
+      16) Press Next and then Finish
+      17) Ensure that 'JDK 14' is selected (not 'JDK 14 (Default)') in the  Java Platform Manager, and press Close.
+      18) Select the next Project Problem which should be "Some dependency artifacts are not in..." and press Resolve.
+      19) Press Close when finished.
+      20) Close netbeans and reopen it by entering 'netbeans' in the terminal
+      21) Press the run button and when prompted for the main class select "labtainers.mainui.MainWindow" and enter.
+    
+    Now you should be all set to develop the labtainers UI
+      
 If you have any questions about the program and code, feel free to contact me at danielliao22@gmail.com
 
 
