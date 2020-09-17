@@ -4,7 +4,9 @@
 # on any system that has Docker installed, withou having to install Labtainers.
 # Thanks for Olivier Berger for this contribution.
 #
-FROM ubuntu:xenial
+#FROM ubuntu:xenial
+FROM ubuntu:bionic
+
 LABEL description="This is Docker image for the Labtainers master controller"
 RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-transport-https \
@@ -15,12 +17,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # 
 ARG DOCKER_GROUP_ID
 RUN groupadd -g $DOCKER_GROUP_ID docker
-
+RUN apt-get install -y gpg-agent
 # 
-RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - && \
-    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends docker-ce
+RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg >/tmp/gpg
+RUN cat /tmp/gpg | apt-key add - 
+
+   #---sets up stable repository
+RUN    apt-get update
+RUN    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+
+   #---installs Docker: Community Edition
+RUN    apt-get update
+RUN    apt-get -y install docker-ce
+
 
 # Set the locale
 RUN  apt-get install -y --no-install-recommends \
@@ -29,28 +38,19 @@ RUN locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8  
 ENV LANGUAGE en_US:en  
 ENV LC_ALL en_US.UTF-8  
-# RUN sudo pip install --upgrade pip
-# RUN sudo pip install setuptools
-# RUN sudo pip install parse
-# RUN pip install inotify_simple
-# RUN pip install enum
-# ADD system/etc/sudoers /etc/sudoers
-# ADD system/etc/rc.local /etc/rc.local
-# ADD system/bin/funbuffer /usr/bin/
-# # manage default gateways
-# ADD system/bin/togglegw.sh /usr/bin/
-# ADD system/bin/set_default_gw.sh /usr/bin/
 
 RUN  apt-get install -y --no-install-recommends \
     sudo \
-    python \
-    python-pip \
-    python-setuptools
-RUN pip install netaddr parse python-dateutil
-
+    python3 \
+    python3-pip \
+    python3-setuptools
+RUN pip3 install netaddr parse python-dateutil
+#apt-get upgrade--fix-missing
 RUN  apt-get install -y --no-install-recommends \
-     x11-xserver-utils \
-     xterm \
+     x11-xserver-utils 
+RUN  apt-get install -y --no-install-recommends \
+     xterm 
+RUN  apt-get install -y --no-install-recommends \
      gnome-terminal
 
 RUN  apt-get install -y --no-install-recommends \
@@ -64,6 +64,9 @@ RUN  apt-get install -y --no-install-recommends \
      dbus-x11
 
 RUN useradd -ms /bin/bash labtainer
+RUN echo "labtainer:labtainer" | chpasswd
+RUN adduser labtainer sudo
+
 RUN usermod -aG docker labtainer
 RUN newgrp docker
 
