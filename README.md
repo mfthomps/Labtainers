@@ -72,6 +72,10 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+September 17, 2020
+- The macs-hash lab was unable to run Leafpad due to the X11 setting.
+- Grader logging was being redirected to the wrong log file, now captures errors from instructor.py
+- Copy instructor.log from grader to the host logs directory if there is an error.
 August 28, 2020
 - Fix install script to use python3-pip and fix broken scripts: getinfo.py and pull-all.py
 - Registry logic was broken, test systems were not using the test registry, add development documentation.
