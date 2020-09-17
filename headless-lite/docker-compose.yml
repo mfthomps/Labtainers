@@ -2,7 +2,7 @@ version: "3.5"
 
 networks: 
   mynetwork:
-#    name: mynetwork
+    name: mynetwork
     attachable: true    
 
 services:
@@ -18,7 +18,9 @@ services:
       - /var/lib/.Xauthority:/home/headless/.Xauthority:rw
     ports:
       - "6901:6901"
-
+    networks:
+      - mynetwork
+      
 #docker run -v '/tmp/.X11-unix:/tmp/.X11-unix:rw' -e DISPLAY=:1 -v /var/run/docker.sock:/var/run/docker.sock harperaa/labtainer.master /docker-entrypoint
   labtainer:
     image: labtainer.master
@@ -31,4 +33,5 @@ services:
       - novnc
     entrypoint: ["/docker-entrypoint"]
     tty: true
-    
+    networks: 
+      - mynetwork
