@@ -36,5 +36,5 @@ cat <<EOT >bashrc.labtainer.master
 EOT
 
 cp $LABTAINER_DIR/scripts/labtainer-student/bin/labutils.py ./
-docker build --build-arg DOCKER_GROUP_ID="$(getent group docker | cut -d: -f3)" -f Dockerfile.labtainer.headless -t labtainer.master:latest .
+docker build --no-cache --build-arg DOCKER_GROUP_ID="$(getent group docker | cut -d: -f3)" -f Dockerfile.labtainer.headless -t labtainer.master:latest .
 cd $here
