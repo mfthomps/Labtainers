@@ -20,11 +20,11 @@ fi
 here=`pwd`
 cd ../
 mkdir -p workspace_master
-cp $LABTAINER_DIR/headless/Dockerfile.labtainer.master workspace_master/Dockerfile.labtainer.headless
+cp $LABTAINER_DIR/headless-lite/Dockerfile.labtainer.master workspace_master/Dockerfile.labtainer.headless
 cp -r workspace/system workspace_master/
-cp $LABTAINER_DIR/headless/motd workspace_master
-cp $LABTAINER_DIR/headless/docker-entrypoint workspace_master
-cp $LABTAINER_DIR/headless/wait-for-it.sh workspace_master
+cp $LABTAINER_DIR/headless-lite/motd workspace_master
+cp $LABTAINER_DIR/headless-lite/docker-entrypoint workspace_master
+cp $LABTAINER_DIR/headless-lite/wait-for-it.sh workspace_master
 cd workspace_master
 cp $LABTAINER_DIR/distrib/labtainer.tar ./
 
