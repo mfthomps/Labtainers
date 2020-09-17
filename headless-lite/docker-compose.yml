@@ -1,8 +1,8 @@
-version: "3.7"
+version: "3.5"
 
 networks: 
   mynetwork:
-    name: mynetwork
+#    name: mynetwork
     attachable: true    
 
 services:
@@ -21,7 +21,7 @@ services:
 
 #docker run -v '/tmp/.X11-unix:/tmp/.X11-unix:rw' -e DISPLAY=:1 -v /var/run/docker.sock:/var/run/docker.sock harperaa/labtainer.master /docker-entrypoint
   labtainer:
-    image: harperaa/labtainer.master
+    image: labtainer.master
     environment:
       - DISPLAY=:1 
     volumes:
