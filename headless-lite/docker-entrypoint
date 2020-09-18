@@ -3,4 +3,11 @@
 cat /etc/motd
 
 #Login with user : labtainer
-/wait-for-it.sh $VNCHOST:5901 -- xterm > /dev/null 2>&1
+#/wait-for-it.sh $VNCHOST:5901 -- xterm > /dev/null 2>&1
+/wait-for-it.sh $VNCHOST:5901
+#xterm > /dev/null 2>&1
+/home/labtainer/.doterm.sh 
+while true
+do
+    sleep 2000
+done
