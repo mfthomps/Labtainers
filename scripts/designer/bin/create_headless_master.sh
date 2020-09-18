@@ -20,13 +20,14 @@ fi
 here=`pwd`
 cd ../
 mkdir -p workspace_master
-cp $LABTAINER_DIR/headless-lite/Dockerfile.labtainer.master workspace_master/Dockerfile.labtainer.headless
-cp -r workspace/system workspace_master/
-cp $LABTAINER_DIR/headless-lite/motd workspace_master
-cp $LABTAINER_DIR/headless-lite/docker-entrypoint workspace_master
-cp $LABTAINER_DIR/headless-lite/wait-for-it.sh workspace_master
+cp -a $LABTAINER_DIR/headless-lite/Dockerfile.labtainer.master workspace_master/Dockerfile.labtainer.headless
+cp -aR workspace/system workspace_master/
+cp -a $LABTAINER_DIR/headless-lite/motd workspace_master
+cp -a $LABTAINER_DIR/headless-lite/docker-entrypoint workspace_master
+cp -a  $LABTAINER_DIR/headless-lite/wait-for-it.sh workspace_master
+cp -a  $LABTAINER_DIR/headless-lite/doterm.sh workspace_master
 cd workspace_master
-cp $LABTAINER_DIR/distrib/labtainer.tar ./
+cp -a $LABTAINER_DIR/distrib/labtainer.tar ./
 
 cat <<EOT >bashrc.labtainer.master
    if [[ ":\$PATH:" != *":./bin:"* ]]; then 
@@ -36,5 +37,10 @@ cat <<EOT >bashrc.labtainer.master
 EOT
 
 cp $LABTAINER_DIR/scripts/labtainer-student/bin/labutils.py ./
-docker build --no-cache --build-arg DOCKER_GROUP_ID="$(getent group docker | cut -d: -f3)" -f Dockerfile.labtainer.headless -t labtainer.master:latest .
+#docker build --no-cache --build-arg DOCKER_GROUP_ID="$(getent group docker | cut -d: -f3)" -f Dockerfile.labtainer.headless -t labtainer.master:latest .
+CACHE="--no-cache"
+if [[ "$1" == -c ]]; then
+    CACHE=""
+fi
+docker build $CACHE --build-arg DOCKER_GROUP_ID="$(getent group docker | cut -d: -f3)" -f Dockerfile.labtainer.headless -t labtainer.master:latest .
 cd $here
