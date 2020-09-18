@@ -99,4 +99,4 @@ COPY  --chown=labtainer:labtainer ./wait-for-it.sh /
 
 RUN chmod 744 /docker-entrypoint
 RUN chmod 744 /wait-for-it.sh
-RUN echo "cd /home/labtainer/labtainer/labtainer-student" >> /home/labtainer/.profile
+RUN echo "cd /home/labtainer/labtainer/labtainer-student" >> /home/labtainer/.bashrc
