@@ -42,5 +42,5 @@ CACHE="--no-cache"
 if [[ "$1" == -c ]]; then
     CACHE=""
 fi
-docker build $CACHE --build-arg DOCKER_GROUP_ID="$(getent group docker | cut -d: -f3)" -f Dockerfile.labtainer.headless -t labtainer.master:stage.1 .
+docker build $CACHE --build-arg DOCKER_GROUP_ID="$(getent group docker | cut -d: -f3)" -f Dockerfile.labtainer.headless.stage.1 -t labtainer.master:stage.1 .
 cd $here
