@@ -15,7 +15,7 @@ Prereqs: linux system with git and docker installed.  Note: Labtainer VM is a go
 4. Change to the premaster branch `git checkout premaster`
 5. Set $LABTAINER_DIR to root of Git Repo Files. ``export LABTAINER_DIR=`pwd` ``
 6. Cd to correct directory to update labtainer.tar. `cd distrib`.  
-7. Update the labtainer.tar file `./mkdist.sh`.  
+7. Update the labtainer.tar file `./mkdist.sh`.  Ignore errors.  
 8. Cd to correct directory to build image. `cd ../scripts/designer/bin`
 9. Run create_master_image.sh. `./create_headless_master.sh`
 10. Cd to headless-lite directory (or open new shell tab). `cd $LABTAINER_DIR/headless-lite/`
