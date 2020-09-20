@@ -20,7 +20,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-transport-https \
     ca-certificates \
     curl \
-    software-properties-common
+    software-properties-common \
+    man \
+    manpages \
+    manpages-dev
     
 # 
 ARG DOCKER_GROUP_ID
