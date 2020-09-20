@@ -100,7 +100,11 @@ COPY  --chown=labtainer:labtainer ./docker-entrypoint /
 COPY  --chown=labtainer:labtainer ./wait-for-it.sh /
 COPY  --chown=labtainer:labtainer ./doterm.sh /home/labtainer/.doterm.sh
 RUN touch /home/labtainer/labtainer/.doupdate
-RUN chmod 744 /docker-entrypoint
-RUN chmod 744 /wait-for-it.sh
+
+# setup default pdf app, for opening URI links, in lab descriptions.
 RUN mkdir -p /home/labtainer/.config
 RUN xdg-mime default mupdf.desktop application/pdf
+
+RUN chmod 744 /docker-entrypoint
+RUN chmod 744 /wait-for-it.sh
+
