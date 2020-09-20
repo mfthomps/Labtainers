@@ -20,7 +20,7 @@ fi
 here=`pwd`
 cd ../
 mkdir -p workspace_master
-cp -a $LABTAINER_DIR/headless-lite/Dockerfile.labtainer.master workspace_master/Dockerfile.labtainer.headless
+cp -a $LABTAINER_DIR/headless-lite/Dockerfile.labtainer.master.stage.1 workspace_master/Dockerfile.labtainer.headless.stage.1
 cp -aR workspace/system workspace_master/
 cp -a $LABTAINER_DIR/headless-lite/motd workspace_master
 cp -a $LABTAINER_DIR/headless-lite/docker-entrypoint workspace_master
