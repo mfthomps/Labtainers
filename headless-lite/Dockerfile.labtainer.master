@@ -28,7 +28,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # 
 ARG DOCKER_GROUP_ID
 RUN groupadd -g $DOCKER_GROUP_ID docker
-RUN apt-get update && apt-get install -y gpg-agent && rm -r /var/lib/apt/lists/*
+RUN apt-get install -y gpg-agent 
 # 
 RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg >/tmp/gpg
 RUN cat /tmp/gpg | apt-key add - 
