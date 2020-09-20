@@ -14,11 +14,13 @@ Prereqs: linux system with git and docker installed.  Note: Labtainer VM is a go
 3. Move to that directory.  `cd Labtainers`
 4. Change to the premaster branch `git checkout premaster`
 5. Set $LABTAINER_DIR to root of Git Repo Files. ``export LABTAINER_DIR=`pwd` ``
-6. Cd to correct directory. `cd ../scripts/designer/bin`
-7. Run create_master_image.sh. `./create_headless_master.sh`
-8. Cd to headless-lite directory (or open new shell tab). `cd $LABTAINER_DIR/headless-lite/`
-9. Launch the containers using docker-compose.yml. `docker-compose up`
-10. Open browser and goto http://localhost:6901/vnc.html (using pw from $LABTAINER_DIR/headless-lite/Dockerfile.labtainer.master, default: changeme)
+6. Cd to correct directory to update labtainer.tar. `cd distrib`.  
+7. Update the labtainer.tar file `./mkdist.sh`.  
+8. Cd to correct directory to build image. `cd ../scripts/designer/bin`
+9. Run create_master_image.sh. `./create_headless_master.sh`
+10. Cd to headless-lite directory (or open new shell tab). `cd $LABTAINER_DIR/headless-lite/`
+11. Launch the containers using docker-compose.yml. `docker-compose up`
+12. Open browser and goto http://localhost:6901/vnc.html (using pw from $LABTAINER_DIR/headless-lite/Dockerfile.labtainer.master, default: changeme)
 
 Optionally (push container to hub.docker.com)
 a. Create an account on docker hub.  
