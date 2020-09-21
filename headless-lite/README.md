@@ -17,14 +17,14 @@ Prereqs: linux system with git and docker installed.  Note: Labtainer VM is a go
 6. Cd to correct directory to update labtainer.tar. `cd distrib`.  
 7. Update the labtainer.tar file `./mkdist.sh`.  Ignore errors.  
 8. Cd to correct directory to build image. `cd ../scripts/designer/bin`
-9. Run scripts to create the image in two stages: `./create_headless_master_stage_1.sh && ./create_headless_master_stage_2.sh`.  These were separated to make subsequent builds faster, ie if you only need to update configuration files, you only need to run the second stage.
+9. Run scripts to create the image in two stages: `./create_headless_master_stage_1.sh && ./create_headless_master_stage_2.sh`.  These were separated to make subsequent builds faster, ie. if you only need to update configuration files, you only need to run the second stage.
 10. Cd to headless-lite directory (or open new shell tab). `cd $LABTAINER_DIR/headless-lite/`
 11. Launch the containers using docker-compose.yml. `docker-compose up`
 12. Open browser and goto http://localhost:6901/vnc.html (using pw from $LABTAINER_DIR/headless-lite/Dockerfile.labtainer.master.stage.2, default is: changeme. Also the sudo password is found in the same file, default is: labtainer)
 
 Optionally (push container to hub.docker.com)
 a. Create an account on docker hub.  
-b. Tag the container created in previous steps (create_headline_master.sh) to match [your docker username]/labtainer.master. `docker tag 259872983749[replace this with your hash shown when running create_headline_master.sh] [your docker username]/labtainer.master`.  
+b. Tag the container created in previous steps (create_headline_master.sh) to match [your docker username]/labtainer.master. `docker tag 259872983749[replace this with your hash shown when running create_headline_master_stage_2.sh] [your docker username]/labtainer.master`.  
 c. Push that image to dockerhub. `docker push [your docker username]/labtainer.master`.  
 d. Edit the docker-compose.yml file to rename that repo/container above.  
 e. Test new docker-compose.yml file. `docker-compose up`.  This command should pull down that image from hub.docker.com.
