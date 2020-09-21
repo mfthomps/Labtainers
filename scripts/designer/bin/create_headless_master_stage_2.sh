@@ -26,6 +26,7 @@ cp -a $LABTAINER_DIR/headless-lite/motd workspace_master
 cp -a $LABTAINER_DIR/headless-lite/docker-entrypoint workspace_master
 cp -a  $LABTAINER_DIR/headless-lite/wait-for-it.sh workspace_master
 cp -a  $LABTAINER_DIR/headless-lite/doterm.sh workspace_master
+cp -a  $LABTAINER_DIR/headless-lite/doupdate.sh workspace_master
 cd workspace_master
 cp -a $LABTAINER_DIR/distrib/labtainer.tar ./
 
