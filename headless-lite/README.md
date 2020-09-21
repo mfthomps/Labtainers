@@ -1,4 +1,4 @@
-# Quick Start [temporarily not updated version]
+# Quick Start [temporarily not updated to latest version of image]
 Here is the one liner, to run the headless-lite labtainer master container and web interface, from a linux/mac system with docker installed.  
 
 `curl https://raw.githubusercontent.com/mfthomps/Labtainers/premaster/headless-lite/docker-compose.yml > docker-compose.yml && docker-compose up`
@@ -17,7 +17,7 @@ Prereqs: linux system with git and docker installed.  Note: Labtainer VM is a go
 6. Cd to correct directory to update labtainer.tar. `cd distrib`.  
 7. Update the labtainer.tar file `./mkdist.sh`.  Ignore errors.  
 8. Cd to correct directory to build image. `cd ../scripts/designer/bin`
-9. Run create_master_image.sh. `./create_headless_master.sh`
+9. Run scripts to create the image in two stages: `./create_headless_master_stage_1.sh && ./create_headless_master_stage_2.sh`.  These were separated to make subsequent builds faster, ie if you only need to update configuration files, you only need to run the second stage.
 10. Cd to headless-lite directory (or open new shell tab). `cd $LABTAINER_DIR/headless-lite/`
 11. Launch the containers using docker-compose.yml. `docker-compose up`
 12. Open browser and goto http://localhost:6901/vnc.html (using pw from $LABTAINER_DIR/headless-lite/Dockerfile.labtainer.master, default: changeme)
