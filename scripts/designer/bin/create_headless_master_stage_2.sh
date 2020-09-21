@@ -6,7 +6,7 @@
 #
 source ./set_reg.sh
 if [[ "$1" != -f ]]; then
-   echo "This will build the labtainer master controller image.  "
+   echo "This will build the labtainer master controller image (STAGE 2).  "
    echo "registry is $LABTAINER_REGISTRY"
    read -p "Continue? (y/n)"
    if [[ ! $REPLY =~ ^[Yy]$ ]]
