@@ -6,6 +6,7 @@ cat /etc/motd
 #/wait-for-it.sh $VNCHOST:5901 -- xterm > /dev/null 2>&1
 /wait-for-it.sh $VNCHOST:5901 > /dev/null 2>&1
 #xterm > /dev/null 2>&1
+export LABTAINER_DIR=/home/labtainer/labtainer/trunk
 /home/labtainer/.doterm.sh > /dev/null 2>&1
 while true
 do
