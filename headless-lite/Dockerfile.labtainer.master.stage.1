@@ -15,7 +15,7 @@ RUN apt-get update && \
     rm -r /var/lib/apt/lists/*
 
 
-LABEL description="This is Docker image for the Labtainers master controller"
+LABEL description="This is Docker image for the Labtainers master controller, stage 1"
 RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-transport-https \
     ca-certificates \
