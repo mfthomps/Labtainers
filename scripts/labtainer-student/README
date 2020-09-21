@@ -1,6 +1,8 @@
 README for Labtainers trunk/scripts/labtainers-student
-Additional details are labtainer-student.pdf
+Additional details are at: 
+   file:///home/labtainer/labtainer/labtainer-student/labtainer-student.pdf
 
+You may open this pdf by right clicking and select "Open Link".
 
 This is the Labtainers workspace from which all student
 labs are started using:
@@ -11,7 +13,6 @@ Leaving out the labname will result in display of a
 list of labs.
 
 Use
-
     stoplab <labname>
 
 to stop a lab and collect its results.  Note, it is

@@ -15,7 +15,7 @@ RUN apt-get update && \
     rm -r /var/lib/apt/lists/*
 
 
-LABEL description="This is Docker image for the Labtainers master controller"
+LABEL description="This is Docker image for the Labtainers master controller, stage 1"
 RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-transport-https \
     ca-certificates \
@@ -92,31 +92,3 @@ RUN chown root:docker /var/run/docker.sock
 
 USER labtainer
 WORKDIR /home/labtainer
-
-COPY --chown=labtainer:labtainer labtainer.tar /home/labtainer
-RUN tar xf labtainer.tar
-RUN rm labtainer.tar
-RUN cd labtainer && ln -s trunk/scripts/labtainer-student
-RUN cd labtainer && ln -s trunk/scripts/labtainer-instructor
-
-COPY --chown=labtainer:labtainer bashrc.labtainer.master /home/labtainer
-RUN cat bashrc.labtainer.master >>/home/labtainer/.bashrc
-
-COPY --chown=labtainer:labtainer labutils.py /home/labtainer/labtainer/labtainer-student/bin/
-ENV DISPLAY :0
-ENV NO_AT_BRIDGE=1
-ENV VNCHOST=novnc
-
-COPY  --chown=labtainer:labtainer ./motd /etc/motd
-COPY  --chown=labtainer:labtainer ./docker-entrypoint /
-COPY  --chown=labtainer:labtainer ./wait-for-it.sh /
-COPY  --chown=labtainer:labtainer ./doterm.sh /home/labtainer/.doterm.sh
-RUN touch /home/labtainer/labtainer/.doupdate
-
-# setup default pdf app, for opening URI links, in lab descriptions.
-RUN mkdir -p /home/labtainer/.config
-RUN xdg-mime default mupdf.desktop application/pdf
-
-RUN chmod 744 /docker-entrypoint
-RUN chmod 744 /wait-for-it.sh
-
