@@ -1,7 +1,7 @@
 ===================================================================
 = Labtainers Docker container & VNC                               =
 ===================================================================
-
+No password required, just click "OK"
+Password for user labtainer is labtainer
 To start labs:
- - cd ~/labtainer/labtainer-student
  - labtainer [labname]

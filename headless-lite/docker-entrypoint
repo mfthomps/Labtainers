@@ -2,10 +2,14 @@
 
 cat /etc/motd
 
-#Login with user : labtainer
-#/wait-for-it.sh $VNCHOST:5901 -- xterm > /dev/null 2>&1
+#
+# Docker on window manages to screw this up 
+#
+echo labtainer | sudo -S chown root:docker /var/run/docker.sock
+
+
 /wait-for-it.sh $VNCHOST:5901 > /dev/null 2>&1
-#xterm > /dev/null 2>&1
+
 export LABTAINER_DIR=/home/labtainer/labtainer/trunk
 /home/labtainer/.doterm.sh > /dev/null 2>&1
 while true

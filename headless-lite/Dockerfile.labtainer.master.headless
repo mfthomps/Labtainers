@@ -5,7 +5,7 @@
 # Thanks for Olivier Berger for this contribution.
 #
 
-FROM labtainer.master:stage.1
+FROM labtainers/labtainer.master.base
 
 LABEL description="This is Docker image for the Labtainers master controller, stage 2"
 
@@ -22,7 +22,6 @@ RUN cd labtainer/trunk/scripts/labtainer-student/bin && ln -s ../../../setup_scr
 COPY --chown=labtainer:labtainer bashrc.labtainer.master /home/labtainer
 RUN cat bashrc.labtainer.master >>/home/labtainer/.bashrc
 
-COPY --chown=labtainer:labtainer labutils.py /home/labtainer/labtainer/labtainer-student/bin/
 ENV DISPLAY :0
 ENV NO_AT_BRIDGE=1
 ENV VNCHOST=novnc
