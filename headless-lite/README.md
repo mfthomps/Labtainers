@@ -3,6 +3,26 @@ Here is the one liner, to run the headless-lite labtainer master container and w
 
 `curl https://raw.githubusercontent.com/mfthomps/Labtainers/premaster/headless-lite/docker-compose.yml > docker-compose.yml && docker-compose up`
 
+# Options for the yml
+UPDATE_LABTAINER=FALSE will prevent an update from the latest distribution.  This is helpful when testing with a modified framework.
+
+The VNC_PW value is empty, allowing the user to simply click OK.
+It would be nice if the password can be supressed entirely.
+
+The VNC_RESOLTION controls the desktop size.  How best to let the user adjust this, other than editing a file?
+
+# Other issues
+X11 applications such as wireshark often start with blank windows, requiring a restart of the application.  The problem
+also occurs to some degree on VMs, and frequently on VMWare Horizon hosted VMs.  Or so it seems.  It is likely just an
+X11/Docker issue that happends everywhere.
+
+For now, users sit through long downloads as they do labs.  For example, if they've never done a lab that uses the
+labtainer.firefox base, and then run one, the are warned of a download of hundres of MB.  Better to download all
+base images on first start?   If added, need an ENV to supress it for testing.
+
+Best way to for users to start headless Labtainers on their own systems?  Assume able to use command line, and just
+give them instructions to wget (or save file via browser), etc.?
+
 # Build the labtainer.master File
 
 Here are the instructions to create a new labtainer.master file.
