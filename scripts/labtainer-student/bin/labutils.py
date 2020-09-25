@@ -2075,6 +2075,8 @@ def GetListRunningLabType():
             # And the image is the 2nd token
             image_name = container_info[1]
             image_name = os.path.basename(image_name)
+            if image_name == 'labtainer.master.headless':
+                continue
             if container_name.startswith(image_name):
                 ''' std Labtainers image, get is labname '''
                 labname = container_name.split('.')[0]
