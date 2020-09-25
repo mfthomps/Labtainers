@@ -21,7 +21,12 @@ labtainer.firefox base, and then run one, the are warned of a download of hundre
 base images on first start?   If added, need an ENV to supress it for testing.
 
 Best way to for users to start headless Labtainers on their own systems?  Assume able to use command line, and just
-give them instructions to wget (or save file via browser), etc.?
+give them instructions to wget (or save file via browser), etc.?  The Windows curl/wget is MSed and requires special
+arguments to just fetch a file without interleaving html fu.  Not sure what those are yet.
+
+Do we want a per-OS script for use in getting the yml and doing the compose?  Same script could have options to
+update the headless system (otherwise, user must use docker rmi to remove old headless image).
+
 
 # Build the labtainer.master File
 
