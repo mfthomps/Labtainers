@@ -23,6 +23,17 @@ base images on first start?   If added, need an ENV to supress it for testing.
 Best way to for users to start headless Labtainers on their own systems?  Assume able to use command line, and just
 give them instructions to wget (or save file via browser), etc.?
 
+How should students submit their zip file results?  Either force use of local browser on vnc desktop, or map the labtainer_xfer
+directory to a host directory using docker volumes.  A per-os setup script could manage that mapping, letting the student change the
+default.
+
+What do we say/know about the security of Windows/Mac Docker containers environments?  We never say people can trust Docker or our 
+containers, suggesting instead that the VM provides the isolation from sensitive data and applications that coexist on the student
+laptop.  The Windows/Mac Docker environments appear to be some kind of
+sandbox or VM.  Can we say anything about that?  I guess we need to at least suggest to not install Labtainers on systems that run other containers
+that may handle sensitive data.
+
+
 # Build the labtainer.master File
 
 Here are the instructions to create a new labtainer.master file.
