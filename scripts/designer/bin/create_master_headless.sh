@@ -30,4 +30,5 @@ if [[ "$1" == -c ]]; then
     CACHE=""
 fi
 docker build $CACHE --build-arg DOCKER_GROUP_ID="$(getent group docker | cut -d: -f3)" -f Dockerfile.labtainer.master.headless -t labtainer.master.headless:latest .
+docker tag labtainer.master.headless labtainers/labtainer.master.headless
 cd $here
