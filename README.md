@@ -72,6 +72,10 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+September 26, 2020
+- Clean up the stoplab scripts to ignore non-lab containers
+- Add db-access database access control lab for controlles sharing of a mysql db.
+
 September 17, 2020
 - The macs-hash lab was unable to run Leafpad due to the X11 setting.
 - Grader logging was being redirected to the wrong log file, now captures errors from instructor.py
