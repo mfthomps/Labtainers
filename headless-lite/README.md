@@ -50,13 +50,14 @@ Prereqs: linux system with git and docker installed.  Note: Labtainer VM is a go
 3. Move to that directory.  `cd Labtainers`
 4. Change to the premaster branch `git checkout premaster`
 5. Set $LABTAINER_DIR to root of Git Repo Files. ``export LABTAINER_DIR=`pwd` ``
-6. Cd to correct directory to update labtainer.tar. `cd distrib`.  
-7. Update the labtainer.tar file `./mkdist.sh`.  Ignore errors.  
-8. Cd to correct directory to build image. `cd ../scripts/designer/bin`
-9. Run scripts to create the image in two stages: `./create_headless_master_stage_1.sh && ./create_headless_master_stage_2.sh`.  These were separated to make subsequent builds faster, ie. if you only need to update configuration files, you only need to run the second stage.
-10. Cd to headless-lite directory (or open new shell tab). `cd $LABTAINER_DIR/headless-lite/`
-11. Launch the containers using docker-compose.yml. `docker-compose up`
-12. Open browser and goto http://localhost:6901/vnc.html (using pw from $LABTAINER_DIR/headless-lite/Dockerfile.labtainer.master.stage.2, default is: changeme. Also the sudo password is found in the same file, default is: labtainer)
+6. Cd to correct directory to update labtainer.tar. `cd distrib`. 
+7. Ensure you have latex installed, to build the pdfs for labs. `sudo apt install texlive-full`.  
+8. Update the labtainer.tar file `./mkdist.sh`.  Ignore errors.  
+9. Cd to correct directory to build image. `cd ../scripts/designer/bin`
+10. Run scripts to create the image in two stages: `./create_headless_master_stage_1.sh && ./create_headless_master_stage_2.sh`.  These were separated to make subsequent builds faster, ie. if you only need to update configuration files, you only need to run the second stage.
+11. Cd to headless-lite directory (or open new shell tab). `cd $LABTAINER_DIR/headless-lite/`
+12. Launch the containers using docker-compose.yml. `docker-compose up`
+13. Open browser and goto http://localhost:6901/vnc.html (using pw from $LABTAINER_DIR/headless-lite/Dockerfile.labtainer.master.stage.2, default is: changeme. Also the sudo password is found in the same file, default is: labtainer)
 
 Optionally (push container to hub.docker.com)
 a. Create an account on docker hub.  
