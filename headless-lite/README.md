@@ -57,7 +57,7 @@ Prereqs: linux system with git and docker installed.  Note: Labtainer VM is a go
 10. Run scripts to create the image in two stages: `./create_headless_master_stage_1.sh && ./create_headless_master_stage_2.sh`.  These were separated to make subsequent builds faster, ie. if you only need to update configuration files, you only need to run the second stage.
 11. Cd to headless-lite directory (or open new shell tab). `cd $LABTAINER_DIR/headless-lite/`
 12. Launch the containers using docker-compose.yml. `docker-compose up`
-13. Open browser and goto http://localhost:6901/vnc.html (using pw from $LABTAINER_DIR/headless-lite/Dockerfile.labtainer.master.stage.2, default is: changeme. Also the sudo password is found in the same file, default is: labtainer)
+13. Open browser and goto http://localhost:6901/vnc.html?password= (uses blank default password, which is changable in docker-compose.yml).  
 
 Optionally (push container to hub.docker.com)
 a. Create an account on docker hub.  
