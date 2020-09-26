@@ -1,0 +1,2 @@
+#!/bin/bash
+su - nancy -c 'mysql -u nancy -h database -ppass4nancy -e "source nancy.sql"'

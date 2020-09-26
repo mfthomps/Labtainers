@@ -1,0 +1,2 @@
+#!/bin/bash
+su - susan -c 'mysql -u susan -h database -ppass4susan -e "source susan.sql"'

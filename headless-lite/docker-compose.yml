@@ -1,9 +1,4 @@
-version: "3.7"
-
-networks: 
-  mynetwork:
-    name: mynetwork
-    attachable: true    
+version: "3.5"
 
 services:
 
@@ -12,18 +7,21 @@ services:
   novnc:
     image: accetto/ubuntu-vnc-xfce  
     environment:
-      - VNC_PW=changeme
+      - VNC_PW=
+      - VNC_RESOLUTION=1900x900
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - /var/lib/.Xauthority:/home/headless/.Xauthority:rw
     ports:
-      - "6901:6901"
-
+      - "127.0.0.1:6901:6901"
+      
 #docker run -v '/tmp/.X11-unix:/tmp/.X11-unix:rw' -e DISPLAY=:1 -v /var/run/docker.sock:/var/run/docker.sock harperaa/labtainer.master /docker-entrypoint
   labtainer:
-    image: harperaa/labtainer.master
+    image: labtainers/labtainer.master.headless
     environment:
       - DISPLAY=:1 
+# Set to FALSE to prevent updates from latest distribution, e.g., for testing framework changes.
+      - LABTAINER_UPDATE=FALSE
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - /var/run/docker.sock:/var/run/docker.sock
@@ -31,4 +29,3 @@ services:
       - novnc
     entrypoint: ["/docker-entrypoint"]
     tty: true
-    
