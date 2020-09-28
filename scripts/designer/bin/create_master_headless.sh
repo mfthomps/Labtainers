@@ -16,7 +16,6 @@ cp -a  $LABTAINER_DIR/headless-lite/wait-for-it.sh workspace_master
 cp -a  $LABTAINER_DIR/headless-lite/doterm.sh workspace_master
 cp -a  $LABTAINER_DIR/headless-lite/doupdate.sh workspace_master
 cd workspace_master
-cp -a $LABTAINER_DIR/distrib/labtainer.tar ./
 
 cat <<EOT >bashrc.labtainer.master
    if [[ ":\$PATH:" != *":./bin:"* ]]; then 
@@ -26,9 +25,29 @@ cat <<EOT >bashrc.labtainer.master
 EOT
 
 CACHE="--no-cache"
-if [[ "$1" == -c ]]; then
-    CACHE=""
-fi
+LABTAINER_DEV="FALSE"
+while [[ -n "$1" ]]; do
+    if [[ "$1" == -h ]]; then
+        echo "use -c to build with cache"
+        echo "use -d to build developer version, otherwise pulls from distribution"
+        exit 0
+    fi
+    if [[ "$1" == -c ]]; then
+        CACHE=""
+        shift
+    fi
+    if [[ "$1" == -d ]]; then
+        LABTAINER_DEV="TRUE"
+        shift
+    fi
+done
+if [[ $LABTAINER_DIR == "TRUE" ]]; then
+    echo "Getting labtainer.tar from NPS distribution."
+    wget https://nps.box.com/shared/static/afz87ok8ezr0vtyo2qtlqbfmc28zk08j.tar -O labtainer.tar
+else
+    echo "Getting labtainer.tar from your distrib, assuming mkdist.sh was run."
+    cp -a $LABTAINER_DIR/distrib/labtainer.tar ./
+fi     
 docker build $CACHE --build-arg DOCKER_GROUP_ID="$(getent group docker | cut -d: -f3)" -f Dockerfile.labtainer.master.headless -t labtainer.master.headless:latest .
 docker tag labtainer.master.headless labtainers/labtainer.master.headless
 cd $here
