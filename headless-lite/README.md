@@ -10,8 +10,13 @@ The VNC_PW value is empty, allowing the user to simply click OK.
 It would be nice if the password can be supressed entirely.
 
 The VNC_RESOLTION controls the desktop size.  How best to let the user adjust this, other than editing a file?
+Using -resize=scale, let student adjust to taste?
 
-# Other issues
+# Other issues and ToDo
+
+Get a full smoketest running on a headless rig.
+Create a user's guide that details headless-specific issues such as changing resolution, running, etc.
+
 X11 applications such as wireshark often start with blank windows, requiring a restart of the application.  The problem
 also occurs to some degree on VMs, and frequently on VMWare Horizon hosted VMs.  Or so it seems.  It is likely just an
 X11/Docker issue that happends everywhere.
@@ -38,6 +43,12 @@ laptop.  The Windows/Mac Docker environments appear to be some kind of
 sandbox or VM.  Can we say anything about that?  I guess we need to at least suggest to not install Labtainers on systems that run other containers
 that may handle sensitive data.
 
+Time on the labtainer container is in UTC.  Make localtime?
+
+Manage other persistent data, e.g., my_stuff and shared folders for licensed software, e.g., IDAi free volume in cgc lab.
+There we map container dir to a VM dir.  Here we need to map from container to host.
+
+Fixing add-hosts in labutils to allow add-hosts regardless of docker0 network.
 
 # Build the labtainer.master File
 
