@@ -4,7 +4,7 @@ InstallingVB-LinuxWin.pdf: InstallingVB-LinuxWin.docx
 	soffice --convert-to pdf InstallingVB-LinuxWin.docx --headless
 
 labtainer-student.pdf: InstallingVB-LinuxWin.pdf labtainer-student.tex
-	latex labtainer-student
+	pdflatex labtainer-student
 	pdflatex labtainer-student
 clean:
 	rm -fr auto
