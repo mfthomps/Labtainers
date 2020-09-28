@@ -157,6 +157,7 @@ public class GoalPanels extends javax.swing.JPanel {
         ParameterComboBox = new javax.swing.JComboBox<>();
         BooleanResultTagsComboBox = new javax.swing.JComboBox<>();
         PreviousMatchanyComboBox = new javax.swing.JComboBox<>();
+        DocButton = new javax.swing.JButton();
         DeleteButton = new javax.swing.JButton();
         rowLabel = new javax.swing.JLabel();
         UpButton = new javax.swing.JButton();
@@ -205,6 +206,13 @@ public class GoalPanels extends javax.swing.JPanel {
 
         BooleanResultTagsComboBox.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Boolean Result Tags"));
 
+        DocButton.setText("Doc");
+        DocButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                DocButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout ArtifactPanelLayout = new javax.swing.GroupLayout(ArtifactPanel);
         ArtifactPanel.setLayout(ArtifactPanelLayout);
         ArtifactPanelLayout.setHorizontalGroup(
@@ -226,6 +234,8 @@ public class GoalPanels extends javax.swing.JPanel {
                 .addComponent(AnswerTypeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(AnswerTagTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(DocButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(ResultTag2ComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -268,7 +278,9 @@ public class GoalPanels extends javax.swing.JPanel {
                         .addComponent(ArithmeticResultTagTextField)
                         .addComponent(AnswerTypeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(AnswerTagTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(ResultTag2ComboBox)
+                    .addGroup(ArtifactPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(ResultTag2ComboBox)
+                        .addComponent(DocButton))
                     .addComponent(ParameterComboBox)
                     .addComponent(BooleanResultTagsComboBox)
                     .addComponent(PreviousMatchanyComboBox))
@@ -351,6 +363,10 @@ public class GoalPanels extends javax.swing.JPanel {
     private void DownButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DownButtonActionPerformed
         swapUpdate("DOWN", rowNum-1); //Subtract rowNum by one to get the proper index number
     }//GEN-LAST:event_DownButtonActionPerformed
+
+    private void DocButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DocButtonActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_DocButtonActionPerformed
 
     // BUTTONS and LISTENERS //
     
@@ -682,6 +698,7 @@ public class GoalPanels extends javax.swing.JPanel {
     private javax.swing.JComboBox<String> BooleanResultTagsComboBox;
     private javax.swing.JTextField BooleanTextField;
     private javax.swing.JButton DeleteButton;
+    private javax.swing.JButton DocButton;
     private javax.swing.JButton DownButton;
     private javax.swing.JTextField ExecutableFileTextField;
     private javax.swing.JTextField Goal1TextField;

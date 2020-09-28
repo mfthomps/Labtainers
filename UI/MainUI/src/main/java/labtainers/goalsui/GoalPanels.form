@@ -94,6 +94,8 @@
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="AnswerTagTextField" min="-2" pref="193" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
+                  <Component id="DocButton" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
                   <Component id="ResultTag2ComboBox" min="-2" pref="155" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="ParameterComboBox" pref="0" max="32767" attributes="0"/>
@@ -141,7 +143,10 @@
                           <Component id="AnswerTypeComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="AnswerTagTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <Component id="ResultTag2ComboBox" alignment="1" max="32767" attributes="0"/>
+                      <Group type="103" alignment="1" groupAlignment="3" attributes="0">
+                          <Component id="ResultTag2ComboBox" alignment="3" max="32767" attributes="0"/>
+                          <Component id="DocButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
                       <Component id="ParameterComboBox" alignment="1" max="32767" attributes="0"/>
                       <Component id="BooleanResultTagsComboBox" alignment="1" max="32767" attributes="0"/>
                       <Component id="PreviousMatchanyComboBox" alignment="1" max="32767" attributes="0"/>
@@ -381,6 +386,14 @@
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
           </AuxValues>
+        </Component>
+        <Component class="javax.swing.JButton" name="DocButton">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Doc"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="DocButtonActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>

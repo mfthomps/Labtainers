@@ -15,6 +15,7 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -65,8 +66,7 @@ public class MainWindow extends javax.swing.JFrame {
         networkScrollPaneBar = NetworkScrollPane.getVerticalScrollBar();
         LabExistLabel.setVisible(false);
         
-        
-        iniFile = new File("/home/student/dev/Labtainers/UI/bin/mainUI.ini"); //TODO: location will need to be updated in final
+        iniFile = new File(System.getenv("HOME")+File.separator+".local/share/labtainers/UI.ini");
         if(!iniFile.isFile())
             resetINIFile();
         
@@ -1533,14 +1533,17 @@ public class MainWindow extends javax.swing.JFrame {
     // Sets the main.ini file to the backup
     // Code taken from Beginners Book: https://beginnersbook.com/2014/05/how-to-copy-a-file-to-another-file-in-java/
     private void resetINIFile(){
-        FileInputStream instream = null;
 	FileOutputStream outstream = null;
+        ClassLoader classLoader = getClass().getClassLoader();
+        InputStream instream = classLoader.getResourceAsStream("UI.ini");
+        if (instream == null){
+            System.out.println("instream null");
+            System.exit(1);
+        }
  
     	try{
-    	    File infile = new File(iniFile.getPath()+".backup");
     	    File outfile = iniFile;
  
-    	    instream = new FileInputStream(infile);
     	    outstream = new FileOutputStream(outfile);
  
     	    byte[] buffer = new byte[1024];
