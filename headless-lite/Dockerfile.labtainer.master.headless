@@ -37,6 +37,7 @@ RUN touch /home/labtainer/labtainer/.doupdate
 RUN mkdir -p /home/labtainer/.config
 RUN xdg-mime default mupdf.desktop application/pdf
 RUN mkdir -p /home/labtainer/labtainer_xfer
+RUN mkdir -p /home/labtainer/.local/share/labtainers
 
 RUN chmod 744 /docker-entrypoint
 RUN chmod 744 /wait-for-it.sh

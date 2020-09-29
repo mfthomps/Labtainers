@@ -22,10 +22,13 @@ services:
     environment:
       - DISPLAY=:1 
 # Set to FALSE to prevent updates from latest distribution, e.g., for testing framework changes.
-      - LABTAINER_UPDATE=TRUE
+      - LABTAINER_UPDATE=${LABTAINER_UPDATE}
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - /var/run/docker.sock:/var/run/docker.sock
+      #- /home/mike/labtainer_xfer:/home/labtainer/labtainer_xfer:rw
+      - ${HOME}/headless-labtainers/labtainer_xfer:/home/labtainer/labtainer_xfer:rw
+      - ${HOME}/headless-labtainers/labtainers:/home/labtainer/.local/share/labtainers:rw
     depends_on:
       - novnc
     entrypoint: ["/docker-entrypoint"]

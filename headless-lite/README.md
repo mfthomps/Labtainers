@@ -1,28 +1,46 @@
-# Quick Start [temporarily not updated to latest version of image]
-Here is the one liner, to run the headless-lite labtainer master container and web interface, from a linux/mac system with docker installed.  
+# Quick Start 
+Execute the ./headless-labtainers.sh script (or this one liner if you have not cloned the repo:)
+    curl https://raw.githubusercontent.com/mfthomps/Labtainers/premaster/headless-lite/headless-labtainers.sh > headless-labtainers.sh && chmod a+x headless-labtainers.sh && ./headless-labtainers.sh
 
-`curl https://raw.githubusercontent.com/mfthomps/Labtainers/premaster/headless-lite/docker-compose.yml > docker-compose.yml && docker-compose up`
+Use the -d option to use your modified local docker-compose.yml file rather than the current one in the Labtainers repo.
+Use the -n option to suppress updating of Labtainers on headless container, e.g., if you've created your own labtainer.tar
 
-# Options for the yml
-UPDATE_LABTAINER=FALSE will prevent an update from the latest distribution.  This is helpful when testing with a modified framework.
+Open a browser and goto http://localhost:6901/vnc.html?password= (uses blank default password, which is changable in docker-compose.yml).  
 
-The VNC_PW value is empty, allowing the user to simply click OK.
-It would be nice if the password can be supressed entirely.
+**Warning**: if you run docker-compose directly prior to running headless-labtainers.sh, you may end up with broken file 
+permissions (though running it directly after first running headless-labtainers.sh should work fine).
+
+In addition to starting the Headless Labtainers, the script will create a ~/headless-labtainers directory.  A student would then run
+headless-labtainers.sh from that directory in the future.  That directory will also contain persistent data.
+
+# Developer notes
+The following assume you have cloned or otherwise replicated the Labtainers repo.
+
+You can modify the headless containers by editing the yml file and using the "-d" option on headless-labtainers.sh,
+running the script from the repo.  To modify the headless container, modify the Dockerfiles and/or the docker-entryentrypoint script.
+Rebuild the local container images from the scripts/designer/bin directory using the create\_master\_headless.sh script.
+The default will populate the headless container with the latest Labtainers distribution.  Use the "-d" option to force use of your own
+labtainers.tar created using distrib/mkdist.sh.  Note however that script assumes you have first created a Labtainers development
+environment as described in docs/development/development.pdf
+
+
+# Issues and ToDo
+
+The VNC_PW value is in the yml empty, allowing the user to simply click OK.
+It would be nice if the password can be suppressed entirely.
 
 The VNC_RESOLTION controls the desktop size.  How best to let the user adjust this, other than editing a file?
 Using -resize=scale, let student adjust to taste?
-
-# Other issues and ToDo
 
 Get a full smoketest running on a headless rig.
 Create a user's guide that details headless-specific issues such as changing resolution, running, etc.
 
 X11 applications such as wireshark often start with blank windows, requiring a restart of the application.  The problem
 also occurs to some degree on VMs, and frequently on VMWare Horizon hosted VMs.  Or so it seems.  It is likely just an
-X11/Docker issue that happends everywhere.
+X11/Docker issue that happens everywhere.
 
 For now, users sit through long downloads as they do labs.  For example, if they've never done a lab that uses the
-labtainer.firefox base, and then run one, the are warned of a download of hundres of MB.  Better to download all
+labtainer.firefox base, and then run one, the are warned of a download of hundreds of MB.  Better to download all
 base images on first start?   If added, need an ENV to supress it for testing.
 
 Best way to for users to start headless Labtainers on their own systems?  Assume able to use command line, and just
@@ -46,10 +64,15 @@ that may handle sensitive data.
 Time on the labtainer container is in UTC.  Make localtime?
 
 Manage other persistent data, e.g., my_stuff and shared folders for licensed software, e.g., IDAi free volume in cgc lab.
-There we map container dir to a VM dir.  Here we need to map from container to host.
+There we map container dir to a VM dir.  Here we need to map from container to host.  **Done for linux in headless-labtainers.sh**
 
 Fixing add-hosts in labutils to allow add-hosts regardless of docker0 network.
 
+
+
+
+
+The following is mostly OBE.  Revise/remove?
 # Build the labtainer.master File
 
 Here are the instructions to create a new labtainer.master file.
