@@ -3,7 +3,6 @@ version: "3.5"
 services:
 
 
-#docker run -v '/tmp/.X11-unix:/tmp/.X11-unix:rw' -v "/var/lib/.Xauthority:/headless/.Xauthority:rw" --rm -p 6901:6901 consol/centos-xfce-vnc
   novnc:
     image: accetto/ubuntu-vnc-xfce  
     environment:
@@ -12,11 +11,10 @@ services:
       - resize=scale
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
-      - /var/lib/.Xauthority:/home/headless/.Xauthority:rw
+      - /tmp/.Xauthority:/home/headless/.Xauthority:rw
     ports:
       - "127.0.0.1:6901:6901"
       
-#docker run -v '/tmp/.X11-unix:/tmp/.X11-unix:rw' -e DISPLAY=:1 -v /var/run/docker.sock:/var/run/docker.sock harperaa/labtainer.master /docker-entrypoint
   labtainer:
     image: labtainers/labtainer.master.headless
     environment:
@@ -26,7 +24,6 @@ services:
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - /var/run/docker.sock:/var/run/docker.sock
-      #- /home/mike/labtainer_xfer:/home/labtainer/labtainer_xfer:rw
       - ${HOME}/headless-labtainers/labtainer_xfer:/home/labtainer/labtainer_xfer:rw
       - ${HOME}/headless-labtainers/labtainers:/home/labtainer/.local/share/labtainers:rw
     depends_on:

@@ -13,6 +13,11 @@ permissions (though running it directly after first running headless-labtainers.
 In addition to starting the Headless Labtainers, the script will create a ~/headless-labtainers directory.  A student would then run
 headless-labtainers.sh from that directory in the future.  That directory will also contain persistent data.
 
+# Security considerations
+Please note that Docker runs as a privileged service on your computer, and Labtainers containers run as privileged containers.
+If you have sensitive data on your computer, you should understand the isolation provided by Dockers on your system.  An alternative
+is to use one of our virtual machine appliances rather than running Docker directly on your computer.
+
 # Developer notes
 The following assume you have cloned or otherwise replicated the Labtainers repo.
 

@@ -27,7 +27,7 @@ else
     mkdir -p mystuff
     mkdir -p labtainer_xfer
     mkdir -p labtainers
-    if [[ "$LABTAINER_DEV"=="TRUE" ]];then
+    if [[ "$LABTAINER_DEV" == "TRUE" ]];then
         echo "Using local yml"
         cp $LABTAINER_DIR/headless-lite/docker-compose.yml .
     else
