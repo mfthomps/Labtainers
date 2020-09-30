@@ -34,6 +34,21 @@ The default will populate the headless container with the latest Labtainers dist
 labtainers.tar created using distrib/mkdist.sh.  Note however that script assumes you have first created a Labtainers development
 environment as described in docs/development/development.pdf
 
+# Labtainers via remote server
+Headless Labtainers can be deployed on servers, e.g., on headless VMs upon which Docker Compose is installed.  A notional summary
+of such a deployment is provided below.  In this example, each student VM is assumed to be allocated its own IP address.
+
+* Provision one VM per student with an SSH Server, Docker and Docker Compose installed.
+* Add a "labtainer" user to the VM.
+* Add the headless-labtainers.sh script to the VM, run it, and configure it to run as a service from ~/labtainers-student as user labtainer.
+* Allocate at least 2GB and 2 cores to each VM.
+* Provide students with SSH access to the VM, e.g., allocate SSH keys or configure the VMs to authenticte via LDAP.
+* Direct students to configure their SSH private key (if needed) and to use an SSH command from a PowerShell or Mac terminal such as:
+>  ssh -AfN -L 6901:127.0.0.1:6901 -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -o "ServerAliveInterval 60" labtainer@my\_vm\_ip
+   where "my\_vm\_ip" is the IP of their VM, or host witin their SSH config file.
+* Students would then access their Labtainers from a browser pointed to http://localhost:6901
+* Direct students to retrieve their results zip files from their VM using scp, e.g.,
+>  scp labtainer@my\_vm\_ip:~/headless-labtainers/labtainer\_xfer/[lab]/\*.zip .
 
 # Issues and ToDo
 
