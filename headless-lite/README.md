@@ -1,17 +1,23 @@
-# Quick Start 
-Execute the ./headless-labtainers.sh script (or this one liner if you have not cloned the repo:)
-    curl https://raw.githubusercontent.com/mfthomps/Labtainers/premaster/headless-lite/headless-labtainers.sh > headless-labtainers.sh && chmod a+x headless-labtainers.sh && ./headless-labtainers.sh
+# Headless Labtainers
+Run Labtainers on systems that lack X11 desktops.  This assumes you have installed Docker, e.g., Docker Desktop on a Mac or
+Windows machine.  Headless Labtainers are an alternative to the Labtainer VM Appliance.
 
-Use the -d option to use your modified local docker-compose.yml file rather than the current one in the Labtainers repo.
-Use the -n option to suppress updating of Labtainers on headless container, e.g., if you've created your own labtainer.tar
+# Quick Start 
+Execute the ./headless-labtainers.sh script.  Or download from 
+   https://raw.githubusercontent.com/mfthomps/Labtainers/premaster/headless-lite/headless-labtainers.sh 
+and make executable and then run.
+On a Mac, this would be done from a terminal.  On Windows, use Powershell.
+
+* Use the -d option to use your modified local docker-compose.yml file rather than the current one in the Labtainers repo.
+* Use the -n option to suppress updating of Labtainers on headless container, e.g., if you've created your own labtainer.tar
 
 Open a browser and goto http://localhost:6901/vnc.html?password= (uses blank default password, which is changable in docker-compose.yml).  
 
-**Warning**: if you run docker-compose directly prior to running headless-labtainers.sh, you may end up with broken file 
-permissions (though running it directly after first running headless-labtainers.sh should work fine).
-
 In addition to starting the Headless Labtainers, the script will create a ~/headless-labtainers directory.  A student would then run
 headless-labtainers.sh from that directory in the future.  That directory will also contain persistent data.
+
+**Warning**: if you run docker-compose directly prior to running headless-labtainers.sh, you may end up with broken file 
+permissions (though running it directly after first running headless-labtainers.sh should work fine).
 
 # Security considerations
 Please note that Docker runs as a privileged service on your computer, and Labtainers containers run as privileged containers.
@@ -48,18 +54,6 @@ For now, users sit through long downloads as they do labs.  For example, if they
 labtainer.firefox base, and then run one, the are warned of a download of hundreds of MB.  Better to download all
 base images on first start?   If added, need an ENV to supress it for testing.
 
-Best way to for users to start headless Labtainers on their own systems?  Assume able to use command line, and just
-give them instructions to wget (or save file via browser), etc.?  The Windows curl/wget is MSed and requires special
-arguments to just fetch a file without interleaving html fu.  Not sure what those are yet.
-
-Do we want a per-OS script for use in getting the yml and doing the compose?  Same script could have options to
-update the headless system (otherwise, user must use docker rmi to remove old headless image).
-
-
-How should students submit their zip file results?  Either force use of local browser on vnc desktop, or map the labtainer_xfer
-directory to a host directory using docker volumes.  A per-os setup script could manage that mapping, letting the student change the
-default.
-
 What do we say/know about the security of Windows/Mac Docker containers environments?  We never say people can trust Docker or our 
 containers, suggesting instead that the VM provides the isolation from sensitive data and applications that coexist on the student
 laptop.  The Windows/Mac Docker environments appear to be some kind of
@@ -68,12 +62,8 @@ that may handle sensitive data.
 
 Time on the labtainer container is in UTC.  Make localtime?
 
-Manage other persistent data, e.g., my_stuff and shared folders for licensed software, e.g., IDAi free volume in cgc lab.
-There we map container dir to a VM dir.  Here we need to map from container to host.  **Done for linux in headless-labtainers.sh**
-
-Fixing add-hosts in labutils to allow add-hosts regardless of docker0 network.
-
-
+Lab guides and other references tell students their results are found in ~/labtainer\_xfer/[lab].  How best to avoid confusion since
+with Headless Labtainers, that directory on the headless container is mapped to ~/headless-labtainers/labtainer\_xfer on the student's computer?
 
 
 
