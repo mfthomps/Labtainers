@@ -24,19 +24,22 @@ Please note that Docker runs as a privileged service on your computer, and Labta
 If you have sensitive data on your computer, you should understand the isolation provided by Dockers on your system.  An alternative
 is to use one of our virtual machine appliances rather than running Docker directly on your computer.
 
-# Developer notes
-The following assume you have cloned or otherwise replicated the Labtainers repo.
-
-You can modify the headless containers by editing the yml file and using the "-d" option on headless-labtainers.sh,
-running the script from the repo.  To modify the headless container, modify the Dockerfiles and/or the docker-entryentrypoint script.
-Rebuild the local container images from the scripts/designer/bin directory using the create\_master\_headless.sh script.
-The default will populate the headless container with the latest Labtainers distribution.  Use the "-d" option to force use of your own
-labtainers.tar created using distrib/mkdist.sh.  Note however that script assumes you have first created a Labtainers development
-environment as described in docs/development/development.pdf
-
 # Labtainers via remote server
-Headless Labtainers can be deployed on servers, e.g., on headless VMs upon which Docker Compose is installed.  A notional summary
-of such a deployment is provided below.  In this example, each student VM is assumed to be allocated its own IP address.
+Headless Labtainers can be deployed on servers, e.g., on headless VMs upon which Docker Compose is installed.  
+
+A Cloud Config file for an Ubuntu server is in headless-lite/cloud-config.  This file will create and provision
+a VM that runs the Headless Labtainers.  To use that file, replace the SSH key with your own public key, or
+a test key created with ssh-keygen.
+
+You can test the cloud-config using Canonical's Multipass.
+>    multipass launch --name labtainer1 --cloud-init cloud-config
+Then open an SSH tunnel to the resulting IP address:
+>  ssh -AfN -L 6901:127.0.0.1:6901 -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -o "ServerAliveInterval 60" labtainer@my\_vm\_ip 
+Then access Labtainers from a browser pointed to http://localhost:6901
+
+A notional summary
+of a server or cloud deployment is provided below.  In this example, each student VM is assumed to be allocated its own IP address.  Note the provisioning
+steps below are also captured in the cloud-config file.
 
 * Provision one VM per student with an SSH Server, Docker and Docker Compose installed.
 * Add a "labtainer" user to the VM.
@@ -49,6 +52,16 @@ of such a deployment is provided below.  In this example, each student VM is ass
 * Students would then access their Labtainers from a browser pointed to http://localhost:6901
 * Direct students to retrieve their results zip files from their VM using scp, e.g.,
 >  scp labtainer@my\_vm\_ip:~/headless-labtainers/labtainer\_xfer/[lab]/\*.zip .
+
+# Developer notes
+The following assume you have cloned or otherwise replicated the Labtainers repo.
+
+You can modify the headless containers by editing the yml file and using the "-d" option on headless-labtainers.sh,
+running the script from the repo.  To modify the headless container, modify the Dockerfiles and/or the docker-entryentrypoint script.
+Rebuild the local container images from the scripts/designer/bin directory using the create\_master\_headless.sh script.
+The default will populate the headless container with the latest Labtainers distribution.  Use the "-d" option to force use of your own
+labtainers.tar created using distrib/mkdist.sh.  Note however that script assumes you have first created a Labtainers development
+environment as described in docs/development/development.pdf
 
 # Issues and ToDo
 

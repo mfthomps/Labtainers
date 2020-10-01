@@ -1,0 +1,60 @@
+#cloud-config
+#
+# Cloud Config file for Headless Labtainers.  Provisions docker, docker-compose and headless labtainers
+#
+# Replace the SSH ssh_authorized_keys with your own ssh key.
+#
+
+users:
+ - name: labtainer
+   sudo: ALL=(ALL) NOPASSWD:ALL
+   ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCqsA7lR0ks4PhVZ7P2vqormMrYlq/P4UeIrnvpgITd//o/x6W0l7Q6oOsp/bBJudB/91ZxTY7yTuXlSRIAg04SC4Fy/jpvz3Uh+Z8o/dfsd4Agoq0hOmm+UU1tC+hHQq1rwocYc2dnf79fyVa9xcL9xTKOjNNLLT7M6wwv+cTSBD+ivc40bMrt5lez/mldefu4Jsy1Z+bWNkg6BIY1LAzZ86EzcWZN7KHYzsKziNq8M8e4pDtG5a3QGf8HCUrEgCx8cbA6oNA2har2t/sALDtcEMzG/OhiBS2FopxC8aLZtAp29PPIOv5Z+S/w0NcQZnoNSXcNk+TNwOO2qZ+r0GbK/4s9LQrix0o0WfETqccBbb0KTqgTJEAzBqDITMQmG6qucU5yN0yWKPO+4CtndSp2GObnGU+LlRx8VYmacAqyn2tA1sV1bXzZJQ4nRuhbqLPDwRdMSslEiDz/5fkQEho/RLd8EuU+qGA39UgBvaNCV24Y4nYsojXcewvcTqY4T/0= mfthomps@mac-0220
+
+packages:
+ - net-tools
+
+write_files:
+- content: |
+- content: |
+   [Unit]
+   Description=Headless Labtainers
+
+   [Service]
+   Type=simple
+   WorkingDirectory=/home/labtainer/headless-labtainers
+   User=labtainer
+   ExecStart=/home/labtainer/headless-labtainers/headless-labtainers.sh
+
+   [Install]
+   WantedBy=multi-user.target
+   Alias=headless-labtainers.service
+  path: /etc/systemd/system/headless-labtainers.service
+
+runcmd:
+- apt install -y apt-transport-https ca-certificates curl software-properties-common
+- curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+- add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
+- apt update
+- cache policy docker-ce
+- apt install -y docker-ce
+- curl -L https://github.com/docker/compose/releases/download/1.21.2/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+- chmod +x /usr/local/bin/docker-compose
+
+- usermod -aG docker labtainer 
+- usermod -aG sudo labtainer 
+- usermod -aG docker ubuntu 
+
+- mkdir /home/labtainer/headless-labtainers
+- chown labtainer:labtainer /home/labtainer/headless-labtainers
+- wget -P /home/labtainer/headless-labtainers https://raw.githubusercontent.com/mfthomps/Labtainers/premaster/headless-lite/headless-labtainers.sh
+- chmod a+x /home/labtainer/headless-labtainers/headless-labtainers.sh
+- systemctl enable headless-labtainers.service
+- docker pull labtainers/labtainer.master.headless
+
+power_state:
+  delay: "now"
+  mode: reboot
+  message: Bye Bye
+  timeout: 30
+  condition: True
