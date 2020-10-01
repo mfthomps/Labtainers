@@ -26,13 +26,17 @@ is to use one of our virtual machine appliances rather than running Docker direc
 
 # Labtainers via remote server
 Headless Labtainers can be deployed on servers, e.g., on headless VMs upon which Docker Compose is installed.  
+We suggest allocating
+* 2G RAM
+* 20G Disk
+* 2 CPUs
 
 A Cloud Config file for an Ubuntu server is in headless-lite/cloud-config.  This file will create and provision
 a VM that runs the Headless Labtainers.  To use that file, replace the SSH key with your own public key, or
 a test key created with ssh-keygen.
 
 You can test the cloud-config using Canonical's Multipass.
->    multipass launch --name labtainer1 --cloud-init cloud-config
+>    multipass launch -m 2G -c 2 -d 20G --name labtainer1 --cloud-init cloud-config
 Then open an SSH tunnel to the resulting IP address:
 >  ssh -AfN -L 6901:127.0.0.1:6901 -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -o "ServerAliveInterval 60" labtainer@my\_vm\_ip 
 Then access Labtainers from a browser pointed to http://localhost:6901
