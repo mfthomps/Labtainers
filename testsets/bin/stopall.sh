@@ -1,3 +1,3 @@
 #!/bin/bash
-./vbox-client.py "controlvm SmokeTest poweroff"
-./vbox-client.py "controlvm LabtainerVM-2-smoketest poweroff"
+./vbox-client.py "controlvm SmokeTest3 poweroff"
+./vbox-client.py "controlvm LabtainerVM-2-smoketestx poweroff"

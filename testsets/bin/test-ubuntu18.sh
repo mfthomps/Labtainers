@@ -27,4 +27,4 @@ for t in $tlist; do
     cp /media/sf_SEED/$t $vmdir
 done
 
-./vbox-client.py "startvm LabtainerVM-2-smoketest"
+./vbox-client.py "startvm LabtainerVM-2-smoketestx"
