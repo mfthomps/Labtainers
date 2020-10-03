@@ -41,7 +41,7 @@ while [[ -n "$1" ]]; do
         shift
     fi
 done
-if [[ $LABTAINER_DIR == "TRUE" ]]; then
+if [[ "$LABTAINER_DEV" != "TRUE" ]]; then
     echo "Getting labtainer.tar from NPS distribution."
     wget https://nps.box.com/shared/static/afz87ok8ezr0vtyo2qtlqbfmc28zk08j.tar -O labtainer.tar
 else
