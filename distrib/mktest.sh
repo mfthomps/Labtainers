@@ -31,3 +31,4 @@ tar czf /tmp/$USER/labtainer-tests.tar trunk simlab
 mv /tmp/$USER/labtainer-tests.tar $myshare
 tar --exclude expected -czf /tmp/$USER/simlab-dist.tar simlab
 cp /tmp/$USER/simlab-dist.tar $myshare
+cp /tmp/$USER/simlab-dist.tar $here/
