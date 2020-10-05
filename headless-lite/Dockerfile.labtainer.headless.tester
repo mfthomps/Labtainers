@@ -1,0 +1,11 @@
+# Docker file for headless tester.  DO NOT PUBLISH IMAGE
+#
+
+FROM labtainers/labtainer.master.headless
+
+LABEL description="This is Docker image for the Labtainers master controller tester"
+
+
+COPY --chown=labtainer:labtainer simlab-dist.tar /home/labtainer
+RUN tar xf simlab-dist.tar
+RUN rm simlab-dist.tar

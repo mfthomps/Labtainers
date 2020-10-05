@@ -4,13 +4,14 @@ while [[ -n "$1" ]]; do
         echo "-d to use your local yml file"
         echo "-n to supress updates on the container, e.g. if you created your own labtainer.tar"
         exit 0
-    fi
-    if [[ "$1" == -n ]]; then
+    elif [[ "$1" == -n ]]; then
         export LABTAINER_UPDATE="FALSE"
         shift
-    fi
-    if [[ "$1" == -d ]]; then
+    elif [[ "$1" == -d ]]; then
         LABTAINER_DEV="TRUE"
+        shift
+    elif [[ "$1" == -t ]]; then
+        LABTAINER_TEST="TRUE"
         shift
     fi
 done
@@ -30,6 +31,9 @@ else
     if [[ "$LABTAINER_DEV" == "TRUE" ]];then
         echo "Using local yml"
         cp $LABTAINER_DIR/headless-lite/docker-compose.yml .
+    elif [[ "$LABTAINER_TEST" == "TRUE" ]];then
+        echo "Using labtainer.headless.tester"
+        sed s/labtainer.master.headless/labtainer.headless.tester/ $LABTAINER_DIR/headless-lite/docker-compose.yml >docker.compose.yml
     else
         curl https://raw.githubusercontent.com/mfthomps/Labtainers/premaster/headless-lite/docker-compose.yml > docker-compose.yml 
     fi
