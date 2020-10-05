@@ -36,7 +36,8 @@ else
         cp $LABTAINER_DIR/headless-lite/docker-compose.yml .
     elif [[ "$LABTAINER_TEST" == "TRUE" ]];then
         echo "Using labtainer.headless.tester"
-        sed s/labtainer.master.headless/labtainer.headless.tester/ $LABTAINER_DIR/headless-lite/docker-compose.yml >docker.compose.yml
+        curl https://raw.githubusercontent.com/mfthomps/Labtainers/premaster/headless-lite/docker-compose.yml > docker-compose.yml 
+        sed -i s%labtainers/labtainer.master.headless%testregistry:5000/labtainer.headless.tester% docker-compose.yml
     else
         curl https://raw.githubusercontent.com/mfthomps/Labtainers/premaster/headless-lite/docker-compose.yml > docker-compose.yml 
     fi

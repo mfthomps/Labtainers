@@ -1,6 +1,7 @@
 TEST_FLAG=""
-if [[ "$1" == -t ]]; then
-    TEST_FLAG="-t"
+if [[ "$1" == "-t" ]]; then
+	echo "TEST_FLAG set to -t" >>/tmp/headless.log
+    TEST_FLAG=-t
 fi
 apt-get install -y net-tools apt-transport-https ca-certificates curl software-properties-common
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
@@ -25,7 +26,7 @@ mkdir -p /home/labtainer/headless-labtainers
 chown labtainer:labtainer /home/labtainer/headless-labtainers
 wget -P /home/labtainer/headless-labtainers https://raw.githubusercontent.com/mfthomps/Labtainers/premaster/headless-lite/headless-labtainers.sh
 chmod a+x /home/labtainer/headless-labtainers/headless-labtainers.sh
-tee -a /etc/systemd/system/headless-labtainers.service > /dev/null <<EOT
+tee -a /lib/systemd/system/headless-labtainers.service > /dev/null <<EOT
    [Unit]
    Description=Headless Labtainers
 
@@ -40,7 +41,6 @@ tee -a /etc/systemd/system/headless-labtainers.service > /dev/null <<EOT
    Alias=headless-labtainers.service
 EOT
 echo "%sudo ALL=(ALL) NOPASSWD:ALL" >>/etc/sudoers
-chown root:docker /var/run/docker.sock
 
 if [[ -z "$TEST_FLAG" ]]; then
     docker pull labtainers/labtainer.master.headless
@@ -50,6 +50,10 @@ else
     cd /home/labtainer/headless-labtainers
     chmod a+x prep-testregistry.sh testreg-add.py
     ./prep-testregistry.sh
-    docker pull testregistry:5000/labtainer.master.headless
+    docker pull testregistry:5000/labtainer.headless.tester
+    echo "Pulled tester" >>/tmp/headless.log
 fi
+docker pull accetto/ubuntu-vnc-xfce
+systemctl enable headless-labtainers.service
 systemctl start headless-labtainers.service
+chown root:docker /var/run/docker.sock
