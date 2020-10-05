@@ -16,6 +16,9 @@ while [[ -n "$1" ]]; do
     fi
 done
 
+if [[ "$LABTAINER_TEST" == "TRUE" ]];then
+   export TEST_REGISTRY=TRUE
+fi
 if [[ -d ./mystuff ]]; then
     echo "Running Headless Labtainers."
     docker-compose up
