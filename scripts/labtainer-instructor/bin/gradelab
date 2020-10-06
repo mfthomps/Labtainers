@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import sys
 import os
 import shutil
@@ -285,7 +285,10 @@ def doGrade(labname, use_test_registry, debug, redo, update, regress_test=None, 
     saki.checkBulkSaki(labname, logger)
     if not labutils.IsContainerCreated(grade_container):
         docker0_IPAddr = labutils.getDocker0IPAddr()
-        add_host_param = '--add-host my_host:%s' % (docker0_IPAddr)
+        if docker0_IPAddr is not None:
+            add_host_param = '--add-host my_host:%s' % (docker0_IPAddr)
+        else:
+            add_host_param = '' 
         cmd = "docker create -t --name=%s %s --hostname=%s %s" % (grade_container, add_host_param, grade_container, grade_image)
         logger.debug("Command to execute was (%s)" % cmd)
         ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
