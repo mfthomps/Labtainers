@@ -19,6 +19,10 @@ done
 if [[ "$LABTAINER_TEST" == "TRUE" ]];then
    export TEST_REGISTRY=TRUE
 fi
+#
+#  guess this needs to be constantly changed
+#
+sudo chown root:docker /var/run/docker.sock
 if [[ -d ./mystuff ]]; then
     echo "Running Headless Labtainers."
     docker-compose up

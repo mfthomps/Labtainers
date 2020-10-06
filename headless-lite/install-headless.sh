@@ -1,6 +1,10 @@
+#!/bin/bash
+#
+# This assumes user 1000 is labtainer
+#
 TEST_FLAG=""
 if [[ "$1" == "-t" ]]; then
-	echo "TEST_FLAG set to -t" >>/tmp/headless.log
+    echo "TEST_FLAG set to -t" 
     TEST_FLAG=-t
 fi
 apt-get install -y net-tools apt-transport-https ca-certificates curl software-properties-common
@@ -13,7 +17,6 @@ curl -L https://github.com/docker/compose/releases/download/1.21.2/docker-compos
 chmod +x /usr/local/bin/docker-compose
 
 
-adduser labtainer --gecos "" --disabled-password
 mkdir /home/labtainer/.ssh
 echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCqsA7lR0ks4PhVZ7P2vqormMrYlq/P4UeIrnvpgITd//o/x6W0l7Q6oOsp/bBJudB/91ZxTY7yTuXlSRIAg04SC4Fy/jpvz3Uh+Z8o/dfsd4Agoq0hOmm+UU1tC+hHQq1rwocYc2dnf79fyVa9xcL9xTKOjNNLLT7M6wwv+cTSBD+ivc40bMrt5lez/mldefu4Jsy1Z+bWNkg6BIY1LAzZ86EzcWZN7KHYzsKziNq8M8e4pDtG5a3QGf8HCUrEgCx8cbA6oNA2har2t/sALDtcEMzG/OhiBS2FopxC8aLZtAp29PPIOv5Z+S/w0NcQZnoNSXcNk+TNwOO2qZ+r0GbK/4s9LQrix0o0WfETqccBbb0KTqgTJEAzBqDITMQmG6qucU5yN0yWKPO+4CtndSp2GObnGU+LlRx8VYmacAqyn2tA1sV1bXzZJQ4nRuhbqLPDwRdMSslEiDz/5fkQEho/RLd8EuU+qGA39UgBvaNCV24Y4nYsojXcewvcTqY4T/0= mfthomps@mac-0220" > /home/labtainer/.ssh/authorized_keys
 chown labtainer:labtainer /home/labtainer/.ssh/authorized_keys
