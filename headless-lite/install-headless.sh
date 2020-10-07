@@ -56,7 +56,6 @@ else
     docker pull testregistry:5000/labtainer.headless.tester
     echo "Pulled tester" >>/tmp/headless.log
 fi
-echo "frank@beans.com" > /home/labtainer/headless-labtainers/labtainers/email.txt
 
 docker pull accetto/ubuntu-vnc-xfce
 systemctl enable headless-labtainers.service

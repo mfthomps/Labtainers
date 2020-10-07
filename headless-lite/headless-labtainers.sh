@@ -42,6 +42,7 @@ else
         echo "Using labtainer.headless.tester"
         curl https://raw.githubusercontent.com/mfthomps/Labtainers/premaster/headless-lite/docker-compose.yml > docker-compose.yml 
         sed -i s%labtainers/labtainer.master.headless%testregistry:5000/labtainer.headless.tester% docker-compose.yml
+        echo "frank@beans.com" > /home/labtainer/headless-labtainers/labtainers/email.txt
     else
         curl https://raw.githubusercontent.com/mfthomps/Labtainers/premaster/headless-lite/docker-compose.yml > docker-compose.yml 
     fi
