@@ -28,7 +28,8 @@ $here/fix-git-dates.py simlab $tmp_dir $branch
 cd $tmp_dir
 mkdir -p /tmp/$USER
 tar czf /tmp/$USER/labtainer-tests.tar trunk simlab
-mv /tmp/$USER/labtainer-tests.tar $myshare
+cp /tmp/$USER/labtainer-tests.tar $myshare
+mv /tmp/$USER/labtainer-tests.tar $here/
 tar --exclude expected -czf /tmp/$USER/simlab-dist.tar simlab
 cp /tmp/$USER/simlab-dist.tar $myshare
-cp /tmp/$USER/simlab-dist.tar $here/
+mv /tmp/$USER/simlab-dist.tar $here/
