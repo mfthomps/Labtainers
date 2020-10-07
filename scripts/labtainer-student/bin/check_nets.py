@@ -49,7 +49,7 @@ def checkContainers():
     lablist = labutils.GetListRunningLab()
     if len(lablist) == 0:
         return True
-    else
+    else:
         return False
 
 def getRoutes():
