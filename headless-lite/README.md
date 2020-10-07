@@ -97,6 +97,12 @@ Time on the labtainer container is in UTC.  Make localtime?
 Lab guides and other references tell students their results are found in ~/labtainer\_xfer/[lab].  How best to avoid confusion since
 with Headless Labtainers, that directory on the headless container is mapped to ~/headless-labtainers/labtainer\_xfer on the student's computer?
 
+# VBox guest additions:
+* Mount the CD-ROM with the command sudo mount /dev/cdrom /media/cdrom.
+* Change into the mounted directory with the command cd /media/cdrom.
+* sudo apt-get install -y dkms build-essential linux-headers-generic linux-headers-$(uname -r)
+* sudo su - 
+* ./VBoxLinuxAdditions.run.
 
 
 The following is mostly OBE.  Revise/remove?
