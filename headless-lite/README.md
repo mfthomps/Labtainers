@@ -1,6 +1,7 @@
 # Headless Labtainers
 Run Labtainers on systems that lack X11 desktops.  This assumes you have installed Docker, e.g., Docker Desktop on a Mac or
-Windows machine.  Headless Labtainers are an alternative to the Labtainer VM Appliance.
+Windows machine. Cloud-based solutions are also supported using remote servers.  Headless Labtainers are an alternative to 
+the Labtainer VM Appliance.
 
 # Quick Start 
 Execute the ./headless-labtainers.sh script.  Or download from 
@@ -45,7 +46,8 @@ A notional summary
 of a server or cloud deployment is provided below.  In this example, each student VM is assumed to be allocated its own IP address.  Note the provisioning
 steps below are also captured in the cloud-config file.
 
-* Provision one VM per student with an SSH Server, Docker and Docker Compose installed.
+* Provision one VM per student with an SSH Server, Docker and Docker Compose installed. (**Warning** Use of snap.docker is not supported,
+use the Docker distributed by Docker. Do not select the "Docker" from Ubuntu's system install menus.) 
 * Add a "labtainer" user to the VM.
 * Add the headless-labtainers.sh script to the VM, run it, and configure it to run as a service from ~/labtainers-student as user labtainer.
 * Allocate at least 2GB and 2 cores to each VM.
@@ -104,6 +106,12 @@ with Headless Labtainers, that directory on the headless container is mapped to 
 * sudo su - 
 * ./VBoxLinuxAdditions.run.
 
+# Disable unattended updates
+Automated updates routinely break installation software by holding locks.
+* sudo dpkg-reconfigure unattended-upgrades
+* sudo apt remove unattended-upgrades
+
+Create a snapshot after the above two steps are done.
 
 The following is mostly OBE.  Revise/remove?
 # Build the labtainer.master File
