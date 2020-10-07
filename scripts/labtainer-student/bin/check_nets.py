@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 This software was created by United States Government employees at 
 The Center for Cybersecurity and Cyber Operations (C3O) 
@@ -32,6 +32,8 @@ import subprocess
 import shlex
 import sys
 import os
+import labutils
+import LabtainerLogging
 '''
 Look at networking artifacts potentially left behind by 
 Docker failures to clean up after itself.  If -f given as
@@ -44,19 +46,11 @@ example loopback problem:
 '''
 
 def checkContainers():
-    cmd = 'docker ps'
-    retval = {}
-    ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    output = ps.communicate()
-    retval = False
-    for line in output[0].decode('utf-8').splitlines(True):
-        if not line.startswith('CONTAINER'):
-            parts = line.split()
-            name = parts[-1]
-            print('Container %s running, cannot run this diagnostic until all labs stopped' % name)
-            print('Use stoplab, or docker stop to stop containers')
-            retval = True
-    return retval
+    lablist = labutils.GetListRunningLab()
+    if len(lablist) == 0:
+        return True
+    else
+        return False
 
 def getRoutes():
     cmd = 'route -n'
@@ -150,4 +144,5 @@ if __name__ == '__main__':
     fix = False
     if len(sys.argv) > 1 and sys.argv[1] == '-f':
         fix = True
+    labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", "check_nets", "../../config/labtainer.config")
     checkNets(fix)
