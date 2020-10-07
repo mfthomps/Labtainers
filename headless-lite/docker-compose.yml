@@ -22,6 +22,7 @@ services:
 # Set to FALSE to prevent updates from latest distribution, e.g., for testing framework changes.
       - LABTAINER_UPDATE=${LABTAINER_UPDATE}
       - TEST_REGISTRY=${TEST_REGISTRY}
+      - USER=${USER}
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - /var/run/docker.sock:/var/run/docker.sock
