@@ -46,11 +46,12 @@ example loopback problem:
 '''
 
 def checkContainers():
+    ''' return true of labs are running '''
     lablist = labutils.GetListRunningLab()
     if len(lablist) == 0:
-        return True
-    else:
         return False
+    else:
+        return True
 
 def getRoutes():
     cmd = 'route -n'
