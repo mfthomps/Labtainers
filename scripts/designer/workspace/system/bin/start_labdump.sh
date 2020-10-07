@@ -22,9 +22,8 @@ while read line; do
     # name of docker network
     net=${strarr[1]}
     # MAC of ethernet interface
-    mac=${strarr[4]}
-    ( /bin/labdump.sh $br $net $mac $SERVER $PORT & )
-    echo "started for $br $net $mac $SERVER $PORT"
+    ( /bin/labdump.sh $br $net $SERVER $PORT & )
+    echo "started for $br $net $SERVER $PORT"
 done </var/tmp/net_map.txt
 mkdir -p /tmp/wait_tap_dir/lock
 sleep infinity
