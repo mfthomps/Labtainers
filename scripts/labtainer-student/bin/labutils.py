@@ -131,11 +131,17 @@ def get_ip_address(ifname):
 def get_hw_address(ifname):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     if sys.version_info >=(3,0):
-        info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', bytes(ifname, 'utf-8')[:15]))
-        return ':'.join('%02x' % b for b in info[18:24])
+        try:
+            info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', bytes(ifname, 'utf-8')[:15]))
+            return ':'.join('%02x' % b for b in info[18:24])
+        except:
+            return None
     else:
-        info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', str(ifname[:15])))
-        return ':'.join(['%02x' % ord(char) for char in info[18:24]])
+        try:
+            info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', str(ifname[:15])))
+            return ':'.join(['%02x' % ord(char) for char in info[18:24]])
+        except:
+            return None
 
 def get_new_mac(ifname):
     ''' use last two byte of mac address to generate a new mac
@@ -1136,6 +1142,7 @@ def MakeNetMap(start_config, mycontainer_name, container_user):
                 ''' find if it matches a tapped subnet in this lab '''
                 for subnet in nlist:
                     if subnet == net:
+                        ''' NOTE mac is no longer used, include for compatability.  Remove later '''
                         mac = get_hw_address(eth)
                         new_line = '%s %s\n' % (line, mac)
                         fh.write(new_line)
