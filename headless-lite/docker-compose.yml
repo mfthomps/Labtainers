@@ -28,6 +28,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${HOME}/headless-labtainers/labtainer_xfer:/home/labtainer/labtainer_xfer:rw
       - ${HOME}/headless-labtainers/labtainers:/home/labtainer/.local/share/labtainers:rw
+      - /tmp/${USER}/wait_tap_dir:/tmp/${USER}/wait_tap_dir
+
     extra_hosts:
       - "testregistry:10.20.200.41"
     depends_on:
