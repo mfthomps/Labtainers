@@ -3,6 +3,7 @@ import json
 import os
 import subprocess
 '''
+*****SHOULD NOT BE USED: labutils docker create passes DNS info *******
 Update the docker/daemon.json file to reflect the local dns and the google dns.
 Avoid trouble with sites that block use of external dns servers.
 '''

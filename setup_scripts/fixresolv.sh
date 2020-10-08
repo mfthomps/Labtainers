@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+#  SHOULD NOT BE USED, labutils docker create sets the DNS
+#
 : <<'END'
 This software was created by United States Government employees at 
 The Center for the Information Systems Studies and Research (CISR) 
