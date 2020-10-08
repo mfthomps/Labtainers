@@ -366,16 +366,20 @@ def GetDNS_NMCLI():
 def GetDNS(): 
     dns_param = ''
     dns_param = '--dns=8.8.8.8'
-    cmd="systemd-resolve --status | grep 'DNS Servers:'"
-    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    output = ps.communicate()
-    if len(output[0]) > 0: 
-        for line in output[0].decode('utf-8').splitlines(True):
-            dns_param = '--dns=%s %s' % (line.split()[2].strip(), dns_param)
-            ''' just take first '''
-            break
-    else:
-        dns_param = GetDNS_NMCLI()
+    labtainer_dns = os.getenv('LABTAINER_DNS')
+    if labtainer_dns is not None and len(labtainer_dns)>0:
+        dns_param = '--dns=%s %s' % (labtainer_dns.strip(), dns_param)
+    else: 
+        cmd="systemd-resolve --status | grep 'DNS Servers:'"
+        ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        output = ps.communicate()
+        if len(output[0]) > 0: 
+            for line in output[0].decode('utf-8').splitlines(True):
+                dns_param = '--dns=%s %s' % (line.split()[2].strip(), dns_param)
+                ''' just take first '''
+                break
+        else:
+            dns_param = GetDNS_NMCLI()
     return dns_param
 
 def GetX11SSH():
