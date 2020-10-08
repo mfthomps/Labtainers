@@ -1273,10 +1273,14 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
             if container.lab_gateway is not None:
                 cmd = "docker exec %s bash -c 'sudo /usr/bin/set_default_gw.sh %s'" % (mycontainer_name, 
                         container.lab_gateway)
+                DockerCmd(cmd)
+                '''
+                ignore error.  TBD filter errors due to my_host not being set
                 if not DockerCmd(cmd):
                     logger.error('Fatal error in docker command %s' % cmd) 
                     results.append(False)
                     return
+                '''
                 cmd = "docker exec %s bash -c 'sudo echo \"nameserver %s\" >/etc/resolv.conf'" % (mycontainer_name, 
                         container.lab_gateway)
                 if not DockerCmd(cmd):
