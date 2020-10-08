@@ -23,8 +23,12 @@ import LabtainerLogging
 Use xdotool to simulate a lab being performed, as driven by
 a simthis.txt file
 '''
-def isProcRunning(proc_string):
+def isProcRunning(proc_string, am_container=False):
     ''' return True if given string in ps -ao args '''
+    if am_container:
+        ''' TBD figure scheme to determine which container and run a docker exec ps?'''
+        time.sleep(4)
+        return False
     time.sleep(0.5)
     cmd = 'ps -ao args'
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -65,6 +69,10 @@ class SimLab():
         self.current_wid = None
         self.logger = logger
         self.in_file = in_file
+        self.am_container = False
+        if not isProcRunning('dockerd'):
+            ''' running as master container, no ps for you '''
+            self.am_container = True 
         print('set verbose to %s' % verbose_level)
         self.verbose_level = verbose_level
 
@@ -212,7 +220,7 @@ class SimLab():
                     cmd = self.multilineCommand(line, fh)
                     if len(cmd.strip()) > 0:
                         self.typeLine(cmd.strip())
-                        while isProcRunning(cmd.strip()):
+                        while isProcRunning(cmd.strip(), am_container=self.am_container):
                             print('%s running, wait' % cmd.strip())
                             time.sleep(1)
                     # at least one to avoid timestamp collisions
@@ -370,7 +378,7 @@ class SimLab():
             self.typeString(params.strip())
         elif cmd == 'type_command':
             self.typeLine(params.strip())
-            while isProcRunning(params):
+            while isProcRunning(params, am_container=self.am_container):
                 print('%s running, wait' % params)
                 time.sleep(1)
         elif cmd == 'command_file':
@@ -397,7 +405,7 @@ class SimLab():
         elif cmd == 'wait_net':
             self.waitNetURL(self.labname, params)
         elif cmd == 'wait_proc':
-            while isProcRunning(params):
+            while isProcRunning(params, am_container=self.am_container):
                 print('%s running, wait' % params)
                 time.sleep(1)
         elif cmd == 'sleep':
