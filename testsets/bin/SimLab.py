@@ -55,7 +55,6 @@ class SimLab():
         self.current_wid = None
         self.logger = logger
         self.in_file = in_file
-        self.recent_window = None
         print('set verbose to %s' % verbose_level)
         self.verbose_level = verbose_level
 
@@ -69,16 +68,25 @@ class SimLab():
  
     def isProcInContainer(self, name):
         retval = False
-        if self.recent_window is not None:
-            image = '%s.%s' % (self.labname, self.recent_window)
+        cmd = 'getactivewindow -- getwindowname' 
+        title = self.dotool(cmd)
+        if '@' in title:
+            parts = title.split('@')
+            container = parts[1].strip() 
+            if ':' in container:
+                container = container.rsplit(':')[0]
+            image = '%s.%s' % (self.labname, container)
+            #print('container image is %s' % image)
             container_id = labutils.GetContainerID(image)
-            cmd = 'docker top %s' % container_id
+            cmd = 'docker top %s ao pid,cmd' % container_id
+            #print('cmd %s' % cmd)
             ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             output = ps.communicate()
             for line in output[0].decode('utf-8').splitlines():
                 #print('is %s in %s' % (name, line))
                 if name in output[0].decode('utf-8'):
                     retval = True
+                    break
         else:
             print('No recent winow for isProcInContainer')
             exit(1)
@@ -109,9 +117,6 @@ class SimLab():
             the name against the getWindowname results.
         '''
         ''' hack for tracking which container has focus for docker top command '''
-        if '@' in name:
-            parts = name.split('@')
-            self.recent_window = parts[1] 
         wid = None
         count = 0
         while wid is None or len(wid) == 0:
