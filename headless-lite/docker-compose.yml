@@ -23,7 +23,7 @@ services:
       - LABTAINER_UPDATE=${LABTAINER_UPDATE}
       - TEST_REGISTRY=${TEST_REGISTRY}
 # Use LABTAINER_DNS to force containers to use a given DNS, for networks that prohibit extern DNS servrs
-      - USER=${USER}
+      - USER=labtainer
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - /var/run/docker.sock:/var/run/docker.sock
