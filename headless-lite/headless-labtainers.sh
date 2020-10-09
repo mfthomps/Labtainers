@@ -19,10 +19,6 @@ done
 if [[ "$LABTAINER_TEST" == "TRUE" ]];then
    export TEST_REGISTRY=TRUE
 fi
-#
-#  guess this needs to be constantly changed
-#
-sudo chown root:docker /var/run/docker.sock
 if [[ -d ./mystuff ]]; then
     echo "Running Headless Labtainers."
     docker-compose up
@@ -45,6 +41,10 @@ else
         echo "frank@beans.com" > /home/labtainer/headless-labtainers/labtainers/email.txt
         labtainer_dns=$(systemd-resolve --status | grep "Current DNS S" | awk '{print $4}')
         sed -i "/TEST_REGISTRY.*/a \ \ \ \ \ \ - LABTAINER_DNS=$labtainer_dns" docker-compose.yml
+        #
+        #  guess this needs to be constantly changed
+        #
+        sudo chown root:docker /var/run/docker.sock
     else
         curl https://raw.githubusercontent.com/mfthomps/Labtainers/premaster/headless-lite/docker-compose.yml > docker-compose.yml 
     fi
