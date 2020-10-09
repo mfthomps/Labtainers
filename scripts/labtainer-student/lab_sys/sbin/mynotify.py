@@ -107,8 +107,17 @@ with open(notify_file) as fh:
                 logger.debug('could not add watch for %s %s' % (watch.path, watch.flag))
 #
 # forever loop responding to inotify events
+# Write prescribed output to timestamped files having 
+# prescribed names.  Use ad-hoc hueristics to determine
+# if multiple events were due to a single script, and attempt
+# to merge all such output into the same timestamp.
 #
 while True:
+    last_file = None
+    last_pid = None
+    cur_pid = None
+    last_file_time = 0
+    last_outfile = None
     for event in inotify.read():
         print(event)
         showMask(event.mask)
@@ -144,20 +153,42 @@ while True:
             if cmd.startswith('sudo'):
                 cmd = cmd[5:]
                 cmd_user = 'root'
+        if cmd is not None: 
+            sys_cmd = 'pgrep %s' % cmd 
+            child = subprocess.Popen(sys_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            output = child.communicate()
+            if len(output[0]) > 0:
+                cur_pid = output[0].strip()
+        else:
+            cur_pid = None
 
         ''' determine if we should append to an existig output file '''
         is_a_file = False
         if not os.path.isfile(notifyoutfile_ts):
-            ''' no file, if from previous second, use that as hack to merge with output from command '''
-            now = now -1
-            ts = time.strftime('%Y%m%d%H%M%S', time.localtime(now))
-            tmpfile = '%s.%s' % (notifyoutfile, ts)
-            if os.path.isfile(tmpfile):
-                notifyoutfile_ts = tmpfile
-                is_a_file = True
+            if notifyoutfile == last_outfile:
+                ''' sort of support multiple notify events from one script file '''
+                if cur_pid is not None and cur_pid == last_pid:
+                    is_a_file = True
+                    notifyoutfile_ts = last_file
+                else:
+                    ''' no file, if from previous second, use that as hack to merge with output from command '''
+                    if (now - last_file_time) < 1:
+                        is_a_file = True
+                        notifyoutfile_ts = last_file
+            else:
+                now = now - 1
+                ts = time.strftime('%Y%m%d%H%M%S', time.localtime(now))
+                tmpfile = '%s.%s' % (notifyoutfile, ts)
+                if os.path.isfile(tmpfile):
+                    notifyoutfile_ts = tmpfile
+                    is_a_file = True
         else:
             is_a_file = True
-          
+        
+        last_file_time = now 
+        last_file = notifyoutfile_ts
+        last_pid = cur_pid
+        last_outfile = notifyoutfile
         if is_a_file:    
             ''' existing file, append to it '''
             if notify_cb is not None:
