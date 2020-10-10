@@ -47,6 +47,7 @@ echo "%sudo ALL=(ALL) NOPASSWD:ALL" >>/etc/sudoers
 
 if [[ -z "$TEST_FLAG" ]]; then
     docker pull labtainers/labtainer.master.headless
+    docker pull accetto/ubuntu-vnc-xfce
 else
     wget -P /home/labtainer/headless-labtainers https://raw.githubusercontent.com/mfthomps/Labtainers/premaster/setup_scripts/prep-testregistry.sh
     wget -P /home/labtainer/headless-labtainers https://raw.githubusercontent.com/mfthomps/Labtainers/premaster/setup_scripts/testreg-add.py
@@ -55,9 +56,9 @@ else
     ./prep-testregistry.sh
     docker pull testregistry:5000/labtainer.headless.tester
     echo "Pulled tester" >>/tmp/headless.log
+    docker pull testregistry:5000/ubuntu-vnc-xfce
 fi
 
-docker pull accetto/ubuntu-vnc-xfce
 systemctl enable headless-labtainers.service
 systemctl start headless-labtainers.service
 chown root:docker /var/run/docker.sock

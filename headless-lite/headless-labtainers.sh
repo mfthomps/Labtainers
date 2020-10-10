@@ -38,6 +38,7 @@ else
         echo "Using labtainer.headless.tester"
         curl https://raw.githubusercontent.com/mfthomps/Labtainers/premaster/headless-lite/docker-compose.yml > docker-compose.yml 
         sed -i s%labtainers/labtainer.master.headless%testregistry:5000/labtainer.headless.tester% docker-compose.yml
+        sed -i s%accetto/ubuntu-vnc-xfce%testregistry:5000/ubuntu-vnc-xfce% docker-compose.yml
         echo "frank@beans.com" > /home/labtainer/headless-labtainers/labtainers/email.txt
         labtainer_dns=$(systemd-resolve --status | grep "Current DNS S" | awk '{print $4}')
         sed -i "/TEST_REGISTRY.*/a \ \ \ \ \ \ - LABTAINER_DNS=$labtainer_dns" docker-compose.yml
