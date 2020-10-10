@@ -112,12 +112,12 @@ with open(notify_file) as fh:
 # if multiple events were due to a single script, and attempt
 # to merge all such output into the same timestamp.
 #
+last_file = None
+last_pid = None
+cur_pid = None
+last_file_time = 0
+last_outfile = None
 while True:
-    last_file = None
-    last_pid = None
-    cur_pid = None
-    last_file_time = 0
-    last_outfile = None
     for event in inotify.read():
         print(event)
         showMask(event.mask)
@@ -154,7 +154,7 @@ while True:
                 cmd = cmd[5:]
                 cmd_user = 'root'
         if cmd is not None: 
-            sys_cmd = 'pgrep %s' % cmd 
+            sys_cmd = 'pgrep %s' % os.path.basename(cmd)
             child = subprocess.Popen(sys_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             output = child.communicate()
             if len(output[0]) > 0:
