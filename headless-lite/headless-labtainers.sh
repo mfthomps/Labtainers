@@ -1,4 +1,11 @@
 #!/bin/bash
+function do_up {
+   echo "Open a browser and goto http://localhost:6901/vnc.html?password="
+   echo "No password is needed, just click 'submit' if prompted."
+   echo "Use ctrl-C to stop Headless Labtainers."
+   docker-compose up >> /tmp/headless.log
+   echo "Your results are in ~/headless-labtainers/labtainer_xfer"
+}
 while [[ -n "$1" ]]; do
     if [[ "$1" == -h ]]; then
         echo "-d to use your local yml file"
@@ -21,7 +28,7 @@ if [[ "$LABTAINER_TEST" == "TRUE" ]];then
 fi
 if [[ -d ./mystuff ]]; then
     echo "Running Headless Labtainers."
-    docker-compose up
+    do_up
 else
     echo "Installing and running Headless Labtainers."
     mkdir -p ~/headless-labtainers
@@ -49,7 +56,7 @@ else
     else
         curl https://raw.githubusercontent.com/mfthomps/Labtainers/premaster/headless-lite/docker-compose.yml > docker-compose.yml 
     fi
-    docker-compose up
+    do_up
     HEADLESS_DIR=`pwd`
     echo "Add $HEADLESS_DIR to your PATH environment variable and run headless-labtainers from there in the future."
 fi
