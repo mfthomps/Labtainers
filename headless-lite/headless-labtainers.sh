@@ -33,7 +33,7 @@ else
     echo "Installing and running Headless Labtainers."
     mkdir -p ~/headless-labtainers
     SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-    cp $SCRIPTPATH/headless-labtainers.sh ~/headless-labtainers
+    cp "$SCRIPTPATH/headless-labtainers.sh" ~/headless-labtainers
     cd ~/headless-labtainers
     mkdir -p mystuff
     mkdir -p labtainer_xfer
