@@ -29,7 +29,7 @@ is to use one of our virtual machine appliances rather than running Docker direc
 Headless Labtainers can be deployed on servers, e.g., on headless VMs upon which Docker Compose is installed.  
 We suggest allocating
 * 2G RAM
-* 20G Disk
+* 40G Disk
 * 2 CPUs
 
 A Cloud Config file for an Ubuntu server is in headless-lite/cloud-config.  This file will create and provision
@@ -37,7 +37,7 @@ a VM that runs the Headless Labtainers.  To use that file, replace the SSH key w
 a test key created with ssh-keygen.
 
 You can test the cloud-config using Canonical's Multipass.
->    multipass launch -m 2G -c 2 -d 20G --name labtainer1 --cloud-init cloud-config
+>    multipass launch -m 2G -c 2 -d 40G --name labtainer1 --cloud-init cloud-config
 Then open an SSH tunnel to the resulting IP address:
 >  ssh -AfN -L 6901:127.0.0.1:6901 -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -o "ServerAliveInterval 60" labtainer@my\_vm\_ip 
 Then access Labtainers from a browser pointed to http://localhost:6901
@@ -99,22 +99,25 @@ Time on the labtainer container is in UTC.  Make localtime?
 Lab guides and other references tell students their results are found in ~/labtainer\_xfer/[lab].  How best to avoid confusion since
 with Headless Labtainers, that directory on the headless container is mapped to ~/headless-labtainers/labtainer\_xfer on the student's computer?
 
-# VBox guest additions:
-* Mount the CD-ROM with the command sudo mount /dev/cdrom /media/cdrom.
-* Change into the mounted directory with the command cd /media/cdrom.
-* sudo apt-get install -y dkms build-essential linux-headers-generic linux-headers-$(uname -r)
-* sudo su - 
-* ./VBoxLinuxAdditions.run.
-
 # Disable unattended updates
 Automated updates routinely break installation software by holding locks.
 * sudo dpkg-reconfigure unattended-upgrades
 * sudo apt remove unattended-upgrades
 
-Create a snapshot after the above two steps are done.
+# VBox guest additions:
+* sudo mkdir /dev/cdrom
+* sudo mount /dev/cdrom /media/cdrom.
+* cd /media/cdrom.
+* sudo apt-get install -y dkms build-essential linux-headers-generic linux-headers-$(uname -r)
+* sudo su 
+* ./VBoxLinuxAdditions.run.
 
-The following is mostly OBE.  Revise/remove?
+* sudo usermod -G vboxsf -a $USER
+
+Create a snapshot after the above two steps are done.  Call it ready-disabled-updates
+
 # Build the labtainer.master File
+The following is mostly OBE.  Revise/remove?
 
 Here are the instructions to create a new labtainer.master file.
 
