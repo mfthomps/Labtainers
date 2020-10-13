@@ -2,7 +2,7 @@
 #
 # Create a master Labtainer image for use in running Labtainers from a container
 # on any system that has Docker installed, withou having to install Labtainers.
-# Thanks for Olivier Berger for this contribution.
+# Thanks to Olivier Berger and Allen Harper for this contribution.
 #
 here=`pwd`
 cd ../
