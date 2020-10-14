@@ -38,8 +38,10 @@ a test key created with ssh-keygen.
 
 You can test the cloud-config using Canonical's Multipass.
 >    multipass launch -m 2G -c 2 -d 40G --name labtainer1 --cloud-init cloud-config
+
 Then open an SSH tunnel to the resulting IP address:
 >  ssh -AfN -L 6901:127.0.0.1:6901 -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -o "ServerAliveInterval 60" labtainer@my\_vm\_ip 
+
 Then access Labtainers from a browser pointed to http://localhost:6901
 
 A notional summary
@@ -54,6 +56,7 @@ use the Docker distributed by Docker. Do not select the "Docker" from Ubuntu's s
 * Provide students with SSH access to the VM, e.g., allocate SSH keys or configure the VMs to authenticte via LDAP.
 * Direct students to configure their SSH private key (if needed) and to use an SSH command from a PowerShell or Mac terminal such as:
 >  ssh -AfN -L 6901:127.0.0.1:6901 -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -o "ServerAliveInterval 60" labtainer@my\_vm\_ip
+
    where "my\_vm\_ip" is the IP of their VM, or host witin their SSH config file.
 * Students would then access their Labtainers from a browser pointed to http://localhost:6901
 * Direct students to retrieve their results zip files from their VM using scp, e.g.,
