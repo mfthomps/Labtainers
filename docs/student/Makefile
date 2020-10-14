@@ -1,7 +1,5 @@
-all: InstallingVB-LinuxWin.pdf labtainer-student.pdf
+all: labtainer-student.pdf
 
-InstallingVB-LinuxWin.pdf: InstallingVB-LinuxWin.docx
-	soffice --convert-to pdf InstallingVB-LinuxWin.docx --headless
 
 labtainer-student.pdf: InstallingVB-LinuxWin.pdf labtainer-student.tex
 	pdflatex labtainer-student
