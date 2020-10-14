@@ -77,7 +77,6 @@ It would be nice if the password can be suppressed entirely.
 The VNC_RESOLTION controls the desktop size.  How best to let the user adjust this, other than editing a file?
 Using -resize=scale, let student adjust to taste?
 
-Get a full smoketest running on a headless rig.
 Create a user's guide that details headless-specific issues such as changing resolution, running, etc.
 
 X11 applications such as wireshark often start with blank windows, requiring a restart of the application.  The problem
@@ -88,33 +87,32 @@ For now, users sit through long downloads as they do labs.  For example, if they
 labtainer.firefox base, and then run one, the are warned of a download of hundreds of MB.  Better to download all
 base images on first start?   If added, need an ENV to supress it for testing.
 
-What do we say/know about the security of Windows/Mac Docker containers environments?  We never say people can trust Docker or our 
-containers, suggesting instead that the VM provides the isolation from sensitive data and applications that coexist on the student
-laptop.  The Windows/Mac Docker environments appear to be some kind of
-sandbox or VM.  Can we say anything about that?  I guess we need to at least suggest to not install Labtainers on systems that run other containers
-that may handle sensitive data.
-
 Time on the labtainer container is in UTC.  Make localtime?
 
 Lab guides and other references tell students their results are found in ~/labtainer\_xfer/[lab].  How best to avoid confusion since
 with Headless Labtainers, that directory on the headless container is mapped to ~/headless-labtainers/labtainer\_xfer on the student's computer?
 
-# Disable unattended updates
+# VirtualBox server installation notes
+Allocate 40GB to the server disk.  Manually ensure that the LVM allocation to / is not stuck at 20GB (Ubuntu install foible?)
+## Disable unattended updates
 Automated updates routinely break installation software by holding locks.
 * sudo dpkg-reconfigure unattended-upgrades
-* sudo apt remove unattended-upgrades
+* sudo apt remove -y unattended-upgrades
 
-# VBox guest additions:
-* sudo mkdir /dev/cdrom
-* sudo mount /dev/cdrom /media/cdrom.
-* cd /media/cdrom.
+## VBox guest additions:
+* sudo mkdir /media/cdrom
+* sudo mount /dev/cdrom /media/cdrom
+* cd /media/cdrom
 * sudo apt-get install -y dkms build-essential linux-headers-generic linux-headers-$(uname -r)
 * sudo su 
-* ./VBoxLinuxAdditions.run.
-
+* ./VBoxLinuxAdditions.run
 * sudo usermod -G vboxsf -a $USER
 
 Create a snapshot after the above two steps are done.  Call it ready-disabled-updates
+
+## Rebuilding and installing headless
+Use {\tt rebuildTester.sh} on the dev system to create the headless tester container image.
+Then use install-headless.sh to install headless on the Ubuntu server.
 
 # Build the labtainer.master File
 The following is mostly OBE.  Revise/remove?
