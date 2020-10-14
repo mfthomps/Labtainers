@@ -131,11 +131,17 @@ def get_ip_address(ifname):
 def get_hw_address(ifname):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     if sys.version_info >=(3,0):
-        info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', bytes(ifname, 'utf-8')[:15]))
-        return ':'.join('%02x' % b for b in info[18:24])
+        try:
+            info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', bytes(ifname, 'utf-8')[:15]))
+            return ':'.join('%02x' % b for b in info[18:24])
+        except:
+            return None
     else:
-        info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', str(ifname[:15])))
-        return ':'.join(['%02x' % ord(char) for char in info[18:24]])
+        try:
+            info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', str(ifname[:15])))
+            return ':'.join(['%02x' % ord(char) for char in info[18:24]])
+        except:
+            return None
 
 def get_new_mac(ifname):
     ''' use last two byte of mac address to generate a new mac
@@ -360,16 +366,20 @@ def GetDNS_NMCLI():
 def GetDNS(): 
     dns_param = ''
     dns_param = '--dns=8.8.8.8'
-    cmd="systemd-resolve --status | grep 'DNS Servers:'"
-    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    output = ps.communicate()
-    if len(output[0]) > 0: 
-        for line in output[0].decode('utf-8').splitlines(True):
-            dns_param = '--dns=%s %s' % (line.split()[2].strip(), dns_param)
-            ''' just take first '''
-            break
-    else:
-        dns_param = GetDNS_NMCLI()
+    labtainer_dns = os.getenv('LABTAINER_DNS')
+    if labtainer_dns is not None and len(labtainer_dns)>0:
+        dns_param = '--dns=%s %s' % (labtainer_dns.strip(), dns_param)
+    else: 
+        cmd="systemd-resolve --status | grep 'DNS Servers:'"
+        ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        output = ps.communicate()
+        if len(output[0]) > 0: 
+            for line in output[0].decode('utf-8').splitlines(True):
+                dns_param = '--dns=%s %s' % (line.split()[2].strip(), dns_param)
+                ''' just take first '''
+                break
+        else:
+            dns_param = GetDNS_NMCLI()
     return dns_param
 
 def GetX11SSH():
@@ -569,7 +579,7 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
         if docker0_IPAddr is not None:
             add_host_param = '--add-host my_host:%s %s' % (docker0_IPAddr, add_hosts)
         else:
-            add_host_param = ''
+            add_host_param = add_hosts
         if container.tap == 'yes':
             ''' docker fu when using host networking, sudo hangs looking for host ip? '''
             add_host_param = '--add-host %s:127.0.0.1 %s' % (container.hostname, add_host_param)
@@ -1136,6 +1146,7 @@ def MakeNetMap(start_config, mycontainer_name, container_user):
                 ''' find if it matches a tapped subnet in this lab '''
                 for subnet in nlist:
                     if subnet == net:
+                        ''' NOTE mac is no longer used, include for compatability.  Remove later '''
                         mac = get_hw_address(eth)
                         new_line = '%s %s\n' % (line, mac)
                         fh.write(new_line)
@@ -1266,10 +1277,14 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
             if container.lab_gateway is not None:
                 cmd = "docker exec %s bash -c 'sudo /usr/bin/set_default_gw.sh %s'" % (mycontainer_name, 
                         container.lab_gateway)
+                DockerCmd(cmd)
+                '''
+                ignore error.  TBD filter errors due to my_host not being set
                 if not DockerCmd(cmd):
                     logger.error('Fatal error in docker command %s' % cmd) 
                     results.append(False)
                     return
+                '''
                 cmd = "docker exec %s bash -c 'sudo echo \"nameserver %s\" >/etc/resolv.conf'" % (mycontainer_name, 
                         container.lab_gateway)
                 if not DockerCmd(cmd):
@@ -2075,7 +2090,7 @@ def GetListRunningLabType():
             # And the image is the 2nd token
             image_name = container_info[1]
             image_name = os.path.basename(image_name)
-            if image_name == 'labtainer.master.headless':
+            if image_name == 'labtainer.master.headless' or image_name == 'labtainer.headless.tester':
                 continue
             if container_name.startswith(image_name):
                 ''' std Labtainers image, get is labname '''

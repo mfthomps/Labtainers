@@ -1,45 +1,121 @@
-# Quick Start [temporarily not updated to latest version of image]
-Here is the one liner, to run the headless-lite labtainer master container and web interface, from a linux/mac system with docker installed.  
+# Headless Labtainers
+Run Labtainers on systems that lack X11 desktops.  This assumes you have installed Docker, e.g., Docker Desktop on a Mac or
+Windows machine. Cloud-based solutions are also supported using remote servers.  Headless Labtainers are an alternative to 
+the Labtainer VM Appliance.
 
-`curl https://raw.githubusercontent.com/mfthomps/Labtainers/premaster/headless-lite/docker-compose.yml > docker-compose.yml && docker-compose up`
+# Quick Start 
+Execute the ./headless-labtainers.sh script.  Or download from 
+   https://raw.githubusercontent.com/mfthomps/Labtainers/premaster/headless-lite/headless-labtainers.sh 
+and make executable and then run.
+On a Mac, this would be done from a terminal.  On Windows, use Powershell.
 
-# Options for the yml
-UPDATE_LABTAINER=FALSE will prevent an update from the latest distribution.  This is helpful when testing with a modified framework.
+* Use the -d option to use your modified local docker-compose.yml file rather than the current one in the Labtainers repo.
+* Use the -n option to suppress updating of Labtainers on headless container, e.g., if you've created your own labtainer.tar
 
-The VNC_PW value is empty, allowing the user to simply click OK.
-It would be nice if the password can be supressed entirely.
+Open a browser and goto http://localhost:6901/vnc.html?password= (uses blank default password, which is changable in docker-compose.yml).  
+
+In addition to starting the Headless Labtainers, the script will create a ~/headless-labtainers directory.  A student would then run
+headless-labtainers.sh from that directory in the future.  That directory will also contain persistent data.
+
+**Warning**: if you run docker-compose directly prior to running headless-labtainers.sh, you may end up with broken file 
+permissions (though running it directly after first running headless-labtainers.sh should work fine).
+
+# Security considerations
+Please note that Docker runs as a privileged service on your computer, and Labtainers containers run as privileged containers.
+If you have sensitive data on your computer, you should understand the isolation provided by Dockers on your system.  An alternative
+is to use one of our virtual machine appliances rather than running Docker directly on your computer.
+
+# Labtainers via remote server
+Headless Labtainers can be deployed on servers, e.g., on headless VMs upon which Docker Compose is installed.  
+We suggest allocating
+* 2G RAM
+* 40G Disk
+* 2 CPUs
+
+A Cloud Config file for an Ubuntu server is in headless-lite/cloud-config.  This file will create and provision
+a VM that runs the Headless Labtainers.  To use that file, replace the SSH key with your own public key, or
+a test key created with ssh-keygen.
+
+You can test the cloud-config using Canonical's Multipass.
+>    multipass launch -m 2G -c 2 -d 40G --name labtainer1 --cloud-init cloud-config
+Then open an SSH tunnel to the resulting IP address:
+>  ssh -AfN -L 6901:127.0.0.1:6901 -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -o "ServerAliveInterval 60" labtainer@my\_vm\_ip 
+Then access Labtainers from a browser pointed to http://localhost:6901
+
+A notional summary
+of a server or cloud deployment is provided below.  In this example, each student VM is assumed to be allocated its own IP address.  Note the provisioning
+steps below are also captured in the cloud-config file.
+
+* Provision one VM per student with an SSH Server, Docker and Docker Compose installed. (**Warning** Use of snap.docker is not supported,
+use the Docker distributed by Docker. Do not select the "Docker" from Ubuntu's system install menus.) 
+* Add a "labtainer" user to the VM.
+* Add the headless-labtainers.sh script to the VM, run it, and configure it to run as a service from ~/labtainers-student as user labtainer.
+* Allocate at least 2GB and 2 cores to each VM.
+* Provide students with SSH access to the VM, e.g., allocate SSH keys or configure the VMs to authenticte via LDAP.
+* Direct students to configure their SSH private key (if needed) and to use an SSH command from a PowerShell or Mac terminal such as:
+>  ssh -AfN -L 6901:127.0.0.1:6901 -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -o "ServerAliveInterval 60" labtainer@my\_vm\_ip
+   where "my\_vm\_ip" is the IP of their VM, or host witin their SSH config file.
+* Students would then access their Labtainers from a browser pointed to http://localhost:6901
+* Direct students to retrieve their results zip files from their VM using scp, e.g.,
+>  scp labtainer@my\_vm\_ip:~/headless-labtainers/labtainer\_xfer/[lab]/\*.zip .
+
+# Developer notes
+The following assume you have cloned or otherwise replicated the Labtainers repo.
+
+You can modify the headless containers by editing the yml file and using the "-d" option on headless-labtainers.sh,
+running the script from the repo.  To modify the headless container, modify the Dockerfiles and/or the docker-entryentrypoint script.
+Rebuild the local container images from the scripts/designer/bin directory using the create\_master\_headless.sh script.
+The default will populate the headless container with the latest Labtainers distribution.  Use the "-d" option to force use of your own
+labtainers.tar created using distrib/mkdist.sh.  Note however that script assumes you have first created a Labtainers development
+environment as described in docs/development/development.pdf
+
+# Issues and ToDo
+
+The VNC_PW value is in the yml empty, allowing the user to simply click OK.
+It would be nice if the password can be suppressed entirely.
 
 The VNC_RESOLTION controls the desktop size.  How best to let the user adjust this, other than editing a file?
+Using -resize=scale, let student adjust to taste?
 
-# Other issues
+Create a user's guide that details headless-specific issues such as changing resolution, running, etc.
+
 X11 applications such as wireshark often start with blank windows, requiring a restart of the application.  The problem
 also occurs to some degree on VMs, and frequently on VMWare Horizon hosted VMs.  Or so it seems.  It is likely just an
-X11/Docker issue that happends everywhere.
+X11/Docker issue that happens everywhere.
 
 For now, users sit through long downloads as they do labs.  For example, if they've never done a lab that uses the
-labtainer.firefox base, and then run one, the are warned of a download of hundres of MB.  Better to download all
+labtainer.firefox base, and then run one, the are warned of a download of hundreds of MB.  Better to download all
 base images on first start?   If added, need an ENV to supress it for testing.
 
-Best way to for users to start headless Labtainers on their own systems?  Assume able to use command line, and just
-give them instructions to wget (or save file via browser), etc.?  The Windows curl/wget is MSed and requires special
-arguments to just fetch a file without interleaving html fu.  Not sure what those are yet.
+Time on the labtainer container is in UTC.  Make localtime?
 
-Do we want a per-OS script for use in getting the yml and doing the compose?  Same script could have options to
-update the headless system (otherwise, user must use docker rmi to remove old headless image).
+Lab guides and other references tell students their results are found in ~/labtainer\_xfer/[lab].  How best to avoid confusion since
+with Headless Labtainers, that directory on the headless container is mapped to ~/headless-labtainers/labtainer\_xfer on the student's computer?
 
+# VirtualBox server installation notes
+Allocate 40GB to the server disk.  Manually ensure that the LVM allocation to / is not stuck at 20GB (Ubuntu install foible?)
+## Disable unattended updates
+Automated updates routinely break installation software by holding locks.
+* sudo dpkg-reconfigure unattended-upgrades
+* sudo apt remove -y unattended-upgrades
 
-How should students submit their zip file results?  Either force use of local browser on vnc desktop, or map the labtainer_xfer
-directory to a host directory using docker volumes.  A per-os setup script could manage that mapping, letting the student change the
-default.
+## VBox guest additions:
+* sudo mkdir /media/cdrom
+* sudo mount /dev/cdrom /media/cdrom
+* cd /media/cdrom
+* sudo apt-get install -y dkms build-essential linux-headers-generic linux-headers-$(uname -r)
+* sudo su 
+* ./VBoxLinuxAdditions.run
+* sudo usermod -G vboxsf -a $USER
 
-What do we say/know about the security of Windows/Mac Docker containers environments?  We never say people can trust Docker or our 
-containers, suggesting instead that the VM provides the isolation from sensitive data and applications that coexist on the student
-laptop.  The Windows/Mac Docker environments appear to be some kind of
-sandbox or VM.  Can we say anything about that?  I guess we need to at least suggest to not install Labtainers on systems that run other containers
-that may handle sensitive data.
+Create a snapshot after the above two steps are done.  Call it ready-disabled-updates
 
+## Rebuilding and installing headless
+Use {\tt rebuildTester.sh} on the dev system to create the headless tester container image.
+Then use install-headless.sh to install headless on the Ubuntu server.
 
 # Build the labtainer.master File
+The following is mostly OBE.  Revise/remove?
 
 Here are the instructions to create a new labtainer.master file.
 
@@ -50,13 +126,14 @@ Prereqs: linux system with git and docker installed.  Note: Labtainer VM is a go
 3. Move to that directory.  `cd Labtainers`
 4. Change to the premaster branch `git checkout premaster`
 5. Set $LABTAINER_DIR to root of Git Repo Files. ``export LABTAINER_DIR=`pwd` ``
-6. Cd to correct directory to update labtainer.tar. `cd distrib`.  
-7. Update the labtainer.tar file `./mkdist.sh`.  Ignore errors.  
-8. Cd to correct directory to build image. `cd ../scripts/designer/bin`
-9. Run scripts to create the image in two stages: `./create_headless_master_stage_1.sh && ./create_headless_master_stage_2.sh`.  These were separated to make subsequent builds faster, ie. if you only need to update configuration files, you only need to run the second stage.
-10. Cd to headless-lite directory (or open new shell tab). `cd $LABTAINER_DIR/headless-lite/`
-11. Launch the containers using docker-compose.yml. `docker-compose up`
-12. Open browser and goto http://localhost:6901/vnc.html (using pw from $LABTAINER_DIR/headless-lite/Dockerfile.labtainer.master.stage.2, default is: changeme. Also the sudo password is found in the same file, default is: labtainer)
+6. Cd to correct directory to update labtainer.tar. `cd distrib`. 
+7. Ensure you have latex installed, to build the pdfs for labs. `sudo apt install texlive-full`.  
+8. Update the labtainer.tar file `./mkdist.sh`.  Ignore errors.  
+9. Cd to correct directory to build image. `cd ../scripts/designer/bin`
+10. Run scripts to create the image in two stages: `./create_headless_master_stage_1.sh && ./create_headless_master_stage_2.sh`.  These were separated to make subsequent builds faster, ie. if you only need to update configuration files, you only need to run the second stage.
+11. Cd to headless-lite directory (or open new shell tab). `cd $LABTAINER_DIR/headless-lite/`
+12. Launch the containers using docker-compose.yml. `docker-compose up`
+13. Open browser and goto http://localhost:6901/vnc.html?password= (uses blank default password, which is changable in docker-compose.yml).  
 
 Optionally (push container to hub.docker.com)
 a. Create an account on docker hub.  

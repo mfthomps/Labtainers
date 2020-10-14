@@ -1,1 +1,1 @@
-MySQL-based lab that enforces security for a database through account permissions.
+Control sharing of information within an SQL database per an information security policy.

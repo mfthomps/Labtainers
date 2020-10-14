@@ -9,12 +9,28 @@ import os
 import time
 import logging
 import subprocess
+import socket
+
+def get_hw_address(ifname):
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    if sys.version_info >=(3,0):
+        info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', bytes(ifname, 'utf-8')[:15]))
+        return ':'.join('%02x' % b for b in info[18:24])
+    else:
+        info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', str(ifname[:15])))
+        return ':'.join(['%02x' % ord(char) for char in info[18:24]])
+
+
+'''
+Start tcpdump a tapped interface, but ignore icmp, 5353 and traffic from the mac of the interface,
+intended to be the mac of the bridge on the host. 
+'''
 logging.basicConfig(filename='/var/log/labdump_client.log', level=logging.DEBUG)
 eth_name = sys.argv[1]
 netname = sys.argv[2]
-mac = sys.argv[3]
-server = sys.argv[4]
-port = int(sys.argv[5])
+mac = get_hw_address(eth_name)
+server = sys.argv[3]
+port = int(sys.argv[4])
 logging.info('labdump client for netname %s server %s port %d eth %s mac: %s' % (netname, 
     server, port, eth_name, mac))
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

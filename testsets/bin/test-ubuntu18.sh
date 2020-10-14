@@ -4,7 +4,7 @@
 #
 isrunning=$(./vbox-client.py "list runningvms")
 echo "isrunning $isrunning"
-ok=$(echo $isrunning | grep -c "LabtainerVM-2-smoketest")
+ok=$(echo $isrunning | grep -c "Labtainer-2-smoketestx")
 if [[ $ok != 0 ]]; then
     echo "ERROR:  Is already running: $isrunning"
     exit 1
@@ -27,4 +27,4 @@ for t in $tlist; do
     cp /media/sf_SEED/$t $vmdir
 done
 
-./vbox-client.py "startvm LabtainerVM-2-smoketest"
+./vbox-client.py "startvm Labtainer-2-smoketestx"

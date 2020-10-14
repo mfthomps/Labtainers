@@ -29,16 +29,6 @@ Fully provisioned cybersecurity labs\par
 \section {Introduction}
 This manual is intended for use by instructors who assign and/or grade
 labs using Labtainers.
-Labtainers assume you have a Linux system, e.g., a virtual machine (VM).  
-The easiest path is to use our pre-built VM available at the Labtainer
-website \url{https://my.nps.edu/web/c3o/virtual-machine-images}.
-Alternately, refer to
-in Appendix A of the \underline{Labtainer Student Guide} for installation of VirtualBox 
-and a Linux system.
-Note that any Linux system can be used as long as it supports Docker.
-If Labtainers is to be used on a Linux system other than the pre-built VM,
-refer to the \underline{Labtainer Student Guide} for information on
-installing Labtainers.
 
 Labtainers provide a consistent execution environment for performing
 laboratory exercises, and can include execution of several different
@@ -47,6 +37,18 @@ papers at \url{https://my.nps.edu/web/c3o/labtainers} for additional information
 on the use of Labtainers.  And see the \underline{Lab Designer User Guide}"
 at \url{https://my.nps.edu/documents/107523844/109121513/labdesigner.pdf} for 
 information on creating and maintaining Labtainer exercises.
+
+The easiest way to get Labtainers is to use our pre-built VM available at the Labtainer
+website \url{https://my.nps.edu/web/c3o/virtual-machine-images}.
+Note that any Linux system can be used as long as it supports Docker,
+and it can be used on \textit{Docker Desktop} installations on 
+Mac and Windows computers as an alternative to using the VM appliance.
+If Labtainers is to be used on a system other than the pre-built VM,
+refer to the \underline{Labtainer Student Guide} for information on
+installing Labtainers.
+
+Running Labtainers on servers, e.g., cloud deployments is discussed in
+section \ref{servers}
 
 \subsection{Assigning a Lab}
 Student instructions for using Labtainers are in the \underline{Labtainer Student Guide}.  
@@ -101,7 +103,9 @@ message:
 artifacts, e.g., the {\tt .bash\_history} file as described below in \ref{review-artifacts}.
 
 Use the {\tt -r} option to get perform a fresh grading, e.g., if you've removed files from the {\tt labtainer\_xfer} directory.
-Use the {\tt -u } option to update your gradelab container.  This may be necessary if it reports errors.
+Sometimes zip files within the {\tt labtainer\_xfer} directory are corrupted.  If error messages indicate a bad zip file,
+try removing it from the directory and then use the {\tt -r} option to perform a fresh grading.
+Use the {\tt -u } option to update your gradelab to the latest image.
 
 Student reports (if any) are  copied into 
 \begin{verbatim}
@@ -182,10 +186,19 @@ VM template.  Start with the standard Labtainers VM, and run the script at
 exporting it as an appliance.
 
 \subsection{Deploying on servers}
-Labtainer VMs can run on servers that students access via web browsers using tools such as VMWare Horizon 
-and Apache Guacamole. In these environments, each student is allocated a VM, and that VM's desktop is seen 
+\label{servers}
+Labtainers can be deployed on servers and accessed by students using a web browser.  This assumes you have
+access to suitable infrastructure and IT support.  Two general approaches are:
+\begin{enumerate}
+\item Virtual Desktop Infrastructure -- Use VDI products such as VMWare Horizon 
+to run Labtainer VMs. In these environments, each student is allocated a VM, and that VM's desktop is seen 
 by the student in the browser.  Students deliver their results to instructors by starting a browser
 within the VM, e.g., to access an LMS or web-mail account.
+\item \textit{Headless Labtainers} -- Labtainers are deployed as servers in a cloud and a \textit{NOVNC} desktop is 
+rendered using a web browser.  Access to the Labtainer server instance is via HTTP through an SSH tunnel.
+Please see \url{https://raw.githubusercontent.com/mfthomps/Labtainers/master/headless-lite/README.md} for additional information,
+including a sample cloud-config file.
+\end{enumerate}
 
 \section{Customizing Labtainers}
 Creating new labs and modifying existing labs is described in the \textit{Labtainers Lab Designer User Guide}.

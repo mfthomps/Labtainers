@@ -216,6 +216,20 @@ def doUpdateOrRefresh(local_registry, remote_registry, args, lgr):
                         pull_push(base, local_registry, remote_registry)
                     else:
                         pull_push(base, remote_registry, local_registry)
+        headless_images = ['labtainer.master.base', 'labtainer.master.headless']
+        for base in headless_images:
+            with_registry = '%s/%s' % (remote_registry, base)
+            print(base)
+            remote_created, remote_user = RemoteBase.inspectRemote(with_registry, lgr)
+            local_created, local_user = LocalBase.inspectLocal(base, lgr, local_registry)
+            if remote_created != local_created:
+                print('Difference in %s,  local: %s  remote: %s' % (base, local_created, remote_created))
+                if not args.no_copy:
+                    if not args.refresh:
+                        pull_push(base, local_registry, remote_registry)
+                    else:
+                        pull_push(base, remote_registry, local_registry)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Update the remote (Docker Hub) registry to match the local test registry (premaster).')

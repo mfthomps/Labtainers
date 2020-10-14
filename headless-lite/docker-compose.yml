@@ -3,28 +3,36 @@ version: "3.5"
 services:
 
 
-#docker run -v '/tmp/.X11-unix:/tmp/.X11-unix:rw' -v "/var/lib/.Xauthority:/headless/.Xauthority:rw" --rm -p 6901:6901 consol/centos-xfce-vnc
   novnc:
     image: accetto/ubuntu-vnc-xfce  
     environment:
       - VNC_PW=
-      - VNC_RESOLUTION=1900x900
+      #- VNC_RESOLUTION=1900x900
+      - resize=scale
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
-      - /var/lib/.Xauthority:/home/headless/.Xauthority:rw
+      - /tmp/.Xauthority:/home/headless/.Xauthority:rw
     ports:
       - "127.0.0.1:6901:6901"
       
-#docker run -v '/tmp/.X11-unix:/tmp/.X11-unix:rw' -e DISPLAY=:1 -v /var/run/docker.sock:/var/run/docker.sock harperaa/labtainer.master /docker-entrypoint
   labtainer:
     image: labtainers/labtainer.master.headless
     environment:
       - DISPLAY=:1 
 # Set to FALSE to prevent updates from latest distribution, e.g., for testing framework changes.
-      - LABTAINER_UPDATE=FALSE
+      - LABTAINER_UPDATE=${LABTAINER_UPDATE}
+      - TEST_REGISTRY=${TEST_REGISTRY}
+# Use LABTAINER_DNS to force containers to use a given DNS, for networks that prohibit extern DNS servrs
+      - USER=labtainer
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - /var/run/docker.sock:/var/run/docker.sock
+      - ${HOME}/headless-labtainers/labtainer_xfer:/home/labtainer/labtainer_xfer:rw
+      - ${HOME}/headless-labtainers/labtainers:/home/labtainer/.local/share/labtainers:rw
+      - /tmp/${USER}/wait_tap_dir:/tmp/${USER}/wait_tap_dir
+
+    extra_hosts:
+      - "testregistry:10.20.200.41"
     depends_on:
       - novnc
     entrypoint: ["/docker-entrypoint"]

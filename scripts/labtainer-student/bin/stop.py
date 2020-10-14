@@ -103,7 +103,7 @@ def main():
                 lab_path = os.path.join(os.path.abspath('../../labs'), lab)
                 if current_lab_name is not None and lab != current_lab_name:
                     labutils.StopLab(lab_path, False)
-                    print('Stopped lab %s, but was not current lab.  Servers and clones may not have stopped')
+                    print('Stopped lab %s, but was not current lab %s.  Servers and clones may not have stopped' % (lab, current_lab_name))
                     labutils.logger.debug('Stopped lab %s, but was not current lab.  Servers and clones may not have stopped')
                 else:
                     labutils.StopLab(lab_path, False, servers=servers, clone_count=clone_count)
