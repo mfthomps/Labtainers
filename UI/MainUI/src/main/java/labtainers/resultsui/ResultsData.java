@@ -97,7 +97,6 @@ public class ResultsData {
             ErrorHandler error = new ErrorHandler();
             ArrayList<String> resultTagList = new ArrayList<>(); //Used for duplication checking
             
-            
             //Iterate through each artifact
             for(int i=0;i < listofArtifacts.size();i++){
                 error.checkReset(); //Reset the error statuses for a new artifact line
@@ -113,8 +112,10 @@ public class ResultsData {
                    artifactConfigLine += (resultTag + " = "); //add to artifact Config line
                 else if(resultTag.isEmpty() || resultTag.equals(""))
                    error.resultTagMissing = true;
-                else
+                else{
+                   System.out.println("Bad resultTag "+ resultTag);
                    error.resultError = true;
+                }
                 
               //FILEID CONFIG 
                 file = listofArtifacts.get(i).fileID;
@@ -124,19 +125,15 @@ public class ResultsData {
                 timeStampDelimiter = listofArtifacts.get(i).timeStampDelimiter;
                 
                 if(file.isEmpty() || file.equals("")){
+                    System.out.println("Bad file for resultTag "+ resultTag);
                     error.fileIDMissing = true;
                 }
                 //Checks if non-file-path file input has .stdin | .stdout | .prgout dottag
                 //Note: most OS, but Windows use backslashes as a File seperator                
                 else if(!file.contains("/")){
-                    if(!file.contains("."))
+                    if(!file.contains(".")){
+                        System.out.println("Bad file, missing dot for resultTag "+ resultTag);
                         error.fileError = true;
-                    else{
-                        String dotTag = file.substring(file.lastIndexOf("."),file.length());
-                        if(!(dotTag.equals(".stdin") || dotTag.equals(".stdout") || dotTag.equals(".prgout"))){
-                            //System.out.println(dotTag);
-                            error.fileError = true;
-                        }
                     }
                 }
                     
@@ -242,7 +239,7 @@ public class ResultsData {
                 }
                 else
                     error.fail();         
-            }
+            } // end for each artifact
             
             //Check for duplicate result tags
             error.checkDuplicateResultTags(resultTagList);
