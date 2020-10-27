@@ -11,6 +11,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.JDialog;
 import static labtainers.goalsui.ParamReferenceStorage.GoalType_ITEMS;
 import static labtainers.goalsui.ParamReferenceStorage.Operator_ITEMS;
 import static labtainers.goalsui.ParamReferenceStorage.answerTypes;
@@ -36,6 +37,7 @@ public class GoalPanels extends javax.swing.JPanel {
     private List<String> resultTags;
     private List<String> parameterIDs;
     private List<String> booleanResultTags;
+    private String comments;
      
     //Creating fresh goal line
     public GoalPanels(GoalsUI ui, GoalsData dataUI) {
@@ -77,6 +79,8 @@ public class GoalPanels extends javax.swing.JPanel {
         setValueTextField(goalVal.value);
  
         setSubgoalTextField(goalVal.subgoalList);
+
+        this.comments = goalVal.comments;
 
         this.revalidate();
         this.repaint();
@@ -157,11 +161,11 @@ public class GoalPanels extends javax.swing.JPanel {
         ParameterComboBox = new javax.swing.JComboBox<>();
         BooleanResultTagsComboBox = new javax.swing.JComboBox<>();
         PreviousMatchanyComboBox = new javax.swing.JComboBox<>();
-        DocButton = new javax.swing.JButton();
         DeleteButton = new javax.swing.JButton();
         rowLabel = new javax.swing.JLabel();
         UpButton = new javax.swing.JButton();
         DownButton = new javax.swing.JButton();
+        DocButton = new javax.swing.JButton();
 
         setMinimumSize(new java.awt.Dimension(1110, 69));
 
@@ -206,13 +210,6 @@ public class GoalPanels extends javax.swing.JPanel {
 
         BooleanResultTagsComboBox.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Boolean Result Tags"));
 
-        DocButton.setText("Doc");
-        DocButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                DocButtonActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout ArtifactPanelLayout = new javax.swing.GroupLayout(ArtifactPanel);
         ArtifactPanel.setLayout(ArtifactPanelLayout);
         ArtifactPanelLayout.setHorizontalGroup(
@@ -234,9 +231,7 @@ public class GoalPanels extends javax.swing.JPanel {
                 .addComponent(AnswerTypeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(AnswerTagTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(DocButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(52, 52, 52)
                 .addComponent(ResultTag2ComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(ParameterComboBox, 0, 0, Short.MAX_VALUE)
@@ -278,9 +273,7 @@ public class GoalPanels extends javax.swing.JPanel {
                         .addComponent(ArithmeticResultTagTextField)
                         .addComponent(AnswerTypeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(AnswerTagTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(ArtifactPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(ResultTag2ComboBox)
-                        .addComponent(DocButton))
+                    .addComponent(ResultTag2ComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(ParameterComboBox)
                     .addComponent(BooleanResultTagsComboBox)
                     .addComponent(PreviousMatchanyComboBox))
@@ -311,6 +304,13 @@ public class GoalPanels extends javax.swing.JPanel {
             }
         });
 
+        DocButton.setText("Doc");
+        DocButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                DocButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -324,9 +324,11 @@ public class GoalPanels extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(UpButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(DownButton, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(DeleteButton)
-                .addGap(73, 73, 73))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(DocButton)
+                    .addComponent(DeleteButton))
+                .addGap(51, 51, 51))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -334,12 +336,15 @@ public class GoalPanels extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addGroup(layout.createSequentialGroup()
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(UpButton)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(DownButton))
-                        .addComponent(DeleteButton, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(DeleteButton, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(DownButton)
+                            .addComponent(DocButton))
+                        .addContainerGap())
                     .addComponent(rowLabel)))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -365,7 +370,23 @@ public class GoalPanels extends javax.swing.JPanel {
     }//GEN-LAST:event_DownButtonActionPerformed
 
     private void DocButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DocButtonActionPerformed
-        // TODO add your handling code here:
+        DocPanel panel = new DocPanel();
+
+        panel.setDoc(this.comments);
+        //panel.setVisible(true);
+        JDialog dialog = new JDialog();
+        panel.setDialog(dialog);
+        //dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setModal(true);
+        dialog.add(panel);
+        dialog.pack();
+        dialog.setLocation(200, 200);
+        dialog.setTitle("Documentation for "+GoalIDTextField.getText());
+        dialog.setVisible(true);
+        if(panel.isOK()){
+            this.comments = panel.getDoc();
+        }
+
     }//GEN-LAST:event_DocButtonActionPerformed
 
     // BUTTONS and LISTENERS //
@@ -400,6 +421,8 @@ public class GoalPanels extends javax.swing.JPanel {
     
     private void visibilityHandler(String type){
         OperatorComboBox.setVisible(false);
+        if(((DefaultComboBoxModel)OperatorComboBox.getModel()).getIndexOf(Operator_ITEMS[5]) == -1) 
+           OperatorComboBox.insertItemAt(Operator_ITEMS[5], 0);
         if(((DefaultComboBoxModel)OperatorComboBox.getModel()).getIndexOf(Operator_ITEMS[4]) == -1) 
            OperatorComboBox.insertItemAt(Operator_ITEMS[4], 0);
         if(((DefaultComboBoxModel)OperatorComboBox.getModel()).getIndexOf(Operator_ITEMS[2]) == -1) 
@@ -624,6 +647,9 @@ public class GoalPanels extends javax.swing.JPanel {
         return SubgoalTextField;
     }
     
+    public String getComments(){
+        return this.comments;
+    } 
     
   
     //Field SETTERS

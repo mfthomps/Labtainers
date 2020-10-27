@@ -31,9 +31,12 @@
                   <Component id="UpButton" alignment="0" max="32767" attributes="0"/>
                   <Component id="DownButton" alignment="0" min="-2" pref="41" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="DeleteButton" min="-2" max="-2" attributes="0"/>
-              <EmptySpace min="-2" pref="73" max="-2" attributes="0"/>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="DocButton" min="-2" max="-2" attributes="0"/>
+                  <Component id="DeleteButton" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" pref="51" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -43,13 +46,17 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="103" alignment="0" groupAlignment="1" attributes="0">
-                      <Group type="102" alignment="1" attributes="0">
-                          <Component id="UpButton" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="-2" max="-2" attributes="0"/>
-                          <Component id="DownButton" min="-2" max="-2" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="UpButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="DeleteButton" alignment="3" min="-2" pref="30" max="-2" attributes="0"/>
                       </Group>
-                      <Component id="DeleteButton" alignment="1" min="-2" pref="58" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="DownButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="DocButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
                   <Component id="rowLabel" alignment="0" min="-2" max="-2" attributes="0"/>
               </Group>
@@ -93,9 +100,7 @@
                   <Component id="AnswerTypeComboBox" min="-2" pref="150" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="AnswerTagTextField" min="-2" pref="193" max="-2" attributes="0"/>
-                  <EmptySpace max="-2" attributes="0"/>
-                  <Component id="DocButton" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="52" max="-2" attributes="0"/>
                   <Component id="ResultTag2ComboBox" min="-2" pref="155" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="ParameterComboBox" pref="0" max="32767" attributes="0"/>
@@ -143,10 +148,7 @@
                           <Component id="AnswerTypeComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="AnswerTagTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <Group type="103" alignment="1" groupAlignment="3" attributes="0">
-                          <Component id="ResultTag2ComboBox" alignment="3" max="32767" attributes="0"/>
-                          <Component id="DocButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
+                      <Component id="ResultTag2ComboBox" alignment="1" min="-2" max="-2" attributes="0"/>
                       <Component id="ParameterComboBox" alignment="1" max="32767" attributes="0"/>
                       <Component id="BooleanResultTagsComboBox" alignment="1" max="32767" attributes="0"/>
                       <Component id="PreviousMatchanyComboBox" alignment="1" max="32767" attributes="0"/>
@@ -387,14 +389,6 @@
             <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
           </AuxValues>
         </Component>
-        <Component class="javax.swing.JButton" name="DocButton">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Doc"/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="DocButtonActionPerformed"/>
-          </Events>
-        </Component>
       </SubComponents>
     </Container>
     <Component class="javax.swing.JButton" name="DeleteButton">
@@ -427,6 +421,14 @@
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="DownButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="DocButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Doc"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="DocButtonActionPerformed"/>
       </Events>
     </Component>
   </SubComponents>

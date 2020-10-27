@@ -207,13 +207,14 @@ public class GoalsData {
                    executableFile;
             String goalsConfigText = "";
             ErrorHandler error = new ErrorHandler();
-            List<String> goalIDs = new ArrayList(); //Used for goal ID duplication check
+            List<String> goalIDs = new ArrayList<String>(); //Used for goal ID duplication check
+            String comments;
             
             //Iterate through each goal
             for(int i=0;i < listofGoals.size();i++){
                 error.checkReset(); //Reset the error statuses for a new goal line
                 
-                String goalConfigLine = "";
+                String goalConfigLine = listofGoals.get(i).comments; 
                 
                 //Goal ID
                 goalID = listofGoals.get(i).goalID;
@@ -338,7 +339,7 @@ public class GoalsData {
 
                 try ( //Write the resultsConfigText to the results.config
                     BufferedWriter writer = new BufferedWriter(new FileWriter(goalsConfigFile, true))) {
-                    writer.write(goalsConfigText);
+                    writer.write(goalsConfigText+"\n");
                 }
             }
             else
@@ -373,22 +374,22 @@ public class GoalsData {
         File goalsConfigFile = new File(mainUI.getCurrentLab() + File.separator + "instr_config" + File.separator + "goals.config");
         
         //May not be necessary, subject to remove the base text, perhaps there is an option for the user to add their own comments
-        String baseText = 
-                  "# goals.config" + System.lineSeparator()
-                + "#" + System.lineSeparator()
-                + "# Please see the Labtainer Lab Designer User Guide" + System.lineSeparator();
+        //String baseText = 
+        //          "# goals.config" + System.lineSeparator()
+        //        + "#" + System.lineSeparator()
+        //        + "# Please see the Labtainer Lab Designer User Guide" + System.lineSeparator();
         
         if(goalsConfigFile.exists()){ 
             //Overwrite goals.config file if it already exists
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(goalsConfigFile, false))) {
-                writer.write(baseText);
+                //writer.write(baseText);
             }
             return goalsConfigFile;
         } 
         else if(goalsConfigFile.createNewFile()){ 
             //Create new goals.config file otherwise(if it does not already exist)
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(goalsConfigFile))) {
-                writer.write(baseText);
+                //writer.write(baseText);
             }
             return goalsConfigFile;
         } 
@@ -980,16 +981,23 @@ public class GoalsData {
         try {
             File goalsConfig = new File(mainUI.getCurrentLab()+File.separator+"instr_config"+File.separator+"goals.config");
 
-            //Get the artifact lines
+            //Get the goal lines
             if(goalsConfig.exists()){
                 try (FileReader fileReader = new FileReader(goalsConfig)) {
                     BufferedReader bufferedReader = new BufferedReader(fileReader); 
                     
+                    String goal_line = ""; 
                     String line = bufferedReader.readLine();                    
                     while (line != null) {                 
+                        goal_line = goal_line + line; 
                         //just checks if the first character is: not empty, not a hash, and not whitspace)
                         if(!line.isEmpty() && line.charAt(0) != '#' && !Character.isWhitespace(line.charAt(0)))
-                            goals.add(line);
+                        {
+                            goals.add(goal_line);
+                            goal_line = "";
+                        }else{
+                            goal_line=goal_line+"\n"; 
+                        }
 
                         line = bufferedReader.readLine();
                     }   
@@ -1064,7 +1072,8 @@ public class GoalsData {
             //Executable File
             String executableFile = ((GoalPanels) goal).getExecutableFileTextField().getText();
 
-            listofGoalsTMP.add(new GoalValues(goalID, goalType, operator, resultTag, answerType, answerTag, booleanExp, goal1, goal2, value, subgoalList, executableFile));
+            String comments = ((GoalPanels) goal).getComments();
+            listofGoalsTMP.add(new GoalValues(goalID, goalType, operator, resultTag, answerType, answerTag, booleanExp, goal1, goal2, value, subgoalList, executableFile, comments));
        }
        listofGoals = listofGoalsTMP; //overwrite the old listofGoals with the temp listofGoals
     }

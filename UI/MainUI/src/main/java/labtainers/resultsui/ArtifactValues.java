@@ -20,11 +20,22 @@ import static labtainers.resultsui.ParamReferenceStorage.lineParamAccessible;
 public class ArtifactValues {
     //Values to be obtained
         String resultTag, container, fileID, fieldID, lineID, timeStampDelimiter;
+        String comments = "";
         
         ToolTipHandlers.ToolTipWrapper fieldType, lineType, timeStampType;
         
         //Stores the values of an arifactline fed into it (NO real value validation happening here)
-        ArtifactValues(String artifactLine){
+        ArtifactValues(String inputLine){
+            String artifactLine;
+            if(inputLine.contains("\n")){
+                String[] the_lines = inputLine.split("\n");
+                artifactLine = the_lines[the_lines.length-1];
+                for(int i=0; i<the_lines.length-1; i++){
+                    comments = comments+the_lines[i]+"\n";
+                }
+            }else{
+                artifactLine = inputLine; 
+            }
             resultTag = container = fileID = fieldID = lineID = timeStampDelimiter = "";
             
             fieldType = lineType = timeStampType = null;
@@ -162,7 +173,7 @@ public class ArtifactValues {
         }
       
         //Constructor for temporarily storing values of artifacts in the UI
-        ArtifactValues(String resultTag, String container, String fileID, ToolTipHandlers.ToolTipWrapper fieldType, String fieldID, ToolTipHandlers.ToolTipWrapper lineType, String lineID, ToolTipHandlers.ToolTipWrapper timeStampType, String timeStampDelimiter){
+        ArtifactValues(String resultTag, String container, String fileID, ToolTipHandlers.ToolTipWrapper fieldType, String fieldID, ToolTipHandlers.ToolTipWrapper lineType, String lineID, ToolTipHandlers.ToolTipWrapper timeStampType, String timeStampDelimiter, String comments){
             this.resultTag = resultTag; 
             this.container = container;
             this.fileID = fileID; 
@@ -172,6 +183,7 @@ public class ArtifactValues {
             this.lineID = lineID;
             this.timeStampType = timeStampType;
             this.timeStampDelimiter = timeStampDelimiter;
+            this.comments = comments;
         }
         
         //Clones the original Artifact Values
@@ -185,6 +197,7 @@ public class ArtifactValues {
             this.lineID = original.lineID;
             this.timeStampType = original.timeStampType;
             this.timeStampDelimiter = original.timeStampDelimiter;
+            this.comments = original.comments;
         }
         
         private void handleFileRef(String fileRef){

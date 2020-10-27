@@ -32,13 +32,13 @@ import labtainers.mainui.ToolTipHandlers.ToolTipWrapper;
  */
 public class ResultsData {
     protected List<ArtifactValues> listofArtifacts;
-    static public ArrayList<String> containerList = new ArrayList<>();
+    static public ArrayList<String> containerList = new ArrayList<String>();
     protected int rowCount;
     MainWindow mainUI;
     public int test = 0;
     
     public ResultsData(MainWindow main, File labPath){
-        listofArtifacts = new ArrayList<>(); 
+        listofArtifacts = new ArrayList<ArtifactValues>(); 
         rowCount = 0;
         
         this.mainUI = main;
@@ -46,7 +46,7 @@ public class ResultsData {
     
     // Creates a deep copy of the original (shallow with containerList and mainUI)
     public ResultsData(ResultsData original){
-        listofArtifacts = new ArrayList();
+        listofArtifacts = new ArrayList<ArtifactValues>();
         //Deep copy the list of artifacts
         for(ArtifactValues artifact : original.listofArtifacts)
             listofArtifacts.add(new ArtifactValues(artifact));
@@ -92,16 +92,18 @@ public class ResultsData {
                        lineID,
                        timeStampType,
                        timeStampDelimiter;
+            String comments;
             String resultsConfigText = "";
             
             ErrorHandler error = new ErrorHandler();
-            ArrayList<String> resultTagList = new ArrayList<>(); //Used for duplication checking
+            ArrayList<String> resultTagList = new ArrayList<String>(); //Used for duplication checking
             
             //Iterate through each artifact
             for(int i=0;i < listofArtifacts.size();i++){
                 error.checkReset(); //Reset the error statuses for a new artifact line
                 
                 String artifactConfigLine = "";
+                artifactConfigLine = listofArtifacts.get(i).comments; 
                 
               //RESULTS TAG
                 resultTag = listofArtifacts.get(i).resultTag;
@@ -130,12 +132,12 @@ public class ResultsData {
                 }
                 //Checks if non-file-path file input has .stdin | .stdout | .prgout dottag
                 //Note: most OS, but Windows use backslashes as a File seperator                
-                else if(!file.contains("/")){
-                    if(!file.contains(".")){
-                        System.out.println("Bad file, missing dot for resultTag "+ resultTag);
-                        error.fileError = true;
-                    }
-                }
+                //else if(!file.contains("/")){
+                //    if(!file.contains(".")){
+                //        System.out.println("Bad file, missing dot for resultTag "+ resultTag);
+                //        error.fileError = true;
+                //    }
+                //}
                     
                 //CONTAINER (if a specific container is selected)
                 if(containerList.size() > 1 && !container.equals("ALL")){
@@ -254,7 +256,7 @@ public class ResultsData {
 
                 try ( //Write the resultsConfigText to the results.config
                     BufferedWriter writer = new BufferedWriter(new FileWriter(resultsConfigFile, true))) {
-                    writer.write(resultsConfigText);
+                    writer.write(resultsConfigText+"\n");
                 }
             }
             else
@@ -271,22 +273,22 @@ public class ResultsData {
         File resultsConfigFile = new File(mainUI.getCurrentLab() + File.separator + "instr_config" + File.separator + "results.config");
         
         //May not be necessary, subject to remove the base text, perhaps there is an option for the user to add their own comments
-        String baseText = 
-                  "# results.config" + System.lineSeparator()
-                + "#" + System.lineSeparator()
-                + "# Please see the Labtainer Lab Designer User Guide" + System.lineSeparator();
+        //String baseText = 
+        //          "# results.config" + System.lineSeparator()
+        //        + "#" + System.lineSeparator()
+        //        + "# Please see the Labtainer Lab Designer User Guide" + System.lineSeparator();
         
         if(resultsConfigFile.exists()){ 
             //Overwrite results.config file if it already exists
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(resultsConfigFile, false))) {
-                writer.write(baseText);
+               // writer.write(baseText);
             }
             return resultsConfigFile;
         } 
         else if(resultsConfigFile.createNewFile()){ 
             //Create new results.config file otherwise(if it does not already exist)
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(resultsConfigFile))) {
-                writer.write(baseText);
+                //writer.write(baseText);
             }
             return resultsConfigFile;
          } 
@@ -371,10 +373,10 @@ public class ResultsData {
                rowPassed = false;
                infoMsg+= "-Make sure your Results Tag has only alphanumeric characters or underscores." + System.lineSeparator();
             }
-            if(fileError){
-               rowPassed = false;
-               infoMsg+= "-Make sure your File ID file's extentsion ends in \".stdin\", \".stdout\", or \".prgout\"." + System.lineSeparator() + " Or is a file path." + System.lineSeparator();
-            }
+            //if(fileError){
+            //   rowPassed = false;
+            //   infoMsg+= "-Make sure your File ID file's extentsion ends in \".stdin\", \".stdout\", or \".prgout\"." + System.lineSeparator() + " Or is a file path." + System.lineSeparator();
+            //}
             if(timeDelimiterError){
                rowPassed = false;
                infoMsg+= "-Timestamp Delimiter Option is only available if your File ID is a file path." + System.lineSeparator();
@@ -401,7 +403,7 @@ public class ResultsData {
         
         //Check for duplicate results Taga
         void checkDuplicateResultTags(ArrayList<String> resultTags){
-            ArrayList<ResultTagIndices> markedResultTags = new ArrayList<>();
+            ArrayList<ResultTagIndices> markedResultTags = new ArrayList<ResultTagIndices>();
             
             //Store all the indices for each unique result tag
             for(int i=0;i<resultTags.size();i++){
@@ -450,7 +452,7 @@ public class ResultsData {
                     
             ResultTagIndices(String resultTag, int index){
                 this.resultTag = resultTag;
-                indices = new ArrayList<>();
+                indices = new ArrayList<Integer>();
                 indices.add(index);
             }
             
@@ -492,7 +494,7 @@ public class ResultsData {
 //GENERAL~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     //Gets the artifact lines in the results.config
     protected ArrayList<String> getArtifactLines(){
-        ArrayList<String> artifacts = new ArrayList<>();
+        ArrayList<String> artifacts = new ArrayList<String>();
         
         try {
             File resultsConfig = new File(mainUI.getCurrentLab()+File.separator+"instr_config"+File.separator+"results.config");
@@ -502,12 +504,16 @@ public class ResultsData {
                 try (FileReader fileReader = new FileReader(resultsConfig)) {
                     BufferedReader bufferedReader = new BufferedReader(fileReader); 
                     String line = bufferedReader.readLine();
-                    
+                    String result_line = ""; 
                     while (line != null) {                 
                         //just checks if the first character is: not empty, not a hash, and not whitspace)
-                        if(!line.isEmpty() && line.charAt(0) != '#' && !Character.isWhitespace(line.charAt(0)))
-                            artifacts.add(line);
-
+                        result_line = result_line + line; 
+                        if(!line.isEmpty() && line.charAt(0) != '#' && !Character.isWhitespace(line.charAt(0))){
+                            artifacts.add(result_line);
+                            result_line = "";
+                        }else{
+                            result_line=result_line+"\n"; 
+                        }
                         line = bufferedReader.readLine();
                     }   
                 }
@@ -530,7 +536,7 @@ public class ResultsData {
     protected void updateListofArtifacts(JPanel PanelofArtifacts){
        Component[] artifacts = PanelofArtifacts.getComponents(); //Access the list of artifacts
                 
-       List<ArtifactValues> listofArtifactsTMP = new ArrayList<>();
+       List<ArtifactValues> listofArtifactsTMP = new ArrayList<ArtifactValues>();
         
        //Iterate through each artifact and add it to the temp list of artifact values
        for (Component artifact : artifacts) {
@@ -548,8 +554,9 @@ public class ResultsData {
            //LINE_TYPE and LINE ID
            ToolTipHandlers.ToolTipWrapper lineType = (ToolTipHandlers.ToolTipWrapper) (((ArtifactPanels) artifact).getLineTypeComboBox().getSelectedItem());
            String lineID = ((ArtifactPanels) artifact).getLineIDTextField().getText();
+           String comments = ((ArtifactPanels) artifact).getComments();
            
-           listofArtifactsTMP.add(new ArtifactValues(resultTag, container, file, fieldType, fieldID, lineType, lineID, timeStampType, timeStampDelimiter));
+           listofArtifactsTMP.add(new ArtifactValues(resultTag, container, file, fieldType, fieldID, lineType, lineID, timeStampType, timeStampDelimiter, comments));
        }
        
        listofArtifacts = listofArtifactsTMP; //overwrite the old listofArtifacts with the temp listofArtifacts
@@ -580,7 +587,7 @@ public class ResultsData {
     
     //Gets a list of ArtifactValues from the the current state of the results.config file
     protected List<ArtifactValues> getArtifactValuesOfConfigFile(){
-        List<ArtifactValues> officialListofArtifacts = new ArrayList<>();
+        List<ArtifactValues> officialListofArtifacts = new ArrayList<ArtifactValues>();
         
         ArrayList<String> artifactLines = getArtifactLines();
         
@@ -694,7 +701,7 @@ public class ResultsData {
         }  
         
         //Update the container list with the renamed container
-        ArrayList<String> tmp = new ArrayList();
+        ArrayList<String> tmp = new ArrayList<String>();
         for(String container : containerList){
             if(container.equals(oldContainer))
                 tmp.add(newContainer);
@@ -707,7 +714,7 @@ public class ResultsData {
     //Updates container list and removes Artifact Value objects that reference the container
     public void removeContainerReference(String container){
         // Deletes all artifact lines that include the container
-        ArrayList<ArtifactValues> toRemove = new ArrayList();
+        ArrayList<ArtifactValues> toRemove = new ArrayList<ArtifactValues>();
         for(ArtifactValues artifact : listofArtifacts){
             if(artifact.container.equals(container))
                 toRemove.add(artifact);

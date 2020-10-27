@@ -11,6 +11,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.JDialog;
 import static labtainers.resultsui.ParamReferenceStorage.FieldType_ITEMS;
 import static labtainers.resultsui.ParamReferenceStorage.LOG_ACCESIBLE_FieldType;
 import static labtainers.resultsui.ParamReferenceStorage.LOG_TS_ACCESSIBLE_LineType;
@@ -21,6 +22,8 @@ import static labtainers.resultsui.ParamReferenceStorage.justFieldType;
 import static labtainers.resultsui.ParamReferenceStorage.lineParamAccessible;
 import static labtainers.resultsui.ParamReferenceStorage.timeStampDelimiterAccessible;
 import labtainers.mainui.ToolTipHandlers.ToolTipWrapper;
+import labtainers.mainui.ToolTipHandlers.ToolTipWrapper;
+import labtainers.goalsui.DocPanel;
 import static labtainers.mainui.ToolTipHandlers.setComboItems;
 
 /**
@@ -33,6 +36,7 @@ public class ArtifactPanels extends javax.swing.JPanel {
     ResultsUI uiResult;
     ResultsData dataUI;
     int rowNum;
+    String comments;
     
     /**
      * Creates new form ArtifactsPanel
@@ -43,6 +47,7 @@ public class ArtifactPanels extends javax.swing.JPanel {
         this.uiResult = ui;
         this.dataUI = ui.data;
         this.rowNum = rowNum;
+        
         jLabel3.setText(Integer.toString(rowNum));
         TimeDelimiterTextField.setVisible(false);
                 
@@ -56,11 +61,12 @@ public class ArtifactPanels extends javax.swing.JPanel {
     }
 
     //Loading artifact line
-    public ArtifactPanels(ResultsUI ui, ArrayList<String> containers, int rowNum, String resultTag, String container, String fileID, ToolTipWrapper fieldType, String fieldID, ToolTipWrapper lineType, String lineID, ToolTipWrapper timeStampType, String timeStampDelimiter) {
+    public ArtifactPanels(ResultsUI ui, ArrayList<String> containers, int rowNum, String resultTag, String container, String fileID, ToolTipWrapper fieldType, String fieldID, ToolTipWrapper lineType, String lineID, ToolTipWrapper timeStampType, String timeStampDelimiter, String comments) {
         initComponents();
         this.uiResult = ui;
         this.dataUI = ui.data;
         this.rowNum = rowNum;
+        this.comments = comments;
         jLabel3.setText(Integer.toString(rowNum));      
         if(!timeStampDelimiterAccessible.contains(timeStampType.getItem()))
             TimeDelimiterTextField.setVisible(false);
@@ -113,6 +119,7 @@ public class ArtifactPanels extends javax.swing.JPanel {
         LineIDTextField = new javax.swing.JTextField();
         TimeStampComboBox = new javax.swing.JComboBox<>();
         TimeDelimiterTextField = new javax.swing.JTextField();
+        DocButton = new javax.swing.JButton();
 
         setBorder(javax.swing.BorderFactory.createEtchedBorder());
         setMaximumSize(new java.awt.Dimension(1560, 86));
@@ -226,6 +233,13 @@ public class ArtifactPanels extends javax.swing.JPanel {
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
+        DocButton.setText("Doc");
+        DocButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                DocButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -240,8 +254,10 @@ public class ArtifactPanels extends javax.swing.JPanel {
                     .addComponent(DownButton, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(UpButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton1)
-                .addGap(50, 50, 50))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButton1)
+                    .addComponent(DocButton))
+                .addGap(23, 23, 23))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -255,11 +271,12 @@ public class ArtifactPanels extends javax.swing.JPanel {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(6, 6, 6)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(UpButton, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(DownButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
+                            .addComponent(UpButton, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton1))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(DownButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(DocButton))))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -287,6 +304,25 @@ public class ArtifactPanels extends javax.swing.JPanel {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         deleteButton();
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void DocButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DocButtonActionPerformed
+        DocPanel panel = new DocPanel();
+
+        panel.setDoc(this.comments);
+        //panel.setVisible(true);
+        JDialog dialog = new JDialog();
+        panel.setDialog(dialog);
+        //dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setModal(true);
+        dialog.add(panel);
+        dialog.pack();
+        dialog.setLocation(200, 200);
+        dialog.setTitle("Documentation for "+TagTextField.getText());
+        dialog.setVisible(true);
+        if(panel.isOK()){
+            this.comments = panel.getDoc();
+        }
+    }//GEN-LAST:event_DocButtonActionPerformed
     
     private void deleteButton(){
        JPanel panelOfArtifacts = (JPanel)this.getParent();
@@ -429,6 +465,9 @@ public class ArtifactPanels extends javax.swing.JPanel {
     public JTextField getTimeStampTextField(){
         return TimeDelimiterTextField;
     }
+    public String getComments(){
+        return this.comments;
+    }
 
     //Field SETTERS
     private void setContainerComboBox(String v){
@@ -462,6 +501,7 @@ public class ArtifactPanels extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel ArtifactPanel;
     private javax.swing.JComboBox<String> ContainerComboBox;
+    private javax.swing.JButton DocButton;
     private javax.swing.JButton DownButton;
     private javax.swing.JTextField FieldIDTextField;
     private javax.swing.JComboBox<ToolTipWrapper> FieldTypeComboBox;

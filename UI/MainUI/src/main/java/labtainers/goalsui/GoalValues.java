@@ -20,19 +20,29 @@ import labtainers.mainui.ToolTipHandlers;
  */
 public class GoalValues {
     //Values to be obtained
-        String goalID, resultTag, answerTag, answerType, booleanExp, goal1, goal2, value, subgoalList, executableFile;
+        String goalID, resultTag, answerTag, answerType, booleanExp, goal1, goal2, value, subgoalList, executableFile, comments;
         
         ToolTipHandlers.ToolTipWrapper goalType, operator;
         
         //Constructor for loading goals into the UI
-        GoalValues(String goalLine, List<String> resultTags){
-            goalID = resultTag = answerType = answerTag = booleanExp = goal1 = goal2 = value = subgoalList = executableFile = "";          
+        GoalValues(String inputLine, List<String> resultTags){
+            goalID = resultTag = answerType = answerTag = booleanExp = goal1 = goal2 = value = subgoalList = executableFile = comments = "";          
             goalType = null;     
             operator = Operator_ITEMS[0];
             //by default set the result tag to the first result tag in the resultTags list (Warning: an error will occur if there is nothing the results tags list)
             resultTag = resultTags.get(0); 
             answerType = answerTypes[0];
             
+            String goalLine;
+            if(inputLine.contains("\n")){
+                String[] the_lines = inputLine.split("\n");
+                goalLine = the_lines[the_lines.length-1];
+                for(int i=0; i<the_lines.length-1; i++){
+                    comments = comments+the_lines[i]+"\n";
+                }
+            }else{
+                goalLine = inputLine; 
+            }
             String[] paramParsedLine = goalLine.split(" : ");
             
             //Get goal ID
@@ -93,7 +103,7 @@ public class GoalValues {
         }
       
         //Constructor for temporarily storing values of artifacts in the UI
-        GoalValues(String goalID, ToolTipHandlers.ToolTipWrapper goalType, ToolTipHandlers.ToolTipWrapper operator, String resultTag, String answerType, String answerTag, String booleanExp, String goal1, String goal2, String value, String subgoalList, String executableFile){  
+        GoalValues(String goalID, ToolTipHandlers.ToolTipWrapper goalType, ToolTipHandlers.ToolTipWrapper operator, String resultTag, String answerType, String answerTag, String booleanExp, String goal1, String goal2, String value, String subgoalList, String executableFile, String comments){  
             this.goalID = goalID;
             this.goalType = goalType;
             this.operator = operator;
@@ -106,6 +116,7 @@ public class GoalValues {
             this.value = value;
             this.subgoalList = subgoalList;
             this.executableFile = executableFile;
+            this.comments = comments;
         }
         
         //Deep copy
@@ -120,6 +131,7 @@ public class GoalValues {
             value = original.value;
             subgoalList = original.subgoalList;
             executableFile = original.executableFile;
+            comments = original.comments;
         }
         
         //set the answertype & answertag to be displayed on the gui based on the config's answer tag

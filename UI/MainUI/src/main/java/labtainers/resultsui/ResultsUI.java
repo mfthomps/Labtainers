@@ -251,7 +251,8 @@ public class ResultsUI extends javax.swing.JDialog {
                                                         artifactVal.lineType, 
                                                         artifactVal.lineID, 
                                                         artifactVal.timeStampType, 
-                                                        artifactVal.timeStampDelimiter);
+                                                        artifactVal.timeStampDelimiter,
+                                                        artifactVal.comments);
         addResultsPanel(newArtifact);
     }
     
