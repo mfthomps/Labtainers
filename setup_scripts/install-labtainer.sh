@@ -33,16 +33,17 @@ read -p "This script will reboot the system when done, press enter to continue"
 #
 # ensure labtainer paths in .bashrc
 #
+here=`pwd`
+export LABTAINER_DIR=$here/trunk
 target=~/.bashrc
 grep ":./bin:" $target | grep PATH >>/dev/null
 result=$?
 if [[ result -ne 0 ]];then
-   here=`pwd`
    cat <<EOT >>$target
    if [[ ":\$PATH:" != *":./bin:"* ]]; then 
        export PATH="\${PATH}:./bin:$here/trunk/scripts/designer/bin"
-       export LABTAINER_DIR=$pwd/trunk
    fi
+   export LABTAINER_DIR=$here/trunk
 EOT
 fi
 
@@ -93,9 +94,10 @@ case "$distrib" in
         exit 1
 esac
 if [[ "$RESULT" -eq 0 ]]; then
+    mkdir -p ../logs
     /usr/bin/newgrp docker <<EONG
-    /usr/bin/newgrp $USER 
     source ./pull-all.sh
+    /usr/bin/newgrp $USER 
 EONG
     sudo ./dns-add.py
     ./getinfo.py

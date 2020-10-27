@@ -1,33 +1,38 @@
-version: "3.7"
-
-networks: 
-  mynetwork:
-    name: mynetwork
-    attachable: true    
+version: "3.5"
 
 services:
-  
-  novnc:
-    image: harperaa/novnc-xfce4
-    #image: theasp/novnc:latest
-    environment:
-      # Adjust to your screen size
-      - DISPLAY_WIDTH=1600
-      - DISPLAY_HEIGHT=968
-      - RUN_XTERM=no
-    ports:
-      - "8080:8080"
-    networks:
-      - mynetwork
 
-  labtainer:
-    image: harperaa/labtainer.master
+
+  novnc:
+    image: accetto/ubuntu-vnc-xfce  
     environment:
-      - DISPLAY=novnc:0.0 
+      - VNC_PW=
+      #- VNC_RESOLUTION=1900x900
+      - resize=scale
     volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /tmp/.Xauthority:/home/headless/.Xauthority:rw
+    ports:
+      - "127.0.0.1:6901:6901"
+      
+  labtainer:
+    image: labtainers/labtainer.master.headless
+    environment:
+      - DISPLAY=:1 
+# Set to FALSE to prevent updates from latest distribution, e.g., for testing framework changes.
+      - LABTAINER_UPDATE=${LABTAINER_UPDATE}
+      - TEST_REGISTRY=${TEST_REGISTRY}
+# Use LABTAINER_DNS to force containers to use a given DNS, for networks that prohibit extern DNS servrs
+      - USER=labtainer
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      - mynetwork
+      - ${HOME}/headless-labtainers/labtainer_xfer:/home/labtainer/labtainer_xfer:rw
+      - ${HOME}/headless-labtainers/labtainers:/home/labtainer/.local/share/labtainers:rw
+      - /tmp/${USER}/wait_tap_dir:/tmp/${USER}/wait_tap_dir
+
+    extra_hosts:
+      - "testregistry:10.20.200.41"
     depends_on:
       - novnc
     entrypoint: ["/docker-entrypoint"]

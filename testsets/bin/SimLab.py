@@ -19,21 +19,11 @@ import logging
 sys.path.append('./bin')
 import ParseLabtainerConfig
 import LabtainerLogging
+import labutils
 '''
 Use xdotool to simulate a lab being performed, as driven by
 a simthis.txt file
 '''
-def isProcRunning(proc_string):
-    ''' return True if given string in ps -ao args '''
-    time.sleep(0.5)
-    cmd = 'ps -ao args'
-    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    output = ps.communicate()
-    for line in output[0].decode('utf-8').splitlines():
-        #print('is %s in %s' % (proc_string, line))
-        if proc_string in output[0].decode('utf-8'):
-            return True
-    return False
 
 
 def DockerCmd(cmd):
@@ -75,6 +65,32 @@ class SimLab():
 
         if not os.path.isdir(self.sim_path):
             return None
+ 
+    def isProcInContainer(self, name):
+        retval = False
+        cmd = 'getactivewindow -- getwindowname' 
+        title = self.dotool(cmd)
+        if '@' in title:
+            parts = title.split('@')
+            container = parts[1].strip() 
+            if ':' in container:
+                container = container.rsplit(':')[0]
+            image = '%s.%s' % (self.labname, container)
+            #print('container image is %s' % image)
+            container_id = labutils.GetContainerID(image)
+            cmd = 'docker top %s ao pid,cmd' % container_id
+            #print('cmd %s' % cmd)
+            ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            output = ps.communicate()
+            for line in output[0].decode('utf-8').splitlines():
+                #print('is %s in %s' % (name, line))
+                if name in output[0].decode('utf-8'):
+                    retval = True
+                    break
+        else:
+            print('No recent winow for isProcInContainer')
+            exit(1)
+        return retval
 
     def hasSim(self):
         if os.path.isdir(self.sim_path):
@@ -100,6 +116,7 @@ class SimLab():
             The title "Terminal" seems to return most windows, so double check
             the name against the getWindowname results.
         '''
+        ''' hack for tracking which container has focus for docker top command '''
         wid = None
         count = 0
         while wid is None or len(wid) == 0:
@@ -212,7 +229,7 @@ class SimLab():
                     cmd = self.multilineCommand(line, fh)
                     if len(cmd.strip()) > 0:
                         self.typeLine(cmd.strip())
-                        while isProcRunning(cmd.strip()):
+                        while self.isProcInContainer(cmd.strip()):
                             print('%s running, wait' % cmd.strip())
                             time.sleep(1)
                     # at least one to avoid timestamp collisions
@@ -370,7 +387,7 @@ class SimLab():
             self.typeString(params.strip())
         elif cmd == 'type_command':
             self.typeLine(params.strip())
-            while isProcRunning(params):
+            while self.isProcInContainer(params):
                 print('%s running, wait' % params)
                 time.sleep(1)
         elif cmd == 'command_file':
@@ -397,7 +414,7 @@ class SimLab():
         elif cmd == 'wait_net':
             self.waitNetURL(self.labname, params)
         elif cmd == 'wait_proc':
-            while isProcRunning(params):
+            while self.isProcInContainer(params):
                 print('%s running, wait' % params)
                 time.sleep(1)
         elif cmd == 'sleep':
@@ -526,7 +543,7 @@ def __main__():
     labtainer_config_path = os.path.abspath('../../config/labtainer.config')
     labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_path, None)
     logger = LabtainerLogging.LabtainerLogging("simlab.log", args.labname, labtainer_config_path)
-
+    labutils.logger = logger
     logger.debug('Begin simlab for %s' % lab)
     simlab = SimLab(lab, verbose_level, in_file=args.file, logger=logger)
     simlab.simThis() 

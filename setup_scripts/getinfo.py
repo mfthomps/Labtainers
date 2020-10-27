@@ -12,7 +12,7 @@ def getMemoryInGB():
     command="cat /proc/meminfo | grep MemTotal"
     #print "command is (%s)" % command
     result=subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    MemTotalString=result.stdout.read().strip().split()
+    MemTotalString=result.stdout.read().decode('utf-8').strip().split()
     lenMemTotalString=len(MemTotalString)
     #print "MemTotal is (%s)" % MemTotalString
     #print "length MemTotal is (%d)" % lenMemTotalString
@@ -54,7 +54,7 @@ def getNumProcessor():
     command="cat /proc/cpuinfo | grep processor | wc -l"
     #print "command is (%s)" % command
     result=subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    NumProcessorString=result.stdout.read().strip()
+    NumProcessorString=result.stdout.read().decode('utf-8').strip()
     #print "NumProcessor is (%s)" % NumProcessor
     try:
         NumProcessor = int(NumProcessorString)
@@ -70,8 +70,8 @@ def main():
         return 0
     memoryinGB = getMemoryInGB()
     print("Linux host resources:")
-    print("Processors: %d") % numprocessor
-    print("RAM: %.2f GB") % memoryinGB
+    print("Processors: %d" % numprocessor)
+    print("RAM: %.2f GB" % memoryinGB)
     print("")
     if numprocessor == 1:
         print("Labtainers will perform better with two processors allocated to the Linux host.")
@@ -79,7 +79,7 @@ def main():
         print("Labtainers may perform better with at least 2 GB of RAM allocated to the Linux host.")
     if numprocessor == 1 or memoryinGB < 1.8:
         user_input=None
-        user_input=raw_input("Would like to shutdown the host so you can allocate more resources? (yes/no)\n")
+        user_input=input("Would like to shutdown the host so you can allocate more resources? (yes/no)\n")
         user_input=user_input.strip().lower()
         #print "user_input (%s)" % user_input
         if user_input == "yes":

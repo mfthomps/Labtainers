@@ -51,6 +51,8 @@ import UniqueCheck
 import InstructorLogging
 import string
 import LabCount
+import subprocess
+import shlex
 
 MYHOME=os.getenv('HOME')
 logger = InstructorLogging.InstructorLogging("/tmp/instructor.log")
@@ -385,7 +387,11 @@ def main():
                 dest = os.path.join(email_labname, container)
                 cmd = '%s %s %s' % (pregrade_script, MYHOME, dest)
                 logger.debug('invoke pregrade script %s' % cmd)
-                os.system(cmd) 
+                ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+                output = ps.communicate()
+                if len(output[1]) > 0:
+                    logger.debug('command was %s' % cmd)
+                    logger.debug(output[1].decode('utf-8'))
 
         ''' backward compatible for test sets '''
         for container in student_list[email_labname]:

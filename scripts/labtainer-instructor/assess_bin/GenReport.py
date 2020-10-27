@@ -209,9 +209,8 @@ def PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, che
                 for gid in checkwork_feedback:
                     if gid in checkwork_failures:
                         gradestxtoutput.write('\n==> '+checkwork_feedback[gid].message + "\n")
-            else:
-                gradestxtoutput.write('\n\nSystem currently meets the lab requirements. Refer to your lab manual for further guidence.\n')
-
+            elif 'CHECK_OK' in checkwork_feedback:
+                gradestxtoutput.write('\n\n%s\n' % checkwork_feedback['CHECK_OK'].message)
         
 
     if check_watermark:

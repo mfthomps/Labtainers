@@ -50,13 +50,13 @@ sudo systemctl start docker
 sudo systemctl enable docker
 
 #additional packages needed for labtainers
-sudo apt-get -y install python-pip 
-sudo pip install --upgrade pip 
-sudo pip install netaddr parse python-dateutil
+sudo apt-get -y install python3-pip 
+sudo pip3 install --upgrade pip3 
+sudo pip3 install netaddr parse python-dateutil
 sudo apt-get -y install openssh-server
 
 #---Checking if packages have been installed. If not, the system will not reboot and allow the user to investigate.
-declare -a packagelist=("apt-transport-https" "ca-certificates" "curl" "gnupg2" "software-properties-common"  "docker-ce" "python-pip" "openssh-server")
+declare -a packagelist=("apt-transport-https" "ca-certificates" "curl" "gnupg2" "software-properties-common"  "docker-ce" "python3-pip" "openssh-server")
 packagefail="false"
 
 for i in "${packagelist[@]}"
@@ -75,18 +75,18 @@ packagecheck=$(dpkg -s $i 2> /dev/null | grep Status)
     fi
 done
 
-pipcheck=$(pip list 2> /dev/null | grep -F netaddr)
+pipcheck=$(pip3 list 2> /dev/null | grep -F netaddr)
 #echo $pipcheck
 if [ -z "$pipcheck" ]; then
-    echo "ERROR: 'netaddr' package did not install properly. Please check the terminal output for any errors related to the pacakge installation. Make sure 'python-pip' is installed and then try running this command: 'sudo -H pip install netaddr' "
+    echo "ERROR: 'netaddr' package did not install properly. Please check the terminal output for any errors related to the pacakge installation. Make sure 'python3-pip' is installed and then try running this command: 'sudo -H pip3 install netaddr' "
     packagefail="true"
     #echo $packagefail
 fi
 
-pipcheck=$(pip list 2> /dev/null | grep -F parse)
+pipcheck=$(pip3 list 2> /dev/null | grep -F parse)
 #echo $pipcheck
 if [ -z "$pipcheck" ]; then
-    echo "ERROR: 'parse' package did not install properly. Please check the terminal output for any errors related to the package installation. Make sure 'python-pip' is installed and then try running this command: 'sudo -H pip install parse' "
+    echo "ERROR: 'parse' package did not install properly. Please check the terminal output for any errors related to the package installation. Make sure 'python3-pip' is installed and then try running this command: 'sudo -H pip3 install parse' "
     packagefail="true"
     #echo $packagefail
 fi

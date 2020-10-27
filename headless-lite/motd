@@ -1,0 +1,9 @@
+===================================================================
+= Labtainers Docker container & VNC                               =
+===================================================================
+No password required, just click "OK"
+Password for user labtainer is labtainer
+To start labs:
+ - labtainer [labname]
+
+Use ctrl-c to exit headless-labtainers.

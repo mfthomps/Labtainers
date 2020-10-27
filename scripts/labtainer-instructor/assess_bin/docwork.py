@@ -59,7 +59,9 @@ def doDoc(fpath):
                 directive, text = rest.split(':', 1) 
                 directive = directive.strip()
                 text = text.strip()
-                if directive.startswith('CHECK_'):
+                if directive == 'CHECK_OK':
+                    feedback['CHECK_OK'] = Feedback(True, text)
+                elif directive.startswith('CHECK_'):
                     #for line in fh:
                     while True:
                         line = fh.readline()
@@ -75,7 +77,7 @@ def doDoc(fpath):
                                 #print('\t%s: %s' % (sym, text)) 
                                 if directive == 'CHECK_TRUE':
                                     feedback[sym] = Feedback(True, text)
-                                else:
+                                elif directive == 'CHECK_FALSE':
                                     feedback[sym] = Feedback(False, text)
                                 break
     return feedback

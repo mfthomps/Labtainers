@@ -9,13 +9,25 @@
 \copyrightnotice
 
 \section{Overview}
-This lab requires that you configure a Radius server to handle authentication
+In this lab you will configure a Radius server to handle authentication
 services for a network device that is already configured to use Radius-based
 authentication.  The Radius server is pre-configured to support an existing
 network device.  You are simply required to add the second device.
+In this lab, the Radius protocol is configured to use a shared secret known
+to the Radius server, and the devices that authenticate via that server.
+The shared secret for both devices is the same.
+
 You are encouraged to use Wireshark within the lab to observe the Radius
 protocol exchanges.
 
+Radius provides Authentication, Authorization and Accounting (AAA) functions.  The protocol is rich and 
+supports many options.  Details of the protocol can be found at: \url{https://tools.ietf.org/html/rfc2865}.
+While Radius orignally was used to manage AAA for dial-up facilities, it is broadly used for networked devices,
+including embedded systems such as smart power supplies.
+
+This lab will touch on the basics of using Radius for centralized authentication, and it will demonstrate
+and example of Radius accounting. The lab uses the
+FreeRADIUS product, which is detailed here \url{https://networkradius.com/doc/3.0.10/introduction/RADIUS.html}
 
 \subsection {Background}
 The student is expect to have separately learned about the basic elements of authentication
@@ -40,11 +52,13 @@ From your labtainer-student directory start the lab using:
 
 \section{Network Configuration}
 This lab includes two simulated power distribution control devices that
-are configured to authenticate users via the Radius protocol.  There
+are configured to authenticate users via the Radius protocol.  In the jargon
+of Radius, the control devices are Network Access Server (NAS), i.e., they
+provide access to the power distirbution functions in our exercise. There
 are also two client computers from which users are expected to administer
-the control devices, which requires that the users be authenticated.
+the control devices.  
 And the network includes a Radius server.  NOTE: the control devices
-do not have virtual terminals connected to them, so they only way to 
+do not have virtual terminals connected to them, so the only way to 
 access them is through the client computers.  The network is
 illustrated in Figure~\ref{fig:topology}.
 When the lab starts, you will get three terminals, one connected to each
@@ -73,6 +87,11 @@ Then start the radius service in debug mode:
 \begin{verbatim}
     radiusd -X
 \end{verbatim}
+
+View the {\tt control\_admin} script on client1.  Note it simply uses {\tt ssh} to execute a program
+on a named remote controller.  Typically, ssh requires a password or key pairs.  The control devices
+lack password or key management.  Instead, control devices are configured to defer ssh daemon authentication decisions to
+the Radius server.
 
 On client1, connect to controller1:
 \begin{verbatim}
@@ -106,7 +125,11 @@ Try again to access controller2 from one of the clients.
 \subsection{Change the cadmin password}
 Stop the radius service and edit the {\tt /etc/raddb/users} file to change the 
 password of the cadmin user to something other than {\tt hardcoded\_password}.  Then test your abilty
-use the config\_admin  utility to access the controllers with the new password.
+use the control\_admin  utility to access the controllers with the new password.
+
+\subsection{Accounting}
+On the radius server, view the directories and files beneath the {\tt /var/log/radius} directory.
+Note how each NAS has its own accounting file.  
 
 \section{Submission}
 After finishing the lab, go to the terminal on your Linux system that was used to start the lab and type:

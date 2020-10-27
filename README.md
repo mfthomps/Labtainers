@@ -72,6 +72,33 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+October 13, 2020
+- Headless configuraions for running on Docker Desktop on Macs & Windows
+- Headless server support, cloud-config file for cloud deployments
+- Testing support for headless configurations
+- Force mynotify to wait until rc.local runs on boot
+- Improve mynotify service ability to merge output into single timestamp
+- Python3 for stopgrade script
+- SimLab now uses docker top rather than system ps
+
+
+September 26, 2020
+- Clean up the stoplab scripts to ignore non-lab containers
+- Add db-access database access control lab for controlles sharing of a mysql db.
+
+September 17, 2020
+- The macs-hash lab was unable to run Leafpad due to the X11 setting.
+- Grader logging was being redirected to the wrong log file, now captures errors from instructor.py
+- Copy instructor.log from grader to the host logs directory if there is an error.
+
+August 28, 2020
+- Fix install script to use python3-pip and fix broken scripts: getinfo.py and pull-all.py
+- Registry logic was broken, test systems were not using the test registry, add development documentation.
+- Add juiceshop and owasp base files for OWASP-based web security labs
+- Remove unnecessary sudos from check\_nets
+- Add CHECK\_OK documentation directive for automated assessment
+- Change check\_nets to fix iptables and routing issues if so directed.
+
 August 12, 2020
 - Add timeout to prestop scripts
 - Add quiz and checkwork to dmz-lab

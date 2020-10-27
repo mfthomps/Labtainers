@@ -1,0 +1,29 @@
+#
+# quiz for the db-access lab.  Note question "5" is only asked if the question "1" is 
+# answered incorrectly.
+#
+0, Preface, "The following questions are asked in the context of the security policy stated in the Lab Manual.  The purpose of the \
+questions is to help prepare you to perform the lab."
+1, TrueFalse, "It would be a policy violation if Alexander Hunold cannot view his department (IT) salary range",
+    F,
+    "The policy allows Alexander to see his department's salary range, but does not require it.",
+    "Although he policy allows Alexander to see his department's salary range, it does not require it to be available to Alexander in \
+the database.  Whether or not the DBA is asked to make such data available to managers via the database is not a policy matter."
+2, TrueFalse, "It would be a policy violation if David can view Susan's salary",
+    T,
+    "",
+    "David is in the IT department.  The policy explicitly limits viewing of individual salary information to HR, Finance and the president"
+3, TrueFalse, "It would be a policy violation if the database did not allow Susan to modify family contact information for employees.", 
+    T, 
+    "The availability policy requires that HR be able to update employee data in the database.", 
+    "Susan is in the HR department.  The availability policy requires that HR be able to update employee data in the database."
+4, TrueFalse, "It would be a policy violation if Susan can split the employee table into two tables.",
+    T,
+    "Only the DBA is authorised to change the database schema",
+    "Only the DBA is authorised to change the database schema.  Susan is authorized to change content of the tables, but not the structure."
+5, TrueFalse, "It would be a security policy violation if David cannot view Susan's email address.",
+    F,
+    "",
+    "The security policy does not prevent employees from seeing email addresses.  But the policy does not require that such \
+information be made available via the database.  That might be more efficient, and the DBA has been directed to provide \
+such access, but not because of any stated information security policy.", 1
