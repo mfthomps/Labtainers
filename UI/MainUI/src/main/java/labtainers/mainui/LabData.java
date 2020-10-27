@@ -42,7 +42,7 @@ public class LabData {
         
         NetworkData(String name){
             this.name = name;
-            this.unknownNetworkParams = new ArrayList();
+            this.unknownNetworkParams = new ArrayList<String>();
         }
         
         NetworkData(String name, String mask, String gateway, int macvlan_ext, int macvlan, String ip_range, boolean tap){
@@ -53,7 +53,7 @@ public class LabData {
             this.macvlan = macvlan;
             this.ip_range = ip_range;
             this.tap = tap;
-            this.unknownNetworkParams = new ArrayList();
+            this.unknownNetworkParams = new ArrayList<String>();
         }
     }
     
@@ -90,9 +90,9 @@ public class LabData {
         
         ContainerData(String name){
             this.name = name;
-            this.listOfContainerNetworks = new ArrayList();
-            this.listOfContainerAddHost = new ArrayList();
-            this.unknownContainerParams = new ArrayList();
+            this.listOfContainerNetworks = new ArrayList<ContainerNetworkSubData>();
+            this.listOfContainerAddHost = new ArrayList<ContainerAddHostSubData>();
+            this.unknownContainerParams = new ArrayList<String>();
         }
     }
 
@@ -123,9 +123,9 @@ public class LabData {
     LabData(MainWindow main, File labPath, String labName) throws IOException{
         this.path = labPath;
         this.name = labName;
-        this.global_settings_params = new ArrayList();
-        this.listOfContainers = new ArrayList();
-        this.listOfNetworks = new ArrayList();
+        this.global_settings_params = new ArrayList<String>();
+        this.listOfContainers = new ArrayList<ContainerData>();
+        this.listOfNetworks = new ArrayList<NetworkData>();
         this.resultsData = new ResultsData(main,labPath);
         this.goalsData = new GoalsData(main, labPath);
         
@@ -320,7 +320,7 @@ public class LabData {
     }
     
     public ArrayList<String> getContainerNames(){
-       ArrayList<String> names = new ArrayList();
+       ArrayList<String> names = new ArrayList<String>();
        for (ContainerData container : listOfContainers) 
             names.add(container.name);
        
@@ -332,7 +332,7 @@ public class LabData {
     }
     
     public ArrayList<String> getNetworkNames(){
-       ArrayList<String> names = new ArrayList();
+       ArrayList<String> names = new ArrayList<String>();
        for (NetworkData network : listOfNetworks) 
             names.add(network.name);
        
@@ -371,11 +371,11 @@ public class LabData {
     }
     
     public void resetContainers(){
-        listOfContainers = new ArrayList<>();
+        listOfContainers = new ArrayList<ContainerData>();
     }
     
     public void resetNetworks(){
-        listOfNetworks = new ArrayList<>();
+        listOfNetworks = new ArrayList<NetworkData>();
     }
     
     
@@ -421,7 +421,7 @@ public class LabData {
         // Delete the network in list of Networks and list of addHosts for each container 
         for(ContainerData container : listOfContainers){
             // Check list of networks 
-            ArrayList<ContainerNetworkSubData> networksToRemove = new ArrayList();
+            ArrayList<ContainerNetworkSubData> networksToRemove = new ArrayList<ContainerNetworkSubData>();
             for(ContainerNetworkSubData networkSubData: container.listOfContainerNetworks){
                 if(networkSubData.network_name.equals(networkName))
                      networksToRemove.add(networkSubData);   
@@ -429,7 +429,7 @@ public class LabData {
             container.listOfContainerNetworks.removeAll(networksToRemove);
             
             // Check list of add-hosts 
-            ArrayList<ContainerAddHostSubData> addHostsToRemove = new ArrayList();
+            ArrayList<ContainerAddHostSubData> addHostsToRemove = new ArrayList<ContainerAddHostSubData>();
             for(ContainerAddHostSubData addHostSubData: container.listOfContainerAddHost){
                 if(addHostSubData.add_host_network.equals(networkName))
                     addHostsToRemove.add(addHostSubData);   

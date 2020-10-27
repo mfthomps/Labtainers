@@ -63,7 +63,7 @@ public class ToolTipHandlers {
     }
     
   //Sets the combo items with associated tool tips (called in the constructors)
-    public static void setComboItems(JComboBox combobox, ToolTipWrapper[] items){
+    public static void setComboItems(JComboBox <ToolTipWrapper>combobox, ToolTipWrapper[] items){
         ComboBoxRenderer renderer = new ComboBoxRenderer();
         combobox.setRenderer(renderer);
         

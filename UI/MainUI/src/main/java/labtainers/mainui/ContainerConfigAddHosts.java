@@ -135,7 +135,7 @@ public class ContainerConfigAddHosts extends javax.swing.JPanel {
     // Updates the combobox list with the renamed network
     protected void renameNetworkToComboBox(String oldNetwork, String newNetwork){
         boolean updateSelectedItem = AddHostNetworkCombobox.getSelectedItem().equals(oldNetwork);
-        ArrayList<String> tmp = new ArrayList();
+        ArrayList<String> tmp = new ArrayList<String>();
         
         //Create new list to set as the combobox items
         for(int i=0;i<AddHostNetworkCombobox.getItemCount();i++){
