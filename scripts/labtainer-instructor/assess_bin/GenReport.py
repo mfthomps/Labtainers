@@ -36,6 +36,7 @@ import json
 import os
 import sys
 import docgoals
+import docwork
 import collections
 try:
    from collections import OrderedDict
@@ -94,7 +95,7 @@ def ValidateLabGrades(labgrades):
                 # Do 'grades' portion - skip 'parameter' portion for now
                 #print "value is (%s)" % value
                 for goalid, goalresult in value.items():
-                    if goalid.startswith('_'):
+                    if goalid.startswith('_') or goalid.startswith('cw_'):
                         continue
                     #print "goalid is (%s)" % goalid
                     #print "goalresult is (%s)" % goalresult
@@ -149,14 +150,16 @@ def ReportCheater(gradestxtoutput, watermark_source, email, keyvalue, found_chea
     else:
         gradestxtoutput.write("\n")
 
-def PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, check_watermark):
+def PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, check_watermark, checkwork):
 
     gradestxtoutput = open(gradestxtfile, "w")
     headerline = emailprintformat % 'Student' + goalsline
     barline = emailprintformat % twentyequal + barline
     gradestxtoutput.write("Labname %s" % labname)
     gradestxtoutput.write("\n\n" + headerline + "\n" + barline + "\n")
-
+    checkwork_failures = []
+    if checkwork:
+        checkwork_feedback = docwork.getCheckworkFeedback('.local/instr_config')
     for emaillabname, keyvalue in sorted(labgrades.items()):
         email, labname = emaillabname.rsplit('.', 1)
         #print "emaillabname is (%s) email is (%s) labname is (%s)" % (emaillabname, email, labname)
@@ -172,20 +175,44 @@ def PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, che
                 for goalid, goalresult in value.items():
                     if goalid.startswith('_'):
                         continue
-                    #print "goalid is (%s)" % goalid
-                    #print "goalresult is (%s)" % goalresult
-                    if type(goalresult) is bool:
-                        if goalresult:
-                            curline = curline + goalprintformat % 'Y'
+                    if goalid.startswith('cw_'): 
+                        if checkwork:
+                            if goalid not in checkwork_feedback:
+                                print('%s has no feedback defined.' % goalid)
+                                continue
+                            expect = checkwork_feedback[goalid].expected
+                            if type(goalresult) is bool:
+                               if goalresult != expect:
+                                   checkwork_failures.append(goalid)
+      
+                    else:
+                        #print "goalid is (%s)" % goalid
+                        #print "goalresult is (%s)" % goalresult
+                        if type(goalresult) is bool:
+                            if goalresult:
+                                curline = curline + goalprintformat % 'Y'
+                            else:
+                                curline = curline + goalprintformat % ''
+                        elif type(goalresult) is int:
+                            curline = curline + goalprintformat_int % goalresult 
                         else:
                             curline = curline + goalprintformat % ''
-                    elif type(goalresult) is int:
-                        curline = curline + goalprintformat_int % goalresult 
-                    else:
-                        curline = curline + goalprintformat % ''
         gradestxtoutput.write(curline + "\n")
     summary = docgoals.getGoalInfo('.local/instr_config')
     gradestxtoutput.write(summary)
+    if checkwork:
+        checkwork_feedback = docwork.getCheckworkFeedback('.local/instr_config')
+        if len(checkwork_feedback) > 0:
+            if len(checkwork_failures) > 0:
+                gradestxtoutput.write('\n\nSystem currently fails to meet one or more lab requirements\n')
+                gradestxtoutput.write('per the notices below.  Refer to your lab manual for further guidence.\n')
+                for gid in checkwork_feedback:
+                    if gid in checkwork_failures:
+                        gradestxtoutput.write('\n==> '+checkwork_feedback[gid].message + "\n")
+            else:
+                gradestxtoutput.write('\n\nSystem currently meets the lab requirements. Refer to your lab manual for further guidence.\n')
+
+        
 
     if check_watermark:
         # Create 'Source' watermark
@@ -220,7 +247,7 @@ def PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, che
 #     <gradesjsonfile> - This is the input file <labname>.grades.json
 #     <gradestxtfile> - This is the output file <labname>.grades.txt
 #     <check_watermark> - Whether to do watermark checks or not
-def CreateReport(gradesjsonfile, gradestxtfile, check_watermark):
+def CreateReport(gradesjsonfile, gradestxtfile, check_watermark, checkwork):
     if not os.path.exists(gradesjsonfile):
         sys.stderr.write("ERROR: missing grades.json file (%s)\n" % gradesjsonfile)
         sys.exit(1)
@@ -233,7 +260,7 @@ def CreateReport(gradesjsonfile, gradestxtfile, check_watermark):
 
     labname, goalsline, barline = ValidateLabGrades(labgrades)
 
-    PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, check_watermark)
+    PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, check_watermark, checkwork)
 
 # Usage: UniqueReport <uniquejsonfile> <gradestxtfile>
 # Arguments:

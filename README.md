@@ -72,6 +72,29 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+August 12, 2020
+- Add timeout to prestop scripts
+- Add quiz and checkwork to dmz-lab
+- Restarting the dmz-lab without -r option broke routing out of the ISP.
+- Allow multiple files for time\_delim results.
+
+August 6, 2020
+- Bug in error handling when X11 socket is missing
+- Commas in quiz questions led to parse errors
+- Add quiz and checkwork to iptables2 lab
+
+July 28, 2020
+- Add quiz support -- these are guidance quizzes, not assessment quizzes.  See the designer guide.
+- Add current-state assessment for use with the checkwork command.
+
+July 21, 2020
+- Add testsets/bin to designer's path
+- Designer guide corrections and explainations for IModule steps.
+- Add RANGE\_REGEX result type for defining time ranges using regular expressions on log entries.
+- Check that X11 socket exists if it is needed when starting a lab.
+- Add base image for mysql
+- Handle mysql log timestamp formats in results parsing. 
+
 June 15, 2020
 - New base image contianing the Bird open source router
 - Add bird-bgp Border Gateway Protocol lab.

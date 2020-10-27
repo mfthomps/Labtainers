@@ -96,9 +96,12 @@ class SmokeTest():
             self.logger.debug('removelab %s result %d' % (lab, result))
             
         print('do check_nets')       
-        if not check_nets.checkNets():
-            retval = False
-            self.logger.error('check_net error')
+        if not check_nets.checkNets(True):
+            if not check_nets.checkNets(False):
+                retval = False
+                self.logger.error('check_net error')
+            else:
+                self.logger.debug('check_net fixed docker errors')
        
         return retval
 

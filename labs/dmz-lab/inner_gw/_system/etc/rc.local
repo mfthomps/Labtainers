@@ -2,7 +2,7 @@
 #
 #  Configure the inner gateway of a DMZ
 #  where 198.18.1.INNER_LAN1 and 198.18.1.INNER_LAN2 are internal LANs
-#  and 198.18.1.10 is connected to the external gateway
+#  and 198.18.1.10 is connected to the outer gateway
 #  with address 198.18.1.2
 # 
 #

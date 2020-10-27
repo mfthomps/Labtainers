@@ -192,7 +192,7 @@ def Check_SecondLevel_EmailWatermark_OK(gradesjson, email_labname, student_id, z
 
 # Usage: Instructor.py
 # Arguments:
-#   check_watermark - whether to do watermark checks or not
+#   checkwork -- True if invoked by checkwork
 def main():
     #print "Running Instructor.py"
     #
@@ -212,17 +212,15 @@ def main():
 
     with open(lab_name_dir) as fh:
         lab_id_name = fh.read().strip()
-    check_watermark_argument=None
+    checkwork_arg=None
+    checkwork = False
+    check_watermark = True
     if len(sys.argv) > 1:
-        check_watermark_argument = str(sys.argv[1]).upper()
+        checkwork_arg = str(sys.argv[1]).upper()
 
-        if check_watermark_argument == "TRUE":
-            check_watermark = True
-        elif check_watermark_argument == "FALSE":
+        if checkwork_arg == "TRUE":
             check_watermark = False
-        else:
-            logger.error('Usage: instructor.py "[True|False]"')
-            exit(1)
+            checkwork = True
 
     # is this used?  
     InstructorBaseDir = os.path.join(MYHOME, '.local', 'base')
@@ -460,7 +458,7 @@ def main():
 
     # Output <labname>.grades.txt
     gradestxtname = os.path.join(MYHOME, "%s.grades.txt" % lab_id_name)
-    GenReport.CreateReport(gradesjsonname, gradestxtname, check_watermark)
+    GenReport.CreateReport(gradesjsonname, gradestxtname, check_watermark, checkwork)
     if do_unique:
         GenReport.UniqueReport(uniquejsonname, gradestxtname)
 

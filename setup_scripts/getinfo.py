@@ -65,6 +65,9 @@ def getNumProcessor():
 
 def main():
     numprocessor = getNumProcessor()
+    if numprocessor is None:
+        print("Unable to get processor information.")
+        return 0
     memoryinGB = getMemoryInGB()
     print("Linux host resources:")
     print("Processors: %d") % numprocessor

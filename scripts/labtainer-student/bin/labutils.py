@@ -176,6 +176,12 @@ def ParameterizeMyContainer(mycontainer_name, container_user, container_password
         running_container = mycontainer_name
     ''' copy lab_bin and lab_sys files into .local/bin and / respectively '''
     CopyLabBin(running_container, container_user, lab_path, name, image_info)
+
+    cmd = 'docker exec %s script -q -c "chown -R %s:%s /home/%s"' % (mycontainer_name, container_user, container_user, container_user)
+    if not DockerCmd(cmd):
+        logger.error('failed %s' % cmd)
+        exit(1)
+        
     cmd_path = '/home/%s/.local/bin/parameterize.sh' % (container_user)
     if container_password == "":
         container_password = container_user
@@ -1742,6 +1748,7 @@ def StartLab(lab_path, force_build=False, is_redo=False, quiet_start=False,
             logger.debug('Cached start.config removed %s' % my_start_config)
             os.remove(my_start_config)
        
+    x11 = False
     container_images = {} 
     for name, container in start_config.containers.items():
         if SkipContainer(run_container, name, start_config, servers):
@@ -1749,6 +1756,8 @@ def StartLab(lab_path, force_build=False, is_redo=False, quiet_start=False,
             continue
         mycontainer_name       = container.full_name
         mycontainer_image_name = container.image_name
+        if container.x11.lower() == 'yes':
+            x11 = True
         if is_redo:
             # If it is a redo then always remove any previous container
             # If it is not a redo, i.e., start.py then DO NOT remove existing container
@@ -1786,6 +1795,12 @@ def StartLab(lab_path, force_build=False, is_redo=False, quiet_start=False,
     # Check existence of /home/$USER/$HOST_HOME_XFER directory - create if necessary
     host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
     CreateHostHomeXfer(host_xfer_dir)
+    if x11:
+        sockets = os.listdir('/tmp/.X11-unix')
+        if len(sockets) == 0:
+            print('Cannot create X11 windows, the socket is missing.  Try rebooting your VM')
+            logger.debug('Cannot create X11 windows, the socket is missing.  Try rebooting your VM')
+            exit(1)
 
     DoStart(start_config, labtainer_config, lab_path, quiet_start, 
             run_container, servers=servers, clone_count=clone_count, auto_grade=auto_grade, 
@@ -1833,7 +1848,7 @@ def PreStop(container_name, ts):
     cmd = "docker exec %s bash -c 'ls -l %s'" % (container_name, cmd_path)
 
     if DockerCmd(cmd, noloop=True):
-        cmd = "docker exec %s bash -c '%s >$HOME/.local/result/prestop.stdout.%s'" % (container_name, cmd_path, ts)
+        cmd = "docker exec %s bash -c 'timeout -s SIGTERM 20s %s >$HOME/.local/result/prestop.stdout.%s 2>&1'" % (container_name, cmd_path, ts)
         DockerCmd(cmd, noloop=True)
 
 def GatherOtherArtifacts(lab_path, name, container_name, container_user, container_password, ignore_stop_error):
@@ -2306,6 +2321,7 @@ def DoStopOne(start_config, labtainer_config, lab_path, name, container, zip_fil
 def SynchStop(start_config, run_container=None):
     threads = []
     now = datetime.datetime.now()
+    ''' NOTE all prestop stdout will have same timestamp. '''
     ts = now.strftime('%Y%m%d%H%M%S')
     for name, container in start_config.containers.items():
         if run_container is not None and container.full_name != run_container:

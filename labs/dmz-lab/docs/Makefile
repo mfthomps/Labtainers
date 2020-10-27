@@ -1,5 +1,6 @@
 dmz-example.pdf: dmz-lab.tex header.tex dmz-lab.jpg
 	pdflatex -jobname=dmz-lab dmz-lab
+	pdflatex -jobname=dmz-lab dmz-lab
 
 clean:
 	rm -fr auto

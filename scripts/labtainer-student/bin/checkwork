@@ -113,8 +113,9 @@ def main():
     servers = current_lab.get('servers')        
     labutils.StopLab(lab_path, False, servers=servers, clone_count=clone_count, keep_running=True)
     os.chdir('../labtainer-instructor')
+    labutils.logger.debug('Lab stopped, now doGrade for lab %s' % labname)
     #print('cwd is %s' % os.getcwd())
-    gradelab.doGrade(labname, False, False, True, False, copy_json = False)
+    gradelab.doGrade(labname, False, False, True, False, copy_json = False, in_logger=labutils.logger, checkwork=True)
     os.chdir(orig_dir)
 
 

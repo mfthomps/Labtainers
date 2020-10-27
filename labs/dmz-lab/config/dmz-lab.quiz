@@ -1,0 +1,13 @@
+#
+# dmz-lab quiz
+#
+1, TrueFalse, "The DMZ in this lab is intended to prevent users from browsing unsafe web sites.", F, "", 
+"This DMZ is intended to limit access from external sites to a selected set of services provided by the web server."
+2, TrueFalse, "The MASQUARADE target in iptables is used to direct hostile traffic to a honeypot.", F, 
+"The MASQUARADE target is used for network address translation (NAT).",
+"The MASQUARADE target is used for network address translation (NAT)."
+3, TrueFalse, "In this lab, example.com's most protected information assets are deployed within the DMZ.", F,
+"The DMZ only contains information accessible external to example.com. Sensitive information would be stored \
+behind the inner gateway in this example.",
+"The DMZ only contains information accessible external to example.com. Sensitive information would be stored \
+behind the inner gateway in this example."

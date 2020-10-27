@@ -30,11 +30,14 @@ POSSIBILITY OF SUCH DAMAGE.
 '''
 import subprocess
 import shlex
+import sys
+import os
 '''
-sudo iptables -t nat -v -L POSTROUTING -n --line-number
-sudo iptables -t nat --delete POSTROUTING <line number>
-sudo route del -net 192.168.1.0 netmask 255.255.255.0
+Look at networking artifacts potentially left behind by 
+Docker failures to clean up after itself.  If -f given as
+switch, try to fix problems route and IP tables, otherwise just report.
 
+example loopback problem:
 
 /dev/loop16         0      0         0  0 /vfs/myfs.img                                        0     512
 
@@ -105,7 +108,7 @@ def checkLoop():
             dev = line.split(':',1)[0]
             print('Try removing with "sudo losetup -d %s"' % dev)
 
-def checkNets():      
+def checkNets(fix):      
     retval = True
     if not checkContainers():
         routes = getRoutes()
@@ -124,11 +127,17 @@ def checkNets():
                     ip, gw, mask = routes[iface]
                     print('route %s     %s     %s seems an orphan corrupting docker' % (ip, gw, mask))
                     print('try: sudo route del -net %s netmask %s' % (ip, mask))
+                    if fix:
+                        cmd = 'sudo route del -net %s netmask %s' % (ip, mask)
+                        os.system(cmd)
                     iptable = getIPTable(ip)
                     if iptable is not None:
                         print('Also, this IPTABLE entry is maybe a problem: %s' % iptable)
                         num = iptable.split()[0]
                         print('Try: sudo iptables -t nat --delete POSTROUTING %s' % num)
+                        if fix:
+                            cmd = 'sudo iptables -t nat --delete POSTROUTING %s' % num
+                            os.system(cmd)
                         retval = False
            
         checkLoop()
@@ -138,4 +147,7 @@ def checkNets():
 
 
 if __name__ == '__main__':
-    checkNets()
+    fix = False
+    if len(sys.argv) > 1 and sys.argv[1] == '-f':
+        fix = True
+    checkNets(fix)

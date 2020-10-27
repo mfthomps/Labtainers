@@ -7,3 +7,5 @@
 #  not not permit nopassword, then use:
 #  echo $1 | sudo -S the-command
 #
+echo $1 | sudo -S systemctl enable httpserver.service
+echo $1 | sudo -S systemctl start httpserver.service
