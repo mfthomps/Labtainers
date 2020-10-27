@@ -24,10 +24,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JScrollBar;
-import labtainers.mainui.LabData.ContainerData;
-import labtainers.mainui.LabData.NetworkData;
+import java.util.function.Consumer;
 import java.util.Arrays;
 import javax.swing.ImageIcon;
+import java.util.concurrent.Executors;
+import labtainers.mainui.LabData.ContainerData;
+import labtainers.mainui.LabData.NetworkData;
 import labtainers.goalsui.GoalsUI;
 import labtainers.resultsui.ResultsData;
 import labtainers.resultsui.ResultsUI;
@@ -137,9 +139,7 @@ public class MainWindow extends javax.swing.JFrame {
         SaveAsCancelButton = new javax.swing.JButton();
         SaveAsConfirmButton = new javax.swing.JButton();
         Header = new javax.swing.JPanel();
-        AssessmentButton = new javax.swing.JButton();
         LabnameLabel = new javax.swing.JLabel();
-        AssessmentButton1 = new javax.swing.JButton();
         ContainerPanel = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         ContainerScrollPane = new javax.swing.JScrollPane();
@@ -150,6 +150,9 @@ public class MainWindow extends javax.swing.JFrame {
         NetworkScrollPane = new javax.swing.JScrollPane();
         NetworkPanePanel = new javax.swing.JPanel();
         addNetworkButton = new javax.swing.JButton();
+        jLabel17 = new javax.swing.JLabel();
+        AssessmentButton = new javax.swing.JButton();
+        AssessmentButton1 = new javax.swing.JButton();
         MainMenuBar = new javax.swing.JMenuBar();
         FileMenuBar = new javax.swing.JMenu();
         NewLabMenuItem = new javax.swing.JMenuItem();
@@ -163,6 +166,11 @@ public class MainWindow extends javax.swing.JFrame {
         SaveAsMenuItem = new javax.swing.JMenuItem();
         jSeparator4 = new javax.swing.JPopupMenu.Separator();
         ExitMenuItem = new javax.swing.JMenuItem();
+        RunMenu = new javax.swing.JMenu();
+        BuildOnlyMenuItem = new javax.swing.JMenuItem();
+        StopLabMenuItem = new javax.swing.JMenuItem();
+        HelpMenu = new javax.swing.JMenu();
+        DesignerMenuItem = new javax.swing.JMenuItem();
 
         ContainerAddDialog.setTitle("Adding New Container");
         ContainerAddDialog.setMinimumSize(new java.awt.Dimension(433, 220));
@@ -392,7 +400,7 @@ public class MainWindow extends javax.swing.JFrame {
                 .addGap(42, 42, 42))
         );
 
-        labChooser.setCurrentDirectory(new java.io.File("/var/lib/snapd/void/C:/Users/Daniel Liao/Desktop/Labtainers/labs"));
+        labChooser.setCurrentDirectory(new java.io.File("/home/mike/git/Labtainers/docs/labdesigner/C:/Users/Daniel Liao/Desktop/Labtainers/labs"));
         labChooser.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
 
         NewLabDialog.setTitle("Creating New Lab");
@@ -641,23 +649,9 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
 
-        AssessmentButton.setText("Results Config");
-        AssessmentButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ResultsConfigButtonActionPerformed(evt);
-            }
-        });
-
         LabnameLabel.setFont(new java.awt.Font("Arial Black", 0, 18)); // NOI18N
         LabnameLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         LabnameLabel.setText("Lab:");
-
-        AssessmentButton1.setText("Goals Config");
-        AssessmentButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                GoalsConfigButtonActionPerformed(evt);
-            }
-        });
 
         javax.swing.GroupLayout HeaderLayout = new javax.swing.GroupLayout(Header);
         Header.setLayout(HeaderLayout);
@@ -666,22 +660,14 @@ public class MainWindow extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, HeaderLayout.createSequentialGroup()
                 .addGap(20, 20, 20)
                 .addComponent(LabnameLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(AssessmentButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(AssessmentButton, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(35, 35, 35))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         HeaderLayout.setVerticalGroup(
             HeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(HeaderLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(HeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(LabnameLabel)
-                    .addGroup(HeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(AssessmentButton)
-                        .addComponent(AssessmentButton1)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(LabnameLabel)
+                .addContainerGap(20, Short.MAX_VALUE))
         );
 
         ContainerPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -730,7 +716,7 @@ public class MainWindow extends javax.swing.JFrame {
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(addContainerButton))
                 .addGap(5, 5, 5)
-                .addComponent(ContainerScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 341, Short.MAX_VALUE)
+                .addComponent(ContainerScrollPane)
                 .addGap(10, 10, 10))
         );
 
@@ -780,9 +766,26 @@ public class MainWindow extends javax.swing.JFrame {
                     .addComponent(jLabel2)
                     .addComponent(addNetworkButton))
                 .addGap(5, 5, 5)
-                .addComponent(NetworkScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 341, Short.MAX_VALUE)
+                .addComponent(NetworkScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 365, Short.MAX_VALUE)
                 .addGap(10, 10, 10))
         );
+
+        jLabel17.setIcon(new javax.swing.ImageIcon("/home/mike/git/Labtainers/UI/MainUI/images/labtainer5-sm.png")); // NOI18N
+        jLabel17.setText("jLabel17");
+
+        AssessmentButton.setText("Results Config");
+        AssessmentButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ResultsConfigButtonActionPerformed(evt);
+            }
+        });
+
+        AssessmentButton1.setText("Goals Config");
+        AssessmentButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                GoalsConfigButtonActionPerformed(evt);
+            }
+        });
 
         FileMenuBar.setText("File");
 
@@ -848,6 +851,38 @@ public class MainWindow extends javax.swing.JFrame {
 
         MainMenuBar.add(FileMenuBar);
 
+        RunMenu.setText("Run");
+
+        BuildOnlyMenuItem.setText("Build only");
+        BuildOnlyMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BuildOnlyMenuItemActionPerformed(evt);
+            }
+        });
+        RunMenu.add(BuildOnlyMenuItem);
+
+        StopLabMenuItem.setText("Stop lab");
+        StopLabMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                StopLabMenuItemActionPerformed(evt);
+            }
+        });
+        RunMenu.add(StopLabMenuItem);
+
+        MainMenuBar.add(RunMenu);
+
+        HelpMenu.setText("Help");
+
+        DesignerMenuItem.setText("Designer Guide");
+        DesignerMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                DesignerMenuItemActionPerformed(evt);
+            }
+        });
+        HelpMenu.add(DesignerMenuItem);
+
+        MainMenuBar.add(HelpMenu);
+
         setJMenuBar(MainMenuBar);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -855,21 +890,37 @@ public class MainWindow extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(Header, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(20, 20, 20)
+            .addGroup(layout.createSequentialGroup()
                 .addComponent(ContainerPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(NetworkPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(20, 20, 20))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 31, Short.MAX_VALUE)
+                        .addComponent(jLabel17, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(27, 27, 27))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(AssessmentButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(AssessmentButton, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(Header, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(ContainerPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(NetworkPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(8, 8, 8)
+                        .addComponent(AssessmentButton1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(AssessmentButton)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel17))
+                    .addComponent(NetworkPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 424, Short.MAX_VALUE)
+                    .addComponent(ContainerPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 424, Short.MAX_VALUE))
                 .addGap(20, 20, 20))
         );
 
@@ -991,6 +1042,74 @@ public class MainWindow extends javax.swing.JFrame {
     private void ContainerAddDialogCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerAddDialogCancelButtonActionPerformed
         ContainerAddDialog.setVisible(false);
     }//GEN-LAST:event_ContainerAddDialogCancelButtonActionPerformed
+
+    private void doLabCommand(String cmd){
+        ProcessBuilder builder = new ProcessBuilder();
+        builder.command("sh", "-c", cmd);
+        File labdir = new File(labsPath+File.separator+this.labName);
+        builder.directory(labdir);
+        try{
+            Process process = builder.start();
+            StreamGobbler streamGobbler = new StreamGobbler(process.getInputStream(), System.out::println);
+            Executors.newSingleThreadExecutor().submit(streamGobbler);
+            int exitCode = process.waitFor();
+            assert exitCode == 0;
+        } catch (IOException e){
+                System.out.println(e);
+        } catch (InterruptedException ie){
+                System.out.println(ie);
+        }
+    }
+    private void doStudentCommand(String cmd){
+        ProcessBuilder builder = new ProcessBuilder();
+        builder.command("sh", "-c", cmd);
+        String path = this.labtainerPath+File.separator+"scripts"+File.separator+"labtainer-student";
+        builder.directory(new File(path));
+        try{
+            Process process = builder.start();
+            StreamGobbler streamGobbler = new StreamGobbler(process.getInputStream(), System.out::println);
+            Executors.newSingleThreadExecutor().submit(streamGobbler);
+            int exitCode = process.waitFor();
+            assert exitCode == 0;
+        } catch (IOException e){
+                System.out.println(e);
+        } catch (InterruptedException ie){
+                System.out.println(ie);
+        }
+    }
+    private void BuildOnlyMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuildOnlyMenuItemActionPerformed
+        String cmd = "rebuild "+this.labName;
+        System.out.println("BuildOnly cmd: "+cmd);
+        doStudentCommand(cmd);
+    }//GEN-LAST:event_BuildOnlyMenuItemActionPerformed
+
+    private void StopLabMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_StopLabMenuItemActionPerformed
+        String cmd = "stoplab";
+        System.out.println("stoplab");
+        doStudentCommand(cmd);
+    }//GEN-LAST:event_StopLabMenuItemActionPerformed
+    private void openPDF(String fname){
+        String cmd = "evince "+fname;
+        ProcessBuilder builder = new ProcessBuilder();
+        builder.command("sh", "-c", cmd, "&");
+        File labdir = new File(labsPath+File.separator+this.labName);
+        builder.directory(labdir);
+        try{
+            Process process = builder.start();
+            StreamGobbler streamGobbler = new StreamGobbler(process.getInputStream(), System.out::println);
+            Executors.newSingleThreadExecutor().submit(streamGobbler);
+            int exitCode = process.waitFor();
+            assert exitCode == 0;
+        } catch (IOException e){
+                System.out.println(e);
+        } catch (InterruptedException ie){
+                System.out.println(ie);
+        }
+    }
+    private void DesignerMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DesignerMenuItemActionPerformed
+        String guide = labtainerPath+File.separator+"docs"+File.separator+"labdesigner"+File.separator+"labdesigner.pdf";
+        openPDF(guide);
+    }//GEN-LAST:event_DesignerMenuItemActionPerformed
     
     //BUTTON FUNCTIONS//
     
@@ -1156,22 +1275,10 @@ public class MainWindow extends javax.swing.JFrame {
 
     // Adds the container in the lab directory structure by calling 'new_lab_setup.py -a containername -b baseImage'
     private void addContainer(String containerName, String baseImage){
-        try{
                 // Call python new_lab_script: new_lab_setup.py -b basename
-                String cmd = "./addContainer.sh "+labsPath+" "+labName+" "+containerName+" "+baseImage;
-                System.out.println(cmd);
-                Process pr = Runtime.getRuntime().exec(cmd);
-            
-                BufferedReader reader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-                String line;
-                while((line = reader.readLine()) != null){
-                    System.out.println(line);
-                }
-                reader.close();
-            } 
-            catch (IOException e){
-                System.out.println(e);
-            }
+                //String cmd = "./addContainer.sh "+labsPath+" "+labName+" "+containerName+" "+baseImage;
+                String cmd = "new_lab_setup.py -a "+containerName+" -b "+baseImage;
+                doLabCommand(cmd);
     }
     
     public int networkPanePanelLength = 0;
@@ -1381,20 +1488,9 @@ public class MainWindow extends javax.swing.JFrame {
     // Clones the current lab into a new lab
     private void saveAs(String newLabName){
         // Call Clone Script, feeding in the new lab name
-        try{
             // Call python new_lab_script: new_lab_setup.py -c newLabName
-            String cmd = "./cloneLab.sh "+labsPath+" "+labName+" "+newLabName;
-            System.out.println(cmd);
-            Process pr = Runtime.getRuntime().exec(cmd);
-
-            // Print all outpute from the script call
-            BufferedReader reader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-            String line;
-            while((line = reader.readLine()) != null){
-                System.out.println(line);
-            }
-            reader.close();
-        
+            String cmd = "new_lab_setup.py -c "+newLabName;
+            doLabCommand(cmd); 
             // Rename to current lab and set the path to the new lab
             this.labName = newLabName;
             LabnameLabel.setText("Lab: "+this.labName);
@@ -1403,14 +1499,15 @@ public class MainWindow extends javax.swing.JFrame {
             this.labDataCurrent.setPath(this.currentLab);
 
             // Write the current state to the new lab's start.config
-            saveLab();
+            try {
+                saveLab();
+            } 
+            catch (FileNotFoundException ex) {
+                Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+            }
             
             // Make the Save As Dialo disappear
             SaveAsDialog.setVisible(false);
-        } 
-        catch (IOException e){
-            System.out.println(e);
-        }
     }
     
     // Sets the references to the labtainer directory
@@ -1732,6 +1829,7 @@ public class MainWindow extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton AssessmentButton;
     private javax.swing.JButton AssessmentButton1;
+    private javax.swing.JMenuItem BuildOnlyMenuItem;
     private javax.swing.JDialog ContainerAddDialog;
     private javax.swing.JComboBox<String> ContainerAddDialogBaseImageCombobox;
     private javax.swing.JButton ContainerAddDialogCancelButton;
@@ -1740,9 +1838,11 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JPanel ContainerPanePanel;
     private javax.swing.JPanel ContainerPanel;
     private javax.swing.JScrollPane ContainerScrollPane;
+    private javax.swing.JMenuItem DesignerMenuItem;
     private javax.swing.JMenuItem ExitMenuItem;
     private javax.swing.JMenu FileMenuBar;
     private javax.swing.JPanel Header;
+    private javax.swing.JMenu HelpMenu;
     private javax.swing.JLabel LabExistLabel;
     private javax.swing.JLabel LabnameLabel;
     private javax.swing.JButton LabtainersDirCancelButton;
@@ -1770,6 +1870,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JMenuItem NewLabMenuItem;
     private javax.swing.JTextField NewLabNameTextfield;
     private javax.swing.JMenuItem OpenLabMenuItem;
+    private javax.swing.JMenu RunMenu;
     private javax.swing.JButton SaveAsCancelButton;
     private javax.swing.JButton SaveAsConfirmButton;
     private javax.swing.JDialog SaveAsDialog;
@@ -1777,6 +1878,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JTextField SaveAsLabNameTextField;
     private javax.swing.JMenuItem SaveAsMenuItem;
     private javax.swing.JMenuItem SaveMenuItem;
+    private javax.swing.JMenuItem StopLabMenuItem;
     private javax.swing.JButton TextEditorCancelButton1;
     private javax.swing.JButton TextEditorConfirmButton1;
     private javax.swing.JDialog TextEditorDialog;
@@ -1793,6 +1895,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
+    private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -1808,4 +1911,20 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JFileChooser labChooser;
     private javax.swing.JLabel pathValidLabel;
     // End of variables declaration//GEN-END:variables
+
+    private static class StreamGobbler implements Runnable {
+        private InputStream inputStream;
+        private Consumer<String> consumer;
+ 
+        public StreamGobbler(InputStream inputStream, Consumer<String> consumer) {
+            this.inputStream = inputStream;
+            this.consumer = consumer;
+        }
+ 
+        @Override
+        public void run() {
+            new BufferedReader(new InputStreamReader(inputStream)).lines()
+              .forEach(consumer);
+        }
+    }
 }
