@@ -113,7 +113,7 @@ def checkNets(fix):
             if iface in routes:
                 ip, gw, mask = routes[iface]
                 print('route %s %s for %s may be corrupting labtainers' % (ip, gw, iface))
-                print('try running "docker network delete %s"' % iface)
+                print('try running "docker network rm %s"' % iface)
                 retval = False
         for iface in routes:
             if iface.startswith('br-'):
