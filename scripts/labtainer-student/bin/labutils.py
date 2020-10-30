@@ -1658,7 +1658,13 @@ def DoStart(start_config, labtainer_config, lab_path,
                 
     if apps2start != [] and not auto_grade:
         print("Please wait for the apps (%s) to launch" % apps2start)
-
+    syncdir = os.path.join(os.getenv('LABTAINER_DIR'), 'scripts','labtainer-student', '.tmp', labname, 'sync')
+    logger.debug('syncdir %s' % syncdir)
+    try:
+        os.mkdir(syncdir)
+    except:
+        pass
+    logger.debug('Labtainer lab %s started and ready' % labname)
     return 0
 
 def terminalCounter(terminal_count):
@@ -2507,6 +2513,11 @@ def StopLab(lab_path, ignore_stop_error, run_container=None, servers=None, clone
               servers=servers, clone_count=clone_count, keep_running=keep_running):
         # Inform user where results are stored
         print("Results stored in directory: %s" % host_xfer_dir)
+        syncdir = os.path.join(os.getenv('LABTAINER_DIR'), 'scripts','labtainer-student', '.tmp', labname, 'sync')
+        try:
+            os.rmdir(syncdir)
+        except:
+            pass
     return host_xfer_dir
 
 def DoMoreterm(lab_path, container_name, clone_num=None, alt_name=None):
