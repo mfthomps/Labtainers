@@ -8,6 +8,7 @@ import SimLab
 import shutil
 import filecmp
 import datetime
+import time
 sys.path.append('./bin')
 import ParseLabtainerConfig
 import labutils
@@ -41,9 +42,19 @@ class SmokeTest():
         test_flag = ''
         if test_registry:
             test_flag = '-t'
+        ''' synch to know when labtainers is running and ready '''
+        syncdir = os.path.join(os.getenv('LABTAINER_DIR'), 'scripts', 'labtainer-student', '.tmp', lab, 'sync')
+        try:
+            os.rmdir(syncdir)
+        except:
+            pass
         cmd = 'labtainer %s -q -r %s' % (lab, test_flag)
         result = subprocess.call(cmd, shell=True, stderr=self.outfile, stdout=self.outfile)
         self.logger.debug('result is %d' % result)
+        while not os.path.isdir(syncdir):
+            self.logger.debug('synch not found, wait for labtainers to be ready.')
+            print('synch %s not found, wait for labtainers to be ready.' % syncdir)
+            time.sleep(1)
         self.simlab = None
         if result == FAILURE:
             retval = False
