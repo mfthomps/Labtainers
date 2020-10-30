@@ -19,16 +19,26 @@ public class ContainerConfigNetworksSubpanel extends javax.swing.JPanel {
      * Creates new form ContainerConfigNetworksSubpanel
      */
     private final ContainerObjPanel parent;
+    private LabData data;
     public ContainerConfigNetworksSubpanel(ContainerObjPanel parent, LabData data, String network, String ip) {
         initComponents();
         this.parent = parent;
-        
+        this.data = data; 
         //Fill the combobox with the current list of Networks
-        for(int i = 0;i<data.getNetworks().size();i++)
+        for(int i = 0;i<data.getNetworks().size();i++){
             this.ContainerConfigNetworksNameCombobox.addItem(data.getNetworks().get(i).name);
-        
+        } 
         // Set fields
         this.ContainerConfigNetworksNameCombobox.setSelectedItem(network);  
+        if (ip.trim().length() == 0){
+            int index = 0;
+            if(network.trim().length() != 0 && ip.trim().length() == 0){
+                index = ContainerConfigNetworksNameCombobox.getSelectedIndex();
+            }   
+            String subnet = data.getNetworks().get(index).mask;
+            String ip_part = subnet.split("/")[0];
+            ip = ip_part;
+        }
         this.ContainerConfigNetworksIPTextfield.setText(ip);
     }
 
@@ -51,6 +61,11 @@ public class ContainerConfigNetworksSubpanel extends javax.swing.JPanel {
         setPreferredSize(new java.awt.Dimension(543, 53));
 
         ContainerConfigNetworksNameCombobox.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        ContainerConfigNetworksNameCombobox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ContainerConfigNetworksNameComboboxActionPerformed(evt);
+            }
+        });
 
         ContainerConfigNetworksIPTextfield.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
 
@@ -93,6 +108,13 @@ public class ContainerConfigNetworksSubpanel extends javax.swing.JPanel {
     private void ContainerConfigNetworksDeleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigNetworksDeleteButtonActionPerformed
         remove();
     }//GEN-LAST:event_ContainerConfigNetworksDeleteButtonActionPerformed
+
+    private void ContainerConfigNetworksNameComboboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigNetworksNameComboboxActionPerformed
+        int index = ContainerConfigNetworksNameCombobox.getSelectedIndex();
+        String subnet = this.data.getNetworks().get(index).mask;
+        String ip_part = subnet.split("/")[0];
+        this.ContainerConfigNetworksIPTextfield.setText(ip_part);
+    }//GEN-LAST:event_ContainerConfigNetworksNameComboboxActionPerformed
 
     // MANIPULATION //
     

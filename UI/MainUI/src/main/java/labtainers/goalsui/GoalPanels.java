@@ -386,6 +386,7 @@ public class GoalPanels extends javax.swing.JPanel {
         if(panel.isOK()){
             this.comments = panel.getDoc();
         }
+        dialog.dispose();
 
     }//GEN-LAST:event_DocButtonActionPerformed
 

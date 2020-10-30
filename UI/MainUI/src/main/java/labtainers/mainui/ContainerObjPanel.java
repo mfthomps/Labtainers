@@ -114,6 +114,11 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         ContainerConfigUpdateButton = new javax.swing.JButton();
         ContainerConfigCancelButton = new javax.swing.JButton();
         ContainerRightClick = new javax.swing.JPopupMenu();
+        editMenu = new javax.swing.JMenu();
+        editDockerMenuItem = new javax.swing.JMenuItem();
+        fixlocalMenuItem = new javax.swing.JMenuItem();
+        treataslocalMenuItem = new javax.swing.JMenuItem();
+        openShellMenuItem = new javax.swing.JMenuItem();
         renameContainerOption = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         deleteContainerOption = new javax.swing.JMenuItem();
@@ -609,6 +614,42 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                 .addGap(10, 10, 10))
         );
 
+        editMenu.setText("Edit...");
+
+        editDockerMenuItem.setText("dockerfile");
+        editDockerMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                editDockerMenuItemActionPerformed(evt);
+            }
+        });
+        editMenu.add(editDockerMenuItem);
+
+        fixlocalMenuItem.setText("fixlocal");
+        fixlocalMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                fixlocalMenuItemActionPerformed(evt);
+            }
+        });
+        editMenu.add(fixlocalMenuItem);
+
+        treataslocalMenuItem.setText("treataslocal");
+        treataslocalMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                treataslocalMenuItemActionPerformed(evt);
+            }
+        });
+        editMenu.add(treataslocalMenuItem);
+
+        ContainerRightClick.add(editMenu);
+
+        openShellMenuItem.setText("Open shell in container dir");
+        openShellMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                openShellMenuItemActionPerformed(evt);
+            }
+        });
+        ContainerRightClick.add(openShellMenuItem);
+
         renameContainerOption.setText("rename");
         renameContainerOption.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -708,6 +749,33 @@ public class ContainerObjPanel extends javax.swing.JPanel {
     private void ContainerConfigAddHostNetworkButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigAddHostNetworkButtonActionPerformed
         addAddHostSubPanel("network","","","");
     }//GEN-LAST:event_ContainerConfigAddHostNetworkButtonActionPerformed
+
+    private void editDockerMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editDockerMenuItemActionPerformed
+        String dockerfilePath = mainWindow.getCurrentLab().getPath()+File.separator+"dockerfiles"+File.separator+
+                                "Dockerfile."+mainWindow.getLabName()+"."+this.data.name+".student";
+        String cmd = "gnome-terminal -- vi "+dockerfilePath+" &";
+        mainWindow.doCommand(cmd); 
+    }//GEN-LAST:event_editDockerMenuItemActionPerformed
+
+    private void treataslocalMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_treataslocalMenuItemActionPerformed
+        String treataslocal = mainWindow.getCurrentLab().getPath()+File.separator+this.data.name+"_bin"+File.separator+
+                                "treataslocal";
+        String cmd = "gnome-terminal -- vi "+treataslocal+" &";
+        mainWindow.doCommand(cmd); 
+    }//GEN-LAST:event_treataslocalMenuItemActionPerformed
+
+    private void fixlocalMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fixlocalMenuItemActionPerformed
+        String fixlocal = mainWindow.getCurrentLab().getPath()+File.separator+this.data.name+"_bin"+File.separator+
+                                "fixlocal";
+        String cmd = "gnome-terminal -- vi "+fixlocal+" &";
+        mainWindow.doCommand(cmd); 
+    }//GEN-LAST:event_fixlocalMenuItemActionPerformed
+
+    private void openShellMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openShellMenuItemActionPerformed
+        String cmd = "gnome-terminal --working-directory="+mainWindow.getCurrentLab().getPath()+File.separator+this.data.name;
+        System.out.println("cmd: "+cmd);
+        mainWindow.doLabCommand(cmd);
+    }//GEN-LAST:event_openShellMenuItemActionPerformed
     
     // BUTTONS/HANDLERS //
     
@@ -799,22 +867,9 @@ public class ContainerObjPanel extends javax.swing.JPanel {
     
     // Deletes the container in the lab directory structure by calling 'new_lab_setup.py -d containername'
     private void deleteContainer(){
-        try{
-                //call python new_lab_script: new_lab_setup.py -b basename
-                String cmd = "./removeContainer.sh "+mainWindow.getLabsPath()+" "+mainWindow.getLabName()+" "+this.data.name;
-                System.out.println(cmd);
-                Process pr = Runtime.getRuntime().exec(cmd);
-            
-                BufferedReader reader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-                String line;
-                while((line = reader.readLine()) != null){
-                    System.out.println(line);
-                }
-                reader.close();
-            } 
-            catch (IOException e){
-                System.out.println(e);
-            }
+                //call python new_lab_script to delete container
+                String cmd = "new_lab_setup.py -d "+this.data.name;
+                mainWindow.doLabCommand(cmd);
     }
 
     // Prompts the user to confirm renaming the container
@@ -936,23 +991,10 @@ public class ContainerObjPanel extends javax.swing.JPanel {
     
     // Opens the container's dockerfile file in a terminal text editor
     private void editDockerfile(){
-        try{
-            // Call python new_lab_script: new_lab_setup.py -b basename
             String dockerfilePath = mainWindow.getCurrentLab().getPath()+File.separator+"dockerfiles"+File.separator+
                                     "Dockerfile."+mainWindow.getLabName()+"."+this.data.name+".student";
-            String cmd = "./editDockerfile.sh "+mainWindow.getTextEditorPref()+" "+dockerfilePath;
-            Process pr = Runtime.getRuntime().exec(cmd);
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-            String line;
-            while((line = reader.readLine()) != null){
-                System.out.println(line);
-            }
-            reader.close();
-        } 
-        catch (IOException e){
-            System.out.println(e);
-        }
+            String cmd = "gnome-terminal -- vi "+dockerfilePath+" &";
+            mainWindow.doCommand(cmd); 
     }
     
     // Add Network Subpanel to the Container Config Window
@@ -1160,6 +1202,9 @@ public class ContainerObjPanel extends javax.swing.JPanel {
     private javax.swing.JTextField XtermTitleTextfield;
     private javax.swing.JTabbedPane containerTabPane;
     private javax.swing.JMenuItem deleteContainerOption;
+    private javax.swing.JMenuItem editDockerMenuItem;
+    private javax.swing.JMenu editMenu;
+    private javax.swing.JMenuItem fixlocalMenuItem;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -1176,6 +1221,8 @@ public class ContainerObjPanel extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPopupMenu.Separator jSeparator1;
+    private javax.swing.JMenuItem openShellMenuItem;
     private javax.swing.JMenuItem renameContainerOption;
+    private javax.swing.JMenuItem treataslocalMenuItem;
     // End of variables declaration//GEN-END:variables
 }

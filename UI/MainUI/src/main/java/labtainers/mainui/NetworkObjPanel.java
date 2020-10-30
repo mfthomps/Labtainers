@@ -66,7 +66,6 @@ public class NetworkObjPanel extends javax.swing.JPanel {
         NetworkMaskLabel = new javax.swing.JLabel();
 
         NetworkConfigWindow.setMinimumSize(new java.awt.Dimension(377, 335));
-        NetworkConfigWindow.setPreferredSize(new java.awt.Dimension(394, 335));
         NetworkConfigWindow.setResizable(false);
         NetworkConfigWindow.addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
@@ -75,7 +74,7 @@ public class NetworkObjPanel extends javax.swing.JPanel {
         });
 
         jLabel2.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jLabel2.setText("Mask:");
+        jLabel2.setText("Subnet:");
 
         jLabel3.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel3.setText("Gateway:");

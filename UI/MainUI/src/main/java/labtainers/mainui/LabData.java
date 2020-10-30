@@ -173,7 +173,10 @@ public class LabData {
                                         currNetwork.mask = line.split("MASK ")[1].trim();
                                         break;
                                     case "GATEWAY":
-                                        currNetwork.gateway = line.split("GATEWAY ")[1].trim();
+                                        if(line.contains("GATEWAY ")){
+                                            System.out.println("line is "+line);
+                                            currNetwork.gateway = line.split("GATEWAY ")[1].trim();
+                                        }
                                         break;
                                     case "MACVLAN_EXT":
                                         currNetwork.macvlan_ext = Integer.parseInt(line.split("MACVLAN_EXT ")[1].trim());
