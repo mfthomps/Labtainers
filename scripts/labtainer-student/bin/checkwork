@@ -61,6 +61,7 @@ gradelab = imp.load_source('gradelab', grade_lab_path)
 def main():
     parser = argparse.ArgumentParser(description='Check your work for a lab.  If no lab name is given, the currently running lab is checked')
     parser.add_argument('lab', nargs='?')
+    parser.add_argument('-p', '--prompt', action='store_true', help='Prompt for user input before exiting.')
     args = parser.parse_args()
     labname = None 
     lablist = []
@@ -117,8 +118,13 @@ def main():
     #print('cwd is %s' % os.getcwd())
     gradelab.doGrade(labname, False, False, True, False, copy_json = False, in_logger=labutils.logger, checkwork=True)
     os.chdir(orig_dir)
-
-
+    if args.prompt:
+        prompt = "Press <enter> to close."
+        if sys.version_info >=(3,0):
+            user_input = input(prompt)
+        else:
+            user_input = raw_input(prompt)
+        
     return 0
 
 if __name__ == '__main__':
