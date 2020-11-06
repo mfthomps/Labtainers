@@ -20,6 +20,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JComboBox;
 import static labtainers.goalsui.ParamReferenceStorage.GoalType_ITEMS;
 import static labtainers.goalsui.ParamReferenceStorage.answerTypes;
 import static labtainers.goalsui.ParamReferenceStorage.booleanResultTypes;
@@ -1168,6 +1169,18 @@ public class GoalsData {
     protected void resetData(){
         listofGoals = new ArrayList<>(); 
         rowCount = listofGoals.size();
+    }
+
+    public void updateParameters(JPanel PanelofGoals){
+        Component[] goals = PanelofGoals.getComponents(); //Access the list of goals
+                
+        for (Component goal : goals) {
+            GoalPanels gp = (GoalPanels) goal;
+            JComboBox box = gp.getParameterComboBox();
+            if(box.isVisible()){
+                gp.updateParameters();
+            }
+        }
     }
     
 //RowCount setters    

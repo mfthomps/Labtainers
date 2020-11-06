@@ -16,6 +16,7 @@ import labtainers.mainui.ToolTipHandlers.ToolTipWrapper;
 import static labtainers.mainui.ToolTipHandlers.setComboItems;
 import static labtainers.resultsui.ParamReferenceStorage.Operator_ITEMS;
 import labtainers.resultsui.ParamReferenceStorage;
+import labtainers.goalsui.DocPanel;
 
 /**
  *
@@ -50,11 +51,12 @@ public class ParamPanels extends javax.swing.JPanel {
     //Loading params line
     public ParamPanels(ParamsUI ui, ArrayList<String> containers, int rowNum, String paramID, String container, 
               String fileID, String operator, String symbol, 
-              String hashedString, String upperBound, String lowerBound){
+              String hashedString, String upperBound, String lowerBound, String comments){
         initComponents();
         this.uiParam = ui;
         this.dataUI = ui.data;
         this.rowNum = rowNum;
+        this.comments = comments;
         jLabel3.setText(Integer.toString(rowNum));      
         
         setComboItems(OperationComboBox, Operator_ITEMS);
@@ -84,7 +86,7 @@ public class ParamPanels extends javax.swing.JPanel {
     private void initComponents() {
 
         jLabel3 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
+        DeleteButton = new javax.swing.JButton();
         UpButton = new javax.swing.JButton();
         DownButton = new javax.swing.JButton();
         ParamPanel = new javax.swing.JPanel();
@@ -96,6 +98,7 @@ public class ParamPanels extends javax.swing.JPanel {
         UpperBoundTextField = new javax.swing.JTextField();
         HashedStringTextField = new javax.swing.JTextField();
         ContainerComboBox = new javax.swing.JComboBox<>();
+        DocButton = new javax.swing.JButton();
 
         setBorder(javax.swing.BorderFactory.createEtchedBorder());
         setMaximumSize(new java.awt.Dimension(1560, 86));
@@ -106,10 +109,10 @@ public class ParamPanels extends javax.swing.JPanel {
         jLabel3.setFont(new java.awt.Font("Ubuntu", 1, 48)); // NOI18N
         jLabel3.setText("10");
 
-        jButton1.setText("Delete");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        DeleteButton.setText("Delete");
+        DeleteButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                DeleteButtonActionPerformed(evt);
             }
         });
 
@@ -146,20 +149,23 @@ public class ParamPanels extends javax.swing.JPanel {
             }
         });
 
+        FileNameTextField.setToolTipText("<html>Name of the file containing parameterized data.</html>");
         FileNameTextField.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "File name"));
 
-        SymbolTextField.setToolTipText("Parameter based on Line Type");
+        SymbolTextField.setToolTipText("<html>Symbol within the  file that is to be replaced, e.g., with a hash or a random value.</html>");
         SymbolTextField.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Symbol"));
 
         LowerBoundTextField.setHorizontalAlignment(javax.swing.JTextField.LEFT);
+        LowerBoundTextField.setToolTipText("Lower bound of random value.");
         LowerBoundTextField.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Lower bound"));
         LowerBoundTextField.setMinimumSize(new java.awt.Dimension(20, 100));
 
         UpperBoundTextField.setHorizontalAlignment(javax.swing.JTextField.LEFT);
+        UpperBoundTextField.setToolTipText("Upper bound of random value.");
         UpperBoundTextField.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Upper bound"));
         UpperBoundTextField.setMinimumSize(new java.awt.Dimension(20, 100));
 
-        HashedStringTextField.setToolTipText("Parameter based on Line Type");
+        HashedStringTextField.setToolTipText("String to be hashed.");
         HashedStringTextField.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Hashed string"));
 
         ContainerComboBox.addItemListener(new java.awt.event.ItemListener() {
@@ -177,9 +183,9 @@ public class ParamPanels extends javax.swing.JPanel {
                 .addComponent(ParamIDTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(ContainerComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
                 .addComponent(OperationComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(18, 18, 18)
                 .addComponent(FileNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(SymbolTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -187,9 +193,9 @@ public class ParamPanels extends javax.swing.JPanel {
                 .addComponent(LowerBoundTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(27, 27, 27)
                 .addComponent(UpperBoundTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(HashedStringTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(HashedStringTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 223, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         ParamPanelLayout.setVerticalGroup(
             ParamPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -209,6 +215,14 @@ public class ParamPanels extends javax.swing.JPanel {
                 .addGap(0, 23, Short.MAX_VALUE))
         );
 
+        DocButton.setText("Doc");
+        DocButton.setToolTipText("Document this parameter.");
+        DocButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                DocButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -217,17 +231,20 @@ public class ParamPanels extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jLabel3))
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(72, 72, 72)
-                        .addComponent(ParamPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 68, Short.MAX_VALUE)
+                        .addComponent(ParamPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(18, 18, 18)))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(DownButton, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(UpButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton1)
-                .addGap(23, 23, 23))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(DeleteButton)
+                    .addComponent(DocButton, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(22, 22, 22))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -237,13 +254,14 @@ public class ParamPanels extends javax.swing.JPanel {
                 .addGap(38, 38, 38)
                 .addComponent(jLabel3))
             .addGroup(layout.createSequentialGroup()
-                .addGap(6, 6, 6)
-                .addComponent(UpButton, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(3, 3, 3)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(UpButton, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(DeleteButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(DownButton))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(25, 25, 25)
-                .addComponent(jButton1))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(DownButton)
+                    .addComponent(DocButton)))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -259,17 +277,36 @@ public class ParamPanels extends javax.swing.JPanel {
         operatorListener();
     }//GEN-LAST:event_OperationComboBoxItemStateChanged
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void DeleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeleteButtonActionPerformed
         deleteButton();
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_DeleteButtonActionPerformed
 
     private void ContainerComboBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_ContainerComboBoxItemStateChanged
         // TODO add your handling code here:
     }//GEN-LAST:event_ContainerComboBoxItemStateChanged
 
     private void OperationComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_OperationComboBoxActionPerformed
-        operatorListener();
+        //operatorListener();
     }//GEN-LAST:event_OperationComboBoxActionPerformed
+
+    private void DocButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DocButtonActionPerformed
+        DocPanel panel = new DocPanel();
+
+        panel.setDoc(this.comments);
+        //panel.setVisible(true);
+        JDialog dialog = new JDialog();
+        panel.setDialog(dialog);
+        //dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setModal(true);
+        dialog.add(panel);
+        dialog.pack();
+        dialog.setLocation(200, 200);
+        dialog.setTitle("Documentation for "+ParamIDTextField.getText());
+        dialog.setVisible(true);
+        if(panel.isOK()){
+            this.comments = panel.getDoc();
+        }
+    }//GEN-LAST:event_DocButtonActionPerformed
     
     private void deleteButton(){
        JPanel panelOfParams = (JPanel)this.getParent();
@@ -279,9 +316,11 @@ public class ParamPanels extends javax.swing.JPanel {
     }
     private void operatorListener(){  
         ToolTipWrapper operator = (ToolTipWrapper)OperationComboBox.getSelectedItem();
+        if(operator == null){
+            return;
+        }
         //adjustToolTip(operator.getItem()); 
         String op_string = operator.getItem();
-        System.out.println("operatorListener got "+op_string);
         if(op_string.contains("RAND")){
             LowerBoundTextField.setVisible(true); 
             UpperBoundTextField.setVisible(true); 
@@ -337,7 +376,9 @@ public class ParamPanels extends javax.swing.JPanel {
     public JComboBox<String> getContainerComboBox(){
         return ContainerComboBox;
     }    
-
+    public String getComments(){
+        return this.comments;
+    }
     //Field SETTERS
     private void setParamIDTextField(String v){
         ParamIDTextField.setText(v);
@@ -367,6 +408,8 @@ public class ParamPanels extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox<String> ContainerComboBox;
+    private javax.swing.JButton DeleteButton;
+    private javax.swing.JButton DocButton;
     private javax.swing.JButton DownButton;
     private javax.swing.JTextField FileNameTextField;
     private javax.swing.JTextField HashedStringTextField;
@@ -377,7 +420,6 @@ public class ParamPanels extends javax.swing.JPanel {
     private javax.swing.JTextField SymbolTextField;
     private javax.swing.JButton UpButton;
     private javax.swing.JTextField UpperBoundTextField;
-    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel3;
     // End of variables declaration//GEN-END:variables
 }

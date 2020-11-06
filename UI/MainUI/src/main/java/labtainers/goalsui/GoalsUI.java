@@ -51,7 +51,6 @@ public class GoalsUI extends javax.swing.JFrame {
         CreateButton = new javax.swing.JButton();
         RemoveAllButton = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
         UpdateButton = new javax.swing.JButton();
         ScrollPaneOfGoals = new javax.swing.JScrollPane();
         PanelofGoals = new javax.swing.JPanel();
@@ -82,11 +81,7 @@ public class GoalsUI extends javax.swing.JFrame {
 
         jLabel1.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
         jLabel1.setText("Goal ID");
-        jLabel1.setToolTipText("The symbolic name of the result, which will be referenced in the goals configuration file. \n\n(It must be alphanumeric, underscores permitted) ");
-
-        jLabel3.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
-        jLabel3.setText("Goal Type");
-        jLabel3.setToolTipText("The mode in which a value is found.");
+        jLabel1.setToolTipText("The goal identifier displayed in lab grading output.  Use an underscore prefix to supress inclusion in that output, e.g., to use the goal within a boolean expression.");
 
         UpdateButton.setText("Confirm Changes");
         UpdateButton.addActionListener(new java.awt.event.ActionListener() {
@@ -106,10 +101,8 @@ public class GoalsUI extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(38, 38, 38)
+                .addGap(140, 140, 140)
                 .addComponent(jLabel1)
-                .addGap(42, 42, 42)
-                .addComponent(jLabel3)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
@@ -132,9 +125,7 @@ public class GoalsUI extends javax.swing.JFrame {
                     .addComponent(RemoveAllButton)
                     .addComponent(UpdateButton))
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel3))
+                .addComponent(jLabel1)
                 .addGap(18, 18, 18)
                 .addComponent(ScrollPaneOfGoals, javax.swing.GroupLayout.DEFAULT_SIZE, 395, Short.MAX_VALUE)
                 .addContainerGap())
@@ -176,6 +167,10 @@ public class GoalsUI extends javax.swing.JFrame {
         data.updateListofGoals(PanelofGoals);
         saved = new GoalsData(data);
         this.mainUI.getCurrentData().setGoalsData(saved);
+    }
+
+    public void updateParameters(){
+        data.updateParameters(PanelofGoals);
     }
     
     
@@ -292,6 +287,5 @@ public class GoalsUI extends javax.swing.JFrame {
     private javax.swing.JScrollPane ScrollPaneOfGoals;
     private javax.swing.JButton UpdateButton;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel3;
     // End of variables declaration//GEN-END:variables
 }

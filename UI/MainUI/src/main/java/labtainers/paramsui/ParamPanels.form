@@ -38,20 +38,24 @@
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="32767" attributes="0"/>
                   </Group>
-                  <Group type="102" alignment="0" attributes="0">
+                  <Group type="102" attributes="0">
                       <EmptySpace min="-2" pref="72" max="-2" attributes="0"/>
-                      <Component id="ParamPanel" min="-2" max="-2" attributes="0"/>
+                      <Component id="ParamPanel" max="32767" attributes="0"/>
+                      <EmptySpace type="separate" max="-2" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace pref="68" max="32767" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="DownButton" min="-2" pref="33" max="-2" attributes="0"/>
                   <Component id="UpButton" alignment="1" min="-2" pref="33" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="jButton1" min="-2" max="-2" attributes="0"/>
-              <EmptySpace min="-2" pref="23" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="DeleteButton" min="-2" max="-2" attributes="0"/>
+                  <Component id="DocButton" min="-2" pref="61" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -64,14 +68,16 @@
               <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
           </Group>
           <Group type="102" alignment="0" attributes="0">
-              <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
-              <Component id="UpButton" min="-2" pref="25" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="UpButton" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                  <Component id="DeleteButton" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
-              <Component id="DownButton" min="-2" max="-2" attributes="0"/>
-          </Group>
-          <Group type="102" alignment="0" attributes="0">
-              <EmptySpace min="-2" pref="25" max="-2" attributes="0"/>
-              <Component id="jButton1" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="DownButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="DocButton" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
           </Group>
       </Group>
     </DimensionLayout>
@@ -85,12 +91,12 @@
         <Property name="text" type="java.lang.String" value="10"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JButton" name="jButton1">
+    <Component class="javax.swing.JButton" name="DeleteButton">
       <Properties>
         <Property name="text" type="java.lang.String" value="Delete"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton1ActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="DeleteButtonActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JButton" name="UpButton">
@@ -142,9 +148,9 @@
                   <Component id="ParamIDTextField" min="-2" pref="138" max="-2" attributes="0"/>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Component id="ContainerComboBox" min="-2" pref="160" max="-2" attributes="0"/>
-                  <EmptySpace pref="28" max="32767" attributes="0"/>
+                  <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Component id="OperationComboBox" min="-2" pref="160" max="-2" attributes="0"/>
-                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Component id="FileNameTextField" min="-2" pref="146" max="-2" attributes="0"/>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Component id="SymbolTextField" min="-2" pref="142" max="-2" attributes="0"/>
@@ -152,9 +158,9 @@
                   <Component id="LowerBoundTextField" min="-2" pref="124" max="-2" attributes="0"/>
                   <EmptySpace min="-2" pref="27" max="-2" attributes="0"/>
                   <Component id="UpperBoundTextField" min="-2" pref="124" max="-2" attributes="0"/>
-                  <EmptySpace type="separate" max="-2" attributes="0"/>
-                  <Component id="HashedStringTextField" min="-2" pref="142" max="-2" attributes="0"/>
-                  <EmptySpace max="-2" attributes="0"/>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <Component id="HashedStringTextField" min="-2" pref="223" max="-2" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -201,6 +207,7 @@
         </Component>
         <Component class="javax.swing.JTextField" name="FileNameTextField">
           <Properties>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Name of the file containing parameterized data.&lt;/html&gt;"/>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
               <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
                 <TitledBorder title="File name">
@@ -214,7 +221,7 @@
         </Component>
         <Component class="javax.swing.JTextField" name="SymbolTextField">
           <Properties>
-            <Property name="toolTipText" type="java.lang.String" value="Parameter based on Line Type"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Symbol within the  file that is to be replaced, e.g., with a hash or a random value.&lt;/html&gt;"/>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
               <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
                 <TitledBorder title="Symbol">
@@ -229,6 +236,7 @@
         <Component class="javax.swing.JTextField" name="LowerBoundTextField">
           <Properties>
             <Property name="horizontalAlignment" type="int" value="2"/>
+            <Property name="toolTipText" type="java.lang.String" value="Lower bound of random value."/>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
               <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
                 <TitledBorder title="Lower bound">
@@ -246,6 +254,7 @@
         <Component class="javax.swing.JTextField" name="UpperBoundTextField">
           <Properties>
             <Property name="horizontalAlignment" type="int" value="2"/>
+            <Property name="toolTipText" type="java.lang.String" value="Upper bound of random value."/>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
               <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
                 <TitledBorder title="Upper bound">
@@ -262,7 +271,7 @@
         </Component>
         <Component class="javax.swing.JTextField" name="HashedStringTextField">
           <Properties>
-            <Property name="toolTipText" type="java.lang.String" value="Parameter based on Line Type"/>
+            <Property name="toolTipText" type="java.lang.String" value="String to be hashed."/>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
               <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
                 <TitledBorder title="Hashed string">
@@ -289,5 +298,14 @@
         </Component>
       </SubComponents>
     </Container>
+    <Component class="javax.swing.JButton" name="DocButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Doc"/>
+        <Property name="toolTipText" type="java.lang.String" value="Document this parameter."/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="DocButtonActionPerformed"/>
+      </Events>
+    </Component>
   </SubComponents>
 </Form>

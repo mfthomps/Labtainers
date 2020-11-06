@@ -19,7 +19,7 @@ public class ParamReferenceStorage {
         ToolTipWrapper retval = null;
 
         for(ToolTipWrapper tool_tip : tipList){
-            if(tool_tip.getItem() == item){
+            if(tool_tip.getItem().equals(item)){
                 retval = tool_tip;
                 break;
             }
@@ -127,14 +127,14 @@ public class ParamReferenceStorage {
     
    public static final ToolTipWrapper[] Operator_ITEMS = new ToolTipWrapper[] {
         //0
-        new ToolTipWrapper("RAND_REPLACE", "<html>Treat the line as space-delimited tokens.</html>"),
+        new ToolTipWrapper("RAND_REPLACE", "<html>Replace a symbol with a random integer within a range.</html>"),
         // 1
-        new ToolTipWrapper("RAND_REPLACE_UNIQUE", "<html>The desired value is contained in parenthesis.</html>"), 
+        new ToolTipWrapper("RAND_REPLACE_UNIQUE", "<html>Like RAND_REPLACE, but does not reuse value.<br> Intended for IP addressees.</html>"), 
         // 2
-        new ToolTipWrapper("HASH_CREATE", "<html>The desired value is contained in quotes.</html>"), 
+        new ToolTipWrapper("HASH_CREATE", "<html>Hash a string and write it to a named file.</html>"), 
         // 3
-        new ToolTipWrapper("HASH_REPLACE", "<html>The desired value is contained within slashes<br>"),
-        new ToolTipWrapper("CLONE_REPLACE", "<html>The desired value is contained within slashes<br>")
+        new ToolTipWrapper("HASH_REPLACE", "<html>Replace a symbol with the hash of a string</html>"),
+        new ToolTipWrapper("CLONE_REPLACE", "<html>Replace a symbol with a Clone Instance number.<br>Intended for use with cloned workstations</html>")
    };
     
     public static final Set<String> LOG_ACCESIBLE_FieldType = new HashSet<String>(Arrays.asList(

@@ -32,6 +32,7 @@ public class GoalPanels extends javax.swing.JPanel {
      */
     static Dimension dim = new Dimension(975, 100);
     private GoalsUI goalsUI;
+    private GoalsData dataUI;
     private int rowNum;
     
     private List<String> resultTags;
@@ -91,6 +92,7 @@ public class GoalPanels extends javax.swing.JPanel {
     private void initiateGoalPanel(GoalsUI ui, GoalsData dataUI, int rowNum){
         initComponents();
         this.goalsUI = ui;
+        this.dataUI = dataUI;
         this.rowNum = rowNum;
         
         resultTags = dataUI.getResultTagList();
@@ -173,6 +175,8 @@ public class GoalPanels extends javax.swing.JPanel {
         ArtifactPanel.setMinimumSize(new java.awt.Dimension(1400, 0));
         ArtifactPanel.setPreferredSize(new java.awt.Dimension(1300, 34));
 
+        GoalTypeComboBox.setToolTipText("Hover over pulldown items for information about each goal type.");
+        GoalTypeComboBox.setBorder(javax.swing.BorderFactory.createTitledBorder("Goal Type"));
         GoalTypeComboBox.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 GoalTypeComboBoxgoalTypeItemChanged(evt);
@@ -201,12 +205,15 @@ public class GoalPanels extends javax.swing.JPanel {
 
         ArithmeticResultTagTextField.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Arithmetic Result Tag"));
 
+        AnswerTypeComboBox.setToolTipText("Hover over pulldown values for information about different answer types.");
         AnswerTypeComboBox.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Answer Type"));
         AnswerTypeComboBox.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 AnswerTypeComboBoxItemStateChanged(evt);
             }
         });
+
+        ParameterComboBox.setToolTipText("Parameter whose value is to be compared.");
 
         BooleanResultTagsComboBox.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Boolean Result Tags"));
 
@@ -261,9 +268,6 @@ public class GoalPanels extends javax.swing.JPanel {
                         .addComponent(SubgoalTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(Goal2TextField)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, ArtifactPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(GoalIDTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(GoalTypeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, ArtifactPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(BooleanTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(Goal1TextField, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, ArtifactPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -276,8 +280,11 @@ public class GoalPanels extends javax.swing.JPanel {
                     .addComponent(ResultTag2ComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(ParameterComboBox)
                     .addComponent(BooleanResultTagsComboBox)
-                    .addComponent(PreviousMatchanyComboBox))
-                .addGap(83, 83, 83))
+                    .addComponent(PreviousMatchanyComboBox)
+                    .addGroup(ArtifactPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(GoalTypeComboBox)
+                        .addComponent(GoalIDTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
         );
 
         DeleteButton.setText("Delete");
@@ -332,20 +339,22 @@ public class GoalPanels extends javax.swing.JPanel {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(ArtifactPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(ArtifactPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(UpButton)
-                            .addComponent(DeleteButton, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(DownButton)
-                            .addComponent(DocButton))
-                        .addContainerGap())
-                    .addComponent(rowLabel)))
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(UpButton)
+                                    .addComponent(DeleteButton, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(DownButton)
+                                    .addComponent(DocButton)))
+                            .addComponent(rowLabel))))
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -585,7 +594,18 @@ public class GoalPanels extends javax.swing.JPanel {
         goalsUI.data.swapGoals(type, rowIndex);
         goalsUI.loadUI();
     }
-   
+  
+    public void updateParameters(){
+        String current = (String) ParameterComboBox.getSelectedItem();
+        parameterIDs = dataUI.getParameters();
+        ParameterComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(parameterIDs.toArray(new String[parameterIDs.size()])));
+        if(parameterIDs.contains(current)){
+            ParameterComboBox.setSelectedItem(current);
+        }else{
+            String id = getGoalIDTextField().getText();
+            System.out.println("ERROR, goal "+id+" parameter of "+current+" was removed from parameters.");
+       } 
+    } 
 
     //Field Getters
     public JTextField getGoalIDTextField(){

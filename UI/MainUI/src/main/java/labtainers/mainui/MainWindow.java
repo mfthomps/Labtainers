@@ -1968,6 +1968,12 @@ public class MainWindow extends javax.swing.JFrame {
     public void setParamsClosed(){
         paramsOpened = false;
     }
+
+    public void updateParameters(){
+        if(goalsOpened){
+            goalsUI.updateParameters();
+        }
+    }
     
     public void printExistingLabs(){
         int labCount = 1;

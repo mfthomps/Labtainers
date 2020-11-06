@@ -12,6 +12,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import labtainers.mainui.MainWindow;
+import labtainers.goalsui.GoalsData;
+import labtainers.goalsui.GoalsUI;
 
 /**
  *
@@ -58,7 +60,7 @@ public class ParamsUI extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Results Configuration");
+        setTitle("Parameter Configuration (Individualize labs)");
         setMinimumSize(new java.awt.Dimension(1590, 500));
         setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -157,7 +159,7 @@ public class ParamsUI extends javax.swing.JFrame {
     }//GEN-LAST:event_RemoveAllButtonActionPerformed
 
     private void UpdateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UpdateButtonActionPerformed
-        updateButon();
+        updateButton();
     }//GEN-LAST:event_UpdateButtonActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
@@ -173,10 +175,12 @@ public class ParamsUI extends javax.swing.JFrame {
     }
     
     // Updates the param data object basd on the current param configuration UI state
-    private void updateButon(){
+    private void updateButton(){
+        System.out.println("Update button");
         data.updateListofParams(PanelofParams);
         saved = new ParamsData(data);
         this.mainUI.getCurrentData().setParamsData(saved);
+        this.mainUI.updateParameters();
     }
     
     // Removes all the param panels
@@ -238,7 +242,8 @@ public class ParamsUI extends javax.swing.JFrame {
                                                         paramVal.symbol, 
                                                         paramVal.hashedString, 
                                                         paramVal.upperBound, 
-                                                        paramVal.lowerBound);
+                                                        paramVal.lowerBound,
+                                                        paramVal.comments);
         addParamsPanel(newParam);
     }
     
@@ -258,6 +263,25 @@ public class ParamsUI extends javax.swing.JFrame {
         loadUI();
     }
     
+    //Check if the the current state of the UI matches with what's saved in the parameter.config
+    /*
+    void checkUnsavedChangesMade(){
+            data.updateListofParams(PanelofParams);
+
+            if(paramValuesDiffer(data.listofParams, data.getParamValuesOfConfigFile())){
+                int confirmed = JOptionPane.showConfirmDialog(null, 
+                    "There are Unsaved Changes. Are you sure you want to exit the program?", "Unsaved Changes",
+                    JOptionPane.YES_NO_OPTION);
+
+                if (confirmed == JOptionPane.YES_OPTION) 
+                    dispose();
+                else
+                    setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+            }
+            else
+                dispose();
+    }
+    */
     
     
     // GETTERS //

@@ -308,6 +308,8 @@ public class LabData {
 
                 //Parse the goals.config
                 goalsData.retrieveData();
+
+                paramsData.retrieveData();
             }
         }
         else{

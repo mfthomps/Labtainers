@@ -20,11 +20,21 @@ public class ParamValues {
     //Values to be obtained
         String paramID, container, fileID, symbol, hashedString;
         String upperBound, lowerBound;
-        
+        String comments = "";
         String operator;
         
         //Stores the values of an parameter fed into it (NO real value validation happening here)
-        ParamValues(String paramLine){
+        ParamValues(String inputLine){
+            String paramLine;
+            if(inputLine.contains("\n")){
+                String[] the_lines = inputLine.split("\n");
+                paramLine = the_lines[the_lines.length-1];
+                for(int i=0; i<the_lines.length-1; i++){
+                    comments = comments+the_lines[i]+"\n";
+                }
+            }else{
+                paramLine = inputLine; 
+            }
             String operator_string;
             paramID = container= fileID = symbol = hashedString = "";
             upperBound = lowerBound = "0"; 
@@ -50,9 +60,9 @@ public class ParamValues {
                     upperBound = paramParsedLine[5];
                 }
             }
-            if(operator == "HASH_CREATE"){
+            if(operator.equals("HASH_CREATE")){
                 hashedString = paramParsedLine[3];
-            }else if(operator == "HASH_REPLACE"){
+            }else if(operator.equals("HASH_REPLACE")){
                 hashedString = paramParsedLine[4];
             }
         }
@@ -60,7 +70,7 @@ public class ParamValues {
         //Constructor for temporarily storing values of artifacts in the UI
         ParamValues(String paramID, String container, String fileID, String operator, 
                      String symbol, String hashedString,
-                     String lowerBound, String upperBound){
+                     String lowerBound, String upperBound, String comments){
             this.paramID = paramID; 
             this.container = container; 
             this.fileID = fileID; 
@@ -69,6 +79,7 @@ public class ParamValues {
             this.hashedString = hashedString; 
             this.lowerBound = lowerBound; 
             this.upperBound = upperBound; 
+            this.comments = comments; 
         }
         
         //Clones the original Params Values
@@ -81,6 +92,7 @@ public class ParamValues {
             this.hashedString = original.hashedString; 
             this.lowerBound = original.lowerBound; 
             this.upperBound = original.upperBound; 
+            this.comments = original.comments; 
         }
         
         private ToolTipHandlers.ToolTipWrapper itemFinder(ToolTipHandlers.ToolTipWrapper[] list,String desired){

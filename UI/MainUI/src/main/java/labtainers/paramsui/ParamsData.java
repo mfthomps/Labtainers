@@ -87,6 +87,7 @@ public class ParamsData {
                        symbol,
                        hashedString;
             String upperBound, lowerBound;
+            String comments;
             String paramsConfigText = "";
             
             ErrorHandler error = new ErrorHandler();
@@ -96,7 +97,7 @@ public class ParamsData {
             for(int i=0;i < listofParams.size();i++){
                 error.checkReset(); //Reset the error statuses for a new param line
                 
-                String paramConfigLine = "";
+                String paramConfigLine = listofParams.get(i).comments; 
                 
                 paramID = listofParams.get(i).paramID;
                 paramTagList.add(paramID); 
@@ -412,9 +413,9 @@ public class ParamsData {
            String hashedString = ((ParamPanels) param).getHashedStringTextField().getText();
            String lowerBound = ((ParamPanels) param).getLowerBoundTextField().getText();
            String upperBound = ((ParamPanels) param).getUpperBoundTextField().getText();
-           System.out.println("container is "+container);
+           String comments = ((ParamPanels) param).getComments();
            
-           listofParamsTMP.add(new ParamValues(paramID, container, file, operator, symbol, hashedString, upperBound, lowerBound));
+           listofParamsTMP.add(new ParamValues(paramID, container, file, operator, symbol, hashedString, lowerBound, upperBound, comments));
        }
        
        listofParams = listofParamsTMP; //overwrite the old listofParams with the temp listofParams
@@ -444,7 +445,7 @@ public class ParamsData {
     }
     
     //Gets a list of ParamValues from the the current state of the parameter.config file
-    protected List<ParamValues> getParamaValuesOfConfigFile(){
+    protected List<ParamValues> getParamValuesOfConfigFile(){
         List<ParamValues> officialListofParams = new ArrayList<ParamValues>();
         
         ArrayList<String> paramLines = getParamLines();

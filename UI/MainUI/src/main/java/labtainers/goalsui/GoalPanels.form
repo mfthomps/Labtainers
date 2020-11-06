@@ -42,24 +42,28 @@
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="ArtifactPanel" alignment="0" min="-2" pref="80" max="-2" attributes="0"/>
-          <Group type="102" alignment="0" attributes="0">
-              <EmptySpace max="-2" attributes="0"/>
+          <Group type="102" attributes="0">
               <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="ArtifactPanel" alignment="0" min="-2" pref="80" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="UpButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="DeleteButton" alignment="3" min="-2" pref="30" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="DownButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="DocButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
                       <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" alignment="0" attributes="0">
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="UpButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="DeleteButton" alignment="3" min="-2" pref="30" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace min="-2" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="DownButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="DocButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                          </Group>
+                          <Component id="rowLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                      </Group>
                   </Group>
-                  <Component id="rowLabel" alignment="0" min="-2" max="-2" attributes="0"/>
               </Group>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -133,10 +137,6 @@
                       </Group>
                       <Component id="Goal2TextField" alignment="1" max="32767" attributes="0"/>
                       <Group type="103" alignment="0" groupAlignment="3" attributes="0">
-                          <Component id="GoalIDTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="GoalTypeComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <Group type="103" alignment="0" groupAlignment="3" attributes="0">
                           <Component id="BooleanTextField" alignment="3" min="-2" pref="41" max="-2" attributes="0"/>
                           <Component id="Goal1TextField" alignment="3" min="-2" pref="41" max="-2" attributes="0"/>
                       </Group>
@@ -152,8 +152,12 @@
                       <Component id="ParameterComboBox" alignment="1" max="32767" attributes="0"/>
                       <Component id="BooleanResultTagsComboBox" alignment="1" max="32767" attributes="0"/>
                       <Component id="PreviousMatchanyComboBox" alignment="1" max="32767" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="GoalTypeComboBox" alignment="3" max="32767" attributes="0"/>
+                          <Component id="GoalIDTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
                   </Group>
-                  <EmptySpace min="-2" pref="83" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -165,6 +169,12 @@
           <Properties>
             <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
               <StringArray count="0"/>
+            </Property>
+            <Property name="toolTipText" type="java.lang.String" value="Hover over pulldown items for information about each goal type."/>
+            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+              <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
+                <TitledBorder title="Goal Type"/>
+              </Border>
             </Property>
           </Properties>
           <Events>
@@ -323,6 +333,7 @@
             <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
               <StringArray count="0"/>
             </Property>
+            <Property name="toolTipText" type="java.lang.String" value="Hover over pulldown values for information about different answer types."/>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
               <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
                 <TitledBorder title="Answer Type">
@@ -355,6 +366,7 @@
             <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
               <StringArray count="0"/>
             </Property>
+            <Property name="toolTipText" type="java.lang.String" value="Parameter whose value is to be compared."/>
           </Properties>
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>

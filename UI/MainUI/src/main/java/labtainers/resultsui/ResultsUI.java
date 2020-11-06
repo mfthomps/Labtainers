@@ -273,6 +273,7 @@ public class ResultsUI extends javax.swing.JFrame {
     }
     
     //Check if the the current state of the UI matches with what's saved in the results.config
+    /*
     void checkUnsavedChangesMade(){
             data.updateListofArtifacts(PanelofArtifacts);
 
@@ -289,6 +290,7 @@ public class ResultsUI extends javax.swing.JFrame {
             else
                 dispose();
     }
+    */
     
     
     // GETTERS //
