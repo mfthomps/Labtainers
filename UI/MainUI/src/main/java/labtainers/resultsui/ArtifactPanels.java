@@ -36,7 +36,7 @@ public class ArtifactPanels extends javax.swing.JPanel {
     ResultsUI uiResult;
     ResultsData dataUI;
     int rowNum;
-    String comments;
+    String comments="";
     
     /**
      * Creates new form ArtifactsPanel
@@ -91,7 +91,7 @@ public class ArtifactPanels extends javax.swing.JPanel {
         setLineTypeComboBox(lineType);          
         setTimeStampComboBox(timeStampType);          
         setTimeDelimiterTextField(timeStampDelimiter);
-        
+ 
         this.revalidate();
         this.repaint();
     }
@@ -167,7 +167,7 @@ public class ArtifactPanels extends javax.swing.JPanel {
 
         FieldIDTextField.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Field ID"));
 
-        LineTypeComboBox.setToolTipText("Identifies how the line is to be identified");
+        LineTypeComboBox.setToolTipText("Identifies how the line is to be located.");
         LineTypeComboBox.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Line Type"));
         LineTypeComboBox.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -178,6 +178,7 @@ public class ArtifactPanels extends javax.swing.JPanel {
         LineIDTextField.setToolTipText("Parameter based on Line Type");
         LineIDTextField.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Line ID"));
 
+        TimeStampComboBox.setToolTipText("<html>Source of time stamps, e.g., from the file<br>or from log entries</html>");
         TimeStampComboBox.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Timestamp Type"));
         TimeStampComboBox.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -330,7 +331,22 @@ public class ArtifactPanels extends javax.swing.JPanel {
        uiResult.data.rowCount--;
        uiResult.refresh();
     }
-    
+    private void lineTypeTimeStamp(ToolTipWrapper lineType){
+        if(LOG_TS_ACCESSIBLE_LineType.contains(lineType.getItem())){               
+            //Add "LOG_TS" to the timestampComboBox if it's not already
+            if(((DefaultComboBoxModel)TimeStampComboBox.getModel()).getIndexOf(SpecialTimeStampType[0]) == -1) {
+                TimeStampComboBox.addItem(SpecialTimeStampType[0]);
+            }
+            TimeStampComboBox.setVisible(true);
+        }else{
+            ToolTipWrapper fieldTypeTTW = (ToolTipWrapper)FieldTypeComboBox.getSelectedItem();
+            //Remove "LOG_TS" from the timestampComboBox if it's not already
+            if(((DefaultComboBoxModel)TimeStampComboBox.getModel()).getIndexOf(SpecialTimeStampType[0]) != -1 && !LOG_ACCESIBLE_FieldType.contains(fieldTypeTTW.getItem())) {
+                TimeStampComboBox.removeItem(SpecialTimeStampType[0]);
+            }
+            TimeStampComboBox.setVisible(false);
+        }
+    } 
     
     //The listeners sees what values are present in their respective fields and then changes the interface based on that(remove or adding other fields)
     private void lineTypeListener(){
@@ -341,28 +357,69 @@ public class ArtifactPanels extends javax.swing.JPanel {
         }
         else
             LineIDTextField.setVisible(true);
-        
-
+      
         //Does the line type allow for LOG_TS option in the TimeStampComboBox?
-        if(LOG_TS_ACCESSIBLE_LineType.contains(lineType.getItem())){               
-            //Add "LOG_TS" to the timestampComboBox if it's not already
-            if(((DefaultComboBoxModel)TimeStampComboBox.getModel()).getIndexOf(SpecialTimeStampType[0]) == -1)
-                TimeStampComboBox.addItem(SpecialTimeStampType[0]);
-        }
-        else{
-            ToolTipWrapper fieldTypeTTW = (ToolTipWrapper)FieldTypeComboBox.getSelectedItem();
-            //Remove "LOG_TS" from the timestampComboBox if it's not already
-            if(((DefaultComboBoxModel)TimeStampComboBox.getModel()).getIndexOf(SpecialTimeStampType[0]) != -1 && !LOG_ACCESIBLE_FieldType.contains(fieldTypeTTW.getItem()))
-                TimeStampComboBox.removeItem(SpecialTimeStampType[0]);
-        }
+        lineTypeTimeStamp(lineType);    
+
         
         this.revalidate();
         this.repaint();
     }
-    
+   
+    private void adjustFieldIDToolTip(String fieldType){
+        //System.out.println("field type "+fieldType);
+        String tip = FieldIDTextField.getToolTipText();
+        switch(fieldType){
+            case "TOKEN":
+                tip = "Result is the Nth space-delimited token, where N is this integer.";
+                break;
+            case "QUOTES":
+                tip = "Result is the Nth quoted string, where N is this integer.";
+                break;
+            case "PARENS":
+                tip = "Result is the Nth string in parenthesis, where N is this integer.";
+                break;
+            case "SLASH":
+                tip = "Result is the Nth slash-delimited token, where N is this integer.";
+                break;
+            case "CONTAINS":
+                tip = "Result is true if the file contains this string.";
+                break;
+            case "FILE_REGEX":
+                tip = "Result is true if the file contains this regular expression.";
+                break;
+            case "LOG_TS":
+                tip = "Used with timestamped log files, results in a timestamped set of boolean results with a value of TRUE for each log line that contains this string.";
+                break;
+            case "FILE_REGEX_TS":
+                tip = "Used with timestamped log files, results in a timestamped set of boolean results with a value of TRUE for each log line that contains this regular expression.";
+                break;
+            case "LOG_RANGE":
+                tip = "Used with timestamped log files, results in a timestamped set of boolean results with a value of TRUE for each log line that contains this string, with timestamp ranges delimited by the matching log entries.";
+                break;
+            case "STRING_COUNT":
+                tip = "The result value is set to the quantity of occurances of this string in the file.";
+                break;
+            case "COMMAND_COUNT": 
+                tip = "Intended for use with bash_history files, counts the occurances of this command.  Commands are evaluated considering use of sudo, time, etc.";
+                break;
+            case "SEARCH":
+                tip = "Result is assigned the value of string, which is treated as an expression having the syntax of pythons parse.search function.  E.g., 'frame.number=={:d}' would yield the frame number.";
+                break;
+            case "GROUP":
+                tip = "Intended for use with 'REGEX' line types, the result is set to the value of the regex group number named by this value.  Regular expressions and their groups are processed using the python re.search semantics.";
+                break;
+
+
+
+            default:
+                //System.out.println("adjustFieldIDToolTip no match");
+        }
+        FieldIDTextField.setToolTipText(tip);
+    } 
     private void fieldTypeListener(){  
         ToolTipWrapper fieldType = (ToolTipWrapper)FieldTypeComboBox.getSelectedItem();
-
+        adjustFieldIDToolTip(fieldType.getItem()); 
         //Does the fieldType allow for certain user inputs
         if(!justFieldType.contains(fieldType.getItem())){
             FieldIDTextField.setVisible(true);
@@ -392,11 +449,14 @@ public class ArtifactPanels extends javax.swing.JPanel {
         */
         if(LOG_ACCESIBLE_FieldType.contains(fieldType.getItem())){
             //Add "LOG_TS" to the timestampComboBox if it's not already
-            if(((DefaultComboBoxModel)TimeStampComboBox.getModel()).getIndexOf(SpecialTimeStampType[0]) == -1)
+            if(((DefaultComboBoxModel)TimeStampComboBox.getModel()).getIndexOf(SpecialTimeStampType[0]) == -1){
                 TimeStampComboBox.addItem(SpecialTimeStampType[0]);
+            }
             //Add "LOG_RANGE" to the timestampComboBox if it's not already
-            if(((DefaultComboBoxModel)TimeStampComboBox.getModel()).getIndexOf(SpecialTimeStampType[1]) == -1)
+            if(((DefaultComboBoxModel)TimeStampComboBox.getModel()).getIndexOf(SpecialTimeStampType[1]) == -1){
                 TimeStampComboBox.addItem(SpecialTimeStampType[1]);          
+            }
+            TimeStampComboBox.setVisible(true);
         }
         /*
         If the selcted Field Type doesn't allow for "LOG_TS" and "LOG_RANGE" in the timeStampComboBox, 
@@ -405,11 +465,14 @@ public class ArtifactPanels extends javax.swing.JPanel {
         else{
             ToolTipWrapper lineType = (ToolTipWrapper)LineTypeComboBox.getSelectedItem();
             //Remove "LOG_TS" from the timestampComboBox if it's not already
-            if(((DefaultComboBoxModel)TimeStampComboBox.getModel()).getIndexOf(SpecialTimeStampType[0]) != -1 && !LOG_TS_ACCESSIBLE_LineType.contains(lineType.getItem()))
+            if(((DefaultComboBoxModel)TimeStampComboBox.getModel()).getIndexOf(SpecialTimeStampType[0]) != -1 && !LOG_TS_ACCESSIBLE_LineType.contains(lineType.getItem())){
                 TimeStampComboBox.removeItem(SpecialTimeStampType[0]);
+            }
             //Remove "LOG_RANGE" from the timestampComboBox if it's there
-            if(((DefaultComboBoxModel)TimeStampComboBox.getModel()).getIndexOf(SpecialTimeStampType[1]) != -1)
+            if(((DefaultComboBoxModel)TimeStampComboBox.getModel()).getIndexOf(SpecialTimeStampType[1]) != -1){
                 TimeStampComboBox.removeItem(SpecialTimeStampType[1]);          
+            }
+            TimeStampComboBox.setVisible(false);
         }
         
         ArtifactPanel.revalidate();

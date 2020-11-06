@@ -15,6 +15,17 @@ import labtainers.mainui.ToolTipHandlers.ToolTipWrapper;
  * @author Daniel Liao
  */
 public class ParamReferenceStorage {
+    public static ToolTipWrapper getWrapper(ToolTipWrapper[] tipList, String item){
+        ToolTipWrapper retval = null;
+
+        for(ToolTipWrapper tool_tip : tipList){
+            if(tool_tip.getItem() == item){
+                retval = tool_tip;
+                break;
+            }
+        }
+        return retval;
+    }   
     public static final ToolTipWrapper[] FieldType_ITEMS = new ToolTipWrapper[] {
         //0
         new ToolTipWrapper("TOKEN", "<html>Treat the line as space-delimited tokens.</html>"),
@@ -93,11 +104,7 @@ public class ParamReferenceStorage {
 
     public static final ToolTipWrapper[] TimestampType_ITEMS = new ToolTipWrapper[] {
         // 0
-        new ToolTipWrapper("File", ""),
-        //  1
-        new ToolTipWrapper("Service", ""),
-        // 2
-        new ToolTipWrapper("Program", "")} ;
+        new ToolTipWrapper("File", "<html>Result time stamps are derived <br>"+"from the file time stamp.</html>"),} ;
     
     
     //****These items may need to be stored differently for better organization)
@@ -118,6 +125,17 @@ public class ParamReferenceStorage {
 
         new ToolTipWrapper("REGEX_TS", "")};
     
+   public static final ToolTipWrapper[] Operator_ITEMS = new ToolTipWrapper[] {
+        //0
+        new ToolTipWrapper("RAND_REPLACE", "<html>Treat the line as space-delimited tokens.</html>"),
+        // 1
+        new ToolTipWrapper("RAND_REPLACE_UNIQUE", "<html>The desired value is contained in parenthesis.</html>"), 
+        // 2
+        new ToolTipWrapper("HASH_CREATE", "<html>The desired value is contained in quotes.</html>"), 
+        // 3
+        new ToolTipWrapper("HASH_REPLACE", "<html>The desired value is contained within slashes<br>"),
+        new ToolTipWrapper("CLONE_REPLACE", "<html>The desired value is contained within slashes<br>")
+   };
     
     public static final Set<String> LOG_ACCESIBLE_FieldType = new HashSet<String>(Arrays.asList(
         new String[] {"CONTAINS", "FILE_REGEX", "SEARCH"}
@@ -140,4 +158,5 @@ public class ParamReferenceStorage {
    public static final Set<String> timeStampDelimiterAccessible = new HashSet<String>(Arrays.asList(
     new String[] {"Service", "Program"}
    ));
+
 }

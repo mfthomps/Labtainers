@@ -18,7 +18,7 @@ import labtainers.mainui.MainWindow;
  */
 
 
-public class GoalsUI extends javax.swing.JDialog {
+public class GoalsUI extends javax.swing.JFrame {
 
     /**
      * Creates new form GoalsUI
@@ -28,7 +28,7 @@ public class GoalsUI extends javax.swing.JDialog {
     MainWindow mainUI;
     
     public GoalsUI(java.awt.Frame parent, boolean modal) {
-        super(parent, modal);
+        //super(parent, modal);
         initComponents();
         this.setVisible(true);
         goalsScrollPaneBar = ScrollPaneOfGoals.getVerticalScrollBar();

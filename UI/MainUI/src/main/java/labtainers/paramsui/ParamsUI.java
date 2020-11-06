@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package labtainers.resultsui;
+package labtainers.paramsui;
 
 import java.awt.Component;
 import java.awt.Dimension;
@@ -12,30 +12,29 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import labtainers.mainui.MainWindow;
-import static labtainers.resultsui.ResultsData.artifactValuesDiffer;
 
 /**
  *
  * @author Daniel Liao
  */
-public class ResultsUI extends javax.swing.JFrame {
+public class ParamsUI extends javax.swing.JFrame {
 
     /**
      * Creates new form NewJDialog
      */
-    ResultsData data;
-    ResultsData saved;
+    ParamsData data;
+    ParamsData saved;
     MainWindow mainUI;
     
-    public ResultsUI(java.awt.Frame parent, boolean modal) {
-        //super(parent, modal);
+    public ParamsUI(java.awt.Frame parent, boolean modal) {
+        //super(parent);
         initComponents();
         this.setVisible(true);
-        resultsScrollPaneBar = ScrollPaneOfArtifacts.getVerticalScrollBar();
+        paramsScrollPaneBar = ScrollPaneOfParams.getVerticalScrollBar();
         
         this.mainUI = (MainWindow)parent;
-        this.data = new ResultsData(this.mainUI.getCurrentData().getResultsData());
-        this.saved = new ResultsData(this.data);
+        this.data = new ParamsData(this.mainUI.getCurrentData().getParamsData());
+        this.saved = new ParamsData(this.data);
         
         loadUI();
     }
@@ -49,19 +48,17 @@ public class ResultsUI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        ScrollPaneOfArtifacts = new javax.swing.JScrollPane();
-        PanelofArtifacts = new javax.swing.JPanel();
+        ScrollPaneOfParams = new javax.swing.JScrollPane();
+        PanelofParams = new javax.swing.JPanel();
         CreateButton = new javax.swing.JButton();
         RemoveAllButton = new javax.swing.JButton();
         UpdateButton = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Results Configuration");
-        setMaximumSize(new java.awt.Dimension(1590, 10000));
         setMinimumSize(new java.awt.Dimension(1590, 500));
         setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -70,8 +67,8 @@ public class ResultsUI extends javax.swing.JFrame {
             }
         });
 
-        PanelofArtifacts.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
-        ScrollPaneOfArtifacts.setViewportView(PanelofArtifacts);
+        PanelofParams.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
+        ScrollPaneOfParams.setViewportView(PanelofParams);
 
         CreateButton.setText("Create");
         CreateButton.addActionListener(new java.awt.event.ActionListener() {
@@ -95,20 +92,15 @@ public class ResultsUI extends javax.swing.JFrame {
         });
 
         jLabel5.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
-        jLabel5.setText("File");
+        jLabel5.setText("Operator");
         jLabel5.setToolTipText("File should either be a file path or a program/utility name with the \".stdin\", \".stdout\", or \".prgout\" extension.\n\n Ex. \"test.stdin\", \".local/result/sniff.txt\" ");
 
-        jLabel3.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
-        jLabel3.setText("Field Type");
-        jLabel3.setToolTipText("The mode in which a value is found.");
-
-        jLabel2.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
-        jLabel2.setText("Container");
-        jLabel2.setToolTipText("Identifies the container hosting the file. \nIf \"ALL\" is selected, then the file is across all the containers.");
-
         jLabel1.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
-        jLabel1.setText("Result Tag");
+        jLabel1.setText("Param ID");
         jLabel1.setToolTipText("The symbolic name of the result, which will be referenced in the goals configuration file. \n\n(It must be alphanumeric, underscores permitted) ");
+
+        jLabel2.setFont(new java.awt.Font("Ubuntu", 1, 15)); // NOI18N
+        jLabel2.setText("Container");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -119,7 +111,7 @@ public class ResultsUI extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(ScrollPaneOfArtifacts, javax.swing.GroupLayout.PREFERRED_SIZE, 1566, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(ScrollPaneOfParams, javax.swing.GroupLayout.PREFERRED_SIZE, 1566, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(CreateButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -129,12 +121,10 @@ public class ResultsUI extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(91, 91, 91)
                         .addComponent(jLabel1)
-                        .addGap(79, 79, 79)
+                        .addGap(118, 118, 118)
                         .addComponent(jLabel2)
-                        .addGap(73, 73, 73)
-                        .addComponent(jLabel5)
-                        .addGap(111, 111, 111)
-                        .addComponent(jLabel3)))
+                        .addGap(148, 148, 148)
+                        .addComponent(jLabel5)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -145,14 +135,13 @@ public class ResultsUI extends javax.swing.JFrame {
                     .addComponent(CreateButton)
                     .addComponent(RemoveAllButton)
                     .addComponent(UpdateButton))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 25, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(jLabel2)
                     .addComponent(jLabel5)
-                    .addComponent(jLabel3))
+                    .addComponent(jLabel2))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(ScrollPaneOfArtifacts, javax.swing.GroupLayout.PREFERRED_SIZE, 397, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(ScrollPaneOfParams, javax.swing.GroupLayout.PREFERRED_SIZE, 397, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
@@ -172,93 +161,90 @@ public class ResultsUI extends javax.swing.JFrame {
     }//GEN-LAST:event_UpdateButtonActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-       mainUI.setResultsClosed();
+       mainUI.setParamsClosed();
     }//GEN-LAST:event_formWindowClosing
 
     // BUTTONS //
     
-    // Adds a new artifact panel
+    // Adds a new param panel
     private void createButton(){
-        addResultsPanel(new ArtifactPanels(this, ResultsData.containerList,data.rowCount+1));
-        resultsScrollPaneBar.setValue(resultsScrollPaneBar.getMaximum());
+        addParamsPanel(new ParamPanels(this, ParamsData.containerList, data.rowCount+1));
+        paramsScrollPaneBar.setValue(paramsScrollPaneBar.getMaximum());
     }
     
-    // Updates the results data object basd on the current results configuration UI state
+    // Updates the param data object basd on the current param configuration UI state
     private void updateButon(){
-        data.updateListofArtifacts(PanelofArtifacts);
-        saved = new ResultsData(data);
-        this.mainUI.getCurrentData().setResultsData(saved);
+        data.updateListofParams(PanelofParams);
+        saved = new ParamsData(data);
+        this.mainUI.getCurrentData().setParamsData(saved);
     }
     
-    // Removes all the artifact panels
+    // Removes all the param panels
     private void removeAllButton(){
        if(JOptionPane.showConfirmDialog(null, "Are you sure you want to remove all?") == JOptionPane.YES_OPTION){
-            removeAllArtifacts();
+            removeAllParams();
        }          
     }
     
     
     // CORE FUNCTIONS//
       
-    // Adds artifact panel
-    public int resultsPanePanelLength = 0;
-    private JScrollBar resultsScrollPaneBar;
-    private void addResultsPanel(ArtifactPanels panel){
-        //Resize the JPanel Holding all the ResultArtifactsPanels to fit another one (makes the scroll bar resize and should show all objects listed)
-        //as of 8/24/2020 the PanelofArtifacts uses a flow layout with a horizontal gap of 5, that's where the 5 comes from in the line below
-        resultsPanePanelLength+=panel.getPreferredSize().height+5;
-        PanelofArtifacts.setPreferredSize(new Dimension(0,resultsPanePanelLength));
+    // Adds param panel
+    public int paramsPanePanelLength = 0;
+    private JScrollBar paramsScrollPaneBar;
+    private void addParamsPanel(ParamPanels panel){
+        //Resize the JPanel Holding all the ParamsPanels to fit another one (makes the scroll bar resize and should show all objects listed)
+        paramsPanePanelLength+=panel.getPreferredSize().height+5;
+        PanelofParams.setPreferredSize(new Dimension(0,paramsPanePanelLength));
         
-        // Create the Result Artifact Panel and add it
+        // Create the Param Panel and add it
         data.rowCount++;
-        PanelofArtifacts.add(panel); //takes in parent(this), containerlist, rowcount
+        PanelofParams.add(panel); //takes in parent(this), containerlist, rowcount
         
         // Redraw GUI with the new Panel
-        PanelofArtifacts.revalidate();
-        PanelofArtifacts.repaint(); 
+        PanelofParams.revalidate();
+        PanelofParams.repaint(); 
     }    
     
-    // Removes all the artifact lines for the lab *note: this doesn't update results.config or the resultsData until the user hits the update button
-    private void removeAllArtifacts(){
+    // Removes all the param lines for the lab *note: this doesn't update parameter.config or the paramsData until the user hits the update button
+    private void removeAllParams(){
         data.rowCount = 0;
-        resultsPanePanelLength = 0;
-        PanelofArtifacts.setPreferredSize(new Dimension(0,resultsPanePanelLength));
-        Component[] componentList = PanelofArtifacts.getComponents();
+        paramsPanePanelLength = 0;
+        PanelofParams.setPreferredSize(new Dimension(0,paramsPanePanelLength));
+        Component[] componentList = PanelofParams.getComponents();
         for(Component c: componentList){
-            PanelofArtifacts.remove(c);
+            PanelofParams.remove(c);
         }
 
-        PanelofArtifacts.revalidate();
-        PanelofArtifacts.repaint();
+        PanelofParams.revalidate();
+        PanelofParams.repaint();
     }
     
-    // loads the artifact panels based on the current data
+    // loads the param panels based on the current data
     protected void loadUI(){
-        removeAllArtifacts();               
-        //redraw the artifacts
-        for(int i=0; i < data.listofArtifacts.size(); i++)
-            loadArtifact(data.listofArtifacts.get(i), i+1);
+        removeAllParams();               
+        //redraw the param
+        for(int i=0; i < data.listofParams.size(); i++)
+            loadParam(data.listofParams.get(i), i+1);
     }
     
-    // Load the artifactlinePanel into GUI
-    private void loadArtifact(ArtifactValues artifactVal, int rowNum){
-        ArtifactPanels newArtifact = new ArtifactPanels(this, ResultsData.containerList, rowNum,
-                                                        artifactVal.resultTag, 
-                                                        artifactVal.container, 
-                                                        artifactVal.fileID, 
-                                                        artifactVal.fieldType, 
-                                                        artifactVal.fieldID, 
-                                                        artifactVal.lineType, 
-                                                        artifactVal.lineID, 
-                                                        artifactVal.timeStampType, 
-                                                        artifactVal.timeStampDelimiter,
-                                                        artifactVal.comments);
-        addResultsPanel(newArtifact);
+    // Load the param panel into GUI
+    private void loadParam(ParamValues paramVal, int rowNum){
+        ParamPanels newParam = new ParamPanels(this, ParamsData.containerList, rowNum,
+                                                        paramVal.paramID, 
+                                                        paramVal.container, 
+                                                        paramVal.fileID, 
+                                                        paramVal.operator, 
+                                                        paramVal.symbol, 
+                                                        paramVal.hashedString, 
+                                                        paramVal.upperBound, 
+                                                        paramVal.lowerBound);
+        addParamsPanel(newParam);
     }
     
-    //Updates the list of artifacts and redraws them on screen
+    //Updates the list of params and redraws them on screen
     public void refresh(){
-       data.updateListofArtifacts(PanelofArtifacts);       
+       data.updateListofParams(PanelofParams);       
        loadUI();
     }
     
@@ -266,36 +252,19 @@ public class ResultsUI extends javax.swing.JFrame {
     // OTHER //
     
     public void refactorContainerReferenceInUI(String oldName, String newName){
-        data.updateListofArtifacts(PanelofArtifacts); 
+        data.updateListofParams(PanelofParams); 
         data.refactorContainerReference(oldName, newName);
         saved.refactorContainerReference(oldName, newName);
         loadUI();
     }
     
-    //Check if the the current state of the UI matches with what's saved in the results.config
-    void checkUnsavedChangesMade(){
-            data.updateListofArtifacts(PanelofArtifacts);
-
-            if(artifactValuesDiffer(data.listofArtifacts, data.getArtifactValuesOfConfigFile())){
-                int confirmed = JOptionPane.showConfirmDialog(null, 
-                    "There are Unsaved Changes. Are you sure you want to exit the program?", "Unsaved Changes",
-                    JOptionPane.YES_NO_OPTION);
-
-                if (confirmed == JOptionPane.YES_OPTION) 
-                    dispose();
-                else
-                    setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-            }
-            else
-                dispose();
-    }
     
     
     // GETTERS //
     
-    //Gets the panel holding the artifacts
-    protected JPanel getPanelofArtifacts(){
-        return PanelofArtifacts;
+    //Gets the panel holding the params
+    protected JPanel getPanelofParams(){
+        return PanelofParams;
     }
     
 
@@ -316,21 +285,23 @@ public class ResultsUI extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(ResultsUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ParamsUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(ResultsUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ParamsUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(ResultsUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ParamsUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(ResultsUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ParamsUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
 
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                ResultsUI dialog = new ResultsUI(new javax.swing.JFrame(), true);
+                ParamsUI dialog = new ParamsUI(new javax.swing.JFrame(), true);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {
@@ -344,13 +315,12 @@ public class ResultsUI extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton CreateButton;
-    private javax.swing.JPanel PanelofArtifacts;
+    private javax.swing.JPanel PanelofParams;
     private javax.swing.JButton RemoveAllButton;
-    private javax.swing.JScrollPane ScrollPaneOfArtifacts;
+    private javax.swing.JScrollPane ScrollPaneOfParams;
     private javax.swing.JButton UpdateButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
     // End of variables declaration//GEN-END:variables
 }

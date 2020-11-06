@@ -38,6 +38,8 @@ import labtainers.mainui.LabData.NetworkData;
 import labtainers.goalsui.GoalsUI;
 import labtainers.resultsui.ResultsData;
 import labtainers.resultsui.ResultsUI;
+import labtainers.paramsui.ParamsData;
+import labtainers.paramsui.ParamsUI;
 
 
 /**
@@ -60,8 +62,10 @@ public class MainWindow extends javax.swing.JFrame {
             
     private ResultsUI resultsUI;
     private GoalsUI goalsUI;
+    private ParamsUI paramsUI;
     private boolean resultsOpened;
     private boolean goalsOpened;
+    private boolean paramsOpened;
       
     public MainWindow() throws IOException {
         initComponents();
@@ -159,6 +163,8 @@ public class MainWindow extends javax.swing.JFrame {
         AssessmentPanel = new javax.swing.JPanel();
         AssessmentButton = new javax.swing.JButton();
         AssessmentButton1 = new javax.swing.JButton();
+        IndividualizePanel = new javax.swing.JPanel();
+        paramsButton = new javax.swing.JButton();
         MainMenuBar = new javax.swing.JMenuBar();
         FileMenuBar = new javax.swing.JMenu();
         NewLabMenuItem = new javax.swing.JMenuItem();
@@ -655,6 +661,11 @@ public class MainWindow extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Labtainers");
         setResizable(false);
+        addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                formMouseClicked(evt);
+            }
+        });
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
                 MainWindow.this.windowClosing(evt);
@@ -811,7 +822,7 @@ public class MainWindow extends javax.swing.JFrame {
                 .addGroup(AssessmentPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(AssessmentButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(AssessmentButton, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(31, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         AssessmentPanelLayout.setVerticalGroup(
             AssessmentPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -821,6 +832,36 @@ public class MainWindow extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 8, Short.MAX_VALUE)
                 .addComponent(AssessmentButton1)
                 .addContainerGap())
+        );
+
+        IndividualizePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Individualize", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 18))); // NOI18N
+
+        paramsButton.setText("Parameters");
+        paramsButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                paramsButtonActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout IndividualizePanelLayout = new javax.swing.GroupLayout(IndividualizePanel);
+        IndividualizePanel.setLayout(IndividualizePanelLayout);
+        IndividualizePanelLayout.setHorizontalGroup(
+            IndividualizePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 223, Short.MAX_VALUE)
+            .addGroup(IndividualizePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(IndividualizePanelLayout.createSequentialGroup()
+                    .addGap(0, 0, Short.MAX_VALUE)
+                    .addComponent(paramsButton)
+                    .addGap(0, 0, Short.MAX_VALUE)))
+        );
+        IndividualizePanelLayout.setVerticalGroup(
+            IndividualizePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 52, Short.MAX_VALUE)
+            .addGroup(IndividualizePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(IndividualizePanelLayout.createSequentialGroup()
+                    .addGap(0, 11, Short.MAX_VALUE)
+                    .addComponent(paramsButton)
+                    .addGap(0, 11, Short.MAX_VALUE)))
         );
 
         FileMenuBar.setText("File");
@@ -976,10 +1017,13 @@ public class MainWindow extends javax.swing.JFrame {
                 .addComponent(NetworkPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(AssessmentPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(IndividualizePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(logo, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(AssessmentPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -987,14 +1031,17 @@ public class MainWindow extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(Header, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addComponent(NetworkPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 424, Short.MAX_VALUE)
+                        .addComponent(ContainerPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 424, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(AssessmentPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(logo))
-                    .addComponent(NetworkPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 424, Short.MAX_VALUE)
-                    .addComponent(ContainerPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 424, Short.MAX_VALUE))
-                .addGap(20, 20, 20))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(IndividualizePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(logo)))
+                .addContainerGap(54, Short.MAX_VALUE))
         );
 
         pack();
@@ -1212,9 +1259,23 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_buildMenuItemActionPerformed
 
     private void checkWorkMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkWorkMenuItemActionPerformed
-        String cmd = "gnome-terminal -- checkwork &";
-        doStudentCommand(cmd);
+        String path = this.labtainerPath+File.separator+"scripts"+File.separator+"labtainer-student";
+        String cmd = "gnome-terminal --working-directory="+path+" -- checkwork -p";
+        System.out.println("checkwork cmd "+cmd);
+        doCommand(cmd);
     }//GEN-LAST:event_checkWorkMenuItemActionPerformed
+
+    private void paramsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_paramsButtonActionPerformed
+        if(!paramsOpened){
+            paramsUI = new ParamsUI(this, false);
+            paramsOpened = true;
+        }
+    }//GEN-LAST:event_paramsButtonActionPerformed
+
+    private void formMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseClicked
+        //System.out.println("clicked");
+        //this.toFront();
+    }//GEN-LAST:event_formMouseClicked
     
     //BUTTON FUNCTIONS//
     
@@ -1584,6 +1645,7 @@ public class MainWindow extends javax.swing.JFrame {
         //Save results.config and goals.config file
         labDataCurrent.getResultsData().writeResultsConfig();
         labDataCurrent.getGoalsData().writeGoalsConfig();
+        labDataCurrent.getParamsData().writeParamsConfig();
         
         System.out.println("Lab Saved");
     }
@@ -1855,6 +1917,10 @@ public class MainWindow extends javax.swing.JFrame {
             goalsUI.dispose();
             setGoalsClosed();
         }
+        if(paramsUI != null){
+            paramsUI.dispose();
+            setParamsClosed();
+        }
         
         for(Component container : ContainerPanePanel.getComponents()){
             ((ContainerObjPanel)container).getContainerConfigDialog().dispose();
@@ -1898,6 +1964,9 @@ public class MainWindow extends javax.swing.JFrame {
     
     public void setGoalsClosed(){
         goalsOpened = false;
+    }
+    public void setParamsClosed(){
+        paramsOpened = false;
     }
     
     public void printExistingLabs(){
@@ -1975,6 +2044,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JMenu FileMenuBar;
     private javax.swing.JPanel Header;
     private javax.swing.JMenu HelpMenu;
+    private javax.swing.JPanel IndividualizePanel;
     private javax.swing.JMenuItem InstructorMenuItem;
     private javax.swing.JLabel LabExistLabel;
     private javax.swing.JLabel LabnameLabel;
@@ -2047,6 +2117,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JFileChooser labChooser;
     private javax.swing.JMenuItem labtainerLogMenuItem;
     private javax.swing.JLabel logo;
+    private javax.swing.JButton paramsButton;
     private javax.swing.JLabel pathValidLabel;
     // End of variables declaration//GEN-END:variables
 

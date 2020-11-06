@@ -226,29 +226,12 @@ public class ArtifactValues {
                    //Case 4: file_path[:time_delimiter]
                    else{
                        fileID = parsedFileRef[0];
-                       //Set the timeStamp Type either to be "Service" or "Program"
-                       if(parsedFileRef[1].contains(".service")){
-                           timeStampType = TimestampType_ITEMS[1]; //Service
-                           timeStampDelimiter = parsedFileRef[1].replace(".service", "");
-                       }
-                       else{
-                           timeStampType = TimestampType_ITEMS[2]; //Program
-                           timeStampDelimiter = parsedFileRef[1];
-                       }
                    }
                 }
                 //Case 5: [container_name:]file_path[:time_delimiter]
                 else {
                     container = parsedFileRef[0];
                     fileID = parsedFileRef[1];
-                    if(parsedFileRef[2].contains(".service")){
-                        timeStampType = TimestampType_ITEMS[1]; //Serivce
-                        timeStampDelimiter = parsedFileRef[2].replace(".service", "");
-                    }
-                    else{
-                        timeStampType = TimestampType_ITEMS[2]; //Program
-                        timeStampDelimiter = parsedFileRef[2];
-                    }
                 }
             }
        }

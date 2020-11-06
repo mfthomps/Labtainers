@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import labtainers.goalsui.GoalsData;
 import labtainers.resultsui.ResultsData;
+import labtainers.paramsui.ParamsData;
 
 /**
  *
@@ -28,6 +29,7 @@ public class LabData {
     
     private ResultsData resultsData;
     private GoalsData goalsData;
+    private ParamsData paramsData;
     
     static protected class NetworkData {
         public String name = "";
@@ -128,6 +130,7 @@ public class LabData {
         this.listOfNetworks = new ArrayList<NetworkData>();
         this.resultsData = new ResultsData(main,labPath);
         this.goalsData = new GoalsData(main, labPath);
+        this.paramsData = new ParamsData(main, labPath);
         
         retrieveData(); 
     }
@@ -174,7 +177,6 @@ public class LabData {
                                         break;
                                     case "GATEWAY":
                                         if(line.contains("GATEWAY ")){
-                                            System.out.println("line is "+line);
                                             currNetwork.gateway = line.split("GATEWAY ")[1].trim();
                                         }
                                         break;
@@ -301,6 +303,7 @@ public class LabData {
                 }
                 //Set the list of containers the results UI will references, then parse the results.config file
                 ResultsData.setContainerList(getContainerNames());
+                ParamsData.setContainerList(getContainerNames());
                 resultsData.retrieveData();
 
                 //Parse the goals.config
@@ -353,6 +356,10 @@ public class LabData {
     public GoalsData getGoalsData(){
         return goalsData;
     }
+
+    public ParamsData getParamsData(){
+        return paramsData;
+    }
     
     
     // SETTERS //
@@ -371,6 +378,10 @@ public class LabData {
     
     public void setGoalsData(GoalsData data){
         goalsData = new GoalsData(data);
+    }
+
+    public void setParamsData(ParamsData data){
+        paramsData = new ParamsData(data);
     }
     
     public void resetContainers(){

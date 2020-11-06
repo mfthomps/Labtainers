@@ -22,7 +22,7 @@ public class DocPanel extends javax.swing.JPanel {
         this.text.setText(text);
     }
     public String getDoc(){
-        return this.text.getText();
+        return this.text.getText()+"\n";
     }
     public void setDialog(javax.swing.JDialog dialog){
         this.dialog = dialog;
