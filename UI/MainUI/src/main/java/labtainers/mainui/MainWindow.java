@@ -1114,7 +1114,7 @@ public class MainWindow extends javax.swing.JFrame {
 
     private void SaveMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveMenuItemActionPerformed
         try {
-            saveLab();
+            saveLab(false);
         } 
         catch (FileNotFoundException ex) {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
@@ -1214,7 +1214,7 @@ public class MainWindow extends javax.swing.JFrame {
     }
     private void BuildOnlyMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuildOnlyMenuItemActionPerformed
         try {
-            saveLab();
+            saveLab(false);
         } 
         catch (FileNotFoundException ex) {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
@@ -1518,9 +1518,14 @@ public class MainWindow extends javax.swing.JFrame {
     }
     
     // Writes current state of the UI the file system
-    private void saveLab() throws FileNotFoundException{
+    private void saveLab(boolean usetmp) throws FileNotFoundException{
         //Get path to start.config
-        String startConfigPath = currentLab.getPath()+File.separator+"config"+File.separator+"start.config";
+        String startConfigPath;
+        if(!usetmp){
+            startConfigPath = currentLab.getPath()+File.separator+"config"+File.separator+"start.config";
+        }else{
+            startConfigPath = currentLab.getPath()+File.separator+"config"+File.separator+"start.config";
+        }
         PrintWriter writer = new PrintWriter(startConfigPath);
         String startConfigText = ""; 
          
@@ -1643,9 +1648,9 @@ public class MainWindow extends javax.swing.JFrame {
         writer.close();
         
         //Save results.config and goals.config file
-        labDataCurrent.getResultsData().writeResultsConfig();
-        labDataCurrent.getGoalsData().writeGoalsConfig();
-        labDataCurrent.getParamsData().writeParamsConfig();
+        labDataCurrent.getResultsData().writeResultsConfig(usetmp);
+        labDataCurrent.getGoalsData().writeGoalsConfig(usetmp);
+        labDataCurrent.getParamsData().writeParamsConfig(usetmp);
         
         System.out.println("Lab Saved");
     }

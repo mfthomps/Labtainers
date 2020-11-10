@@ -138,6 +138,7 @@ public class GoalValues {
         private void answerTagModifier(String aT, List<String> resultTags){
                 if(aT.contains("answer=")){
                     answerTag = aT.split("answer=")[1];
+                    System.out.println("answer tag set to "+answerTag);
                 }
                 else if(resultTags.contains(aT)){
                     answerTag = aT;

@@ -81,7 +81,7 @@ public class ResultsData {
 //WRITING~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
     //Update the results.config file with the user's input
-    public void writeResultsConfig(){
+    public void writeResultsConfig(boolean usetmp){
          try {
             String resultTag,
                        container,
@@ -252,7 +252,7 @@ public class ResultsData {
             
             if(error.passStatus()){
                 //Resets the results.config file
-                File resultsConfigFile = initializeResultConfig();
+                File resultsConfigFile = initializeResultConfig(usetmp);
 
                 try ( //Write the resultsConfigText to the results.config
                     BufferedWriter writer = new BufferedWriter(new FileWriter(resultsConfigFile, true))) {
@@ -268,10 +268,14 @@ public class ResultsData {
     }
     
     //Checks if the results.config file exists and prepares the result.config file for the lab
-    private File initializeResultConfig() throws IOException{
+    private File initializeResultConfig(boolean usetmp) throws IOException{
         //Get the filepath for the lab's results.config
-        File resultsConfigFile = new File(mainUI.getCurrentLab() + File.separator + "instr_config" + File.separator + "results.config");
-        
+        File resultsConfigFile;
+        if(!usetmp){
+            resultsConfigFile = new File(mainUI.getCurrentLab() + File.separator + "instr_config" + File.separator + "results.config");
+        }else{
+            resultsConfigFile = new File(File.separator+"tmp" + File.separator + "results.config");
+        } 
         //May not be necessary, subject to remove the base text, perhaps there is an option for the user to add their own comments
         //String baseText = 
         //          "# results.config" + System.lineSeparator()

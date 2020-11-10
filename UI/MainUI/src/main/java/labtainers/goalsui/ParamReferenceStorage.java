@@ -15,6 +15,17 @@ import labtainers.mainui.ToolTipHandlers.ToolTipWrapper;
  * @author Daniel Liao
  */
 public class ParamReferenceStorage {
+    public static ToolTipWrapper getWrapper(ToolTipWrapper[] tipList, String item){
+        ToolTipWrapper retval = null;
+
+        for(ToolTipWrapper tool_tip : tipList){
+            if(tool_tip.getItem().equals(item)){
+                retval = tool_tip;
+                break;
+            }
+        }
+        return retval;
+    }   
     public static final ToolTipWrapper[] GoalType_ITEMS = new ToolTipWrapper[] {
         //0
         new ToolTipWrapper("matchany", "<html>Results from all timestamped sets are evaluated.<br>" +
@@ -146,6 +157,14 @@ public class ParamReferenceStorage {
                                     "expression. Also see the \"GROUP\" field_type.</html>" )}; 
                                     
     
+    public static final ToolTipWrapper[] Answer_ITEMS = new ToolTipWrapper[] {
+        //0
+        new ToolTipWrapper("Literal", "<html>blah</html"),
+        new ToolTipWrapper("Result Tag", "<html>blah</html"),
+        new ToolTipWrapper("Parameter", "<html>blah</html"),
+        new ToolTipWrapper("Parameter ASCII", "<html>blah</html") 
+    };
+
         //Answer Types
         public static final String[] answerTypes = new String[] {
                 "Literal",

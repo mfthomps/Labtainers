@@ -22,7 +22,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JComboBox;
 import static labtainers.goalsui.ParamReferenceStorage.GoalType_ITEMS;
-import static labtainers.goalsui.ParamReferenceStorage.answerTypes;
+import static labtainers.goalsui.ParamReferenceStorage.Answer_ITEMS;
 import static labtainers.goalsui.ParamReferenceStorage.booleanResultTypes;
 import static labtainers.goalsui.ParamReferenceStorage.goalInput;
 import static labtainers.goalsui.ParamReferenceStorage.opInput;
@@ -188,7 +188,7 @@ public class GoalsData {
 //WRITING~~~~~~~~~~~~~~~~~~~~~~~~          
         
     //Update the results.config file with the user's input
-    public void writeGoalsConfig(){
+    public void writeGoalsConfig(boolean usetmp){
          try {
             String goalID,
                    goalType,
@@ -336,7 +336,7 @@ public class GoalsData {
             
             if(error.passStatus()){
                 //Resets the results.config file
-                File goalsConfigFile = initializeGoalsConfig();
+                File goalsConfigFile = initializeGoalsConfig(usetmp);
 
                 try ( //Write the resultsConfigText to the results.config
                     BufferedWriter writer = new BufferedWriter(new FileWriter(goalsConfigFile, true))) {
@@ -354,14 +354,14 @@ public class GoalsData {
     //Builds the string bit to be added in the goals.config that describes the answer for a goal
     private String answerHandler(String answerType, GoalValues goal){
         String answer = "";
-        
-        if(answerType.equals(answerTypes[0])) //Literal
+        ToolTipWrapper tip = ParamReferenceStorage.getWrapper(Answer_ITEMS, answerType); 
+        if(tip.equals(Answer_ITEMS[0])) //Literal
             answer += "answer=";
-        else if(answerType.equals(answerTypes[1])) //Result Tag
+        else if(tip.equals(Answer_ITEMS[1])) //Result Tag
             answer += "result.";                       
-        else if(answerType.equals(answerTypes[2])) //Parameter
+        else if(tip.equals(Answer_ITEMS[2])) //Parameter
             answer += "parameter.";    
-        else if(answerType.equals(answerTypes[3])) //Parameter ASCII
+        else if(tip.equals(Answer_ITEMS[3])) //Parameter ASCII
             answer += "parameter_ascii.";    
         else
             System.out.println("Issue writing answer in the goals.config");
@@ -370,9 +370,14 @@ public class GoalsData {
     } 
     
     //Checks if the goals.config file exists and prepares the goals.config file for the lab
-    private File initializeGoalsConfig() throws IOException{
+    private File initializeGoalsConfig(boolean usetmp) throws IOException{
         //Get the filepath for the lab's goals.config
-        File goalsConfigFile = new File(mainUI.getCurrentLab() + File.separator + "instr_config" + File.separator + "goals.config");
+        File goalsConfigFile;
+        if(!usetmp){
+            goalsConfigFile = new File(mainUI.getCurrentLab() + File.separator + "instr_config" + File.separator + "goals.config");
+        }else{
+            goalsConfigFile = new File(File.separator+"tmp" + File.separator + "goals.config");
+        }     
         
         //May not be necessary, subject to remove the base text, perhaps there is an option for the user to add their own comments
         //String baseText = 
@@ -1042,14 +1047,14 @@ public class GoalsData {
                 resultTag = (String)((GoalPanels) goal).getResultTagComboBox().getSelectedItem();
             }
             //Answer Type
-            String answerType = (String)((GoalPanels) goal).getAnswerTypeComboBox().getSelectedItem();
+            ToolTipWrapper answerTypeTip = (ToolTipWrapper)((GoalPanels) goal).getAnswerTypeComboBox().getSelectedItem();
             //Answer Tag
             String answerTag = "";
-            if(answerType.equals(answerTypes[0])) //Literal
+            if(answerTypeTip.equals(Answer_ITEMS[0])) //Literal
                 answerTag = ((GoalPanels) goal).getAnswerTagTextField().getText();
-            else if(answerType.equals(answerTypes[1])) //Result Tag
+            else if(answerTypeTip.equals(Answer_ITEMS[1])) //Result Tag
                 answerTag = (String)(((GoalPanels) goal).getResultTag2ComboBox().getSelectedItem());            
-            else if(answerType.equals(answerTypes[2]) || answerType.equals(answerTypes[3])) //Parameter and Parameter ASCII
+            else if(answerTypeTip.equals(Answer_ITEMS[2]) || answerTypeTip.equals(Answer_ITEMS[3])) //Parameter and Parameter ASCII
                 answerTag = (String)(((GoalPanels) goal).getParameterComboBox().getSelectedItem()); 
 
             
@@ -1074,7 +1079,7 @@ public class GoalsData {
             String executableFile = ((GoalPanels) goal).getExecutableFileTextField().getText();
 
             String comments = ((GoalPanels) goal).getComments();
-            listofGoalsTMP.add(new GoalValues(goalID, goalType, operator, resultTag, answerType, answerTag, booleanExp, goal1, goal2, value, subgoalList, executableFile, comments));
+            listofGoalsTMP.add(new GoalValues(goalID, goalType, operator, resultTag, answerTypeTip.getItem(), answerTag, booleanExp, goal1, goal2, value, subgoalList, executableFile, comments));
        }
        listofGoals = listofGoalsTMP; //overwrite the old listofGoals with the temp listofGoals
     }

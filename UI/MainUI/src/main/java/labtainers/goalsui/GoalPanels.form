@@ -43,28 +43,24 @@
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="ArtifactPanel" alignment="0" min="-2" pref="80" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
-                              <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="UpButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="DeleteButton" alignment="3" min="-2" pref="30" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace min="-2" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="DownButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="DocButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                          </Group>
-                          <Component id="rowLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="UpButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="DeleteButton" alignment="3" min="-2" pref="30" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="DownButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="DocButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
+                  <Component id="rowLabel" alignment="0" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="14" max="32767" attributes="0"/>
           </Group>
+          <Component id="ArtifactPanel" alignment="0" pref="92" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
   </Layout>
@@ -88,7 +84,7 @@
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
-                  <EmptySpace min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
                   <Component id="GoalIDTextField" min="-2" pref="125" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="GoalTypeComboBox" min="-2" pref="147" max="-2" attributes="0"/>
@@ -107,7 +103,7 @@
                   <EmptySpace min="-2" pref="52" max="-2" attributes="0"/>
                   <Component id="ResultTag2ComboBox" min="-2" pref="155" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="ParameterComboBox" pref="0" max="32767" attributes="0"/>
+                  <Component id="ParameterComboBox" min="-2" pref="153" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="BooleanTextField" min="-2" pref="404" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
@@ -128,36 +124,38 @@
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="102" alignment="1" attributes="0">
+              <Group type="102" alignment="0" attributes="0">
                   <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                      <Group type="103" alignment="0" groupAlignment="3" attributes="0">
-                          <Component id="ValueTextField" alignment="3" min="-2" pref="44" max="-2" attributes="0"/>
-                          <Component id="SubgoalTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <Component id="Goal2TextField" alignment="1" max="32767" attributes="0"/>
-                      <Group type="103" alignment="0" groupAlignment="3" attributes="0">
-                          <Component id="BooleanTextField" alignment="3" min="-2" pref="41" max="-2" attributes="0"/>
-                          <Component id="Goal1TextField" alignment="3" min="-2" pref="41" max="-2" attributes="0"/>
-                      </Group>
-                      <Group type="103" alignment="0" groupAlignment="3" attributes="0">
-                          <Component id="OperatorComboBox" alignment="3" max="32767" attributes="0"/>
-                          <Component id="ExecutableFileTextField" alignment="3" min="-2" pref="44" max="-2" attributes="0"/>
-                          <Component id="ResultTagComboBox" alignment="3" max="32767" attributes="0"/>
-                          <Component id="ArithmeticResultTagTextField" alignment="3" max="32767" attributes="0"/>
-                          <Component id="AnswerTypeComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="AnswerTagTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <Component id="ResultTag2ComboBox" alignment="1" min="-2" max="-2" attributes="0"/>
-                      <Component id="ParameterComboBox" alignment="1" max="32767" attributes="0"/>
-                      <Component id="BooleanResultTagsComboBox" alignment="1" max="32767" attributes="0"/>
-                      <Component id="PreviousMatchanyComboBox" alignment="1" max="32767" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="GoalTypeComboBox" alignment="3" max="32767" attributes="0"/>
-                          <Component id="GoalIDTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="GoalTypeComboBox" alignment="3" max="-2" attributes="0"/>
+                          <Component id="OperatorComboBox" alignment="3" max="-2" attributes="0"/>
+                      </Group>
+                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                          <Component id="ParameterComboBox" alignment="0" max="32767" attributes="0"/>
+                          <Group type="103" alignment="0" groupAlignment="3" attributes="0">
+                              <Component id="ValueTextField" alignment="3" min="-2" pref="44" max="-2" attributes="0"/>
+                              <Component id="SubgoalTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="Goal2TextField" alignment="1" max="32767" attributes="0"/>
+                          <Group type="103" alignment="0" groupAlignment="3" attributes="0">
+                              <Component id="BooleanTextField" alignment="3" min="-2" pref="41" max="-2" attributes="0"/>
+                              <Component id="Goal1TextField" alignment="3" min="-2" pref="41" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="103" alignment="0" groupAlignment="3" attributes="0">
+                              <Component id="ExecutableFileTextField" alignment="3" min="-2" pref="44" max="-2" attributes="0"/>
+                              <Component id="ResultTagComboBox" alignment="3" max="32767" attributes="0"/>
+                              <Component id="ArithmeticResultTagTextField" alignment="3" max="32767" attributes="0"/>
+                              <Component id="AnswerTypeComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="AnswerTagTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="ResultTag2ComboBox" alignment="1" min="-2" max="-2" attributes="0"/>
+                          <Component id="BooleanResultTagsComboBox" alignment="1" max="32767" attributes="0"/>
+                          <Component id="PreviousMatchanyComboBox" alignment="1" max="32767" attributes="0"/>
+                          <Component id="GoalIDTextField" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
-                  <EmptySpace max="-2" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -173,7 +171,11 @@
             <Property name="toolTipText" type="java.lang.String" value="Hover over pulldown items for information about each goal type."/>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
               <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                <TitledBorder title="Goal Type"/>
+                <TitledBorder title="Goal Type">
+                  <Border PropertyName="innerBorder" info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
+                    <EtchetBorder/>
+                  </Border>
+                </TitledBorder>
               </Border>
             </Property>
           </Properties>
@@ -348,7 +350,7 @@
             <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="AnswerTypeComboBoxItemStateChanged"/>
           </Events>
           <AuxValues>
-            <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
+            <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;ToolTipWrapper&gt;"/>
           </AuxValues>
         </Component>
         <Component class="javax.swing.JComboBox" name="ResultTag2ComboBox">
@@ -367,6 +369,15 @@
               <StringArray count="0"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Parameter whose value is to be compared."/>
+            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+              <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
+                <TitledBorder title="Parameter">
+                  <Border PropertyName="innerBorder" info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
+                    <EtchetBorder/>
+                  </Border>
+                </TitledBorder>
+              </Border>
+            </Property>
           </Properties>
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>

@@ -14,10 +14,11 @@ import javax.swing.JTextField;
 import javax.swing.JDialog;
 import static labtainers.goalsui.ParamReferenceStorage.GoalType_ITEMS;
 import static labtainers.goalsui.ParamReferenceStorage.Operator_ITEMS;
-import static labtainers.goalsui.ParamReferenceStorage.answerTypes;
+import static labtainers.goalsui.ParamReferenceStorage.Answer_ITEMS;
 import static labtainers.goalsui.ParamReferenceStorage.goalInput;
 import static labtainers.goalsui.ParamReferenceStorage.opInput;
 import static labtainers.goalsui.ParamReferenceStorage.resultTagInput;
+import labtainers.goalsui.ParamReferenceStorage;
 import labtainers.mainui.ToolTipHandlers.ToolTipWrapper;
 import static labtainers.mainui.ToolTipHandlers.setComboItems;
 
@@ -63,13 +64,18 @@ public class GoalPanels extends javax.swing.JPanel {
         setArithmeticResultTagTextField(goalVal.resultTag);
 
         setAnswerTypeComboBox(goalVal.answerType);
-        
-        if(goalVal.answerType.equals(answerTypes[0])) //Literal
+         
+        if(goalVal.answerType.equals(Answer_ITEMS[0].getItem())){
+             //Literal
+            System.out.println("literal set "+goalVal.answerTag);
             setAnswerTagTextField(goalVal.answerTag);
-        else if(goalVal.answerType.equals(answerTypes[1])) //Result Tag
+        }else if(goalVal.answerType.equals(Answer_ITEMS[1].getItem())){
+            //Result Tag
             setResultTag2ComboBox(goalVal.answerTag);
-        else //Parameter & Parameter_ASCII
+        }else{
+            //Parameter & Parameter_ASCII
             setParameterComboBox(goalVal.answerTag);
+        }
         
         setBooleanTextField(goalVal.booleanExp);
 
@@ -123,10 +129,10 @@ public class GoalPanels extends javax.swing.JPanel {
             
         
         ResultTagComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(resultTags.toArray(new String[resultTags.size()])));
-        AnswerTypeComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(answerTypes)); 
+        AnswerTypeComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(Answer_ITEMS)); 
         if(parameterIDs.isEmpty()){
-            AnswerTypeComboBox.removeItem(answerTypes[2]);
-            AnswerTypeComboBox.removeItem(answerTypes[3]);            
+            AnswerTypeComboBox.removeItem(Answer_ITEMS[2]);
+            AnswerTypeComboBox.removeItem(Answer_ITEMS[3]);            
         }
         else
             ParameterComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(parameterIDs.toArray(new String[parameterIDs.size()])));
@@ -176,7 +182,7 @@ public class GoalPanels extends javax.swing.JPanel {
         ArtifactPanel.setPreferredSize(new java.awt.Dimension(1300, 34));
 
         GoalTypeComboBox.setToolTipText("Hover over pulldown items for information about each goal type.");
-        GoalTypeComboBox.setBorder(javax.swing.BorderFactory.createTitledBorder("Goal Type"));
+        GoalTypeComboBox.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Goal Type"));
         GoalTypeComboBox.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 GoalTypeComboBoxgoalTypeItemChanged(evt);
@@ -214,6 +220,7 @@ public class GoalPanels extends javax.swing.JPanel {
         });
 
         ParameterComboBox.setToolTipText("Parameter whose value is to be compared.");
+        ParameterComboBox.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Parameter"));
 
         BooleanResultTagsComboBox.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Boolean Result Tags"));
 
@@ -241,7 +248,7 @@ public class GoalPanels extends javax.swing.JPanel {
                 .addGap(52, 52, 52)
                 .addComponent(ResultTag2ComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(ParameterComboBox, 0, 0, Short.MAX_VALUE)
+                .addComponent(ParameterComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 153, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(BooleanTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 404, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -260,31 +267,32 @@ public class GoalPanels extends javax.swing.JPanel {
         );
         ArtifactPanelLayout.setVerticalGroup(
             ArtifactPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ArtifactPanelLayout.createSequentialGroup()
+            .addGroup(ArtifactPanelLayout.createSequentialGroup()
                 .addGap(14, 14, 14)
-                .addGroup(ArtifactPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, ArtifactPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(ValueTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(SubgoalTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(Goal2TextField)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, ArtifactPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(BooleanTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(Goal1TextField, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, ArtifactPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(OperatorComboBox)
-                        .addComponent(ExecutableFileTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(ResultTagComboBox)
-                        .addComponent(ArithmeticResultTagTextField)
-                        .addComponent(AnswerTypeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(AnswerTagTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(ResultTag2ComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(ParameterComboBox)
-                    .addComponent(BooleanResultTagsComboBox)
-                    .addComponent(PreviousMatchanyComboBox)
+                .addGroup(ArtifactPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(ArtifactPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(GoalTypeComboBox)
+                        .addComponent(GoalTypeComboBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(OperatorComboBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(ArtifactPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(ParameterComboBox)
+                        .addGroup(ArtifactPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(ValueTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(SubgoalTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(Goal2TextField, javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addGroup(ArtifactPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(BooleanTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(Goal1TextField, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(ArtifactPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(ExecutableFileTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(ResultTagComboBox)
+                            .addComponent(ArithmeticResultTagTextField)
+                            .addComponent(AnswerTypeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(AnswerTagTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(ResultTag2ComboBox, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(BooleanResultTagsComboBox, javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(PreviousMatchanyComboBox, javax.swing.GroupLayout.Alignment.TRAILING)
                         .addComponent(GoalIDTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         DeleteButton.setText("Delete");
@@ -340,21 +348,19 @@ public class GoalPanels extends javax.swing.JPanel {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(ArtifactPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(UpButton)
-                                    .addComponent(DeleteButton, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(DownButton)
-                                    .addComponent(DocButton)))
-                            .addComponent(rowLabel))))
-                .addContainerGap())
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(UpButton)
+                            .addComponent(DeleteButton, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(DownButton)
+                            .addComponent(DocButton)))
+                    .addComponent(rowLabel))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(ArtifactPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 92, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -459,10 +465,10 @@ public class GoalPanels extends javax.swing.JPanel {
         ArithmeticResultTagTextField.setText("");
         
         AnswerTypeComboBox.setVisible(false);
-        AnswerTypeComboBox.setSelectedItem(answerTypes[0]);
+        AnswerTypeComboBox.setSelectedItem(Answer_ITEMS[0]);
         //"Result Tag" may have been removed by the execute goaltype so readd it to the combo box to reset it back to default
         if(((DefaultComboBoxModel)AnswerTypeComboBox.getModel()).getIndexOf("Result Tag") == -1) 
-            AnswerTypeComboBox.addItem("Result Tag");
+            AnswerTypeComboBox.addItem(Answer_ITEMS[1]);
         AnswerTagTextField.setVisible(false);
         AnswerTagTextField.setText("");
          
@@ -527,7 +533,7 @@ public class GoalPanels extends javax.swing.JPanel {
                 ResultTagComboBox.setVisible(true);
                 AnswerTypeComboBox.setVisible(true);
                 //Answertag is expected to be a literal value or a symbolic name from parameters.config (pg. 26 in labtainers manual)
-                AnswerTypeComboBox.removeItem("Result Tag");
+                AnswerTypeComboBox.removeItem(Answer_ITEMS[1]); // Result Tag
                 AnswerTagTextField.setVisible(true);
                 break;
             case "matche":
@@ -550,9 +556,9 @@ public class GoalPanels extends javax.swing.JPanel {
     }
         
     private void answerTypeListener(){
-        String answerType = (String)(AnswerTypeComboBox.getSelectedItem());
+        ToolTipWrapper answerType = (ToolTipWrapper)(AnswerTypeComboBox.getSelectedItem());
         
-        if(answerType.equals(answerTypes[0])){ //Literal
+        if(answerType.equals(Answer_ITEMS[0])){ //Literal
             AnswerTagTextField.setVisible(true);
             
             ResultTag2ComboBox.setVisible(false);
@@ -563,7 +569,7 @@ public class GoalPanels extends javax.swing.JPanel {
             if(parameterIDs != null && !parameterIDs.isEmpty())
                 ParameterComboBox.setSelectedItem(parameterIDs.get(0));
         }
-        else if(answerType.equals(answerTypes[1])){ //Result Tag
+        else if(answerType.equals(Answer_ITEMS[1])){ //Result Tag
             AnswerTagTextField.setVisible(false);
             AnswerTagTextField.setText("");
             
@@ -573,7 +579,7 @@ public class GoalPanels extends javax.swing.JPanel {
             if(parameterIDs != null && !parameterIDs.isEmpty())
                 ParameterComboBox.setSelectedItem(parameterIDs.get(0));
         }
-        else if(answerType.equals(answerTypes[2]) || answerType.equals(answerTypes[3])){
+        else if(answerType.equals(Answer_ITEMS[2]) || answerType.equals(Answer_ITEMS[3])){
             AnswerTagTextField.setVisible(false);
             AnswerTagTextField.setText("");
             
@@ -699,7 +705,8 @@ public class GoalPanels extends javax.swing.JPanel {
     }
     
     private void setAnswerTypeComboBox(String v){
-        AnswerTypeComboBox.setSelectedItem(v);
+        ToolTipWrapper tip = ParamReferenceStorage.getWrapper(Answer_ITEMS, v);
+        AnswerTypeComboBox.setSelectedItem(tip);
     }
     
     private void setAnswerTagTextField(String v){
@@ -739,7 +746,7 @@ public class GoalPanels extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField AnswerTagTextField;
-    private javax.swing.JComboBox<String> AnswerTypeComboBox;
+    private javax.swing.JComboBox<ToolTipWrapper> AnswerTypeComboBox;
     private javax.swing.JTextField ArithmeticResultTagTextField;
     private javax.swing.JPanel ArtifactPanel;
     private javax.swing.JComboBox<String> BooleanResultTagsComboBox;

@@ -79,7 +79,7 @@ public class ParamsData {
 //WRITING~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
     //Update the parameter.config file with the user's input
-    public void writeParamsConfig(){
+    public void writeParamsConfig(boolean usetmp){
          try {
             String paramID,
                        container,
@@ -163,7 +163,7 @@ public class ParamsData {
             
             if(error.passStatus()){
                 //Resets the parameter.config file
-                File paramsConfigFile = initializeParamConfig();
+                File paramsConfigFile = initializeParamConfig(usetmp);
 
                 try ( //Write the paramConfigText to the params.config
                     BufferedWriter writer = new BufferedWriter(new FileWriter(paramsConfigFile, true))) {
@@ -179,10 +179,13 @@ public class ParamsData {
     }
     
     //Checks if the parameter.config file exists and prepares the parameter.config file for the lab
-    private File initializeParamConfig() throws IOException{
+    private File initializeParamConfig(boolean usetmp) throws IOException{
         //Get the filepath for the lab's parameter.config
-        File paramsConfigFile = new File(mainUI.getCurrentLab() + File.separator + "config" + File.separator + "parameter.config");
-        
+        if(!usetmp){
+            paramsConfigFile = new File(mainUI.getCurrentLab() + File.separator + "config" + File.separator + "parameter.config");
+        }else{
+            paramsConfigFile = new File(File.separator + "tmp" + File.separator + "parameter.config");
+        } 
         if(paramsConfigFile.exists()){ 
             //Overwrite parameter.config file if it already exists
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(paramsConfigFile, false))) {

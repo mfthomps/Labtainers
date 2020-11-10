@@ -60,7 +60,7 @@ public class ResultsUI extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Results Configuration");
+        setTitle("Results for Automated Assessment");
         setMaximumSize(new java.awt.Dimension(1590, 10000));
         setMinimumSize(new java.awt.Dimension(1590, 500));
         setResizable(false);

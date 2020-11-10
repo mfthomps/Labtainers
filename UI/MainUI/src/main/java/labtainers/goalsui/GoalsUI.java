@@ -32,7 +32,6 @@ public class GoalsUI extends javax.swing.JFrame {
         initComponents();
         this.setVisible(true);
         goalsScrollPaneBar = ScrollPaneOfGoals.getVerticalScrollBar();
-        
         this.mainUI = (MainWindow)parent;
         this.data = this.mainUI.getCurrentData().getGoalsData();
         this.saved = new GoalsData(this.data);
@@ -48,6 +47,7 @@ public class GoalsUI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        setTitle("Goals for Automated Assessment"); 
         CreateButton = new javax.swing.JButton();
         RemoveAllButton = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
