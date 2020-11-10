@@ -390,8 +390,11 @@ alternate image having additional networking packges (e.g., tcpdump, xinetd, ssh
 \begin{verbatim}
 FROM $registry/labtainer.network
 \end{verbatim}
-\noindent Other alternate images include:
+\noindent Base images include:
 \begin{itemize}
+\item labtainer.base -- Minimal Ubuntu system.
+\item labtainer.network -- Networking packages installed and xinetd running, but network services not activated
+\item labtainer.network.ssh -- Same as network, but with ssh active in the xinetd configuration.
 \item labtainer.centos -- A CentOS server with systemd and the true ``init'' initial process.
 \item labtainer.lamp -- A CentOS server with Apache, Mysql and PHP, (the LAMP stack)
 \item labtainer.firefox -- An Ubuntu container with the Firefox browser.
@@ -399,6 +402,9 @@ FROM $registry/labtainer.network
 \item labtainer.java -- An Ubuntu container with the Firefox browser and the open JDK.
 \item labtainer.kali -- A Kali Linux system with the Metasploit framework.
 \item labtainer.metasploitable -- The Metasploitable-2 vulnerable server.
+\item labtainer.bird -- The Bird router (See the bird labs).
+\item labtainer.owasp -- The firefox base with the OWASP zap toolset.
+\item labtainer.juiceshop -- The OWASP vulnerable Juice Shop web server.
 \end{itemize}
 Refer to the Dockerfiles in {\tt \$LABTAINER\_DIR/scripts/designer/base\_dockerfiles} to see which
 software packages are included within each baseline image. 
@@ -1154,7 +1160,7 @@ the cyberciege lab for an example of postzip processing.
 The automated assessment functions encourage labs to be organized into a set of distinct ``goals''.
 For each goal, the lab designer identifies one or more specific fields or attributes of artifact files that
 could be compared to ``expected'' values.  These lab-specific artifacts are identified within the
-file at:
+configuration file at:
 \begin{verbatim}
  labtainer/trunk/labs/<lab>/instr_config/results.config file
 \end{verbatim}
@@ -1186,120 +1192,130 @@ program was invoked, (and its corresponding stdin file contains an entry reflect
 directive.
 \end{itemize}
 
+\subsubsection{Result field values}
 Directives within the results.config file each have the following format:
 
 \begin{verbatim}
   <result> = <file_id> : <field_type> : <field_id> [: <line_type> : <line_id>]
-      where:
-            result -- The symbolic name of the result, which will be referenced in 
-                       the goals configuration file.  It must be alphanumeric, 
-                       underscores permitted.
-            file_id -- Identifies a single file, or the set of files to be parsed.  
-                  The format of this id is:
-                     [container_name:]<prog>.[stdin | stdout | prgout] 
-                   where <prog> is a program or utility name whose stdin, stdout,
-                   or program output (prgout) artifacts will include timestamps.  
-                   The optional container_name identifies the container hosting 
-                   the file.  Labs with a single container can omit this qualifier.  
-                   Alternately, an explicit 
-                   file_path is intended for log files of services that persist 
-                   across multiple student operations.  If the given path is not 
-                   absolute, it is relative to the container user's home directory. 
-                   The wildcard character '*' can be used in place of <prog>,
-                   i.e., *.stdin is for all stdin artifacts and *.stdout is for all 
-                   stdout artifacts. Note prestop files are excluded from wildcard
-                   results. 
-                   
-            field_type - Optional, defaults to "TOKEN", possible values include:
-               TOKEN      -- Treat the line as space-delimited tokens
-               PARENS     -- The desired value is contained in parenthesis
-               QUOTES     -- The desired value is contained in quotes
-               SLASH      -- The desired value is contained within slashes, 
-                             e.g., /foo/
-               LINE_COUNT -- The quantity of lines in the file. Remaining fields 
+\end{verbatim}
+\noindent Fields are defined below.
+\begin{itemize}
+\item \textbf{result} The symbolic name of the result, which will be referenced in the goals 
+configuration file.  It must be alphanumeric, underscores permitted.
+\item \textbf{file\_id} Identifies a single file, or the set of files to be parsed.  The format of this id is:
+\begin{verbatim}
+           [container_name:]<prog>.[stdin | stdout | prgout] 
+\end{verbatim}
+Where {\tt prog} is a program or utility name whose stdin, stdout,
+or program output (prgout) artifacts will include timestamps.  
+The optional {\tt container\_name} identifies the container hosting 
+the file.  Labs with a single container can omit this qualifier.  
+Alternately, an explicit {\tt file\_path} is intended for log files of services that persist 
+across multiple student operations.  If the given path is not 
+absolute, it is relative to the container user's home directory. 
+The wildcard character '*' can be used in place of {\tt prog},
+i.e., *.stdin is for all stdin artifacts and *.stdout is for all 
+stdout artifacts. Note prestop files are excluded from wildcard
+results. 
+                  
+\item \textbf{field\_type} The following {\tt field\_type}'s are used to 
+identify fields within a selected line in the file, as determined by the {\tt line\_type} and {\tt line\_id} defined
+further below. Once the line is found, the {\tt field\_type} and the {\tt field\_id} locate the value within the line.
+\begin {itemize}
+\item \textbf{TOKEN} Treat the line as space-delimited tokens
+\item \textbf{PARENS} The desired value is contained in parenthesis
+\item \textbf{QUOTES} The desired value is contained in quotes
+\item \textbf{SLASH}  The desired value is contained within slashes, e.g., /foo/
+\item \textbf{SEARCH} The result is assigned the value of the search 
+defined by the given {\tt field\_id}, which is treated as an
+expression having the syntax of pythons parse.search 
+function.  E.g., {\tt frame.number==\string{:d\string}} would 
+yield the frame number.
+\item \textbf{GROUP} Intended for use with "REGEX" line types, the result is set to the value of the regex group 
+number named by the {\tt field\_id}.  Regular expressions and their groups are processed using the python
+re.search semantics.
+\end{itemize}
+\item \textbf{line\_type} Each of the above {\tt field\_type}'s require a {\tt line\_type} and {\tt line\_id} to locate the line within the file.
+The {\tt line\_type} value is one of the following:
+\begin{itemize}
+\item \textbf{LINE}           --  The {\tt line\_id} is an integer line number 
+                                   (starting at one).  Use of this to identify 
+                                   lines is discouraged since minor lab changes 
+                                   might alter the count.
+\item \textbf{STARTSWITH}     --  the {\tt line\_id} is a string.  This names the 
+                                   first occurrence of a line that starts with 
+                                   this string. 
+\item \textbf{HAVESTRING}      -- The {\tt line\_id} is a string.  This names the 
+                                   first occurrence of a line that contains the 
+                                   string.
+\item \textbf{REGEX}           -- The {\tt line\_id} is a regular expression.  This names the 
+                                   first occurrence of a line that matches the regular
+                                   expression.  Also see the "GROUP" field\_type.
+\item \textbf{NEXT\_STARTSWITH} -- the {\tt line\_id} is a string.  This names the 
+                                   line preceeding the first occurrence of a line 
+                                   that starts with this string. 
+\item \textbf{HAVESTRING\_TS}   -- Intended for use with log files that have 
+                                   timestamped entries.  Each entry containing
+                                   the string identified in {\tt line\_id} will have
+                                   its result stored as a timestamped value
+                                   as if it came from a timestamped stdout or 
+                                   stdin file.  See the snort lab for an example.
+\item \textbf{REGEX\_TS}        -- Similar to HAVESTRING\_TS, but with REGEX semantics,
+                                   including optional use of the GROUP {\tt field\_type}.
+\end{itemize}
+
+\item \textbf{line\_id} can be a parameterized value from the param.config file.  Preface these with a "\$".
+
+\item \textbf{field\_type (without line\_id)} The following {\tt field\_types} operate on the entire file, not just on selected lines.  These entries will have
+no {\tt line\_type} or {\tt line\_id} fields.
+\begin{itemize}
+\item \textbf{LINE\_COUNT} -- The quantity of lines in the file. Remaining fields 
                              are ignored.
-               CHECKSUM   -- The result value is set to the md5 checksum 
+\item \textbf{CHECKSUM}   -- The result value is set to the md5 checksum 
                              of the file.
-               CONTAINS   -- The result value is set to TRUE if the file 
-                             contains the string represented in field_id.
-               FILE_REGEX -- The result value is set to TRUE if the file 
-                             contains the regular expression represented in field_id.
+\item \textbf{CONTAINS}   -- The result value is set to TRUE if the file 
+                             contains the string represented in field\_id.
+\item \textbf{FILE\_REGEX} -- The result value is set to TRUE if the file 
+                             contains the regular expression represented in field\_id.
                              The python findall function is used on the entire file.
                              See the acl lab for an example of multi-line expressions.
-               LOG_TS     -- Used with timestamped log files, this results in a 
+\item \textbf{LOG\_TS}     -- Used with timestamped log files, this results in a 
                              timestamped set of boolean results with a value
                              of TRUE for each log line that contains the string 
-                             represented in the field_id.
-               FILE_REGEX_TS Like LOG_TS, but uses regular expressions.
-               LOG_RANGE  -- Similar to LOG_TS, except the timestamped entries
+                             represented in the field\_id.
+\item \textbf{FILE\_REGEX\_TS} Like LOG\_TS, but uses regular expressions.
+\item \textbf{LOG\_RANGE}  -- Similar to LOG\_TS, except the timestamped entries
                              are ranges delimited by the matching log entries.
-               STRING_COUNT--The result value is set to the quantity of
-                             occurances of the string represented in field_id.
-               COMMAND_COUNT-Intended for use with bash_history files, counts
-                             the occurances of the command given in the field_id.
+\item \textbf{STRING\_COUNT}--The result value is set to the quantity of
+                             occurances of the string represented in field\_id.
+\item \textbf{COMMAND\_COUNT}-Intended for use with bash\_history files, counts
+                             the occurances of the command given in the field\_id.
                              Commands are evaluatd considering use of sudo, time, etc.
-               PARAM      -- The result value is set to nth parameter
+\item \textbf{PARAM}      -- The result value is set to nth parameter
                              (0 is the program name), provided in the 
                              program invocation.  
                              
-               SEARCH     -- The result is assigned the value of the search 
-                             defined by the given field_id, which is treated as an
-                             expression having the syntax of pythons parse.search 
-                             function.  E.g., "frame.number=={:d}" would 
-                             yield the frame number.
-               GROUP      -- Intended for use with "REGEX" line types, the 
-                             result is set to the value of the regex group 
-                             number named by the field_id.  Regular expressions
-                             and their groups are processed using the python
-                             re.search semantics.
-               TIME_DELIM -- The timestamps of the named files are used to create 
+\item \textbf{TIME\_DELIM} -- The timestamps of the named files are used to create 
                              a set of time ranges with periods between the 
-                             timestamps of each file, e.g., for use in time_during 
+                             timestamps of each file, e.g., for use in time\_during 
                              goal operators. File identifiers should not include
                              stdin or stdout qualifiers. The file identifier
                              may be a list of container:file pairs separated
                              by semicolons.
-                              
-            field_id -- An integer identifying the nth occurance of the field type.
+                             
+\end{itemize} 
+\item \textbf{field\_id} -- An integer identifying the nth occurance of the field type.
                         Alternately may be "LAST" for the last occurance of the 
                         field type, or "ALL" for the entire line (which causes the 
-                        field type to be ignored).  Or if field_type is SEARCH, the
-                        field_id is treated as the search expression. 
-                        If field_type is "CONTAINS", the 
+                        field type to be ignored).  Or if field\_type is SEARCH, the
+                        field\_id is treated as the search expression. 
+                        If field\_type is "CONTAINS", the 
                         remainder of the line is treated as a string to be 
-                        searched for.  If field_type is "PARAM", the field_id is
+                        searched for.  If field\_type is "PARAM", the field\_id is
                         the 1-based index of the parameter whose value is to be 
                         assigned, and no other fields should be present.
-                        If field_type is "CHECKSUM", no other field is required.
-            line_type - Identifies how the line is to be identified, values include:
-                LINE           --  The line_id is an integer line number 
-                                   (starting at one).  Use of this to identify 
-                                   lines is discouraged since minor lab changes 
-                                   might alter the count.
-                STARTSWITH     --  the line_id is a string.  This names the 
-                                   first occurrence of a line that starts with 
-                                   this string. 
-                HAVESTRING      -- The line_id is a string.  This names the 
-                                   first occurrence of a line that contains the 
-                                   string.
-                REGEX           -- The line_id is a regular expression.  This names the 
-                                   first occurrence of a line that matches the regular
-                                   expression.  Also see the "GROUP" field_type.
-                NEXT_STARTSWITH -- the line_id is a string.  This names the 
-                                   line preceeding the first occurrence of a line 
-                                   that starts with this string. 
-                HAVESTRING_TS   -- Intended for use with log files that have 
-                                   timestamped entries.  Each entry containing
-                                   the string identified in line_id will have
-                                   its result stored as a timestamped value
-                                   as if it came from a timestamped stdout or 
-                                   stdin file.  See the snort lab for an example.
-                REGEX_TS        -- Similar to HAVESTRING_TS, but with REGEX semantics,
-                                   including optional use of the GROUP field_type.
-            line_id - See line_type above.  String values, e.g., for "STARTSWITH"
-                      can be a parameterized value from the param.config file.
-                      Preface these with a "$".
-\end{verbatim}
+                        If field\_type is "CHECKSUM", no other field is required.
+\end{itemize} 
 
 \subsubsection{Converting artifact file formats}
 Some artifact file formats are not easily referenced by results.config directives.
