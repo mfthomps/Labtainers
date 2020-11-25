@@ -1660,6 +1660,7 @@ def DoStart(start_config, labtainer_config, lab_path,
         print("Please wait for the apps (%s) to launch" % apps2start)
     syncdir = os.path.join(os.getenv('LABTAINER_DIR'), 'scripts','labtainer-student', '.tmp', labname, 'sync')
     logger.debug('syncdir %s' % syncdir)
+    os.mkdir(syncdir)
     try:
         os.mkdir(syncdir)
     except:
