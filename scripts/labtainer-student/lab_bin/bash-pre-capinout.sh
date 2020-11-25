@@ -245,7 +245,9 @@ preexec() {
           then
               precheckoutfile="$PRECMD_HOME/.local/result/precheck.stdout.$timestamp"
               precheckinfile="$PRECMD_HOME/.local/result/precheck.stdin.$timestamp"
-              $PRECMD_HOME/.local/bin/precheck.sh $cmd_path > $precheckoutfile 2>/dev/null
+              # superstition?
+              touch $precheckoutfile
+              $PRECMD_HOME/.local/bin/precheck.sh $cmd_path >> $precheckoutfile 2>/dev/null
               if [[ ! -s $precheckoutfile ]]; then
                   rm -f $precheckoutfile
               fi
@@ -264,7 +266,9 @@ preexec() {
            then
                precheckoutfile="$PRECMD_HOME/.local/result/precheck.stdout.$timestamp"
                precheckinfile="$PRECMD_HOME/.local/result/precheck.stdin.$timestamp"
-               $PRECMD_HOME/.local/bin/precheck.sh $cmd_path > $precheckoutfile 2>/dev/null
+               # superstition regarding concurrance with mynotify service?
+               touch $precheckoutfile
+               $PRECMD_HOME/.local/bin/precheck.sh $cmd_path >> $precheckoutfile 2>/dev/null
                if [[ ! -s $precheckoutfile ]]; then
                    rm -f $precheckoutfile
                fi
@@ -293,9 +297,11 @@ preexec() {
            # If file $PRECMD_HOME/.local/bin/precheck.sh exist, run it
            if [ -f $PRECMD_HOME/.local/bin/precheck.sh ]
            then
+               # superstition?
+               touch $precheckoutfile
                precheckoutfile="$PRECMD_HOME/.local/result/precheck.stdout.$timestamp"
                precheckinfile="$PRECMD_HOME/.local/result/precheck.stdin.$timestamp"
-               $PRECMD_HOME/.local/bin/precheck.sh $cmd_path > $precheckoutfile 2>/dev/null
+               $PRECMD_HOME/.local/bin/precheck.sh $cmd_path >> $precheckoutfile 2>/dev/null
                if [[ ! -s $precheckoutfile ]]; then
                    rm -f $precheckoutfile
                fi
