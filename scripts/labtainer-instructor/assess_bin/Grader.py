@@ -823,20 +823,26 @@ def processTemporal(eachgoal, goal_times, logger):
             goal_times.addGoal(goalid, ts, eval_time_result[ts])
 
 
-def processBoolean(eachgoal, goal_times, logger):
+def processBoolean(eachgoal, goal_times, studentlabdir, logger):
     glist = goal_times.getGoalList()
     t_string = eachgoal['boolean_string']
     evalBooleanResult = None
     goalid = eachgoal['goalid']
     # Process all goals_ts_id dictionary
     goals_ts_id = goal_times.getGoalTimeStampId()
+    bool_json = {}
     for timestamppart, current_goals in goals_ts_id.items():
         if timestamppart != default_timestamp or len(goals_ts_id)==1:
             logger.debug('eval %s against %s tspart %s' % (t_string, str(current_goals), timestamppart))
+            bool_json[timestamppart] = current_goals
             evalBooleanResult = evalBoolean.evaluate_boolean_expression(t_string, current_goals, logger, glist)
             if evalBooleanResult is not None:
                 logger.debug('bool evaluated to %r' % evalBooleanResult)
                 goal_times.addGoal(goalid, timestamppart, evalBooleanResult)
+    bool_fname = 'bool_%s.json' % goalid
+    bool_path = os.path.join(studentlabdir, '.local', 'result', bool_fname)
+    with open(bool_path, 'w') as fh:
+        fh.write(json.dumps(bool_json))
     # if evalBooleanResult is None - means not found
     if evalBooleanResult is None:
         #logger.debug('processBoolean evalBooleanResult is None, goalid %s goal_id_ts %s' % (goalid, goals_ts_id))
@@ -961,7 +967,7 @@ def processLabExercise(studentlabdir, labidname, grades, goals, bool_results, go
         elif eachgoal['goaltype'] == "execute":
             processExecute(result_sets, eachgoal, goal_times)
         elif eachgoal['goaltype'] == "boolean":
-            processBoolean(eachgoal, goal_times, logger)
+            processBoolean(eachgoal, goal_times, studentlabdir, logger)
         elif eachgoal['goaltype'] == "time_before" or \
              eachgoal['goaltype'] == "time_during" or \
              eachgoal['goaltype'] == "time_not_during":

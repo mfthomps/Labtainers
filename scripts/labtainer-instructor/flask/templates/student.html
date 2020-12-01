@@ -1,0 +1,18 @@
+<html>
+  <head>
+    <link rel="stylesheet" href='/static/main.css' />
+  </head>
+  <body>
+    <a href={{back_grades}}>grades</a>
+
+    <h1>{{title}}</h1>
+    <h2>Result Booleans</h2></br>
+      {{table}}</br>
+    <h2>Timestamped results</h2></br>
+      {{ts_table}}</br>
+    <h2>History</h2></br>
+    {% for entry in hist_list %}
+       <a href={{entry[1]}}>{{entry[0]}}</a></br>
+    {% endfor %}
+ </body>
+</html>
