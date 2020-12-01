@@ -72,6 +72,11 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+December 1, 2020
+- The iptables2 lab assessment relied on random ports being "unknown" to nmap.
+- Use a sync diretory to delay smoketests from starting prior to lab startup.
+- Begin integrating Lab designer UI elements.
+
 October 13, 2020
 - Headless configuraions for running on Docker Desktop on Macs & Windows
 - Headless server support, cloud-config file for cloud deployments
@@ -80,7 +85,6 @@ October 13, 2020
 - Improve mynotify service ability to merge output into single timestamp
 - Python3 for stopgrade script
 - SimLab now uses docker top rather than system ps
-
 
 September 26, 2020
 - Clean up the stoplab scripts to ignore non-lab containers
