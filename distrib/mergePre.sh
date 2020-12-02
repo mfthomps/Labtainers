@@ -15,9 +15,11 @@ git pull
 git checkout master || exit 1
 git merge premaster || exit 1
 ./mkall.sh -q || exit 1
+git commit labtainer.tar labtainer-developer.tar labtainer_pdf.zip -m "update distribution"
 echo "Provide Docker Hub password below"
 ./refresh_mirror.py -q || exit 1
 echo "Mirror refresh complete"
 git push --set-upstream origin master || exit 1
 git checkout premaster || exit 1
+git merge master || exit 1
 git push --set-upstream origin premaster || exit 1
