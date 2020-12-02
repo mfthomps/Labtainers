@@ -2,7 +2,7 @@
 #
 # Make distributions of labtainers
 #
-if [[ "$1" != "-q" ]]; then
+if [ "$1" != "-q" ] && [ "$1" != "-r" ]; then
     git status -s | grep -E "^ M|^ D|^ A" | less
 fi
 ./mkdist.sh $@

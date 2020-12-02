@@ -3,7 +3,8 @@
 #  Create an end-user distribution of Labtainers.
 #  This uses git archive, basing the distribution on committed content of the 
 #  current branch of the local repo.
-#
+#  use -t to force test registry
+#  use -r to update release distribution
 #
 function contains() {
     local n=$#
@@ -34,6 +35,7 @@ ldir=$ddir/labtainer
 ltrunk=$ldir/trunk
 scripts=$ltrunk/scripts
 labs=$ltrunk/labs
+docs=$ltrunk/docs
 rm -fr /$ddir
 mkdir $ddir
 mkdir $ldir
@@ -89,19 +91,12 @@ mv trunk/setup_scripts/install-labtainer.sh .
 ln -s trunk/setup_scripts/update-labtainer.sh .
 ln -s trunk/setup_scripts/update-designer.sh .
 
-cd $ldir/trunk/docs/student
-make &> /tmp/mkstudent_$USER.out
-cp labtainer-student.pdf ../../../
-cp labtainer-student.pdf $myshare
-
-cd $ldir/trunk/docs/instructor
-make &> /tmp/mkins_$USER.out
-cp labtainer-instructor.pdf ../../../
-cp labtainer-instructor.pdf $myshare
-
 cd $ldir/trunk/tool-src/capinout
 pwd
 ./mkit.sh &> /tmp/mkit_$USER.out
+# put student and instructor guide at top of distribution.
+cp $docs/student/labtainer-student.pdf $ldir/
+cp $docs/instructor/labtainer-instructor.pdf $ldir/
 cd $ddir
 tar -cz -X $here/skip-labs -f $here/labtainer.tar labtainer
 cd /tmp/
@@ -110,4 +105,8 @@ zip -qq -r $here/labtainer_pdf.zip labtainer_pdf
 cd $here
 cp labtainer.tar $myshare
 cp labtainer_pdf.zip $myshare
+if [[ "$1" == "-r" ]]; then
+    cp labtainer.tar release/
+    cp labtainer_pdf.zip release/
+fi
 echo "DONE"
