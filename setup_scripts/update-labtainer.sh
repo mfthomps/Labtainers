@@ -73,7 +73,8 @@ HOSTNAME=`hostname`
 test_flag=""
 if [[ "$TEST_REGISTRY" != TRUE ]]; then
     #wget https://my.nps.edu/documents/107523844/109121513/labtainer.tar/6fc80410-e87d-4e47-ae24-cbb60c7619fa -O labtainer.tar
-    wget --quiet https://nps.box.com/shared/static/afz87ok8ezr0vtyo2qtlqbfmc28zk08j.tar -O labtainer.tar
+    #wget --quiet https://nps.box.com/shared/static/afz87ok8ezr0vtyo2qtlqbfmc28zk08j.tar -O labtainer.tar
+    wget --quiet https://github.com/mfthomps/Labtainers/raw/master/distrib/release/labtainer.tar -O labtainer.tar
     sync
 else
     cp /media/sf_SEED/test_vms/$HOSTNAME/labtainer.tar .
