@@ -1,8 +1,8 @@
 ARG registry
 FROM $registry/labtainer.wireshark
+RUN cp /var/tmp/sources.list /etc/apt/sources.list
 RUN apt-get update && apt-get install -y --no-install-recommends libcanberra-gtk3-module firefox sqlite3 && rm -rf /var/cache/apt/
 # modified to create new instance
-RUN cp /var/tmp/sources.list /etc/apt/sources.list
 RUN apt-get update && apt-get install -y --no-install-recommends python3-pip python3-setuptools software-properties-common
 RUN add-apt-repository -y ppa:deadsnakes/ppa
 RUN apt-get update && apt-get install -y --no-install-recommends python3.6
@@ -10,6 +10,7 @@ RUN rm /usr/bin/python3 /usr/bin/python3m
 RUN ln -s /usr/bin/python3.6 /usr/bin/python3
 RUN ln -s /usr/bin/python3.6m /usr/bin/python3m
 RUN pip3 install parse
+RUN pip3 install Flask Flask-Table
 ADD system/bin/firefox /usr/bin/
 # the firefox user profile which paramterize.sh will extract and remove.
 COPY system/var/tmp/home.tar /var/tmp/
