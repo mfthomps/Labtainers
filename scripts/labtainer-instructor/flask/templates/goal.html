@@ -3,9 +3,29 @@
     <link rel="stylesheet" href='/static/main.css' />
   </head>
   <body>
-    <a href={{back_grades}}>grades</a>
+    <a href={{back_grades}}>goals</a>
 
-    <h1>{{student_id}} Goal {{goal}}</h1>
-    <pre>{{data}}</pre>
+    <h1>{{student_email}}</h1>
+    <h1>Lab: {{lab}}</h1>
+    <h2>Goal: {{goal}}</h2>
+    {% if timestamp != 'None' %}
+    <h2>Timestamp: {{timestamp}}</h2>
+    {% endif %}
+    {%if goal_entry['goaltype'] == 'boolean' %}
+       {% for bool_tbl in bool_tbl_list %}
+          {{bool_tbl[0]}} = {{bool_tbl[1]}}
+          <pre>{{bool_tbl[2]}}</pre>
+       {%endfor%}
+       <p>NOTE: Not all timestamped rows are relevant to the goal, or represent a failure on the part
+       of the student.  They reflect events that might be relevant to the goal.</p> <br>
+    {%else%}
+        goal type: {{goal_entry['goaltype']}} : {{goal_entry['goaloperator']}} : {{goal_entry['answertag']}} </br>
+        {% if result_rec %}
+            result: {{result_rec['result_id']}} = {{result_rec['expr']}}</br>
+            file: {{result_rec['container']}}:{{result_rec['fname']}}</br>
+            <pre>{{result_rec['data']}}</pre>
+        {% endif %}
+    {% endif %}
+
  </body>
 </html>
