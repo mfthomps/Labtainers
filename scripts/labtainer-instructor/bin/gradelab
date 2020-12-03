@@ -149,6 +149,7 @@ def copyAssessBin(container_name):
     except:
         logger.error("did not expect to find dir %s" % tmp_dir)
     shutil.copytree('assess_bin', os.path.join(tmp_dir, 'bin'))
+    shutil.copytree('flask', os.path.join(tmp_dir, 'flask'))
     shutil.copyfile('../labtainer-student/bin/LabCount.py', os.path.join(tmp_dir, 'bin', 'LabCount.py'))
     shutil.copyfile('../labtainer-student/lab_bin/ParameterParser.py', os.path.join(tmp_dir, 'bin', 'ParameterParser.py'))
     shutil.copyfile('../labtainer-student/lab_bin/ParameterizeLogging.py', os.path.join(tmp_dir, 'bin', 'ParameterizeLogging.py'))
@@ -162,6 +163,16 @@ def copyAssessBin(container_name):
         for line in output[1].decode('utf-8').splitlines():
             logger.debug(line.decode('utf-8'))
         logger.error("Failed copy assess_bin %s!\n" % container_name)
+        sys.exit(1)
+    command = 'docker cp /tmp/assess_bin/flask  %s:/home/instructor/.local/' % (container_name)
+    logger.debug("Command to execute is (%s)" % command)
+
+    ps = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if len(output[1].strip()) != 0:
+        for line in output[1].decode('utf-8').splitlines():
+            logger.debug(line.decode('utf-8'))
+        logger.error("Failed copy flask %s!\n" % container_name)
         sys.exit(1)
 
 
@@ -205,7 +216,7 @@ def diddleProfile(container_name):
         logger.error("Failed to diddle profile container %s!\n" % container_name)
         sys.exit(1)
 
-def autoGrade(grade_container, lab_path, labtainer_config, labname, copy_json, checkwork):
+def autoGrade(grade_container, lab_path, labtainer_config, labname, copy_json, checkwork, web):
     retval = True
     cmd = "docker exec %s bash -c 'su - instructor -c \"cd;.local/bin/instructor.py %r\"'" % (grade_container, checkwork)
     if not labutils.DockerCmd(cmd):
@@ -225,8 +236,18 @@ def autoGrade(grade_container, lab_path, labtainer_config, labname, copy_json, c
             with open(fglob[0]) as fh:
                 for line in fh:
                     print(line.rstrip())
-    cmd = 'docker stop %s' % grade_container
-    labutils.DockerCmd(cmd)
+        if web: 
+            labname = os.path.basename(lab_path)
+            cmd = "docker exec %s bash -c 'su - instructor -c \"cd;.local/flask/server.py %s&\"'" % (grade_container, labname)
+            if not labutils.DockerCmd(cmd):
+                logger.error('Error occurred within the grader container.  \nSee $LABTAINER_DIR/logs/grader.log')
+                command = 'docker cp %s:"/tmp/instructor.log" ../../logs/instructor.log' % (grade_container)
+                logger.debug("Command to execute is (%s)" % command)
+                result = subprocess.call(shlex.split(command))
+                retval = False
+        else:
+            cmd = 'docker stop %s' % grade_container
+            labutils.DockerCmd(cmd)
     return retval
    
 def getGradeImageName(labtainer_config, registry):
@@ -260,7 +281,8 @@ def moreTerm(labname):
     logger.debug("spawn_command is (%s)" % spawn_command)
     os.system(spawn_command)
 
-def doGrade(labname, use_test_registry, debug, redo, update, regress_test=None, copy_json=True, in_logger=None, checkwork=False):
+def doGrade(labname, use_test_registry, debug, redo, update, web=False, regress_test=None, 
+         copy_json=True, in_logger=None, checkwork=False):
     if in_logger is not None:
         logger = in_logger
     else:
@@ -289,7 +311,7 @@ def doGrade(labname, use_test_registry, debug, redo, update, regress_test=None, 
             add_host_param = '--add-host my_host:%s' % (docker0_IPAddr)
         else:
             add_host_param = '' 
-        cmd = "docker create -t --name=%s %s --hostname=%s %s" % (grade_container, add_host_param, grade_container, grade_image)
+        cmd = "docker create -t --name=%s %s --hostname=%s -p 127.0.0.1:8008:8008 %s" % (grade_container, add_host_param, grade_container, grade_image)
         logger.debug("Command to execute was (%s)" % cmd)
         ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         output = ps.communicate()
@@ -313,7 +335,7 @@ def doGrade(labname, use_test_registry, debug, redo, update, regress_test=None, 
         logger.debug("spawn_command is (%s)" % spawn_command)
         os.system(spawn_command)
     else:
-        autoGrade(grade_container, lab_path, labtainer_config, labname, copy_json, checkwork)
+        autoGrade(grade_container, lab_path, labtainer_config, labname, copy_json, checkwork, web)
 
 def removeGraders(registry):
     cmd = 'docker ps -a'
@@ -357,6 +379,7 @@ def main():
     parser.add_argument('labname', help='The lab to grade')
     parser.add_argument('-r', '--redo', action='store_true', help='Creates new instance of the lab, previous work will be lost.')
     parser.add_argument('-d', '--debug', action='store_true', help='Create the grading container leave it running with a terminal')
+    parser.add_argument('-w', '--web', action='store_true', help='Start web server for analysis of student work.')
     parser.add_argument('-t', '--test_registry', action='store_true', help='Use image from test registry')
     parser.add_argument('-u', '--update', action='store_true', help='Update grader image, deletes existing grader containers')
     parser.add_argument('-a', '--add_terminal', action='store_true', help='Create an additional virtual terminal attached to an existing grade \
@@ -369,7 +392,7 @@ def main():
         redo = args.redo
         if args.update:
             redo = True
-        doGrade(labname, args.test_registry, args.debug, redo, args.update)
+        doGrade(labname, args.test_registry, args.debug, redo, args.update, web=args.web)
 
     
 labutils.logger = LabtainerLogging.LabtainerLogging("grader.log", 'instructor', "../../config/labtainer.config")

@@ -33,6 +33,7 @@ import json
 import sys
 import os
 import glob
+import argparse
 from flask_table import Table, Col, LinkCol, create_table, NestedTableCol
 
 '''
@@ -53,11 +54,17 @@ class HackCol(Col):
         else:
             return content
 
+parser = argparse.ArgumentParser(description='Grade a Labtainers lab')
+parser.add_argument('labname', help='The lab to grade')
+parser.add_argument('-t', '--test', action='store_true', help='Use test directory.')
+args = parser.parse_args()
+lab = args.labname
 app = Flask(__name__)
-data_dir = '/home/mike/tmp'
-#lab = 'telnetlab'
-lab = 'capabilities'
-lab_dir = os.path.join(data_dir, lab)
+if args.test:
+    data_dir = '/home/mike/tmp'
+    lab_dir = os.path.join(data_dir, lab)
+else:
+    lab_dir = os.getenv('HOME')
 
 tbl_options = dict(no_items='Empty',   border='1px solid black')
 
