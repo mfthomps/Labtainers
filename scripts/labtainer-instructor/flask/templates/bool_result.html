@@ -6,20 +6,11 @@
     <a href={{back_grades}}>goals</a>
 
     <h1>{{student_email}}</h1>
-    {% if table %}
-    <h2>Result Booleans</h2></br>
-      {{table}}</br>
-    {% endif %}
-    <h2>Timestamped results</h2></br>
+    <h2>Timestamped results for result: {{result_id}}</h2></br>
     <form method="POST">
                   Search: <input type="text" name="search" value={{search_string}}>
                   <input type="submit" value="Submit"><br>
     </form>
       {{ts_table}}</br>
-    <h2>History</h2></br>
-    {% for entry in hist_list %}
-       <a href={{entry[1]}}>{{entry[0]}}</a></br>
-    {% endfor %}
-    <a href={{goals_json}}>goals.json</a>
  </body>
 </html>

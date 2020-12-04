@@ -14,6 +14,9 @@
     {%if goal_entry['goaltype'] == 'boolean' %}
        {% for bool_tbl in bool_tbl_list %}
           {{bool_tbl[0]}} = {{bool_tbl[1]}}
+          {% if bool_tbl[3] %}}
+          <pre>{{bool_tbl[3]}}</pre>
+          {% endif %}
           <pre>{{bool_tbl[2]}}</pre>
        {%endfor%}
        <p>NOTE: Not all timestamped rows are relevant to the goal, or represent a failure on the part
@@ -22,8 +25,19 @@
         goal type: {{goal_entry['goaltype']}} : {{goal_entry['goaloperator']}} : {{goal_entry['answertag']}} </br>
         {% if result_rec %}
             result: {{result_rec['result_id']}} = {{result_rec['expr']}}</br>
-            file: {{result_rec['container']}}:{{result_rec['fname']}}</br>
+            {% if result_rec['container'] %}
+               file: {{result_rec['container']}}:{{result_rec['fname']}}</br>
+            {%else%}
+               file: {{result_rec['fname']}}</br>
+            {%endif%}
+            {% if result_rec['data'] %}
             <pre>{{result_rec['data']}}</pre>
+            {%else%}
+            <p>No such files found.</p>
+            {% endif %}
+        {% endif %}
+        {% if ts_table %}
+            {{ts_table}}
         {% endif %}
     {% endif %}
 
