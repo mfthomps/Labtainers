@@ -141,7 +141,7 @@ def InstDocsToHostDir(labname, labtainer_config, lab_path):
     # Final removal of temporary directory
     shutil.rmtree(tmpdir, ignore_errors=True)
 
-def copyAssessBin(container_name):
+def copyAssessBin(container_name, test_web):
     tmp_dir='/tmp/assess_bin'
     shutil.rmtree(tmp_dir, ignore_errors=True)
     try:
@@ -149,7 +149,8 @@ def copyAssessBin(container_name):
     except:
         logger.error("did not expect to find dir %s" % tmp_dir)
     shutil.copytree('assess_bin', os.path.join(tmp_dir, 'bin'))
-    shutil.copytree('flask', os.path.join(tmp_dir, 'flask'))
+    if not test_web:
+        shutil.copytree('flask', os.path.join(tmp_dir, 'flask'))
     shutil.copyfile('../labtainer-student/bin/LabCount.py', os.path.join(tmp_dir, 'bin', 'LabCount.py'))
     shutil.copyfile('../labtainer-student/lab_bin/ParameterParser.py', os.path.join(tmp_dir, 'bin', 'ParameterParser.py'))
     shutil.copyfile('../labtainer-student/lab_bin/ParameterizeLogging.py', os.path.join(tmp_dir, 'bin', 'ParameterizeLogging.py'))
@@ -167,13 +168,14 @@ def copyAssessBin(container_name):
     command = 'docker cp /tmp/assess_bin/flask  %s:/home/instructor/.local/' % (container_name)
     logger.debug("Command to execute is (%s)" % command)
 
-    ps = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    output = ps.communicate()
-    if len(output[1].strip()) != 0:
-        for line in output[1].decode('utf-8').splitlines():
-            logger.debug(line.decode('utf-8'))
-        logger.error("Failed copy flask %s!\n" % container_name)
-        sys.exit(1)
+    if not test_web:
+        ps = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        output = ps.communicate()
+        if len(output[1].strip()) != 0:
+            for line in output[1].decode('utf-8').splitlines():
+                logger.debug(line)
+            logger.error("Failed copy flask %s!\n" % container_name)
+            sys.exit(1)
 
 
 
@@ -238,7 +240,7 @@ def autoGrade(grade_container, lab_path, labtainer_config, labname, copy_json, c
                     print(line.rstrip())
         if web: 
             labname = os.path.basename(lab_path)
-            cmd = "docker exec %s bash -c 'su - instructor -c \"cd;.local/flask/server.py %s&\"'" % (grade_container, labname)
+            cmd = "docker exec %s bash -c 'su - instructor -c \"cd;.local/flask/server.py %s >/tmp/flex.log 2>&1 &\"'" % (grade_container, labname)
             if not labutils.DockerCmd(cmd):
                 logger.error('Error occurred within the grader container.  \nSee $LABTAINER_DIR/logs/grader.log')
                 command = 'docker cp %s:"/tmp/instructor.log" ../../logs/instructor.log' % (grade_container)
@@ -282,7 +284,7 @@ def moreTerm(labname):
     os.system(spawn_command)
 
 def doGrade(labname, use_test_registry, debug, redo, update, web=False, regress_test=None, 
-         copy_json=True, in_logger=None, checkwork=False):
+         copy_json=True, in_logger=None, checkwork=False, test_web=False):
     if in_logger is not None:
         logger = in_logger
     else:
@@ -311,12 +313,20 @@ def doGrade(labname, use_test_registry, debug, redo, update, web=False, regress_
             add_host_param = '--add-host my_host:%s' % (docker0_IPAddr)
         else:
             add_host_param = '' 
-        cmd = "docker create -t --name=%s %s --hostname=%s -p 127.0.0.1:8008:8008 %s" % (grade_container, add_host_param, grade_container, grade_image)
+        if test_web:
+            flask_path = os.path.join(os.getenv('LABTAINER_DIR'), 'scripts', 'labtainer-instructor', 'flask')
+            volume_param = '-v %s:/home/instructor/.local/flask' % flask_path
+        else:
+            volume_param = ''
+        cmd = "docker create -t --name=%s %s --hostname=%s -p 8008:8008 %s %s" % (grade_container, 
+          add_host_param, grade_container, volume_param, grade_image)
         logger.debug("Command to execute was (%s)" % cmd)
         ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         output = ps.communicate()
         if len(output[1]) > 0:
-            logger.debug('command was %s' % cmd)
+            logger.error('command was %s' % cmd)
+            logger.error(output[1])
+            exit(1)
     else:
         logger.debug('Container already exists')
     labutils.StartMyContainer(grade_container)
@@ -327,7 +337,7 @@ def doGrade(labname, use_test_registry, debug, redo, update, web=False, regress_
     if copy_result == FAILURE:
         logger.error("Failed to copy students' artifacts to container %s!\n" % grade_container)
         exit(1)
-    copyAssessBin(grade_container)
+    copyAssessBin(grade_container, test_web)
     labutils.CopyInstrConfig(grade_container, 'instructor', lab_path)
     diddleProfile(grade_container)
     if debug:
@@ -335,7 +345,7 @@ def doGrade(labname, use_test_registry, debug, redo, update, web=False, regress_
         logger.debug("spawn_command is (%s)" % spawn_command)
         os.system(spawn_command)
     else:
-        autoGrade(grade_container, lab_path, labtainer_config, labname, copy_json, checkwork, web)
+        autoGrade(grade_container, lab_path, labtainer_config, labname, copy_json, checkwork, (test_web | web))
 
 def removeGraders(registry):
     cmd = 'docker ps -a'
@@ -380,6 +390,7 @@ def main():
     parser.add_argument('-r', '--redo', action='store_true', help='Creates new instance of the lab, previous work will be lost.')
     parser.add_argument('-d', '--debug', action='store_true', help='Create the grading container leave it running with a terminal')
     parser.add_argument('-w', '--web', action='store_true', help='Start web server for analysis of student work.')
+    parser.add_argument('-v', '--volume', action='store_true', help='Use local development flask directory mounted as a volume.')
     parser.add_argument('-t', '--test_registry', action='store_true', help='Use image from test registry')
     parser.add_argument('-u', '--update', action='store_true', help='Update grader image, deletes existing grader containers')
     parser.add_argument('-a', '--add_terminal', action='store_true', help='Create an additional virtual terminal attached to an existing grade \
@@ -392,7 +403,7 @@ def main():
         redo = args.redo
         if args.update:
             redo = True
-        doGrade(labname, args.test_registry, args.debug, redo, args.update, web=args.web)
+        doGrade(labname, args.test_registry, args.debug, redo, args.update, web=args.web, test_web=args.volume)
 
     
 labutils.logger = LabtainerLogging.LabtainerLogging("grader.log", 'instructor', "../../config/labtainer.config")
