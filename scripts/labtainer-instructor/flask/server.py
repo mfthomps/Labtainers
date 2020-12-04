@@ -196,7 +196,10 @@ def getTSTable(student_id, result_id):
                 with open(ts_path) as fh:
                     ts_json = json.load(fh)
                     if result_id in ts_json:
-                        row['result_value'] = ts_json[result_id]
+                        if len(ts_json[result_id].strip()) == 0 or ts_json[result_id]=="''":
+                            row['result_value'] = 'empty'
+                        else:
+                            row['result_value'] = ts_json[result_id]
                         row['result_id'] = result_id
                     else:
                         continue
@@ -264,7 +267,7 @@ def goals_json(student_id):
     return render_template('goals_json.html', student_id=student_email, data = data, back_grades=url_for('grades'))
     
 
-@app.route('/grades/<student_id>/<container_id>/history')
+@app.route('/grades/history/<student_id>/<container_id>')
 def history(student_id, container_id):
    
     container_history = os.path.join(lab_dir, student_id, container_id, '.bash_history')
@@ -300,7 +303,11 @@ def getBoolTable(student_id, student_inter_dir, goal_id, goals_json, bool_tbl_li
     bool_json_path = os.path.join(student_inter_dir, bool_json_file)
     with open(bool_json_path) as fh:
         bool_json = json.load(fh)
-    first_key = list(bool_json.keys())[0]
+    bool_json_keys = []
+    for ts in bool_json:
+        for key in bool_json[ts]:
+            if key not in bool_json_keys:
+                bool_json_keys.append(key)
     BoolExpTableCls = create_table('BoolExpTableCls', options = tbl_options)
     BoolExpTableCls.add_column('timestamp', Col('Timestamp'))
 
@@ -319,7 +326,7 @@ def getBoolTable(student_id, student_inter_dir, goal_id, goals_json, bool_tbl_li
     for item in item_list:
         item = item.strip()
         print('item is %s' % item)
-        if item in bool_json[first_key]:
+        if item in bool_json_keys:
             goal_entry = getGoal(goals_json, item)
             if goal_entry is None:
                 print(' is none')
@@ -336,7 +343,7 @@ def getBoolTable(student_id, student_inter_dir, goal_id, goals_json, bool_tbl_li
                 
             else:
                 ''' not handled yet '''
-                print(' is not known')
+                print(' goal type %s is not known' % goal_entry['goaltype'])
                 BoolExpTableCls.add_column(item, HackCol(item))
         else:
             goal_entry = getGoal(goals_json, item)
@@ -348,8 +355,8 @@ def getBoolTable(student_id, student_inter_dir, goal_id, goals_json, bool_tbl_li
                 row['student_id'] = student_id
                 missing_goal_rows.append(row)
     missing_goal_table = None
-    if len(missing_goal_rows) > 0:
-        missing_goal_table = MissingBoolTableCls(missing_goal_rows) 
+    #if len(missing_goal_rows) > 0:
+    #    missing_goal_table = MissingBoolTableCls(missing_goal_rows) 
     bool_exp_tbl_rows = []
     for ts in bool_json:
         row = {}
@@ -358,11 +365,12 @@ def getBoolTable(student_id, student_inter_dir, goal_id, goals_json, bool_tbl_li
         for item in bool_json[ts]:
             if (' %s ' % item) in the_string:
                 row[item] = '%s:%s' % (item, bool_json[ts][item])
+                print('added %s' % row[item])
         bool_exp_tbl_rows.append(row)
     bool_exp_tbl = BoolExpTableCls(bool_exp_tbl_rows)
     bool_tbl_list.append([goal_id, bool_string, bool_exp_tbl, missing_goal_table])
     ''' look for bool elements that are themselves results of boolean expressions '''
-    for sub_goal_id in bool_json[first_key]:
+    for sub_goal_id in bool_json_keys:
         if sub_goal_id in did_these:
             continue
         elif (' %s ' % sub_goal_id) not in the_string:
