@@ -6,7 +6,9 @@
     <a href={{back_grades}}>goals</a>
     <h1>{{student_id}}</h1>
     <h1>Lab: {{lab}}</h1>
+    {% if timestamp and timestamp != 'None' %}
     <h2>Timestamp: {{timestamp}}</h2>
+    {%endif%}
     <h2>file: {{container}}:{{fname}}</h2>
     <pre>
     {{data}}

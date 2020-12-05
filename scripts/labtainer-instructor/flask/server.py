@@ -54,6 +54,7 @@ class HackCol(Col):
         else:
             return content
 
+global raw_fpath
 parser = argparse.ArgumentParser(description='Grade a Labtainers lab')
 parser.add_argument('labname', help='The lab to grade')
 parser.add_argument('-t', '--test', action='store_true', help='Use test directory.')
@@ -99,7 +100,7 @@ def grades():
         grade_dict = json.load(fh)
         first_key = list(grade_dict.keys())[0]
         for goal in grade_dict[first_key]['grades']:
-            if not goal.startswith('_'):
+            if not goal.startswith('_') and not goal.startswith('cw_'):
                 #GoalTableCls.add_column(goal, Col(goal))
                 if goal in goals_list:
                     GoalTableCls.add_column(goal, HackLinkCol(goal, 'goal_select',
@@ -115,7 +116,7 @@ def grades():
             row['student_id'] = student
             row['timestamp'] = 'None'
             for key in grade_dict[student]['grades']:
-                if not key.startswith('_'):
+                if not key.startswith('_') and not key.startswith('cw_'):
                     row[key] = '%s:%s' % (key, grade_dict[student]['grades'][key])
             rows.append(row)
         tbl = GoalTableCls(rows) 
@@ -220,7 +221,7 @@ def bool_result_select(student_id, result):
         result_id = result
     ts_tbl, search_string = getTSTable(student_id, result_id)
     student_email = student_id.rsplit('.', 1)[0]
-    return render_template('bool_result.html', student_email=student_email, ts_table=ts_tbl, 
+    return render_template('bool_result.html', student_email=student_email, result_id=result, ts_table=ts_tbl, 
               search_string=search_string, back_grades=url_for('grades'))
 
 @app.route('/grades/<string:student_id>', methods=['GET', 'POST'])
@@ -277,17 +278,23 @@ def history(student_id, container_id):
     student_email = student_id.rsplit('.', 1)[0]
     return render_template('history.html', student_id=student_email, data = data, back_grades=url_for('grades'))
 
-
 @app.route('/grades/raw/<student_id>/<container_id>/<ts>/<fname>')
 def raw_select(student_id, container_id, ts, fname):
+    global raw_fpath
+    print('IN raw select')
     result_dir = os.path.join(lab_dir, student_id, container_id, '.local', 'result')
-    path = os.path.join(result_dir, ts)
+    if ts == 'None':
+        ts_fname = raw_fpath[1:]
+        fname = raw_fpath
+    else:
+        ts_fname = '%s.%s' % (fname, ts)
+    path = os.path.join(result_dir, ts_fname)
     with open(path) as fh:
         data = fh.read()
     
     container = container_id.split('.')[1]
     student_email = student_id.rsplit('.', 1)[0]
-    return render_template('raw.html', student_id=student_email, timestamp=ts, fname=fname, 
+    return render_template('raw.html', lab=lab, student_id=student_email, timestamp=ts, fname=fname, 
           container=container,data = data, back_grades=url_for('grades'))
 
 
@@ -303,14 +310,18 @@ def getBoolTable(student_id, student_inter_dir, goal_id, goals_json, bool_tbl_li
     bool_json_path = os.path.join(student_inter_dir, bool_json_file)
     with open(bool_json_path) as fh:
         bool_json = json.load(fh)
+    ''' list of all potential boolan goals/results for this goal'''
     bool_json_keys = []
     for ts in bool_json:
         for key in bool_json[ts]:
             if key not in bool_json_keys:
                 bool_json_keys.append(key)
+
+    ''' table for boolen expression values '''
     BoolExpTableCls = create_table('BoolExpTableCls', options = tbl_options)
     BoolExpTableCls.add_column('timestamp', Col('Timestamp'))
 
+    ''' list (single column table) of boolean goals that have no results '''
     MissingBoolTableCls = create_table('MissingBoolTableCls', options = tbl_options)
     MissingBoolTableCls.add_column('missing goal results', HackLinkCol('Goals lacking results', 'goal_select',
                    url_kwargs=dict(student_id='student_id', goal='missing_goal', timestamp='timestamp'), attr='missing_goal'))
@@ -323,10 +334,14 @@ def getBoolTable(student_id, student_inter_dir, goal_id, goals_json, bool_tbl_li
     the_string = the_string.replace(')', ' ')
     ''' order table based on order of items in the expression '''
     item_list = the_string.split(' ')
+    ''' generate list of columns so we can exclude rows that lack corresponding values '''
+    columns = []
+    ''' Identify the tokens in expression that are goals/results '''
     for item in item_list:
         item = item.strip()
         print('item is %s' % item)
         if item in bool_json_keys:
+            columns.append(item)
             goal_entry = getGoal(goals_json, item)
             if goal_entry is None:
                 print(' is none')
@@ -338,6 +353,10 @@ def getBoolTable(student_id, student_inter_dir, goal_id, goals_json, bool_tbl_li
                 BoolExpTableCls.add_column(item, HackCol(item))
             elif goal_entry['goaltype'] == 'matchany':
                 print(' is matchany')
+                BoolExpTableCls.add_column(item, HackLinkCol(item, 'goal_select',
+                   url_kwargs=dict(student_id='student_id', goal=item, timestamp='timestamp'), attr=item))
+            elif goal_entry['goaltype'] == 'time_during':
+                print(' is time_during')
                 BoolExpTableCls.add_column(item, HackLinkCol(item, 'goal_select',
                    url_kwargs=dict(student_id='student_id', goal=item, timestamp='timestamp'), attr=item))
                 
@@ -354,9 +373,10 @@ def getBoolTable(student_id, student_inter_dir, goal_id, goals_json, bool_tbl_li
                 row['timestamp'] = 'None'
                 row['student_id'] = student_id
                 missing_goal_rows.append(row)
+    ''' populate the rows of the tables '''
     missing_goal_table = None
-    #if len(missing_goal_rows) > 0:
-    #    missing_goal_table = MissingBoolTableCls(missing_goal_rows) 
+    if len(missing_goal_rows) > 0:
+        missing_goal_table = MissingBoolTableCls(missing_goal_rows) 
     bool_exp_tbl_rows = []
     for ts in bool_json:
         row = {}
@@ -366,7 +386,15 @@ def getBoolTable(student_id, student_inter_dir, goal_id, goals_json, bool_tbl_li
             if (' %s ' % item) in the_string:
                 row[item] = '%s:%s' % (item, bool_json[ts][item])
                 print('added %s' % row[item])
-        bool_exp_tbl_rows.append(row)
+        ''' exclude the row if it lacks any column '''
+        skip_row = False
+        for c in columns:
+            if c not in row:
+                skip_row = True
+                print('row missing column %s, skip it' % c)
+                break
+        if not skip_row:
+            bool_exp_tbl_rows.append(row)
     bool_exp_tbl = BoolExpTableCls(bool_exp_tbl_rows)
     bool_tbl_list.append([goal_id, bool_string, bool_exp_tbl, missing_goal_table])
     ''' look for bool elements that are themselves results of boolean expressions '''
@@ -385,21 +413,59 @@ def getBoolTable(student_id, student_inter_dir, goal_id, goals_json, bool_tbl_li
     
 @app.route('/grades/goals/<student_id>/<goal>/<timestamp>')
 def goal_select(student_id, goal, timestamp):
+    global raw_fpath
     student_dir = os.path.join(lab_dir, student_id)
     student_inter_dir = os.path.join(student_dir, '.local','result')
     goals_json_file = os.path.join(student_inter_dir, 'goals.json')
     if '-' in timestamp:
-        timestamp = timestamp.split('-')[0]
+        timestamp_start = timestamp.split('-')[0]
+    else:
+        timestamp_start = timestamp
     goal_id = goal.split(':')[0]
     bool_tbl_list = []
     result_rec = None
     ts_table = None
+    student_email = student_id.rsplit('.', 1)[0]
     with open(goals_json_file) as fh:
         goals_json = json.load(fh)
-        goal_entry = getGoal(goals_json, goal_id) 
-        if goal_entry is None:
-            print('no goal entry for %s' % goal_id)
-            return ('no goal entry for %s' % goal_id)
+    goal_entry = getGoal(goals_json, goal_id) 
+    if goal_entry is None:
+        print('no goal entry for %s' % goal_id)
+        return ('no goal entry for %s' % goal_id)
+    elif goal_entry['goaltype'] == 'time_during':
+        goal1 = goal_entry['goal1tag'] 
+        goal1_entry = getGoal(goals_json, goal1) 
+        if goal1_entry is None:
+            container, fname, expr = getResultFileName(student_id, goal1)
+            container_id = '%s.%s.student' % (lab, container) 
+            print('wt fname is %s' % fname)
+            if fname.startswith('/'):
+                raw_fpath = fname
+                raw_url = url_for('raw_select', student_id=student_id, container_id=container_id, ts='None', fname='raw')
+                result1_rec_list = [{'result_id' : goal1, 'expr' : expr, 'container' : container, 
+                        'fname' : fname, 'raw_url' : raw_url}]
+            else:
+                result1_rec_list =  getResultTSRec(student_id, timestamp, goal1, container, fname, expr)
+        
+        goal2 = goal_entry['goal2tag'] 
+        goal2_entry = getGoal(goals_json, goal2) 
+        if goal2_entry is None:
+            container, fname, expr = getResultFileName(student_id, goal2)
+            container_id = '%s.%s.student' % (lab, container) 
+            if fname.startswith('/'):
+                raw_fpath = fname
+                raw_url = url_for('raw_select', student_id=student_id, container_id=container_id, ts='None', fname='raw')
+                result2_rec_list = [{'result_id' : goal2, 'expr' : expr, 'container' : container, 
+                        'fname' : fname, 'raw_url' : raw_url}]
+            else:
+                result2_rec_list =  getResultTSRec(student_id, timestamp, goal2, container, fname, expr)
+
+
+        return render_template('goal_during.html', lab=lab, student_email=student_email, goal = goal, 
+               goal1=goal1, goal2=goal2, goal1_entry=goal1_entry, goal2_entry=goal2_entry, 
+               result1_rec=result1_rec_list, result2_rec=result2_rec_list,
+               timestamp=timestamp, back_grades=url_for('grades'))
+    else:
         if goal_entry['goaltype'] == 'boolean':
             did_these = [goal_id]
             bool_tbl_list = getBoolTable(student_id, student_inter_dir, goal_id, goals_json, bool_tbl_list, did_these)
@@ -408,17 +474,16 @@ def goal_select(student_id, goal, timestamp):
             if resulttag.startswith('result.'):
                  result_id = resulttag.split('.')[1]
                  if timestamp is not None and timestamp != 'None':
-                     result_rec = getResultRec(student_id, timestamp, result_id)
+                     result_rec = getResultTSRec(student_id, timestamp, result_id)
                  else:
                      ts_table, search_string = getTSTable(student_id, result_id)
                      if ts_table is None:
                          result_rec = {}
                          result_rec['fname'], result_rec['expr'] = getResultDef(result_id)
                          
-    student_email = student_id.rsplit('.', 1)[0]
-    return render_template('goal.html', lab=lab, student_email=student_email, goal = goal, 
+        return render_template('goal.html', lab=lab, student_email=student_email, goal = goal, 
                bool_tbl_list=bool_tbl_list, goal_entry=goal_entry, result_rec=result_rec, 
-               ts_table=ts_table, timestamp=timestamp, back_grades=url_for('grades'))
+               ts_table=ts_table, timestamp=timestamp_start, back_grades=url_for('grades'))
 
 def getGoalsList():
     goals_file = os.path.join(lab_dir,'.local', 'instr_config', 'goals.config')
@@ -447,49 +512,71 @@ def getResultDef(result_id):
                     break
     return fname, expr
 
-def getResultRec(student_id, timestamp, result_id):
-    retval = {}
+def getResultFileName(student_id, result_id):
+    student_dir = os.path.join(lab_dir, student_id)
+    target_file, expr = getResultDef(result_id)
+    container = None
+    if ':' in target_file:
+        container, target_file = target_file.split(':')
+    if container is None:
+        glob_mask = '%s/*/' % student_dir
+        dlist = glob.glob(glob_mask)
+        if len(dlist) != 1:
+            print('result_select expected on directory, got %s' % str(dlist))
+            exit(1)
+        container_id = os.path.basename(dlist[0][:-1])
+        container = container_id.split('.')[1].strip()
+    else:
+        container = container.strip()
+    return container, target_file, expr
+
+def getResultTSRec(student_id, timestamp, result_id, container, fname, expr):
+    retval_list = []
     student_dir = os.path.join(lab_dir, student_id)
     student_inter_dir = os.path.join(student_dir, '.local','result')
     goals_json_file = os.path.join(student_inter_dir, 'goals.json')
+    container_id = '%s.%s.student' % (lab, container) 
+
     if '-' in timestamp:
-        timestamp = timestamp.split('-')[0]
-    ts_file = '%s.%s' % (lab, timestamp)
-    ts_results_file = os.path.join(student_inter_dir, ts_file)
-    with open(ts_results_file) as fh:
-        tsr = json.load(fh)
-        value = tsr[result_id]
-        target_file, expr = getResultDef(result_id)
-        container = None
-        if ':' in target_file:
-            container, target_file = target_file.split(':')
-        if container is None:
-            glob_mask = '%s/*/' % student_dir
-            dlist = glob.glob(glob_mask)
-            if len(dlist) != 1:
-                print('result_select expected on directory, got %s' % str(dlist))
-                exit(1)
-            container_id = os.path.basename(dlist[0][:-1])
-            container = container_id.split('.')[1]
-        else:
-            container_id = '%s.%s.student' % (lab, container.strip()) 
-       
-        result_ts = '%s.%s' % (target_file.strip(), timestamp)
-        result_path = os.path.join(student_dir, container_id, '.local', 'result', result_ts)
-        with open(result_path) as fh:
-            data = fh.read()
-        retval['result_id'] = result_id
-        retval['value'] = value
-        retval['container'] = container
-        retval['fname'] = target_file.strip()
-        retval['expr'] = expr
-        retval['data'] = data
-    return retval
+        ts_start, ts_end = timestamp.split('-')
+    else:
+        ts_start = timestamp
+        ts_end = timestamp
+    glob_mask = '%s.*' % lab
+    glob_path = os.path.join(student_inter_dir, glob_mask)
+    glob_results = glob.glob(glob_path)
+    for ts_results_file in glob_results:
+        print('ts_results_file %s' % ts_results_file)
+        file_ts = ts_results_file.rsplit('.', 1)[1]
+        if file_ts >= ts_start and file_ts <= ts_end: 
+            retval = {}
+            with open(ts_results_file) as fh:
+                tsr = json.load(fh)
+            value = tsr[result_id]
+           
+            result_ts = '%s.%s' % (fname, file_ts)
+            result_path = os.path.join(student_dir, container_id, '.local', 'result', result_ts)
+            if not os.path.isfile(result_path):
+                print('no raw file for ts %s, skip this result ts' % file_ts)
+                continue
+            with open(result_path) as fh:
+                data = fh.read()
+            retval['result_id'] = result_id
+            retval['value'] = value
+            retval['container'] = container
+            retval['fname'] = fname
+            retval['file_ts'] = file_ts
+            retval['expr'] = expr
+            retval['data'] = data
+            retval['raw_url'] = url_for('raw_select', student_id=student_id, container_id=container_id, ts=file_ts, fname=fname)
+            retval_list.append(retval)
+    return retval_list
            
 @app.route('/grades/results/ts/<student_id>/<timestamp>/<result>')
 def result_select(student_id, timestamp, result):
     result_id = result.split(':')[0]
-    result_rec = getResultRec(student_id, timestamp, result_id)
+    container, fname, expr = getResultFileName(student_id, result)
+    result_rec = getResultTSRec(student_id, timestamp, result_id, container, fname, expr)[0]
     student_email = student_id.rsplit('.', 1)[0]
     return render_template('result.html', student_id=student_email, result = result_rec['result_id'], 
              value=result_rec['value'], timestamp=timestamp, 
@@ -505,6 +592,7 @@ def goals_config():
     with open(goals_file) as fh:
         goals_data = fh.read()
     return render_template('goals_config.html', lab=lab, results_data=results_data, goals_data=goals_data, back_grades=url_for('grades'))
+
 
 
 @app.route('/form-example', methods=['GET', 'POST']) #allow both GET and POST requests
