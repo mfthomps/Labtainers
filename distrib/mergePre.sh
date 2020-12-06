@@ -15,7 +15,6 @@ git pull
 git checkout master || exit 1
 git merge premaster || exit 1
 ./mkall.sh -r || exit 1
-git commit release/ -m "update distribution"
 echo "Provide Docker Hub password below"
 ./refresh_mirror.py -q || exit 1
 echo "Mirror refresh complete"

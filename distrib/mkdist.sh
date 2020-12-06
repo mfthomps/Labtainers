@@ -106,7 +106,7 @@ cd $here
 cp labtainer.tar $myshare
 cp labtainer_pdf.zip $myshare
 if [[ "$1" == "-r" ]]; then
-    cp labtainer.tar release/
-    cp labtainer_pdf.zip release/
+    cp labtainer.tar artifacts/
+    cp labtainer_pdf.zip artifacts/
 fi
 echo "DONE"

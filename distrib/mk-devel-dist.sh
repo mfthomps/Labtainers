@@ -22,8 +22,8 @@ ltrunk=$ldir/trunk
 scripts=$ltrunk/scripts
 labs=$ltrunk/labs
 docs=$ltrunk/docs
-rm -fr /$ddir
-mkdir $ddir
+#rm -fr $ddir
+#mkdir $ddir
 mkdir $ldir
 mkdir $ltrunk
 mkdir $labs
@@ -50,9 +50,10 @@ cp $docs/student/labtainer-student.pdf $ldir/
 cp $docs/instructor/labtainer-instructor.pdf $ldir/
 cp $docs/labdesigner/labdesigner.pdf $ldir/
 cd $ddir
-tar -cz -X $here/skip-labs -f $here/labtainer-developer.tar labtainer
+cd ../
+tar -cz -X $here/skip-labs -f $here/labtainer-master.tar $ddir
 cd $here
-cp labtainer-developer.tar $myshare
+cp labtainer-master.tar $myshare
 if [[ $skip_pdf != "YES" ]]; then
     cd /tmp/
     zip -r $here/labtainer_pdf.zip labtainer_pdf
@@ -60,5 +61,5 @@ if [[ $skip_pdf != "YES" ]]; then
     cp labtainer_pdf.zip $myshare
 fi
 if [[ "$1" == "-r" ]]; then
-    cp labtainer-developer.tar release/
+    cp labtainer-master.tar artifacts/
 fi

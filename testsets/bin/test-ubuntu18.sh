@@ -22,7 +22,7 @@ if [[ "$1" != "-n" ]]; then
 else
     echo "Leaving the dothis.sh file as it was."
 fi
-tlist="labtainer.tar labtainer-developer.tar labtainer-tests.tar"
+tlist="labtainer.tar labtainer-master.tar labtainer-tests.tar"
 for t in $tlist; do
     cp /media/sf_SEED/$t $vmdir
 done
