@@ -18,7 +18,8 @@ function contains() {
     echo "n"
     return 1
 }
-revision=`git describe --always`
+commit=`git describe --always`
+revision=`git tag`
 skip="skip-labs"
 skiplist=""
 lines=`cat $skip`
@@ -51,6 +52,7 @@ git archive $branch README.md | tar -x -C $ltrunk
 #git archive $branch | tar -x -C $ltrunk
 sed -i "s/mm\/dd\/yyyy/$(date '+%m\/%d\/%Y %H:%M')/" $ltrunk/README.md
 sed -i "s/^Revision:/Revision: $revision/" $ltrunk/README.md
+sed -i "s/^Commit:/Commit: $commit/" $ltrunk/README.md
 sed -i "s/^Branch:/Branch: $branch/" $ltrunk/README.md
 #git archive master config | tar -x -C $ltrunk
 $here/fix-git-dates.py config $ltrunk $branch
@@ -106,6 +108,7 @@ cd $here
 cp labtainer.tar $myshare
 cp labtainer_pdf.zip $myshare
 if [[ "$1" == "-r" ]]; then
+    mkdir -p artifacts
     cp labtainer.tar artifacts/
     cp labtainer_pdf.zip artifacts/
 fi

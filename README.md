@@ -15,6 +15,7 @@ The Labtainers website, and downloads (including VM appliances with Labtainers p
 
 Distribution created: mm/dd/yyyy
 Revision:
+Commit:
 Branch:
 
 ## Content
@@ -71,6 +72,12 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+
+December 4, 2020
+- Transition distribution of tar to GitHub releaese artifacts
+- Eliminate seperate designer tar file, use git repo tarball.
+- Testing of grader web functions for analysis of student lab artifacts
+- Clear logs from full smoketest and delete grader container in removelab command.
 
 December 1, 2020
 - The iptables2 lab assessment relied on random ports being "unknown" to nmap.
