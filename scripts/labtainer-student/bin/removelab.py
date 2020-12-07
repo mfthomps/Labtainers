@@ -42,9 +42,12 @@ def removeLab(lab, justContainers=False):
     else:
         lab_container = ' %s.' % lab
     gns3_container = ' %s_' % lab
+    grader = '%s-igrader' % lab
     container_list = []
     for line in output[0].decode('utf-8').splitlines():
         if lab_container in line or gns3_container in line :
+            container_list.append(line.split()[0]) 
+        elif grader in line:
             container_list.append(line.split()[0]) 
     if len(container_list) > 0:
         cmd = 'docker rm %s' % ' '.join(container_list)
