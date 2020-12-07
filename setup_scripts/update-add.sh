@@ -5,6 +5,7 @@ if [[ -z $hasnew ]];then
 fi
 hascommit=$(grep "^Commit:" labtainer/trunk/README.md)
 if [[ -z "$hascommit" ]]; then
+    cd labtainer
     wget --quiet https://github.com/mfthomps/Labtainers/releases/latest/download/labtainer.tar -O labtainer.tar
     sync
     cd ..
