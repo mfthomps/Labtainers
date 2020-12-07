@@ -45,8 +45,9 @@ date
 if [[ "$1" != "-n" ]];then
     #Clear out docker.
     echo "LABTAINER_DIR is $LABTAINER_DIR"
-    echo "will destroy docker in 5 seconds"
+    echo "will destroy logs and docker in 5 seconds"
     sleep 5
+    rm -f $LABTAINER_DIR/logs/*
     ./destroy-docker.sh -f
 fi
 
