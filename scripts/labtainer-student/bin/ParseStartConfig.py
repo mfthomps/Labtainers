@@ -361,7 +361,7 @@ class ParseStartConfig():
                self.containers[name].password = self.containers[name].user
             if self.containers[name].script == "none":
                self.containers[name].script = "";
-            if self.containers[name].registry is None and \
+            if self.registry is None and self.containers[name].registry is None and \
                    use_test_registry is not None and (use_test_registry.lower() == 'yes' or use_test_registry.lower() == 'true'):
                 self.logger.debug('Changing registry from %s to test registry %s' % (self.containers[name].registry,
                      self.labtainer_config.test_registry))
