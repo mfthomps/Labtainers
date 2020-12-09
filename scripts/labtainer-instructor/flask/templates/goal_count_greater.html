@@ -1,0 +1,20 @@
+<html>
+  <head>
+    <link rel="stylesheet" href='/static/main.css' />
+  </head>
+  <body>
+    <a href={{back_grades}}>goals</a>
+
+    <h1>{{student_email}}</h1>
+    <h1>Lab: {{lab}}</h1>
+    <h2>Goal: {{goal}} : count_greater </h2>
+    {% if value == 'True' %}
+        <p> There were more than {{ count }} occurances of: </p>
+    {% else %}
+        <p> There were NOT more than {{ count }} occurances of: </p>
+    {% endif %}
+    {% for result in result_rows %}
+        <p> {{ result['result_id'] }} : {{ result['fname'] }} : {{ result['expr'] }} <p>
+    {% endfor %}
+ </body>
+</html>

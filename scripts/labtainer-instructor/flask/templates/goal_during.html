@@ -11,7 +11,7 @@
     {% if timestamp != 'None' %}
     <h2>Timestamp: {{timestamp}}</h2>
     {% endif %}
-    <p>Was {{goal1}} during {{goal2}}?
+    <p>Was {{goal1}}{{not_during}}during {{goal2}}?
     {% for result1 in result1_rec %}
         {% if result1['fname'].startswith('/') %}
            <p>Result: {{ result1['result_id'] }} : {{result1['container']}}:<a href={{result1['raw_url']}}>{{result1['fname']}}</a> : {{ result1['expr'] }}</p>
