@@ -313,11 +313,13 @@ def doGrade(labname, use_test_registry, debug, redo, update, web=False, regress_
             add_host_param = '--add-host my_host:%s' % (docker0_IPAddr)
         else:
             add_host_param = '' 
+        docs_path = os.path.join(os.getenv('LABTAINER_DIR'), 'docs')
+        volume_param = '-v %s:/home/instructor/.local/flask/static/docs' % docs_path
+        lab_doc_path = os.path.join(os.getenv('LABTAINER_DIR'), 'labs', labname, 'docs')
+        volume_param += ' -v %s:/home/instructor/.local/flask/static/lab_doc' % lab_doc_path
         if test_web:
             flask_path = os.path.join(os.getenv('LABTAINER_DIR'), 'scripts', 'labtainer-instructor', 'flask')
-            volume_param = '-v %s:/home/instructor/.local/flask' % flask_path
-        else:
-            volume_param = ''
+            volume_param = volume_param+' -v %s:/home/instructor/.local/flask' % flask_path
         cmd = "docker create -t --name=%s %s --hostname=%s -p 8008:8008 %s %s" % (grade_container, 
           add_host_param, grade_container, volume_param, grade_image)
         logger.debug("Command to execute was (%s)" % cmd)
