@@ -5,8 +5,8 @@
 
   </head>
   <body>
+    <a href={{url_for('home')}}>home</a> &nbsp
     <a href={{back_grades}}>goals</a>
-    <a href={{url_for('home')}}>home</a>
 
     <h1>{{student_email}}</h1>
     <h1>Lab: {{lab}}</h1>
@@ -27,7 +27,7 @@
     {%else%}
         goal type: {{goal_entry['goaltype']}} : {{goal_entry['resulttag']}} : {{goal_entry['goaloperator']}} : {{goal_entry['answertag']}} </br>
         {% if result_rec %}
-            result: {{result_rec['result_id']}} = {{result_rec['expr']}}</br>
+            result: {{result_rec['result_id']}}:{{result_rec['value']}} = {{result_rec['expr']}}</br>
             {% if result_rec['container'] %}
                file: {{result_rec['container']}}:{{result_rec['fname']}}</br>
             {%else%}

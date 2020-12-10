@@ -411,7 +411,10 @@ def getBoolTable(student_id, student_inter_dir, goal_id, goals_json, bool_tbl_li
     bool_exp_tbl_rows = []
     for ts in bool_json:
         row = {}
-        row['timestamp'] = ts
+        if ts.endswith('NONE'):
+            row['timestamp'] = 'None'
+        else:
+            row['timestamp'] = ts
         row['student_id'] = student_id
         for item in bool_json[ts]:
             if (' %s ' % item) in the_string:
@@ -494,9 +497,59 @@ def handleCountGreater(student_id, student_email, goal_entry, value, goals_json)
      
     return render_template('goal_count_greater.html', lab=lab, student_email=student_email, goal = goal_id, count=count, 
                result_rows=result_rows, value=value, back_grades=url_for('grades'))
-    
+
+def handleTimeDuring(student_id, goal_entry, timestamp):
+        goal1 = goal_entry['goal1tag'] 
+        goal1_entry = getGoal(goals_json, goal1) 
+        if goal1_entry is None:
+            container, container_id, fname, expr = getResultFileName(student_id, goal1)
+            if fname.startswith('/'):
+                raw_fpath = fname
+                raw_url = url_for('raw_select', student_id=student_id, container_id=container_id, ts='None', fname='raw')
+                result1_rec_list = [{'result_id' : goal1, 'expr' : expr, 'container' : container, 
+                        'fname' : fname, 'raw_url' : raw_url}]
+            else:
+                result1_rec_list =  getResultTSRec(student_id, timestamp, goal1, container, fname, expr)
+        
+        goal2 = goal_entry['goal2tag'] 
+        goal2_entry = getGoal(goals_json, goal2) 
+        if goal2_entry is None:
+            container, container_id, fname, expr = getResultFileName(student_id, goal2)
+            if fname.startswith('/'):
+                raw_fpath = fname
+                raw_url = url_for('raw_select', student_id=student_id, container_id=container_id, ts='None', fname='raw')
+                result2_rec_list = [{'result_id' : goal2, 'expr' : expr, 'container' : container, 
+                        'fname' : fname, 'raw_url' : raw_url}]
+            else:
+                result2_rec_list =  getResultTSRec(student_id, timestamp, goal2, container, fname, expr)
+        not_during = ' '
+        if goal_entry['goaltype'] == 'time_not_during':
+            not_during = ' not ' 
+        return render_template('goal_during.html', lab=lab, student_email=student_email, goal = goal, 
+               goal1=goal1, goal2=goal2, goal1_entry=goal1_entry, goal2_entry=goal2_entry, 
+               result1_rec=result1_rec_list, result2_rec=result2_rec_list,
+               timestamp=timestamp, not_during=not_during, back_grades=url_for('grades'))
+   
+def getFileData(student_id, container_id, fname):
+    retval = None 
+    student_dir = os.path.join(lab_dir, student_id)
+    container_dir = os.path.join(student_dir, container_id)
+    if not fname.startswith('/') and not fname.startswith('~'):
+        student_inter_dir = os.path.join(container_dir, '.local','result')
+        path = os.path.join(student_inter_dir, fname)
+    else:
+        if fname.startswith('/'):
+            fname = fname[1:]
+        elif fname.startswith('~/'):
+            fname = fname[2:]
+        path = os.path.join(container_dir, fname)
+    with open(path) as fh:
+        retval = fh.read()
+    return retval 
+
 @app.route('/grades/goals/<student_id>/<goal>/<timestamp>')
 def goal_select(student_id, goal, timestamp):
+    print('GOAL SELECT')
     global raw_fpath
     student_dir = os.path.join(lab_dir, student_id)
     student_inter_dir = os.path.join(student_dir, '.local','result')
@@ -517,38 +570,7 @@ def goal_select(student_id, goal, timestamp):
         print('no goal entry for %s' % goal_id)
         return ('no goal entry for %s' % goal_id)
     elif goal_entry['goaltype'] in ['time_during', 'time_not_during']:
-        goal1 = goal_entry['goal1tag'] 
-        goal1_entry = getGoal(goals_json, goal1) 
-        if goal1_entry is None:
-            container, fname, expr = getResultFileName(student_id, goal1)
-            container_id = '%s.%s.student' % (lab, container) 
-            if fname.startswith('/'):
-                raw_fpath = fname
-                raw_url = url_for('raw_select', student_id=student_id, container_id=container_id, ts='None', fname='raw')
-                result1_rec_list = [{'result_id' : goal1, 'expr' : expr, 'container' : container, 
-                        'fname' : fname, 'raw_url' : raw_url}]
-            else:
-                result1_rec_list =  getResultTSRec(student_id, timestamp, goal1, container, fname, expr)
-        
-        goal2 = goal_entry['goal2tag'] 
-        goal2_entry = getGoal(goals_json, goal2) 
-        if goal2_entry is None:
-            container, fname, expr = getResultFileName(student_id, goal2)
-            container_id = '%s.%s.student' % (lab, container) 
-            if fname.startswith('/'):
-                raw_fpath = fname
-                raw_url = url_for('raw_select', student_id=student_id, container_id=container_id, ts='None', fname='raw')
-                result2_rec_list = [{'result_id' : goal2, 'expr' : expr, 'container' : container, 
-                        'fname' : fname, 'raw_url' : raw_url}]
-            else:
-                result2_rec_list =  getResultTSRec(student_id, timestamp, goal2, container, fname, expr)
-        not_during = ' '
-        if goal_entry['goaltype'] == 'time_not_during':
-            not_during = ' not ' 
-        return render_template('goal_during.html', lab=lab, student_email=student_email, goal = goal, 
-               goal1=goal1, goal2=goal2, goal1_entry=goal1_entry, goal2_entry=goal2_entry, 
-               result1_rec=result1_rec_list, result2_rec=result2_rec_list,
-               timestamp=timestamp, not_during=not_during, back_grades=url_for('grades'))
+        return handleTimeDuring(student_id, goal_entry, timestamp)
     elif goal_entry['goaltype'] == 'count_greater':
         return handleCountGreater(student_id, student_email, goal_entry, value, goals_json)
         
@@ -557,6 +579,7 @@ def goal_select(student_id, goal, timestamp):
             did_these = [goal_id]
             bool_tbl_list = getBoolTable(student_id, student_inter_dir, goal_id, goals_json, bool_tbl_list, did_these)
         elif goal_entry['goaltype'] == 'matchany':
+            print('IS matchany')
             resulttag = goal_entry['resulttag']
             answertag = goal_entry['answertag']
             if resulttag.startswith('result.'):
@@ -566,14 +589,22 @@ def goal_select(student_id, goal, timestamp):
                  else:
                      result_id2 = None
                  if timestamp is not None and timestamp != 'None':
-                     container, fname, expr = getResultFileName(student_id, result_id)
+                     container, container_id, fname, expr = getResultFileName(student_id, result_id)
                      result_rec = getResultTSRec(student_id, timestamp, result_id, container, fname, expr)
                  else:
-                     #print('call getTSTable for results %s and %s' % (result_id, result_id2))
+                     print('call getTSTable for results %s and %s' % (result_id, result_id2))
                      ts_table, search_string = getTSTable(student_id, result_id, result_id2)
                      if ts_table is None:
+                         ''' result not timestamped, e.g., a CONTAINS or LINECOUNT '''
                          result_rec = {}
-                         result_rec['fname'], result_rec['expr'] = getResultDef(result_id)
+                         container, container_id, fname, expr = getResultFileName(student_id, result_id)
+                         result_rec['fname'] = fname
+                         result_rec['expr'] = expr
+                         print('ts_table None.  fname is %s' % (result_rec['fname']))
+                         sys.stdout.flush()
+                         result_rec['result_id'] = result_id
+                         result_rec['value'] = getResultValue(student_id, result_id)
+                         result_rec['data'] = getFileData(student_id, container_id, fname)
                          
         return render_template('goal.html', lab=lab, student_email=student_email, goal = goal, 
                bool_tbl_list=bool_tbl_list, goal_entry=goal_entry, result_rec=result_rec, 
@@ -617,6 +648,8 @@ def getResultDef(result_id):
 def getResultFileName(student_id, result_id):
     student_dir = os.path.join(lab_dir, student_id)
     target_file, expr = getResultDef(result_id)
+    if target_file is None:
+        return None, None, None, None
     container = None
     if ':' in target_file:
         #print('target_file is %s' % target_file)
@@ -633,7 +666,8 @@ def getResultFileName(student_id, result_id):
         container = container_id.split('.')[1].strip()
     else:
         container = container.strip()
-    return container, target_file, expr
+        container_id = '%s.%s.student' % (lab, container) 
+    return container, container_id, target_file, expr
 
 def getResultTSRec(student_id, timestamp, result_id, container, fname, expr):
     retval_list = []
@@ -680,12 +714,25 @@ def getResultTSRec(student_id, timestamp, result_id, container, fname, expr):
             retval['raw_url'] = url_for('raw_select', student_id=student_id, container_id=container_id, ts=file_ts, fname=fname)
             retval_list.append(retval)
     return retval_list
+
+def getResultValue(student_id, result_id):
+    retval = None
+    ''' assumes non-timestamped data '''
+    student_dir = os.path.join(lab_dir, student_id)
+    student_inter_dir = os.path.join(student_dir, '.local','result')
+    result_json_file = os.path.join(student_inter_dir, lab)
+    with open(result_json_file) as fh:
+        results = json.load(fh)
+    if result_id in results:
+        retval = results[result_id]
+    return retval
            
+
 @app.route('/grades/results/ts/<student_id>/<timestamp>/<result>')
 def result_select(student_id, timestamp, result):
     result_id = result.split(':')[0]
-    container, fname, expr = getResultFileName(student_id, result)
-    #print('result_select fname is <%s>' % fname)
+    container, container_id, fname, expr = getResultFileName(student_id, result)
+    print('result_select fname is <%s>' % fname)
     result_rec_list = getResultTSRec(student_id, timestamp, result_id, container, fname, expr)
     if not len(result_rec_list) > 0:
         error = 'Failed getResultTSRec for %s %s %s' % (student_id, timestamp, result_id)
