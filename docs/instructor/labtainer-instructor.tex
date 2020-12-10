@@ -94,6 +94,8 @@ Instructor assessment of labs takes place from the {\tt labtainer-instructor} di
 \end{verbatim}
 \noindent A table of lab results with one row per student and
 a column for each goal will be displayed.  A description of the goals follows the table.
+A web-based display of that data is available as described in section \ref{web}.
+
 Note that not all labs include automated assessment.  For those labs, you will see this
 message:
 \begin{verbatim}
@@ -141,6 +143,29 @@ the gradelab command with the {\tt -a} flag.  When you are finished, or wish to 
 \begin{verbatim}
     stopgrade
 \end{verbatim}
+
+\subsubsection{Web-base view of student assessment}
+\label{web}
+An early release of a web-based tool for viewing details of student assessment
+is available by use of the {\tt -w} flag with the {\tt gradelab} command.  That causes
+the grader container to listen on port 8008 of the Labtainer VM.  You can then open
+a browser on that VM and go to {\tt localhost:8008}.  Alternately, to use your host machines browser,
+you can set port forwarding on your VM, (e.g., in VirtualBox, use Machine / Settings / Network / Advanced /
+Port Forwarding to set host IP 127.0.0.1:8008 to map to guest ip 0.0.0.0:8008).
+
+The table of goals displayed in the browser includes links that allow you to view details of artifacts
+created by the student when performing the lab.  For example, clicking on the student name displays a table
+of all timestamped result artifacts.  That page alow includes a \textbf{History} heading with links to the
+{\tt .bash\_history} files one each container.  
+
+Links within each goal table cell lead to pages whose content depends on the type of goals defined.  For example,
+a goal whose value is defined by a boolean expression will lead to a table of all boolean values for each timestamp
+for which results are present.
+
+Definitions of different goal types and result types can be found in the \textit{Lab Designer Guide}.  Note that you need
+not understand all of the displayed data in order to gain useful insight into student progress.  Some of the displayed information
+requires an understanding of the Labtainers automated assessment configuration directives, and is made available in the displays 
+primarily in support of those developing automated assessment for labs.
 
 \section{Managing Labtainer Installations and Updates}
 Any given Labtainers installation can be brought up to date to the latest version by using the

@@ -1853,6 +1853,11 @@ From there, look in .local/result to find json files reflecting intermediate
 results of assessing the student results.  The actual student result arifacts
 can be found in \verb!~/[student dir]/[lab].[container].student/.local/result!. 
 
+Another tool that may aid development and debugging of automated assessment for your lab is the web-based assessment interface.
+Using the {\tt -w} switch to the {\tt gradelab} command will start a Flask-based web server on the grading container that listens
+on port 8008 on the VM.  Point a browser to {\tt localhost:8008} to view the assessment data, which includes links to intermediate and
+raw result artifacts.
+
 The mechanics of performing the lab (so that you can test grading for different outcomes)
 can be automated using the SimLab tool described in Appendix \ref{testing}.
 
