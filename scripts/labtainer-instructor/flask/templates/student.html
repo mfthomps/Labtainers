@@ -1,8 +1,10 @@
 <html>
   <head>
     <link rel="stylesheet" href='/static/main.css' />
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
   </head>
   <body>
+    <a href={{url_for('home')}}>home</a> &nbsp
     <a href={{back_grades}}>goals</a>
 
     <h1>{{student_email}}</h1>
@@ -16,7 +18,7 @@
                   <input type="submit" value="Submit"><br>
     </form>
       {{ts_table}}</br>
-    <h2>History</h2></br>
+    <h2>History</h2>
     {% for entry in hist_list %}
        <a href={{entry[1]}}>{{entry[0]}}</a></br>
     {% endfor %}

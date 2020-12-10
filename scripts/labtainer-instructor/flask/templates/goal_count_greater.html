@@ -1,8 +1,10 @@
 <html>
   <head>
     <link rel="stylesheet" href='/static/main.css' />
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
   </head>
   <body>
+    <a href={{url_for('home')}}>home</a> &nbsp
     <a href={{back_grades}}>goals</a>
 
     <h1>{{student_email}}</h1>
@@ -14,7 +16,12 @@
         <p> There were NOT more than {{ count }} occurances of: </p>
     {% endif %}
     {% for result in result_rows %}
-        <p> {{ result['result_id'] }} : {{ result['fname'] }} : {{ result['expr'] }} <p>
+        {% if result['goal_id'] %}
+           <p>{{result['goal_id']}}:{{result['value']}} : {{ result['goaltype'] }} : {{ result['answer'] }} {{ result['goaloperator'] }} 
+                {{result['result_url']|safe}} : {{ result['fname'] }} : {{ result['expr'] }} </p>
+        {% else %}
+          <p> {{ result['result_id'] }} : {{ result['fname'] }} : {{ result['expr'] }} <p>
+        {% endif %}
     {% endfor %}
  </body>
 </html>
