@@ -754,7 +754,7 @@ def countTrue(the_goals, current_goals):
                 the_goals.remove(item)
     return count
     
-def processCountGreater(eachgoal, goal_times):
+def processCountGreater(eachgoal, goal_times, studentlabdir):
     goalid = eachgoal['goalid']
     try:
         value = int(eachgoal['answertag'])
@@ -780,6 +780,10 @@ def processCountGreater(eachgoal, goal_times):
     #print('true_count is %d' % true_count)
     #print('countGreater result is %r' % is_greater)
     goal_times.addGoal(goalid, default_timestamp, is_greater)
+    fname = 'count_greater_%s.json' % goalid
+    path = os.path.join(studentlabdir, '.local', 'result', fname)
+    with open(path, 'w') as fh:
+        fh.write(json.dumps(the_goals))
     
 
 def processTemporal(eachgoal, goal_times, logger):
@@ -973,7 +977,7 @@ def processLabExercise(studentlabdir, labidname, grades, goals, bool_results, go
              eachgoal['goaltype'] == "time_not_during":
             processTemporal(eachgoal, goal_times, logger)
         elif eachgoal['goaltype'] == "count_greater":
-            processCountGreater(eachgoal, goal_times)
+            processCountGreater(eachgoal, goal_times, studentlabdir)
         elif eachgoal['goaltype'] == "count":
             processCount(result_sets, eachgoal, grades, logger)
         elif eachgoal['goaltype'] == "value":
