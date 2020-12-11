@@ -28,16 +28,10 @@
         goal type: {{goal_entry['goaltype']}} : {{goal_entry['resulttag']}} : {{goal_entry['goaloperator']}} : {{goal_entry['answertag']}} </br>
         {% if result_rec %}
             result: {{result_rec['result_id']}}:{{result_rec['value']}} = {{result_rec['expr']}}</br>
-            {% if result_rec['container'] %}
-               file: {{result_rec['container']}}:{{result_rec['fname']}}</br>
-            {%else%}
-               file: {{result_rec['fname']}}</br>
-            {%endif%}
-            {% if result_rec['data'] %}
-            <pre>{{result_rec['data']}}</pre>
-            {%else%}
-            <p>No such files found.</p>
-            {% endif %}
+              {% for file_name in result_rec['file_data'] %}
+                file: {{result_rec['container']}}:{{file_name}}</br>
+                <pre>{{result_rec['file_data'][file_name]}}</pre>
+              {%endfor%}
         {% endif %}
         {% if ts_table %}
             {{ts_table}}

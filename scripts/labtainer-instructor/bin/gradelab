@@ -23,6 +23,7 @@ import labutils
 import LabtainerLogging
 import docgoals
 FAILURE=1
+WEB_PORT=8008
 # Copy Students' Artifacts from host to instructor's lab container
 def CopyStudentArtifacts(labtainer_config, container_name, labname, regress_test, check_watermark):
     # Set the lab name 
@@ -247,6 +248,8 @@ def autoGrade(grade_container, lab_path, labtainer_config, labname, copy_json, c
                 logger.debug("Command to execute is (%s)" % command)
                 result = subprocess.call(shlex.split(command))
                 retval = False
+            else:
+                print('Point your browser to http://localhost:%d' % WEB_PORT)
         else:
             cmd = 'docker stop %s' % grade_container
             labutils.DockerCmd(cmd)
@@ -320,8 +323,8 @@ def doGrade(labname, use_test_registry, debug, redo, update, web=False, regress_
         if test_web:
             flask_path = os.path.join(os.getenv('LABTAINER_DIR'), 'scripts', 'labtainer-instructor', 'flask')
             volume_param = volume_param+' -v %s:/home/instructor/.local/flask' % flask_path
-        cmd = "docker create -t --name=%s %s --hostname=%s -p 8008:8008 %s %s" % (grade_container, 
-          add_host_param, grade_container, volume_param, grade_image)
+        cmd = "docker create -t --name=%s %s --hostname=%s -p %d:%d %s %s" % (grade_container, 
+          add_host_param, grade_container, WEB_PORT, WEB_PORT, volume_param, grade_image)
         logger.debug("Command to execute was (%s)" % cmd)
         ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         output = ps.communicate()

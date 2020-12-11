@@ -8,12 +8,16 @@
     <a href={{back_grades}}>goals</a>
 
     <h1>{{student_id}} Results</h1>
-    <h2> Result: {{result}} is {{value}}</h2>
-    <h2> Timestamp: {{timestamp}}</h2>
-    <h3> Expression: {{expr}}</h3>
-    <h3> File: {{container}}:{{fname}}</h3>
+    <h2> Result: {{result['result_id']}} is {{result['value']}}</h2>
+    {%if timestamp%}
+      <h2> Timestamp: {{timestamp}}</h2>
+    {%endif%}
+    <h3> Expression: {{result['expr']}}</h3>
+    {% for file_name in result['file_data'] %}
+      <h3> File: {{container}}:{{file_name}}</h3>
 
-    <pre>{{data}}</pre>
+      <pre>{{result['file_data'][file_name]}}</pre>
+    {%endfor%}
 
  </body>
 </html>

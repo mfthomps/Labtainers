@@ -28,7 +28,7 @@ STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 '''
-from flask import Flask, render_template, url_for, send_file, Response, request
+from flask import Flask, render_template, url_for, send_file, Response, request, abort
 import json
 import sys
 import os
@@ -249,9 +249,15 @@ def result_table_select(student_id, result):
         result_id = result.split(':')[0].strip() 
     else:
         result_id = result
-    ts_tbl, search_string = getTSTable(student_id, result_id, None)
     student_email = student_id.rsplit('.', 1)[0]
-    return render_template('result_table.html', student_email=student_email, result_id=result, ts_table=ts_tbl, 
+    ts_tbl, search_string = getTSTable(student_id, result_id, None)
+    if ts_tbl is None:
+        result_id = result.split(':')[0]
+        result_rec = getResultRec(student_id, result_id)
+        return render_template('result.html', student_id=student_email, result=result_rec, 
+             timestamp=None, back_grades=url_for('grades'))
+    else:
+        return render_template('result_table.html', student_email=student_email, result_id=result, ts_table=ts_tbl, 
               search_string=search_string, back_grades=url_for('grades'))
 
 @app.route('/grades/<string:student_id>', methods=['GET', 'POST'])
@@ -270,9 +276,13 @@ def student_select(student_id):
             hist_list.append(entry)
 
     student_email = student_id.rsplit('.', 1)[0]
+    file_dir = url_for('dir_listing', student_id=student_id, req_path='')
+    print('file_dir is %s' % file_dir)
+    
+    sys.stdout.flush()
     return render_template('student.html', student_email=student_email, ts_table = ts_tbl, 
           hist_list = hist_list, search_string=search_string, back_grades=url_for('grades'),
-          goals_json=url_for('goals_json', student_id=student_id))
+          goals_json=url_for('goals_json', student_id=student_id), file_dir=file_dir)
 
 @app.route('/grades/ts/<student_id>/<string:ts>')
 def ts_select(student_id, ts):
@@ -498,35 +508,41 @@ def handleCountGreater(student_id, student_email, goal_entry, value, goals_json)
     return render_template('goal_count_greater.html', lab=lab, student_email=student_email, goal = goal_id, count=count, 
                result_rows=result_rows, value=value, back_grades=url_for('grades'))
 
-def handleTimeDuring(student_id, goal_entry, timestamp):
+def handleTimeDuring(student_id, goal, goal_entry, timestamp, goals_json):
+        global raw_fpath
+        student_email = student_id.rsplit('.', 1)[0]
         goal1 = goal_entry['goal1tag'] 
         goal1_entry = getGoal(goals_json, goal1) 
+        fname1 = None
+        fname2 = None
+        result1_rec_list = []
+        result2_rec_list = []
         if goal1_entry is None:
-            container, container_id, fname, expr = getResultFileName(student_id, goal1)
-            if fname.startswith('/'):
-                raw_fpath = fname
+            container, container_id, fname1, expr = getResultFileName(student_id, goal1)
+            if fname1.startswith('/'):
+                raw_fpath = fname1
                 raw_url = url_for('raw_select', student_id=student_id, container_id=container_id, ts='None', fname='raw')
                 result1_rec_list = [{'result_id' : goal1, 'expr' : expr, 'container' : container, 
-                        'fname' : fname, 'raw_url' : raw_url}]
+                        'fname1' : fname1, 'raw_url' : raw_url}]
             else:
-                result1_rec_list =  getResultTSRec(student_id, timestamp, goal1, container, fname, expr)
+                result1_rec_list =  getResultTSRec(student_id, timestamp, goal1, container, fname1, expr)
         
         goal2 = goal_entry['goal2tag'] 
         goal2_entry = getGoal(goals_json, goal2) 
         if goal2_entry is None:
-            container, container_id, fname, expr = getResultFileName(student_id, goal2)
-            if fname.startswith('/'):
-                raw_fpath = fname
+            container, container_id, fname2, expr = getResultFileName(student_id, goal2)
+            if fname2.startswith('/'):
+                raw_fpath = fname2
                 raw_url = url_for('raw_select', student_id=student_id, container_id=container_id, ts='None', fname='raw')
                 result2_rec_list = [{'result_id' : goal2, 'expr' : expr, 'container' : container, 
-                        'fname' : fname, 'raw_url' : raw_url}]
+                        'fname2' : fname2, 'raw_url' : raw_url}]
             else:
-                result2_rec_list =  getResultTSRec(student_id, timestamp, goal2, container, fname, expr)
+                result2_rec_list =  getResultTSRec(student_id, timestamp, goal2, container, fname2, expr)
         not_during = ' '
         if goal_entry['goaltype'] == 'time_not_during':
             not_during = ' not ' 
-        return render_template('goal_during.html', lab=lab, student_email=student_email, goal = goal, 
-               goal1=goal1, goal2=goal2, goal1_entry=goal1_entry, goal2_entry=goal2_entry, 
+        return render_template('goal_during.html', lab=lab, student_email=student_email, goal = goal,
+               goal1=goal1, goal2=goal2, fname1=fname1, fname2=fname2, goal1_entry=goal1_entry, goal2_entry=goal2_entry, 
                result1_rec=result1_rec_list, result2_rec=result2_rec_list,
                timestamp=timestamp, not_during=not_during, back_grades=url_for('grades'))
    
@@ -534,18 +550,34 @@ def getFileData(student_id, container_id, fname):
     retval = None 
     student_dir = os.path.join(lab_dir, student_id)
     container_dir = os.path.join(student_dir, container_id)
-    if not fname.startswith('/') and not fname.startswith('~'):
+    if not fname.startswith('~'):
+        if fname.startswith('/'):
+            fname = fname[1:]
         student_inter_dir = os.path.join(container_dir, '.local','result')
         path = os.path.join(student_inter_dir, fname)
     else:
-        if fname.startswith('/'):
-            fname = fname[1:]
-        elif fname.startswith('~/'):
+        if fname.startswith('~/'):
             fname = fname[2:]
         path = os.path.join(container_dir, fname)
     with open(path) as fh:
         retval = fh.read()
     return retval 
+
+def getResultRec(student_id, result_id):
+     result_rec = {}
+     container, container_id, fname, expr = getResultFileName(student_id, result_id)
+     if container is None:
+         print('getResultRec call to getResultFlileName failed for %s' % result_id)
+         return None
+     result_rec['fname'] = fname
+     result_rec['container'] = container
+     result_rec['expr'] = expr
+     result_rec['result_id'] = result_id
+     file_data = {}
+     file_data[fname] = getFileData(student_id, container_id, fname)
+     result_rec['file_data'] = file_data
+     result_rec['value'] = getResultValue(student_id, result_id)
+     return result_rec
 
 @app.route('/grades/goals/<student_id>/<goal>/<timestamp>')
 def goal_select(student_id, goal, timestamp):
@@ -570,7 +602,7 @@ def goal_select(student_id, goal, timestamp):
         print('no goal entry for %s' % goal_id)
         return ('no goal entry for %s' % goal_id)
     elif goal_entry['goaltype'] in ['time_during', 'time_not_during']:
-        return handleTimeDuring(student_id, goal_entry, timestamp)
+        return handleTimeDuring(student_id, goal, goal_entry, timestamp, goals_json)
     elif goal_entry['goaltype'] == 'count_greater':
         return handleCountGreater(student_id, student_email, goal_entry, value, goals_json)
         
@@ -588,24 +620,18 @@ def goal_select(student_id, goal, timestamp):
                      result_id2 = answertag.split('.')[1]
                  else:
                      result_id2 = None
+                 print('select_goal result_id %s timestamp %s' % (result_id, timestamp))
                  if timestamp is not None and timestamp != 'None':
                      container, container_id, fname, expr = getResultFileName(student_id, result_id)
-                     result_rec = getResultTSRec(student_id, timestamp, result_id, container, fname, expr)
+                     result_rec = getResultTSRec(student_id, timestamp, result_id, container, fname, expr)[0]
+                     print('got result_rec: %s' % str(result_rec))
                  else:
                      print('call getTSTable for results %s and %s' % (result_id, result_id2))
                      ts_table, search_string = getTSTable(student_id, result_id, result_id2)
                      if ts_table is None:
-                         ''' result not timestamped, e.g., a CONTAINS or LINECOUNT '''
-                         result_rec = {}
-                         container, container_id, fname, expr = getResultFileName(student_id, result_id)
-                         result_rec['fname'] = fname
-                         result_rec['expr'] = expr
-                         print('ts_table None.  fname is %s' % (result_rec['fname']))
-                         sys.stdout.flush()
-                         result_rec['result_id'] = result_id
-                         result_rec['value'] = getResultValue(student_id, result_id)
-                         result_rec['data'] = getFileData(student_id, container_id, fname)
+                         result_rec = getResultRec(student_id, result_id)
                          
+        sys.stdout.flush()
         return render_template('goal.html', lab=lab, student_email=student_email, goal = goal, 
                bool_tbl_list=bool_tbl_list, goal_entry=goal_entry, result_rec=result_rec, 
                ts_table=ts_table, timestamp=timestamp_start, back_grades=url_for('grades'))
@@ -649,6 +675,7 @@ def getResultFileName(student_id, result_id):
     student_dir = os.path.join(lab_dir, student_id)
     target_file, expr = getResultDef(result_id)
     if target_file is None:
+        print('getResultFileName no target file for %s' % result_id)
         return None, None, None, None
     container = None
     if ':' in target_file:
@@ -670,6 +697,7 @@ def getResultFileName(student_id, result_id):
     return container, container_id, target_file, expr
 
 def getResultTSRec(student_id, timestamp, result_id, container, fname, expr):
+    ''' Returns a list of result records '''
     retval_list = []
     student_dir = os.path.join(lab_dir, student_id)
     student_inter_dir = os.path.join(student_dir, '.local','result')
@@ -698,19 +726,25 @@ def getResultTSRec(student_id, timestamp, result_id, container, fname, expr):
            
             result_ts = '%s.%s' % (fname, file_ts)
             result_path = os.path.join(student_dir, container_id, '.local', 'result', result_ts)
-            if not os.path.isfile(result_path):
-                print('no raw file for ts %s, skip this result ts' % result_path)
-                continue
-            with open(result_path) as fh:
-                data = fh.read()
+            file_data = {}
+            if fname.startswith('*.'):
+                path_list = glob.glob(result_path)
+            else:
+                path_list = [result_path]
+            for path in path_list:
+                if not os.path.isfile(path):
+                    print('no raw file for ts %s, skip this result ts' % path)
+                    continue
+                the_name = os.path.basename(path)
+                with open(path) as fh:
+                    file_data[the_name] = fh.read()
             #print('fname %s  file_ts %s' % (fname, file_ts))
             retval['result_id'] = result_id
             retval['value'] = value
             retval['container'] = container
-            retval['fname'] = fname
+            retval['file_data'] = file_data
             retval['file_ts'] = file_ts
             retval['expr'] = expr
-            retval['data'] = data
             retval['raw_url'] = url_for('raw_select', student_id=student_id, container_id=container_id, ts=file_ts, fname=fname)
             retval_list.append(retval)
     return retval_list
@@ -731,18 +765,20 @@ def getResultValue(student_id, result_id):
 @app.route('/grades/results/ts/<student_id>/<timestamp>/<result>')
 def result_select(student_id, timestamp, result):
     result_id = result.split(':')[0]
-    container, container_id, fname, expr = getResultFileName(student_id, result)
-    print('result_select fname is <%s>' % fname)
-    result_rec_list = getResultTSRec(student_id, timestamp, result_id, container, fname, expr)
-    if not len(result_rec_list) > 0:
-        error = 'Failed getResultTSRec for %s %s %s' % (student_id, timestamp, result_id)
-        return render_template('error.html', error=error)
-    result_rec = result_rec_list[0]
+    container, container_id, fname, expr = getResultFileName(student_id, result_id)
+    print('result_select for result %s container %s fname is <%s> TS: %s' % (result, container, fname, timestamp))
+    if timestamp is None or timestamp == 'None':
+        result_rec = getResultRec(student_id, result_id)
+    else:
+        result_rec_list = getResultTSRec(student_id, timestamp, result_id, container, fname, expr)
+        if not len(result_rec_list) > 0:
+            error = 'Failed getResultTSRec for %s %s %s' % (student_id, timestamp, result_id)
+            return render_template('error.html', error=error)
+        result_rec = result_rec_list[0]
     student_email = student_id.rsplit('.', 1)[0]
-    return render_template('result.html', student_id=student_email, result = result_rec['result_id'], 
-             value=result_rec['value'], timestamp=timestamp, 
-             fname=result_rec['fname'], container=result_rec['container'], expr=result_rec['expr'], 
-             data=result_rec['data'], back_grades=url_for('grades'))
+    sys.stdout.flush()
+    return render_template('result.html', student_id=student_email, result=result_rec, 
+             timestamp=timestamp, back_grades=url_for('grades'))
 
 @app.route('/grades/goals_config')
 def goals_config():
@@ -760,6 +796,69 @@ def home():
     path = os.path.join('lab_doc', manual)
     lab_manual = url_for('static', filename=path)
     return render_template('home.html', lab=lab, grades=url_for('grades'), lab_manual=lab_manual)
+
+@app.route('/grades/student_files/<student_id>')
+def student_files(student_id):
+    FileTableCls = create_table('FileTableCls', options=tbl_options)\
+            .add_column('name', Col('Student'))
+    FileTableCls.add_column('container', Col('Container'))
+    FileTableCls.add_column('home', HackLinkCol('Home', 'home_file_select',
+                       url_kwargs=dict(student_id='student_id', container='container'), attr='home'))
+    student_dir = os.path.join(lab_dir, student_id)
+    glob_mask = '%s/*' % student_id
+    dlist = glob.glob(glob_mask)    
+    file_rows = []
+    for d in dlist:
+        if os.path.isdir(d):
+            container_id = os.path.basename(d)
+            container = container_id.split('.')[1]
+            row = {}
+            row['container'] = container
+            row['home'] = container
+            file_rows.append(row)
+    file_table = FileTableCls(file_rows)
+    student_email = student_id.rsplit('.', 1)[0]
+    return render_template('student_files.html', lab=lab, student_email=student_email, grades=url_for('grades'), file_table=file_table)
+
+@app.route('/grades/file_home/<student_id>/<container>')
+def file_home_select(student_id, container):
+    container_id = '%s.%s.student' % (lab, container) 
+    BASE_DIR = os.path.join(lab_dir, student_id, container_id)
+
+    # Joining the base and the requested path
+    abs_path = os.path.join(BASE_DIR, req_path)
+
+    # Return 404 if path doesn't exist
+    if not os.path.exists(abs_path):
+        return abort(404)
+
+    # Check if path is a file and serve
+    if os.path.isfile(abs_path):
+        return send_file(abs_path)
+
+    # Show directory contents
+    files = os.listdir(abs_path)
+    return render_template('files.html', files=files)
+
+@app.route('/grades/filelist/<student_id>', defaults={'req_path': ''})
+@app.route('/grades/filelist/<student_id>/<path:req_path>')
+def dir_listing(student_id, req_path):
+    BASE_DIR = os.path.join(lab_dir, student_id)
+
+    # Joining the base and the requested path
+    abs_path = os.path.join(BASE_DIR, req_path)
+
+    # Return 404 if path doesn't exist
+    if not os.path.exists(abs_path):
+        return abort(404)
+
+    # Check if path is a file and serve
+    if os.path.isfile(abs_path):
+        return send_file(abs_path)
+
+    # Show directory contents
+    files = os.listdir(abs_path)
+    return render_template('files.html', files=files)
 
 
 if __name__ == '__main__':

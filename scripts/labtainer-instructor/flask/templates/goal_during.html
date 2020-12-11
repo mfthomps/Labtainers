@@ -15,18 +15,18 @@
     {% endif %}
     <p>Was {{goal1}}{{not_during}}during {{goal2}}?
     {% for result1 in result1_rec %}
-        {% if result1['fname'].startswith('/') %}
-           <p>Result: {{ result1['result_id'] }} : {{result1['container']}}:<a href={{result1['raw_url']}}>{{result1['fname']}}</a> : {{ result1['expr'] }}</p>
+        {% if fname1.startswith('/') %}
+           <p>Result: {{ result1['result_id'] }} : {{result1['container']}}:<a href={{result1['raw_url']}}>{{fname1}}</a> : {{ result1['expr'] }}</p>
         {%else%}
-           <p>Result: {{ result1['result_id'] }} : {{result1['container']}}:{{result1['fname']}} : {{ result1['expr'] }}</p>
+           <p>Result: {{ result1['result_id'] }} : {{result1['container']}}:{{fname1}} : {{ result1['expr'] }}</p>
         <pre>    Timestamp: <a href={{result1['raw_url']}}>{{result1['file_ts']}}</a> </pre>
         {%endif%}
     {% endfor %}
     {% for result2 in result2_rec %}
-        {% if result2['fname'].startswith('/') %}
-           <p>Result: {{ result2['result_id'] }} : {{result2['container']}}:<a href={{result2['raw_url']}}>{{result2['fname']}}</a> : {{ result2['expr'] }}</p>
+        {% if fname2.startswith('/') %}
+           <p>Result: {{ result2['result_id'] }} : {{result2['container']}}:<a href={{result2['raw_url']}}>{{fname2}}</a> : {{ result2['expr'] }}</p>
         {%else%}
-           <p>Result: {{ result2['result_id'] }} : {{result2['container']}}:{{result2['fname']}} : {{ result2['expr'] }}</p>
+           <p>Result: {{ result2['result_id'] }} : {{result2['container']}}:{{fname2}} : {{ result2['expr'] }}</p>
         <pre>    Timestamp: <a href={{result2['raw_url']}}>{{result2['file_ts']}}</a> </pre>
         {%endif%}
     {% endfor %}

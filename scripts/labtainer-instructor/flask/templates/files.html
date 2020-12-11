@@ -1,0 +1,18 @@
+<html>
+  <head>
+    <link rel="stylesheet" href='/static/main.css' />
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+  </head>
+  <body>
+<ul>
+    {% for file in files %}
+    <li>
+        <a href="{{ (request.path + '/' if request.path != '/' else '') + file }}">
+            {{ (request.path + '/' if request.path != '/' else '') + file }}
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+ </body>
+</html>
