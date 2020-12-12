@@ -164,6 +164,9 @@ containers, e.g., to hook bash and parameterize containers.
 	\item {\bf Instructor} \begin{itemize}
 \item {\tt gradelab} and {\tt stopgrader}-- Push student artifacts onto grader container and get assessment results.
 \item Container scripts -- perform grading functions.
+\item Web interface -- The {\tt -w} option to gradelab starts a Flask web server on the container, found in the
+{\tt flask/server.py}.  When debugging and enhancing this, use the {\tt -v} option instead of the {\tt -w} option to
+cause the development flask directory to be mounted by the container.
 	\end{itemize}
 
 	\item {\bf Lab designer} \begin{itemize}
