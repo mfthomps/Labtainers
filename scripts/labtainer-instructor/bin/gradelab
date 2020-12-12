@@ -280,6 +280,24 @@ def getRegistry(use_test_registry, labtainer_config):
     else:
         return labtainer_config.default_registry
 
+def checkRunning(lab):
+    command = "docker ps"
+    logger.debug("GetListRunningLab Command to execute is (%s)" % command)
+    ps = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if len(output[1].strip()) > 0:
+        logger.error('Fail to get a list of running containers, error returned %s' % output[1].decode('utf-8'))
+        sys.exit(1)
+    if len(output[0].decode('utf-8')) > 0:
+        docker_ps_output = output[0].decode('utf-8').split('\n')
+        for line in docker_ps_output:
+            if len(line.strip()) > 0:
+                name = line.split()[-1]
+                if name.endswith('-igrader'):
+                    print('%s is currently running, it will be stopped before gradelab for %s is started.' % (name, lab))
+                    cmd = 'docker stop %s' % name
+                    labutils.DockerCmd(cmd)
+
 def moreTerm(labname):
     grade_container = '%s-igrader' % labname
     spawn_command = "gnome-terminal -- docker exec -it %s bash -l cd /home/instructor &" % 	grade_container
@@ -292,11 +310,10 @@ def doGrade(labname, use_test_registry, debug, redo, update, web=False, regress_
         logger = in_logger
     else:
         logger = labutils.logger
+    checkRunning(labname)
     grade_container = '%s-igrader' % labname
     logger.debug('doGrade for %s' % grade_container)
     if redo:
-        cmd = 'docker stop %s' % grade_container
-        labutils.DockerCmd(cmd)
         cmd = 'docker rm %s' % grade_container
         labutils.DockerCmd(cmd)
     lab_path = os.path.join(os.path.abspath('../../labs'), labname)

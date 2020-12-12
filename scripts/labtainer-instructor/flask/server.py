@@ -113,6 +113,7 @@ def grades():
     with open(grade_json) as fh:
         grade_dict = json.load(fh)
         first_key = list(grade_dict.keys())[0]
+        has_goals = False
         for goal in grade_dict[first_key]['grades']:
             if not goal.startswith('_') and not goal.startswith('cw_'):
                 #GoalTableCls.add_column(goal, Col(goal))
@@ -123,6 +124,7 @@ def grades():
                     GoalTableCls.add_column(goal, HackLinkCol(goal, 'result_table_select',
                        url_kwargs=dict(student_id='student_id', 
                        result=goal), attr=goal))
+                has_goals = True
         for student in grade_dict:
             row = {}
             parts = student.split('_at_')
@@ -134,8 +136,10 @@ def grades():
                     row[key] = '%s:%s' % (key, grade_dict[student]['grades'][key])
             rows.append(row)
         tbl = GoalTableCls(rows) 
-            
-        goal_doc = getGoalDoc()
+        if has_goals:    
+            goal_doc = getGoalDoc()
+        else:
+            goal_doc = 'The lab has no defined goals.  The student name links above can be followed to view student artifacts'
     return render_template('grades.html', lab=lab, table=tbl, goal_doc=goal_doc, 
            goals_config=url_for('goals_config'))
 
@@ -276,13 +280,12 @@ def student_select(student_id):
             hist_list.append(entry)
 
     student_email = student_id.rsplit('.', 1)[0]
-    file_dir = url_for('dir_listing', student_id=student_id, req_path='')
-    print('file_dir is %s' % file_dir)
-    
+   
+    file_table = getStudentFileTable(student_id) 
     sys.stdout.flush()
     return render_template('student.html', student_email=student_email, ts_table = ts_tbl, 
           hist_list = hist_list, search_string=search_string, back_grades=url_for('grades'),
-          goals_json=url_for('goals_json', student_id=student_id), file_dir=file_dir)
+          goals_json=url_for('goals_json', student_id=student_id), file_table=file_table)
 
 @app.route('/grades/ts/<student_id>/<string:ts>')
 def ts_select(student_id, ts):
@@ -329,8 +332,9 @@ def raw_select(student_id, container_id, ts, fname):
     else:
         ts_fname = '%s.%s' % (fname, ts)
     path = os.path.join(result_dir, ts_fname)
-    with open(path) as fh:
-        data = fh.read()
+    data = ifNotBinary(path)
+    if data is None:
+        data = '%s is not ascii.' % path
     
     container = container_id.split('.')[1]
     student_email = student_id.rsplit('.', 1)[0]
@@ -559,8 +563,10 @@ def getFileData(student_id, container_id, fname):
         if fname.startswith('~/'):
             fname = fname[2:]
         path = os.path.join(container_dir, fname)
-    with open(path) as fh:
-        retval = fh.read()
+    retval = ifNotBinary(path)
+    if retval is None:
+        retval = '%s is not ascii.' % path
+        
     return retval 
 
 def getResultRec(student_id, result_id):
@@ -736,8 +742,12 @@ def getResultTSRec(student_id, timestamp, result_id, container, fname, expr):
                     print('no raw file for ts %s, skip this result ts' % path)
                     continue
                 the_name = os.path.basename(path)
-                with open(path) as fh:
-                    file_data[the_name] = fh.read()
+                data = ifNotBinary(path)
+                if data is None:
+                    #return send_file(path)
+                    file_data[the_name] = '%s is not ascii.' % path
+                else:
+                    file_data[the_name] = data
             #print('fname %s  file_ts %s' % (fname, file_ts))
             retval['result_id'] = result_id
             retval['value'] = value
@@ -797,13 +807,28 @@ def home():
     lab_manual = url_for('static', filename=path)
     return render_template('home.html', lab=lab, grades=url_for('grades'), lab_manual=lab_manual)
 
-@app.route('/grades/student_files/<student_id>')
-def student_files(student_id):
+def ifNotBinary(file_name):
+    try:
+        with open(file_name, 'tr') as check_file:  # try open file in text mode
+            data = check_file.read()
+            return data
+    except:  # if fail then file is non-text (binary)
+        return None
+
+def hasResults(student_dir, container_id):
+    path = os.path.join(student_dir, container_id, '.local', 'result')
+    if os.path.isdir(path):
+        return True
+    else:
+        return False
+
+def getStudentFileTable(student_id):
     FileTableCls = create_table('FileTableCls', options=tbl_options)\
-            .add_column('name', Col('Student'))
-    FileTableCls.add_column('container', Col('Container'))
+            .add_column('container', Col('Container'))
     FileTableCls.add_column('home', HackLinkCol('Home', 'home_file_select',
                        url_kwargs=dict(student_id='student_id', container='container'), attr='home'))
+    FileTableCls.add_column('results', HackLinkCol('Results', 'results_file_select',
+                       url_kwargs=dict(student_id='student_id', container='container'), attr='results'))
     student_dir = os.path.join(lab_dir, student_id)
     glob_mask = '%s/*' % student_id
     dlist = glob.glob(glob_mask)    
@@ -814,17 +839,23 @@ def student_files(student_id):
             container = container_id.split('.')[1]
             row = {}
             row['container'] = container
-            row['home'] = container
+            row['home'] = 'home'
+            if hasResults(student_dir, container_id):
+                row['results'] = 'results'
+            else:
+                row['results'] = None
+            row['student_id'] = student_id
             file_rows.append(row)
     file_table = FileTableCls(file_rows)
-    student_email = student_id.rsplit('.', 1)[0]
-    return render_template('student_files.html', lab=lab, student_email=student_email, grades=url_for('grades'), file_table=file_table)
+    return file_table
 
-@app.route('/grades/file_home/<student_id>/<container>')
-def file_home_select(student_id, container):
+@app.route('/grades/file_home/<student_id>/<container>', defaults={'req_path': ''})
+@app.route('/grades/file_home/<student_id>/<container>/<path:req_path>')
+def home_file_select(student_id, container, req_path):
     container_id = '%s.%s.student' % (lab, container) 
+    student_email = student_id.rsplit('.', 1)[0]
     BASE_DIR = os.path.join(lab_dir, student_id, container_id)
-
+    trim = len('/grades/file_home')+len(student_id)+len(container)+2
     # Joining the base and the requested path
     abs_path = os.path.join(BASE_DIR, req_path)
 
@@ -834,11 +865,47 @@ def file_home_select(student_id, container):
 
     # Check if path is a file and serve
     if os.path.isfile(abs_path):
-        return send_file(abs_path)
+        data = ifNotBinary(abs_path)
+        if data is None:
+            return send_file(abs_path)
+        else:
+            return render_template('raw.html', lab=lab, student_id=student_email, timestamp=None, fname=abs_path[trim:], 
+                  container=container,data = data, back_grades=url_for('grades'))
 
     # Show directory contents
     files = os.listdir(abs_path)
-    return render_template('files.html', files=files)
+    title = '%s HOME directory on %s' % (student_email, container)
+    return render_template('files.html', files=files, trim=trim, prefix="$HOME", 
+             student_id=student_id, student_email=student_email, title=title)
+
+@app.route('/grades/file_results/<student_id>/<container>', defaults={'req_path': ''})
+@app.route('/grades/file_results/<student_id>/<container>/<path:req_path>')
+def results_file_select(student_id, container, req_path):
+    container_id = '%s.%s.student' % (lab, container) 
+    student_email = student_id.rsplit('.', 1)[0]
+    BASE_DIR = os.path.join(lab_dir, student_id, container_id, '.local', 'result')
+    trim = len('/grades/file_results')+len(student_id)+len(container)+2
+    # Joining the base and the requested path
+    abs_path = os.path.join(BASE_DIR, req_path)
+
+    # Return 404 if path doesn't exist
+    if not os.path.exists(abs_path):
+        return abort(404)
+
+    # Check if path is a file and serve
+    if os.path.isfile(abs_path):
+        data = ifNotBinary(abs_path)
+        if data is None:
+            return send_file(abs_path)
+        else:
+            return render_template('raw.html', lab=lab, student_id=student_email, timestamp=None, fname=req_path,
+                  container=container,data = data, back_grades=url_for('grades'))
+
+    # Show directory contents
+    files = os.listdir(abs_path)
+    title = '%s Results directory on %s' % (student_email, container)
+    return render_template('files.html', files=files, trim=trim, prefix="$HOME", 
+             student_id=student_id, student_email=student_email, title=title)
 
 @app.route('/grades/filelist/<student_id>', defaults={'req_path': ''})
 @app.route('/grades/filelist/<student_id>/<path:req_path>')
