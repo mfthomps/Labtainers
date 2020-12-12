@@ -35,7 +35,7 @@ laboratory exercises, and can include execution of several different
 computers interconnected via virtual networks.  Refer to our published
 papers at \url{https://my.nps.edu/web/c3o/labtainers} for additional information
 on the use of Labtainers.  And see the \underline{Lab Designer User Guide}"
-at \url{https://my.nps.edu/documents/107523844/109121513/labdesigner.pdf} for 
+at \url{https://github.com/mfthomps/Labtainers/raw/master/docs/labdesigner/labdesigner.pdf}
 information on creating and maintaining Labtainer exercises.
 
 The easiest way to get Labtainers is to use our pre-built VM available at the Labtainer
@@ -50,7 +50,10 @@ installing Labtainers.
 Running Labtainers on servers, e.g., cloud deployments is discussed in
 section \ref{servers}
 
-\subsection{Assigning a Lab}
+\section{Assigning Labs}
+Available labs are summerized and organized into broad categories at \url{https://nps.edu/web/c3o/labtainer-lab-summary1}.
+Pior to assigning a lab, become familiar with it by reviewing the lab and its manual.
+
 Student instructions for using Labtainers are in the \underline{Labtainer Student Guide}.  
 Students work from the {\tt labtainer-student} directory, i.e.,
 \begin{verbatim}
@@ -65,7 +68,7 @@ This will typically display a link to a lab manual, or will display a lab manual
 the resulting virtual terminals.  You can interact with the resulting computers just as a
 student would.
 
-\subsection{Assessing a Lab}
+\section{Assessing Lab Performance}
 When the student stops a lab, i.e., using {\tt stoplab}, Labtainers creates a zip file of
 student artifacts (including lab reports) and then displays the path to this zip file to
 the student.  The easiest way for the student to forward this zip file to you is by starting
@@ -94,7 +97,7 @@ Instructor assessment of labs takes place from the {\tt labtainer-instructor} di
 \end{verbatim}
 \noindent A table of lab results with one row per student and
 a column for each goal will be displayed.  A description of the goals follows the table.
-A web-based display of that data is available as described in section \ref{web}.
+A web-based display of that data is available as described in subsection \ref{review-artifacts}.
 
 Note that not all labs include automated assessment.  For those labs, you will see this
 message:
@@ -102,9 +105,9 @@ message:
   No automated assessment for this lab
 \end{verbatim}
 \noindent Even when no automated assessment is performed, you can still observe student performance
-artifacts, e.g., the {\tt .bash\_history} file as described below in \ref{review-artifacts}.
+artifacts, e.g., the {\tt .bash\_history} file and files created by the student as described below in \ref{review-artifacts}.
 
-Use the {\tt -r} option to get perform a fresh grading, e.g., if you've removed files from the {\tt labtainer\_xfer} directory.
+Use the {\tt -r} option to perform a fresh grading, e.g., if you've removed files from the {\tt labtainer\_xfer} directory.
 Sometimes zip files within the {\tt labtainer\_xfer} directory are corrupted.  If error messages indicate a bad zip file,
 try removing it from the directory and then use the {\tt -r} option to perform a fresh grading.
 Use the {\tt -u } option to update your gradelab to the latest image.
@@ -120,8 +123,31 @@ be looked for in
 \end{verbatim}
 \noindent which also includes reports separately uploaded into the LMS.
 
-\subsubsection{Review artifact details}
+\subsection{Review lab artifacts}
 \label{review-artifacts}
+An early release of a web-based tool for viewing details of student assessment
+results and student artifacts is available by use of the {\tt -w} flag with the {\tt gradelab} command.  That causes
+the grader container to listen on port 8008 of the Labtainer VM.  You can then open
+a browser on that VM and go to {\tt localhost:8008}.  Alternately, use your host machine's browser
+by setting port forwarding on your VM, (e.g., in VirtualBox, use Machine / Settings / Network / Advanced /
+Port Forwarding to set host IP 127.0.0.1:8008 to map to guest IP 0.0.0.0:8008).
+
+The table of goals displayed in the browser includes links to details of artifacts
+created by the student when performing the lab.  For example, clicking on the student name displays a table
+of all timestamped result artifacts.  That page includes a \textbf{History} heading with links to the
+{\tt .bash\_history} files one each container.  And it includes a table with links to files in the student home diretory
+and links to result files, e.g., stdout from selected commands issued by the student. 
+
+Links within each goal table cell lead to pages whose content depends on the type of goals defined.  For example,
+a goal whose value is defined by a boolean expression will lead to a table of all boolean values for each timestamp
+for which results are present.
+
+Definitions of different goal types and result types can be found in the \textit{Lab Designer Guide}.  Note that you need
+not understand all of the displayed data in order to gain useful insight into student progress.  Some of the displayed information
+requires an understanding of the Labtainers automated assessment configuration directives, and is made available in the displays 
+primarily in support of those developing automated assessment for labs.
+
+\subsubsection{Artifacts on the grader container}
 You can view all student results, including their original artifacts by using the {\tt -d} flag
 with the {\tt gradelab} command.  This results in a virtual terminal connected to a grading
 container that contains all student artifacts and results.  If you have not first run the
@@ -141,31 +167,9 @@ Student artifacts collected by the framework are found in
 files.  You can create additional virtual terminals into the grading container by reissuing
 the gradelab command with the {\tt -a} flag.  When you are finished, or wish to stop working, type:
 \begin{verbatim}
-    stopgrade
+    stoplab
 \end{verbatim}
 
-\subsubsection{Web-base view of student assessment}
-\label{web}
-An early release of a web-based tool for viewing details of student assessment
-is available by use of the {\tt -w} flag with the {\tt gradelab} command.  That causes
-the grader container to listen on port 8008 of the Labtainer VM.  You can then open
-a browser on that VM and go to {\tt localhost:8008}.  Alternately, to use your host machines browser,
-you can set port forwarding on your VM, (e.g., in VirtualBox, use Machine / Settings / Network / Advanced /
-Port Forwarding to set host IP 127.0.0.1:8008 to map to guest ip 0.0.0.0:8008).
-
-The table of goals displayed in the browser includes links that allow you to view details of artifacts
-created by the student when performing the lab.  For example, clicking on the student name displays a table
-of all timestamped result artifacts.  That page alow includes a \textbf{History} heading with links to the
-{\tt .bash\_history} files one each container.  
-
-Links within each goal table cell lead to pages whose content depends on the type of goals defined.  For example,
-a goal whose value is defined by a boolean expression will lead to a table of all boolean values for each timestamp
-for which results are present.
-
-Definitions of different goal types and result types can be found in the \textit{Lab Designer Guide}.  Note that you need
-not understand all of the displayed data in order to gain useful insight into student progress.  Some of the displayed information
-requires an understanding of the Labtainers automated assessment configuration directives, and is made available in the displays 
-primarily in support of those developing automated assessment for labs.
 
 \section{Managing Labtainer Installations and Updates}
 Any given Labtainers installation can be brought up to date to the latest version by using the
@@ -227,7 +231,7 @@ including a sample cloud-config file.
 
 \section{Customizing Labtainers}
 Creating new labs and modifying existing labs is described in the \textit{Labtainers Lab Designer User Guide}.
-\url{https://nps.box.com/shared/static/12n0y4yue49xcxtpv0jybgqiiskx8pr6.pdf}
+\url{https://github.com/mfthomps/Labtainers/raw/master/docs/labdesigner/labdesigner.pdf}
 
 That guide also describes how to provide your students with custom versions of the lab manuals, and how to
 publish new labs so that they can be incorporated into your student's Labtainers instances, and shared

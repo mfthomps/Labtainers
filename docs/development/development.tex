@@ -467,20 +467,16 @@ Development branches are merged into the premaster branch as part of creating a 
 Revert to premaster in case of merge issues or other failures using {\tt revert\_premaster.sh}.
 
 \subsection{Publish new release}
-Before publishing a new release, one more round of testing is required to ensure the framwork properly pulls from the remote regisry.
-\begin{itemize}
-\item Merge premaster into master
-\item Created tar files with mkall
-\item Run smoke tests, the test vm scripts will set the branch to {\tt master}, which should cause them to pull from DockerHub.
-\item Copy labtainer.tar and labtainer-developer.tar to Liferay.
-\item Publish Liferay to live
-\item Push premaster registry to DockerHub: {\tt refresh\_mirror.py}
-\end{itemize}
+The steps for merging premaster into master and creating a new distrubtion are captured in the {\tt distrib/mergePre.sh} script.
+Labtainer releases are managed as GitHub releases, using git tags and the {\tt github\_release} tool.
 
-Note there is no synchronization scheme to coordinate between the publishing of tar files and updating the
-DockerHub.  In some cases, there may be a window in which a Labtainer installation gets a distribution that names
-a lab that is not yet on DockerHub.
+\begin{verbatim}
+git tag <new>
+git push
+git push --tags
+\end{verbatim}
 
+Use the {\tt mkrelease.sh} script to create the release files within GitHub.
 
 \subsection{Continuous integration with Jenkins}
 A Jenkins pipeline automates periodic testing of {\tt premaster} branch of Labtainers.  The pipeline script is backed up in
@@ -567,6 +563,8 @@ The backups2 lab creates a loopback volume named myfs.img.  The lab does not dis
 This device will go away on a reboot.
 
 Add latex template and makefile when new\_lab\_setup is run.
+
+Collect bash history from all users.
 
 \subsubsection{Docker problems}
 The check\_nets.py tests for problems that sometimes crop up in Docker.  These include Linux routes defined
