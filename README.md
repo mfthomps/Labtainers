@@ -73,6 +73,10 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+December 21, 2020
+- The gradelab function failed when zip files were copied from a VirtualBox shared folder.
+- Update Instructor Guide to describe management of student zip files on host computers.
+
 December 4, 2020
 - Transition distribution of tar to GitHub releaese artifacts
 - Eliminate seperate designer tar file, use git repo tarball.
