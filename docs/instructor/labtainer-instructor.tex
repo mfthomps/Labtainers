@@ -227,7 +227,12 @@ they do on the VM.  This can be achieved by defining a shared folder for use by 
 \item Pick a directory on your host that you will share with the VM. Somewhere within that directory create a
 {\tt labtainer\_xfer} subdirectory.
 \item Define a shared folder for your guest VM, e.g., on VirtualBox, use Machine / Settings / Shared folders, map it
-to your selected directory.  On VirtualBox, ensure your user ID is within the vboxsf group, which may require a reboot.
+to your selected directory.  
+\item On VirtualBox, ensure your user ID is within the vboxsf group, and reboot.
+\begin{verbatim}
+    sudo usermod -G vboxsf -a $USER
+    sudo reboot
+\end{verbatim}
 \item On the virtual machine, identify the path to the {\tt labtainer\_xfer} directory in the shared folder.  For example,
 if you shared a directory called {\tt mydir} on VirtualBox, that might be found at {\tt /media/sf\_mdir/labtainer\_xfer}.
 \item From the \$HOME directory on the virtual machine, remove the {\tt labtainer\_xfer} directory and replace it with
