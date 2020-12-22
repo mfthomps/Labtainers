@@ -175,10 +175,11 @@ while True:
                     if (now - last_file_time) < 1:
                         is_a_file = True
                         notifyoutfile_ts = last_file
-            else:
+            if not is_a_file:
                 now = now - 1
                 ts = time.strftime('%Y%m%d%H%M%S', time.localtime(now))
                 tmpfile = '%s.%s' % (notifyoutfile, ts)
+                logger.debug('No file named: %s, look previous second for %s' % (notifyoutfile_ts, tmpfile))
                 if os.path.isfile(tmpfile):
                     notifyoutfile_ts = tmpfile
                     is_a_file = True
