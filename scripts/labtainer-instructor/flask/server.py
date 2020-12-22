@@ -205,7 +205,7 @@ def getTSTable(student_id, result_id, result_id2):
     glob_mask = '%s.*' % lab 
     ts_list = glob.glob(os.path.join(student_inter_dir, glob_mask))
     ts_rows = []
-    for ts in ts_list:
+    for ts in sorted(ts_list):
         base = os.path.basename(ts)
         ts_suffix = base.rsplit('.')[-1]
         raw_tbl = findTS(student_dir, student_id, container_list, ts_suffix, search_string)
