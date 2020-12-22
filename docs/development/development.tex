@@ -533,15 +533,26 @@ The {\tt CURRENT\_BRANCH} environment variable is set to determine which test re
 will be used as found in the config/registry.config file.
 
 \section {Notes}
-\subsection {Race condition on checklocal.sh output}
-If an mynotify.py event causes an output from checklocal.py, that may conflict with
-concurrent output from checklocal.py resulting from some program/script running.  In 
-theory, the program/script should complete its run of checklocal before the program/script
+\subsection {Race condition on precheck.sh output}
+If an mynotify.py event causes an output to a timestamped file named precheck, that may conflict with
+concurrent output from precheck.py resulting from some program/script running.  In 
+theory, the program/script should complete its run of precheck before the program/script
 actually gets to access the file that triggers a mynotify watch.  So, the latter's output
 to the timestamped file is appended.  Further, the mynotify.py looks for an existing timestamped
 file, and if not found, looks for one from the previous second.  This hack is an attempt to
 keep the outputs merged.  It will fail if the access does not happen within a second of the
-program start.  See the acl lab.
+program start.  Consider the acl lab.  We wish to know that alice has run the fun program,
+and that opened the accounting.txt file.  The precheck.sh script runs prior to the fun program,
+and generates a timestamped file.  The fun program opens the accounting.txt file, which triggers
+mynotify to create a timestamped file named precheck.  When mynotify is triggered to find a timestamped
+output file, it looks for one of the current timestamp, and will also look for one from the previous second.
+Thus, if the fun program takes more than 1 second before opening accounting.txt, the assessment will report
+a false negative because the boolean conditions will exist in different timestamp buckets.
+
+An alternate implementation might be to somehow bind the initial precheck output to the specific instantiation of
+the fun program, and then compare that to what triggered mynotify.  However: 1) precheck completes before the target
+program (fun) is started, and 2) inotify has absolutely no sequencing guarantees, e.g., the fun program may terminate
+before the inotify callback occurs.
 
 \subsection {temporal logic considerations}
 When evaluating results from logfiles containing timestamps use FILE\_TS or FILE\_TS\_REGEX
