@@ -1,12 +1,37 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+This software was created by United States Government employees at 
+The Center for Cybersecurity and Cyber Operations (C3O) 
+at the Naval Postgraduate School NPS.  Please note that within the 
+United States, copyright protection is not available for any works 
+created  by United States Government employees, pursuant to Title 17 
+United States Code Section 105.   This software is in the public 
+domain and is not subject to copyright. 
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
  */
 package labtainers.paramsui;
 
 import labtainers.resultsui.*;
 import labtainers.mainui.ToolTipHandlers;
+import labtainers.mainui.CompareTextFiles;
 import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -14,6 +39,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -79,7 +106,10 @@ public class ParamsData {
 //WRITING~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
     //Update the parameter.config file with the user's input
-    public void writeParamsConfig(boolean usetmp){
+    // If usetmp, the new content is compared to the previous content, and if they differ,
+    // returns false.
+    public boolean writeParamsConfig(boolean usetmp){
+         boolean retval = true;
          try {
             String paramID,
                        container,
@@ -168,7 +198,17 @@ public class ParamsData {
                 try ( //Write the paramConfigText to the params.config
                     BufferedWriter writer = new BufferedWriter(new FileWriter(paramsConfigFile, true))) {
                     writer.write(paramsConfigText+"\n");
+                    writer.close();
                 }
+                if(usetmp){
+                    String new_file = paramsConfigFile.getAbsolutePath();
+                    String old_file = getParamFileName();
+                    boolean same = CompareTextFiles.compare(old_file, new_file);
+                    if(!same){
+                        retval = false;
+                        System.out.println("files differ");
+                    }
+                } 
             }
             else
                  JOptionPane.showMessageDialog(null, error.toString(), "INPUT ERROR", JOptionPane.ERROR_MESSAGE);
@@ -176,15 +216,28 @@ public class ParamsData {
          catch (IOException ex) {
             Logger.getLogger(ParamsUI.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return retval;
     }
-    
+    private String getParamFileName(){
+        String retval = mainUI.getCurrentLab() + File.separator + "config" + File.separator + "parameter.config";
+        return retval;
+    } 
     //Checks if the parameter.config file exists and prepares the parameter.config file for the lab
     private File initializeParamConfig(boolean usetmp) throws IOException{
         //Get the filepath for the lab's parameter.config
+        File paramsConfigFile=null;
         if(!usetmp){
-            paramsConfigFile = new File(mainUI.getCurrentLab() + File.separator + "config" + File.separator + "parameter.config");
+            paramsConfigFile = new File(getParamFileName());
         }else{
-            paramsConfigFile = new File(File.separator + "tmp" + File.separator + "parameter.config");
+            Path tempDir=null;
+            try{
+                tempDir = Files.createTempDirectory(mainUI.getLabName());
+            }catch(IOException ex){
+                System.out.println("failed creating temporary directory" + ex);
+                System.exit(1);
+            }
+            String dir_s = tempDir.getFileName().toString();
+            paramsConfigFile = new File(File.separator+"tmp"+File.separator+dir_s + File.separator + "parameter.config");
         } 
         if(paramsConfigFile.exists()){ 
             //Overwrite parameter.config file if it already exists

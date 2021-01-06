@@ -1,14 +1,40 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+This software was created by United States Government employees at 
+The Center for Cybersecurity and Cyber Operations (C3O) 
+at the Naval Postgraduate School NPS.  Please note that within the 
+United States, copyright protection is not available for any works 
+created  by United States Government employees, pursuant to Title 17 
+United States Code Section 105.   This software is in the public 
+domain and is not subject to copyright. 
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+*/
 package labtainers.mainui;
 
 import java.awt.Component;
 import java.awt.Dimension;
 import java.io.BufferedReader;
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -32,6 +58,7 @@ import java.lang.Thread;
 import java.nio.charset.StandardCharsets;
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 import java.util.concurrent.Executors;
 import labtainers.mainui.LabData.ContainerData;
 import labtainers.mainui.LabData.NetworkData;
@@ -51,7 +78,7 @@ public class MainWindow extends javax.swing.JFrame {
     private String labtainerPath;
     private File labsPath;
     private String labName;
-    private File currentLab;
+    private File currentLab=null;
     private final File iniFile;
     private final Properties pathProperties;
     private String[] bases;
@@ -418,7 +445,7 @@ public class MainWindow extends javax.swing.JFrame {
                 .addGap(42, 42, 42))
         );
 
-        labChooser.setCurrentDirectory(new java.io.File("/home/mike/git/Labtainers/logs/C:/Users/Daniel Liao/Desktop/Labtainers/labs"));
+        labChooser.setCurrentDirectory(new java.io.File("/tmp/lib/labs/web-xss/web-xss-server/C:/Users/Daniel Liao/Desktop/Labtainers/labs"));
         labChooser.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
 
         NewLabDialog.setTitle("Creating New Lab");
@@ -864,7 +891,10 @@ public class MainWindow extends javax.swing.JFrame {
                     .addGap(0, 11, Short.MAX_VALUE)))
         );
 
+        MainMenuBar.setFont(new java.awt.Font("Ubuntu", 0, 48)); // NOI18N
+
         FileMenuBar.setText("File");
+        FileMenuBar.setFont(new java.awt.Font("Ubuntu", 0, 18)); // NOI18N
 
         NewLabMenuItem.setText("New Lab");
         NewLabMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -929,6 +959,7 @@ public class MainWindow extends javax.swing.JFrame {
         MainMenuBar.add(FileMenuBar);
 
         RunMenu.setText("Run");
+        RunMenu.setFont(new java.awt.Font("Ubuntu", 0, 18)); // NOI18N
 
         BuildOnlyMenuItem.setText("Build");
         BuildOnlyMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -957,6 +988,7 @@ public class MainWindow extends javax.swing.JFrame {
         MainMenuBar.add(RunMenu);
 
         HelpMenu.setText("Help");
+        HelpMenu.setFont(new java.awt.Font("Ubuntu", 0, 18)); // NOI18N
 
         DesignerMenuItem.setText("Designer Guide");
         DesignerMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -985,6 +1017,7 @@ public class MainWindow extends javax.swing.JFrame {
         MainMenuBar.add(HelpMenu);
 
         ViewMenu.setText("View");
+        ViewMenu.setFont(new java.awt.Font("Ubuntu", 0, 18)); // NOI18N
 
         labtainerLogMenuItem.setText("labtainer.log");
         labtainerLogMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -1041,7 +1074,7 @@ public class MainWindow extends javax.swing.JFrame {
                         .addComponent(IndividualizePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(logo)))
-                .addContainerGap(54, Short.MAX_VALUE))
+                .addContainerGap(52, Short.MAX_VALUE))
         );
 
         pack();
@@ -1080,6 +1113,13 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_NetworkAddDialogCancelButtonActionPerformed
 
     private void windowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_windowClosing
+        if(labName != null){
+            try{
+                saveLab(true);
+            } catch (IOException ex) {
+                Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
         rememberOpenedlab();
     }//GEN-LAST:event_windowClosing
    
@@ -1144,6 +1184,13 @@ public class MainWindow extends javax.swing.JFrame {
 
     private void ExitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExitMenuItemActionPerformed
         rememberOpenedlab();
+        if(labName != null){
+            try{
+                saveLab(true);
+            } catch (IOException ex) {
+                Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
         System.exit(0);
     }//GEN-LAST:event_ExitMenuItemActionPerformed
 
@@ -1319,10 +1366,17 @@ public class MainWindow extends javax.swing.JFrame {
         // Update the Container Config dialogs to include the new network
         updateNetworkReferenceInContainerConfigDialogs("Add", NetworkAddDialogNameTextfield.getText().toUpperCase(), null);
     }
-    
+ 
     // Opens up file chooser window that defaults to the labs directory relative to the set labtainerPath
     // and opens the lab based on the lab directory chosen
     private void openLabButton() throws IOException{
+        if(labName != null){
+            try{
+                saveLab(true);
+            } catch (IOException ex) {
+                Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
         int returnVal = labChooser.showOpenDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File lab = labChooser.getSelectedFile();
@@ -1332,6 +1386,13 @@ public class MainWindow extends javax.swing.JFrame {
     
     // Preps the NewLab Dialog and makes it visible
     private void newLabButton(){
+        if(labName != null){
+            try{
+                saveLab(true);
+            } catch (IOException ex) {
+                Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
         NewLabNameTextfield.setText("");
         NewLabDialog.setVisible(true);
         NewLabNameTextfield.requestFocusInWindow();
@@ -1516,22 +1577,39 @@ public class MainWindow extends javax.swing.JFrame {
             printExistingLabs();
         }
     }
-    
+    private String getStartConfigPath(){
+        String retval = currentLab.getPath()+File.separator+"config"+File.separator+"start.config";
+        return retval;
+    }
+         
     // Writes current state of the UI the file system
-    private void saveLab(boolean usetmp) throws FileNotFoundException{
+    private boolean saveLab(boolean usetmp) throws FileNotFoundException{
+        // If usetmp, save to temporary diretory and compare to current.  If they differ,
+        // prompts the user to save or discard changes.
+        boolean retval = true;
         //Get path to start.config
         String startConfigPath;
+        Path tempDir=null;
         if(!usetmp){
-            startConfigPath = currentLab.getPath()+File.separator+"config"+File.separator+"start.config";
+            startConfigPath = getStartConfigPath();
         }else{
-            startConfigPath = currentLab.getPath()+File.separator+"config"+File.separator+"start.config";
+            try{
+                tempDir = Files.createTempDirectory(labName);
+            }catch(IOException ex){
+                System.out.println("failed creating temporary directory" + ex);
+                System.exit(1);
+            }
+            String dir_s = tempDir.getFileName().toString();
+            System.out.println("dir_s is "+dir_s);
+
+            startConfigPath = File.separator+"tmp"+File.separator+dir_s+File.separator+"start.config";
         }
         PrintWriter writer = new PrintWriter(startConfigPath);
         String startConfigText = ""; 
          
         // Write Global Params
         for(String line : labDataCurrent.getGlobals()){
-            startConfigText += line+"\n";
+            startConfigText += "    "+line+"\n";
         }
 
         // Cycle through network objects and write
@@ -1646,13 +1724,32 @@ public class MainWindow extends javax.swing.JFrame {
         //Write to File
         writer.print(startConfigText);
         writer.close();
-        
+        boolean something_changed = false;  
+        if(usetmp){
+            String old_file = getStartConfigPath();
+            String new_file = startConfigPath;
+            try{
+                something_changed = ! CompareTextFiles.compare(old_file, new_file);
+            }catch(IOException ex){
+                System.out.println("Error comparing text files "+ex);
+            }
+        }    
         //Save results.config and goals.config file
-        labDataCurrent.getResultsData().writeResultsConfig(usetmp);
-        labDataCurrent.getGoalsData().writeGoalsConfig(usetmp);
-        labDataCurrent.getParamsData().writeParamsConfig(usetmp);
-        
-        System.out.println("Lab Saved");
+        something_changed = something_changed || ! labDataCurrent.getResultsData().writeResultsConfig(usetmp);
+        something_changed = something_changed || ! labDataCurrent.getGoalsData().writeGoalsConfig(usetmp);
+        something_changed = something_changed || ! labDataCurrent.getParamsData().writeParamsConfig(usetmp);
+        if(usetmp){ 
+            if(something_changed){
+                int confirm = JOptionPane.showConfirmDialog(null, "Changes made to lab config files have not been saved.\n",
+                                                        "Save changes?",  JOptionPane.YES_NO_OPTION);
+                if (confirm == JOptionPane.YES_OPTION){
+                    System.out.println("Saved changes");
+                    saveLab(false);
+                }
+            }
+        }
+        System.out.println("Lab Saved (or not)");
+        return retval;
     }
     
     // Clones the current lab into a new lab
@@ -1670,7 +1767,7 @@ public class MainWindow extends javax.swing.JFrame {
 
             // Write the current state to the new lab's start.config
             try {
-                saveLab();
+                saveLab(false);
             } 
             catch (FileNotFoundException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
@@ -1898,7 +1995,6 @@ public class MainWindow extends javax.swing.JFrame {
     // Load the data into the UI
     private void loadLab(){
         LabnameLabel.setText("Lab: "+labDataCurrent.getName());
-        System.out.println("set lab name");
         
         // Load the networks 
         for(int i = 0;i<labDataCurrent.getNetworks().size();i++){
