@@ -28,6 +28,8 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
  */
 package labtainers.paramsui;
+import java.util.ArrayList;
+import java.util.Arrays;
 import labtainers.mainui.ToolTipHandlers;
 import static labtainers.resultsui.ParamReferenceStorage.FieldType_ITEMS;
 import static labtainers.resultsui.ParamReferenceStorage.LineType_ITEMS;
@@ -42,25 +44,29 @@ import static labtainers.resultsui.ParamReferenceStorage.lineParamAccessible;
  */
 public class ParamValues {
     //Values to be obtained
-        String paramID, container, fileID, symbol, hashedString;
+        String paramID, symbol, hashedString;
+        ArrayList<String> fileList = new ArrayList<String>();
         String upperBound, lowerBound;
         String comments = "";
         String operator;
-        
+        String inputLine = ""; 
         //Stores the values of an parameter fed into it (NO real value validation happening here)
-        ParamValues(String inputLine){
+        ParamValues(String inputLine) {
+            this.inputLine = inputLine;
+        }
+        void load() throws java.lang.ArrayIndexOutOfBoundsException {
             String paramLine;
-            if(inputLine.contains("\n")){
-                String[] the_lines = inputLine.split("\n");
+            if(this.inputLine.contains("\n")){
+                String[] the_lines = this.inputLine.split("\n");
                 paramLine = the_lines[the_lines.length-1];
                 for(int i=0; i<the_lines.length-1; i++){
                     comments = comments+the_lines[i]+"\n";
                 }
             }else{
-                paramLine = inputLine; 
+                paramLine = this.inputLine; 
             }
             String operator_string;
-            paramID = container= fileID = symbol = hashedString = "";
+            paramID = symbol = hashedString = "";
             upperBound = lowerBound = "0"; 
             operator = null;
             
@@ -71,11 +77,9 @@ public class ParamValues {
             operator_string = paramParsedLine[1];
             //operator = itemFinder(Operator_ITEMS, operator_string);
             operator = operator_string;
-            fileID = paramParsedLine[2];
-            if(fileID.contains(":")){
-                String[] parts = fileID.split(":");
-                fileID = parts[1];
-                container = parts[0];
+            String [] farray = paramParsedLine[2].split(";");
+            for(String f : farray){
+                fileList.add(f);
             }
             if(operator_string.contains("REPLACE")){
                 symbol = paramParsedLine[3];
@@ -92,12 +96,11 @@ public class ParamValues {
         }
       
         //Constructor for temporarily storing values of artifacts in the UI
-        ParamValues(String paramID, String container, String fileID, String operator, 
+        ParamValues(String paramID, ArrayList<String> fileList, String operator, 
                      String symbol, String hashedString,
                      String lowerBound, String upperBound, String comments){
             this.paramID = paramID; 
-            this.container = container; 
-            this.fileID = fileID; 
+            this.fileList = fileList;
             this.operator = operator; 
             this.symbol = symbol; 
             this.hashedString = hashedString; 
@@ -109,8 +112,9 @@ public class ParamValues {
         //Clones the original Params Values
         ParamValues(ParamValues original){
             this.paramID = original.paramID; 
-            this.container = original.container; 
-            this.fileID = original.fileID; 
+            for(String containerFile : original.fileList){
+                this.fileList.add(containerFile);
+            }
             this.operator = original.operator; 
             this.symbol = original.symbol; 
             this.hashedString = original.hashedString; 

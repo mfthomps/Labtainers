@@ -376,7 +376,7 @@ public class NetworkObjPanel extends javax.swing.JPanel {
     
     // Updates the data object based on whats in the fields, closes the network configuration window, 
     // (and sets the mask label on the network panel)
-    private void networkConfigUpdateButton(){
+    public void networkConfigUpdateButton(){
         // Set the textfield and spinner values into the data Objects
         this.data.mask = this.NetworkConfigMaskTextfield.getText();
         this.data.gateway = this.NetworkConfigGatewayTextField.getText();
@@ -413,6 +413,9 @@ public class NetworkObjPanel extends javax.swing.JPanel {
     
     public JDialog getNetworkConfigDialog(){
         return NetworkConfigWindow;
+    }
+    public boolean configShowing(){
+        return NetworkConfigWindow.isShowing();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

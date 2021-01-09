@@ -73,8 +73,8 @@ public class ParamPanels extends javax.swing.JPanel {
     }
 
     //Loading params line
-    public ParamPanels(ParamsUI ui, ArrayList<String> containers, int rowNum, String paramID, String container, 
-              String fileID, String operator, String symbol, 
+    public ParamPanels(ParamsUI ui, ArrayList<String> containers, int rowNum, String paramID, ArrayList<String> fileList, 
+              String operator, String symbol, 
               String hashedString, String upperBound, String lowerBound, String comments){
         initComponents();
         this.uiParam = ui;
@@ -87,10 +87,11 @@ public class ParamPanels extends javax.swing.JPanel {
         ContainerComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(containers.toArray(new String[containers.size()])));
         
         //Set Values
-        setContainerComboBox(container);       
+        //setContainerComboBox(container);       
         setOperatorComboBox(operator);
         setParamIDTextField(paramID);
-        setFileTextField(fileID);        
+        String file_list = String.join(";", fileList);
+        setFileTextField(file_list);        
         setSymbolTextField(symbol);        
         setHashedStringTextField(hashedString);        
         setUpperBoundTextField(upperBound);        

@@ -32,9 +32,9 @@ package labtainers.mainui;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.File;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -192,6 +192,7 @@ public class MainWindow extends javax.swing.JFrame {
         AssessmentButton1 = new javax.swing.JButton();
         IndividualizePanel = new javax.swing.JPanel();
         paramsButton = new javax.swing.JButton();
+        OutputTextArea = new java.awt.TextArea();
         MainMenuBar = new javax.swing.JMenuBar();
         FileMenuBar = new javax.swing.JMenu();
         NewLabMenuItem = new javax.swing.JMenuItem();
@@ -206,6 +207,7 @@ public class MainWindow extends javax.swing.JFrame {
         jSeparator4 = new javax.swing.JPopupMenu.Separator();
         ExitMenuItem = new javax.swing.JMenuItem();
         RunMenu = new javax.swing.JMenu();
+        BuildAndRun = new javax.swing.JMenuItem();
         BuildOnlyMenuItem = new javax.swing.JMenuItem();
         StopLabMenuItem = new javax.swing.JMenuItem();
         checkWorkMenuItem = new javax.swing.JMenuItem();
@@ -961,7 +963,15 @@ public class MainWindow extends javax.swing.JFrame {
         RunMenu.setText("Run");
         RunMenu.setFont(new java.awt.Font("Ubuntu", 0, 18)); // NOI18N
 
-        BuildOnlyMenuItem.setText("Build");
+        BuildAndRun.setText("Build and run");
+        BuildAndRun.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BuildAndRunActionPerformed(evt);
+            }
+        });
+        RunMenu.add(BuildAndRun);
+
+        BuildOnlyMenuItem.setText("Build only");
         BuildOnlyMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 BuildOnlyMenuItemActionPerformed(evt);
@@ -1045,10 +1055,13 @@ public class MainWindow extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(Header, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(ContainerPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(NetworkPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(ContainerPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(NetworkPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(OutputTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(14, 14, 14)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(AssessmentPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
@@ -1065,16 +1078,19 @@ public class MainWindow extends javax.swing.JFrame {
                 .addComponent(Header, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(NetworkPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 424, Short.MAX_VALUE)
-                        .addComponent(ContainerPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 424, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(NetworkPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 424, Short.MAX_VALUE)
+                            .addComponent(ContainerPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 424, Short.MAX_VALUE))
+                        .addGap(25, 25, 25)
+                        .addComponent(OutputTextArea, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(AssessmentPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(IndividualizePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(logo)))
-                .addContainerGap(52, Short.MAX_VALUE))
+                .addContainerGap(25, Short.MAX_VALUE))
         );
 
         pack();
@@ -1153,11 +1169,15 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_LabtainersDirConfirmButtonActionPerformed
 
     private void SaveMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveMenuItemActionPerformed
-        try {
-            saveLab(false);
-        } 
-        catch (FileNotFoundException ex) {
-            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+        if(this.currentLab == null){
+            saveAsButton();
+        }else{
+            try {
+                saveLab(false);
+            } 
+            catch (FileNotFoundException ex) {
+                Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }//GEN-LAST:event_SaveMenuItemActionPerformed
    
@@ -1242,6 +1262,19 @@ public class MainWindow extends javax.swing.JFrame {
                 System.out.println(ie);
         }
     }
+    public String getLastLine(String path) throws IOException{
+        String lastLine = "";
+        String line;
+        BufferedReader br = new BufferedReader(new FileReader(path));
+        
+        while ((line = br.readLine()) != null) 
+        {
+            if(line.trim().length() > 0){
+                lastLine = line;
+            }
+        }
+        return lastLine;
+    }
     public void doStudentCommand(String cmd){
         ProcessBuilder builder = new ProcessBuilder();
         builder.command("sh", "-c", cmd);
@@ -1252,12 +1285,23 @@ public class MainWindow extends javax.swing.JFrame {
             StreamGobbler streamGobbler = new StreamGobbler(process.getInputStream(), System.out::println);
             Executors.newSingleThreadExecutor().submit(streamGobbler);
             int exitCode = process.waitFor();
-            assert exitCode == 0;
+            System.out.println("exit code is "+exitCode);
+            if(exitCode == 0){
+                OutputTextArea.append("Command successful.\n");
+            }else{
+                OutputTextArea.append("Command failed, see the labtainer log and/or the docker build log.\n");
+                String log_path = this.labtainerPath+File.separator+"logs"+File.separator+"labtainer.log";
+                String last = getLastLine(log_path);
+                if(last.contains("ERROR")){
+                    OutputTextArea.append(last+"\n");
+                }
+            }
         } catch (IOException e){
-                System.out.println(e);
+                System.out.println("IOException "+e);
         } catch (InterruptedException ie){
-                System.out.println(ie);
+                System.out.println("InterruptedException "+ie);
         }
+        OutputTextArea.requestFocus();
     }
     private void BuildOnlyMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuildOnlyMenuItemActionPerformed
         try {
@@ -1266,8 +1310,8 @@ public class MainWindow extends javax.swing.JFrame {
         catch (FileNotFoundException ex) {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
-        String cmd = "rebuild "+this.labName;
-        System.out.println("BuildOnly cmd: "+cmd);
+        String cmd = "rebuild -b "+this.labName;
+        //System.out.println("BuildOnly cmd: "+cmd);
         doStudentCommand(cmd);
     }//GEN-LAST:event_BuildOnlyMenuItemActionPerformed
 
@@ -1296,18 +1340,18 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_InstructorMenuItemActionPerformed
 
     private void labtainerLogMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_labtainerLogMenuItemActionPerformed
-        String cmd = "gnome-terminal -- tail -f $LABTAINER_DIR/logs/labtainer.log";
+        String cmd = "gnome-terminal -t 'labtainer.log' -- tail -f $LABTAINER_DIR/logs/labtainer.log";
         doCommand(cmd);
     }//GEN-LAST:event_labtainerLogMenuItemActionPerformed
 
     private void buildMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buildMenuItemActionPerformed
-        String cmd = "gnome-terminal -- tail -f $LABTAINER_DIR/logs/docker_build.log";
+        String cmd = "gnome-terminal -t 'docker_build.log' -- tail -f $LABTAINER_DIR/logs/docker_build.log";
         doCommand(cmd);
     }//GEN-LAST:event_buildMenuItemActionPerformed
 
     private void checkWorkMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkWorkMenuItemActionPerformed
         String path = this.labtainerPath+File.separator+"scripts"+File.separator+"labtainer-student";
-        String cmd = "gnome-terminal --working-directory="+path+" -- checkwork -p";
+        String cmd = "gnome-terminal -t 'checkwork' --working-directory="+path+" -- checkwork -p";
         System.out.println("checkwork cmd "+cmd);
         doCommand(cmd);
     }//GEN-LAST:event_checkWorkMenuItemActionPerformed
@@ -1323,6 +1367,18 @@ public class MainWindow extends javax.swing.JFrame {
         //System.out.println("clicked");
         //this.toFront();
     }//GEN-LAST:event_formMouseClicked
+
+    private void BuildAndRunActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuildAndRunActionPerformed
+        try {
+            saveLab(false);
+        } 
+        catch (FileNotFoundException ex) {
+            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        String cmd = "rebuild "+this.labName;
+        //System.out.println("BuildAndRun cmd: "+cmd);
+        doStudentCommand(cmd);
+    }//GEN-LAST:event_BuildAndRunActionPerformed
     
     //BUTTON FUNCTIONS//
     
@@ -1586,169 +1642,88 @@ public class MainWindow extends javax.swing.JFrame {
     private boolean saveLab(boolean usetmp) throws FileNotFoundException{
         // If usetmp, save to temporary diretory and compare to current.  If they differ,
         // prompts the user to save or discard changes.
+        // Return false if user cancels (does not want to exit).
         boolean retval = true;
-        //Get path to start.config
-        String startConfigPath;
-        Path tempDir=null;
-        if(!usetmp){
-            startConfigPath = getStartConfigPath();
-        }else{
-            try{
-                tempDir = Files.createTempDirectory(labName);
-            }catch(IOException ex){
-                System.out.println("failed creating temporary directory" + ex);
-                System.exit(1);
-            }
-            String dir_s = tempDir.getFileName().toString();
-            System.out.println("dir_s is "+dir_s);
-
-            startConfigPath = File.separator+"tmp"+File.separator+dir_s+File.separator+"start.config";
-        }
-        PrintWriter writer = new PrintWriter(startConfigPath);
-        String startConfigText = ""; 
-         
-        // Write Global Params
-        for(String line : labDataCurrent.getGlobals()){
-            startConfigText += "    "+line+"\n";
-        }
-
-        // Cycle through network objects and write
+        // Cycle through network objects and save UI to database (not files yet)
         Component[] networks = NetworkPanePanel.getComponents();
         for(Component network : networks){
-            NetworkData data = ((NetworkObjPanel)network).getConfigData();
-            startConfigText += "NETWORK "+data.name+"\n";
-            startConfigText += "     MASK "+data.mask+"\n";
-            startConfigText += "     GATEWAY "+data.gateway+"\n";
-            
-            if(data.macvlan > 0){
-                startConfigText += "     MACVLAN "+data.macvlan+"\n";
-            }
-            if(data.macvlan_ext > 0){
-                startConfigText += "     MACVLAN_EXT" +data.macvlan_ext+"\n";
-            }
-            
-            if(!data.ip_range.isEmpty()){
-                startConfigText += "     IP_RANGE "+data.ip_range+"\n";
-            }        
-
-            if(data.tap){
-                startConfigText += "     TAP YES"+"\n";
-            }
-            for(String unknownParam : data.unknownNetworkParams){
-                startConfigText += "     "+unknownParam+"\n";
+            NetworkObjPanel panel = (NetworkObjPanel)network;
+            if(panel.configShowing()){
+                System.out.println("network visible"); 
+                panel.networkConfigUpdateButton();
             }
         }
         
-        // Cycle through container objects and write 
+        // Cycle through container objects and save UI
         Component[] containers = ContainerPanePanel.getComponents();
         for(Component container : containers){
-            ContainerData data = ((ContainerObjPanel)container).getConfigData(); 
-            startConfigText += "CONTAINER "+data.name+"\n";
-            startConfigText += "     USER "+data.user+"\n";
-            if(data.script.isEmpty()){
-               startConfigText += "     SCRIPT NONE\n";
+            ContainerObjPanel panel = (ContainerObjPanel)container;
+            if(panel.configShowing()){
+                System.out.println("container visible"); 
+                panel.updateData();
             }
-            else{
-               startConfigText += "     SCRIPT "+data.script+"\n"; 
-            }
-                
-            if(data.x11){
-                startConfigText += "     X11 YES\n"; 
-            }
-            else{
-                startConfigText += "     X11 NO\n";
-            }
-            // Not default
-            if(data.terminal_count != 1)
-                startConfigText += "     TERMINALS "+data.terminal_count+"\n";
-            if(!data.terminal_group.isEmpty())
-                startConfigText += "     TERMINAL_GROUP "+data.terminal_group+"\n";
-            if(!data.xterm_title.isEmpty())
-                startConfigText += "     XTERM "+data.xterm_title+" "+data.xterm_script+"\n";
-            if(!data.password.isEmpty())
-                startConfigText += "     PASSWORD "+data.password+"\n";
-            for(LabData.ContainerAddHostSubData addHost : data.listOfContainerAddHost){
-                if(addHost.type.equals("network"))
-                    startConfigText += "     ADD-HOST "+addHost.add_host_network+"\n";
-                else if(addHost.type.equals("ip"))
-                    startConfigText += "     ADD-HOST "+addHost.add_host_host+":"+addHost.add_host_ip+"\n";    
-            }
-            for(LabData.ContainerNetworkSubData network : data.listOfContainerNetworks){
-                    startConfigText += "     "+network.network_name+" "+network.network_ipaddress+"\n";  
-            }
-            if(data.clone > 0){
-                startConfigText += "     CLONE "+data.clone+"\n";
-            }
-            if(!data.lab_gateway.isEmpty()){
-                startConfigText += "     LAB_GATEWAY "+data.lab_gateway+"\n";
-            }
-            if(data.no_gw){
-                startConfigText += "     NO_GW YES\n";
-            }
-            if(!data.base_registry.isEmpty()){
-                startConfigText += "     BASE_REGISTRY "+data.base_registry+"\n";
-            }
-            if(!data.thumb_volume.isEmpty()){
-                startConfigText += "     THUMB_VOLUME "+data.thumb_volume+"\n";
-            }
-            if(!data.thumb_command.isEmpty()){
-                startConfigText += "     THUMB_COMMAND "+data.thumb_command+"\n";
-            }
-            if(!data.thumb_stop.isEmpty()){
-                startConfigText += "     THUMB_STOP "+data.thumb_stop+"\n";
-            }
-            if(!data.publish.isEmpty()){
-                startConfigText += "     PUBLISH "+data.publish+"\n";
-            }
-            if(data.hide){
-                startConfigText += "     HIDE YES\n";
-            }
-            if(data.no_privilege){
-                startConfigText += "     NO_PRIVILEGE YES\n";
-            }
-            if(data.no_pull){
-                startConfigText += "     NO_PULL YES\n";
-            }
-            if(data.mystuff){
-                startConfigText += "     MYSTUFF YES\n";
-            }
-            if(data.tap){
-                startConfigText += "     TAP YES\n";
-            }
-            if(!data.mount1.isEmpty() && !data.mount2.isEmpty()){
-                startConfigText += "     MOUNT "+data.mount1+":"+data.mount2+"\n";
-            }
-            
         }
         
-        //Write to File
-        writer.print(startConfigText);
-        writer.close();
-        boolean something_changed = false;  
-        if(usetmp){
-            String old_file = getStartConfigPath();
-            String new_file = startConfigPath;
-            try{
-                something_changed = ! CompareTextFiles.compare(old_file, new_file);
-            }catch(IOException ex){
-                System.out.println("Error comparing text files "+ex);
-            }
-        }    
-        //Save results.config and goals.config file
-        something_changed = something_changed || ! labDataCurrent.getResultsData().writeResultsConfig(usetmp);
-        something_changed = something_changed || ! labDataCurrent.getGoalsData().writeGoalsConfig(usetmp);
-        something_changed = something_changed || ! labDataCurrent.getParamsData().writeParamsConfig(usetmp);
         if(usetmp){ 
+            String f1 = null;
+            String f2 = null;
+            boolean something_changed = true;
+            LabData labDataOrig = null;
+            try{
+                labDataOrig = new LabData(this, this.currentLab, labName); 
+                f1 = labDataCurrent.writeStartConfig(usetmp);
+                f2 = labDataOrig.writeStartConfig(usetmp);
+                something_changed = ! CompareTextFiles.compare(f1, f2);
+            }catch(IOException ex){
+                System.out.println("Error comparing start files "+f1+" and "+f2+" "+ex);
+            }
+            if(!something_changed){
+                f1 = labDataCurrent.getResultsData().writeResultsConfig(usetmp);
+                f2 = labDataOrig.getResultsData().writeResultsConfig(usetmp);
+                try{
+                    something_changed = ! CompareTextFiles.compare(f1, f2);
+                }catch(IOException ex){
+                    System.out.println("Error comparing results config files "+f1+" and "+f2);
+                }
+            }
+            if(!something_changed){
+                f1 = labDataCurrent.getGoalsData().writeGoalsConfig(usetmp);
+                f2 = labDataOrig.getGoalsData().writeGoalsConfig(usetmp);
+                try{
+                    something_changed = ! CompareTextFiles.compare(f1, f2);
+                }catch(IOException ex){
+                    System.out.println("Error comparing goals config files "+f1+" and "+f2);
+                }
+            }
+            if(!something_changed){
+                f1 = labDataCurrent.getParamsData().writeParamsConfig(usetmp);
+                f2 = labDataOrig.getParamsData().writeParamsConfig(usetmp);
+                try{
+                    something_changed = ! CompareTextFiles.compare(f1, f2);
+                }catch(IOException ex){
+                    System.out.println("Error comparing parameter config files "+f1+" and "+f2);
+                }
+            }
+             
             if(something_changed){
-                int confirm = JOptionPane.showConfirmDialog(null, "Changes made to lab config files have not been saved.\n",
+                //int confirm = JOptionPane.showConfirmDialog(null, "Changes made to lab config files have not been saved. Save them?\n",
+                //                                        "Save changes?",  JOptionPane.YES_NO_CANCEL_OPTION);
+                int confirm = JOptionPane.showConfirmDialog(null, "Changes made to lab config files have not been saved. Save them?\n",
                                                         "Save changes?",  JOptionPane.YES_NO_OPTION);
                 if (confirm == JOptionPane.YES_OPTION){
                     System.out.println("Saved changes");
                     saveLab(false);
+                //}else if(confirm == JOptionPane.CANCEL_OPTION){
+                //    retval = false;
                 }
             }
+        }else{
+            labDataCurrent.writeStartConfig(usetmp);
+            labDataCurrent.getResultsData().writeResultsConfig(usetmp);
+            labDataCurrent.getGoalsData().writeGoalsConfig(usetmp);
+            labDataCurrent.getParamsData().writeParamsConfig(usetmp);
         }
-        System.out.println("Lab Saved (or not)");
+        //System.out.println("Lab Saved (or not)");
         return retval;
     }
     
@@ -1850,6 +1825,9 @@ public class MainWindow extends javax.swing.JFrame {
             File prevLab = new File(iniPrevLab);
             if(prevLab.isDirectory())
                 openLab(prevLab);
+        }else{
+            File defaultLab = new File(labsPath+File.separator+"telnetlab");
+            openLab(defaultLab);
         }
     }
     private InputStream brokenJavaNaming(String resource){
@@ -2094,6 +2072,10 @@ public class MainWindow extends javax.swing.JFrame {
         }
     }
     
+    public void output(String line){
+        OutputTextArea.append(line);
+        OutputTextArea.requestFocus();
+    }
     /**
      * @param args the command line arguments
      */
@@ -2137,6 +2119,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JButton AssessmentButton;
     private javax.swing.JButton AssessmentButton1;
     private javax.swing.JPanel AssessmentPanel;
+    private javax.swing.JMenuItem BuildAndRun;
     private javax.swing.JMenuItem BuildOnlyMenuItem;
     private javax.swing.JDialog ContainerAddDialog;
     private javax.swing.JComboBox<String> ContainerAddDialogBaseImageCombobox;
@@ -2180,6 +2163,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JMenuItem NewLabMenuItem;
     private javax.swing.JTextField NewLabNameTextfield;
     private javax.swing.JMenuItem OpenLabMenuItem;
+    private java.awt.TextArea OutputTextArea;
     private javax.swing.JMenu RunMenu;
     private javax.swing.JButton SaveAsCancelButton;
     private javax.swing.JButton SaveAsConfirmButton;

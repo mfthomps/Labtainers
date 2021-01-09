@@ -859,9 +859,17 @@
             </Property>
           </Properties>
           <SubComponents>
+            <MenuItem class="javax.swing.JMenuItem" name="BuildAndRun">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Build and run"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="BuildAndRunActionPerformed"/>
+              </Events>
+            </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="BuildOnlyMenuItem">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Build"/>
+                <Property name="text" type="java.lang.String" value="Build only"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="BuildOnlyMenuItemActionPerformed"/>
@@ -979,10 +987,15 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Component id="Header" max="32767" attributes="0"/>
           <Group type="102" attributes="0">
-              <Component id="ContainerPanel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="NetworkPanel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                  <Group type="102" attributes="0">
+                      <Component id="ContainerPanel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="NetworkPanel" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Component id="OutputTextArea" max="32767" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="AssessmentPanel" max="32767" attributes="0"/>
                   <Group type="102" alignment="1" attributes="0">
@@ -1004,9 +1017,13 @@
               <Component id="Header" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
-                      <Component id="NetworkPanel" alignment="0" pref="424" max="32767" attributes="0"/>
-                      <Component id="ContainerPanel" alignment="0" pref="424" max="32767" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                          <Component id="NetworkPanel" alignment="0" pref="424" max="32767" attributes="0"/>
+                          <Component id="ContainerPanel" alignment="0" pref="424" max="32767" attributes="0"/>
+                      </Group>
+                      <EmptySpace min="-2" pref="25" max="-2" attributes="0"/>
+                      <Component id="OutputTextArea" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="AssessmentPanel" min="-2" max="-2" attributes="0"/>
@@ -1016,7 +1033,7 @@
                       <Component id="logo" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace pref="52" max="32767" attributes="0"/>
+              <EmptySpace pref="25" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -1360,5 +1377,7 @@
         </Component>
       </SubComponents>
     </Container>
+    <Component class="java.awt.TextArea" name="OutputTextArea">
+    </Component>
   </SubComponents>
 </Form>

@@ -260,8 +260,7 @@ public class ParamsUI extends javax.swing.JFrame {
     private void loadParam(ParamValues paramVal, int rowNum){
         ParamPanels newParam = new ParamPanels(this, ParamsData.containerList, rowNum,
                                                         paramVal.paramID, 
-                                                        paramVal.container, 
-                                                        paramVal.fileID, 
+                                                        paramVal.fileList, 
                                                         paramVal.operator, 
                                                         paramVal.symbol, 
                                                         paramVal.hashedString, 
@@ -287,25 +286,6 @@ public class ParamsUI extends javax.swing.JFrame {
         loadUI();
     }
     
-    //Check if the the current state of the UI matches with what's saved in the parameter.config
-    /*
-    void checkUnsavedChangesMade(){
-            data.updateListofParams(PanelofParams);
-
-            if(paramValuesDiffer(data.listofParams, data.getParamValuesOfConfigFile())){
-                int confirmed = JOptionPane.showConfirmDialog(null, 
-                    "There are Unsaved Changes. Are you sure you want to exit the program?", "Unsaved Changes",
-                    JOptionPane.YES_NO_OPTION);
-
-                if (confirmed == JOptionPane.YES_OPTION) 
-                    dispose();
-                else
-                    setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-            }
-            else
-                dispose();
-    }
-    */
     
     
     // GETTERS //

@@ -215,8 +215,8 @@ public class GoalsData {
 //WRITING~~~~~~~~~~~~~~~~~~~~~~~~          
         
     //Update the results.config file with the user's input
-    public boolean writeGoalsConfig(boolean usetmp){
-         boolean retval = true;
+    public String writeGoalsConfig(boolean usetmp){
+         File goalsConfigFile = null;
          try {
             String goalID,
                    goalType,
@@ -364,12 +364,13 @@ public class GoalsData {
             
             if(error.passStatus()){
                 //Resets the results.config file
-                File goalsConfigFile = initializeGoalsConfig(usetmp);
+                goalsConfigFile = initializeGoalsConfig(usetmp);
 
                 try ( //Write the resultsConfigText to the results.config
                     BufferedWriter writer = new BufferedWriter(new FileWriter(goalsConfigFile, true))) {
                     writer.write(goalsConfigText+"\n");
                 }
+                /*
                 if(usetmp){
                     String new_file = goalsConfigFile.getAbsolutePath();
                     String old_file = getGoalsPath();
@@ -379,6 +380,7 @@ public class GoalsData {
                         System.out.println("files differ");
                     }
                 } 
+                */
             }
             else
                  JOptionPane.showMessageDialog(null, error.toString(), "INPUT ERROR", JOptionPane.ERROR_MESSAGE);
@@ -386,7 +388,7 @@ public class GoalsData {
          catch (IOException ex) {
             Logger.getLogger(GoalsUI.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return retval;
+        return goalsConfigFile.getAbsolutePath();
     }
     private String getGoalsPath(){
         String retval = mainUI.getCurrentLab() + File.separator + "instr_config" + File.separator + "goals.config";

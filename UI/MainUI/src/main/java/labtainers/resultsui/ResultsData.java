@@ -108,8 +108,8 @@ public class ResultsData {
 //WRITING~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
     //Update the results.config file with the user's input
-    public boolean writeResultsConfig(boolean usetmp){
-         boolean retval = true;
+    public String writeResultsConfig(boolean usetmp){
+         File resultsConfigFile = null;
          try {
             String resultTag,
                        container,
@@ -280,13 +280,14 @@ public class ResultsData {
             
             if(error.passStatus()){
                 //Resets the results.config file
-                File resultsConfigFile = initializeResultConfig(usetmp);
+                resultsConfigFile = initializeResultConfig(usetmp);
 
                 try ( //Write the resultsConfigText to the results.config
                     BufferedWriter writer = new BufferedWriter(new FileWriter(resultsConfigFile, true))) {
                     writer.write(resultsConfigText+"\n");
                     writer.close();
                 }
+                /*
                 if(usetmp){
                     String new_file = resultsConfigFile.getAbsolutePath();
                     String old_file = getResultsPath();
@@ -296,6 +297,7 @@ public class ResultsData {
                         System.out.println("files differ");
                     }
                 } 
+                */
             }
             else
                  JOptionPane.showMessageDialog(null, error.toString(), "INPUT ERROR", JOptionPane.ERROR_MESSAGE);
@@ -303,7 +305,7 @@ public class ResultsData {
          catch (IOException ex) {
             Logger.getLogger(ResultsUI.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return retval;
+        return resultsConfigFile.getAbsolutePath();
     }
     private String getResultsPath(){
         String retval = mainUI.getCurrentLab() + File.separator + "instr_config" + File.separator + "results.config";

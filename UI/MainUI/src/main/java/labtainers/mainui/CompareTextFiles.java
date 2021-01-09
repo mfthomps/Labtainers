@@ -36,8 +36,16 @@ public class CompareTextFiles
 {	
     private static String nextLine(BufferedReader br) throws IOException{
         String line = br.readLine();
-        while(line != null && (line.trim().startsWith("#") || line.trim().length() == 0)){
-            line = br.readLine();
+        //System.out.println("nextLine line: "+line);
+        // when did java lose its evaluation precidence?
+        if(line != null){
+            line = line.trim().replaceAll(" +", " "); 
+            while(line != null && (line.trim().startsWith("#") || line.trim().length() == 0)){
+                line = br.readLine();
+                if(line == null)
+                    break;
+                line = line.trim().replaceAll(" +", " "); 
+            }
         }
         return line;
     }
@@ -59,9 +67,11 @@ public class CompareTextFiles
             }
             else if((line1 != null && line2 != null) && (! line1.trim().equalsIgnoreCase(line2.trim())))
             {
-                areEqual = false;
-                 
-                break;
+                    System.out.println("DIFFERENT");
+                    System.out.println("\t"+line1);
+                    System.out.println("\t"+line2);
+                    areEqual = false;
+                    break;
             }
             line1 = nextLine(reader1);
             line2 = nextLine(reader2);
