@@ -631,6 +631,22 @@ prompt for re-run of update-labtainer.  Or just hack around it?
 
 Validation of goals.config should catch answer fields that lack syntax, e.g., foo rather than answer=foo
 
+\subsection {UI}
+Notes on UI development.  
+\subsection{UI Development}
+See the {\tt UI/README.txt} file.  Development uses Netbeans for UI construction.  Manual make/run is performed by
+{\tt UI/bin/buildUI2.sh}.  Netbeans is not required for non-UI code changes.  
+\subsubsection{Warn of changes}
+Detecting whether a user changed a configuration file, and thus should be prompted to save it before losing it,
+is performed by saving the state into a file temporary directory and then comparing that to newly saved state based
+on reconsuming the original file.  This lets us avoid false positives due to manual changes.
+
+\subsubsection{Distribution}
+The lab designer package is currently distributed by pulling the entire git repo tar ball.
+That repo will include the jar file for the UI.  This simplifies distribution.  Should the tar grow large, we
+can look at moving it into the release artifacts.  The tar file is in UI/bin.  It is run via the {\tt editlab}
+script.
+
 \subsection {Mounts for software persistance}
 Consider labs such as IDA.  For licensing, we have the student perform the installation, which involves accepting
 the license.  It would be nice if subsequently performed IDA labs did not require the student to repeat
