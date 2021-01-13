@@ -404,9 +404,7 @@
     </Container>
     <Component class="javax.swing.JFileChooser" name="labChooser">
       <Properties>
-        <Property name="currentDirectory" type="java.io.File" editor="org.netbeans.beaninfo.editors.FileEditor">
-          <SerializedValue value="-84,-19,0,5,115,114,0,12,106,97,118,97,46,105,111,46,70,105,108,101,4,45,-92,69,14,13,-28,-1,3,0,1,76,0,4,112,97,116,104,116,0,18,76,106,97,118,97,47,108,97,110,103,47,83,116,114,105,110,103,59,120,112,116,0,44,67,58,47,85,115,101,114,115,47,68,97,110,105,101,108,32,76,105,97,111,47,68,101,115,107,116,111,112,47,76,97,98,116,97,105,110,101,114,115,47,108,97,98,115,119,2,0,47,120"/>
-        </Property>
+        <Property name="currentDirectory" type="java.io.File" value="null"/>
         <Property name="fileSelectionMode" type="int" value="1"/>
       </Properties>
     </Component>
@@ -987,13 +985,16 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Component id="Header" max="32767" attributes="0"/>
           <Group type="102" attributes="0">
-              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+              <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
                       <Component id="ContainerPanel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="NetworkPanel" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="OutputTextArea" max="32767" attributes="0"/>
+                  <Group type="102" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jScrollPane1" min="-2" pref="758" max="-2" attributes="0"/>
+                  </Group>
               </Group>
               <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -1022,8 +1023,8 @@
                           <Component id="NetworkPanel" alignment="0" pref="424" max="32767" attributes="0"/>
                           <Component id="ContainerPanel" alignment="0" pref="424" max="32767" attributes="0"/>
                       </Group>
-                      <EmptySpace min="-2" pref="25" max="-2" attributes="0"/>
-                      <Component id="OutputTextArea" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                      <Component id="jScrollPane1" min="-2" pref="100" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="AssessmentPanel" min="-2" max="-2" attributes="0"/>
@@ -1033,7 +1034,7 @@
                       <Component id="logo" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace pref="25" max="32767" attributes="0"/>
+              <EmptySpace pref="18" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -1377,7 +1378,17 @@
         </Component>
       </SubComponents>
     </Container>
-    <Component class="java.awt.TextArea" name="OutputTextArea">
-    </Component>
+    <Container class="javax.swing.JScrollPane" name="jScrollPane1">
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+      <SubComponents>
+        <Component class="javax.swing.JTextArea" name="OutputTextArea">
+          <Properties>
+            <Property name="columns" type="int" value="20"/>
+            <Property name="rows" type="int" value="5"/>
+          </Properties>
+        </Component>
+      </SubComponents>
+    </Container>
   </SubComponents>
 </Form>

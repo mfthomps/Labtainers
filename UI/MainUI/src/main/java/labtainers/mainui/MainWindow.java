@@ -192,7 +192,8 @@ public class MainWindow extends javax.swing.JFrame {
         AssessmentButton1 = new javax.swing.JButton();
         IndividualizePanel = new javax.swing.JPanel();
         paramsButton = new javax.swing.JButton();
-        OutputTextArea = new java.awt.TextArea();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        OutputTextArea = new javax.swing.JTextArea();
         MainMenuBar = new javax.swing.JMenuBar();
         FileMenuBar = new javax.swing.JMenu();
         NewLabMenuItem = new javax.swing.JMenuItem();
@@ -447,7 +448,7 @@ public class MainWindow extends javax.swing.JFrame {
                 .addGap(42, 42, 42))
         );
 
-        labChooser.setCurrentDirectory(new java.io.File("/tmp/lib/labs/web-xss/web-xss-server/C:/Users/Daniel Liao/Desktop/Labtainers/labs"));
+        labChooser.setCurrentDirectory(null);
         labChooser.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
 
         NewLabDialog.setTitle("Creating New Lab");
@@ -893,6 +894,10 @@ public class MainWindow extends javax.swing.JFrame {
                     .addGap(0, 11, Short.MAX_VALUE)))
         );
 
+        OutputTextArea.setColumns(20);
+        OutputTextArea.setRows(5);
+        jScrollPane1.setViewportView(OutputTextArea);
+
         MainMenuBar.setFont(new java.awt.Font("Ubuntu", 0, 48)); // NOI18N
 
         FileMenuBar.setText("File");
@@ -1055,12 +1060,14 @@ public class MainWindow extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(Header, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(ContainerPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(NetworkPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(OutputTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 758, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(14, 14, 14)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(AssessmentPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -1082,15 +1089,15 @@ public class MainWindow extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(NetworkPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 424, Short.MAX_VALUE)
                             .addComponent(ContainerPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 424, Short.MAX_VALUE))
-                        .addGap(25, 25, 25)
-                        .addComponent(OutputTextArea, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(AssessmentPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(IndividualizePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(logo)))
-                .addContainerGap(25, Short.MAX_VALUE))
+                .addContainerGap(18, Short.MAX_VALUE))
         );
 
         pack();
@@ -1593,9 +1600,9 @@ public class MainWindow extends javax.swing.JFrame {
     // Loads data and UI for the selected lab
     private void openLab(File lab) throws IOException{        
         // Load data
-        currentLab = lab;
-        labName = lab.toString().substring(lab.toString().lastIndexOf(File.separator)+1);
-        labDataCurrent = new LabData(this, lab, labName); 
+        this.currentLab = lab;
+        this.labName = lab.toString().substring(lab.toString().lastIndexOf(File.separator)+1);
+        this.labDataCurrent = new LabData(this, lab, labName); 
 
         // Load UI
         closeAllDialogs(); 
@@ -1637,6 +1644,27 @@ public class MainWindow extends javax.swing.JFrame {
         String retval = currentLab.getPath()+File.separator+"config"+File.separator+"start.config";
         return retval;
     }
+    boolean deleteDirectory(File directoryToBeDeleted) {
+        File[] allContents = directoryToBeDeleted.listFiles();
+        if (allContents != null) {
+            for (File file : allContents) {
+                deleteDirectory(file);
+            }
+        }
+        return directoryToBeDeleted.delete();
+    }
+    private void rmTmp(String f1, String f2){
+        String parts[] = f1.split(File.separator);
+        String next = parts[2];
+        String tdir = File.separator+"tmp"+File.separator+next;
+        File tdirFile = new File(tdir);
+        deleteDirectory(tdirFile);
+        parts = f2.split(File.separator);
+        next = parts[2];
+        tdir = File.separator+"tmp"+File.separator+next;
+        tdirFile = new File(tdir);
+        deleteDirectory(tdirFile);
+    }
          
     // Writes current state of the UI the file system
     private boolean saveLab(boolean usetmp) throws FileNotFoundException{
@@ -1674,6 +1702,8 @@ public class MainWindow extends javax.swing.JFrame {
                 f1 = labDataCurrent.writeStartConfig(usetmp);
                 f2 = labDataOrig.writeStartConfig(usetmp);
                 something_changed = ! CompareTextFiles.compare(f1, f2);
+                rmTmp(f1, f2);
+                
             }catch(IOException ex){
                 System.out.println("Error comparing start files "+f1+" and "+f2+" "+ex);
             }
@@ -1685,6 +1715,7 @@ public class MainWindow extends javax.swing.JFrame {
                 }catch(IOException ex){
                     System.out.println("Error comparing results config files "+f1+" and "+f2);
                 }
+                rmTmp(f1, f2);
             }
             if(!something_changed){
                 f1 = labDataCurrent.getGoalsData().writeGoalsConfig(usetmp);
@@ -1694,6 +1725,7 @@ public class MainWindow extends javax.swing.JFrame {
                 }catch(IOException ex){
                     System.out.println("Error comparing goals config files "+f1+" and "+f2);
                 }
+                rmTmp(f1, f2);
             }
             if(!something_changed){
                 f1 = labDataCurrent.getParamsData().writeParamsConfig(usetmp);
@@ -1703,6 +1735,7 @@ public class MainWindow extends javax.swing.JFrame {
                 }catch(IOException ex){
                     System.out.println("Error comparing parameter config files "+f1+" and "+f2);
                 }
+                rmTmp(f1, f2);
             }
              
             if(something_changed){
@@ -1728,7 +1761,7 @@ public class MainWindow extends javax.swing.JFrame {
     }
     
     // Clones the current lab into a new lab
-    private void saveAs(String newLabName){
+    private void saveAs(String newLabName) {
         // Call Clone Script, feeding in the new lab name
             // Call python new_lab_script: new_lab_setup.py -c newLabName
             String cmd = "new_lab_setup.py -c "+newLabName;
@@ -2163,7 +2196,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JMenuItem NewLabMenuItem;
     private javax.swing.JTextField NewLabNameTextfield;
     private javax.swing.JMenuItem OpenLabMenuItem;
-    private java.awt.TextArea OutputTextArea;
+    private javax.swing.JTextArea OutputTextArea;
     private javax.swing.JMenu RunMenu;
     private javax.swing.JButton SaveAsCancelButton;
     private javax.swing.JButton SaveAsConfirmButton;
@@ -2201,6 +2234,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator2;
     private javax.swing.JPopupMenu.Separator jSeparator3;
