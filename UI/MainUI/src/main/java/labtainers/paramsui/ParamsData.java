@@ -101,6 +101,7 @@ public class ParamsData {
                     rowCount++;
                 }catch(java.lang.ArrayIndexOutOfBoundsException exa){
                     System.out.println("ERROR: "+exa);
+                    System.out.println("Error retrieveData parsing parameter line: "+paramLine+"\n");
                     mainUI.output("Error parsing parameter line: "+paramLine+"\n");
                     mainUI.output(exa.toString());
                 }
@@ -117,8 +118,7 @@ public class ParamsData {
 //WRITING~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
     //Update the parameter.config file with the user's input
-    // If usetmp, the new content is compared to the previous content, and if they differ,
-    // returns false.
+    // If usetmp return the path the temporary configuration file.
     public String writeParamsConfig(boolean usetmp){
          File paramsConfigFile = null;
          try {
@@ -164,11 +164,21 @@ public class ParamsData {
                 paramConfigLine += containerFile+" : ";
                 
                 if(operator.contains("REPLACE")){
-                    symbol = listofParams.get(i).symbol;
+                    symbol = listofParams.get(i).symbol.trim();
+                    if(symbol.length() == 0){
+                        error.badSymbol = true;
+                        System.out.println("Bad symbol: "+symbol);
+                    } 
                     paramConfigLine += symbol;
                 }
                 if(operator.contains("RAND")){
-                    paramConfigLine += " : "+listofParams.get(i).lowerBound+" : "+listofParams.get(i).upperBound;
+                    String upper = listofParams.get(i).upperBound.trim();
+                    String lower = listofParams.get(i).lowerBound.trim();
+                    if(upper.length() == 0 || lower.length() == 0){
+                        error.badRange = true;
+                        System.out.println("Bad range for random values: "+lower+":"+upper);
+                    }
+                    paramConfigLine += " : "+lower+" : "+upper;
                 }
                 if(operator.contains("HASH")){
                     paramConfigLine += " : "+listofParams.get(i).hashedString;
@@ -220,7 +230,11 @@ public class ParamsData {
          catch (IOException ex) {
             Logger.getLogger(ParamsUI.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return paramsConfigFile.getAbsolutePath();
+        if(paramsConfigFile != null){
+            return paramsConfigFile.getAbsolutePath();
+        }else{
+            return null;
+        }
     }
     private String getParamFileName(){
         String retval = mainUI.getCurrentLab() + File.separator + "config" + File.separator + "parameter.config";
@@ -272,7 +286,9 @@ public class ParamsData {
                 fileError,
 
                 paramIDMissing,
-                fileIDMissing;
+                fileIDMissing,
+                badRange,
+                badSymbol;
         
         
         ErrorHandler(){
@@ -292,6 +308,8 @@ public class ParamsData {
 
             paramIDMissing = false;
             fileIDMissing = false;
+            badRange = false;
+            badSymbol = false;
             
         }
         
@@ -312,6 +330,14 @@ public class ParamsData {
                rowPassed = false;
                infoMsg+= "-Make sure your Param ID has only alphanumeric characters or underscores." + System.lineSeparator();
             }
+            if(badRange){
+               rowPassed = false;
+               infoMsg+= "-Make sure your random range values are set." + System.lineSeparator();
+            }
+            if(badSymbol){
+               rowPassed = false;
+               infoMsg+= "-Make sure your symbol to be replaced is set." + System.lineSeparator();
+             }
             //if(fileError){
             //   rowPassed = false;
             //   infoMsg+= "-Make sure your File ID file's extentsion ends in \".stdin\", \".stdout\", or \".prgout\"." + System.lineSeparator() + " Or is a file path." + System.lineSeparator();
@@ -524,6 +550,7 @@ public class ParamsData {
                     officialListofParams.add(pv);
                 }catch(java.lang.ArrayIndexOutOfBoundsException exa){
                     System.out.println("ERROR: "+exa);
+                    System.out.println("Error getParamValuesOfConfigFile parsing parameter line: "+paramLine+"\n");
                     mainUI.output("Error parsing parameter line: "+paramLine+"\n");
                     mainUI.output(exa.toString());
                 }
