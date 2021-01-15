@@ -253,6 +253,10 @@ public class GoalsData {
                    goalConfigLine += (goalID + " = "); //add to goal ID Config line
                 
                 //Goal Type
+                if(listofGoals.get(i).goalType == null){
+                    System.out.println("Goal type is null for goal "+i);
+                    continue;
+                }
                 goalType = listofGoals.get(i).goalType.getItem();
                 
                 switch (goalType) {
@@ -269,7 +273,13 @@ public class GoalsData {
                 }
                 
                 if(opInput.contains(goalType)){
-
+                    
+                    if(listofGoals.get(i).operator == null){
+                        error.badOperator = true;
+                        System.out.println("NULL operator "+goalID);
+                        mainUI.output("Unknownn operator for goal "+goalID);
+                        continue;
+                    }
                     operator = listofGoals.get(i).operator.getItem();
                     resultTag = listofGoals.get(i).resultTag;
                     answerType = listofGoals.get(i).answerType;
@@ -388,7 +398,11 @@ public class GoalsData {
          catch (IOException ex) {
             Logger.getLogger(GoalsUI.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return goalsConfigFile.getAbsolutePath();
+        if(goalsConfigFile != null){
+            return goalsConfigFile.getAbsolutePath();
+        }else{
+            return null;
+        }
     }
     private String getGoalsPath(){
         String retval = mainUI.getCurrentLab() + File.separator + "instr_config" + File.separator + "goals.config";
@@ -470,7 +484,7 @@ public class GoalsData {
                 goal1Missing,
                 goal2Error,
                 goal2Missing,
-                
+                badOperator, 
                 booleanExpCharError,
                 booleanExpTagError,
                 booleanExpNotError,
@@ -507,6 +521,8 @@ public class GoalsData {
             goal1Missing = false;
             goal2Error = false;
             goal2Missing = false;
+
+            badOperator = false;
 
             booleanExpCharError = false;
             booleanExpTagError = false;
@@ -559,6 +575,10 @@ public class GoalsData {
                 rowPassed = false;
                 infoMsg+= "-Goal 2 input is missing." + System.lineSeparator();
             }
+            if(badOperator){
+                rowPassed = false;
+                infoMsg+= "-Unknown operator." + System.lineSeparator();
+            }
 
 
             if(booleanExpCharError || booleanExpTagError){
@@ -566,13 +586,21 @@ public class GoalsData {
                 infoMsg+= "-Make sure Boolean Expression contains only result booleans, non-matchacross goal IDs above this goal line," + System.lineSeparator() +
                           "parentheses, and boolean operators(and, or, and_not, or_not, not)." + System.lineSeparator();
             }
-             if(booleanExpNotError){
+            if(booleanExpNotError){
                 rowPassed = false;
                 infoMsg+= "-The 'not' boolean operator can only appear at the beginning of a boolean expression." + System.lineSeparator();
             }
-            if(booleanExpStartError || booleanExpEndError || booleanParensError || booleanAlternateError){
+            if(booleanExpStartError || booleanExpEndError){
                 rowPassed = false;
-                infoMsg+= "-Make sure your expression is formatted correctly: Proper Parentheses and making sure an item precedes and follows " + System.lineSeparator()
+                infoMsg+= "-Make sure your expression is starts and ends correctly." + System.lineSeparator();
+            }
+            if(booleanParensError){
+                rowPassed = false;
+                infoMsg+= "-Make sure your expression has proper parentheses " + System.lineSeparator();
+            }
+            if(booleanAlternateError){
+                rowPassed = false;
+                infoMsg+= "-Make sure your expression is formatted correctly and make sure an item precedes and follows " + System.lineSeparator()
                         + "a boolean operator." + System.lineSeparator();
             }
             if(booleanMissing){
@@ -638,6 +666,7 @@ public class GoalsData {
             }
             else if(!listOfAboveGoals.contains(goal1) && !booleanResults.contains(goal1)){
                 goal1Error = true;
+                System.out.println("problem with goal1 "+goal1);
                 return false;
             }
             else
@@ -652,6 +681,7 @@ public class GoalsData {
             }
             else if(!listOfAboveGoals.contains(goal2) && !booleanResults.contains(goal2)){
                 goal2Error = true;
+                System.out.println("problem with goal2 "+goal2);
                 return false;
             }
             else
@@ -675,10 +705,14 @@ public class GoalsData {
         
         //Reformat the boolean expression string to identitfy things that shouldn't be there   
             //Replace all " not" with %
-            booleanExp = " "+booleanExp; 
+            if(!booleanExp.startsWith("(")){
+                booleanExp = "("+booleanExp+")";
+            }
+            //booleanExp = " "+booleanExp; 
             //The line above is necessary because when 'not' is used in the beginning there may or may not be a space before it. 
             //Adding the space includes the non-space-preceeded case.
-            booleanExp = booleanExp.replaceAll(" not ", "%");
+            booleanExp = booleanExp.replaceAll(" not ", "% ");
+            booleanExp = booleanExp.replaceAll("[(]not ", "(% ");
             
             booleanExp = booleanExp.trim();
             
@@ -695,6 +729,8 @@ public class GoalsData {
             //System.out.println("RESULT BOOLEANS:");
             //Replace all non boolean results with an asterisk symbol
             for(String toReplace : booleanResults){
+                //System.out.println("boolean result <"+toReplace+">");
+                //System.out.println("boolean exp "+booleanExp);
                 booleanExp = symbolReplace(booleanExp, toReplace, "*");
             }
             
@@ -710,19 +746,21 @@ public class GoalsData {
             booleanExp = booleanExp.replaceAll("\\s+","");//removes white space
 
             //If the boolean expression had a "not " in it, did it not occur at the beginning and/or more than once
-            if(booleanExp.contains("%") && (!booleanExp.startsWith("%") || (booleanExp.indexOf("%") != booleanExp.lastIndexOf("%")))){
-                booleanExpNotError = true;
-                return false;
-            }
+            //if(booleanExp.contains("%") && (!booleanExp.startsWith("(%") || (booleanExp.indexOf("%") != booleanExp.lastIndexOf("%")))){
+            //    booleanExpNotError = true;
+            //    System.out.println("not error "+booleanExp);
+            //    return false;
+           // }
             //Does the reformatted Boolean Expression string pick up alphnumeric(with underscore) substring that doesn't belong in either nonMAAGoals or booleanResults
             if(!booleanExp.matches("^[%*#()]+$")){
-                
+                System.out.println("TagError "+booleanExp);    
                 booleanExpTagError = true; 
                 return false;
             }
             //Does it start with an operator or a close parens
             else if(booleanExp.startsWith("#") || booleanExp.startsWith(")")){
                 booleanExpStartError = true; 
+                System.out.println("boolean starts incorretly "+booleanExp);
                 return false;
             }
             //Does it end with an operator or an open parens
@@ -777,8 +815,9 @@ public class GoalsData {
                         booleanExp = booleanExp.substring(0, tRIndex)+
                                      booleanExp.substring(tRIndex, indexAfterWord).replaceFirst(toReplace, replaceWith)+
                                      booleanExp.substring(indexAfterWord, booleanExp.length());
-                    }
-                    
+                    }else{
+                        //System.out.println("No replace "+booleanExp);
+                    }                    
                     //System.out.println(booleanExp);
                     //System.out.println();
                     
@@ -800,17 +839,25 @@ public class GoalsData {
         boolean parensHandler(String booleanExp){            
             //need  to check if number of open parens and close parens is equal <--- TODO (check character count method)
             if(characterCounter(booleanExp, '(') != characterCounter(booleanExp, ')')){
+                System.out.println("parens count wrong? "+booleanExp);
                 return true;
             }
               
             for(int i=0;i<booleanExp.length()-1;i++){
                 //checks if each open parens is followed by either by another open paren or a booleanResults/goalID 
-                if( booleanExp.charAt(i) == '(' && !(booleanExp.charAt(i+1) == '(' || booleanExp.charAt(i+1) == '*')) 
+                if( booleanExp.charAt(i) == '(' && !(booleanExp.charAt(i+1) == '(' || booleanExp.charAt(i+1) == '*' || booleanExp.charAt(i+1) == '%')){ 
+                    System.out.println("open not followed properly? "+booleanExp);
                     return true;
-
-                //checks if each close parens is followed by either by another close paren or a booleanResults/goalID 
-                if( booleanExp.charAt(booleanExp.length()-1-i) == ')' && !(booleanExp.charAt(booleanExp.length()-2-i) == ')' || booleanExp.charAt(booleanExp.length()-2-i) == '*')) 
-                    return true;
+                }
+                //checks if each close parens is followed by either by another close paren or a boolean operator
+                int expLen = booleanExp.length()-i;
+                if( booleanExp.charAt(booleanExp.length()-2-i) == ')' && !(booleanExp.charAt(booleanExp.length()-1-i) == ')' || booleanExp.charAt(booleanExp.length()-1-i) == '#')){
+                    if(expLen != booleanExp.length()){
+                        System.out.println("close not followed properly? "+booleanExp);
+                        System.out.println("closed a "+expLen+" len is "+booleanExp.length());
+                        return true;
+                    }
+                }
                 
             }
             
@@ -837,8 +884,10 @@ public class GoalsData {
             booleanExp = booleanExp.replaceAll("\\)", "");
             
             for(int i=0;i<booleanExp.length()-2;i+=2){
-                if(booleanExp.charAt(i) == '*' && booleanExp.charAt(i+1) != '#')
+                if(booleanExp.charAt(i) == '*' && booleanExp.charAt(i+1) != '#'){
+                    System.out.println("alternation failed?? "+booleanExp);
                     return true;
+                }
             }
             
             return false;

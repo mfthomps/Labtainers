@@ -91,7 +91,7 @@ public class GoalPanels extends javax.swing.JPanel {
          
         if(goalVal.answerType.equals(Answer_ITEMS[0].getItem())){
              //Literal
-            System.out.println("literal set "+goalVal.answerTag);
+            //System.out.println("literal set "+goalVal.answerTag);
             setAnswerTagTextField(goalVal.answerTag);
         }else if(goalVal.answerType.equals(Answer_ITEMS[1].getItem())){
             //Result Tag

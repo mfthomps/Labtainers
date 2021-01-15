@@ -88,6 +88,9 @@ public class GoalValues {
             
             if(opInput.contains(goalType.getItem())){
                 operator = itemFinder(Operator_ITEMS, paramParsedLine[1]);
+                if(operator == null){
+                    System.out.println("Operator unknown in "+inputLine);
+                }
                 resultTag = paramParsedLine[2];
                 
                 //Overwrite the goaltype to "matchExpression" if the result tag has a parenthesis (this indicates an arithmetic expression)
