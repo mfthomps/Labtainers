@@ -56,6 +56,10 @@ public class ContainerObjPanel extends javax.swing.JPanel {
     // Constructor for loading a container object panel based on a container data object
     public ContainerObjPanel(MainWindow mainWindow, LabData.ContainerData data){
         initComponents();
+        editMenu.add(fixlocalMenuItem);
+        editMenuBar.add(treataslocalMenuItem);
+        editMenu.add(editDockerMenuItem);
+        editMenu.add(openShellMenuItem);
         this.data = data;
         this.mainWindow = mainWindow;
         this.containerAddHostScrollPaneBar = AddHostsScrollPane.getVerticalScrollBar();
@@ -138,6 +142,8 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         HideCheckbox = new javax.swing.JCheckBox();
         ContainerConfigUpdateButton = new javax.swing.JButton();
         ContainerConfigCancelButton = new javax.swing.JButton();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        editMenuBar = new javax.swing.JMenu();
         ContainerRightClick = new javax.swing.JPopupMenu();
         editMenu = new javax.swing.JMenu();
         editDockerMenuItem = new javax.swing.JMenuItem();
@@ -261,13 +267,9 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                                 .addGap(3, 3, 3)
                                 .addComponent(NoGWCheckbox))
                             .addComponent(TerminalGroupTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(ShellButton))))
+                            .addComponent(ShellButton)))
+                    .addComponent(ContainerConfigNetworksScrollpane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(21, Short.MAX_VALUE))
-            .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
-                    .addGap(25, 25, 25)
-                    .addComponent(ContainerConfigNetworksScrollpane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(26, Short.MAX_VALUE)))
         );
         ContainerConfigGeneralTabLayout.setVerticalGroup(
             ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -297,12 +299,9 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                         .addComponent(jLabel7)
                         .addComponent(ContainerConfigNetworksAddButton))
                     .addComponent(ShellButton))
-                .addContainerGap(119, Short.MAX_VALUE))
-            .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
-                    .addGap(184, 184, 184)
-                    .addComponent(ContainerConfigNetworksScrollpane, javax.swing.GroupLayout.PREFERRED_SIZE, 94, Short.MAX_VALUE)
-                    .addContainerGap()))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(ContainerConfigNetworksScrollpane, javax.swing.GroupLayout.PREFERRED_SIZE, 126, Short.MAX_VALUE)
+                .addGap(35, 35, 35))
         );
 
         containerTabPane.addTab("General ", ContainerConfigGeneralTab);
@@ -389,7 +388,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                 .addGroup(ContainerConfigDockerTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel4)
                     .addComponent(NoPrivilegeCheckbox))
-                .addContainerGap(60, Short.MAX_VALUE))
+                .addContainerGap(91, Short.MAX_VALUE))
         );
 
         containerTabPane.addTab("Docker", ContainerConfigDockerTab);
@@ -446,7 +445,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                     .addComponent(ContainerConfigAddHostIPButton)
                     .addComponent(ContainerConfigAddHostNetworkButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(AddHostsScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 227, Short.MAX_VALUE)
+                .addComponent(AddHostsScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 258, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -552,7 +551,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                             .addComponent(jLabel12))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(TapRadioButton)
-                .addContainerGap(108, Short.MAX_VALUE))
+                .addContainerGap(139, Short.MAX_VALUE))
         );
 
         containerTabPane.addTab("Other", ContainerConfigOtherTab);
@@ -607,7 +606,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                 .addGroup(ContainerConfigGNS3TabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(HideLabel)
                     .addComponent(HideCheckbox))
-                .addContainerGap(95, Short.MAX_VALUE))
+                .addContainerGap(126, Short.MAX_VALUE))
         );
 
         containerTabPane.addTab("GNS3", ContainerConfigGNS3Tab);
@@ -625,6 +624,11 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                 ContainerConfigCancelButtonActionPerformed(evt);
             }
         });
+
+        editMenuBar.setText("Edit");
+        jMenuBar1.add(editMenuBar);
+
+        ContainerConfigWindow.setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout ContainerConfigWindowLayout = new javax.swing.GroupLayout(ContainerConfigWindow.getContentPane());
         ContainerConfigWindow.getContentPane().setLayout(ContainerConfigWindowLayout);
@@ -644,9 +648,8 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         ContainerConfigWindowLayout.setVerticalGroup(
             ContainerConfigWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ContainerConfigWindowLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(containerTabPane, javax.swing.GroupLayout.PREFERRED_SIZE, 328, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
+                .addComponent(containerTabPane, javax.swing.GroupLayout.PREFERRED_SIZE, 359, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(ContainerConfigWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(ContainerConfigUpdateButton)
                     .addComponent(ContainerConfigCancelButton))
@@ -1257,6 +1260,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
     private javax.swing.JMenuItem deleteContainerOption;
     private javax.swing.JMenuItem editDockerMenuItem;
     private javax.swing.JMenu editMenu;
+    private javax.swing.JMenu editMenuBar;
     private javax.swing.JMenuItem fixlocalMenuItem;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
@@ -1273,6 +1277,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JMenuItem openShellMenuItem;
     private javax.swing.JMenuItem renameContainerOption;
