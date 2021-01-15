@@ -51,6 +51,9 @@ public class CompareTextFiles
     }
     public static boolean compare(String path1, String path2) throws IOException
     {	
+        if(path1 == null || path2 == null){
+            return false;
+        }
         BufferedReader reader1 = new BufferedReader(new FileReader(path1));
         BufferedReader reader2 = new BufferedReader(new FileReader(path2));
         String line1 = nextLine(reader1);
