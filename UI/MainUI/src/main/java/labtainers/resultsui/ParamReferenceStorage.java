@@ -142,6 +142,8 @@ public class ParamReferenceStorage {
         // 1
         new ToolTipWrapper("LOG_RANGE", "<html>Similar to LOG_TS, except the timestamped entries<br>" + 
                                         "are ranges delimited by the matching log entries.</html>"),
+        new ToolTipWrapper("RANGE_REGEX", "<html>Similar to LOG_RANGE, except the matching string<br>"+
+                                        "is a regular expression.</html>"),
         // 2 ***These items below do not appear in the comboboxes, they're here merely for reference
         new ToolTipWrapper("FILE_REGEX_TS", ""), 
       //LINETYPES

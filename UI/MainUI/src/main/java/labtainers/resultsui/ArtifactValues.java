@@ -28,7 +28,7 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
  */
 package labtainers.resultsui;
-
+import java.util.Arrays;
 import labtainers.mainui.ToolTipHandlers;
 import static labtainers.resultsui.ParamReferenceStorage.FieldType_ITEMS;
 import static labtainers.resultsui.ParamReferenceStorage.LineType_ITEMS;
@@ -66,6 +66,7 @@ public class ArtifactValues {
             
           //Parsing the artifactline 
             String[] paramParsedLine = artifactLine.split(" : ");
+            Arrays.stream(paramParsedLine).map(String::trim).toArray(unused -> paramParsedLine);
 
             //Get the resultTag
             resultTag = paramParsedLine[0].split(" = ")[0];
@@ -101,6 +102,10 @@ public class ArtifactValues {
                 //If the field type is null after looking through the field type items, then it may be under the SpecialTimeStampType array
                 if(fieldType == null)
                     fieldType = itemFinder(SpecialTimeStampType, paramParsedLine[1]);
+                if(fieldType == null){
+                    System.out.println("could not get field type for "+paramParsedLine[1]);
+                    return;
+                }
                 
                 //Does the field type consider other fields, if so then continue parsing for these values
                 if(!justFieldType.contains(fieldType.getItem())){
@@ -123,6 +128,10 @@ public class ArtifactValues {
                                 break;
                             case "LOG_RANGE":
                                 fieldType = FieldType_ITEMS[6]; //CONTAINS
+                                timeStampType = SpecialTimeStampType[1]; //LOG_RANGE
+                                break;
+                            case "RANGE_REGEX":
+                                fieldType = FieldType_ITEMS[7]; //FILE_REGEX
                                 timeStampType = SpecialTimeStampType[1]; //LOG_RANGE
                                 break;
                             default:

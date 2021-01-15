@@ -138,7 +138,7 @@ public class ResultsData {
                 resultTagList.add(resultTag); 
                 
                 //Checks if resultTag is valid or inputted
-                if(resultTag.matches("^[a-zA-Z0-9_]+$"))
+                if(resultTag.matches("^[a-zA-Z0-9_-]+$"))
                    artifactConfigLine += (resultTag + " = "); //add to artifact Config line
                 else if(resultTag.isEmpty() || resultTag.equals(""))
                    error.resultTagMissing = true;
@@ -198,6 +198,7 @@ public class ResultsData {
                 If the timeStampType is "LOG_TS" and the fieldType is "CONTAINS", then the fieldType will be "LOG_TS"
                 If the timeStampType is "LOG_TS" and the fieldType is "FILE_REGEX", then the fieldType will be "FILE_REGEX_TS"
                 If the timeStampType is "LOG_RANGE" and the fieldType is "CONTAINS", then the fieldType will be "LOG_RANGE"
+                If the timeStampType is "LOG_RANGE" and the fieldType is "FILE_REGEX", then the fieldType will be "RANGE_REGEX"
                 */
                 ToolTipWrapper fieldTypeTTW = listofArtifacts.get(i).fieldType;
                 fieldType = fieldTypeTTW.getItem();
@@ -211,6 +212,8 @@ public class ResultsData {
                 if(timeStampType.equals("LOG_RANGE")){
                     if(fieldType.equals("CONTAINS"))
                         fieldType = "LOG_RANGE";
+                    else if(fieldType.equals("FILE_REGEX"))
+                        fieldType = "RANGE_REGEX";
                 }
                 artifactConfigLine += (" : " + fieldType); 
 
@@ -224,11 +227,12 @@ public class ResultsData {
                         error.fieldTypeTokenError = true;
                     
                     //If the field type is PARAM, check if the value is a postive number or zero
-                    else if(fieldType.equals("PARAM") && !(fieldID.matches("^[0-9]+$")))
+                    else if(fieldType.equals("PARAM") && !(fieldID.trim().matches("^[0-9]+$"))){
+                        System.out.println("PARAM field id is "+fieldID);
                         error.fieldTypeParamError = true;
                     
                     //Check if the user didn't inputted anthing in the Field ID
-                    else if(fieldID.isEmpty() || fieldID.equals(""))
+                    }else if(fieldID.isEmpty() || fieldID.equals(""))
                         error.fieldIDMissing = true;
                     
                     //If all is good with the above checks, then concatenate the fieldID to the artifactLine 
@@ -305,7 +309,11 @@ public class ResultsData {
          catch (IOException ex) {
             Logger.getLogger(ResultsUI.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return resultsConfigFile.getAbsolutePath();
+        if(resultsConfigFile  != null){
+            return resultsConfigFile.getAbsolutePath();
+        }else{
+            return null;
+        }
     }
     private String getResultsPath(){
         String retval = mainUI.getCurrentLab() + File.separator + "instr_config" + File.separator + "results.config";
@@ -403,7 +411,7 @@ public class ResultsData {
         //Builds error message detailing the errors that appear in the user input
         boolean userInputCheck(int artifactIndex){
             boolean rowPassed = true;
-            String infoMsg = "Artifact Line: " + artifactIndex + System.lineSeparator();
+            String infoMsg = "Results Line: " + artifactIndex + System.lineSeparator();
 
             if(resultTagMissing){
                rowPassed = false;
