@@ -631,6 +631,13 @@ def copy_from_template(tdir, basename):
                 out_fh.write(new_line)
             else:
                 out_fh.write(line)
+    read_first = ''
+    with open('docs/read_first.txt', encoding='utf-8', mode='r') as fh:
+        read_first = fh.read()
+    read_first = read_first.replace('LABNAME', labname)
+    with open('docs/read_first.txt', encoding='utf-8', mode='w') as fh:
+        fh.write(read_first) 
+ 
     os.remove(start_config_template) 
     add_container(start_config_file, labname, basename)
 
