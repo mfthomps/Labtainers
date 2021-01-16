@@ -71,21 +71,22 @@ public class ParamValues {
             operator = null;
             
           //Parsing the paramLine 
-            String[] paramParsedLine = paramLine.split(" : ");
+            String[] paramParsedLine = paramLine.split(": ");
 
-            paramID = paramParsedLine[0];
+            paramID = paramParsedLine[0].trim();
+            //System.out.println("paramID found "+paramID);
             operator_string = paramParsedLine[1];
             //operator = itemFinder(Operator_ITEMS, operator_string);
             operator = operator_string;
-            String [] farray = paramParsedLine[2].split(";");
+            String [] farray = paramParsedLine[2].trim().split(";");
             for(String f : farray){
                 fileList.add(f);
             }
             if(operator_string.contains("REPLACE")){
-                symbol = paramParsedLine[3];
+                symbol = paramParsedLine[3].trim();
                 if(operator_string.contains("RAND")){
-                    lowerBound = paramParsedLine[4];
-                    upperBound = paramParsedLine[5];
+                    lowerBound = paramParsedLine[4].trim();
+                    upperBound = paramParsedLine[5].trim();
                 }
             }
             if(operator.equals("HASH_CREATE")){

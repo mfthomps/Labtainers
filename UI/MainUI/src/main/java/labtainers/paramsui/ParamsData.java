@@ -96,6 +96,7 @@ public class ParamsData {
             for(String paramLine : params){
                 ParamValues pv = new ParamValues(paramLine);
                 try{
+                    //System.out.println("add parsed paramLine "+paramLine);
                     pv.load();
                     listofParams.add(pv);
                     rowCount++;
@@ -148,7 +149,8 @@ public class ParamsData {
                 else if(paramID.isEmpty() || paramID.equals(""))
                    error.paramIDMissing = true;
                 else{
-                   System.out.println("Param ID"+ paramID);
+                   System.out.println("Bad characters in Param ID"+ paramID);
+                   System.out.println(paramConfigLine);
                    error.paramError = true;
                 }
                 String operator = listofParams.get(i).operator;
@@ -452,12 +454,12 @@ public class ParamsData {
             if(paramsConfig.exists()){
                 try (FileReader fileReader = new FileReader(paramsConfig)) {
                     BufferedReader bufferedReader = new BufferedReader(fileReader); 
-                    String line = bufferedReader.readLine();
+                    String line = bufferedReader.readLine().trim();
                     String param_line = ""; 
                     while (line != null) {                 
-                        //just checks if the first character is: not empty, not a hash, and not whitspace)
                         param_line = param_line + line; 
-                        if(!line.isEmpty() && line.charAt(0) != '#' && !Character.isWhitespace(line.charAt(0))){
+                        //if(!line.isEmpty() && line.charAt(0) != '#' && !Character.isWhitespace(line.charAt(0))){
+                        if(line.length() > 0 && line.charAt(0) != '#'){ 
                             params.add(param_line);
                             param_line = "";
                         }else{
