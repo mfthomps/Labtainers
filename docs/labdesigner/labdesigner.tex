@@ -1344,6 +1344,8 @@ no {\tt line\_type} or {\tt line\_id} fields.
 \item \textbf{FILE\_REGEX\_TS} Like LOG\_TS, but uses regular expressions.
 \item \textbf{LOG\_RANGE}  -- Similar to LOG\_TS, except the timestamped entries
                              are ranges delimited by the matching log entries.
+\item \textbf{RANGE\_REGEX}  -- Similar to LOG\_RANGE, except the string is treated
+                             as a regular expression when looking for matches.
 \item \textbf{STRING\_COUNT}--The result value is set to the quantity of
                              occurances of the string represented in field\_id.
 \item \textbf{COMMAND\_COUNT}-Intended for use with bash\_history files, counts
