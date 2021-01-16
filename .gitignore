@@ -5,3 +5,4 @@
 *.pyc
 *.log
 *.tar
+/UI/MainUI/target/
