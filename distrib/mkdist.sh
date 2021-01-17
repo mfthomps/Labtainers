@@ -19,7 +19,7 @@ function contains() {
     return 1
 }
 commit=`git describe --always`
-revision=`git tag`
+revision=`git tag | tail -n 1`
 skip="skip-labs"
 skiplist=""
 lines=`cat $skip`
@@ -27,7 +27,7 @@ for line in $lines; do
     lab=$(basename $line)
     skiplist+=($lab)
 done
-mkdir -p /tmp/labtainer_pdf_$USER
+mkdir -p /tmp/labtainer_pdf_$USER/labtainer_pdf
 here=`pwd`
 cd ../
 rootdir=`pwd`
@@ -50,10 +50,10 @@ else
 fi
 git archive $branch README.md | tar -x -C $ltrunk
 #git archive $branch | tar -x -C $ltrunk
-sed -i "s/mm\/dd\/yyyy/$(date '+%m\/%d\/%Y %H:%M')/" $ltrunk/README.md
-sed -i "s/^Revision:/Revision: $revision/" $ltrunk/README.md
-sed -i "s/^Commit:/Commit: $commit/" $ltrunk/README.md
-sed -i "s/^Branch:/Branch: $branch/" $ltrunk/README.md
+sed -i "s/^Distribution created:.*$/$(date '+%m\/%d\/%Y %H:%M')/" $ltrunk/README.md
+sed -i "s/^Revision:.*$/Revision: $revision/" $ltrunk/README.md
+sed -i "s/^Commit:.*$/Commit: $commit/" $ltrunk/README.md
+sed -i "s/^Branch:.*$/Branch: $branch/" $ltrunk/README.md
 #git archive master config | tar -x -C $ltrunk
 $here/fix-git-dates.py config $ltrunk $branch
 $here/fix-git-dates.py setup_scripts $ltrunk $branch
@@ -101,7 +101,7 @@ cp $docs/student/labtainer-student.pdf $ldir/
 cp $docs/instructor/labtainer-instructor.pdf $ldir/
 cd $ddir
 tar -cz -X $here/skip-labs -f $here/labtainer.tar labtainer
-cd /tmp/
+cd /tmp/labtainer_pdf_$USER
 #tar -czf $here/labtainer_pdf.tar.gz labtainer_pdf
 zip -qq -r $here/labtainer_pdf.zip labtainer_pdf
 cd $here

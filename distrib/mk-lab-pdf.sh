@@ -13,7 +13,7 @@ function contains() {
     return 1
 }
 rootdir=`pwd`
-LABPDF=/tmp/labtainer_pdf_$USER
+LABPDF=/tmp/labtainer_pdf_$USER/labtainer_pdf
 mkdir -p $LABPDF
 skip="distrib/skip-labs"
 skiplist=""

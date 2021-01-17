@@ -13,7 +13,7 @@ The Labtainers website, and downloads (including VM appliances with Labtainers p
 
 [Papers]: https://my.nps.edu/web/c3o/labtainers#papers
 
-Distribution created: mm/dd/yyyy
+Distribution created: 
 Revision:
 Commit:
 Branch:
@@ -72,6 +72,8 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+January 15, 2021
+- Change management of README date/rev to update file in source repo.
 
 December 21, 2020
 - The gradelab function failed when zip files were copied from a VirtualBox shared folder.
