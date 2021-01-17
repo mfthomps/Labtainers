@@ -1,11 +1,37 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+This software was created by United States Government employees at 
+The Center for Cybersecurity and Cyber Operations (C3O) 
+at the Naval Postgraduate School NPS.  Please note that within the 
+United States, copyright protection is not available for any works 
+created  by United States Government employees, pursuant to Title 17 
+United States Code Section 105.   This software is in the public 
+domain and is not subject to copyright. 
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
  */
 package labtainers.paramsui;
 import java.awt.Dimension;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Arrays;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
@@ -29,6 +55,7 @@ public class ParamPanels extends javax.swing.JPanel {
     ParamsData dataUI;
     int rowNum;
     String comments="";
+    ArrayList<String> containers;
     
     /**
      * Creates new form ParamsPanel
@@ -39,34 +66,34 @@ public class ParamPanels extends javax.swing.JPanel {
         this.uiParam = ui;
         this.dataUI = ui.data;
         this.rowNum = rowNum;
+        this.containers = containers;
         
         jLabel3.setText(Integer.toString(rowNum));
         LowerBoundTextField.setVisible(false);
                 
         setComboItems(OperationComboBox, Operator_ITEMS);
         System.out.println("num containers "+containers.size());
-        ContainerComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(containers.toArray(new String[containers.size()])));   
     }
 
     //Loading params line
-    public ParamPanels(ParamsUI ui, ArrayList<String> containers, int rowNum, String paramID, String container, 
-              String fileID, String operator, String symbol, 
+    public ParamPanels(ParamsUI ui, ArrayList<String> containers, int rowNum, String paramID, ArrayList<String> fileList, 
+              String operator, String symbol, 
               String hashedString, String upperBound, String lowerBound, String comments){
         initComponents();
         this.uiParam = ui;
         this.dataUI = ui.data;
         this.rowNum = rowNum;
         this.comments = comments;
+        this.containers = containers;
         jLabel3.setText(Integer.toString(rowNum));      
         
         setComboItems(OperationComboBox, Operator_ITEMS);
-        ContainerComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(containers.toArray(new String[containers.size()])));
         
         //Set Values
-        setContainerComboBox(container);       
         setOperatorComboBox(operator);
         setParamIDTextField(paramID);
-        setFileTextField(fileID);        
+        String file_list = String.join(";", fileList);
+        setFileTextField(file_list);        
         setSymbolTextField(symbol);        
         setHashedStringTextField(hashedString);        
         setUpperBoundTextField(upperBound);        
@@ -97,7 +124,7 @@ public class ParamPanels extends javax.swing.JPanel {
         LowerBoundTextField = new javax.swing.JTextField();
         UpperBoundTextField = new javax.swing.JTextField();
         HashedStringTextField = new javax.swing.JTextField();
-        ContainerComboBox = new javax.swing.JComboBox<>();
+        ShowListButton = new javax.swing.JButton();
         DocButton = new javax.swing.JButton();
 
         setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -168,9 +195,10 @@ public class ParamPanels extends javax.swing.JPanel {
         HashedStringTextField.setToolTipText("String to be hashed.");
         HashedStringTextField.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Hashed string"));
 
-        ContainerComboBox.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                ContainerComboBoxItemStateChanged(evt);
+        ShowListButton.setText("jButton1");
+        ShowListButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ShowListButtonActionPerformed(evt);
             }
         });
 
@@ -181,13 +209,13 @@ public class ParamPanels extends javax.swing.JPanel {
             .addGroup(ParamPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(ParamIDTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(ContainerComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addGap(35, 35, 35)
                 .addComponent(OperationComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(FileNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addComponent(FileNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 234, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(ShowListButton, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(120, 120, 120)
                 .addComponent(SymbolTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(31, 31, 31)
                 .addComponent(LowerBoundTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -200,18 +228,20 @@ public class ParamPanels extends javax.swing.JPanel {
         ParamPanelLayout.setVerticalGroup(
             ParamPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(ParamPanelLayout.createSequentialGroup()
-                .addGroup(ParamPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(ParamIDTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(ParamPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(ParamPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(LowerBoundTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(SymbolTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(FileNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(UpperBoundTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(HashedStringTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(ParamPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(OperationComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(ContainerComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addGroup(ParamPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(ParamPanelLayout.createSequentialGroup()
+                        .addGap(1, 1, 1)
+                        .addGroup(ParamPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(ParamPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(ParamIDTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(OperationComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(ParamPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(LowerBoundTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(SymbolTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(UpperBoundTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(HashedStringTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addComponent(ShowListButton)
+                    .addComponent(FileNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 23, Short.MAX_VALUE))
         );
 
@@ -281,10 +311,6 @@ public class ParamPanels extends javax.swing.JPanel {
         deleteButton();
     }//GEN-LAST:event_DeleteButtonActionPerformed
 
-    private void ContainerComboBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_ContainerComboBoxItemStateChanged
-        // TODO add your handling code here:
-    }//GEN-LAST:event_ContainerComboBoxItemStateChanged
-
     private void OperationComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_OperationComboBoxActionPerformed
         //operatorListener();
     }//GEN-LAST:event_OperationComboBoxActionPerformed
@@ -307,6 +333,35 @@ public class ParamPanels extends javax.swing.JPanel {
             this.comments = panel.getDoc();
         }
     }//GEN-LAST:event_DocButtonActionPerformed
+
+    private void ShowListButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ShowListButtonActionPerformed
+        String file_list = getFileTextField().getText();
+        //ContainerFileTable panel = new ContainerFileTable(this.containers, this.fileList);
+        String fileArray[] = file_list.split(";");
+        List<String> list = new ArrayList<String>();
+	list = Arrays.asList(fileArray);
+        ArrayList<String> fileList = new ArrayList<String>(list); 
+        ContainerFileDialog panel = new ContainerFileDialog(this.containers, fileList);
+
+        //panel.tableSetup();
+        panel.setOpaque(true);
+        JDialog dialog = new JDialog();
+        panel.setDialog(dialog);
+        //dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setModal(true);
+        dialog.add(panel);
+        dialog.pack();
+        dialog.setLocation(200, 200);
+        dialog.setTitle("Files to modify");
+        dialog.setVisible(true);
+        if(panel.isOK()){
+            System.out.println("is ok ");
+            fileList = panel.getFileList();
+            file_list = String.join(";", fileList);
+            setFileTextField(file_list);
+        }
+        dialog.dispose();
+    }//GEN-LAST:event_ShowListButtonActionPerformed
     
     private void deleteButton(){
        JPanel panelOfParams = (JPanel)this.getParent();
@@ -373,9 +428,6 @@ public class ParamPanels extends javax.swing.JPanel {
     public JTextField getUpperBoundTextField(){
         return UpperBoundTextField;
     }
-    public JComboBox<String> getContainerComboBox(){
-        return ContainerComboBox;
-    }    
     public String getComments(){
         return this.comments;
     }
@@ -398,16 +450,12 @@ public class ParamPanels extends javax.swing.JPanel {
     private void setUpperBoundTextField(String v){
         UpperBoundTextField.setText(v);
     }
-    private void setContainerComboBox(String v){
-        ContainerComboBox.setSelectedItem(v);
-    }    
     private void setOperatorComboBox(String v){
         ToolTipWrapper tip = ParamReferenceStorage.getWrapper(Operator_ITEMS, v);
         OperationComboBox.setSelectedItem(tip);
     }    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JComboBox<String> ContainerComboBox;
     private javax.swing.JButton DeleteButton;
     private javax.swing.JButton DocButton;
     private javax.swing.JButton DownButton;
@@ -417,6 +465,7 @@ public class ParamPanels extends javax.swing.JPanel {
     private javax.swing.JComboBox<ToolTipWrapper> OperationComboBox;
     private javax.swing.JTextField ParamIDTextField;
     private javax.swing.JPanel ParamPanel;
+    private javax.swing.JButton ShowListButton;
     private javax.swing.JTextField SymbolTextField;
     private javax.swing.JButton UpButton;
     private javax.swing.JTextField UpperBoundTextField;

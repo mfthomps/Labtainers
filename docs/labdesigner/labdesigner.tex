@@ -93,7 +93,7 @@ than do VMs.  A student laptop that struggles to run two or more VMs can readily
 run multiple containers simultaneously, as shown in this 50 second demonstration: \url{https://youtu.be/JDV6jGF3Szw} 
 
 Lab designers enhance labs to include automated assessment using directives built into the famework.
-For example, ten rather simple directives can evaluate the following question regarding a student'
+For example, ten rather simple directives can evaluate the following question regarding student
 work on a lab depicted in Figure \ref{fig:dmz}:
 
 ``Was there any
@@ -104,16 +104,13 @@ single iptables configuration during which the student used nmap to demonstrate 
 \end{itemize}
 
 \subsection {Obtaining the Labtainer development kit}
-Installation of Labtainers is described in the \textit{Labtainer Student Guide},  
+Installation of Labtainers is described in the \textit{Labtainer Student Guide}.  
 which also includes instructions for installing an Ubuntu VM (if you do not already have a Linux system),
-and the Labtainer framework.  Our website also distributes pre-packaged VM appliances that already have
-Labtainers installed. Labtainers will work with any Linux
-distribution that supports Docker containers.  If you already have Docker installed on a Linux system, 
+and the Labtainer framework.  If you already have Docker installed on a Linux system, 
 reference the Student Guide for other dependencies. 
 
 The difference between the development kit and the standard Labtainer distribution is primarily
-just the lab definition files, which are withheld from the general distribution for efficiency.
-
+the lab definition files, which are withheld from the general distribution for efficiency.
 
 If you have a Labtainer installation (e.g., our pre-packaged VM), you can get the developer files by going to your
 labtainers directory, e.g., {\tt \~{}/labtainer/} and running {\tt ./update-designer.sh}
@@ -156,20 +153,18 @@ environment as seen by the student is not noticeably augmented to support the fr
 Labtainers are intended for use on individual student computers, e.g., a laptop,
 or potentially a VM allocated to the student from within a VM farm. \footnote{Labtainers
 can also support labs in which students collaborate (or compete) on shared infrastructure.
-Please see section \ref{multi user} for information on multi-user environments.}
+Please see section \ref{multi user} for information on multi-user environments. We have not yet
+created any multi-user labs.}
 The computer utilized by a student must include the Linux operating system, e.g.,
 as a single VM.  This Linux operating system, referred to herein
 as the \textit{Linux host}, can be any distribution and version
-which supports Docker.  Students download and expand a tarball, and run
-an installation script as described in the \textit{Labtainer Student Guide}
-\footnote{This tarball may someday be replaced by standard Linux distribution packages,
-e.g., Debian and/or RPM packages.} Alternately, students can use a Linux VM
+which supports Docker.  Most students will use a Linux VM appliance
 that is pre-configured with Labtainers and Docker, and is available at our website.
 
 It is suggested that the student's Linux host be a virtual machine that is
 not used for purposes requiring trust.  Software programs contained in cybersecurity lab
 exercises are not, in general, trusted.  And while Docker containers provide namespace
-isolation between the containers and the Linux host, the containers run as privileged.
+isolation between the containers and the Linux host, the containers run as privileged processes.
 
 Labtainer exercises can include networking to external hosts, e.g., a Windows VM
 running alongside the Linux host VM, as described in section \ref{external hosts}.
@@ -200,7 +195,8 @@ e.g., via email or a learning management system (LMS).  The instructor collects 
 directory on his or her own Linux host, and then issues a command that
 results in automated assessment of student lab
 activity, (if the lab is designed for that), and the optional creation of an environment
-in which the instructor can review the work of each student.
+in which the instructor can review the work of each student.  See the \textit{Instructor Guide} for details
+of assessment functions.
 
 Many cybersecurity lab exercises are assessed through use of reports in which students
 describe their activities and answer specific questions posed by the instructor.  Labtainers
@@ -219,11 +215,73 @@ to allow you to focus more time on the design of the lab and less time on mitiga
 explaining system administration and provisioning burdens you would otherwise place on 
 students and instructors.
 
-Typical steps for developing a new lab are:
+Labtainers includes a GUI for creating and maintaining labs.  Alternately, you can create
+and maintain labs using the command line as described in \ref{command-line}.   Each approach is summerized below.
+
+\subsection{GUI-based lab creation}
+The following step-by-step instructions create a simple lab having two computers, one of which
+contains a lab-specific program, and connected by a network. \footnote{These instructions assume you are
+familiar with basics of Unix command line and file operations.  The UI allows you to avoid many command line
+operations, however you still must create and manage files that will be present in the lab.}
+
+\subsubsection{Start the labedit UI}
+Start the Labtainers Lab Editor using the {\tt labedit} command from any directory,  If
+the {\tt labedit} command is not in your path, try logging out and back in (the {\tt update-designer.sh}
+script should have added that to your path.)  
+
+The GUI resulting from {\tt labedit} will initially open the {\tt telnetlab}. 
+
+\subsubsection{New lab creation}
+Select {\tt File} / {\tt New Lab}
+to create a new lab.  Give the lab a name in the resulting dialog, and accept the default base configuration.  
+A new container having the same name
+as the lab is initially created for the lab. 
+
+This simple lab that you have just created contains one container that does not yet include lab-specific files.
+
+\subsubsection{Test initial lab}
+You can test this simple container via {\tt Run} / {\tt Build \& run}.  \textbf{Note:} Popup menus will remain open
+while Labtainers builds and starts the lab.  Depending on the lab, this may take some time.
+You will see a new virtual terminal opened with a title reflecting the name you have given your new lab.  That terminal
+is connected to a simple Ubuntu computer, that is your running lab.  
+
+\subsubsection{Stop the lab}
+Use {\tt Run} / {\tt Stop lab} to stop the lab.  
+
+\subsubsection{Add a program to the container}
+Then right-click on the container name in the {\tt Containers} pane
+and select {\tt Open shell in container dir}, which will create a shell in the subdirectory used by Labtainers to
+determine what is to present on the container when it runs.  Create an executable within that directory, e.g., a
+{\tt hello\_world.sh} script and make it executable.
+
+Use {\tt Build and run} to rebuild your lab and confirm the presence and function of the program that you added.
+Then stop the lab.
+
+\subsubsection{Add a 2nd computer}
+Click the {\tt Add} button above the {\tt Containers} pane and provide a name for the new computer.
+
+\subsubsection{Add a network}
+Click the {\tt Add} button above the {\tt Networks} pane and provide a name for the network and give it a
+netmask of the form {\tt xxx.xxx.xxx.xxx/yy}, e.g., {\tt 192.10.0.0/24}.  Assign a gateway IP address (this is
+the address via which Docker communicates between the host and components on the network.)  This should not
+be an IP address of any component on your virtual network.  Do not modify any of the other network configuration
+values.  Use the {\tt Confirm} button to close the network dialog.
+
+\subsubsection{Connect computers to the network}
+Click each of the two containers in the {\tt Containers} pane and use the {\tt Networks} {\tt Add} button to 
+add the network to the container and assign it a unique IP address.  Use the {\tt Confirm} button to close the
+container dialogs.
+
+Restart the lab and use {\tt ifconfig} (or {\tt ip addr}) on each computer to confirm IP address assignment and ping one computer from
+the other.   Use {\tt stop lab} to stop the lab.
+
+\subsection{Command line lab creation}
+\label{command-line}
+Typical steps for developing a new lab using the command line are:
 \begin{enumerate}
-\item Give the lab a name and create its computers using the {\tt new\_lab\_setup.py} script;
-\item Choose the starting baseline configuration for each computer and add software packages
-within a Dockerfile;
+\item Give the lab a name and create its computers using the {\tt new\_lab\_setup.py} script, identifying the
+desired based container images;
+\item Add software packages within a Dockerfile;
 \item Define networks and connections to the lab computers in the lab's {\tt start.config} file.
 \item Populate the user's HOME directory and system directories with lab-specific files.
 \end{enumerate}
@@ -232,7 +290,7 @@ following section \ref{execution environment}, covers the other three
 steps.  After a lab is created, you can then optionally parameterize it per section \ref{parameterize} and/or
 define criteria for automated assessment per section \ref{assessment}
 
-\subsection{Create the first lab computer}
+\subsubsection{Create the first lab computer}
 Labtainer exercises each have their own
 directory under the ``labs'' directory in the project repository.
 The first step in creating a new lab within the framework is to create
@@ -260,7 +318,7 @@ The result of running {\tt new\_lab\_setup.py} is a new labtainer lab that can b
 While this new lab will initially only present you with a bash shell to an
 empty directory on a Linux computer, it is worth testing the lab to understand the workflow.
 
-\subsection{Testing the new lab}
+\subsubsection{Testing the new lab}
 Once a new lab directory is created, and the new\_lab\_setup.py has been run, then 
 you can test the new, (currently empty) lab.  All student labs are launched from the
 labtainer-student directory.  Lab development workflow is easiest if at least two
@@ -324,7 +382,7 @@ the lab has but one container, whose name defaults to the lab name.
 The following sections describe how to further alter the lab execution environment seen by 
 the student.
 
-\subsection {Multiple containers}
+\subsubsection {Multiple containers}
 The {\tt new\_lab\_setup.py} script can be used to create additional containers for use
 in the lab.  For example, from your new lab directory:
 \begin{verbatim}
@@ -352,7 +410,7 @@ by the configuration of the associated container.
 
 Software packages are defined in each container's Dockerfile, described in 
 the subsection below. That is followed by subsection \ref{start config} describing network definitions,
-(and other computer attributes) in the start.config file.  The remaining subsections then
+(and other computer attributes) in the start.config file or GUI.  The remaining subsections then
 described populating the user HOME directory and system directories, and methods for starting 
 system services and miscellaneous environment settings. 
 
@@ -364,13 +422,16 @@ Section \ref{persistent} describes how to
 allow students to share tools they've developed between different labs.  
 
 \subsection {Docker files}
-A default Labtainer-specific Dockerfile is placed in the new lab's ``Dockerfiles'' 
+A Labtainer-specific Dockerfile is placed in the new lab's ``Dockerfiles'' 
 directory when the new lab is created.  And additional Dockerfiles are added when the
-{\tt new\_lab\_setup.py -a} script adds computers to the lab. We use standard Docker file syntax, which is described at 
-\url{https://docs.docker.com/engine/reference/builder/}
+new computers are added via the GUI, or via {\tt new\_lab\_setup.py -a} script. 
+We use standard Docker file syntax, which is described at 
+\url{https://docs.docker.com/engine/reference/builder/}  The Dockerfile for container
+can be opened by clicking on the container and selecting the Docker tab.
 
-Simple labs should be able to use the default Dockerfile copied by the 
-new\_lab\_setup.py script.  That Dockerfile refers to a base Labtainer
+Dockerfiles vary depending on the base configuration selected for the computer in the GUI,
+or using the {\tt --base\_name} option in the {\tt new\_lab\_setup.py} script.
+The default {\tt base} Dockerfile refers to a Labtainer
 image that contains the minimum set of Linux packages necessary to 
 host a lab within the framework.  The default
 execution environment builds off of a recent Ubuntu image.
@@ -385,11 +446,6 @@ execution environment builds off of a recent Ubuntu image.
 \end{verbatim}
 
 The first line of each Dockerfile identifies the baseline Labtainer image to be pulled from the Docker Hub.
-The initial default image is a basic Ubuntu system with a minimal set of packages.  To use an
-alternate image having additional networking packges (e.g., tcpdump, xinetd, sshd), change the first line to:
-\begin{verbatim}
-FROM $registry/labtainer.network
-\end{verbatim}
 \noindent Base images include:
 \begin{itemize}
 \item labtainer.base -- Minimal Ubuntu system.
@@ -417,10 +473,12 @@ RUN apt-get update && apt-get install -y some_package
 You will also see ``ADD'' commands in the Docker file that populate the container
 directories with lab-specific files such as described in section \ref{home files}.
 
-Next, you must also describe your containers within the \textit{start.config} file as described below.
-
 \subsection{Container definitions in start.config}
 \label{start config}
+This section is primarily for designers who use the command line, though GUI users may
+find the descriptions below to be helpful.  The GUI provides interfaces
+for setting these configuration values, and includes tool-tip for most of them.  
+
 Most single container labs can use the automatically generated start.config file
 without modification.  Adding networks to containers and defining users other than the
 default "ubuntu" user requires modification of the start.config file.
@@ -1286,6 +1344,8 @@ no {\tt line\_type} or {\tt line\_id} fields.
 \item \textbf{FILE\_REGEX\_TS} Like LOG\_TS, but uses regular expressions.
 \item \textbf{LOG\_RANGE}  -- Similar to LOG\_TS, except the timestamped entries
                              are ranges delimited by the matching log entries.
+\item \textbf{RANGE\_REGEX}  -- Similar to LOG\_RANGE, except the string is treated
+                             as a regular expression when looking for matches.
 \item \textbf{STRING\_COUNT}--The result value is set to the quantity of
                              occurances of the string represented in field\_id.
 \item \textbf{COMMAND\_COUNT}-Intended for use with bash\_history files, counts

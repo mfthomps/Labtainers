@@ -1,11 +1,36 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+This software was created by United States Government employees at 
+The Center for Cybersecurity and Cyber Operations (C3O) 
+at the Naval Postgraduate School NPS.  Please note that within the 
+United States, copyright protection is not available for any works 
+created  by United States Government employees, pursuant to Title 17 
+United States Code Section 105.   This software is in the public 
+domain and is not subject to copyright. 
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
  */
 package labtainers.resultsui;
 
 import labtainers.mainui.ToolTipHandlers;
+import labtainers.mainui.CompareTextFiles;
 import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -13,6 +38,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -81,7 +108,8 @@ public class ResultsData {
 //WRITING~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
     //Update the results.config file with the user's input
-    public void writeResultsConfig(boolean usetmp){
+    public String writeResultsConfig(boolean usetmp){
+         File resultsConfigFile = null;
          try {
             String resultTag,
                        container,
@@ -110,7 +138,7 @@ public class ResultsData {
                 resultTagList.add(resultTag); 
                 
                 //Checks if resultTag is valid or inputted
-                if(resultTag.matches("^[a-zA-Z0-9_]+$"))
+                if(resultTag.matches("^[a-zA-Z0-9_-]+$"))
                    artifactConfigLine += (resultTag + " = "); //add to artifact Config line
                 else if(resultTag.isEmpty() || resultTag.equals(""))
                    error.resultTagMissing = true;
@@ -170,6 +198,7 @@ public class ResultsData {
                 If the timeStampType is "LOG_TS" and the fieldType is "CONTAINS", then the fieldType will be "LOG_TS"
                 If the timeStampType is "LOG_TS" and the fieldType is "FILE_REGEX", then the fieldType will be "FILE_REGEX_TS"
                 If the timeStampType is "LOG_RANGE" and the fieldType is "CONTAINS", then the fieldType will be "LOG_RANGE"
+                If the timeStampType is "LOG_RANGE" and the fieldType is "FILE_REGEX", then the fieldType will be "RANGE_REGEX"
                 */
                 ToolTipWrapper fieldTypeTTW = listofArtifacts.get(i).fieldType;
                 fieldType = fieldTypeTTW.getItem();
@@ -183,6 +212,8 @@ public class ResultsData {
                 if(timeStampType.equals("LOG_RANGE")){
                     if(fieldType.equals("CONTAINS"))
                         fieldType = "LOG_RANGE";
+                    else if(fieldType.equals("FILE_REGEX"))
+                        fieldType = "RANGE_REGEX";
                 }
                 artifactConfigLine += (" : " + fieldType); 
 
@@ -196,11 +227,12 @@ public class ResultsData {
                         error.fieldTypeTokenError = true;
                     
                     //If the field type is PARAM, check if the value is a postive number or zero
-                    else if(fieldType.equals("PARAM") && !(fieldID.matches("^[0-9]+$")))
+                    else if(fieldType.equals("PARAM") && !(fieldID.trim().matches("^[0-9]+$"))){
+                        System.out.println("PARAM field id is "+fieldID);
                         error.fieldTypeParamError = true;
                     
                     //Check if the user didn't inputted anthing in the Field ID
-                    else if(fieldID.isEmpty() || fieldID.equals(""))
+                    }else if(fieldID.isEmpty() || fieldID.equals(""))
                         error.fieldIDMissing = true;
                     
                     //If all is good with the above checks, then concatenate the fieldID to the artifactLine 
@@ -252,12 +284,24 @@ public class ResultsData {
             
             if(error.passStatus()){
                 //Resets the results.config file
-                File resultsConfigFile = initializeResultConfig(usetmp);
+                resultsConfigFile = initializeResultConfig(usetmp);
 
                 try ( //Write the resultsConfigText to the results.config
                     BufferedWriter writer = new BufferedWriter(new FileWriter(resultsConfigFile, true))) {
                     writer.write(resultsConfigText+"\n");
+                    writer.close();
                 }
+                /*
+                if(usetmp){
+                    String new_file = resultsConfigFile.getAbsolutePath();
+                    String old_file = getResultsPath();
+                    boolean same = CompareTextFiles.compare(old_file, new_file);
+                    if(!same){
+                        retval = false;
+                        System.out.println("files differ");
+                    }
+                } 
+                */
             }
             else
                  JOptionPane.showMessageDialog(null, error.toString(), "INPUT ERROR", JOptionPane.ERROR_MESSAGE);
@@ -265,16 +309,32 @@ public class ResultsData {
          catch (IOException ex) {
             Logger.getLogger(ResultsUI.class.getName()).log(Level.SEVERE, null, ex);
         }
+        if(resultsConfigFile  != null){
+            return resultsConfigFile.getAbsolutePath();
+        }else{
+            return null;
+        }
     }
-    
+    private String getResultsPath(){
+        String retval = mainUI.getCurrentLab() + File.separator + "instr_config" + File.separator + "results.config";
+        return retval;
+    }
     //Checks if the results.config file exists and prepares the result.config file for the lab
     private File initializeResultConfig(boolean usetmp) throws IOException{
         //Get the filepath for the lab's results.config
         File resultsConfigFile;
         if(!usetmp){
-            resultsConfigFile = new File(mainUI.getCurrentLab() + File.separator + "instr_config" + File.separator + "results.config");
+            resultsConfigFile = new File(getResultsPath());
         }else{
-            resultsConfigFile = new File(File.separator+"tmp" + File.separator + "results.config");
+            Path tempDir=null;
+            try{
+                tempDir = Files.createTempDirectory(mainUI.getLabName());
+            }catch(IOException ex){
+                System.out.println("failed creating temporary directory" + ex);
+                System.exit(1);
+            }
+            String dir_s = tempDir.getFileName().toString();
+            resultsConfigFile = new File(File.separator+"tmp" +File.separator+dir_s+ File.separator + "results.config");
         } 
         //May not be necessary, subject to remove the base text, perhaps there is an option for the user to add their own comments
         //String baseText = 
@@ -351,7 +411,7 @@ public class ResultsData {
         //Builds error message detailing the errors that appear in the user input
         boolean userInputCheck(int artifactIndex){
             boolean rowPassed = true;
-            String infoMsg = "Artifact Line: " + artifactIndex + System.lineSeparator();
+            String infoMsg = "Results Line: " + artifactIndex + System.lineSeparator();
 
             if(resultTagMissing){
                rowPassed = false;

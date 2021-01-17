@@ -1,12 +1,37 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+This software was created by United States Government employees at 
+The Center for Cybersecurity and Cyber Operations (C3O) 
+at the Naval Postgraduate School NPS.  Please note that within the 
+United States, copyright protection is not available for any works 
+created  by United States Government employees, pursuant to Title 17 
+United States Code Section 105.   This software is in the public 
+domain and is not subject to copyright. 
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
  */
 package labtainers.paramsui;
 
 import labtainers.resultsui.*;
 import labtainers.mainui.ToolTipHandlers;
+import labtainers.mainui.CompareTextFiles;
 import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -14,7 +39,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
@@ -46,8 +74,10 @@ public class ParamsData {
     public ParamsData(ParamsData original){
         listofParams = new ArrayList<ParamValues>();
         //Deep copy the list of params
-        for(ParamValues param : original.listofParams)
-            listofParams.add(new ParamValues(param));
+        for(ParamValues param : original.listofParams){
+            ParamValues pv = new ParamValues(param);
+            listofParams.add(pv);
+        }
         
         this.rowCount = original.getRowCount();
                 
@@ -64,8 +94,18 @@ public class ParamsData {
         if(params != null){
             //Fill the list of params
             for(String paramLine : params){
-                listofParams.add(new ParamValues(paramLine));
-                rowCount++;
+                ParamValues pv = new ParamValues(paramLine);
+                try{
+                    //System.out.println("add parsed paramLine "+paramLine);
+                    pv.load();
+                    listofParams.add(pv);
+                    rowCount++;
+                }catch(java.lang.ArrayIndexOutOfBoundsException exa){
+                    System.out.println("ERROR: "+exa);
+                    System.out.println("Error retrieveData parsing parameter line: "+paramLine+"\n");
+                    mainUI.output("Error parsing parameter line: "+paramLine+"\n");
+                    mainUI.output(exa.toString());
+                }
             }
         }
     }
@@ -79,11 +119,12 @@ public class ParamsData {
 //WRITING~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
     //Update the parameter.config file with the user's input
-    public void writeParamsConfig(boolean usetmp){
+    // If usetmp return the path the temporary configuration file.
+    public String writeParamsConfig(boolean usetmp){
+         File paramsConfigFile = null;
          try {
             String paramID,
-                       container,
-                       file,
+                       containerFile,
                        symbol,
                        hashedString;
             String upperBound, lowerBound;
@@ -108,7 +149,8 @@ public class ParamsData {
                 else if(paramID.isEmpty() || paramID.equals(""))
                    error.paramIDMissing = true;
                 else{
-                   System.out.println("Param ID"+ paramID);
+                   System.out.println("Bad characters in Param ID"+ paramID);
+                   System.out.println(paramConfigLine);
                    error.paramError = true;
                 }
                 String operator = listofParams.get(i).operator;
@@ -116,27 +158,29 @@ public class ParamsData {
 
                 
               //FILEID CONFIG 
-                file = listofParams.get(i).fileID;
-                container = listofParams.get(i).container;
-                
-                if(file.isEmpty() || file.equals("")){
+                containerFile = String.join(";", listofParams.get(i).fileList);    
+                if(containerFile.length() == 0){
                     System.out.println("Bad file for param ID "+ paramID);
                     error.fileIDMissing = true;
                 }
-                    
-                //CONTAINER (if a specific container is selected)
-                if(containerList.size() > 1){
-                    paramConfigLine += container+":"+file+" : ";
-                }else{
-                    paramConfigLine += file+" : ";
-                }
+                paramConfigLine += containerFile+" : ";
                 
                 if(operator.contains("REPLACE")){
-                    symbol = listofParams.get(i).symbol;
+                    symbol = listofParams.get(i).symbol.trim();
+                    if(symbol.length() == 0){
+                        error.badSymbol = true;
+                        System.out.println("Bad symbol: "+symbol);
+                    } 
                     paramConfigLine += symbol;
                 }
                 if(operator.contains("RAND")){
-                    paramConfigLine += " : "+listofParams.get(i).lowerBound+" : "+listofParams.get(i).upperBound;
+                    String upper = listofParams.get(i).upperBound.trim();
+                    String lower = listofParams.get(i).lowerBound.trim();
+                    if(upper.length() == 0 || lower.length() == 0){
+                        error.badRange = true;
+                        System.out.println("Bad range for random values: "+lower+":"+upper);
+                    }
+                    paramConfigLine += " : "+lower+" : "+upper;
                 }
                 if(operator.contains("HASH")){
                     paramConfigLine += " : "+listofParams.get(i).hashedString;
@@ -163,12 +207,24 @@ public class ParamsData {
             
             if(error.passStatus()){
                 //Resets the parameter.config file
-                File paramsConfigFile = initializeParamConfig(usetmp);
+                paramsConfigFile = initializeParamConfig(usetmp);
 
                 try ( //Write the paramConfigText to the params.config
                     BufferedWriter writer = new BufferedWriter(new FileWriter(paramsConfigFile, true))) {
                     writer.write(paramsConfigText+"\n");
+                    writer.close();
                 }
+                /*
+                if(usetmp){
+                    String new_file = paramsConfigFile.getAbsolutePath();
+                    String old_file = getParamFileName();
+                    boolean same = CompareTextFiles.compare(old_file, new_file);
+                    if(!same){
+                        retval = false;
+                        System.out.println("files differ");
+                    }
+                } 
+                */
             }
             else
                  JOptionPane.showMessageDialog(null, error.toString(), "INPUT ERROR", JOptionPane.ERROR_MESSAGE);
@@ -176,15 +232,32 @@ public class ParamsData {
          catch (IOException ex) {
             Logger.getLogger(ParamsUI.class.getName()).log(Level.SEVERE, null, ex);
         }
+        if(paramsConfigFile != null){
+            return paramsConfigFile.getAbsolutePath();
+        }else{
+            return null;
+        }
     }
-    
+    private String getParamFileName(){
+        String retval = mainUI.getCurrentLab() + File.separator + "config" + File.separator + "parameter.config";
+        return retval;
+    } 
     //Checks if the parameter.config file exists and prepares the parameter.config file for the lab
     private File initializeParamConfig(boolean usetmp) throws IOException{
         //Get the filepath for the lab's parameter.config
+        File paramsConfigFile=null;
         if(!usetmp){
-            paramsConfigFile = new File(mainUI.getCurrentLab() + File.separator + "config" + File.separator + "parameter.config");
+            paramsConfigFile = new File(getParamFileName());
         }else{
-            paramsConfigFile = new File(File.separator + "tmp" + File.separator + "parameter.config");
+            Path tempDir=null;
+            try{
+                tempDir = Files.createTempDirectory(mainUI.getLabName());
+            }catch(IOException ex){
+                System.out.println("failed creating temporary directory" + ex);
+                System.exit(1);
+            }
+            String dir_s = tempDir.getFileName().toString();
+            paramsConfigFile = new File(File.separator+"tmp"+File.separator+dir_s + File.separator + "parameter.config");
         } 
         if(paramsConfigFile.exists()){ 
             //Overwrite parameter.config file if it already exists
@@ -215,7 +288,9 @@ public class ParamsData {
                 fileError,
 
                 paramIDMissing,
-                fileIDMissing;
+                fileIDMissing,
+                badRange,
+                badSymbol;
         
         
         ErrorHandler(){
@@ -235,6 +310,8 @@ public class ParamsData {
 
             paramIDMissing = false;
             fileIDMissing = false;
+            badRange = false;
+            badSymbol = false;
             
         }
         
@@ -255,6 +332,14 @@ public class ParamsData {
                rowPassed = false;
                infoMsg+= "-Make sure your Param ID has only alphanumeric characters or underscores." + System.lineSeparator();
             }
+            if(badRange){
+               rowPassed = false;
+               infoMsg+= "-Make sure your random range values are set." + System.lineSeparator();
+            }
+            if(badSymbol){
+               rowPassed = false;
+               infoMsg+= "-Make sure your symbol to be replaced is set." + System.lineSeparator();
+             }
             //if(fileError){
             //   rowPassed = false;
             //   infoMsg+= "-Make sure your File ID file's extentsion ends in \".stdin\", \".stdout\", or \".prgout\"." + System.lineSeparator() + " Or is a file path." + System.lineSeparator();
@@ -369,12 +454,12 @@ public class ParamsData {
             if(paramsConfig.exists()){
                 try (FileReader fileReader = new FileReader(paramsConfig)) {
                     BufferedReader bufferedReader = new BufferedReader(fileReader); 
-                    String line = bufferedReader.readLine();
+                    String line = bufferedReader.readLine().trim();
                     String param_line = ""; 
                     while (line != null) {                 
-                        //just checks if the first character is: not empty, not a hash, and not whitspace)
                         param_line = param_line + line; 
-                        if(!line.isEmpty() && line.charAt(0) != '#' && !Character.isWhitespace(line.charAt(0))){
+                        //if(!line.isEmpty() && line.charAt(0) != '#' && !Character.isWhitespace(line.charAt(0))){
+                        if(line.length() > 0 && line.charAt(0) != '#'){ 
                             params.add(param_line);
                             param_line = "";
                         }else{
@@ -409,7 +494,12 @@ public class ParamsData {
            //RESULTS TAG
            String paramID = ((ParamPanels) param).getParamIDTextField().getText();
            String file = ((ParamPanels) param).getFileTextField().getText();
-           String container = (String) (((ParamPanels) param).getContainerComboBox().getSelectedItem());
+           ArrayList<String> fileList = new ArrayList<String>();
+           String [] farray = file.split(";");
+           for(String f : farray){
+               fileList.add(f);
+           }
+           //String container = (String) (((ParamPanels) param).getContainerComboBox().getSelectedItem());
            ToolTipHandlers.ToolTipWrapper operatorTT = (ToolTipHandlers.ToolTipWrapper) (((ParamPanels) param).getOperatorComboBox().getSelectedItem());
            String operator = operatorTT.getItem();
            String symbol = ((ParamPanels) param).getSymbolTextField().getText();
@@ -418,7 +508,7 @@ public class ParamsData {
            String upperBound = ((ParamPanels) param).getUpperBoundTextField().getText();
            String comments = ((ParamPanels) param).getComments();
            
-           listofParamsTMP.add(new ParamValues(paramID, container, file, operator, symbol, hashedString, lowerBound, upperBound, comments));
+           listofParamsTMP.add(new ParamValues(paramID, fileList, operator, symbol, hashedString, lowerBound, upperBound, comments));
        }
        
        listofParams = listofParamsTMP; //overwrite the old listofParams with the temp listofParams
@@ -456,8 +546,16 @@ public class ParamsData {
         if(paramLines != null){
 
             for(String paramLine : paramLines){
-                ParamValues values = new ParamValues(paramLine);
-                officialListofParams.add(values);
+                ParamValues pv = new ParamValues(paramLine);
+                try{
+                    pv.load();
+                    officialListofParams.add(pv);
+                }catch(java.lang.ArrayIndexOutOfBoundsException exa){
+                    System.out.println("ERROR: "+exa);
+                    System.out.println("Error getParamValuesOfConfigFile parsing parameter line: "+paramLine+"\n");
+                    mainUI.output("Error parsing parameter line: "+paramLine+"\n");
+                    mainUI.output(exa.toString());
+                }
             } 
             return officialListofParams;
         }
@@ -465,56 +563,17 @@ public class ParamsData {
             return null;
     }
     
-    //Compares the data of two lists of ParamValues. If there is a difference then return 'true', 'false' otherwise
-    static boolean paramValuesDiffer(List<ParamValues> list1, List<ParamValues> list2){
-        if(list1.size() != list2.size()){  
-            return true;
-        }
-        else{
-            //This is a gross implemenation of comparing each individual value between two sets of Param Values (Maybe conisder implementing the ParamValues Class as a comparable)
-            for(int i=0;i<list1.size();i++){
-                printlistValues(list1, list2, i);  
-                if(!list1.get(i).container.equals(list2.get(i).container))
-                    return true;
-                else if(!list1.get(i).fileID.equals(list2.get(i).fileID))
-                    return true;
-            }
-        }     
-        return false;
-    }
-    
-    //Used for debugging in the paramValuesDiffer(List<ParamValues> list1, List<ParamValues> list2) method
-    static private void printlistValues(List<ParamValues> list1, List<ParamValues> list2, int i){
-        System.out.println("Param ID: ");
-                    System.out.println("UI: "+list1.get(i).paramID);
-                    System.out.println("Config: "+list2.get(i).paramID);
-                    System.out.println();
-                
-                    System.out.println("File ID: ");
-                    System.out.println("UI: "+list1.get(i).fileID);
-                    System.out.println("Config: "+list2.get(i).fileID);
-                    System.out.println();
-                    
-                    System.out.println("UI: "+list1.get(i).container);
-                    System.out.println("Config: "+list2.get(i).container);
-                    System.out.println();
-                
-                
-                
-                
-                
-                
-    }
     
     // Param Value objects that reference the old Container to the new Container name
+    // TBD fix this
     public void refactorContainerReference(String oldContainer, String newContainer){
         //Updates the listOfValues to reflect a change of a conainer name to a new name
         for(ParamValues param : listofParams){
             //System.out.println(param.container + " " + oldContainer);
-            if(param.container.equals(oldContainer)){
-                param.container = newContainer;
-                System.out.println(param.container);
-            }
+            //if(param.container.equals(oldContainer)){
+            //    param.container = newContainer;
+            //    System.out.println(param.container);
+            //}
         }  
         
         //Update the container list with the renamed container
@@ -531,10 +590,11 @@ public class ParamsData {
     //Updates container list and removes Param Value objects that reference the container
     public void removeContainerReference(String container){
         // Deletes all param lines that include the container
+        // TBD fix this
         ArrayList<ParamValues> toRemove = new ArrayList<ParamValues>();
         for(ParamValues param : listofParams){
-            if(param.container.equals(container))
-                toRemove.add(param);
+            //if(param.container.equals(container))
+            //    toRemove.add(param);
         }
         listofParams.removeAll(toRemove);
         

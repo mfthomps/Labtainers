@@ -1,7 +1,31 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+This software was created by United States Government employees at 
+The Center for Cybersecurity and Cyber Operations (C3O) 
+at the Naval Postgraduate School NPS.  Please note that within the 
+United States, copyright protection is not available for any works 
+created  by United States Government employees, pursuant to Title 17 
+United States Code Section 105.   This software is in the public 
+domain and is not subject to copyright. 
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
  */
 package labtainers.paramsui;
 
@@ -58,9 +82,10 @@ public class ParamsUI extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        CancelButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Parameter Configuration (Individualize labs)");
+        setTitle("Results Configuration");
         setMinimumSize(new java.awt.Dimension(1590, 500));
         setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -86,7 +111,7 @@ public class ParamsUI extends javax.swing.JFrame {
             }
         });
 
-        UpdateButton.setText("Confirm Changes");
+        UpdateButton.setText("Confirm ");
         UpdateButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 UpdateButtonActionPerformed(evt);
@@ -104,6 +129,13 @@ public class ParamsUI extends javax.swing.JFrame {
         jLabel2.setFont(new java.awt.Font("Ubuntu", 1, 15)); // NOI18N
         jLabel2.setText("Container");
 
+        CancelButton.setText("Cancel");
+        CancelButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                CancelButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -111,22 +143,29 @@ public class ParamsUI extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(ScrollPaneOfParams, javax.swing.GroupLayout.PREFERRED_SIZE, 1566, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
+                                .addContainerGap()
                                 .addComponent(CreateButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(RemoveAllButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(UpdateButton, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(91, 91, 91)
-                        .addComponent(jLabel1)
-                        .addGap(118, 118, 118)
-                        .addComponent(jLabel2)
-                        .addGap(148, 148, 148)
-                        .addComponent(jLabel5)))
+                                .addComponent(RemoveAllButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(91, 91, 91)
+                                .addComponent(jLabel1)
+                                .addGap(111, 111, 111)
+                                .addComponent(jLabel2)
+                                .addGap(148, 148, 148)
+                                .addComponent(jLabel5)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 12, Short.MAX_VALUE)
+                        .addComponent(ScrollPaneOfParams, javax.swing.GroupLayout.PREFERRED_SIZE, 1566, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addGap(542, 542, 542)
+                .addComponent(UpdateButton, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(CancelButton)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -135,16 +174,19 @@ public class ParamsUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(CreateButton)
-                    .addComponent(RemoveAllButton)
-                    .addComponent(UpdateButton))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 25, Short.MAX_VALUE)
+                    .addComponent(RemoveAllButton))
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(jLabel5)
-                    .addComponent(jLabel2))
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel5))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(ScrollPaneOfParams, javax.swing.GroupLayout.PREFERRED_SIZE, 397, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(UpdateButton)
+                    .addComponent(CancelButton))
+                .addContainerGap(36, Short.MAX_VALUE))
         );
 
         pack();
@@ -166,6 +208,12 @@ public class ParamsUI extends javax.swing.JFrame {
        mainUI.setParamsClosed();
     }//GEN-LAST:event_formWindowClosing
 
+    private void CancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CancelButtonActionPerformed
+       mainUI.setParamsClosed();
+       setVisible(false);
+       dispose(); 
+    }//GEN-LAST:event_CancelButtonActionPerformed
+
     // BUTTONS //
     
     // Adds a new param panel
@@ -178,9 +226,11 @@ public class ParamsUI extends javax.swing.JFrame {
     private void updateButton(){
         System.out.println("Update button");
         data.updateListofParams(PanelofParams);
-        saved = new ParamsData(data);
-        this.mainUI.getCurrentData().setParamsData(saved);
-        this.mainUI.updateParameters();
+        if(data.writeParamsConfig(true) != null){
+            saved = new ParamsData(data);
+            this.mainUI.getCurrentData().setParamsData(saved);
+            this.mainUI.updateParameters();
+        }
     }
     
     // Removes all the param panels
@@ -236,8 +286,7 @@ public class ParamsUI extends javax.swing.JFrame {
     private void loadParam(ParamValues paramVal, int rowNum){
         ParamPanels newParam = new ParamPanels(this, ParamsData.containerList, rowNum,
                                                         paramVal.paramID, 
-                                                        paramVal.container, 
-                                                        paramVal.fileID, 
+                                                        paramVal.fileList, 
                                                         paramVal.operator, 
                                                         paramVal.symbol, 
                                                         paramVal.hashedString, 
@@ -263,25 +312,6 @@ public class ParamsUI extends javax.swing.JFrame {
         loadUI();
     }
     
-    //Check if the the current state of the UI matches with what's saved in the parameter.config
-    /*
-    void checkUnsavedChangesMade(){
-            data.updateListofParams(PanelofParams);
-
-            if(paramValuesDiffer(data.listofParams, data.getParamValuesOfConfigFile())){
-                int confirmed = JOptionPane.showConfirmDialog(null, 
-                    "There are Unsaved Changes. Are you sure you want to exit the program?", "Unsaved Changes",
-                    JOptionPane.YES_NO_OPTION);
-
-                if (confirmed == JOptionPane.YES_OPTION) 
-                    dispose();
-                else
-                    setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-            }
-            else
-                dispose();
-    }
-    */
     
     
     // GETTERS //
@@ -338,6 +368,7 @@ public class ParamsUI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton CancelButton;
     private javax.swing.JButton CreateButton;
     private javax.swing.JPanel PanelofParams;
     private javax.swing.JButton RemoveAllButton;

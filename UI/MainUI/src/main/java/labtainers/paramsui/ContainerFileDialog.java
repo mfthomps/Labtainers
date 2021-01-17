@@ -26,34 +26,37 @@ HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
-*/
-package labtainers.goalsui;
+ */
+package labtainers.paramsui;
+import java.util.ArrayList;
+import javax.swing.JDialog;
 /**
  *
  * @author mike
  */
-public class DocPanel extends javax.swing.JPanel {
-
+public class ContainerFileDialog extends javax.swing.JPanel {
+    boolean is_ok = false;
+    JDialog dialog = null;
+    ContainerFileTable container_file_table = null;
     /**
-     * Creates new form DocPanel
+     * Creates new form ContainerFileDialog
      */
-    javax.swing.JDialog dialog;
-    boolean ok = false;
-    public DocPanel() {
+    public ContainerFileDialog(ArrayList<String> containers, ArrayList<String> fileList) {
         initComponents();
-    }
-    public void setDoc(String text){
-        this.text.setText(text);
-    }
-    public String getDoc(){
-        return this.text.getText()+"\n";
-    }
-    public void setDialog(javax.swing.JDialog dialog){
-        this.dialog = dialog;
+        container_file_table = new ContainerFileTable(containers, fileList);
+        TablePanel.add(container_file_table);
     }
     public boolean isOK(){
-        return this.ok;
+        return this.is_ok;
     }
+    public void setDialog(JDialog dialog){
+        this.dialog = dialog;
+    }
+    public ArrayList<String> getFileList(){
+        return container_file_table.getFileList();
+    }
+
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -63,14 +66,11 @@ public class DocPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jScrollPane1 = new javax.swing.JScrollPane();
-        text = new javax.swing.JTextArea();
         okButton = new javax.swing.JButton();
+        TablePanel = new javax.swing.JPanel();
         cancelButton = new javax.swing.JButton();
-
-        text.setColumns(20);
-        text.setRows(5);
-        jScrollPane1.setViewportView(text);
+        AddButton = new javax.swing.JButton();
+        DeleteButton = new javax.swing.JButton();
 
         okButton.setText("OK");
         okButton.addActionListener(new java.awt.event.ActionListener() {
@@ -79,10 +79,26 @@ public class DocPanel extends javax.swing.JPanel {
             }
         });
 
+        TablePanel.setLayout(new java.awt.GridLayout(1, 0));
+
         cancelButton.setText("Cancel");
         cancelButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cancelButtonActionPerformed(evt);
+            }
+        });
+
+        AddButton.setText("Add");
+        AddButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                AddButtonActionPerformed(evt);
+            }
+        });
+
+        DeleteButton.setText("Delete");
+        DeleteButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                DeleteButtonActionPerformed(evt);
             }
         });
 
@@ -93,28 +109,42 @@ public class DocPanel extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(296, 296, 296)
-                        .addComponent(okButton)
-                        .addGap(104, 104, 104)
-                        .addComponent(cancelButton))
-                    .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 852, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(TablePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(326, 326, 326)
+                                .addComponent(okButton)
+                                .addGap(76, 76, 76)
+                                .addComponent(cancelButton))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(264, 264, 264)
+                                .addComponent(AddButton)
+                                .addGap(159, 159, 159)
+                                .addComponent(DeleteButton)))
+                        .addGap(0, 428, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 264, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(9, 9, 9)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(okButton)
-                    .addComponent(cancelButton)))
+                    .addComponent(AddButton)
+                    .addComponent(DeleteButton))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(TablePanel, javax.swing.GroupLayout.DEFAULT_SIZE, 413, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(cancelButton)
+                    .addComponent(okButton))
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
-        this.ok = true;
+        this.is_ok = true;
         this.dialog.setVisible(false);
     }//GEN-LAST:event_okButtonActionPerformed
 
@@ -122,11 +152,20 @@ public class DocPanel extends javax.swing.JPanel {
         this.dialog.setVisible(false);
     }//GEN-LAST:event_cancelButtonActionPerformed
 
+    private void DeleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeleteButtonActionPerformed
+        this.container_file_table.deleteRow();
+    }//GEN-LAST:event_DeleteButtonActionPerformed
+
+    private void AddButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddButtonActionPerformed
+        this.container_file_table.addRow();
+    }//GEN-LAST:event_AddButtonActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton AddButton;
+    private javax.swing.JButton DeleteButton;
+    private javax.swing.JPanel TablePanel;
     private javax.swing.JButton cancelButton;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton okButton;
-    private javax.swing.JTextArea text;
     // End of variables declaration//GEN-END:variables
 }

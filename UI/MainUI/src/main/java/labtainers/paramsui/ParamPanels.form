@@ -146,13 +146,13 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="ParamIDTextField" min="-2" pref="138" max="-2" attributes="0"/>
-                  <EmptySpace type="separate" max="-2" attributes="0"/>
-                  <Component id="ContainerComboBox" min="-2" pref="160" max="-2" attributes="0"/>
-                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="35" max="-2" attributes="0"/>
                   <Component id="OperationComboBox" min="-2" pref="160" max="-2" attributes="0"/>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
-                  <Component id="FileNameTextField" min="-2" pref="146" max="-2" attributes="0"/>
-                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                  <Component id="FileNameTextField" min="-2" pref="234" max="-2" attributes="0"/>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <Component id="ShowListButton" min="-2" pref="25" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="120" max="-2" attributes="0"/>
                   <Component id="SymbolTextField" min="-2" pref="142" max="-2" attributes="0"/>
                   <EmptySpace min="-2" pref="31" max="-2" attributes="0"/>
                   <Component id="LowerBoundTextField" min="-2" pref="124" max="-2" attributes="0"/>
@@ -167,21 +167,24 @@
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" attributes="0">
-                  <Group type="103" groupAlignment="1" attributes="0">
-                      <Component id="ParamIDTextField" min="-2" pref="40" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="103" alignment="0" groupAlignment="3" attributes="0">
-                              <Component id="LowerBoundTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="SymbolTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="FileNameTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="UpperBoundTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="HashedStringTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="103" alignment="0" groupAlignment="3" attributes="0">
-                              <Component id="OperationComboBox" alignment="3" min="-2" pref="40" max="-2" attributes="0"/>
-                              <Component id="ContainerComboBox" alignment="3" min="-2" pref="40" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="102" attributes="0">
+                          <EmptySpace min="-2" pref="1" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="1" attributes="0">
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="ParamIDTextField" alignment="3" min="-2" pref="40" max="-2" attributes="0"/>
+                                  <Component id="OperationComboBox" alignment="3" min="-2" pref="40" max="-2" attributes="0"/>
+                              </Group>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="LowerBoundTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="SymbolTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="UpperBoundTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="HashedStringTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                              </Group>
                           </Group>
                       </Group>
+                      <Component id="ShowListButton" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Component id="FileNameTextField" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace min="0" pref="23" max="32767" attributes="0"/>
               </Group>
@@ -283,18 +286,13 @@
             </Property>
           </Properties>
         </Component>
-        <Component class="javax.swing.JComboBox" name="ContainerComboBox">
+        <Component class="javax.swing.JButton" name="ShowListButton">
           <Properties>
-            <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-              <StringArray count="0"/>
-            </Property>
+            <Property name="text" type="java.lang.String" value="jButton1"/>
           </Properties>
           <Events>
-            <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="ContainerComboBoxItemStateChanged"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ShowListButtonActionPerformed"/>
           </Events>
-          <AuxValues>
-            <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
-          </AuxValues>
         </Component>
       </SubComponents>
     </Container>

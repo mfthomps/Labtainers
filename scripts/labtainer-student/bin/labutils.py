@@ -2498,6 +2498,8 @@ def DoStop(start_config, labtainer_config, lab_path, ignore_stop_error, run_cont
 #                                     such as error encountered when trying to stop non-existent container
 def StopLab(lab_path, ignore_stop_error, run_container=None, servers=None, clone_count=None, keep_running=False):
     labname = os.path.basename(lab_path)
+    if labname.endswith('labtainer.grader'):
+        return None 
     myhomedir = os.environ['HOME']
     logger.debug("keep_running is %r" % keep_running)
     logger.debug("ParseStartConfig for %s" % labname)

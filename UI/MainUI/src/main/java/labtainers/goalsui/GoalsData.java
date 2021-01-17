@@ -1,7 +1,31 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+This software was created by United States Government employees at 
+The Center for Cybersecurity and Cyber Operations (C3O) 
+at the Naval Postgraduate School NPS.  Please note that within the 
+United States, copyright protection is not available for any works 
+created  by United States Government employees, pursuant to Title 17 
+United States Code Section 105.   This software is in the public 
+domain and is not subject to copyright. 
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
  */
 package labtainers.goalsui;
 
@@ -13,6 +37,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,6 +55,7 @@ import static labtainers.goalsui.ParamReferenceStorage.opInput;
 import static labtainers.goalsui.ParamReferenceStorage.resultTagInput;
 import labtainers.mainui.MainWindow;
 import labtainers.mainui.ToolTipHandlers.ToolTipWrapper;
+import labtainers.mainui.CompareTextFiles;
 
 /**
  *
@@ -188,7 +215,8 @@ public class GoalsData {
 //WRITING~~~~~~~~~~~~~~~~~~~~~~~~          
         
     //Update the results.config file with the user's input
-    public void writeGoalsConfig(boolean usetmp){
+    public String writeGoalsConfig(boolean usetmp){
+         File goalsConfigFile = null;
          try {
             String goalID,
                    goalType,
@@ -225,6 +253,10 @@ public class GoalsData {
                    goalConfigLine += (goalID + " = "); //add to goal ID Config line
                 
                 //Goal Type
+                if(listofGoals.get(i).goalType == null){
+                    System.out.println("Goal type is null for goal "+i);
+                    continue;
+                }
                 goalType = listofGoals.get(i).goalType.getItem();
                 
                 switch (goalType) {
@@ -241,7 +273,13 @@ public class GoalsData {
                 }
                 
                 if(opInput.contains(goalType)){
-
+                    
+                    if(listofGoals.get(i).operator == null){
+                        error.badOperator = true;
+                        System.out.println("NULL operator "+goalID);
+                        mainUI.output("Unknownn operator for goal "+goalID);
+                        continue;
+                    }
                     operator = listofGoals.get(i).operator.getItem();
                     resultTag = listofGoals.get(i).resultTag;
                     answerType = listofGoals.get(i).answerType;
@@ -336,12 +374,23 @@ public class GoalsData {
             
             if(error.passStatus()){
                 //Resets the results.config file
-                File goalsConfigFile = initializeGoalsConfig(usetmp);
+                goalsConfigFile = initializeGoalsConfig(usetmp);
 
                 try ( //Write the resultsConfigText to the results.config
                     BufferedWriter writer = new BufferedWriter(new FileWriter(goalsConfigFile, true))) {
                     writer.write(goalsConfigText+"\n");
                 }
+                /*
+                if(usetmp){
+                    String new_file = goalsConfigFile.getAbsolutePath();
+                    String old_file = getGoalsPath();
+                    boolean same = CompareTextFiles.compare(old_file, new_file);
+                    if(!same){
+                        retval = false;
+                        System.out.println("files differ");
+                    }
+                } 
+                */
             }
             else
                  JOptionPane.showMessageDialog(null, error.toString(), "INPUT ERROR", JOptionPane.ERROR_MESSAGE);
@@ -349,8 +398,16 @@ public class GoalsData {
          catch (IOException ex) {
             Logger.getLogger(GoalsUI.class.getName()).log(Level.SEVERE, null, ex);
         }
+        if(goalsConfigFile != null){
+            return goalsConfigFile.getAbsolutePath();
+        }else{
+            return null;
+        }
     }
-    
+    private String getGoalsPath(){
+        String retval = mainUI.getCurrentLab() + File.separator + "instr_config" + File.separator + "goals.config";
+        return retval;
+    } 
     //Builds the string bit to be added in the goals.config that describes the answer for a goal
     private String answerHandler(String answerType, GoalValues goal){
         String answer = "";
@@ -374,9 +431,17 @@ public class GoalsData {
         //Get the filepath for the lab's goals.config
         File goalsConfigFile;
         if(!usetmp){
-            goalsConfigFile = new File(mainUI.getCurrentLab() + File.separator + "instr_config" + File.separator + "goals.config");
+            goalsConfigFile = new File(getGoalsPath());
         }else{
-            goalsConfigFile = new File(File.separator+"tmp" + File.separator + "goals.config");
+            Path tempDir=null;
+            try{
+                tempDir = Files.createTempDirectory(mainUI.getLabName());
+            }catch(IOException ex){
+                System.out.println("failed creating temporary directory" + ex);
+                System.exit(1);
+            }
+            String dir_s = tempDir.getFileName().toString();
+            goalsConfigFile = new File(File.separator+"tmp"+File.separator+dir_s+ File.separator + "goals.config");
         }     
         
         //May not be necessary, subject to remove the base text, perhaps there is an option for the user to add their own comments
@@ -419,7 +484,7 @@ public class GoalsData {
                 goal1Missing,
                 goal2Error,
                 goal2Missing,
-                
+                badOperator, 
                 booleanExpCharError,
                 booleanExpTagError,
                 booleanExpNotError,
@@ -456,6 +521,8 @@ public class GoalsData {
             goal1Missing = false;
             goal2Error = false;
             goal2Missing = false;
+
+            badOperator = false;
 
             booleanExpCharError = false;
             booleanExpTagError = false;
@@ -508,6 +575,10 @@ public class GoalsData {
                 rowPassed = false;
                 infoMsg+= "-Goal 2 input is missing." + System.lineSeparator();
             }
+            if(badOperator){
+                rowPassed = false;
+                infoMsg+= "-Unknown operator." + System.lineSeparator();
+            }
 
 
             if(booleanExpCharError || booleanExpTagError){
@@ -515,13 +586,21 @@ public class GoalsData {
                 infoMsg+= "-Make sure Boolean Expression contains only result booleans, non-matchacross goal IDs above this goal line," + System.lineSeparator() +
                           "parentheses, and boolean operators(and, or, and_not, or_not, not)." + System.lineSeparator();
             }
-             if(booleanExpNotError){
+            if(booleanExpNotError){
                 rowPassed = false;
                 infoMsg+= "-The 'not' boolean operator can only appear at the beginning of a boolean expression." + System.lineSeparator();
             }
-            if(booleanExpStartError || booleanExpEndError || booleanParensError || booleanAlternateError){
+            if(booleanExpStartError || booleanExpEndError){
                 rowPassed = false;
-                infoMsg+= "-Make sure your expression is formatted correctly: Proper Parentheses and making sure an item precedes and follows " + System.lineSeparator()
+                infoMsg+= "-Make sure your expression is starts and ends correctly." + System.lineSeparator();
+            }
+            if(booleanParensError){
+                rowPassed = false;
+                infoMsg+= "-Make sure your expression has proper parentheses " + System.lineSeparator();
+            }
+            if(booleanAlternateError){
+                rowPassed = false;
+                infoMsg+= "-Make sure your expression is formatted correctly and make sure an item precedes and follows " + System.lineSeparator()
                         + "a boolean operator." + System.lineSeparator();
             }
             if(booleanMissing){
@@ -587,6 +666,7 @@ public class GoalsData {
             }
             else if(!listOfAboveGoals.contains(goal1) && !booleanResults.contains(goal1)){
                 goal1Error = true;
+                System.out.println("problem with goal1 "+goal1);
                 return false;
             }
             else
@@ -601,6 +681,7 @@ public class GoalsData {
             }
             else if(!listOfAboveGoals.contains(goal2) && !booleanResults.contains(goal2)){
                 goal2Error = true;
+                System.out.println("problem with goal2 "+goal2);
                 return false;
             }
             else
@@ -624,10 +705,14 @@ public class GoalsData {
         
         //Reformat the boolean expression string to identitfy things that shouldn't be there   
             //Replace all " not" with %
-            booleanExp = " "+booleanExp; 
+            if(!booleanExp.startsWith("(")){
+                booleanExp = "("+booleanExp+")";
+            }
+            //booleanExp = " "+booleanExp; 
             //The line above is necessary because when 'not' is used in the beginning there may or may not be a space before it. 
             //Adding the space includes the non-space-preceeded case.
-            booleanExp = booleanExp.replaceAll(" not ", "%");
+            booleanExp = booleanExp.replaceAll(" not ", "% ");
+            booleanExp = booleanExp.replaceAll("[(]not ", "(% ");
             
             booleanExp = booleanExp.trim();
             
@@ -644,6 +729,8 @@ public class GoalsData {
             //System.out.println("RESULT BOOLEANS:");
             //Replace all non boolean results with an asterisk symbol
             for(String toReplace : booleanResults){
+                //System.out.println("boolean result <"+toReplace+">");
+                //System.out.println("boolean exp "+booleanExp);
                 booleanExp = symbolReplace(booleanExp, toReplace, "*");
             }
             
@@ -659,19 +746,21 @@ public class GoalsData {
             booleanExp = booleanExp.replaceAll("\\s+","");//removes white space
 
             //If the boolean expression had a "not " in it, did it not occur at the beginning and/or more than once
-            if(booleanExp.contains("%") && (!booleanExp.startsWith("%") || (booleanExp.indexOf("%") != booleanExp.lastIndexOf("%")))){
-                booleanExpNotError = true;
-                return false;
-            }
+            //if(booleanExp.contains("%") && (!booleanExp.startsWith("(%") || (booleanExp.indexOf("%") != booleanExp.lastIndexOf("%")))){
+            //    booleanExpNotError = true;
+            //    System.out.println("not error "+booleanExp);
+            //    return false;
+           // }
             //Does the reformatted Boolean Expression string pick up alphnumeric(with underscore) substring that doesn't belong in either nonMAAGoals or booleanResults
             if(!booleanExp.matches("^[%*#()]+$")){
-                
+                System.out.println("TagError "+booleanExp);    
                 booleanExpTagError = true; 
                 return false;
             }
             //Does it start with an operator or a close parens
             else if(booleanExp.startsWith("#") || booleanExp.startsWith(")")){
                 booleanExpStartError = true; 
+                System.out.println("boolean starts incorretly "+booleanExp);
                 return false;
             }
             //Does it end with an operator or an open parens
@@ -726,8 +815,9 @@ public class GoalsData {
                         booleanExp = booleanExp.substring(0, tRIndex)+
                                      booleanExp.substring(tRIndex, indexAfterWord).replaceFirst(toReplace, replaceWith)+
                                      booleanExp.substring(indexAfterWord, booleanExp.length());
-                    }
-                    
+                    }else{
+                        //System.out.println("No replace "+booleanExp);
+                    }                    
                     //System.out.println(booleanExp);
                     //System.out.println();
                     
@@ -749,17 +839,25 @@ public class GoalsData {
         boolean parensHandler(String booleanExp){            
             //need  to check if number of open parens and close parens is equal <--- TODO (check character count method)
             if(characterCounter(booleanExp, '(') != characterCounter(booleanExp, ')')){
+                System.out.println("parens count wrong? "+booleanExp);
                 return true;
             }
               
             for(int i=0;i<booleanExp.length()-1;i++){
                 //checks if each open parens is followed by either by another open paren or a booleanResults/goalID 
-                if( booleanExp.charAt(i) == '(' && !(booleanExp.charAt(i+1) == '(' || booleanExp.charAt(i+1) == '*')) 
+                if( booleanExp.charAt(i) == '(' && !(booleanExp.charAt(i+1) == '(' || booleanExp.charAt(i+1) == '*' || booleanExp.charAt(i+1) == '%')){ 
+                    System.out.println("open not followed properly? "+booleanExp);
                     return true;
-
-                //checks if each close parens is followed by either by another close paren or a booleanResults/goalID 
-                if( booleanExp.charAt(booleanExp.length()-1-i) == ')' && !(booleanExp.charAt(booleanExp.length()-2-i) == ')' || booleanExp.charAt(booleanExp.length()-2-i) == '*')) 
-                    return true;
+                }
+                //checks if each close parens is followed by either by another close paren or a boolean operator
+                int expLen = booleanExp.length()-i;
+                if( booleanExp.charAt(booleanExp.length()-2-i) == ')' && !(booleanExp.charAt(booleanExp.length()-1-i) == ')' || booleanExp.charAt(booleanExp.length()-1-i) == '#')){
+                    if(expLen != booleanExp.length()){
+                        System.out.println("close not followed properly? "+booleanExp);
+                        System.out.println("closed a "+expLen+" len is "+booleanExp.length());
+                        return true;
+                    }
+                }
                 
             }
             
@@ -786,8 +884,10 @@ public class GoalsData {
             booleanExp = booleanExp.replaceAll("\\)", "");
             
             for(int i=0;i<booleanExp.length()-2;i+=2){
-                if(booleanExp.charAt(i) == '*' && booleanExp.charAt(i+1) != '#')
+                if(booleanExp.charAt(i) == '*' && booleanExp.charAt(i+1) != '#'){
+                    System.out.println("alternation failed?? "+booleanExp);
                     return true;
+                }
             }
             
             return false;

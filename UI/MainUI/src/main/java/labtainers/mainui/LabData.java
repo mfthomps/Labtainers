@@ -1,7 +1,31 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+This software was created by United States Government employees at 
+The Center for Cybersecurity and Cyber Operations (C3O) 
+at the Naval Postgraduate School NPS.  Please note that within the 
+United States, copyright protection is not available for any works 
+created  by United States Government employees, pursuant to Title 17 
+United States Code Section 105.   This software is in the public 
+domain and is not subject to copyright. 
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
  */
 package labtainers.mainui;
 
@@ -10,6 +34,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Path;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import labtainers.goalsui.GoalsData;
 import labtainers.resultsui.ResultsData;
@@ -140,7 +167,7 @@ public class LabData {
         File startConfig = new File(this.path+"/config/start.config");
         
         if(startConfig.exists()){
-            try (FileReader fileReader = new FileReader(startConfig)) {
+                FileReader fileReader = new FileReader(startConfig);
                 String parseType = "GLOBAL_SETTINGS";
 
                 BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -148,154 +175,164 @@ public class LabData {
                 while (line != null) {
                     line = line.trim();
                     // Check if we need to switch to Network or Container Parsing mode
-                    if(line.startsWith("NETWORK ")){   
-                        parseType = "NETWORK";
-                        listOfNetworks.add(new NetworkData(line.split("NETWORK ")[1].trim().toUpperCase()));
-                        line = bufferedReader.readLine();
-                        continue;
-                    }
-                    else if(line.startsWith("CONTAINER ")){
-                        parseType = "CONTAINER";
-                        listOfContainers.add(new ContainerData(line.split("CONTAINER ")[1].trim()));
+                    try{
+                        if(line.startsWith("NETWORK ")){   
+                            parseType = "NETWORK";
+                            listOfNetworks.add(new NetworkData(line.split("NETWORK ")[1].trim().toUpperCase()));
+                            line = bufferedReader.readLine();
+                            continue;
+                        }
+                        else if(line.startsWith("CONTAINER ")){
+                            parseType = "CONTAINER";
+                            listOfContainers.add(new ContainerData(line.split("CONTAINER ")[1].trim()));
+                            line = bufferedReader.readLine();
+                            continue;
+                        }
+                    }catch(java.lang.ArrayIndexOutOfBoundsException ex){
+                        System.out.println("Error in line "+line);
                         line = bufferedReader.readLine();
                         continue;
                     }
                     // Check if not a comment or empty space
                     if(!line.startsWith("#") && !line.isEmpty()){ 
-                        // Check if we're looking for gloabl_settings params, 
-                        // which should be at the start before container and network info;
-                        // otherwise parse the specified accepted params in the lab designer manual.
-                        if(parseType.equals("GLOBAL_SETTINGS"))
-                            global_settings_params.add(line);
-                        else {
-                            String parameter = line.split("\\s+")[0];
-                            if(parseType.equals("NETWORK")){
-                                NetworkData currNetwork = listOfNetworks.get(listOfNetworks .size()-1);
-                                switch(parameter){
-                                    case "MASK":
-                                        currNetwork.mask = line.split("MASK ")[1].trim();
-                                        break;
-                                    case "GATEWAY":
-                                        if(line.contains("GATEWAY ")){
-                                            currNetwork.gateway = line.split("GATEWAY ")[1].trim();
-                                        }
-                                        break;
-                                    case "MACVLAN_EXT":
-                                        currNetwork.macvlan_ext = Integer.parseInt(line.split("MACVLAN_EXT ")[1].trim());
-                                        break;
-                                    case "MACVLAN":
-                                       currNetwork.macvlan = Integer.parseInt(line.split("MACVLAN ")[1].trim());
-                                        break;
-                                    case "IP_RANGE":
-                                       currNetwork.ip_range = line.split("IP_RANGE ")[1].trim();
-                                        break;
-                                    case "TAP":
-                                        currNetwork.tap = (line.split("TAP ")[1].trim()).equals("YES");
-                                        break;
-                                    default:
-                                        currNetwork.unknownNetworkParams.add(line);
-                                        break;
-                                }
-                            }
-                            else if(parseType.equals("CONTAINER")){                         
-                                ContainerData currContainer = listOfContainers.get(listOfContainers.size()-1);
-                                switch(parameter){
-                                    case "TERMINALS":
-                                        currContainer.terminal_count = Integer.parseInt(line.split("TERMINALS ")[1].trim());                                      
-                                        break;
-                                    case "TERMINAL_GROUP":
-                                        currContainer.terminal_group = line.split("TERMINAL_GROUP ")[1].trim();
-                                        break;
-                                    case "XTERM":
-                                        currContainer.xterm_title = line.split("\\s+")[1].trim();
-
-                                        if(!currContainer.xterm_title.equals("INSTRUCTIONS"))
-                                            currContainer.xterm_script = line.split("\\s+")[2].trim();
-                                        break;
-                                    case "USER":
-                                        currContainer.user = line.split("USER ")[1].trim();
-                                        break;
-                                    case "PASSWORD":
-                                        currContainer.password = line.split("PASSWORD ")[1].trim();
-                                        break;
-                                    case "SCRIPT":
-                                        currContainer.script = line.split("SCRIPT ")[1].trim();
-                                        break;
-                                    case "ADD-HOST":
-                                        String addhostParams = line.split("ADD-HOST ")[1].trim();
-                                        if(addhostParams.contains(":")) //host:ip
-                                            currContainer.listOfContainerAddHost.add(new ContainerAddHostSubData("ip",addhostParams.split(":")[0].trim(), addhostParams.split(":")[1].trim(), ""));
-                                        else //network
-                                            currContainer.listOfContainerAddHost.add(new ContainerAddHostSubData("network","", "", addhostParams));
-                                        break;
-                                    case "X11":
-                                        currContainer.x11 = (line.split("X11 ")[1].trim()).equals("YES");
-                                        break;
-                                    case "CLONE":
-                                        currContainer.clone = Integer.parseInt(line.split("CLONE ")[1].trim());      
-                                        break;
-                                    case "NO_PULL":
-                                        currContainer.no_pull = (line.split("NO_PULL ")[1].trim()).equals("YES");
-                                        break;
-                                    case "LAB_GATEWAY":
-                                        currContainer.lab_gateway = line.split("LAB_GATEWAY ")[1].trim();
-                                        break;
-                                    case "NO_GW":
-                                        currContainer.no_gw = (line.split("NO_GW ")[1].trim()).equals("YES");
-                                        break;
-                                    case "REGISTRY":
-                                        currContainer.registry = line.split("REGISTRY ")[1].trim();
-                                        break;
-                                    case "BASE_REGISTRY":
-                                        currContainer.base_registry = line.split("BASE_REGISTRY ")[1].trim();
-                                        break;
-                                    case "THUMB_VOLUME":
-                                        currContainer.thumb_volume = line.split("THUMB_VOLUME\\s+")[1].trim();
-                                        break;
-                                    case "THUMB_COMMAND":
-                                        currContainer.thumb_command = line.split("THUMB_COMMAND\\s+")[1].trim();
-                                        break;
-                                    case "THUMB_STOP":
-                                        currContainer.thumb_stop = line.split("THUMB_STOP\\s+")[1].trim();
-                                        break;
-                                    case "PUBLISH":
-                                        currContainer.publish = line.split("PUBLISH\\s+")[1].trim();
-                                        break;
-                                    case "HIDE":
-                                        currContainer.hide = (line.split("HIDE\\s+")[1].trim()).equals("YES");
-                                        break;
-                                    case "NO_PRIVILEGE":
-                                        currContainer.no_privilege = (line.split("NO_PRIVILEGE\\s+")[1].trim()).equals("YES");
-                                        break;
-                                    case "MYSTUFF":
-                                        currContainer.mystuff = (line.split("MYSTUFF\\s+")[1].trim()).equals("YES");
-                                        break;  
-                                    case "TAP":
-                                        currContainer.tap = (line.split("TAP ")[1].trim()).equals("YES");
-                                        break;
-                                    case "MOUNT":
-                                        String mountParam = line.split("MOUNT ")[1].trim();
-                                        currContainer.mount1 = mountParam.split(":")[0].trim();
-                                        currContainer.mount2 = mountParam.split(":")[1].trim();
-                                        break;
-                                    default:
-                                        boolean foundMatchingNetwork = false;
-                                        String networkName = line.split("\\s+")[0].toUpperCase();
-                                        String ipAddrName = line.split("\\s+")[1].toUpperCase();
-                                        //Check the array of network names to to see if it matches it
-                                        for(int i = 0;i <listOfNetworks.size();i++){ 
-                                            if(listOfNetworks.get(i).name.equals(networkName)){
-                                                currContainer.listOfContainerNetworks.add(new ContainerNetworkSubData(networkName, ipAddrName));
-                                                foundMatchingNetwork = true;
-                                                break;
+                        try{
+                            // Check if we're looking for gloabl_settings params, 
+                            // which should be at the start before container and network info;
+                            // otherwise parse the specified accepted params in the lab designer manual.
+                            if(parseType.equals("GLOBAL_SETTINGS"))
+                                global_settings_params.add(line);
+                            else {
+                                String parameter = line.split("\\s+")[0];
+                                if(parseType.equals("NETWORK")){
+                                    NetworkData currNetwork = listOfNetworks.get(listOfNetworks .size()-1);
+                                    switch(parameter){
+                                        case "MASK":
+                                            currNetwork.mask = line.split("MASK ")[1].trim();
+                                            break;
+                                        case "GATEWAY":
+                                            if(line.contains("GATEWAY ")){
+                                                currNetwork.gateway = line.split("GATEWAY ")[1].trim();
                                             }
-                                        }      
-                                        //if doesn't find a matching network name then this param is unknown
-                                        if(!foundMatchingNetwork) {currContainer.unknownContainerParams.add(line);}
-                                        break;
-                                }                             
+                                            break;
+                                        case "MACVLAN_EXT":
+                                            currNetwork.macvlan_ext = Integer.parseInt(line.split("MACVLAN_EXT ")[1].trim());
+                                            break;
+                                        case "MACVLAN":
+                                           currNetwork.macvlan = Integer.parseInt(line.split("MACVLAN ")[1].trim());
+                                            break;
+                                        case "IP_RANGE":
+                                           currNetwork.ip_range = line.split("IP_RANGE ")[1].trim();
+                                            break;
+                                        case "TAP":
+                                            currNetwork.tap = (line.split("TAP ")[1].trim()).equals("YES");
+                                            break;
+                                        default:
+                                            currNetwork.unknownNetworkParams.add(line);
+                                            break;
+                                    }
+                                }
+                                else if(parseType.equals("CONTAINER")){                         
+                                    ContainerData currContainer = listOfContainers.get(listOfContainers.size()-1);
+                                    switch(parameter){
+                                        case "TERMINALS":
+                                            currContainer.terminal_count = Integer.parseInt(line.split("TERMINALS ")[1].trim());                                      
+                                            break;
+                                        case "TERMINAL_GROUP":
+                                            currContainer.terminal_group = line.split("TERMINAL_GROUP ")[1].trim();
+                                            break;
+                                        case "XTERM":
+                                            currContainer.xterm_title = line.split("\\s+")[1].trim();
+    
+                                            if(!currContainer.xterm_title.equals("INSTRUCTIONS"))
+                                                currContainer.xterm_script = line.split("\\s+")[2].trim();
+                                            break;
+                                        case "USER":
+                                            currContainer.user = line.split("USER ")[1].trim();
+                                            break;
+                                        case "PASSWORD":
+                                            currContainer.password = line.split("PASSWORD ")[1].trim();
+                                            break;
+                                        case "SCRIPT":
+                                            currContainer.script = line.split("SCRIPT ")[1].trim();
+                                            break;
+                                        case "ADD-HOST":
+                                            String addhostParams = line.split("ADD-HOST ")[1].trim();
+                                            if(addhostParams.contains(":")) //host:ip
+                                                currContainer.listOfContainerAddHost.add(new ContainerAddHostSubData("ip",addhostParams.split(":")[0].trim(), addhostParams.split(":")[1].trim(), ""));
+                                            else //network
+                                                currContainer.listOfContainerAddHost.add(new ContainerAddHostSubData("network","", "", addhostParams));
+                                            break;
+                                        case "X11":
+                                            currContainer.x11 = (line.split("X11 ")[1].trim()).equals("YES");
+                                            break;
+                                        case "CLONE":
+                                            currContainer.clone = Integer.parseInt(line.split("CLONE ")[1].trim());      
+                                            break;
+                                        case "NO_PULL":
+                                            currContainer.no_pull = (line.split("NO_PULL ")[1].trim()).equals("YES");
+                                            break;
+                                        case "LAB_GATEWAY":
+                                            currContainer.lab_gateway = line.split("LAB_GATEWAY ")[1].trim();
+                                            break;
+                                        case "NO_GW":
+                                            currContainer.no_gw = (line.split("NO_GW ")[1].trim()).equals("YES");
+                                            break;
+                                        case "REGISTRY":
+                                            currContainer.registry = line.split("REGISTRY ")[1].trim();
+                                            break;
+                                        case "BASE_REGISTRY":
+                                            currContainer.base_registry = line.split("BASE_REGISTRY ")[1].trim();
+                                            break;
+                                        case "THUMB_VOLUME":
+                                            currContainer.thumb_volume = line.split("THUMB_VOLUME\\s+")[1].trim();
+                                            break;
+                                        case "THUMB_COMMAND":
+                                            currContainer.thumb_command = line.split("THUMB_COMMAND\\s+")[1].trim();
+                                            break;
+                                        case "THUMB_STOP":
+                                            currContainer.thumb_stop = line.split("THUMB_STOP\\s+")[1].trim();
+                                            break;
+                                        case "PUBLISH":
+                                            currContainer.publish = line.split("PUBLISH\\s+")[1].trim();
+                                            break;
+                                        case "HIDE":
+                                            currContainer.hide = (line.split("HIDE\\s+")[1].trim()).equals("YES");
+                                            break;
+                                        case "NO_PRIVILEGE":
+                                            currContainer.no_privilege = (line.split("NO_PRIVILEGE\\s+")[1].trim()).equals("YES");
+                                            break;
+                                        case "MYSTUFF":
+                                            currContainer.mystuff = (line.split("MYSTUFF\\s+")[1].trim()).equals("YES");
+                                            break;  
+                                        case "TAP":
+                                            currContainer.tap = (line.split("TAP ")[1].trim()).equals("YES");
+                                            break;
+                                        case "MOUNT":
+                                            String mountParam = line.split("MOUNT ")[1].trim();
+                                            currContainer.mount1 = mountParam.split(":")[0].trim();
+                                            currContainer.mount2 = mountParam.split(":")[1].trim();
+                                            break;
+                                        default:
+                                            boolean foundMatchingNetwork = false;
+                                            String networkName = line.split("\\s+")[0].toUpperCase();
+                                            String ipAddrName = line.split("\\s+")[1].toUpperCase();
+                                            //Check the array of network names to to see if it matches it
+                                            for(int i = 0;i <listOfNetworks.size();i++){ 
+                                                if(listOfNetworks.get(i).name.equals(networkName)){
+                                                    currContainer.listOfContainerNetworks.add(new ContainerNetworkSubData(networkName, ipAddrName));
+                                                    foundMatchingNetwork = true;
+                                                    break;
+                                                }
+                                            }      
+                                            //if doesn't find a matching network name then this param is unknown
+                                            if(!foundMatchingNetwork) {currContainer.unknownContainerParams.add(line);}
+                                            break;
+                                    }                             
+                                }   
                             }   
-                        }   
+                        }catch(java.lang.ArrayIndexOutOfBoundsException exb){
+                            System.out.println("Error parseType: "+parseType+" line "+line);
+                        }
                     }
 
                     //go to next line
@@ -310,7 +347,7 @@ public class LabData {
                 goalsData.retrieveData();
 
                 paramsData.retrieveData();
-            }
+            
         }
         else{
             System.out.println("start.config is missing");
@@ -553,5 +590,157 @@ public class LabData {
             printContainerData(listOfContainers.get(i));
         
     }
+    public String writeStartConfig(boolean usetmp) throws FileNotFoundException{
+        // If usetmp, save to temporary diretory and compare to current.  If they differ,
+        // prompts the user to save or discard changes.
+        // Return false if user cancels (does not want to exit).
+        //Get path to start.config
+        String startConfigPath;
+        Path tempDir=null;
+        if(!usetmp){
+            startConfigPath = this.path+File.separator+"config"+File.separator+"start.config";
+        }else{
+            try{
+                tempDir = Files.createTempDirectory(this.name);
+            }catch(IOException ex){
+                System.out.println("failed creating temporary directory" + ex);
+                System.exit(1);
+            }
+            String dir_s = tempDir.getFileName().toString();
+            //System.out.println("dir_s is "+dir_s);
+
+            startConfigPath = File.separator+"tmp"+File.separator+dir_s+File.separator+"start.config";
+        }
+        PrintWriter writer = new PrintWriter(startConfigPath);
+        String startConfigText = ""; 
+         
+        // Write Global Params
+        for(String line : getGlobals()){
+            startConfigText += "    "+line+"\n";
+        }
+
+        // Cycle through network objects and write
+        for(NetworkData data : listOfNetworks){
+            startConfigText += "NETWORK "+data.name+"\n";
+            startConfigText += "     MASK "+data.mask+"\n";
+            startConfigText += "     GATEWAY "+data.gateway+"\n";
+            
+            if(data.macvlan > 0){
+                startConfigText += "     MACVLAN "+data.macvlan+"\n";
+            }
+            if(data.macvlan_ext > 0){
+                startConfigText += "     MACVLAN_EXT" +data.macvlan_ext+"\n";
+            }
+            
+            if(!data.ip_range.isEmpty()){
+                startConfigText += "     IP_RANGE "+data.ip_range+"\n";
+            }        
+
+            if(data.tap){
+                startConfigText += "     TAP YES"+"\n";
+            }
+            for(String unknownParam : data.unknownNetworkParams){
+                startConfigText += "     "+unknownParam+"\n";
+            }
+        }
+        
+        // Cycle through container objects and write 
+        for(ContainerData data : listOfContainers){
+            startConfigText += "CONTAINER "+data.name+"\n";
+            startConfigText += "     USER "+data.user+"\n";
+            if(data.script.isEmpty()){
+               startConfigText += "     SCRIPT NONE\n";
+            }
+            else{
+               startConfigText += "     SCRIPT "+data.script+"\n"; 
+            }
+                
+            if(data.x11){
+                startConfigText += "     X11 YES\n"; 
+            }
+            else{
+                startConfigText += "     X11 NO\n";
+            }
+            // Not default
+            if(data.terminal_count != 1)
+                startConfigText += "     TERMINALS "+data.terminal_count+"\n";
+            if(!data.terminal_group.isEmpty())
+                startConfigText += "     TERMINAL_GROUP "+data.terminal_group+"\n";
+            if(!data.xterm_title.isEmpty())
+                startConfigText += "     XTERM "+data.xterm_title+" "+data.xterm_script+"\n";
+            if(!data.password.isEmpty())
+                startConfigText += "     PASSWORD "+data.password+"\n";
+            for(ContainerAddHostSubData addHost : data.listOfContainerAddHost){
+                if(addHost.type.equals("network"))
+                    startConfigText += "     ADD-HOST "+addHost.add_host_network+"\n";
+                else if(addHost.type.equals("ip"))
+                    startConfigText += "     ADD-HOST "+addHost.add_host_host+":"+addHost.add_host_ip+"\n";    
+            }
+            for(ContainerNetworkSubData network : data.listOfContainerNetworks){
+                    startConfigText += "     "+network.network_name+" "+network.network_ipaddress+"\n";  
+            }
+            if(data.clone > 0){
+                startConfigText += "     CLONE "+data.clone+"\n";
+            }
+            if(!data.lab_gateway.isEmpty()){
+                startConfigText += "     LAB_GATEWAY "+data.lab_gateway+"\n";
+            }
+            if(data.no_gw){
+                startConfigText += "     NO_GW YES\n";
+            }
+            if(!data.base_registry.isEmpty()){
+                startConfigText += "     BASE_REGISTRY "+data.base_registry+"\n";
+            }
+            if(!data.thumb_volume.isEmpty()){
+                startConfigText += "     THUMB_VOLUME "+data.thumb_volume+"\n";
+            }
+            if(!data.thumb_command.isEmpty()){
+                startConfigText += "     THUMB_COMMAND "+data.thumb_command+"\n";
+            }
+            if(!data.thumb_stop.isEmpty()){
+                startConfigText += "     THUMB_STOP "+data.thumb_stop+"\n";
+            }
+            if(!data.publish.isEmpty()){
+                startConfigText += "     PUBLISH "+data.publish+"\n";
+            }
+            if(data.hide){
+                startConfigText += "     HIDE YES\n";
+            }
+            if(data.no_privilege){
+                startConfigText += "     NO_PRIVILEGE YES\n";
+            }
+            if(data.no_pull){
+                startConfigText += "     NO_PULL YES\n";
+            }
+            if(data.mystuff){
+                startConfigText += "     MYSTUFF YES\n";
+            }
+            if(data.tap){
+                startConfigText += "     TAP YES\n";
+            }
+            if(!data.mount1.isEmpty() && !data.mount2.isEmpty()){
+                startConfigText += "     MOUNT "+data.mount1+":"+data.mount2+"\n";
+            }
+            
+        }
+        
+        //Write to File
+        writer.print(startConfigText);
+        writer.close();
+        return startConfigPath;
+        /*
+        boolean something_changed = false;  
+        if(usetmp){
+            String old_file = this.path+File.separator+"config"+File.separator+"start.config";
+            String new_file = startConfigPath;
+            try{
+                something_changed = ! CompareTextFiles.compare(old_file, new_file);
+            }catch(IOException ex){
+                System.out.println("Error comparing text files "+ex);
+            }
+        }    
+        return something_changed;
+        */
+   }    
 }
 
