@@ -72,8 +72,9 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
-January 15, 2021
+January 19, 2021
 - Change management of README date/rev to update file in source repo.
+- Introduce GUI for creating/editing labs -- see labedit command.
 
 December 21, 2020
 - The gradelab function failed when zip files were copied from a VirtualBox shared folder.
