@@ -83,6 +83,8 @@ if [[ "$TEST_REGISTRY" != TRUE ]]; then
     #wget --quiet https://nps.box.com/shared/static/xk9e07r7m5szrc9owggawyxzy5w3rzrh.tar -O labtainer-developer.tar
     #wget --quiet https://github.com/mfthomps/Labtainers/raw/master/distrib/release/labtainer-developer.tar -O labtainer-developer.tar
     wget --quiet https://github.com/mfthomps/Labtainers/tarball/master -O labtainer-master.tar
+    wget --quiet https://github.com/mfthomps/Labtainers/releases/latest/download/MainUI.jar -O $LABTAINER_DIR/UI/bin/MainUI.jar
+    sync
 else
     cp /media/sf_SEED/test_vms/$HOSTNAME/labtainer-master.tar .
     echo "USING SHARED FILE TAR, NOT PULLING FROM WEB"
