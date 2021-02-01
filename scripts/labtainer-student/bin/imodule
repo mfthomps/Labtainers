@@ -79,7 +79,7 @@ def doUpdates(logger):
             return 
         with open(imodule_path) as fh:
             for imodule_url in fh:
-                update(logger, imodule_path)
+                update(logger, imodule_url)
 
 if __name__ == '__main__':
         
