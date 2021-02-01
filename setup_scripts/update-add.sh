@@ -4,7 +4,7 @@ if [[ -z $hasnew ]];then
     $LABTAINER_DIR/setup_scripts/pull-all.py
 fi
 hascommit=$(grep "^Commit:" labtainer/trunk/README.md)
-hasgit=$(grep "github.*releases" update-labtainer.sh)
+hasgit=$(grep "github.*releases" labtainer/update-labtainer.sh)
 if [ -z "$hascommit" ] || [ -z "$hasgit" ]; then
     cd labtainer
     wget --quiet https://github.com/mfthomps/Labtainers/releases/latest/download/labtainer.tar -O labtainer.tar
