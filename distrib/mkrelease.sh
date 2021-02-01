@@ -4,15 +4,11 @@ if [[ -z "$1" ]]; then
     echo "Missing tag, most recent is "$tag" .  Pick the next revision."
     exit
 fi
-echo "gitpat is " $gitpat
-dog=$gitpat
-echo "dog " $dog
 if [[ -z "$gitpat" ]]; then
     echo "gitpat is not defined.  Source the gitpat.sh file"
     exit
 fi
-agent=$(ps | grep ssh-agent)
-if [[ -z "$agent" ]]; then
+if [[ -z "$SSH_AGENT_PID" ]]; then
     echo "No ssh-agent running.  Source ~/agent.sh"
     exit
 fi
