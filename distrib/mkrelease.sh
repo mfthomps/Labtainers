@@ -18,9 +18,11 @@ if [[ -z "$SSH_AGENT_PID" ]]; then
     echo "No ssh-agent running.  Source ~/agent.sh"
     exit
 fi
-./mergePre.sh
+tag=$1
+shift 1
+./mergePre.sh $1
 here=`pwd`
-revision=$1
+revision=$tag
 commit=`git describe --always`
 branch=$(git rev-parse --abbrev-ref HEAD)
 sed -i "s/^Distribution created:.*$/Distribution created: $(date '+%m\/%d\/%Y %H:%M')</br>/" ../README.md
@@ -28,7 +30,7 @@ sed -i "s/^Revision:.*$/Revision: $revision</br>/" ../README.md
 sed -i "s/^Commit:.*$/Commit: $commit</br>/" ../README.md
 sed -i "s/^Branch:.*$/Branch: $branch</br>/" ../README.md
 git commit ../README.md -m "Update readme date/rev"
-git tag $1
+git tag $tag
 git push --set-upstream origin master
 git push --tags
 
@@ -47,11 +49,11 @@ cd $LABTAINER_DIR/UI/bin
 cp MainUI.jar $LABTAINER_DIR/distrib/artifacts/
 cd $here
 echo "Now generate release"
-github-release release --security-token $gitpat --user mfthomps --repo Labtainers --tag $1
+github-release release --security-token $gitpat --user mfthomps --repo Labtainers --tag $tag
 
 echo "Upload tar"
-github-release upload --security-token $gitpat --user mfthomps --repo Labtainers --tag $1 --name labtainer.tar --file artifacts/labtainer.tar
+github-release upload --security-token $gitpat --user mfthomps --repo Labtainers --tag $tag --name labtainer.tar --file artifacts/labtainer.tar
 echo "Upload PDF zip"
-github-release upload --security-token $gitpat --user mfthomps --repo Labtainers --tag $1 --name labtainer_pdf.zip --file artifacts/labtainer_pdf.zip
+github-release upload --security-token $gitpat --user mfthomps --repo Labtainers --tag $tag --name labtainer_pdf.zip --file artifacts/labtainer_pdf.zip
 echo "Upload UI"
-github-release upload --security-token $gitpat --user mfthomps --repo Labtainers --tag $1 --name MainUI.jar --file artifacts/MainUI.jar
+github-release upload --security-token $gitpat --user mfthomps --repo Labtainers --tag $tag --name MainUI.jar --file artifacts/MainUI.jar
