@@ -25,5 +25,3 @@ if [[ $1 != "-n" ]];then
 fi
 git push --set-upstream origin master || exit 1
 git checkout premaster || exit 1
-git merge master || exit 1
-git push --set-upstream origin premaster || exit 1
