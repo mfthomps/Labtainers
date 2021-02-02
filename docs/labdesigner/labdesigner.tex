@@ -1656,7 +1656,10 @@ directives as described below:
                new comment.
    
 \end{verbatim} 
-\noindent See existing labs for examples.  Also see the \ref{checkwork} for additional directives.
+\noindent You would include these directives in a results.config file for boolean results that appear as student goals,
+e.g., a {\tt CONTAINS} result that does not have a leading underscore. And you would include directives in the goals.config
+file for goals that appear in as student goals, i.e., those without leading underscores.  
+See existing labs for examples.  Also see the \ref{checkwork} for additional directives.
 
 \subsection {Student self-assessment}
 \label{checkwork}
@@ -1688,7 +1691,7 @@ value is {\tt False}.
     #CHECK_TRUE: The SSH port is not open. 
     cw_ssh_open = client:prestop.stdout : FILE_REGEX : 22/tcp.*open
 \end{verbatim}
-\noindent A {\tt CHECK\_OK} documentation directive can be added display text in the event that
+\noindent A {\tt CHECK\_OK} documentation directive can be added display to text in the event that
 all of the {\tt cw\_} goals match their documentation directives.
 
 Current state goals
