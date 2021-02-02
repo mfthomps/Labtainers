@@ -90,6 +90,7 @@ else
     echo "USING SHARED FILE TAR, NOT PULLING FROM WEB"
 fi
 if [[ "$TEST_REGISTRY" != TRUE ]]; then
+   echo "Modifying docker DNS usage, provide $USER password below (password123 for Labtainers VM)"
    sudo trunk/setup_scripts/dns-add.py
    sudo systemctl restart docker
 fi
@@ -104,3 +105,5 @@ grep "^Distribution created:" labtainer/trunk/README.md | awk '{print "Updated t
 if [ ! -L $HOME/Desktop/labdesigner.pdf ]; then
        ln -s "$(pwd)"/labtainer/trunk/docs/labdesigner/labdesigner.pdf $HOME/Desktop/labdesigner.pdf
 fi
+echo ""
+echo "The ~/.bashrc has been updated.  Reboot or run 'bash' to get new paths."

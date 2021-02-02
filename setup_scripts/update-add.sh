@@ -12,3 +12,6 @@ if [ -z "$hascommit" ] || [ -z "$hasgit" ]; then
     cd ..
     tar xf labtainer/labtainer.tar --keep-newer-files --warning=none
 fi
+here=`pwd`
+cd labtainer/trunk/labtainer-student/bin
+ln -s ../../setup_scripts/update-designer.sh
