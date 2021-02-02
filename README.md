@@ -1,22 +1,31 @@
 Labtainers: A Docker-based cyber lab framework
 ==============================================
 
-Labtainers include more than 45 cyber lab exercises and tools to build your own. Import a single VM appliance or install on a Linux system and your students are done with provisioning and administrative setup, for these and future lab exercises.
+Labtainers include more than 50 cyber lab exercises and tools to build your own. Import a single [VM appliance][vm-appliance] or install on a Linux system and your students are done with provisioning and administrative setup, for these and future lab exercises.  
 
 * Consistent lab execution environments and automated provisioning via Docker containers
 * Multi-component network topologies on a modestly performing laptop computer 
 * Automated assessment of student lab activity and progress
 * Individualized lab exercises to discourage sharing solutions
 
-Labtainers provide controlled and consistent execution environments in which students perform labs entirely within the confines of their computer, regardless of the Linux distribution and packages installed on the student's computer.  The only requirement is that the Linux system supports Docker.  See the [Papers][Papers] for additional information about the framework.
-The Labtainers website, and downloads (including VM appliances with Labtainers pre-installed) are at <https://my.nps.edu/web/c3o/labtainers>.
+Labtainers provide controlled and consistent execution environments in which students perform labs entirely within the confines of their computer, regardless of the Linux distribution and packages installed on the student's computer.  Labtainers run on our [VM appliance][vm-appliancee], or on any Linux
+with Dockers installed, and on Docker Workstation running on Mac or Windows computers.  
 
-[Papers]: https://my.nps.edu/web/c3o/labtainers#papers
+See the [Student Guide][student-guide] for installation and use, and the [Instructor Guide][instructor-guide] for student assessment.  Developing and customizing
+lab exercises is described in the [Designer Guide][designer-guide].
+See the [Papers][Papers] for additional information about the framework.
+The Labtainers website, and downloads (including VM appliances with Labtainers pre-installed) are at <https://nps.edu/web/c3o/labtainers>.
 
-01/19/2021 09:26
-Revision: v1.3.3c
-Commit: 28098976
-Branch: premaster
+[vm-appliance]: https://nps.edu/web/c3o/virtual-machine-images
+[student-guide]: docs/student/labtainer-student.pdf
+[instructor-guide]: docs/instructor/labtainer-instructor.pdf
+[designer-guide]: docs/labdesigner/labdesigner.pdf
+[Papers]: https://nps.edu/web/c3o/labtainers#papers
+
+Distribution created: 02/02/2021 08:36</br>
+Revision: v1.3.3c</br>
+Commit: 28098976</br>
+Branch: premaster</br>
 
 ## Content
 [Distribution and Use](#distribution-and-use)
@@ -43,16 +52,23 @@ in the [docs/license.md file](docs/license.md).
   
 * labs -- Files specific to each of the labs
    
-* setup_scripts -- scripts for installing Labtainers and Docker and updating Labtainers
+* setup\_scripts -- scripts for installing Labtainers and Docker and updating Labtainers
    
 * docs -- latex source for the labdesigner.pdf, and other documentation.
+
+* UI -- Labtainers lab editor source code (Java).
+
+* headless-lite -- scripts for managing Docker Workstation and cloud instances of Labtainers (systems
+that do not have native X11 servers.)
    
+* scripts/designer -- Tools for building new labs and managing base Docker images.
+
 * config -- system-wide configuration settings (these are not the 
    lab-specific configuration settings.
  
 * distrib -- distribution support scripts, e.g., for publishing labs to the Docker hub.
 
-* testsets -- Test procedures and expected results. (Per-lab drivers for SimSec are not 
+* testsets -- Test procedures and expected results. (Per-lab drivers for SimLab are not 
 distributed).
 
 * pkg-mirrors -- utility scripts for internal NPS package mirroring to reduce external 
