@@ -107,7 +107,7 @@ public class GoalsUI extends javax.swing.JFrame {
         jLabel1.setText("Goal ID");
         jLabel1.setToolTipText("The goal identifier displayed in lab grading output.  Use an underscore prefix to supress inclusion in that output, e.g., to use the goal within a boolean expression.");
 
-        UpdateButton.setText("Confirm");
+        UpdateButton.setText("OK");
         UpdateButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 UpdateButtonActionPerformed(evt);

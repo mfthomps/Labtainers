@@ -112,7 +112,7 @@ public class ResultsUI extends javax.swing.JFrame {
             }
         });
 
-        UpdateButton.setText("Confirm");
+        UpdateButton.setText("OK");
         UpdateButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 UpdateButtonActionPerformed(evt);
