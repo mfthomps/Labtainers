@@ -4,7 +4,7 @@
 #  This uses git archive, basing the distribution on committed content of the 
 #  current branch of the local repo.
 #  use -t to force test registry
-#  use -r to update release distribution
+#  use -r if this is a release (will not modify README)
 #
 function contains() {
     local n=$#
@@ -19,7 +19,6 @@ function contains() {
     return 1
 }
 commit=`git describe --always`
-revision=`git tag | tail -n 1`
 skip="skip-labs"
 skiplist=""
 lines=`cat $skip`
@@ -48,12 +47,15 @@ if [[ "$1" != "-t" ]]; then
 else
     echo "Make distribution from branch: $branch  Using premaster registry OVERRIDE"
 fi
-git archive $branch README.md | tar -x -C $ltrunk
-#git archive $branch | tar -x -C $ltrunk
-sed -i "s/^Distribution created:.*$/$(date '+%m\/%d\/%Y %H:%M')/" $ltrunk/README.md
-sed -i "s/^Revision:.*$/Revision: $revision/" $ltrunk/README.md
-sed -i "s/^Commit:.*$/Commit: $commit/" $ltrunk/README.md
-sed -i "s/^Branch:.*$/Branch: $branch/" $ltrunk/README.md
+if [[ "$1" != "-r" ]]; then
+    commit=`git describe --always`
+    branch=$(git rev-parse --abbrev-ref HEAD)
+    sed -i "s/^Distribution created:.*$/Distribution created: $(date '+%m\/%d\/%Y %H:%M')</br>/" ../README.md
+    sed -i "s/^Revision:/Previous revision:/" ../README.md
+    sed -i "s/^Commit:.*$/Commit: $commit</br>/" ../README.md
+    sed -i "s/^Branch:.*$/Branch: $branch</br>/" ../README.md
+fi
+
 #git archive master config | tar -x -C $ltrunk
 $here/fix-git-dates.py config $ltrunk $branch
 $here/fix-git-dates.py setup_scripts $ltrunk $branch
@@ -107,9 +109,4 @@ zip -qq -r $here/labtainer_pdf.zip labtainer_pdf
 cd $here
 cp labtainer.tar $myshare
 cp labtainer_pdf.zip $myshare
-if [[ "$1" == "-r" ]]; then
-    mkdir -p artifacts
-    cp labtainer.tar artifacts/
-    cp labtainer_pdf.zip artifacts/
-fi
 echo "DONE"

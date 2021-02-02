@@ -1,4 +1,10 @@
 #!/bin/bash
+#
+# Create a Labtainers release.  
+# --Merge premaster into master
+# --Update the release information in the README file.
+# --Tag the current commit and push the release artifacts.
+#
 if [[ -z "$1" ]]; then
     tag=$(git tag | tail -n 1)
     echo "Missing tag, most recent is "$tag" .  Pick the next revision."
@@ -12,18 +18,28 @@ if [[ -z "$SSH_AGENT_PID" ]]; then
     echo "No ssh-agent running.  Source ~/agent.sh"
     exit
 fi
+./mergePre.sh
 here=`pwd`
 revision=$1
 commit=`git describe --always`
 branch=$(git rev-parse --abbrev-ref HEAD)
-sed -i "s/^Distribution created:.*$/$(date '+%m\/%d\/%Y %H:%M')/" ../README.md
-sed -i "s/^Revision:.*$/Revision: $revision/" ../README.md
-sed -i "s/^Commit:.*$/Commit: $commit/" ../README.md
-sed -i "s/^Branch:.*$/Branch: $branch/" ../README.md
+sed -i "s/^Distribution created:.*$/Distribution created: $(date '+%m\/%d\/%Y %H:%M')</br>/" ../README.md
+sed -i "s/^Revision:.*$/Revision: $revision</br>/" ../README.md
+sed -i "s/^Commit:.*$/Commit: $commit</br>/" ../README.md
+sed -i "s/^Branch:.*$/Branch: $branch</br>/" ../README.md
 git commit ../README.md -m "Update readme date/rev"
 git tag $1
 git push --set-upstream origin master
 git push --tags
+
+# create the end-user distibution
+./mkdist.sh -r || exit 1
+
+# copy end-user distribution files to artifacts
+mkdir -p artifacts
+cp labtainer.tar artifacts/
+cp labtainer_pdf.zip artifacts/
+echo "Artifacts for revision $revision" > artifacts/README.txt
 
 echo "Build GUI Jar"
 cd $LABTAINER_DIR/UI/bin

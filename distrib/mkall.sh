@@ -11,12 +11,6 @@ if [[ $result != 0 ]]; then
     echo "mkdist failed"
     exit 1
 fi
-./mk-devel-dist.sh $@
-result=$?
-if [[ $result != 0 ]]; then
-    echo "mk-devel-dist failed"
-    exit 1
-fi
 ./mktest.sh $@
 result=$?
 if [[ $result != 0 ]]; then

@@ -1,11 +1,15 @@
 #!/bin/bash
 #
-# Creates a new distribution.
+# Merge premaster repo and docker images into master
+#   -- Performs a git merge of premaster into master
 #   -- Ensures the Docker Hub matches the premaster registry
-#   -- Performs a git merge
-#   -- Creates student and designer distribution from master
 #   -- Pushes premaster and master to github
 #
+if [[ $1 == "-h" ]];then
+    echo "Merge premaster into master, update docker hub to match mirror."
+    echo "Use -n to skip docker hub update."
+    exit
+fi
 branch=$(git rev-parse --abbrev-ref HEAD)
 if [[ "$branch" != "premaster" ]]; then
     echo "Current branch is not premaster."
@@ -14,10 +18,11 @@ fi
 git pull
 git checkout master || exit 1
 git merge premaster || exit 1
-./mkall.sh -r || exit 1
-echo "Provide Docker Hub password below"
-./refresh_mirror.py -q || exit 1
-echo "Mirror refresh complete"
+if [[ $1 != "-n" ]];then
+    echo "Provide Docker Hub password below"
+    ./refresh_mirror.py -q || exit 1
+    echo "Mirror refresh complete"
+fi
 git push --set-upstream origin master || exit 1
 git checkout premaster || exit 1
 git merge master || exit 1
