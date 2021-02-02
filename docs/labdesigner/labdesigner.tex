@@ -211,7 +211,7 @@ The most challenging and critical part of designing a new cybersecurity lab
 is the design of the lab itself, i.e., identifying learning objectives and
 organizing exercises to achieve those objectives.  The Labtainer framework
 does not specifically address any of that.  Rather, the framework is intended
-to allow you to focus more time on the design of the lab and less time on mitigating and
+to allow you to focus more time on the design of the lab and less time mitigating and
 explaining system administration and provisioning burdens you would otherwise place on 
 students and instructors.
 
@@ -274,6 +274,15 @@ container dialogs.
 
 Restart the lab and use {\tt ifconfig} (or {\tt ip addr}) on each computer to confirm IP address assignment and ping one computer from
 the other.   Use {\tt stop lab} to stop the lab.
+
+\subsubsection{Parameterize the lab}
+Edit your hello-world program to display a string literal called "REPLACEME".  
+In the GUI click the "Parameterize" button, then click "Create".  Give the parameter an identifier, select the initial
+container from the pulldown list, and enter the absolute path of the program file as it exists on the container, e.g.,
+{\tt /home/ubuntu/myprog.sh}\footnote{Be sure to press Enter in the file name text field, otherwise the value you type will disappear.}.  Leave the operator as {\tt RAND\_REPLACE} and provide a range for the random values.
+In the symbol field, enter the {\tt REPLACEME} string that you put in your program. 
+Then build and run the lab and run the hello world program to observice the random value.  
+
 
 \subsection{Command line lab creation}
 \label{command-line}
