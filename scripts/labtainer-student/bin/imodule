@@ -42,8 +42,8 @@ def update(logger, imodule_url):
         logger.debug('Got tar, expand from %s' % imodule_url)
         cmd = 'tar -xf %s' % tfile
         print('Updating IModule from %s' % imodule_url.strip())
-        print('expand into %s with command:' % os.getcwd())
-        print(cmd)
+        #print('expand into %s with command:' % os.getcwd())
+        #print(cmd)
         ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         output = ps.communicate()
         if len(output[1].strip()) > 0:
@@ -111,7 +111,7 @@ if __name__ == '__main__':
         with open(imodule_path, 'w') as fh:
             pass
         print('Deleted all IModule URLs.')
-    elif args.path is not None:
+    elif args.path is not None and args.path != 'NONE':
         with open(imodule_path, 'a') as fh:
             logger.debug('Adding imodule path %s' % args.path)
             print('Adding imodule path %s' % args.path)
