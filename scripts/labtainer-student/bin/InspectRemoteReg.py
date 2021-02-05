@@ -192,6 +192,9 @@ def getCreated(token, image, digest):
             exit(1)
         version = None
         base = None
+        if 'container_config' not in j:
+            print('Error getting image information from Docker Hub for %s.  Perhaps try again a bit later.' % image)
+            return None, None, None, None
         if 'version' in j['container_config']['Labels']:
             version = j['container_config']['Labels']['version'] 
         if 'base' in j['container_config']['Labels']:
