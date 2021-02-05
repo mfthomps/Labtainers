@@ -52,8 +52,8 @@ container_exec_proglist = {}
 stdoutfnameslist = []
 timestamplist = {}
 line_types = ['CHECKSUM', 'CONTAINS', 'FILE_REGEX', 'FILE_REGEX_TS', 'LINE', 'STARTSWITH', 'NEXT_STARTSWITH', 'HAVESTRING', 
-              'HAVESTRING_TS', 'LOG_TS', 'LOG_RANGE', 'RANGE_REGEX', 'REGEX', 'REGEX_TS', 'LINE_COUNT', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT', 'TIME_DELIM']
-just_field_type = ['CHECKSUM', 'LINE_COUNT', 'TIME_DELIM']
+              'HAVESTRING_TS', 'LOG_TS', 'LOG_RANGE', 'RANGE_REGEX', 'REGEX', 'REGEX_TS', 'LINE_COUNT', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT', 'TIME_DELIM', 'SIZE']
+just_field_type = ['CHECKSUM', 'LINE_COUNT', 'TIME_DELIM', 'SIZE']
 logger = None
 resultidlist = {}
 
@@ -112,7 +112,7 @@ def ProcessConfigLine(actual_parsing, studentlabdir, container_list, labidname, 
     This function populates a set of global structures used in processing the results
     '''
     valid_field_types = ['TOKEN', 'GROUP', 'PARENS', 'QUOTES', 'SLASH', 'LINE_COUNT', 'CHECKSUM', 'CONTAINS', 'FILE_REGEX',  
-                         'FILE_REGEX_TS', 'SEARCH', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT']
+                         'FILE_REGEX_TS', 'SEARCH', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT', 'SIZE']
     if not MyUtil.CheckAlphaDashUnder(result_key):
         logger.error("Not allowed characters in results.config's key (%s)" % result_key)
         sys.exit(1)
@@ -432,6 +432,8 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                 return None
             elif command == 'LINE_COUNT':
                 return targetfilelen
+            elif command == 'SIZE':
+                return os.path.getsize(current_targetfname)
             elif command == 'PARAM':
                 fname = os.path.basename(current_targetfname).rsplit('.',1)[0] 
                 if fname.endswith('stdin'):
