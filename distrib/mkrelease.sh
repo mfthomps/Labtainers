@@ -23,10 +23,10 @@ shift 1
 here=`pwd`
 revision=$new_tag
 commit=`git describe --always`
-sed -i "s/^Distribution created:.*$/Distribution created: $(date '+%m\/%d\/%Y %H:%M')<\/br>/" ../README.md
-sed -i "s/^Revision:.*$/Revision: $revision<\/br>/" ../README.md
-sed -i "s/^Commit:.*$/Commit: $commit<\/br>/" ../README.md
-sed -i "s/^Branch:.*$/Branch: master<\/br>/" ../README.md
+sed -i "s/^Distribution created:.*$/Distribution created: $(date '+%m\/%d\/%Y %H:%M') <\/br>/" ../README.md
+sed -i "s/^Revision:.*$/Revision: $revision <\/br>/" ../README.md
+sed -i "s/^Commit:.*$/Commit: $commit <\/br>/" ../README.md
+sed -i "s/^Branch:.*$/Branch: master <\/br>/" ../README.md
 git commit ../README.md -m "Update readme date/rev"
 ./mergePre.sh $1
 git tag $new_tag

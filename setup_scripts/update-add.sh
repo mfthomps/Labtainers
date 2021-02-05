@@ -15,5 +15,11 @@ fi
 here=`pwd`
 rm -fr labtainer/trunk/setup-scripts
 cd labtainer/trunk/scripts/labtainer-student/bin
-ln -s ../../setup_scripts/update-designer.sh
+if [ ! -L update-designer.sh ]; then
+    ln -s ../../../setup_scripts/update-designer.sh
+fi
 cd $here
+grep "^Distribution created:" labtainer/trunk/README.md | awk '{print "Updated to release of: ", $3, $4}'
+grep "^Branch:" labtainer/trunk/README.md | awk '{print "branch: ", $2}'
+grep "^Revision:" labtainer/trunk/README.md | awk '{print "Revision: ", $2}'
+grep "^Commit:" labtainer/trunk/README.md | awk '{print "Commit: ", $2}'
