@@ -16,3 +16,4 @@ here=`pwd`
 rm -fr labtainer/trunk/setup-scripts
 cd labtainer/trunk/scripts/labtainer-student/bin
 ln -s ../../setup_scripts/update-designer.sh
+cd $here
