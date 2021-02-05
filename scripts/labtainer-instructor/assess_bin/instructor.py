@@ -380,6 +380,9 @@ def main():
         # TBD also getting what, student parameters from first container.  
         # Better way to get instr_config files than do duplicate on each container?  Just put on grader? 
         student_parameter = GoalsParser.ParseGoals(MYHOME, DestDirName, logger)
+        for param in student_parameter:
+            env_var = 'LABTAINER_%s' % param
+            os.environ[env_var] = student_parameter[param]
        
         if do_pregrade:
             ''' invoke pregrade for each container '''
