@@ -13,17 +13,20 @@ The student will use Wireshark to view network traffic captured in a ``PCAP''
 file and locate a specific packet.  PCAP files contain
 copies of network traffic stored in a format that can be processed
 by various network analysis tools such as Wireshark and
-tcpdump.  PCAP is short for ``packet capture''.
+\textit{tcpdump}.  PCAP is short for ``packet capture''.
 
 \subsection{Background}
-This exercise assumes the student has received instruction TCP/IP networking.
+This exercise assumes you have received instruction TCP/IP networking.
+In this lab you will be asked to analyze packets from a Telnet session.  Telnet is a communications protocol that allows a user to 
+issue shell commands to a remote host. Telnet network 
+traffic is not encrypted, which simplifies traffic analysis. Refer to the \textit{telnetlab} for further background.
 
 This lab exercise only touches on some of the most basic features of Wireshark.
 Details on using the tool can be found at \url{https://www.wireshark.org/docs/wsug\_html\_chunked/ChapterIntroduction.html}
 
 \section{Lab Environment}
 This lab runs in the Labtainer framework,
-available at http://nps.edu/web/c3o/labtainers.
+available at \url{http://nps.edu/web/c3o/labtainers}.
 That site includes links to a pre-built virtual machine
 that has Labtainers installed, however Labtainers can
 be run on any Linux host that supports Docker containers.
@@ -36,34 +39,48 @@ A link to this lab manual will be displayed.
 
 \section{Tasks}
 \subsection{Explore}
-Use the {\tt ls} command to view the content of the directory in the terminal that opened when you started the lab.
-That {\tt telnet.pcapng} file contains the network traffic you will analyze.  Use
+Use the {\tt ls -l} command to view the content of the directory in the terminal that opened when you started the lab.
+That {\tt telnet.pcap} file contains the network traffic you will analyze.  Use
 \begin{verbatim}
-   file telnet.pcapng
+   file telnet.pcap
 \end{verbatim}
-\noindent to view information about the file.  Note it is a \textit{pcap-ng} file, which is a variation of the PCAP file format
-currently used as the default format for Wireshark and other analysis tools.
+\noindent to view information about the file.  
 
 \subsection{Run wireshark to perform PCAP Analysis}
 
-Start Wireshark using the {\tt wireshark} command.  Then use {\tt File->Open} to open the telnet.pcapng file.
-
-Telnet is a communications protocol that allows a user to 
-issue shell commands to a remote host. Telnet network 
-traffic is not encrypted. Refer to the telnet lab for further background.
+Start Wireshark using the {\tt wireshark} command.  Then use {\tt File->Open} to open the telnet.pcap file.
+\noindent \textbf{NOTE:} If you encounter a black or corrupt window while using Wireshark, try to resize the
+window a bit.  if the window will not resize, try stopping the applicaiton and starting it again.
 
 \subsection{Find a specific packet}
 
 Locate the single packet which contains the password provided when the user attempted to use Telnet to login as the "john" user. 
 
 
-\textbf{Hint}: If you type {\tt telnet.data} into the field that says ``Add a display filter'' (above the list of packets), the
+\textbf{Hint}: If you type {\tt telnet.data} into the field that says ``Add a display filter'' (see Figure \ref{fig:filter}), the
 tool will display only Telnet data packets.  Press {\tt return} to apply the filter.
 
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics [width=0.8\linewidth]{filter.png}
+\end{center}
+\caption{Display filter}
+\label{fig:filter}
+\end{figure}
+
 Once you locate the single packet containing the invalid password, use {\tt File=>Export specified packets} to save the single
-packet that you located.  Save the single packet as 'invalidpassword.pcapng'.  Be sure to select {\tt Selected packets only} in the Export dialog and be sure to get the file name exactly right.
+packet that you located.  Save the single packet as \textit{invalidpassword.pcap}.  Be sure to select the {\tt Selected packets only} 
+radio button in the Export dialog and be sure to get the file name exactly right.
 
 After you save the packet, you might then use {\tt File=>Open} to open your new pcap file to confirm it contains the correct packet.
+
+\subsection{Explore some more}
+Look through other packets and experiment with filters.  Try selecting one of the TELNET packets and use the
+{\tt Analyze=>Follow=>TCP stream} function to view the entire TELNET conversation.
+
+After you complete this lab, consider performing the \textit{packet-introspection} lab to delve deeper into traffic analysis
+with Wireshark.
 
 \section{Submission}
 After finishing the lab, go to the terminal on your Linux system that was used to start the lab and type:
@@ -71,7 +88,7 @@ After finishing the lab, go to the terminal on your Linux system that was used t
     stoplab 
 \end{verbatim}
 When you stop the lab, the system will display a path to the zipped lab results on your Linux system.  Provide that file to 
-your instructor, e.g., via the Sakai site.
+your instructor, e.g., via the Sakai site or email using the VM's browser.
 
 \copyrightnotice
 

@@ -4,8 +4,5 @@
 
 cd $HOME
 # Do editcap to new file to avoid potential corruption
-editcap -t EDITCAP_SECONDS telnet.pcap new.telnet.pcap
-# Replace when done
-cp telnet.pcap /tmp/
+editcap -F pcap -r telnet.pcap new.telnet.pcap EDITCAP_START-999999
 mv new.telnet.pcap telnet.pcap
-
