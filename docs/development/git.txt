@@ -8,3 +8,8 @@ Branches
 git checkout -b some_branch
 git push -u origin some_branch
 
+
+Remote URL
+Get token from github or gitlab
+git remote set-url origin https://<token name>:<token>@gitlab.nps.edu/mfthomps/Labtainers-simlab.git
+
