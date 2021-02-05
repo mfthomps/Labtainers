@@ -55,7 +55,7 @@ if [[ "$1" != "-r" ]]; then
     sed -i "s/^Commit:.*$/Commit: $commit</br>/" ../README.md
     sed -i "s/^Branch:.*$/Branch: $branch</br>/" ../README.md
 fi
-
+cp README.md $ltrunk/
 #git archive master config | tar -x -C $ltrunk
 $here/fix-git-dates.py config $ltrunk $branch
 $here/fix-git-dates.py setup_scripts $ltrunk $branch
