@@ -95,8 +95,10 @@ if [[ "$TEST_REGISTRY" != TRUE ]]; then
    # ubuntu unattended upgrades are a curse
    sudo systemctl kill --kill-who=all apt-daily.service
    sudo systemctl kill --kill-who=all apt-daily-upgrade.service
-   sudo rm /var/lib/dpkg/lock
    sudo apt-get update
+   sudo systemctl kill --kill-who=all apt-daily.service
+   sudo systemctl kill --kill-who=all apt-daily-upgrade.service
+   sudo rm /var/lib/dpkg/lock
    sudo apt-get install -y default-jre
 fi
 #sudo -H pip install netaddr parse python-dateutil
