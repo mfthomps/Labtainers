@@ -341,6 +341,7 @@ def doGrade(labname, use_test_registry, debug, redo, update, web=False, regress_
         volume_param = '-v %s:/home/instructor/.local/flask/static/docs' % docs_path
         lab_doc_path = os.path.join(os.getenv('LABTAINER_DIR'), 'labs', labname, 'docs')
         volume_param += ' -v %s:/home/instructor/.local/flask/static/lab_doc' % lab_doc_path
+        volume_param = volume_param+' --env="DISPLAY" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw"'
         if test_web:
             flask_path = os.path.join(os.getenv('LABTAINER_DIR'), 'scripts', 'labtainer-instructor', 'flask')
             volume_param = volume_param+' -v %s:/home/instructor/.local/flask' % flask_path
