@@ -92,8 +92,10 @@ if [[ "$TEST_REGISTRY" != TRUE ]]; then
    echo "Modifying docker DNS usage, and installing JRE provide $USER password below (password123 for Labtainers VM)"
    sudo trunk/setup_scripts/dns-add.py
    sudo systemctl restart docker
+   # ubuntu unattended upgrades are a curse
    sudo systemctl kill --kill-who=all apt-daily.service
    sudo systemctl kill --kill-who=all apt-daily-upgrade.service
+   sudo rm /var/lib/dpkg/lock
    sudo apt-get update
    sudo apt-get install -y default-jre
 fi
