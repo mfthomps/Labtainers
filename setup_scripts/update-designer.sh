@@ -83,16 +83,17 @@ if [[ "$TEST_REGISTRY" != TRUE ]]; then
     #wget --quiet https://nps.box.com/shared/static/xk9e07r7m5szrc9owggawyxzy5w3rzrh.tar -O labtainer-developer.tar
     #wget --quiet https://github.com/mfthomps/Labtainers/raw/master/distrib/release/labtainer-developer.tar -O labtainer-developer.tar
     wget --quiet https://github.com/mfthomps/Labtainers/tarball/master -O labtainer-master.tar
-    wget --quiet https://github.com/mfthomps/Labtainers/releases/latest/download/MainUI.jar -O $LABTAINER_DIR/UI/bin/MainUI.jar
     sync
 else
     cp /media/sf_SEED/test_vms/$HOSTNAME/labtainer-master.tar .
     echo "USING SHARED FILE TAR, NOT PULLING FROM WEB"
 fi
 if [[ "$TEST_REGISTRY" != TRUE ]]; then
-   echo "Modifying docker DNS usage, provide $USER password below (password123 for Labtainers VM)"
+   echo "Modifying docker DNS usage, and installing JRE provide $USER password below (password123 for Labtainers VM)"
    sudo trunk/setup_scripts/dns-add.py
    sudo systemctl restart docker
+   sudo apt-get update
+   sudo apt-get install -y openjdk-8-jre
 fi
 #sudo -H pip install netaddr parse python-dateutil
 cd ..
@@ -100,6 +101,9 @@ cd ..
 rm -f labtainer/trunk/scripts/labtainer-student/bin/SimLab*
 
 tar xf labtainer/labtainer-master.tar --strip 1 -C $LABTAINER_DIR
+if [[ "$TEST_REGISTRY" != TRUE ]]; then
+    wget --quiet https://github.com/mfthomps/Labtainers/releases/latest/download/MainUI.jar -O $LABTAINER_DIR/UI/bin/MainUI.jar
+fi
 grep "^Distribution created:" labtainer/trunk/README.md | awk '{print "Updated to release of: ", $3, $4}'
 
 if [ ! -L $HOME/Desktop/labdesigner.pdf ]; then
