@@ -88,6 +88,14 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+
+February 4, 2021
+- Add SIZE option to results artifacts
+- Simplify wireshark-intro assessment and parameterization and add PDF lab manual.
+- Provide parameter list values to pregrade.sh script as environment variables
+- enable X11 on the grader
+- put update-designer.sh into users path.
+
 January 19, 2021
 - Change management of README date/rev to update file in source repo.
 - Introduce GUI for creating/editing labs -- see labedit command.
