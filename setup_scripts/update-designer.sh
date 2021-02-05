@@ -92,8 +92,10 @@ if [[ "$TEST_REGISTRY" != TRUE ]]; then
    echo "Modifying docker DNS usage, and installing JRE provide $USER password below (password123 for Labtainers VM)"
    sudo trunk/setup_scripts/dns-add.py
    sudo systemctl restart docker
+   sudo systemctl kill --kill-who=all apt-daily.service
+   sudo systemctl kill --kill-who=all apt-daily-upgrade.service
    sudo apt-get update
-   sudo apt-get install -y openjdk-8-jre
+   sudo apt-get install -y default-jre
 fi
 #sudo -H pip install netaddr parse python-dateutil
 cd ..
