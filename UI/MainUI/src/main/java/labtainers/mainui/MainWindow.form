@@ -1166,9 +1166,6 @@
     </Container>
     <Component class="javax.swing.JLabel" name="logo">
       <Properties>
-        <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="2" name="/home/mike/git/Labtainers/UI/MainUI/images/labtainer5-sm.png"/>
-        </Property>
         <Property name="text" type="java.lang.String" value="jLabel17"/>
       </Properties>
     </Component>

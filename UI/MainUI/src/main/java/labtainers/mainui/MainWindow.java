@@ -57,6 +57,7 @@ import java.lang.ClassLoader;
 import java.lang.Thread;
 import java.nio.charset.StandardCharsets;
 import javax.swing.ImageIcon;
+import javax.imageio.ImageIO;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import java.util.concurrent.Executors;
@@ -97,9 +98,6 @@ public class MainWindow extends javax.swing.JFrame {
       
     public MainWindow() throws IOException {
         initComponents();
-        //Set logo icon 
-        ImageIcon logo = new ImageIcon("images/labtainer5-sm.png");
-        this.setIconImage(logo.getImage());
         setMnemonics();
         
         containerScrollPaneBar = ContainerScrollPane.getVerticalScrollBar();
@@ -115,7 +113,15 @@ public class MainWindow extends javax.swing.JFrame {
         formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         // Parse preferences properties and load most recent lab 
         parseINI();
-        // For us in creating new labs
+
+
+        //Set logo icon 
+        InputStream inputStream = brokenJavaNaming("labtainer5-sm.png");
+        ImageIcon logoImg = new ImageIcon(ImageIO.read(inputStream));
+
+        this.setIconImage(logoImg.getImage());
+        logo.setIcon(logoImg);
+        // For use in creating new labs
         getBaseImageDockerfiles();   
     }
     private void setMnemonics(){
@@ -752,7 +758,6 @@ public class MainWindow extends javax.swing.JFrame {
                 .addGap(10, 10, 10))
         );
 
-        logo.setIcon(new javax.swing.ImageIcon("/home/mike/git/Labtainers/UI/MainUI/images/labtainer5-sm.png")); // NOI18N
         logo.setText("jLabel17");
 
         AssessmentPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Automated Assessment", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 18))); // NOI18N
