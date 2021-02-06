@@ -6,7 +6,7 @@
       <Properties>
         <Property name="title" type="java.lang.String" value="Container Configuration: "/>
         <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-          <Dimension value="[601, 400]"/>
+          <Dimension value="[601, 700]"/>
         </Property>
         <Property name="resizable" type="boolean" value="false"/>
       </Properties>
@@ -35,8 +35,8 @@
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="1" attributes="0">
-                  <Component id="containerTabPane" pref="359" max="32767" attributes="0"/>
-                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="containerTabPane" min="-2" pref="547" max="-2" attributes="0"/>
+                  <EmptySpace pref="9" max="32767" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="ContainerConfigUpdateButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="ContainerConfigCancelButton" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -157,8 +157,8 @@
                               <Component id="ShellButton" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="ContainerConfigNetworksScrollpane" pref="126" max="32767" attributes="0"/>
-                          <EmptySpace min="-2" pref="35" max="-2" attributes="0"/>
+                          <Component id="ContainerConfigNetworksScrollpane" min="-2" pref="326" max="-2" attributes="0"/>
+                          <EmptySpace max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -386,7 +386,7 @@
                               <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
                               <Component id="NoPrivilegeCheckbox" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace pref="91" max="32767" attributes="0"/>
+                          <EmptySpace pref="279" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -512,7 +512,7 @@
                               <Component id="ContainerConfigAddHostNetworkButton" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="AddHostsScrollPane" pref="258" max="32767" attributes="0"/>
+                          <Component id="AddHostsScrollPane" pref="446" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -664,7 +664,7 @@
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="TapRadioButton" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="139" max="32767" attributes="0"/>
+                          <EmptySpace pref="327" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -829,7 +829,7 @@
                               <Component id="HideLabel" min="-2" max="-2" attributes="0"/>
                               <Component id="HideCheckbox" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace pref="126" max="32767" attributes="0"/>
+                          <EmptySpace pref="314" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
