@@ -881,7 +881,7 @@
         </Container>
         <Component class="javax.swing.JButton" name="ContainerConfigUpdateButton">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Confirm"/>
+            <Property name="text" type="java.lang.String" value="OK"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ContainerConfigUpdateButtonActionPerformed"/>
@@ -901,6 +901,40 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="Edit"/>
               </Properties>
+              <SubComponents>
+                <MenuItem class="javax.swing.JMenuItem" name="editDockerMenuItem">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="dockerfile"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="editDockerMenuItemActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="fixlocalMenuItem">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="fixlocal"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="fixlocalMenuItemActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="treataslocalMenuItem">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="treataslocal"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="treataslocalMenuItemActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="openShellMenu">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Open shell"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="openShellMenuActionPerformed"/>
+                  </Events>
+                </MenuItem>
+              </SubComponents>
             </Menu>
           </SubComponents>
         </Menu>
@@ -917,28 +951,28 @@
             <Property name="text" type="java.lang.String" value="Edit..."/>
           </Properties>
           <SubComponents>
-            <MenuItem class="javax.swing.JMenuItem" name="editDockerMenuItem">
+            <MenuItem class="javax.swing.JMenuItem" name="editDockerMenuItem1">
               <Properties>
                 <Property name="text" type="java.lang.String" value="dockerfile"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="editDockerMenuItemActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="editDockerMenuItem1ActionPerformed"/>
               </Events>
             </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="fixlocalMenuItem">
+            <MenuItem class="javax.swing.JMenuItem" name="fixlocalMenuItem1">
               <Properties>
                 <Property name="text" type="java.lang.String" value="fixlocal"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="fixlocalMenuItemActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="fixlocalMenuItem1ActionPerformed"/>
               </Events>
             </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="treataslocalMenuItem">
+            <MenuItem class="javax.swing.JMenuItem" name="treataslocalMenuItem1">
               <Properties>
                 <Property name="text" type="java.lang.String" value="treataslocal"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="treataslocalMenuItemActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="treataslocalMenuItem1ActionPerformed"/>
               </Events>
             </MenuItem>
           </SubComponents>

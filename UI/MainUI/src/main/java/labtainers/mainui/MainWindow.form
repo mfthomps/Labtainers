@@ -754,6 +754,14 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="LabDocumentsMenuItemActionPerformed"/>
               </Events>
             </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="readfirstMenu">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="readfirst.txt"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="readfirstMenuActionPerformed"/>
+              </Events>
+            </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="SimlabDirectivesMenuItem">
               <Properties>
                 <Property name="text" type="java.lang.String" value="SimLab directives"/>
@@ -921,11 +929,7 @@
               <Group type="102" alignment="1" attributes="0">
                   <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
                   <Component id="LabnameLabel" max="32767" attributes="0"/>
-                  <EmptySpace min="-2" pref="114" max="-2" attributes="0"/>
-                  <Component id="AboutButton" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" pref="66" max="-2" attributes="0"/>
-                  <Component id="LabManualButton" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" pref="426" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="831" max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -933,12 +937,8 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="LabnameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="AboutButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="LabManualButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <EmptySpace max="32767" attributes="0"/>
+                  <Component id="LabnameLabel" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace pref="17" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -952,22 +952,6 @@
             <Property name="horizontalAlignment" type="int" value="2"/>
             <Property name="text" type="java.lang.String" value="Lab:"/>
           </Properties>
-        </Component>
-        <Component class="javax.swing.JButton" name="AboutButton">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="About this lab"/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="AboutButtonActionPerformed"/>
-          </Events>
-        </Component>
-        <Component class="javax.swing.JButton" name="LabManualButton">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Lab documents"/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="LabManualButtonActionPerformed"/>
-          </Events>
         </Component>
       </SubComponents>
     </Container>
@@ -1166,9 +1150,6 @@
     </Container>
     <Component class="javax.swing.JLabel" name="logo">
       <Properties>
-        <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="2" name="/home/mike/git/Labtainers/UI/MainUI/images/labtainer5-sm.png"/>
-        </Property>
         <Property name="text" type="java.lang.String" value="jLabel17"/>
       </Properties>
     </Component>
