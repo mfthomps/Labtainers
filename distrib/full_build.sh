@@ -3,7 +3,7 @@
 # Perform all build steps needed to run tests, then start smoketests.
 # NOTE: this script assumes pulls from github.
 #
-here=`pwd`
+cd $LABTAINER_DIR/distrib
 branch=$(git rev-parse --abbrev-ref HEAD)
 if [[ "$branch" == "master" ]]; then
     echo "Do not full_build as the master branch."
@@ -24,7 +24,6 @@ ldir=$ddir/labtainer
 rm -fr $ldir
 ltrunk=$ldir/trunk
 mkdir -p $ltrunk
-here=`pwd`
 cd ../
 git clone --single-branch --branch $branch $LABTAINER_DIR $ltrunk
 

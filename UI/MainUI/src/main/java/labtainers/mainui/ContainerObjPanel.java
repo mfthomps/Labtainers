@@ -56,9 +56,12 @@ public class ContainerObjPanel extends javax.swing.JPanel {
     // Constructor for loading a container object panel based on a container data object
     public ContainerObjPanel(MainWindow mainWindow, LabData.ContainerData data){
         initComponents();
-        editMenu.add(fixlocalMenuItem);
-        editMenuBar.add(treataslocalMenuItem);
-        editMenu.add(editDockerMenuItem);
+        //editMenu.add(fixlocalMenuItem);
+        //editMenu.add(editDockerMenuItem);
+        //editMenu.add(openShellMenuItem);
+        //editMenuBar.add(treataslocalMenuItem);
+        //editMenuBar.add(editDockerMenuItem);
+        editMenuBar.add(openShellMenuItem);
         editMenu.add(openShellMenuItem);
         this.data = data;
         this.mainWindow = mainWindow;
@@ -144,11 +147,15 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         ContainerConfigCancelButton = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         editMenuBar = new javax.swing.JMenu();
-        ContainerRightClick = new javax.swing.JPopupMenu();
-        editMenu = new javax.swing.JMenu();
         editDockerMenuItem = new javax.swing.JMenuItem();
         fixlocalMenuItem = new javax.swing.JMenuItem();
         treataslocalMenuItem = new javax.swing.JMenuItem();
+        openShellMenu = new javax.swing.JMenuItem();
+        ContainerRightClick = new javax.swing.JPopupMenu();
+        editMenu = new javax.swing.JMenu();
+        editDockerMenuItem1 = new javax.swing.JMenuItem();
+        fixlocalMenuItem1 = new javax.swing.JMenuItem();
+        treataslocalMenuItem1 = new javax.swing.JMenuItem();
         openShellMenuItem = new javax.swing.JMenuItem();
         renameContainerOption = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
@@ -611,7 +618,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
 
         containerTabPane.addTab("GNS3", ContainerConfigGNS3Tab);
 
-        ContainerConfigUpdateButton.setText("Confirm");
+        ContainerConfigUpdateButton.setText("OK");
         ContainerConfigUpdateButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 ContainerConfigUpdateButtonActionPerformed(evt);
@@ -626,6 +633,39 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         });
 
         editMenuBar.setText("Edit");
+
+        editDockerMenuItem.setText("dockerfile");
+        editDockerMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                editDockerMenuItemActionPerformed(evt);
+            }
+        });
+        editMenuBar.add(editDockerMenuItem);
+
+        fixlocalMenuItem.setText("fixlocal");
+        fixlocalMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                fixlocalMenuItemActionPerformed(evt);
+            }
+        });
+        editMenuBar.add(fixlocalMenuItem);
+
+        treataslocalMenuItem.setText("treataslocal");
+        treataslocalMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                treataslocalMenuItemActionPerformed(evt);
+            }
+        });
+        editMenuBar.add(treataslocalMenuItem);
+
+        openShellMenu.setText("Open shell");
+        openShellMenu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                openShellMenuActionPerformed(evt);
+            }
+        });
+        editMenuBar.add(openShellMenu);
+
         jMenuBar1.add(editMenuBar);
 
         ContainerConfigWindow.setJMenuBar(jMenuBar1);
@@ -658,29 +698,29 @@ public class ContainerObjPanel extends javax.swing.JPanel {
 
         editMenu.setText("Edit...");
 
-        editDockerMenuItem.setText("dockerfile");
-        editDockerMenuItem.addActionListener(new java.awt.event.ActionListener() {
+        editDockerMenuItem1.setText("dockerfile");
+        editDockerMenuItem1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                editDockerMenuItemActionPerformed(evt);
+                editDockerMenuItem1ActionPerformed(evt);
             }
         });
-        editMenu.add(editDockerMenuItem);
+        editMenu.add(editDockerMenuItem1);
 
-        fixlocalMenuItem.setText("fixlocal");
-        fixlocalMenuItem.addActionListener(new java.awt.event.ActionListener() {
+        fixlocalMenuItem1.setText("fixlocal");
+        fixlocalMenuItem1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                fixlocalMenuItemActionPerformed(evt);
+                fixlocalMenuItem1ActionPerformed(evt);
             }
         });
-        editMenu.add(fixlocalMenuItem);
+        editMenu.add(fixlocalMenuItem1);
 
-        treataslocalMenuItem.setText("treataslocal");
-        treataslocalMenuItem.addActionListener(new java.awt.event.ActionListener() {
+        treataslocalMenuItem1.setText("treataslocal");
+        treataslocalMenuItem1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                treataslocalMenuItemActionPerformed(evt);
+                treataslocalMenuItem1ActionPerformed(evt);
             }
         });
-        editMenu.add(treataslocalMenuItem);
+        editMenu.add(treataslocalMenuItem1);
 
         ContainerRightClick.add(editMenu);
 
@@ -795,28 +835,27 @@ public class ContainerObjPanel extends javax.swing.JPanel {
     private void editDockerMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editDockerMenuItemActionPerformed
         String dockerfilePath = mainWindow.getCurrentLab().getPath()+File.separator+"dockerfiles"+File.separator+
                                 "Dockerfile."+mainWindow.getLabName()+"."+this.data.name+".student";
-        String cmd = "gnome-terminal -- vi "+dockerfilePath+" &";
+        String cmd = mainWindow.getTextEditor()+dockerfilePath+" &";
         mainWindow.doCommand(cmd); 
     }//GEN-LAST:event_editDockerMenuItemActionPerformed
 
-    private void treataslocalMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_treataslocalMenuItemActionPerformed
-        String treataslocal = mainWindow.getCurrentLab().getPath()+File.separator+this.data.name+"_bin"+File.separator+
-                                "treataslocal";
-        String cmd = "gnome-terminal -- vi "+treataslocal+" &";
+    private void editBin(String fname){
+        String full_path = mainWindow.getCurrentLab().getPath()+File.separator+this.data.name+File.separator+"_bin"+File.separator+
+                                fname;
+        String cmd = mainWindow.getTextEditor()+full_path+" &";
+        //System.out.println("full_path cmd: "+cmd);
         mainWindow.doCommand(cmd); 
+    }
+    private void treataslocalMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_treataslocalMenuItemActionPerformed
+        editBin("treataslocal");
     }//GEN-LAST:event_treataslocalMenuItemActionPerformed
 
     private void fixlocalMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fixlocalMenuItemActionPerformed
-        String fixlocal = mainWindow.getCurrentLab().getPath()+File.separator+this.data.name+"_bin"+File.separator+
-                                "fixlocal";
-        String cmd = "gnome-terminal -- vi "+fixlocal+" &";
-        mainWindow.doCommand(cmd); 
+        editBin("fixlocal.sh");
     }//GEN-LAST:event_fixlocalMenuItemActionPerformed
 
     private void openShellMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openShellMenuItemActionPerformed
-        String cmd = "gnome-terminal --working-directory="+mainWindow.getCurrentLab().getPath()+File.separator+this.data.name;
-        System.out.println("cmd: "+cmd);
-        mainWindow.doLabCommand(cmd);
+        ShellButtonActionPerformed(evt);
     }//GEN-LAST:event_openShellMenuItemActionPerformed
 
     private void ShellButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ShellButtonActionPerformed
@@ -824,6 +863,22 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         System.out.println("cmd: "+cmd);
         mainWindow.doLabCommand(cmd);
     }//GEN-LAST:event_ShellButtonActionPerformed
+
+    private void editDockerMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editDockerMenuItem1ActionPerformed
+        editDockerMenuItemActionPerformed(evt);
+    }//GEN-LAST:event_editDockerMenuItem1ActionPerformed
+
+    private void fixlocalMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fixlocalMenuItem1ActionPerformed
+        fixlocalMenuItemActionPerformed(evt);
+    }//GEN-LAST:event_fixlocalMenuItem1ActionPerformed
+
+    private void treataslocalMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_treataslocalMenuItem1ActionPerformed
+        treataslocalMenuItemActionPerformed(evt);
+    }//GEN-LAST:event_treataslocalMenuItem1ActionPerformed
+
+    private void openShellMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openShellMenuActionPerformed
+        ShellButtonActionPerformed(evt);
+    }//GEN-LAST:event_openShellMenuActionPerformed
     
     // BUTTONS/HANDLERS //
     
@@ -1045,7 +1100,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
     private void editDockerfile(){
             String dockerfilePath = mainWindow.getCurrentLab().getPath()+File.separator+"dockerfiles"+File.separator+
                                     "Dockerfile."+mainWindow.getLabName()+"."+this.data.name+".student";
-            String cmd = "gnome-terminal -- vi "+dockerfilePath+" &";
+            String cmd = mainWindow.getTextEditor()+dockerfilePath+" &";
             mainWindow.doCommand(cmd); 
     }
     
@@ -1259,9 +1314,11 @@ public class ContainerObjPanel extends javax.swing.JPanel {
     private javax.swing.JTabbedPane containerTabPane;
     private javax.swing.JMenuItem deleteContainerOption;
     private javax.swing.JMenuItem editDockerMenuItem;
+    private javax.swing.JMenuItem editDockerMenuItem1;
     private javax.swing.JMenu editMenu;
     private javax.swing.JMenu editMenuBar;
     private javax.swing.JMenuItem fixlocalMenuItem;
+    private javax.swing.JMenuItem fixlocalMenuItem1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -1279,8 +1336,10 @@ public class ContainerObjPanel extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPopupMenu.Separator jSeparator1;
+    private javax.swing.JMenuItem openShellMenu;
     private javax.swing.JMenuItem openShellMenuItem;
     private javax.swing.JMenuItem renameContainerOption;
     private javax.swing.JMenuItem treataslocalMenuItem;
+    private javax.swing.JMenuItem treataslocalMenuItem1;
     // End of variables declaration//GEN-END:variables
 }
