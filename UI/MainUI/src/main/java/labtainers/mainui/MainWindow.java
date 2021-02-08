@@ -190,8 +190,6 @@ public class MainWindow extends javax.swing.JFrame {
         SaveAsConfirmButton = new javax.swing.JButton();
         Header = new javax.swing.JPanel();
         LabnameLabel = new javax.swing.JLabel();
-        AboutButton = new javax.swing.JButton();
-        LabManualButton = new javax.swing.JButton();
         ContainerPanel = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         ContainerScrollPane = new javax.swing.JScrollPane();
@@ -230,6 +228,7 @@ public class MainWindow extends javax.swing.JFrame {
         EditMenu = new javax.swing.JMenu();
         AboutLabMenuItem = new javax.swing.JMenuItem();
         LabDocumentsMenuItem = new javax.swing.JMenuItem();
+        readfirstMenu = new javax.swing.JMenuItem();
         SimlabDirectivesMenuItem = new javax.swing.JMenuItem();
         HelpMenu = new javax.swing.JMenu();
         DesignerMenuItem = new javax.swing.JMenuItem();
@@ -619,20 +618,6 @@ public class MainWindow extends javax.swing.JFrame {
         LabnameLabel.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         LabnameLabel.setText("Lab:");
 
-        AboutButton.setText("About this lab");
-        AboutButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                AboutButtonActionPerformed(evt);
-            }
-        });
-
-        LabManualButton.setText("Lab documents");
-        LabManualButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                LabManualButtonActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout HeaderLayout = new javax.swing.GroupLayout(Header);
         Header.setLayout(HeaderLayout);
         HeaderLayout.setHorizontalGroup(
@@ -640,21 +625,14 @@ public class MainWindow extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, HeaderLayout.createSequentialGroup()
                 .addGap(20, 20, 20)
                 .addComponent(LabnameLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(114, 114, 114)
-                .addComponent(AboutButton)
-                .addGap(66, 66, 66)
-                .addComponent(LabManualButton)
-                .addGap(426, 426, 426))
+                .addGap(831, 831, 831))
         );
         HeaderLayout.setVerticalGroup(
             HeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(HeaderLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(HeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(LabnameLabel)
-                    .addComponent(AboutButton)
-                    .addComponent(LabManualButton))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(LabnameLabel)
+                .addContainerGap(17, Short.MAX_VALUE))
         );
 
         ContainerPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -945,6 +923,14 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
         EditMenu.add(LabDocumentsMenuItem);
+
+        readfirstMenu.setText("readfirst.txt");
+        readfirstMenu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                readfirstMenuActionPerformed(evt);
+            }
+        });
+        EditMenu.add(readfirstMenu);
 
         SimlabDirectivesMenuItem.setText("SimLab directives");
         SimlabDirectivesMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -1308,18 +1294,6 @@ public class MainWindow extends javax.swing.JFrame {
         doStudentCommand(cmd);
     }//GEN-LAST:event_BuildAndRunActionPerformed
 
-    private void AboutButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AboutButtonActionPerformed
-        String aboutPath = this.currentLab.toString()+File.separator+"config"+File.separator+"about.txt";
-        String cmd = getTextEditor()+" "+aboutPath+" &";
-        doCommand(cmd);
-    }//GEN-LAST:event_AboutButtonActionPerformed
-
-    private void LabManualButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LabManualButtonActionPerformed
-        String cmd = "gnome-terminal --working-directory="+currentLab.getPath()+File.separator+"docs";
-        System.out.println("cmd: "+cmd);
-        doCommand(cmd);
-    }//GEN-LAST:event_LabManualButtonActionPerformed
-
     private void PreferencesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PreferencesMenuItemActionPerformed
         PreferencesPanel panel = new PreferencesPanel();
 
@@ -1353,6 +1327,12 @@ public class MainWindow extends javax.swing.JFrame {
     private void SimlabDirectivesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SimlabDirectivesMenuItemActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_SimlabDirectivesMenuItemActionPerformed
+
+    private void readfirstMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_readfirstMenuActionPerformed
+        String readFirstPath = this.currentLab.toString()+File.separator+"docs"+File.separator+"read_first.txt";
+        String cmd = "gnome-terminal -- "+getTextEditor()+readFirstPath+" &";
+        doCommand(cmd);
+    }//GEN-LAST:event_readfirstMenuActionPerformed
     
     //BUTTON FUNCTIONS//
     
@@ -1577,7 +1557,7 @@ public class MainWindow extends javax.swing.JFrame {
             String manualPath = currentLab.toString()+File.separator+"docs"+File.separator+docname;
             File manual = new File(manualPath);
             if(! manual.exists()){
-                output("No lab manual found at docs/"+docname+" Use the Lab Documents button and create a lab manual there, or\n");
+                output("No lab manual found at docs/"+docname+" Use 'Edit=>Lab documents' and create a lab manual there, or\n");
                 output("change the name in read_first.txt to match your lab manual.\n");
             }
         }else{
@@ -2072,7 +2052,7 @@ public class MainWindow extends javax.swing.JFrame {
         OutputTextArea.requestFocus();
     }
     public String getTextEditor(){
-        return prefProperties.getProperty("textEditor");
+        return prefProperties.getProperty("textEditor")+" ";
     }
     /**
      * @param args the command line arguments
@@ -2114,7 +2094,6 @@ public class MainWindow extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton AboutButton;
     private javax.swing.JMenuItem AboutLabMenuItem;
     private javax.swing.JButton AssessmentButton;
     private javax.swing.JButton AssessmentButton1;
@@ -2139,7 +2118,6 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JMenuItem InstructorMenuItem;
     private javax.swing.JMenuItem LabDocumentsMenuItem;
     private javax.swing.JLabel LabExistLabel;
-    private javax.swing.JButton LabManualButton;
     private javax.swing.JLabel LabnameLabel;
     private javax.swing.JMenuBar MainMenuBar;
     private javax.swing.JDialog NetworkAddDialog;
@@ -2203,6 +2181,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JMenuItem labtainerLogMenuItem;
     private javax.swing.JLabel logo;
     private javax.swing.JButton paramsButton;
+    private javax.swing.JMenuItem readfirstMenu;
     // End of variables declaration//GEN-END:variables
 
     private static class StreamGobbler implements Runnable {
