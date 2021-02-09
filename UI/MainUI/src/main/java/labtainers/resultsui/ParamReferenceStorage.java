@@ -97,6 +97,8 @@ public class ParamReferenceStorage {
                                     "and their groups are processed using the python<br>" +
                                     "re.search semantics.</html>" ),
         // 13        
+        new ToolTipWrapper("SIZE", "<html>The result value is set to the size of the file.</html>"), 
+        // 14
         new ToolTipWrapper("TIME_DELIM", "" )};
     
     
@@ -177,7 +179,7 @@ public class ParamReferenceStorage {
    
    
    public static final Set<String> justFieldType = new HashSet<String>(Arrays.asList(
-    new String[] {"LINE_COUNT", "CHECKSUM", "TIME_DELIM"}
+    new String[] {"LINE_COUNT", "CHECKSUM", "TIME_DELIM", "SIZE"}
    ));
    
    

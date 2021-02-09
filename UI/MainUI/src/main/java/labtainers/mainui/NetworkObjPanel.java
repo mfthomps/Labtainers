@@ -68,14 +68,10 @@ public class NetworkObjPanel extends javax.swing.JPanel {
     private void initComponents() {
 
         NetworkConfigWindow = new javax.swing.JDialog();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
         NetworkConfigMaskTextfield = new javax.swing.JTextField();
         NetworkConfigGatewayTextField = new javax.swing.JTextField();
-        NetworkConfigIPRangeTextfield = new javax.swing.JTextField();
         NetworkConfigCancelButton = new javax.swing.JButton();
         NetworkConfigUpdateButton = new javax.swing.JButton();
         NetworkConfigMacVLanExtSpinner = new javax.swing.JSpinner();
@@ -97,20 +93,15 @@ public class NetworkObjPanel extends javax.swing.JPanel {
             }
         });
 
-        jLabel2.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jLabel2.setText("Subnet:");
-
-        jLabel3.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jLabel3.setText("Gateway:");
-
         jLabel4.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel4.setText("MACVLAN_EXT:");
 
         jLabel5.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel5.setText("MACVLAN:");
 
-        jLabel6.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jLabel6.setText("IP_RANGE:");
+        NetworkConfigMaskTextfield.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Subnet", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 14))); // NOI18N
+
+        NetworkConfigGatewayTextField.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "External gateway", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 14))); // NOI18N
 
         NetworkConfigCancelButton.setText("Cancel");
         NetworkConfigCancelButton.addActionListener(new java.awt.event.ActionListener() {
@@ -119,7 +110,7 @@ public class NetworkObjPanel extends javax.swing.JPanel {
             }
         });
 
-        NetworkConfigUpdateButton.setText("Confirm");
+        NetworkConfigUpdateButton.setText("OK");
         NetworkConfigUpdateButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 NetworkConfigUpdateButtonActionPerformed(evt);
@@ -146,33 +137,30 @@ public class NetworkObjPanel extends javax.swing.JPanel {
                         .addComponent(NetworkConfigCancelButton))
                     .addGroup(NetworkConfigWindowLayout.createSequentialGroup()
                         .addGroup(NetworkConfigWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(TapRadioButton, javax.swing.GroupLayout.Alignment.TRAILING))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, NetworkConfigWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(TapRadioButton)
+                                .addComponent(jLabel5)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(NetworkConfigWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(NetworkConfigIPRangeTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 229, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(NetworkConfigMaskTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 229, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(NetworkConfigGatewayTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 229, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(NetworkConfigMacVLanSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(NetworkConfigMacVLanExtSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(NetworkConfigMacVLanExtSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(184, 184, 184)))
                 .addContainerGap(22, Short.MAX_VALUE))
+            .addGroup(NetworkConfigWindowLayout.createSequentialGroup()
+                .addGroup(NetworkConfigWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(NetworkConfigMaskTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 229, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(NetworkConfigGatewayTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 229, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         NetworkConfigWindowLayout.setVerticalGroup(
             NetworkConfigWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(NetworkConfigWindowLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(NetworkConfigWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(NetworkConfigMaskTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2))
-                .addGap(18, 18, 18)
-                .addGroup(NetworkConfigWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(NetworkConfigGatewayTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel3))
-                .addGap(16, 16, 16)
+                .addComponent(NetworkConfigMaskTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(NetworkConfigGatewayTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(NetworkConfigWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
                     .addComponent(NetworkConfigMacVLanExtSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -183,13 +171,9 @@ public class NetworkObjPanel extends javax.swing.JPanel {
                     .addGroup(NetworkConfigWindowLayout.createSequentialGroup()
                         .addGap(18, 18, 18)
                         .addComponent(NetworkConfigMacVLanSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(NetworkConfigWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(NetworkConfigIPRangeTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel6))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(27, 27, 27)
                 .addComponent(TapRadioButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
                 .addGroup(NetworkConfigWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(NetworkConfigUpdateButton)
                     .addComponent(NetworkConfigCancelButton))
@@ -380,7 +364,6 @@ public class NetworkObjPanel extends javax.swing.JPanel {
         // Set the textfield and spinner values into the data Objects
         this.data.mask = this.NetworkConfigMaskTextfield.getText();
         this.data.gateway = this.NetworkConfigGatewayTextField.getText();
-        this.data.ip_range = this.NetworkConfigIPRangeTextfield.getText();
         this.data.macvlan_ext = (int) this.NetworkConfigMacVLanExtSpinner.getValue();
         this.data.macvlan = (int) this.NetworkConfigMacVLanSpinner.getValue();
         this.data.tap = this.TapRadioButton.isSelected();
@@ -398,7 +381,6 @@ public class NetworkObjPanel extends javax.swing.JPanel {
         this.NetworkConfigWindow.setTitle("NetworkConfig: "+this.data.name);
         this.NetworkConfigMaskTextfield.setText(this.data.mask);
         this.NetworkConfigGatewayTextField.setText(this.data.gateway);
-        this.NetworkConfigIPRangeTextfield.setText(this.data.ip_range);
         this.NetworkConfigMacVLanExtSpinner.setValue(this.data.macvlan_ext);
         this.NetworkConfigMacVLanSpinner.setValue(this.data.macvlan);
         this.TapRadioButton.setSelected(this.data.tap);
@@ -421,7 +403,6 @@ public class NetworkObjPanel extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton NetworkConfigCancelButton;
     private javax.swing.JTextField NetworkConfigGatewayTextField;
-    private javax.swing.JTextField NetworkConfigIPRangeTextfield;
     private javax.swing.JSpinner NetworkConfigMacVLanExtSpinner;
     private javax.swing.JSpinner NetworkConfigMacVLanSpinner;
     private javax.swing.JTextField NetworkConfigMaskTextfield;
@@ -433,11 +414,8 @@ public class NetworkObjPanel extends javax.swing.JPanel {
     private javax.swing.JTextField RenameNetworkTextfield;
     private javax.swing.JRadioButton TapRadioButton;
     private javax.swing.JMenuItem deleteNetworkOption;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JMenuItem renameNetworkOption;
     // End of variables declaration//GEN-END:variables
