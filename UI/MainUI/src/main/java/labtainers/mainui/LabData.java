@@ -64,7 +64,6 @@ public class LabData {
         public String gateway = "";
         public int macvlan_ext;
         public int macvlan;
-        public String ip_range = "";
         public boolean tap = false;
         
         public ArrayList<String> unknownNetworkParams;
@@ -74,13 +73,12 @@ public class LabData {
             this.unknownNetworkParams = new ArrayList<String>();
         }
         
-        NetworkData(String name, String mask, String gateway, int macvlan_ext, int macvlan, String ip_range, boolean tap){
+        NetworkData(String name, String mask, String gateway, int macvlan_ext, int macvlan, boolean tap){
             this.name = name;
             this.mask = mask;
             this.gateway = gateway;
             this.macvlan_ext = macvlan_ext;
             this.macvlan = macvlan;
-            this.ip_range = ip_range;
             this.tap = tap;
             this.unknownNetworkParams = new ArrayList<String>();
         }
@@ -95,7 +93,6 @@ public class LabData {
         public String user = "";
         public String password = "";
         public ArrayList<ContainerNetworkSubData> listOfContainerNetworks;
-        public String script = "";
         public ArrayList<ContainerAddHostSubData> listOfContainerAddHost;
         public boolean x11;
         public int clone;
@@ -220,9 +217,6 @@ public class LabData {
                                         case "MACVLAN":
                                            currNetwork.macvlan = Integer.parseInt(line.split("MACVLAN ")[1].trim());
                                             break;
-                                        case "IP_RANGE":
-                                           currNetwork.ip_range = line.split("IP_RANGE ")[1].trim();
-                                            break;
                                         case "TAP":
                                             currNetwork.tap = (line.split("TAP ")[1].trim()).equals("YES");
                                             break;
@@ -251,9 +245,6 @@ public class LabData {
                                             break;
                                         case "PASSWORD":
                                             currContainer.password = line.split("PASSWORD ")[1].trim();
-                                            break;
-                                        case "SCRIPT":
-                                            currContainer.script = line.split("SCRIPT ")[1].trim();
                                             break;
                                         case "ADD-HOST":
                                             String addhostParams = line.split("ADD-HOST ")[1].trim();
@@ -516,7 +507,6 @@ public class LabData {
         System.out.println("gateway: " + data.gateway);
         System.out.println("macvlan_ext: " + data.macvlan_ext);        
         System.out.println("macvlan: " + data.macvlan);        
-        System.out.println("ip_range: " + data.ip_range);  
 
         if(!data.unknownNetworkParams.isEmpty()){
             System.out.println("UNKNOWN PARAMS: ");
@@ -538,7 +528,6 @@ public class LabData {
         System.out.println("user: " + data.user);  
         
         System.out.println("password: " + data.password);   
-        System.out.println("script: " + data.script);  
 
         if(data.listOfContainerAddHost != null){
             for(int i = 0;i<data.listOfContainerAddHost.size();i++){
@@ -632,10 +621,6 @@ public class LabData {
                 startConfigText += "     MACVLAN_EXT" +data.macvlan_ext+"\n";
             }
             
-            if(!data.ip_range.isEmpty()){
-                startConfigText += "     IP_RANGE "+data.ip_range+"\n";
-            }        
-
             if(data.tap){
                 startConfigText += "     TAP YES"+"\n";
             }
@@ -648,12 +633,6 @@ public class LabData {
         for(ContainerData data : listOfContainers){
             startConfigText += "CONTAINER "+data.name+"\n";
             startConfigText += "     USER "+data.user+"\n";
-            if(data.script.isEmpty()){
-               startConfigText += "     SCRIPT NONE\n";
-            }
-            else{
-               startConfigText += "     SCRIPT "+data.script+"\n"; 
-            }
                 
             if(data.x11){
                 startConfigText += "     X11 YES\n"; 

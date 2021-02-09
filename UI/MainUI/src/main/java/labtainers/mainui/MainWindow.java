@@ -61,6 +61,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import java.util.concurrent.Executors;
+import java.util.Collections;
 
 import labtainers.mainui.LabData.ContainerData;
 import labtainers.mainui.LabData.NetworkData;
@@ -1363,7 +1364,6 @@ public class MainWindow extends javax.swing.JFrame {
             NetworkAddDialogGatewayTextfield.getText(),
             (int)NetworkAddDialogMacVLanExtSpinner.getValue(),
             (int)NetworkAddDialogMacVLanSpinner.getValue(),
-            NetworkAddDialogIPRangeTextfield.getText(),
             NetworkAddDialogTapRadioButton.isSelected()
         );
         
@@ -1487,6 +1487,7 @@ public class MainWindow extends javax.swing.JFrame {
             
             // Add the container into the user's file system
             addContainer(containerName, baseImage);
+            newContainer.setNameLabel();
         }
         else {
             newContainer = new ContainerObjPanel(this, data);
@@ -1549,9 +1550,14 @@ public class MainWindow extends javax.swing.JFrame {
         String docname = null; 
         String line;
         while ((line = br.readLine()) != null) 
-           if(line.trim().startsWith("file://LAB_DOCS")){
+        {
+           if(line.trim().startsWith("file://LAB_DOCS")){ 
                docname = line.substring(line.lastIndexOf(File.separator)+1);
                break;
+           }else if(line.contains("LAB_MANUAL")){
+               docname = this.labName+".pdf";
+               break;
+           }
         }
         if(docname != null){ 
             String manualPath = currentLab.toString()+File.separator+"docs"+File.separator+docname;
@@ -1561,7 +1567,7 @@ public class MainWindow extends javax.swing.JFrame {
                 output("change the name in read_first.txt to match your lab manual.\n");
             }
         }else{
-            output("No lab manual found in "+readFirstPath);
+            output("No link to a lab manual found in "+readFirstPath+"\n");
             output("path should include: file://LAB_DOCS/<your manaul");
         }
         String aboutPath = this.currentLab.toString()+File.separator+"config"+File.separator+"about.txt";
@@ -1849,7 +1855,7 @@ public class MainWindow extends javax.swing.JFrame {
                 baseList.add(base);
             }
         }
-        
+        Collections.sort(baseList); 
         //Set the base image combobox options for making new labs and adding containers
         for(String baseImage : baseList){
             NewLabBaseImageComboBox.addItem(baseImage);

@@ -1478,7 +1478,7 @@ def ContainerTerminals(lab_path, start_config, container, terminal_count, termin
                 terminal_location, columns, lines = terminalCounter(terminal_count)
                 #sys.stderr.write("%s \n" % terminal_location)
                 #sys.stderr.write("%s \n" % mycontainer_name)
-                cmd = 'bash -l' 
+                cmd = 'bash -l -c bash' 
                 #spawn_command = "gnome-terminal %s -x docker exec -it %s bash -l &" % (terminal_location, mycontainer_name)
                 if container.terminal_group is not None:
                     if container.terminal_group not in terminal_groups:
@@ -2555,7 +2555,7 @@ def DoMoreterm(lab_path, container_name, clone_num=None, alt_name=None):
         logger.debug("No terminals supported for %s" % container_name)
         return False
     else:
-        spawn_command = "gnome-terminal -- docker exec -it %s bash -l &" % 	mycontainer_name
+        spawn_command = "gnome-terminal -- docker exec -it %s bash -l -c bash&" % 	mycontainer_name
         logger.debug("spawn_command is (%s)" % spawn_command)
         os.system(spawn_command)
     return True

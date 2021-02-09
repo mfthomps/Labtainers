@@ -77,7 +77,7 @@ public class ParamValues {
             //System.out.println("paramID found "+paramID);
             operator_string = paramParsedLine[1];
             //operator = itemFinder(Operator_ITEMS, operator_string);
-            operator = operator_string;
+            operator = operator_string.trim();
             String [] farray = paramParsedLine[2].trim().split(";");
             for(String f : farray){
                 fileList.add(f);
@@ -90,9 +90,9 @@ public class ParamValues {
                 }
             }
             if(operator.equals("HASH_CREATE")){
-                hashedString = paramParsedLine[3];
+                hashedString = paramParsedLine[3].trim();
             }else if(operator.equals("HASH_REPLACE")){
-                hashedString = paramParsedLine[4];
+                hashedString = paramParsedLine[4].trim();
             }
         }
       
