@@ -33,6 +33,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import javax.swing.JDialog;
@@ -40,7 +41,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.SwingUtilities;
-
+import java.io.IOException;
+import java.io.FileNotFoundException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 /**
  *
  * @author Daniel Liao
@@ -70,6 +74,10 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         this.ContainerLabelName.setText(this.data.name);
         this.RenameContainerTextfield.setVisible(false);
     }
+    void setNameLabel(){
+        String l = "Container: "+data.name+"  Base: "+getBaseName();
+        this.containerLabel.setText(l);
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -83,31 +91,23 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         ContainerConfigWindow = new javax.swing.JDialog();
         containerTabPane = new javax.swing.JTabbedPane();
         ContainerConfigGeneralTab = new javax.swing.JPanel();
-        UserLabel = new javax.swing.JLabel();
-        TerminalCountLabel = new javax.swing.JLabel();
-        PasswordLabel = new javax.swing.JLabel();
         UserTF = new javax.swing.JTextField();
         PasswordTF = new javax.swing.JTextField();
         TerminalQuantitySpinner = new javax.swing.JSpinner();
-        jLabel15 = new javax.swing.JLabel();
         TerminalGroupTextfield = new javax.swing.JTextField();
-        jLabel16 = new javax.swing.JLabel();
         LabGatewayTextfield = new javax.swing.JTextField();
-        jLabel17 = new javax.swing.JLabel();
         NoGWCheckbox = new javax.swing.JCheckBox();
-        jLabel7 = new javax.swing.JLabel();
+        X11Checkbox = new javax.swing.JCheckBox();
         ContainerConfigNetworksAddButton = new javax.swing.JButton();
         ContainerConfigNetworksScrollpane = new javax.swing.JScrollPane();
         ContainerConfigNetworksPanel = new javax.swing.JPanel();
-        ShellButton = new javax.swing.JButton();
+        containerLabel = new javax.swing.JLabel();
         ContainerConfigDockerTab = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         RegistryTextfield = new javax.swing.JTextField();
-        ScriptTextfield = new javax.swing.JTextField();
         PublishTextfield = new javax.swing.JTextField();
         BaseRegistryTextfield = new javax.swing.JTextField();
         NoPrivilegeCheckbox = new javax.swing.JCheckBox();
@@ -120,13 +120,11 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         ContainerConfigAddHostNetworkButton = new javax.swing.JButton();
         ContainerConfigOtherTab = new javax.swing.JPanel();
         jLabel8 = new javax.swing.JLabel();
-        jLabel9 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
         XtermTitleTextfield = new javax.swing.JTextField();
         XtermScriptTextfield = new javax.swing.JTextField();
-        X11Checkbox = new javax.swing.JCheckBox();
         MyStuffCheckbox = new javax.swing.JCheckBox();
         NoPullCheckbox = new javax.swing.JCheckBox();
         ClonesSpinner = new javax.swing.JSpinner();
@@ -174,42 +172,33 @@ public class ContainerObjPanel extends javax.swing.JPanel {
 
         containerTabPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        UserLabel.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        UserLabel.setText("User:");
-
-        TerminalCountLabel.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        TerminalCountLabel.setText("Terminal Quantity: ");
-
-        PasswordLabel.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        PasswordLabel.setText("Password: ");
-
-        UserTF.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        UserTF.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         UserTF.setText("ubuntu");
+        UserTF.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "User name", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 14))); // NOI18N
 
-        PasswordTF.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        PasswordTF.setText("ubuntu");
+        PasswordTF.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        PasswordTF.setToolTipText("Defaults to user name.");
+        PasswordTF.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Password", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 14))); // NOI18N
+        PasswordTF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                PasswordTFActionPerformed(evt);
+            }
+        });
 
         TerminalQuantitySpinner.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         TerminalQuantitySpinner.setModel(new javax.swing.SpinnerNumberModel(1, -1, null, 1));
+        TerminalQuantitySpinner.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Terminal quantity", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 14))); // NOI18N
 
-        jLabel15.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jLabel15.setText("Terminal Group:");
-        jLabel15.setToolTipText("<html>All virtual terminals within the same group are organized<br>\nas tabs within a single virtual terminal. Terminal group names <br>\ncan be arbitrary strings.");
+        TerminalGroupTextfield.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        TerminalGroupTextfield.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Terminal group", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 14))); // NOI18N
 
-        TerminalGroupTextfield.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        LabGatewayTextfield.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Lab Gateway", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 14))); // NOI18N
 
-        jLabel16.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jLabel16.setText("Lab Gateway:");
-        jLabel16.setToolTipText("<html>Optional IP address of the component’s default network<br>\ngateway. If set, this will replace the default Docker gateway.<br>\n Students can toggle between gateways by using the togglegw.sh<br> \ncommand, e.g., to enable communication with the host VM or the <br>\ninternet . This option will also replace the components resolv.conf <br>\nwith the given IP and will cause the static route to the my host<br>\n address to be deleted.");
+        NoGWCheckbox.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        NoGWCheckbox.setText("No external gateway");
 
-        jLabel17.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jLabel17.setText("NO_GW:");
-        jLabel17.setToolTipText("Disable the Docker default gateway, preventing network communication with the host or external devices.\n");
-
-        NoGWCheckbox.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-
-        jLabel7.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jLabel7.setText("Networks:");
+        X11Checkbox.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        X11Checkbox.setText("X11 enabled");
 
         ContainerConfigNetworksAddButton.setText("Add");
         ContainerConfigNetworksAddButton.addActionListener(new java.awt.event.ActionListener() {
@@ -218,6 +207,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
             }
         });
 
+        ContainerConfigNetworksScrollpane.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Networks", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 14))); // NOI18N
         ContainerConfigNetworksScrollpane.setMaximumSize(new java.awt.Dimension(541, 32767));
         ContainerConfigNetworksScrollpane.setMinimumSize(new java.awt.Dimension(541, 136));
         ContainerConfigNetworksScrollpane.setPreferredSize(new java.awt.Dimension(541, 136));
@@ -227,12 +217,8 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         ContainerConfigNetworksPanel.setPreferredSize(new java.awt.Dimension(0, 0));
         ContainerConfigNetworksScrollpane.setViewportView(ContainerConfigNetworksPanel);
 
-        ShellButton.setText("Shell");
-        ShellButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ShellButtonActionPerformed(evt);
-            }
-        });
+        containerLabel.setFont(new java.awt.Font("Ubuntu", 1, 18)); // NOI18N
+        containerLabel.setText("jLabel6");
 
         javax.swing.GroupLayout ContainerConfigGeneralTabLayout = new javax.swing.GroupLayout(ContainerConfigGeneralTab);
         ContainerConfigGeneralTab.setLayout(ContainerConfigGeneralTabLayout);
@@ -241,80 +227,63 @@ public class ContainerObjPanel extends javax.swing.JPanel {
             .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ContainerConfigGeneralTabLayout.createSequentialGroup()
-                        .addComponent(UserLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(UserTF, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(PasswordLabel)
-                        .addGap(3, 3, 3)
-                        .addComponent(PasswordTF, javax.swing.GroupLayout.PREFERRED_SIZE, 209, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
-                        .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, ContainerConfigGeneralTabLayout.createSequentialGroup()
-                                .addComponent(jLabel7)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(ContainerConfigNetworksAddButton))
-                            .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
-                                    .addComponent(TerminalCountLabel)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(TerminalQuantitySpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jLabel15))
-                                .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
-                                    .addComponent(jLabel16)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(LabGatewayTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(UserTF, javax.swing.GroupLayout.PREFERRED_SIZE, 209, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(PasswordTF, javax.swing.GroupLayout.PREFERRED_SIZE, 209, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
-                                .addGap(9, 9, 9)
-                                .addComponent(jLabel17)
-                                .addGap(3, 3, 3)
-                                .addComponent(NoGWCheckbox))
-                            .addComponent(TerminalGroupTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(ShellButton)))
-                    .addComponent(ContainerConfigNetworksScrollpane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(21, Short.MAX_VALUE))
+                                .addComponent(LabGatewayTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(ContainerConfigNetworksAddButton)))
+                        .addGap(35, 35, 35)
+                        .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(NoGWCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, 217, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(X11Checkbox, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(TerminalQuantitySpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(TerminalGroupTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGap(0, 19, Short.MAX_VALUE))
+                    .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
+                        .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(containerLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
+                                .addComponent(ContainerConfigNetworksScrollpane, javax.swing.GroupLayout.PREFERRED_SIZE, 541, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, Short.MAX_VALUE)))
+                        .addContainerGap())))
         );
         ContainerConfigGeneralTabLayout.setVerticalGroup(
             ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
-                .addGap(18, 18, 18)
-                .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(UserLabel)
-                    .addComponent(UserTF, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(PasswordTF, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(PasswordLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(TerminalCountLabel)
-                    .addComponent(TerminalQuantitySpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel15)
-                    .addComponent(TerminalGroupTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(LabGatewayTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jLabel16)
-                        .addComponent(jLabel17))
-                    .addComponent(NoGWCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(containerLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel7)
-                        .addComponent(ContainerConfigNetworksAddButton))
-                    .addComponent(ShellButton))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(ContainerConfigNetworksScrollpane, javax.swing.GroupLayout.PREFERRED_SIZE, 326, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
+                        .addComponent(TerminalQuantitySpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(TerminalGroupTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
+                        .addComponent(UserTF, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(PasswordTF, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(LabGatewayTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
+                                .addComponent(X11Checkbox)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(NoGWCheckbox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addGap(18, 22, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ContainerConfigGeneralTabLayout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(ContainerConfigNetworksAddButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
+                .addComponent(ContainerConfigNetworksScrollpane, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         containerTabPane.addTab("General ", ContainerConfigGeneralTab);
-
-        jLabel1.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jLabel1.setText("Script:");
 
         jLabel2.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel2.setText("Base Registry:");
@@ -330,8 +299,6 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         jLabel5.setToolTipText("<html>Optional arguments to the Docker --publish argument for<br>\nmaking container ports visible at the host interface. For example, a value of<br>\n127.0.0.1:60022:22/tcp<br>\nwill bind host port 60022 to container port 22.");
 
         RegistryTextfield.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-
-        ScriptTextfield.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
 
         PublishTextfield.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
 
@@ -354,13 +321,11 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                     .addComponent(jLabel4)
                     .addComponent(jLabel2)
                     .addComponent(jLabel3)
-                    .addComponent(jLabel1)
                     .addComponent(jLabel5))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(ContainerConfigDockerTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(ContainerConfigDockerTabLayout.createSequentialGroup()
-                        .addComponent(ScriptTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 126, Short.MAX_VALUE)
+                        .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(EditDockerfileButton))
                     .addGroup(ContainerConfigDockerTabLayout.createSequentialGroup()
                         .addGroup(ContainerConfigDockerTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -368,18 +333,15 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                             .addComponent(BaseRegistryTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(RegistryTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(NoPrivilegeCheckbox))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(0, 221, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         ContainerConfigDockerTabLayout.setVerticalGroup(
             ContainerConfigDockerTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(ContainerConfigDockerTabLayout.createSequentialGroup()
                 .addGap(24, 24, 24)
-                .addGroup(ContainerConfigDockerTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(ScriptTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1)
-                    .addComponent(EditDockerfileButton))
-                .addGap(12, 12, 12)
+                .addComponent(EditDockerfileButton)
+                .addGap(14, 14, 14)
                 .addGroup(ContainerConfigDockerTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(RegistryTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel3))
@@ -433,7 +395,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
             .addGroup(ContainerConfigNetworkTabLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(ContainerConfigNetworkTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(AddHostsScrollPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 568, Short.MAX_VALUE)
+                    .addComponent(AddHostsScrollPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(ContainerConfigNetworkTabLayout.createSequentialGroup()
                         .addComponent(AddHostLabel3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -460,9 +422,6 @@ public class ContainerObjPanel extends javax.swing.JPanel {
 
         jLabel8.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel8.setText("Xterm:");
-
-        jLabel9.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jLabel9.setText("X11:");
 
         jLabel10.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel10.setText("# of Clones:");
@@ -508,11 +467,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                         .addComponent(jLabel10)
                         .addGap(4, 4, 4)
                         .addComponent(ClonesSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jLabel9)
-                        .addGap(3, 3, 3)
-                        .addComponent(X11Checkbox)
-                        .addGap(18, 18, 18)
+                        .addGap(97, 97, 97)
                         .addComponent(jLabel11)
                         .addGap(6, 6, 6)
                         .addComponent(NoPullCheckbox)
@@ -527,7 +482,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(MountTextfield2, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(TapRadioButton))
-                .addContainerGap(114, Short.MAX_VALUE))
+                .addContainerGap(103, Short.MAX_VALUE))
         );
         ContainerConfigOtherTabLayout.setVerticalGroup(
             ContainerConfigOtherTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -544,11 +499,9 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                     .addComponent(MountTextfield2, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(ContainerConfigOtherTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(X11Checkbox, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(ContainerConfigOtherTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabel10)
-                        .addComponent(ClonesSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jLabel9))
+                        .addComponent(ClonesSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(NoPullCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(MyStuffCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(ContainerConfigOtherTabLayout.createSequentialGroup()
@@ -592,7 +545,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                     .addComponent(ThumbVolumeTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(ThumbCommandTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(HideCheckbox))
-                .addContainerGap(236, Short.MAX_VALUE))
+                .addContainerGap(216, Short.MAX_VALUE))
         );
         ContainerConfigGNS3TabLayout.setVerticalGroup(
             ContainerConfigGNS3TabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -675,15 +628,14 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         ContainerConfigWindowLayout.setHorizontalGroup(
             ContainerConfigWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(ContainerConfigWindowLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(ContainerConfigWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(containerTabPane)
-                    .addGroup(ContainerConfigWindowLayout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(ContainerConfigUpdateButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(ContainerConfigCancelButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(ContainerConfigUpdateButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(ContainerConfigCancelButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
+            .addGroup(ContainerConfigWindowLayout.createSequentialGroup()
+                .addComponent(containerTabPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         ContainerConfigWindowLayout.setVerticalGroup(
             ContainerConfigWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -821,7 +773,9 @@ public class ContainerObjPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_EditDockerfileButtonActionPerformed
 
     private void ContainerConfigNetworksAddButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigNetworksAddButtonActionPerformed
-         addContainerNetworkSubPanel("", "");
+         if(data.listOfContainerNetworks.size()>0){
+             addContainerNetworkSubPanel("", "");
+         }
     }//GEN-LAST:event_ContainerConfigNetworksAddButtonActionPerformed
 
     private void ContainerConfigAddHostIPButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigAddHostIPButtonActionPerformed
@@ -855,14 +809,10 @@ public class ContainerObjPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_fixlocalMenuItemActionPerformed
 
     private void openShellMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openShellMenuItemActionPerformed
-        ShellButtonActionPerformed(evt);
-    }//GEN-LAST:event_openShellMenuItemActionPerformed
-
-    private void ShellButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ShellButtonActionPerformed
-        String cmd = "gnome-terminal --working-directory="+mainWindow.getCurrentLab().getPath()+File.separator+this.data.name;
+        String cmd = "gnome-terminal --working-directory="+mainWindow.getCurrentLab().getPath()+File.separator+data.name;
         System.out.println("cmd: "+cmd);
-        mainWindow.doLabCommand(cmd);
-    }//GEN-LAST:event_ShellButtonActionPerformed
+        mainWindow.doCommand(cmd);
+    }//GEN-LAST:event_openShellMenuItemActionPerformed
 
     private void editDockerMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editDockerMenuItem1ActionPerformed
         editDockerMenuItemActionPerformed(evt);
@@ -877,8 +827,12 @@ public class ContainerObjPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_treataslocalMenuItem1ActionPerformed
 
     private void openShellMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openShellMenuActionPerformed
-        ShellButtonActionPerformed(evt);
+        openShellMenuItemActionPerformed(evt);
     }//GEN-LAST:event_openShellMenuActionPerformed
+
+    private void PasswordTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PasswordTFActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_PasswordTFActionPerformed
     
     // BUTTONS/HANDLERS //
     
@@ -997,6 +951,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
             // Rename the container in GUI and data object
             this.data.name = newName;
             ContainerLabelName.setText(newName);
+            setNameLabel();
             
         }
         
@@ -1007,22 +962,8 @@ public class ContainerObjPanel extends javax.swing.JPanel {
     
      // Renames the container in the lab directory structure by calling 'new_lab_setup.py -r oldName newName'
     private void renameContainer(String oldName, String newName){
-        try{
-                //call python new_lab_script: new_lab_setup.py -b basename
-                String cmd = "./renameContainer.sh "+mainWindow.getLabsPath()+" "+mainWindow.getLabName()+" "+oldName+" "+newName;
-                System.out.println(cmd);
-                Process pr = Runtime.getRuntime().exec(cmd);
-            
-                BufferedReader reader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-                String line;
-                while((line = reader.readLine()) != null){
-                    System.out.println(line);
-                }
-                reader.close();
-            } 
-            catch (IOException e){
-                System.out.println(e);
-            }
+        String cmd = "new_lab_setup.py -r "+oldName+" "+newName;
+        mainWindow.doLabCommand(cmd); 
     }
     
     // Sets the data info based on the fields in the Container Configuration Window
@@ -1052,7 +993,6 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         }
                 
         // Docker
-        data.script = ScriptTextfield.getText();
         data.registry = RegistryTextfield.getText();
         data.base_registry = BaseRegistryTextfield.getText();    
         data.publish = PublishTextfield.getText();
@@ -1094,6 +1034,34 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         data.hide = HideCheckbox.isSelected();
         
         closeConfigWindow();
+    }
+    private String getBaseName(){
+        String dockerfilePath = mainWindow.getCurrentLab().getPath()+File.separator+"dockerfiles"+File.separator+
+                                    "Dockerfile."+mainWindow.getLabName()+"."+this.data.name+".student";
+        String retval="not defined";
+        String line;
+        try{
+            BufferedReader br = new BufferedReader(new FileReader(dockerfilePath));
+        
+            while ((line = br.readLine()) != null) 
+            {
+                if(line.startsWith("FROM")){
+                    int i = line.lastIndexOf("/");
+                    if(i>=0){
+                        retval = line.substring(i+1).trim();
+                    }else{
+                        retval = line.substring(4).trim();
+                    }
+                }
+            }
+        }catch (FileNotFoundException ex) {
+                Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+                mainWindow.output("ERROR dockerfile not found at "+dockerfilePath+" "+ex+"\n");
+        }catch (IOException ex) {
+                Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+                mainWindow.output("ERROR FROM not found in  "+dockerfilePath+" "+ex+"\n");
+        }
+        return retval;
     }
     
     // Opens the container's dockerfile file in a terminal text editor
@@ -1169,7 +1137,6 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         this.HideCheckbox.setSelected(data.hide);
         
         // Docker
-        this.ScriptTextfield.setText(data.script);
         this.RegistryTextfield.setText(data.registry);
         this.BaseRegistryTextfield.setText(data.base_registry);
         this.PublishTextfield.setText(data.publish);
@@ -1289,15 +1256,11 @@ public class ContainerObjPanel extends javax.swing.JPanel {
     private javax.swing.JCheckBox NoGWCheckbox;
     private javax.swing.JCheckBox NoPrivilegeCheckbox;
     private javax.swing.JCheckBox NoPullCheckbox;
-    private javax.swing.JLabel PasswordLabel;
     private javax.swing.JTextField PasswordTF;
     private javax.swing.JTextField PublishTextfield;
     private javax.swing.JTextField RegistryTextfield;
     private javax.swing.JTextField RenameContainerTextfield;
-    private javax.swing.JTextField ScriptTextfield;
-    private javax.swing.JButton ShellButton;
     private javax.swing.JRadioButton TapRadioButton;
-    private javax.swing.JLabel TerminalCountLabel;
     private javax.swing.JTextField TerminalGroupTextfield;
     private javax.swing.JSpinner TerminalQuantitySpinner;
     private javax.swing.JLabel ThumbCommandLabel;
@@ -1306,11 +1269,11 @@ public class ContainerObjPanel extends javax.swing.JPanel {
     private javax.swing.JTextField ThumbStopTextfield;
     private javax.swing.JLabel ThumbVolumeLabel;
     private javax.swing.JTextField ThumbVolumeTextfield;
-    private javax.swing.JLabel UserLabel;
     private javax.swing.JTextField UserTF;
     private javax.swing.JCheckBox X11Checkbox;
     private javax.swing.JTextField XtermScriptTextfield;
     private javax.swing.JTextField XtermTitleTextfield;
+    private javax.swing.JLabel containerLabel;
     private javax.swing.JTabbedPane containerTabPane;
     private javax.swing.JMenuItem deleteContainerOption;
     private javax.swing.JMenuItem editDockerMenuItem;
@@ -1319,21 +1282,15 @@ public class ContainerObjPanel extends javax.swing.JPanel {
     private javax.swing.JMenu editMenuBar;
     private javax.swing.JMenuItem fixlocalMenuItem;
     private javax.swing.JMenuItem fixlocalMenuItem1;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel15;
-    private javax.swing.JLabel jLabel16;
-    private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JMenuItem openShellMenu;
