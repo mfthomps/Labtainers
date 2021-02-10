@@ -14,7 +14,7 @@
 ARG registry
 #FROM $registry/labtainer.base
 #FROM $registry/labtainer.network
-FROM $registry/labtainer.wireshark
+FROM $registry/labtainer.wireshark2
 #FROM $registry/labtainer.lamp
 #
 #  lab is the fully qualified image name, e.g., mylab.some_container.student
