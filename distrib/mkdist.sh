@@ -50,10 +50,10 @@ fi
 if [[ "$1" != "-r" ]]; then
     commit=`git describe --always`
     branch=$(git rev-parse --abbrev-ref HEAD)
-    sed -i "s/^Distribution created:.*$/Distribution created: $(date '+%m\/%d\/%Y %H:%M') </br>/" ../README.md
-    sed -i "s/^Revision:/Previous revision:/" ../README.md
-    sed -i "s/^Commit:.*$/Commit: $commit </br>/" ../README.md
-    sed -i "s/^Branch:.*$/Branch: $branch </br>/" ../README.md
+    sed -i "s/^Distribution created:.*$/Distribution created: $(date '+%m\/%d\/%Y %H:%M') <\/br>/" README.md
+    sed -i "s/^Revision:/Previous revision:/" README.md
+    sed -i "s/^Commit:.*$/Commit: $commit <\/br>/" README.md
+    sed -i "s/^Branch:.*$/Branch: $branch <\/br>/" README.md
 fi
 cp README.md $ltrunk/
 #git archive master config | tar -x -C $ltrunk
