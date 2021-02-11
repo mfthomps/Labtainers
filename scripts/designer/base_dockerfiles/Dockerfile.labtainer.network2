@@ -24,5 +24,3 @@ RUN sudo chmod 0755 /var/run/sshd
 RUN systemctl disable dnsmasq
 RUN rm /etc/systemd/system/multi-user.target.wants/openvpn.service 
 RUN rm /etc/systemd/system/multi-user.target.wants/ssh.service 
-COPY system/etc/services /etc/services
-COPY system/etc/xinetd.d/ssh /etc/xinetd.d/ssh

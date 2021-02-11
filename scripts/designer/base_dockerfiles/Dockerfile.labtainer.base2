@@ -1,5 +1,5 @@
 FROM jrei/systemd-ubuntu:20.04
-LABEL description="Labtainer base image 2 from ubuntu-systemd"
+LABEL description="Labtainer base image from ubuntu-systemd Image version 2, ubuntu20.04"
 ARG lab
 #RUN mv /etc/apt/sources.list /var/tmp/
 RUN cp /etc/apt/sources.list /var/tmp/
