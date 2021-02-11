@@ -13,7 +13,7 @@
 #
 ARG registry
 #FROM $registry/labtainer.base
-FROM $registry/labtainer.network
+FROM $registry/labtainer.network2
 #FROM $registry/labtainer.centos
 #FROM $registry/labtainer.lamp
 #

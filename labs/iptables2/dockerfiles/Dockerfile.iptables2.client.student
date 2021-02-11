@@ -9,7 +9,7 @@
 #   openssl openssh-server openvpn wget tcpdump  update-inetd  xinetd
 #
 ARG registry 
-FROM $registry/labtainer.network
+FROM $registry/labtainer.network2
 ARG lab
 ARG labdir
 ARG imagedir

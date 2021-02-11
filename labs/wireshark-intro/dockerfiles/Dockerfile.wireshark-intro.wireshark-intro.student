@@ -1,5 +1,5 @@
 ARG registry 
-FROM $registry/labtainer.wireshark
+FROM $registry/labtainer.wireshark2
 ARG lab
 ARG labdir
 ARG imagedir
