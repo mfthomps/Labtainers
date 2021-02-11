@@ -193,7 +193,7 @@ def ParameterizeMyContainer(mycontainer_name, container_user, container_password
         container_password = container_user
 
     ''' Avoid problems caused by container wiping out all of /tmp on startup '''
-    cmd = "docker exec %s bash -c 'rmdir /tmp/.X11-unix'" % (running_container)
+    cmd = "docker exec %s bash -c 'if [ -d /tmp/.X11-unix ]; then rm -Rf /tmp/.X11-unix; fi'" % (running_container)
     if not DockerCmd(cmd):
         logger.error('failed %s' % cmd)
         exit(1)
