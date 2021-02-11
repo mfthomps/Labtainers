@@ -192,6 +192,16 @@ def ParameterizeMyContainer(mycontainer_name, container_user, container_password
     if container_password == "":
         container_password = container_user
 
+    ''' Avoid problems caused by container wiping out all of /tmp on startup '''
+    cmd = "docker exec %s bash -c 'rmdir /tmp/.X11-unix'" % (running_container)
+    if not DockerCmd(cmd):
+        logger.error('failed %s' % cmd)
+        exit(1)
+    cmd = "docker exec %s bash -c 'ln -s /var/tmp/.X11-unix /tmp/.X11-unix'" % (running_container)
+    if not DockerCmd(cmd):
+        logger.error('failed %s' % cmd)
+        exit(1)
+
     version = '0'
     if image_info is None or image_info.version is None:
         ''' is a build, version -1 '''
@@ -408,13 +418,13 @@ def GetX11SSH():
 
 def isUbuntuSystemd(image_name):
     done = False
-    retval = False
+    retval = None
     #print('check if %s is systemd' % image_name)
     cmd = "docker inspect -f '{{json .Config.Labels.base}}' --type image %s" % image_name
     ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[0].strip()) > 0:
-            logger.debug('isUbuntuSystemd base %s' % output[0].decode('utf-8'))
+            #logger.debug('isUbuntuSystemd base %s' % output[0].decode('utf-8'))
             if output[0].decode('utf-8').strip() == 'null': 
                 base = image_name
             else:
@@ -431,7 +441,9 @@ def isUbuntuSystemd(image_name):
             output = ps.communicate()
             for line in output[0].decode('utf-8').splitlines():
                 if 'Labtainer base image from ubuntu-systemd' in line:
-                    retval = True
+                    retval = 'ubuntu16'
+                    if 'ubuntu20' in line:
+                        retval = 'ubuntu20'
                     break
 
     return retval
@@ -521,10 +533,10 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
             shm = '--shm-size=2g'
         else:
             shm = ''
-        if container.script == '' or ubuntu_systemd:
+        if container.script == '' or ubuntu_systemd is not None:
             logger.debug('Container %s is systemd or has script empty <%s>' % (new_image_name, container.script))
             ''' a systemd container, centos or ubuntu? '''
-            if ubuntu_systemd:
+            if ubuntu_systemd == 'ubuntu16':
                 ''' A one-off run to set some internal values.  This is NOT what runs the lab container '''
                 start_script = ''
                 #volume='--security-opt seccomp=confined --tmpfs /run --tmpfs /run/lock -v /sys/fs/cgroup:/sys/fs/cgroup:ro'
@@ -537,13 +549,12 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
                 if len(output[1]) > 0:
                     logger.debug('back from docker run, error %s' % (output[1].decode('utf-8')))
                 volume = '' 
-            else:
-                pass
-                #volume='-v /sys/fs/cgroup:/sys/fs/cgroup:ro'
-                #volume='--security-opt seccomp=unconfined --tmpfs /run --tmpfs /run/lock -v /sys/fs/cgroup:/sys/fs/cgroup:ro'
+            elif ubuntu_systemd == 'ubuntu20':
+                volume = volume + " -v /sys/fs/cgroup:/sys/fs/cgroup:ro "
         if container.x11.lower() == 'yes':
             #volume = '-e DISPLAY -v /tmp/.Xll-unix:/tmp/.X11-unix --net=host -v$HOME/.Xauthority:/home/developer/.Xauthority'
-            volume = volume+' --env="DISPLAY" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw"'
+            #volume = volume+' --env="DISPLAY" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw"'
+            volume = volume+' --env="DISPLAY" --volume="/tmp/.X11-unix:/var/tmp/.X11-unix:rw"'
             logger.debug('container using X11')
 
         volume = HandleVolumes(volume, container)
@@ -616,6 +627,8 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
 
 
         clone_names = GetContainerCloneNames(container)
+
+
         for clone_fullname in clone_names:
             clone_host = clone_names[clone_fullname]
             if mysubnet_name is not None:
