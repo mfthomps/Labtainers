@@ -89,6 +89,12 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+February 11, 2021
+- Fix UI handling of editing files.  Revise layout and eliminate unused fields.
+- Add ubuntu20 base2 base configuration along with ssh2, network2 and wireshark2
+- The new wireshark solves the prolem of black/noise windows.
+- Map /tmp/.X11-unix to /var/tmp and create a link.  Needed for ubuntu20 (was deleting /tmp?) and may fix others.
+
 February 4, 2021
 - Add SIZE option to results artifacts
 - Simplify wireshark-intro assessment and parameterization and add PDF lab manual.
