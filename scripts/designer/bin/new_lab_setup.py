@@ -688,6 +688,13 @@ def check_valid_lab(current_dir):
             is_valid = False
     return is_valid
 
+def fixBase(base):
+    version2 = ['wireshark', 'base', 'network']
+    retval = base
+    if base in version2:
+        retval = base+"2"
+    return retval
+    
 def main():
     try:
         LABTAINER_DIR = os.environ['LABTAINER_DIR']
@@ -723,6 +730,7 @@ def main():
         base_name = 'base'
     else:
         base_name = args.base_name
+    base_name = fixBase(base_name)
     is_valid = check_valid_lab(current_dir)
     if num_arg == 1 or (num_arg == 3 and args.base_name is not None):
         if is_valid:
