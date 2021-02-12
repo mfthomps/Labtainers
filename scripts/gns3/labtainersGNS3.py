@@ -303,7 +303,8 @@ def parameterizeOne(image_name, logger):
     for name, container in start_config.containers.items():
         if name == comp_name:
                 logger.debug('found match container name %s' % name)
-                labutils.ParamForStudent(start_config.lab_master_seed, container.full_name, container.user, container.password,
+                labutils.ParamForStudent(start_config.lab_master_seed, container.full_name, 
+                                container.image_name, container.user, container.password,
                                 labname, email_addr, lab_path, name, None, running_container = running)
                 os.chdir(cwd)
                 if container.kick_me is not None:
