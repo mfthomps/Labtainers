@@ -530,7 +530,6 @@ def CheckBuildError(output, labname, name):
 def DoRebuildLab(lab_path, force_build=False, just_container=None, 
                  start_config=None, labtainer_config=None, run_container=None, servers=None, 
                  clone_count=None, no_pull=False, no_build=False, use_cache=True, local_build=False):
-    container_images = {} 
     labname = os.path.basename(lab_path)
     labutils.isValidLab(lab_path)
     if start_config is None:
@@ -581,8 +580,8 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
         labutils.logger.debug('force_this_build: %r no_pull %r' % (force_this_build, no_pull))
         image_info = labutils.imageInfo(mycontainer_image_name, container_registry, base_registry, labtainer_config, 
                     is_rebuild=True, no_pull=no_pull, local_build=local_build)
-        container_images[name] = image_info
-        print('build added [%s] image_info %s' % (name, image_info.name))
+        if image_info is not None:
+            labutils.logger.debug('build added [%s] image_info %s' % (name, image_info.name))
         if not force_this_build and image_info is None:
             if not local_build:
                 labutils.logger.debug('Image %s exists nowhere, so force the build' % mycontainer_image_name)
@@ -614,7 +613,7 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
             if no_build:
                 labutils.logger.debug("Would (but won't) rebuild %s" % (mycontainer_name))
                 print("Would (but won't) rebuild %s" % (mycontainer_name))
-                return container_images
+                return 
                 
             labutils.logger.debug("Will rebuild %s,  force_this_build: %s  apt_source %s" % (mycontainer_name, force_this_build, labtainer_config.apt_source))
             
@@ -666,7 +665,7 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
                 exit(1)
             if fatal_error:
                 exit(1)
-    return container_images
+    return 
 
 def RebuildLab(lab_path, force_build=False, quiet_start=False, just_container=None, 
          run_container=None, servers=None, clone_count=None, no_pull=False, use_cache=True, 
@@ -682,7 +681,7 @@ def RebuildLab(lab_path, force_build=False, quiet_start=False, just_container=No
         os.remove(my_start_config)
     labtainer_config, start_config = labutils.GetBothConfigs(lab_path, labutils.logger, servers, clone_count)
     
-    container_images = DoRebuildLab(lab_path, force_build=force_build, 
+    DoRebuildLab(lab_path, force_build=force_build, 
                  just_container=just_container, start_config = start_config, 
                  labtainer_config = labtainer_config, run_container=run_container, 
                  servers=servers, clone_count=clone_count, no_pull=no_pull, use_cache=use_cache, local_build=local_build)
@@ -693,7 +692,7 @@ def RebuildLab(lab_path, force_build=False, quiet_start=False, just_container=No
         host_xfer_dir = '%s/%s' % (myhomedir, host_home_xfer)
         labutils.CreateHostHomeXfer(host_xfer_dir)
         labutils.DoStart(start_config, labtainer_config, lab_path, quiet_start, 
-            run_container, servers, clone_count, container_images=container_images)
+            run_container, servers, clone_count)
     if start_config.gns3.lower() == "yes":
         nonet = os.path.join(os.getenv('LABTAINER_DIR'), 'scripts', 'gns3', 'noNet.py')
         cmd = '%s %s' % (nonet, labname) 

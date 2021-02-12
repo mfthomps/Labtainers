@@ -177,13 +177,13 @@ def getDocker0IPAddr():
         return get_ip_address('docker0')
 
 # Parameterize my_container_name container
-def ParameterizeMyContainer(mycontainer_name, container_user, container_password, lab_instance_seed, 
+def ParameterizeMyContainer(mycontainer_name, mycontainer_image_name, container_user, container_password, lab_instance_seed, 
                             user_email, labname, lab_path, name, image_info, running_container=None):
     retval = True
     if running_container == None:
         running_container = mycontainer_name
     ''' copy lab_bin and lab_sys files into .local/bin and / respectively '''
-    CopyLabBin(running_container, container_user, lab_path, name, image_info)
+    CopyLabBin(running_container, mycontainer_image_name, container_user, lab_path, name, image_info)
 
     cmd = 'docker exec %s script -q -c "chown -R %s:%s /home/%s"' % (mycontainer_name, container_user, container_user, container_user)
     if not DockerCmd(cmd):
@@ -516,7 +516,6 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
         base_registry = container.base_registry
     logger.debug("Create Single Container for %s using registry %s" % (container.name, container_registry))
     image_info = imageInfo(container.image_name, container_registry, base_registry, labtainer_config, quiet=quiet)
-    start_script = container.script     
     if image_info is None:
         logger.error('Could not find image for %s' % container.image_name)
         retval = False
@@ -542,7 +541,6 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
             ''' a systemd container, centos or ubuntu? '''
             if ubuntu_systemd == 'ubuntu16':
                 ''' A one-off run to set some internal values.  This is NOT what runs the lab container '''
-                start_script = ''
                 #volume='--security-opt seccomp=confined --tmpfs /run --tmpfs /run/lock -v /sys/fs/cgroup:/sys/fs/cgroup:ro'
                 volume='--security-opt seccomp=unconfined --tmpfs /run --tmpfs /run/lock -v /sys/fs/cgroup:/sys/fs/cgroup:ro'
                 cmd = 'docker run --rm --privileged -v /:/host %s setup' % new_image_name
@@ -639,15 +637,15 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
                 subnet_ip, mac = GetNetParam(start_config, mysubnet_name, mysubnet_ip, clone_fullname)
             #createsinglecommand = "docker create -t %s --ipc host --cap-add NET_ADMIN %s %s %s %s %s --name=%s --hostname %s %s %s %s %s" % (dns_param, 
             if len(container.docker_args) == 0:
-                createsinglecommand = "docker create %s -t %s --cap-add NET_ADMIN %s %s %s %s %s %s --name=%s --hostname %s %s %s %s %s" % \
+                createsinglecommand = "docker create %s -t %s --cap-add NET_ADMIN %s %s %s %s %s %s --name=%s --hostname %s %s %s %s" % \
                     (shm, dns_param, network_param, subnet_ip, mac, priv_param, add_host_param,  
                     publish_param, clone_fullname, clone_host, volume, 
-                    multi_user, new_image_name, start_script)
+                    multi_user, new_image_name)
             else:
-                createsinglecommand = "docker create %s %s --shm-size=2g -t %s --cap-add NET_ADMIN %s %s %s %s %s %s --name=%s --hostname %s %s %s %s %s" % \
+                createsinglecommand = "docker create %s %s --shm-size=2g -t %s --cap-add NET_ADMIN %s %s %s %s %s %s --name=%s --hostname %s %s %s %s" % \
                     (shm, container.docker_args, dns_param, network_param, subnet_ip, mac, priv_param, add_host_param,  
                     publish_param, clone_fullname, clone_host, volume, 
-                    multi_user, new_image_name, start_script)
+                    multi_user, new_image_name)
             logger.debug("Command to execute was (%s)" % createsinglecommand)
             ps = subprocess.Popen(shlex.split(createsinglecommand), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             output = ps.communicate()
@@ -832,15 +830,16 @@ def GetLabSeed(lab_master_seed, student_email):
 
 #def ParamStartConfig(lab_seed):
     
-def ParamForStudent(lab_master_seed, mycontainer_name, container_user, container_password, labname, 
+def ParamForStudent(lab_master_seed, mycontainer_name, mycontainer_image_name, container_user, container_password, labname, 
                     student_email, lab_path, name, image_info, running_container=None):
+    # NOTE image_info may or may not be populated.
     if running_container == None:
         running_container = mycontainer_name
 
     mymd5_hex_string = GetLabSeed(lab_master_seed, student_email)
     logger.debug(mymd5_hex_string)
 
-    if not ParameterizeMyContainer(mycontainer_name, container_user, container_password, mymd5_hex_string,
+    if not ParameterizeMyContainer(mycontainer_name, mycontainer_image_name, container_user, container_password, mymd5_hex_string,
                                    student_email, labname, lab_path, name, image_info, running_container):
         logger.error("Failed to parameterize lab container %s!\n" % mycontainer_name)
         sys.exit(1)
@@ -882,7 +881,7 @@ def CopyInstrConfig(mycontainer_name, container_user, lab_path):
         exit(1)
 
 
-def CopyLabBin(mycontainer_name, container_user, lab_path, name, image_info):
+def CopyLabBin(mycontainer_name, mycontainer_image_name, container_user, lab_path, name, image_info):
     here = os.path.dirname(os.path.abspath(__file__))
     parent = os.path.dirname(here)
     lab_bin_path = os.path.join(parent, 'lab_bin')
@@ -924,12 +923,12 @@ def CopyLabBin(mycontainer_name, container_user, lab_path, name, image_info):
         logger.error('failed %s' % cmd)
         exit(1)
 
-    if image_info.name in osTypeMap and osTypeMap[image_info.name] == 'ubuntu18':
+    if osTypeMap[mycontainer_image_name] == 'ubuntu18':
         cmd = 'docker exec %s script -q -c "sudo tar -x --keep-directory-symlink -f /var/tmp/labsys.tar -C /"' % (mycontainer_name)
     else:
         cmd = 'docker exec %s script -q -c "sudo tar -x --keep-directory-symlink -f /var/tmp/labsys.tar -C /usr/"' % (mycontainer_name)
     if not DockerCmd(cmd):
-        if image_info.name in osTypeMap and osTypeMap[image_info.name] == 'ubuntu18':
+        if osTypeMap[mycontainer_image_name] == 'ubuntu18':
             cmd = 'docker cp lab_sys/.  %s:/' % (mycontainer_name)
         else:
             cmd = 'docker cp lab_sys/.  %s:/usr/' % (mycontainer_name)
@@ -1266,6 +1265,7 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                 logger.error("Container %s failed to start!\n" % mycontainer_name)
                 results.append(False)
                 return
+
             defineAdditionalIP(mycontainer_name, post_start_if, post_start_nets)
 
             clone_need_seeds = need_seeds
@@ -1281,11 +1281,11 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
             # If the container is just created, then use the previous user's e-mail
             # then parameterize the container
             elif quiet_start and clone_need_seeds:
-                ParamForStudent(start_config.lab_master_seed, mycontainer_name, container_user, container_password, 
+                ParamForStudent(start_config.lab_master_seed, mycontainer_name, mycontainer_image_name, container_user, container_password, 
                                 labname, student_email, lab_path, name, image_info)
             
             elif clone_need_seeds:
-                ParamForStudent(start_config.lab_master_seed, mycontainer_name, container_user, 
+                ParamForStudent(start_config.lab_master_seed, mycontainer_name, mycontainer_image_name, container_user, 
                                                  container_password, labname, student_email, lab_path, name, image_info)
             if container.no_gw:
                 cmd = "docker exec %s bash -c 'sudo /bin/ip route del 0/0'" % (mycontainer_name)
