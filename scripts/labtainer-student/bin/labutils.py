@@ -923,7 +923,7 @@ def CopyLabBin(mycontainer_name, mycontainer_image_name, container_user, lab_pat
         logger.error('failed %s' % cmd)
         exit(1)
 
-    if osTypeMap[mycontainer_image_name] == 'ubuntu18':
+    if mycontainer_image_name in osTypeMap and osTypeMap[mycontainer_image_name] == 'ubuntu18':
         cmd = 'docker exec %s script -q -c "sudo tar -x --keep-directory-symlink -f /var/tmp/labsys.tar -C /"' % (mycontainer_name)
     else:
         cmd = 'docker exec %s script -q -c "sudo tar -x --keep-directory-symlink -f /var/tmp/labsys.tar -C /usr/"' % (mycontainer_name)
