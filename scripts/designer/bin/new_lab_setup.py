@@ -91,6 +91,11 @@ def handle_delete_container(tdir, deletecontainer):
         if not deletecontainer_line_found:
             start_config_file.write(line)
     start_config_file.close()
+    dest_dfile = 'dockerfiles/Dockerfile.%s.%s.student' % (labname, deletecontainer)
+    try:
+        os.remove(dest_dfile)
+    except:
+        pass
 
 def copy_container(start_config_file, oldcontainer, newcontainer):
     grabbed = []
