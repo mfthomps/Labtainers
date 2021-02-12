@@ -3,6 +3,9 @@
 # Perform all build steps needed to run tests, then start smoketests.
 # NOTE: this script assumes pulls from github.
 #
+if [[ -z "$LABTAINER_DIR" ]]; then
+    export LABTAINER_DIR=/home/mike/git/Labtainers
+fi
 cd $LABTAINER_DIR/distrib
 branch=$(git rev-parse --abbrev-ref HEAD)
 if [[ "$branch" == "master" ]]; then
