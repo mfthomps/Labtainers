@@ -45,6 +45,6 @@ ADD system/bin/funbuffer /usr/bin/
 # manage default gateways
 ADD system/bin/togglegw.sh /usr/bin/
 ADD system/bin/set_default_gw.sh /usr/bin/
-ADD system/sbin/waitparam.sh /sbin/waitparam.sh
+ADD system/sbin/waitparam.sh /usr/sbin/waitparam.sh
 ADD system/lib/systemd/system/waitparam.service /lib/systemd/system/waitparam.service
 RUN systemctl enable waitparam.service
