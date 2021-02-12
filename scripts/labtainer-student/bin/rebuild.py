@@ -530,6 +530,7 @@ def CheckBuildError(output, labname, name):
 def DoRebuildLab(lab_path, force_build=False, just_container=None, 
                  start_config=None, labtainer_config=None, run_container=None, servers=None, 
                  clone_count=None, no_pull=False, no_build=False, use_cache=True, local_build=False):
+    retval = []
     labname = os.path.basename(lab_path)
     labutils.isValidLab(lab_path)
     if start_config is None:
@@ -613,7 +614,7 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
             if no_build:
                 labutils.logger.debug("Would (but won't) rebuild %s" % (mycontainer_name))
                 print("Would (but won't) rebuild %s" % (mycontainer_name))
-                return 
+                return retval
                 
             labutils.logger.debug("Will rebuild %s,  force_this_build: %s  apt_source %s" % (mycontainer_name, force_this_build, labtainer_config.apt_source))
             
@@ -638,6 +639,7 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
                 else:
                     labutils.logger.debug('got ts, base %s' % thebase)
 
+            retval.append(RegistryInfo(name, container.image_name, container_registry, base_registry))
 
             if os.path.isfile(build_student):
                 cmd = '%s %s %s %s %s %s %s %s %s %s %s %s' % (build_student, labname, name, container.user, 
@@ -665,7 +667,7 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
                 exit(1)
             if fatal_error:
                 exit(1)
-    return 
+    return retval
 
 def RebuildLab(lab_path, force_build=False, quiet_start=False, just_container=None, 
          run_container=None, servers=None, clone_count=None, no_pull=False, use_cache=True, 
