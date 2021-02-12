@@ -79,6 +79,8 @@ FAILURE=1
 ''' 
 framework_version = 3
 
+osTypeMap = {}
+
 # Create a directory path based on input path
 # Note: Do not create if the input path already exists as a directory
 #       If input path is a file, remove the file then create directory
@@ -528,6 +530,8 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
         logger.debug("getDockerIPAddr result (%s)" % docker0_IPAddr)
         volume=''
         ubuntu_systemd = isUbuntuSystemd(new_image_name)
+        if ubuntu_systemd is not None:
+           osTypeMap[new_image_name] = ubuntu_systemd
         is_firefox = isFirefox(new_image_name)
         if is_firefox:
             shm = '--shm-size=2g'
@@ -904,7 +908,8 @@ def CopyLabBin(mycontainer_name, container_user, lab_path, name, image_info):
         print('\n\n********* ERROR ***********')
         print('%s is missing.  If this is a development system, you may need to' % capinout)
         print('go to the tool-src/capinout directory and run ./mkit.sh')
-        
+    
+    ''' Copy file to /lib and /sys.  Account for sym link fu '''
     dest_tar = os.path.join(tmp_dir, 'labsys.tar')
     lab_sys_path = os.path.join(parent, 'lab_sys')
 
@@ -919,13 +924,15 @@ def CopyLabBin(mycontainer_name, container_user, lab_path, name, image_info):
         logger.error('failed %s' % cmd)
         exit(1)
 
-    cmd = 'docker exec %s script -q -c "sudo tar -x --keep-directory-symlink -f /var/tmp/labsys.tar -C /"' % (mycontainer_name)
+    if image_info.name in osTypeMap and osTypeMap[image_info.name] == 'ubuntu18':
+        cmd = 'docker exec %s script -q -c "sudo tar -x --keep-directory-symlink -f /var/tmp/labsys.tar -C /"' % (mycontainer_name)
+    else:
+        cmd = 'docker exec %s script -q -c "sudo tar -x --keep-directory-symlink -f /var/tmp/labsys.tar -C /usr/"' % (mycontainer_name)
     if not DockerCmd(cmd):
-        '''
-        cmd = 'docker exec %s script -q -c "sudo tar -x -f /var/tmp/labsys.tar -C /"' % (mycontainer_name)
-        if not DockerCmd(cmd):
-        '''
-        cmd = 'docker cp lab_sys/.  %s:/' % (mycontainer_name)
+        if image_info.name in osTypeMap and osTypeMap[image_info.name] == 'ubuntu18':
+            cmd = 'docker cp lab_sys/.  %s:/' % (mycontainer_name)
+        else:
+            cmd = 'docker cp lab_sys/.  %s:/usr/' % (mycontainer_name)
         if not DockerCmd(cmd):
             logger.error('failed %s' % cmd)
             exit(1)
@@ -1648,7 +1655,11 @@ def DoStart(start_config, labtainer_config, lab_path,
             container_warning_printed = True
         image_info = None
         if container_images is not None:
+            logger.debug('container images not none,get for %s' % name) 
             image_info = container_images[name]
+            logger.debug('container images got image_info %s' % image_info)
+            if image_info is None:
+                print('is none, map is %s' % str(container_images))
         t = threading.Thread(target=DoStartOne, args=(labname, name, container, start_config, labtainer_config, lab_path, 
               student_email, quiet_start, results, auto_grade, image_info))
         threads.append(t)
