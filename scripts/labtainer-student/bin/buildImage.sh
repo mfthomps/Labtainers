@@ -111,7 +111,7 @@ else
         echo nothing at $LABIMAGE_DIR/_system
         # make empty tar
         mkdir $LABIMAGE_DIR/_system
-        cd -p $LABIMAGE_DIR/_system
+        cd $LABIMAGE_DIR/_system
         tar --atime-preserve -czvf $SYS_TAR .
     fi
     #cd $ORIG_PWD/lab_sys
