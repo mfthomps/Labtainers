@@ -234,7 +234,7 @@ The GUI resulting from {\tt labedit} will initially open the {\tt telnetlab}.
 \subsubsection{New lab creation}
 Select {\tt File} / {\tt New Lab}
 to create a new lab.  Give the lab a name in the resulting dialog, and accept the default base configuration.  
-A new container having the same name
+(See \ref{base-images} for a summary of the different base images.) A new container having the same name
 as the lab is initially created for the lab. 
 
 This simple lab that you have just created contains one container that does not yet include lab-specific files.
@@ -455,6 +455,7 @@ execution environment builds off of a recent Ubuntu image.
 \end{verbatim}
 
 The first line of each Dockerfile identifies the baseline Labtainer image to be pulled from the Docker Hub.
+\label{base-images}
 \noindent Base images include:
 \begin{itemize}
 \item labtainer.base -- Minimal Ubuntu system.
@@ -533,7 +534,7 @@ These types of interfaces can be used to communicate with external hosts, e.g., 
 as described in \ref{external hosts}  
 \item MACVLAN -- Similar to MACVALN\_EXT, except a macvlan will not be created unless the Labtainer lab
 is started as a multi-user lab as descrbed in \ref{multi user}.
-\item IP\_RANGE [range] -- Optional, allocates an ip range to the network, e.g., 192.168.1.4/30
+\item IP\_RANGE [range] -- Deprecated
 \end{itemize}
 
 \item CONTAINER [container name] -- One of these sections is required for each container in the lab.
@@ -733,7 +734,7 @@ service can be added to a container by unpacking this tar from the witin the con
 \begin{verbatim}
     tar -xf $LABTAINER_DIR/scripts/designer/services/web-server.tar
 \end{verbatim} 
-\noindent And enable the service in the {\tt \_bin/fixlocal} file with:
+\noindent And enable the service in the {\tt \_bin/fixlocal.sh} file with:
 \begin{verbatim}
   echo $1 | sudo -S systemctl enable httpserver.service
   echo $1 | sudo -S systemctl start httpserver.service
