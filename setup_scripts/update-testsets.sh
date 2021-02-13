@@ -31,5 +31,6 @@ POSSIBILITY OF SUCH DAMAGE.
 END
 HOSTNAME=`hostname`
 cd ../..
-tar xf /media/sf_SEED/test_vms/$HOSTNAME/labtainer-tests.tar --keep-newer-files --warning=none
+#tar xf /media/sf_SEED/test_vms/$HOSTNAME/labtainer-tests.tar --keep-newer-files --warning=none
+tar xf /media/sf_SEED/test_vms/$HOSTNAME/labtainer-tests.tar 
 
