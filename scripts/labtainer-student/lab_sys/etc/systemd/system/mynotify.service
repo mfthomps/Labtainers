@@ -4,7 +4,7 @@ After=waitparam.service
 After=rc.local.service
 
 [Service]
-ExecStart=/sbin/mynotify.py
+ExecStart=/usr/sbin/mynotify.py
 
 [Install]
 WantedBy=multi-user.target

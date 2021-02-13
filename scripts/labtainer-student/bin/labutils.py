@@ -902,7 +902,7 @@ def CopyLabBin(mycontainer_name, mycontainer_image_name, container_user, lab_pat
         os.makedirs(tmp_dir)
     except os.error:
         logger.error("did not expect to find dir %s" % tmp_dir)
-    capinout = os.path.join(parent, 'lab_sys', 'sbin', 'capinout') 
+    capinout = os.path.join(parent, 'lab_sys', 'usr','sbin', 'capinout') 
     if not os.path.isfile(capinout):
         print('\n\n********* ERROR ***********')
         print('%s is missing.  If this is a development system, you may need to' % capinout)
@@ -912,7 +912,7 @@ def CopyLabBin(mycontainer_name, mycontainer_image_name, container_user, lab_pat
     dest_tar = os.path.join(tmp_dir, 'labsys.tar')
     lab_sys_path = os.path.join(parent, 'lab_sys')
 
-    cmd = 'tar cf %s -C %s sbin lib' % (dest_tar, lab_sys_path)
+    cmd = 'tar cf %s -C %s usr lib etc' % (dest_tar, lab_sys_path)
     ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[1].strip()) > 0:
@@ -923,15 +923,17 @@ def CopyLabBin(mycontainer_name, mycontainer_image_name, container_user, lab_pat
         logger.error('failed %s' % cmd)
         exit(1)
 
-    if mycontainer_image_name in osTypeMap and osTypeMap[mycontainer_image_name] == 'ubuntu18':
-        cmd = 'docker exec %s script -q -c "sudo tar -x --keep-directory-symlink -f /var/tmp/labsys.tar -C /"' % (mycontainer_name)
-    else:
-        cmd = 'docker exec %s script -q -c "sudo tar -x --keep-directory-symlink -f /var/tmp/labsys.tar -C /usr/"' % (mycontainer_name)
+    cmd = 'docker exec %s script -q -c "sudo tar -x --keep-directory-symlink -f /var/tmp/labsys.tar -C /"' % (mycontainer_name)
+    #if mycontainer_image_name in osTypeMap and osTypeMap[mycontainer_image_name] == 'ubuntu18':
+    #    cmd = 'docker exec %s script -q -c "sudo tar -x --keep-directory-symlink -f /var/tmp/labsys.tar -C /"' % (mycontainer_name)
+    #else:
+    #    cmd = 'docker exec %s script -q -c "sudo tar -x --keep-directory-symlink -f /var/tmp/labsys.tar -C /usr/"' % (mycontainer_name)
     if not DockerCmd(cmd):
-        if osTypeMap[mycontainer_image_name] == 'ubuntu18':
-            cmd = 'docker cp lab_sys/.  %s:/' % (mycontainer_name)
-        else:
-            cmd = 'docker cp lab_sys/.  %s:/usr/' % (mycontainer_name)
+        cmd = 'docker cp lab_sys/.  %s:/' % (mycontainer_name)
+        #if osTypeMap[mycontainer_image_name] == 'ubuntu18':
+        #    cmd = 'docker cp lab_sys/.  %s:/' % (mycontainer_name)
+        #else:
+        #    cmd = 'docker cp lab_sys/.  %s:/usr/' % (mycontainer_name)
         if not DockerCmd(cmd):
             logger.error('failed %s' % cmd)
             exit(1)
