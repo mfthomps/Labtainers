@@ -192,7 +192,7 @@ char **getExecCmdArgs(char *cmd_args){
      char **cmd_args_array = getCharFromVector(cmd_v);
      char **my_args = (char **)malloc(sizeof(char *) * (cmd_v.size()+2));
      fprintf(debug, "cmd size is %d\n", cmd_v.size());
-     my_args[0] = "/sbin/exec_wrap.sh";
+     my_args[0] = "/usr/sbin/exec_wrap.sh";
      for(int i=1; i<cmd_v.size()+1; i++){
          my_args[i] = cmd_args_array[i-1];
          fprintf(debug, "assigned myargs[%d] with %s\n", i, my_args[i]);
