@@ -81,6 +81,8 @@ framework_version = 3
 
 osTypeMap = {}
 
+networkImages = []
+
 # Create a directory path based on input path
 # Note: Do not create if the input path already exists as a directory
 #       If input path is a file, remove the file then create directory
@@ -194,15 +196,6 @@ def ParameterizeMyContainer(mycontainer_name, mycontainer_image_name, container_
     if container_password == "":
         container_password = container_user
 
-    ''' Avoid problems caused by container wiping out all of /tmp on startup '''
-    cmd = "docker exec %s bash -c 'if [ -d /tmp/.X11-unix ]; then rm -Rf /tmp/.X11-unix; fi'" % (running_container)
-    if not DockerCmd(cmd):
-        logger.error('failed %s' % cmd)
-        exit(1)
-    cmd = "docker exec %s bash -c 'ln -s /var/tmp/.X11-unix /tmp/.X11-unix'" % (running_container)
-    if not DockerCmd(cmd):
-        logger.error('failed %s' % cmd)
-        exit(1)
 
     version = '0'
     if image_info is None or image_info.version is None:
@@ -228,6 +221,20 @@ def ParameterizeMyContainer(mycontainer_name, mycontainer_image_name, container_
     out_string = child.stdout.read().decode('utf-8').strip()
     if len(out_string) > 0:
         logger.debug('ParameterizeMyContainer %s' % out_string)
+
+    if mycontainer_image_name in networkImages:
+        cmd = "docker exec %s bash -c 'mkdir -p /run/sshd'" % (mycontainer_name)
+        if not DockerCmd(cmd):
+            logger.error('Failed mkdir of /run/sshd')
+            exit(1)
+        cmd = "docker exec %s bash -c 'chmod 0755 /run/sshd'" % (mycontainer_name)
+        if not DockerCmd(cmd):
+            logger.error('Failed chmod of /run/sshd')
+            exit(1)
+    else:
+        pass
+    
+
     return retval
 
 def DoCmd(cmd):
@@ -419,6 +426,7 @@ def GetX11SSH():
     return retval 
 
 def isUbuntuSystemd(image_name):
+    ''' NOTE side effect of update networkImages global '''
     done = False
     retval = None
     #print('check if %s is systemd' % image_name)
@@ -442,6 +450,8 @@ def isUbuntuSystemd(image_name):
             ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             output = ps.communicate()
             for line in output[0].decode('utf-8').splitlines():
+                if 'sshd' in line:
+                    networkImages.append(image_name) 
                 if 'Labtainer base image from ubuntu-systemd' in line:
                     retval = 'ubuntu16'
                     if 'ubuntu20' in line:
@@ -530,7 +540,7 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
         volume=''
         ubuntu_systemd = isUbuntuSystemd(new_image_name)
         if ubuntu_systemd is not None:
-           osTypeMap[new_image_name] = ubuntu_systemd
+           osTypeMap[container.image_name] = ubuntu_systemd
         is_firefox = isFirefox(new_image_name)
         if is_firefox:
             shm = '--shm-size=2g'
@@ -912,7 +922,7 @@ def CopyLabBin(mycontainer_name, mycontainer_image_name, container_user, lab_pat
     dest_tar = os.path.join(tmp_dir, 'labsys.tar')
     lab_sys_path = os.path.join(parent, 'lab_sys')
 
-    cmd = 'tar cf %s -C %s usr lib etc' % (dest_tar, lab_sys_path)
+    cmd = 'tar cf %s -C %s usr etc' % (dest_tar, lab_sys_path)
     ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[1].strip()) > 0:
@@ -938,6 +948,11 @@ def CopyLabBin(mycontainer_name, mycontainer_image_name, container_user, lab_pat
             logger.error('failed %s' % cmd)
             exit(1)
         logger.debug('CopyLabBin tar failed for lab_sys, explicit copy')
+    if mycontainer_image_name in osTypeMap and osTypeMap[mycontainer_image_name] == 'ubuntu20':
+        cmd = 'docker exec %s script -q -c "sed -i \'s/env python/env python3/\' /usr/sbin/mynotify.py"' % (mycontainer_name)
+        if not DockerCmd(cmd):
+            logger.error('failed changing mynotify to python3: %s' % cmd)
+            exit(1)
 
 # Copy Students' Artifacts from host to instructor's lab container
 def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_user, container_password):
@@ -1289,6 +1304,17 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
             elif clone_need_seeds:
                 ParamForStudent(start_config.lab_master_seed, mycontainer_name, mycontainer_image_name, container_user, 
                                                  container_password, labname, student_email, lab_path, name, image_info)
+            if container.x11.lower() == 'yes':
+                ''' Avoid problems caused by container wiping out all of /tmp on startup '''
+                cmd = "docker exec %s bash -c 'if [ -d /tmp/.X11-unix ]; then rm -Rf /tmp/.X11-unix; fi'" % (mycontainer_name)
+                if not DockerCmd(cmd):
+                    logger.error('failed %s' % cmd)
+                    exit(1)
+                cmd = "docker exec %s bash -c 'ln -s /var/tmp/.X11-unix /tmp/.X11-unix'" % (mycontainer_name)
+                if not DockerCmd(cmd):
+                    logger.error('failed %s' % cmd)
+                    exit(1)
+
             if container.no_gw:
                 cmd = "docker exec %s bash -c 'sudo /bin/ip route del 0/0'" % (mycontainer_name)
                 DockerCmd(cmd)
