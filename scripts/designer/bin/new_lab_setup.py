@@ -162,6 +162,13 @@ def handle_add_container(tdir, newcontainer, basename='base'):
                 print('error copying %s to %s, expected %s to be empty' % (source, here, here))
                 sys.exit(1)
 
+    if 'centos6' in basename:
+        faux_path = os.path.join(newcontainer,'_system','sbin', 'faux_init')
+        os.makedirs(os.path.dirname(faux_path))
+        with open(faux_path, 'w') as fh:
+            fh.write('# initial process for CentOS 6\n')
+        os.chmod(faux_path, 0o777)
+         
     # Make sure start.config exist already
     # then update it with the new container using start.config.template
     start_config_filename = 'config/start.config'
@@ -577,6 +584,8 @@ def copy_from_template(tdir, basename):
     '''
     Copy a set of initial lab configuration files into a new lab and
     adjust their names and content to reflect the lab name.
+
+    TBD redundant funtions with add function.
     '''
     template_dirs = os.listdir(tdir)
     here = os.getcwd()
@@ -637,6 +646,13 @@ def copy_from_template(tdir, basename):
     read_first = read_first.replace('LABNAME', labname)
     with open('docs/read_first.txt', encoding='utf-8', mode='w') as fh:
         fh.write(read_first) 
+
+    if 'centos6' in basename:
+        faux_path = os.path.join(labname,'_system','sbin', 'faux_init')
+        os.makedirs(os.path.dirname(faux_path))
+        with open(faux_path, 'w') as fh:
+            fh.write('# initial process for CentOS 6\n')
+        os.chmod(faux_path, 0o777)
  
     os.remove(start_config_template) 
     add_container(start_config_file, labname, basename)

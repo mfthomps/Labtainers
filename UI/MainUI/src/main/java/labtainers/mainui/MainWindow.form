@@ -712,6 +712,14 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="BuildOnlyMenuItemActionPerformed"/>
               </Events>
             </MenuItem>
+            <MenuItem class="javax.swing.JCheckBoxMenuItem" name="LocalBuildCheckbox">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Local builds"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="LocalBuildCheckboxActionPerformed"/>
+              </Events>
+            </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="StopLabMenuItem">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Stop lab"/>
