@@ -89,6 +89,10 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+February 14, 2021
+- Add local build option to UI
+- Create empty faux\_init for centos6 bases.
+
 February 4, 2021
 - Add SIZE option to results artifacts
 - Simplify wireshark-intro assessment and parameterization and add PDF lab manual.
