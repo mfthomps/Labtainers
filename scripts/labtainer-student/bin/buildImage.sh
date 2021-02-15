@@ -155,8 +155,15 @@ else
                  --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY \
                  --build-arg NO_PROXY=$NO_PROXY  --build-arg no_proxy=$NO_PROXY \
                  --build-arg registry=$REGISTRY --build-arg version=$VERSION \
-               $pull -f $dfile -t $labimage .
+               $pull -f $dfile -t $labimage.tmp .
     result=$?
+    if [ $result == 0 ]; then
+        # rsyslog has gotten particular
+        echo "FROM $labimage.tmp" > $dfile
+        echo "RUN chown root:root /var" >> $dfile
+        docker build -f $dfile -t $labimage .
+    fi
+         
 fi
 
 rm $dfile
