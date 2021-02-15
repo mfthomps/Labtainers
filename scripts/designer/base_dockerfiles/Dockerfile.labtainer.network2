@@ -18,9 +18,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # step around app armor or whatever
 RUN sudo mv /usr/sbin/tcpdump /usr/bin/tcpdump
-# ssh server fu, otherwise it won't run
-RUN mkdir -p /var/run/sshd
-RUN sudo chmod 0755 /var/run/sshd
+#
+# /run/sshd created when parameterizing
+#
 RUN systemctl disable dnsmasq
 RUN rm /etc/systemd/system/multi-user.target.wants/openvpn.service 
 RUN rm /etc/systemd/system/multi-user.target.wants/ssh.service 
