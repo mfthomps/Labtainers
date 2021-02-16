@@ -191,6 +191,10 @@ def ParameterizeMyContainer(mycontainer_name, mycontainer_image_name, container_
     if not DockerCmd(cmd):
         logger.error('failed %s' % cmd)
         exit(1)
+    cmd = 'docker exec %s script -q -c "chown root:root /usr"' % (mycontainer_name)
+    if not DockerCmd(cmd):
+        logger.error('failed %s' % cmd)
+        exit(1)
         
     cmd_path = '/home/%s/.local/bin/parameterize.sh' % (container_user)
     if container_password == "":
@@ -450,8 +454,9 @@ def isUbuntuSystemd(image_name):
             ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             output = ps.communicate()
             for line in output[0].decode('utf-8').splitlines():
-                if 'sshd' in line:
-                    networkImages.append(image_name) 
+                if 'sshd' in line or 'xinetd' in line:
+                    if image_name not in networkImages:
+                        networkImages.append(image_name) 
                 if 'Labtainer base image from ubuntu-systemd' in line:
                     retval = 'ubuntu16'
                     if 'ubuntu20' in line:
