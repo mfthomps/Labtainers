@@ -598,8 +598,10 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
             if ':' not in item:
                if item in start_config.lan_hosts:
                    for entry in start_config.lan_hosts[item]:
-                       add_this = '--add-host %s ' % entry
-                       add_hosts += add_this
+                       if not entry.startswith(container.name):
+                           add_this = '--add-host %s ' % entry
+                           add_hosts += add_this
+                        
                else:
                    logger.error('ADD-HOST entry in start.config missing colon: %s' % item)
                    logger.error('sytax: ADD-HOST <host>:<ip>')
