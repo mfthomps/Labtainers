@@ -231,11 +231,8 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                         .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(UserTF, javax.swing.GroupLayout.PREFERRED_SIZE, 209, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(PasswordTF, javax.swing.GroupLayout.PREFERRED_SIZE, 209, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
-                                .addComponent(LabGatewayTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(ContainerConfigNetworksAddButton)))
-                        .addGap(35, 35, 35)
+                            .addComponent(LabGatewayTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(80, 80, 80)
                         .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(NoGWCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, 217, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -245,18 +242,19 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                                     .addComponent(TerminalGroupTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE))))
                         .addGap(0, 19, Short.MAX_VALUE))
                     .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
-                        .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(containerLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
-                                .addComponent(ContainerConfigNetworksScrollpane, javax.swing.GroupLayout.PREFERRED_SIZE, 541, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 0, Short.MAX_VALUE)))
+                        .addComponent(containerLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addContainerGap())))
+            .addComponent(ContainerConfigNetworksScrollpane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
+                .addGap(21, 21, 21)
+                .addComponent(ContainerConfigNetworksAddButton)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         ContainerConfigGeneralTabLayout.setVerticalGroup(
             ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
                 .addComponent(containerLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(18, 18, 18)
                 .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
                         .addComponent(TerminalQuantitySpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -266,21 +264,18 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                         .addComponent(UserTF, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(PasswordTF, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(LabGatewayTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
+                        .addComponent(X11Checkbox)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(ContainerConfigGeneralTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(LabGatewayTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(ContainerConfigGeneralTabLayout.createSequentialGroup()
-                                .addComponent(X11Checkbox)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(NoGWCheckbox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                        .addGap(18, 22, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ContainerConfigGeneralTabLayout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(ContainerConfigNetworksAddButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
-                .addComponent(ContainerConfigNetworksScrollpane, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(NoGWCheckbox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGap(18, 18, 18)
+                .addComponent(ContainerConfigNetworksAddButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(ContainerConfigNetworksScrollpane, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(10, 10, 10))
         );
 
         containerTabPane.addTab("General ", ContainerConfigGeneralTab);
@@ -773,9 +768,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_EditDockerfileButtonActionPerformed
 
     private void ContainerConfigNetworksAddButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigNetworksAddButtonActionPerformed
-         if(data.listOfContainerNetworks.size()>0){
-             addContainerNetworkSubPanel("", "");
-         }
+        addContainerNetworkSubPanel("", "");
     }//GEN-LAST:event_ContainerConfigNetworksAddButtonActionPerformed
 
     private void ContainerConfigAddHostIPButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ContainerConfigAddHostIPButtonActionPerformed
@@ -970,7 +963,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
     public void updateData(){
         // General Tab
         data.user = UserTF.getText();
-        if(data.user.length() == 0){
+        if(data.user.trim().length() == 0){
             JOptionPane.showMessageDialog(null, "User name must be defined.", "Warning", JOptionPane.WARNING_MESSAGE);
             return;
         }
@@ -1076,6 +1069,10 @@ public class ContainerObjPanel extends javax.swing.JPanel {
     public int containerConfigNetworksPanelLength = 0;
     private final JScrollBar containerConfigNetworksScrollPaneBar;   
     private void addContainerNetworkSubPanel(String network, String ip){
+         if(mainWindow.getCurrentData().getNetworkCount() == 0){
+             mainWindow.output("No networks have been defined.\n");
+             return;
+         }
          //Resize the JPanel Holding all the containerConfigNetworksPanel to fit another containerConfigNetworksPanel 
         containerConfigNetworksPanelLength+=58;
         ContainerConfigNetworksPanel.setPreferredSize(new Dimension(0,containerConfigNetworksPanelLength));
@@ -1117,6 +1114,9 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         this.ContainerConfigWindow.setTitle("Container Config: "+this.data.name);
         
         // General Tab
+        if(data.user.trim().length() == 0){
+            data.user = "ubuntu";
+        }
         this.UserTF.setText(data.user);
         this.PasswordTF.setText(data.password);
         this.TerminalQuantitySpinner.setValue(data.terminal_count);
