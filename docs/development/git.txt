@@ -28,3 +28,9 @@ git remote set-url --push origin git@github.com:mfthomps/Labtainers.git
 
 git remote.origin.url https://
 
+git stash
+git stash apply
+
+git config --global user.name "mfthomps"
+git config --global user.email "mfthomps@nps.edu"
+
