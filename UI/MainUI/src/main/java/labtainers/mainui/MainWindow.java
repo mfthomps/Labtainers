@@ -222,6 +222,7 @@ public class MainWindow extends javax.swing.JFrame {
         RunMenu = new javax.swing.JMenu();
         BuildAndRun = new javax.swing.JMenuItem();
         BuildOnlyMenuItem = new javax.swing.JMenuItem();
+        LocalBuildCheckbox = new javax.swing.JCheckBoxMenuItem();
         StopLabMenuItem = new javax.swing.JMenuItem();
         checkWorkMenuItem = new javax.swing.JMenuItem();
         EditMenu = new javax.swing.JMenu();
@@ -857,6 +858,14 @@ public class MainWindow extends javax.swing.JFrame {
         });
         RunMenu.add(BuildOnlyMenuItem);
 
+        LocalBuildCheckbox.setText("Local builds");
+        LocalBuildCheckbox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                LocalBuildCheckboxActionPerformed(evt);
+            }
+        });
+        RunMenu.add(LocalBuildCheckbox);
+
         StopLabMenuItem.setText("Stop lab");
         StopLabMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1159,6 +1168,7 @@ public class MainWindow extends javax.swing.JFrame {
         return lastLine;
     }
     public void doStudentCommand(String cmd){
+        output(cmd+"\n");
         ProcessBuilder builder = new ProcessBuilder();
         builder.command("sh", "-c", cmd);
         String path = this.labtainerPath+File.separator+"scripts"+File.separator+"labtainer-student";
@@ -1170,13 +1180,13 @@ public class MainWindow extends javax.swing.JFrame {
             int exitCode = process.waitFor();
             System.out.println("exit code is "+exitCode);
             if(exitCode == 0){
-                OutputTextArea.append("Command successful.\n");
+                output("Command successful.\n");
             }else{
-                OutputTextArea.append("Command failed, see the labtainer log and/or the docker build log.\n");
+                output("Command failed, see the labtainer log and/or the docker build log.\n");
                 String log_path = this.labtainerPath+File.separator+"logs"+File.separator+"labtainer.log";
                 String last = getLastLine(log_path);
                 if(last.contains("ERROR")){
-                    OutputTextArea.append(last+"\n");
+                    output(last+"\n");
                 }
             }
         } catch (IOException e){
@@ -1184,7 +1194,6 @@ public class MainWindow extends javax.swing.JFrame {
         } catch (InterruptedException ie){
                 System.out.println("InterruptedException "+ie);
         }
-        OutputTextArea.requestFocus();
     }
     private void BuildOnlyMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuildOnlyMenuItemActionPerformed
         try {
@@ -1193,7 +1202,11 @@ public class MainWindow extends javax.swing.JFrame {
         catch (FileNotFoundException ex) {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
+       
         String cmd = "rebuild -b "+this.labName;
+        if(this.LocalBuildCheckbox.isSelected()){
+            cmd = "rebuild -b -L "+this.labName;
+        }
         //System.out.println("BuildOnly cmd: "+cmd);
         doStudentCommand(cmd);
     }//GEN-LAST:event_BuildOnlyMenuItemActionPerformed
@@ -1260,6 +1273,9 @@ public class MainWindow extends javax.swing.JFrame {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
         String cmd = "rebuild "+this.labName;
+        if(this.LocalBuildCheckbox.isSelected()){
+            cmd = "rebuild -L "+this.labName;
+        }
         //System.out.println("BuildAndRun cmd: "+cmd);
         doStudentCommand(cmd);
     }//GEN-LAST:event_BuildAndRunActionPerformed
@@ -1304,9 +1320,20 @@ public class MainWindow extends javax.swing.JFrame {
         doCommand(cmd);
     }//GEN-LAST:event_readfirstMenuActionPerformed
 
+
     private void NetworkAddDialogGatewayTextfieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NetworkAddDialogGatewayTextfieldActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_NetworkAddDialogGatewayTextfieldActionPerformed
+
+    private void LocalBuildCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LocalBuildCheckboxActionPerformed
+        if(this.LocalBuildCheckbox.isSelected()){
+            writeValueToINI("localBuild", "true");
+        }else{
+            writeValueToINI("localBuild", "false");
+        }
+         
+    }//GEN-LAST:event_LocalBuildCheckboxActionPerformed
+
     
     //BUTTON FUNCTIONS//
     
@@ -1784,6 +1811,15 @@ public class MainWindow extends javax.swing.JFrame {
             File defaultLab = new File(labsPath+File.separator+"telnetlab");
             openLab(defaultLab);
         }
+        String localBuild = prefProperties.getProperty("localBuild");
+        if(localBuild == null){
+            writeValueToINI("localBuild", "false");
+        }else if(localBuild == "true"){
+            this.LocalBuildCheckbox.setSelected(true);
+        }else{
+            this.LocalBuildCheckbox.setSelected(true);
+        }
+        
     }
     private InputStream brokenJavaNaming(String resource){
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
@@ -1846,8 +1882,6 @@ public class MainWindow extends javax.swing.JFrame {
             }
             
         }
-        catch (FileNotFoundException ex) { System.out.println(ex);} 
-        catch (IOException ex) { System.out.println(ex);} 
         catch (NullPointerException ex) {
             System.out.println(ex);
         }
@@ -1891,16 +1925,20 @@ public class MainWindow extends javax.swing.JFrame {
     }
      
     // Writes a value to a key in the main.ini file 
-    private void writeValueToINI(String key, String value) throws FileNotFoundException, IOException{
-        // update the labtainerPath property
-        //prefProperties.load(new FileInputStream(iniFile)); 
-        prefProperties.put(key, value);
+    private void writeValueToINI(String key, String value){
+        try{
+            // update the labtainerPath property
+            //prefProperties.load(new FileInputStream(iniFile)); 
+            prefProperties.put(key, value);
 
-        // write update to the ini File
-        date = new Date();
-        FileOutputStream out = new FileOutputStream(this.iniFile);
-        prefProperties.store(out, "Updated: "+ formatter.format(date));
-        out.close();
+            // write update to the ini File
+            date = new Date();
+            FileOutputStream out = new FileOutputStream(this.iniFile);
+            prefProperties.store(out, "Updated: "+ formatter.format(date));
+            out.close();
+    	}catch(IOException ioe){
+    		output("Error writing to INI file "+ioe+"\n");
+    	}
     }
     
     // Clears the panels of Containers and Networks
@@ -2097,6 +2135,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JMenuItem LabDocumentsMenuItem;
     private javax.swing.JLabel LabExistLabel;
     private javax.swing.JLabel LabnameLabel;
+    private javax.swing.JCheckBoxMenuItem LocalBuildCheckbox;
     private javax.swing.JMenuBar MainMenuBar;
     private javax.swing.JDialog NetworkAddDialog;
     private javax.swing.JButton NetworkAddDialogCancelButton;

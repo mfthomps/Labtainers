@@ -22,9 +22,9 @@ The Labtainers website, and downloads (including VM appliances with Labtainers p
 [designer-guide]: docs/labdesigner/labdesigner.pdf
 [Papers]: https://nps.edu/web/c3o/labtainers#papers
 
-Distribution created: 02/09/2021 13:44 </br>
-Previous revision: v1.3.3s </br>
-Commit: 8ffe4864 </br>
+Distribution created: 02/14/2021 12:31 </br>
+Revision: v1.3.3w </br>
+Commit: 0c6c0993 </br>
 Branch: master </br>
 
 ## Content
@@ -88,6 +88,10 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+
+February 14, 2021
+- Add local build option to UI
+- Create empty faux\_init for centos6 bases.
 
 February 11, 2021
 - Fix UI handling of editing files.  Revise layout and eliminate unused fields.
