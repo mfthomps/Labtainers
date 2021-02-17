@@ -148,6 +148,13 @@ class SmokeTest():
                     f = os.path.basename(line).strip()
                     print('adding [%s]' % f)
                     skip.append(f)
+        skip_tests = os.path.abspath('../../testsets/bin/skip_test.txt')
+        if os.path.isfile(skip_tests):
+            with open(skip_tests) as fh:
+                for line in fh:
+                    f = os.path.basename(line).strip()
+                    print('adding [%s]' % f)
+                    skip.append(f)
         skip.append('cyberciege')
         lab_parent = os.path.abspath('../../labs')
         lab_list = os.listdir(lab_parent)

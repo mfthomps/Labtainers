@@ -455,8 +455,11 @@ def isUbuntuSystemd(image_name):
             output = ps.communicate()
             for line in output[0].decode('utf-8').splitlines():
                 if 'sshd' in line or 'xinetd' in line:
-                    if image_name not in networkImages:
-                        networkImages.append(image_name) 
+                    net_image = image_name
+                    if '/' in image_name:
+                        net_image = image_name.split('/')[1]
+                    if net_image not in networkImages:
+                        networkImages.append(net_image) 
                 if 'Labtainer base image from ubuntu-systemd' in line:
                     retval = 'ubuntu16'
                     if 'ubuntu20' in line:
