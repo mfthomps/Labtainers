@@ -1328,8 +1328,10 @@ public class MainWindow extends javax.swing.JFrame {
     private void LocalBuildCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LocalBuildCheckboxActionPerformed
         if(this.LocalBuildCheckbox.isSelected()){
             writeValueToINI("localBuild", "true");
+            //System.out.println("set localBuild true");
         }else{
             writeValueToINI("localBuild", "false");
+            //System.out.println("set localBuild false");
         }
          
     }//GEN-LAST:event_LocalBuildCheckboxActionPerformed
@@ -1812,12 +1814,13 @@ public class MainWindow extends javax.swing.JFrame {
             openLab(defaultLab);
         }
         String localBuild = prefProperties.getProperty("localBuild");
+        //System.out.println("loaded localbuid with "+localBuild);
         if(localBuild == null){
             writeValueToINI("localBuild", "false");
         }else if(localBuild == "true"){
             this.LocalBuildCheckbox.setSelected(true);
         }else{
-            this.LocalBuildCheckbox.setSelected(true);
+            this.LocalBuildCheckbox.setSelected(false);
         }
         
     }
