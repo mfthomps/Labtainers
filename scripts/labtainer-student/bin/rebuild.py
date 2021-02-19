@@ -629,7 +629,7 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
                     labutils.logger.debug('No base found %s, look for local base' % thebase)
                     ts, thebase = BaseImageTime(dfile, None)
                     if ts == 0:
-                        labutils.logger.error('No local image for %s and local build requested. Try "docker pull %s/%s"' % (thebase, base_registry, the_base))
+                        labutils.logger.error('No local image for %s and local build requested. Try "docker pull %s/%s"' % (thebase, base_registry, thebase))
                         exit(1)
                     else:
                         
