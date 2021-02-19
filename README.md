@@ -89,6 +89,10 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+February 18, 2021
+- UI was rebuilding images because it was updating file times without cause
+- Clean up UI code to remove some redundant data copies.
+
 February 14, 2021
 - Add local build option to UI
 - Create empty faux\_init for centos6 bases.
