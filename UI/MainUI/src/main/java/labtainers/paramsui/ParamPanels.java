@@ -46,7 +46,6 @@ import labtainers.goalsui.DocPanel;
 
 /**
  *
- * @author Daniel Liao
  */
 public class ParamPanels extends javax.swing.JPanel {
 
@@ -55,28 +54,25 @@ public class ParamPanels extends javax.swing.JPanel {
     ParamsData dataUI;
     int rowNum;
     String comments="";
-    ArrayList<String> containers;
     
     /**
      * Creates new form ParamsPanel
      */
     //Creating fresh params line
-    public ParamPanels(ParamsUI ui, ArrayList<String> containers, int rowNum) {
+    public ParamPanels(ParamsUI ui, int rowNum) {
         initComponents();
         this.uiParam = ui;
         this.dataUI = ui.data;
         this.rowNum = rowNum;
-        this.containers = containers;
         
         jLabel3.setText(Integer.toString(rowNum));
         LowerBoundTextField.setVisible(false);
                 
         setComboItems(OperationComboBox, Operator_ITEMS);
-        System.out.println("num containers "+containers.size());
     }
 
     //Loading params line
-    public ParamPanels(ParamsUI ui, ArrayList<String> containers, int rowNum, String paramID, ArrayList<String> fileList, 
+    public ParamPanels(ParamsUI ui, int rowNum, String paramID, ArrayList<String> fileList, 
               String operator, String symbol, 
               String hashedString, String upperBound, String lowerBound, String comments){
         initComponents();
@@ -84,7 +80,6 @@ public class ParamPanels extends javax.swing.JPanel {
         this.dataUI = ui.data;
         this.rowNum = rowNum;
         this.comments = comments;
-        this.containers = containers;
         jLabel3.setText(Integer.toString(rowNum));      
         
         setComboItems(OperationComboBox, Operator_ITEMS);
@@ -336,12 +331,11 @@ public class ParamPanels extends javax.swing.JPanel {
 
     private void ShowListButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ShowListButtonActionPerformed
         String file_list = getFileTextField().getText();
-        //ContainerFileTable panel = new ContainerFileTable(this.containers, this.fileList);
         String fileArray[] = file_list.split(";");
         List<String> list = new ArrayList<String>();
 	list = Arrays.asList(fileArray);
         ArrayList<String> fileList = new ArrayList<String>(list); 
-        ContainerFileDialog panel = new ContainerFileDialog(this.containers, fileList);
+        ContainerFileDialog panel = new ContainerFileDialog(this.dataUI.getContainerList(), fileList);
 
         //panel.tableSetup();
         panel.setOpaque(true);

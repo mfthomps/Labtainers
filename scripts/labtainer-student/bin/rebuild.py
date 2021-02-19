@@ -581,6 +581,8 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
         labutils.logger.debug('force_this_build: %r no_pull %r' % (force_this_build, no_pull))
         image_info = labutils.imageInfo(mycontainer_image_name, container_registry, base_registry, labtainer_config, 
                     is_rebuild=True, no_pull=no_pull, local_build=local_build)
+        if image_info is not None:
+            labutils.logger.debug('build added [%s] image_info %s' % (name, image_info.name))
         if not force_this_build and image_info is None:
             if not local_build:
                 labutils.logger.debug('Image %s exists nowhere, so force the build' % mycontainer_image_name)
@@ -627,7 +629,7 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
                     labutils.logger.debug('No base found %s, look for local base' % thebase)
                     ts, thebase = BaseImageTime(dfile, None)
                     if ts == 0:
-                        labutils.logger.error('No local image for %s and local build requested. Try "docker pull %s/%s"' % (thebase, base_registry, the_base))
+                        labutils.logger.error('No local image for %s and local build requested. Try "docker pull %s/%s"' % (thebase, base_registry, thebase))
                         exit(1)
                     else:
                         

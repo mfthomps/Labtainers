@@ -9,4 +9,3 @@
 #
 #  Configure the ldap client
 sudo /var/tmp/configure-ldap-client.sh
-

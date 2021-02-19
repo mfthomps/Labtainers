@@ -104,9 +104,12 @@ public class MainWindow extends javax.swing.JFrame {
         containerScrollPaneBar = ContainerScrollPane.getVerticalScrollBar();
         networkScrollPaneBar = NetworkScrollPane.getVerticalScrollBar();
         LabExistLabel.setVisible(false);
+        String localpath = System.getenv("HOME")+File.separator+".local/share/labtainers";
+        File local = new File(localpath);
+        local.mkdirs();
         
-        iniFile = new File(System.getenv("HOME")+File.separator+".local/share/labtainers/UI.ini");
-        if(!iniFile.isFile())
+        this.iniFile = new File(localpath+File.separator+"UI.ini");
+        if(!this.iniFile.isFile())
             resetINIFile();
         
         prefProperties = new Properties();
@@ -160,16 +163,11 @@ public class MainWindow extends javax.swing.JFrame {
         ContainerAddDialogBaseImageCombobox = new javax.swing.JComboBox<>();
         NetworkAddDialog = new javax.swing.JDialog();
         jLabel7 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
-        jLabel9 = new javax.swing.JLabel();
-        jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
-        jLabel13 = new javax.swing.JLabel();
         NetworkAddDialogNameTextfield = new javax.swing.JTextField();
         NetworkAddDialogMaskTextfield = new javax.swing.JTextField();
         NetworkAddDialogGatewayTextfield = new javax.swing.JTextField();
-        NetworkAddDialogIPRangeTextfield = new javax.swing.JTextField();
         NetworkAddDialogCreateButton = new javax.swing.JButton();
         NetworkAddDialogCancelButton = new javax.swing.JButton();
         NetworkAddDialogMacVLanExtSpinner = new javax.swing.JSpinner();
@@ -227,6 +225,7 @@ public class MainWindow extends javax.swing.JFrame {
         LocalBuildCheckbox = new javax.swing.JCheckBoxMenuItem();
         StopLabMenuItem = new javax.swing.JMenuItem();
         checkWorkMenuItem = new javax.swing.JMenuItem();
+        SimLabMenu = new javax.swing.JMenuItem();
         EditMenu = new javax.swing.JMenu();
         AboutLabMenuItem = new javax.swing.JMenuItem();
         LabDocumentsMenuItem = new javax.swing.JMenuItem();
@@ -321,20 +320,11 @@ public class MainWindow extends javax.swing.JFrame {
         );
 
         NetworkAddDialog.setTitle("Adding New Network");
-        NetworkAddDialog.setMinimumSize(new java.awt.Dimension(400, 380));
+        NetworkAddDialog.setMinimumSize(new java.awt.Dimension(400, 500));
         NetworkAddDialog.setResizable(false);
 
         jLabel7.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         jLabel7.setText("Please fill the sections below to create a new network:");
-
-        jLabel8.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jLabel8.setText("Gateway:");
-
-        jLabel9.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jLabel9.setText("Mask:");
-
-        jLabel10.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jLabel10.setText("IP_Range:");
 
         jLabel11.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel11.setText("MACVLAN:");
@@ -342,24 +332,25 @@ public class MainWindow extends javax.swing.JFrame {
         jLabel12.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel12.setText("MACVLAN_EXT:");
 
-        jLabel13.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jLabel13.setText("Name:");
-
+        NetworkAddDialogNameTextfield.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Name", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 14))); // NOI18N
         NetworkAddDialogNameTextfield.setMinimumSize(new java.awt.Dimension(300, 20));
         NetworkAddDialogNameTextfield.setName(""); // NOI18N
         NetworkAddDialogNameTextfield.setPreferredSize(new java.awt.Dimension(300, 20));
 
+        NetworkAddDialogMaskTextfield.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Subnet ", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 14))); // NOI18N
         NetworkAddDialogMaskTextfield.setMinimumSize(new java.awt.Dimension(300, 20));
         NetworkAddDialogMaskTextfield.setName(""); // NOI18N
         NetworkAddDialogMaskTextfield.setPreferredSize(new java.awt.Dimension(300, 20));
 
+        NetworkAddDialogGatewayTextfield.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Gateway", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 14))); // NOI18N
         NetworkAddDialogGatewayTextfield.setMinimumSize(new java.awt.Dimension(300, 20));
         NetworkAddDialogGatewayTextfield.setName(""); // NOI18N
         NetworkAddDialogGatewayTextfield.setPreferredSize(new java.awt.Dimension(300, 20));
-
-        NetworkAddDialogIPRangeTextfield.setMinimumSize(new java.awt.Dimension(300, 20));
-        NetworkAddDialogIPRangeTextfield.setName(""); // NOI18N
-        NetworkAddDialogIPRangeTextfield.setPreferredSize(new java.awt.Dimension(300, 20));
+        NetworkAddDialogGatewayTextfield.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                NetworkAddDialogGatewayTextfieldActionPerformed(evt);
+            }
+        });
 
         NetworkAddDialogCreateButton.setText("Create");
         NetworkAddDialogCreateButton.addActionListener(new java.awt.event.ActionListener() {
@@ -392,61 +383,44 @@ public class MainWindow extends javax.swing.JFrame {
                         .addContainerGap()
                         .addComponent(jLabel7))
                     .addGroup(NetworkAddDialogLayout.createSequentialGroup()
-                        .addGap(22, 22, 22)
+                        .addGap(24, 24, 24)
                         .addGroup(NetworkAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(NetworkAddDialogLayout.createSequentialGroup()
-                                .addGroup(NetworkAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jLabel13)
-                                    .addComponent(jLabel9))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addGroup(NetworkAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(NetworkAddDialogMaskTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(NetworkAddDialogNameTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGroup(NetworkAddDialogLayout.createSequentialGroup()
-                                .addGap(2, 2, 2)
-                                .addGroup(NetworkAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(NetworkAddDialogLayout.createSequentialGroup()
-                                        .addComponent(jLabel8)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(NetworkAddDialogGatewayTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 278, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(NetworkAddDialogLayout.createSequentialGroup()
-                                        .addComponent(jLabel12)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(NetworkAddDialogMacVLanExtSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(NetworkAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(jLabel12)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(NetworkAddDialogMacVLanExtSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(NetworkAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addGroup(NetworkAddDialogLayout.createSequentialGroup()
+                                    .addComponent(NetworkAddDialogCreateButton)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                    .addComponent(NetworkAddDialogCancelButton))
+                                .addGroup(NetworkAddDialogLayout.createSequentialGroup()
+                                    .addGroup(NetworkAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(NetworkAddDialogTapRadioButton)
                                         .addGroup(NetworkAddDialogLayout.createSequentialGroup()
-                                            .addComponent(NetworkAddDialogCreateButton)
+                                            .addComponent(jLabel11)
                                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                            .addComponent(NetworkAddDialogCancelButton))
-                                        .addGroup(NetworkAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(NetworkAddDialogTapRadioButton)
-                                            .addGroup(NetworkAddDialogLayout.createSequentialGroup()
-                                                .addGroup(NetworkAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                    .addComponent(jLabel11)
-                                                    .addComponent(jLabel10))
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                                .addGroup(NetworkAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                    .addComponent(NetworkAddDialogIPRangeTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 269, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                    .addComponent(NetworkAddDialogMacVLanSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))))))))))
-                .addContainerGap(25, Short.MAX_VALUE))
+                                            .addComponent(NetworkAddDialogMacVLanSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addGap(224, 224, 224)))))
+                    .addGroup(NetworkAddDialogLayout.createSequentialGroup()
+                        .addGap(48, 48, 48)
+                        .addGroup(NetworkAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(NetworkAddDialogMaskTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(NetworkAddDialogNameTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(NetworkAddDialogGatewayTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(26, Short.MAX_VALUE))
         );
         NetworkAddDialogLayout.setVerticalGroup(
             NetworkAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(NetworkAddDialogLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel7)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(NetworkAddDialogNameTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(NetworkAddDialogMaskTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addGroup(NetworkAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel13)
-                    .addComponent(NetworkAddDialogNameTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(NetworkAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(NetworkAddDialogMaskTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel9))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(NetworkAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel8)
-                    .addComponent(NetworkAddDialogGatewayTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(NetworkAddDialogGatewayTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(NetworkAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(NetworkAddDialogMacVLanExtSpinner, javax.swing.GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE)
@@ -455,13 +429,9 @@ public class MainWindow extends javax.swing.JFrame {
                 .addGroup(NetworkAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel11)
                     .addComponent(NetworkAddDialogMacVLanSpinner, javax.swing.GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(NetworkAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(NetworkAddDialogIPRangeTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel10))
-                .addGap(18, 18, 18)
+                .addGap(27, 27, 27)
                 .addComponent(NetworkAddDialogTapRadioButton)
-                .addGap(2, 2, 2)
+                .addGap(35, 35, 35)
                 .addGroup(NetworkAddDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(NetworkAddDialogCreateButton)
                     .addComponent(NetworkAddDialogCancelButton))
@@ -913,6 +883,14 @@ public class MainWindow extends javax.swing.JFrame {
         });
         RunMenu.add(checkWorkMenuItem);
 
+        SimLabMenu.setText("SimLab");
+        SimLabMenu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                SimLabMenuActionPerformed(evt);
+            }
+        });
+        RunMenu.add(SimLabMenu);
+
         MainMenuBar.add(RunMenu);
 
         EditMenu.setText("Edit");
@@ -1088,7 +1066,7 @@ public class MainWindow extends javax.swing.JFrame {
     private void windowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_windowClosing
         if(labName != null){
             try{
-                saveLab(true);
+                saveLab(true, false);
             } catch (IOException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -1113,7 +1091,7 @@ public class MainWindow extends javax.swing.JFrame {
             saveAsButton();
         }else{
             try {
-                saveLab(false);
+                saveLab(false, false);
             } 
             catch (FileNotFoundException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
@@ -1129,7 +1107,7 @@ public class MainWindow extends javax.swing.JFrame {
         rememberOpenedlab();
         if(labName != null){
             try{
-                saveLab(true);
+                saveLab(true, false);
             } catch (IOException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -1228,7 +1206,7 @@ public class MainWindow extends javax.swing.JFrame {
     }
     private void BuildOnlyMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuildOnlyMenuItemActionPerformed
         try {
-            saveLab(false);
+            saveLab(true, true);
         } 
         catch (FileNotFoundException ex) {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
@@ -1278,8 +1256,8 @@ public class MainWindow extends javax.swing.JFrame {
 
     private void checkWorkMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkWorkMenuItemActionPerformed
         String path = this.labtainerPath+File.separator+"scripts"+File.separator+"labtainer-student";
-        String cmd = "gnome-terminal -t 'checkwork' --working-directory="+path+" -- checkwork -p";
-        System.out.println("checkwork cmd "+cmd);
+        String cmd = "gnome-terminal -t 'checkwork' --working-directory="+path+" -- checkwork "+this.labName+" -p";
+        //System.out.println("checkwork cmd "+cmd);
         doCommand(cmd);
     }//GEN-LAST:event_checkWorkMenuItemActionPerformed
 
@@ -1298,7 +1276,7 @@ public class MainWindow extends javax.swing.JFrame {
 
     private void BuildAndRunActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuildAndRunActionPerformed
         try {
-            saveLab(false);
+            saveLab(true, true);
         } 
         catch (FileNotFoundException ex) {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
@@ -1342,23 +1320,49 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_LabDocumentsMenuItemActionPerformed
 
     private void SimlabDirectivesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SimlabDirectivesMenuItemActionPerformed
-        // TODO add your handling code here:
+        String labtainerPath = System.getenv("LABTAINER_DIR");
+        System.out.println("labtainerdir is "+labtainerPath);
+        File labtainer_path = new File(labtainerPath);
+        String parent = labtainer_path.getParentFile().getPath();
+        System.out.println("parent is "+parent);
+        File simlab_dir = new File(parent+File.separator+"simlab"+File.separator+this.labName);
+        try{
+            simlab_dir.mkdir();
+        }catch(Exception ex){
+        }
+        String cmd = "gnome-terminal --working-directory="+simlab_dir;
+        System.out.println("cmd: "+cmd);
+        doCommand(cmd);
+        
     }//GEN-LAST:event_SimlabDirectivesMenuItemActionPerformed
 
     private void readfirstMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_readfirstMenuActionPerformed
         String readFirstPath = this.currentLab.toString()+File.separator+"docs"+File.separator+"read_first.txt";
-        String cmd = "gnome-terminal -- "+getTextEditor()+readFirstPath+" &";
+        String cmd = getTextEditor()+readFirstPath+" &";
         doCommand(cmd);
     }//GEN-LAST:event_readfirstMenuActionPerformed
+
+
+    private void NetworkAddDialogGatewayTextfieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NetworkAddDialogGatewayTextfieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_NetworkAddDialogGatewayTextfieldActionPerformed
 
     private void LocalBuildCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LocalBuildCheckboxActionPerformed
         if(this.LocalBuildCheckbox.isSelected()){
             writeValueToINI("localBuild", "true");
+            //System.out.println("set localBuild true");
         }else{
             writeValueToINI("localBuild", "false");
+            //System.out.println("set localBuild false");
         }
          
     }//GEN-LAST:event_LocalBuildCheckboxActionPerformed
+
+    private void SimLabMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SimLabMenuActionPerformed
+        String cmd = "SimLab.py "+this.labName;
+        doStudentCommand(cmd);
+    }//GEN-LAST:event_SimLabMenuActionPerformed
+
     
     //BUTTON FUNCTIONS//
     
@@ -1371,7 +1375,6 @@ public class MainWindow extends javax.swing.JFrame {
     // Preps the Network Dialog components and sets the Network Dialog visible
     private void addNetworkButton(){
         NetworkAddDialogGatewayTextfield.setText("");
-        NetworkAddDialogIPRangeTextfield.setText("");
         NetworkAddDialogMacVLanExtSpinner.setValue(0);
         NetworkAddDialogMacVLanSpinner.setValue(0);
         NetworkAddDialogMaskTextfield.setText("");
@@ -1407,7 +1410,7 @@ public class MainWindow extends javax.swing.JFrame {
     private void openLabButton() throws IOException{
         if(labName != null){
             try{
-                saveLab(true);
+                saveLab(true, false);
             } catch (IOException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -1427,7 +1430,7 @@ public class MainWindow extends javax.swing.JFrame {
     private void newLabButton(){
         if(labName != null){
             try{
-                saveLab(true);
+                saveLab(true, false);
             } catch (IOException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -1512,11 +1515,11 @@ public class MainWindow extends javax.swing.JFrame {
             
             // Add the container into the user's file system
             addContainer(containerName, baseImage);
-            newContainer.setNameLabel();
         }
         else {
             newContainer = new ContainerObjPanel(this, data);
         }
+        newContainer.setNameLabel();
 
         // Resize the JPanel holding all the ContainerObjPanels to fit another ContainerObjPanel 
         containerPanePanelLength+=50;
@@ -1604,10 +1607,11 @@ public class MainWindow extends javax.swing.JFrame {
     // Loads data and UI for the selected lab
     private void openLab(File lab) throws IOException{        
         // Load data
+        outputClear();
         this.currentLab = lab;
         this.labName = lab.toString().substring(lab.toString().lastIndexOf(File.separator)+1);
         this.labDataCurrent = new LabData(this, lab, labName); 
-        outputClear();
+        this.labDataCurrent.retrieveResultsGoalsParams();
         // Load UI
         closeAllDialogs(); 
         resetWindow();
@@ -1676,7 +1680,7 @@ public class MainWindow extends javax.swing.JFrame {
     }
          
     // Writes current state of the UI the file system
-    private boolean saveLab(boolean usetmp) throws FileNotFoundException{
+    private boolean saveLab(boolean usetmp, boolean force) throws FileNotFoundException{
         // If usetmp, save to temporary diretory and compare to current.  If they differ,
         // prompts the user to save or discard changes.
         // Return false if user cancels (does not want to exit).
@@ -1708,6 +1712,7 @@ public class MainWindow extends javax.swing.JFrame {
             LabData labDataOrig = null;
             try{
                 labDataOrig = new LabData(this, this.currentLab, labName); 
+                labDataOrig.retrieveResultsGoalsParams();
                 f1 = labDataCurrent.writeStartConfig(usetmp);
                 f2 = labDataOrig.writeStartConfig(usetmp);
                 something_changed = ! CompareTextFiles.compare(f1, f2);
@@ -1750,13 +1755,15 @@ public class MainWindow extends javax.swing.JFrame {
             if(something_changed){
                 //int confirm = JOptionPane.showConfirmDialog(null, "Changes made to lab config files have not been saved. Save them?\n",
                 //                                        "Save changes?",  JOptionPane.YES_NO_CANCEL_OPTION);
-                int confirm = JOptionPane.showConfirmDialog(null, "Changes made to lab config files have not been saved. Save them?\n",
+                if(!force){
+                    int confirm = JOptionPane.showConfirmDialog(null, "Changes made to lab config files have not been saved. Save them?\n",
                                                         "Save changes?",  JOptionPane.YES_NO_OPTION);
-                if (confirm == JOptionPane.YES_OPTION){
-                    System.out.println("Saved changes");
-                    saveLab(false);
-                //}else if(confirm == JOptionPane.CANCEL_OPTION){
-                //    retval = false;
+                    if (confirm == JOptionPane.YES_OPTION){
+                        System.out.println("Saved changes");
+                        saveLab(false, true);
+                    }
+                }else{
+                    saveLab(false, true);
                 }
             }
         }else{
@@ -1784,7 +1791,7 @@ public class MainWindow extends javax.swing.JFrame {
 
             // Write the current state to the new lab's start.config
             try {
-                saveLab(false);
+                saveLab(false, false);
             } 
             catch (FileNotFoundException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
@@ -1840,10 +1847,10 @@ public class MainWindow extends javax.swing.JFrame {
         String localBuild = prefProperties.getProperty("localBuild");
         if(localBuild == null){
             writeValueToINI("localBuild", "false");
-        }else if(localBuild == "true"){
+        }else if(localBuild.equals("true")){
             this.LocalBuildCheckbox.setSelected(true);
         }else{
-            this.LocalBuildCheckbox.setSelected(true);
+            this.LocalBuildCheckbox.setSelected(false);
         }
         
     }
@@ -2167,7 +2174,6 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JButton NetworkAddDialogCancelButton;
     private javax.swing.JButton NetworkAddDialogCreateButton;
     private javax.swing.JTextField NetworkAddDialogGatewayTextfield;
-    private javax.swing.JTextField NetworkAddDialogIPRangeTextfield;
     private javax.swing.JSpinner NetworkAddDialogMacVLanExtSpinner;
     private javax.swing.JSpinner NetworkAddDialogMacVLanSpinner;
     private javax.swing.JTextField NetworkAddDialogMaskTextfield;
@@ -2193,6 +2199,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JTextField SaveAsLabNameTextField;
     private javax.swing.JMenuItem SaveAsMenuItem;
     private javax.swing.JMenuItem SaveMenuItem;
+    private javax.swing.JMenuItem SimLabMenu;
     private javax.swing.JMenuItem SimlabDirectivesMenuItem;
     private javax.swing.JMenuItem StopLabMenuItem;
     private javax.swing.JMenuItem StudentMenuItem;
@@ -2202,10 +2209,8 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JMenuItem buildMenuItem;
     private javax.swing.JMenuItem checkWorkMenuItem;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -2213,8 +2218,6 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator2;

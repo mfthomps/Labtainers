@@ -172,6 +172,8 @@ date
 echo "do mynotify service"
 date
 if [[ "$IMAGE_VERSION" -eq -1 ]] || [[ "$IMAGE_VERSION" -gt 2 ]]; then
+    # override old labs having mynotify in their _system dir
+    systemctl daemon-reload
     systemctl enable mynotify.service
     systemctl start mynotify.service
 fi

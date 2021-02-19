@@ -77,6 +77,11 @@ treatlocal(){
    if [[ $base_cmd == 'python' ]] || [[ $base_cmd == 'python3' ]]; then
        return 1
    fi
+   which=`which $cmd_path`
+   if [[ -z $which ]]; then
+       # command does not exist
+       return 0
+   fi
    if [ -f $TAS ]
    then
        local_output=""
@@ -275,7 +280,7 @@ preexec() {
                # For now, there is nothing (i.e., no stdin) for precheck
                #echo "" >> $precheckinfile
            fi
-           /sbin/capinout "$1" $counter $timestamp $cmd_path
+           /usr/sbin/capinout "$1" $counter $timestamp $cmd_path
            if [[ ! -z "$local_output" ]]; then
                # we are to timestamp a program output file 
                #echo "local output is $local_output"
@@ -292,7 +297,7 @@ preexec() {
        fi
        if [[ ! -z $cmd_path ]] && [[ "$cmd_path" != /usr/* ]] && \
           [[ "$cmd_path" != /bin/* ]] && [[ "$cmd_path" != /sbin/* ]] && \
-          [[ "$cmd_path" != /etc/* ]]; then
+          [[ "$cmd_path" != /usr/sbin/* ]] && [[ "$cmd_path" != /etc/* ]]; then
            #echo "would do this command $1"
            # If file $PRECMD_HOME/.local/bin/precheck.sh exist, run it
            if [ -f $PRECMD_HOME/.local/bin/precheck.sh ]
@@ -308,7 +313,7 @@ preexec() {
                # For now, there is nothing (i.e., no stdin) for precheck
                #echo "" >> $precheckinfile
            fi
-           /sbin/capinout "$1" $counter $timestamp $cmd_path
+           /usr/sbin/capinout "$1" $counter $timestamp $cmd_path
            return 1
        fi
    done

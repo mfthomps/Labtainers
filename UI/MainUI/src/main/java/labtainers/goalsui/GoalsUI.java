@@ -186,6 +186,9 @@ public class GoalsUI extends javax.swing.JFrame {
     
     private void UpdateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UpdateButtonActionPerformed
         updateButton();
+        mainUI.setGoalsClosed();
+        setVisible(false);
+        dispose(); 
     }//GEN-LAST:event_UpdateButtonActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
@@ -242,7 +245,6 @@ public class GoalsUI extends javax.swing.JFrame {
     // Loads all goals into GUI
     protected void loadUI(){
         removeAllGoals();               
-        //redraw the artifacts
         for(int i=0; i < data.getListofGoals().size(); i++){
             loadGoal(data.getListofGoals().get(i), i+1);
         }

@@ -9,7 +9,28 @@ git checkout -b some_branch
 git push -u origin some_branch
 
 
-Remote URL
+Remote URL for GITLAB -- NOT github
 Get token from github or gitlab
 git remote set-url origin https://<token name>:<token>@gitlab.nps.edu/mfthomps/Labtainers-simlab.git
+
+
+change to ssh:
+git remote set-url origin git@github.com:USERNAME/REPOSITORY.git
+
+change to https:
+git remote set-url origin https://github.com/USERNAME/REPOSITORY.git
+
+git remote set-url origin https://github.com/mfthomps/Labtainers.git
+git remote set-url --push origin git@github.com:mfthomps/Labtainers.git
+
+
+
+
+git remote.origin.url https://
+
+git stash
+git stash apply
+
+git config --global user.name "mfthomps"
+git config --global user.email "mfthomps@nps.edu"
 

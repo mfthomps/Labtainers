@@ -4,7 +4,10 @@
 #  This uses git archive, basing the distribution on committed content of the 
 #  current branch of the local repo.
 #  use -t to force test registry
-#  use -r if this is a release (will not modify README)
+#  use -r if this is a release (will force use of master and will not modify README)
+#
+# NOTE even when making release, CWD is the directory from which the release script
+# was executed.
 #
 function contains() {
     local n=$#
@@ -29,7 +32,6 @@ done
 mkdir -p /tmp/labtainer_pdf_$USER/labtainer_pdf
 here=`pwd`
 cd ../
-rootdir=`pwd`
 ddir=$(mktemp -d -t labtainer-distrib-XXXXXXXX)
 ldir=$ddir/labtainer
 ltrunk=$ldir/trunk
@@ -40,7 +42,18 @@ rm -fr /$ddir
 mkdir $ddir
 mkdir $ldir
 mkdir $ltrunk
-branch=$(git rev-parse --abbrev-ref HEAD)
+if [[ "$1" != "-r" ]]; then
+    branch=$(git rev-parse --abbrev-ref HEAD)
+else
+    release_dir=$HOME/labtainerRelease/Labtainers
+    if [[ ! -d $release_dir ]]; then
+        echo "No $release_dir directory found"
+        exit 
+    fi
+    echo "Building master from $release_dir"
+    cd $release_dir
+    branch=master
+fi
 if [[ "$1" != "-t" ]]; then
     registry=$(scripts/labtainer-student/bin/registry.py)
     echo "Make distribution from branch: $branch  registry: $registry"
@@ -50,10 +63,10 @@ fi
 if [[ "$1" != "-r" ]]; then
     commit=`git describe --always`
     branch=$(git rev-parse --abbrev-ref HEAD)
-    sed -i "s/^Distribution created:.*$/Distribution created: $(date '+%m\/%d\/%Y %H:%M') </br>/" ../README.md
-    sed -i "s/^Revision:/Previous revision:/" ../README.md
-    sed -i "s/^Commit:.*$/Commit: $commit </br>/" ../README.md
-    sed -i "s/^Branch:.*$/Branch: $branch </br>/" ../README.md
+    sed -i "s/^Distribution created:.*$/Distribution created: $(date '+%m\/%d\/%Y %H:%M') <\/br>/" README.md
+    sed -i "s/^Revision:/Previous revision:/" README.md
+    sed -i "s/^Commit:.*$/Commit: $commit <\/br>/" README.md
+    sed -i "s/^Branch:.*$/Branch: $branch <\/br>/" README.md
 fi
 cp README.md $ltrunk/
 #git archive master config | tar -x -C $ltrunk
@@ -102,11 +115,20 @@ pwd
 cp $docs/student/labtainer-student.pdf $ldir/
 cp $docs/instructor/labtainer-instructor.pdf $ldir/
 cd $ddir
-tar -cz -X $here/skip-labs -f $here/labtainer.tar labtainer
-cd /tmp/labtainer_pdf_$USER
-#tar -czf $here/labtainer_pdf.tar.gz labtainer_pdf
-zip -qq -r $here/labtainer_pdf.zip labtainer_pdf
+if [[ "$1" != "-r" ]]; then
+    tar -cz -X $here/skip-labs -f $here/labtainer.tar labtainer
+    cd /tmp/labtainer_pdf_$USER
+    zip -qq -r $here/labtainer_pdf.zip labtainer_pdf
+else
+    mkdir -p $release_dir/distrib/artifacts
+    tar -cz -X $here/skip-labs -f $release_dir/distrib/artifacts/labtainer.tar labtainer
+    cd /tmp/labtainer_pdf_$USER
+    zip -qq -r $release_dir/distrib/artifacts/labtainer_pdf.zip labtainer_pdf
+fi
 cd $here
-cp labtainer.tar $myshare
-cp labtainer_pdf.zip $myshare
+if [[ "$1" != "-r" ]]; then
+    cp labtainer.tar $myshare
+    cp labtainer_pdf.zip $myshare
+fi
+rm -fr $ddir
 echo "DONE"

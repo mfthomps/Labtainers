@@ -1,9 +1,18 @@
 #!/bin/bash
 #
 # Create a Labtainers release.  
-# --Merge premaster into master
+# --Merge a branch into master
 # --Update the release information in the README file.
 # --Tag the current commit and push the release artifacts.
+#
+# A merge into master is assumed to be a new release, and thus these steps are not
+# separate.
+#
+#
+# DO NOT USE
+echo "DO NOT USE"
+exit
+#
 #
 if [[ -z "$1" ]]; then
     tag=$(git tag | tail -n 1)
@@ -19,7 +28,14 @@ if [[ -z "$SSH_AGENT_PID" ]]; then
     exit
 fi
 new_tag=$1
-shift 1
+branch=$2
+shift 2
+cur_branch=$(git rev-parse --abbrev-ref HEAD)
+if [[ "$cur_branch" != "$branch" ]]; then
+    echo "Current branch is not $branch."
+    exit 1
+fi
+
 here=`pwd`
 revision=$new_tag
 commit=`git describe --always`
@@ -28,7 +44,7 @@ sed -i "s/^Revision:.*$/Revision: $revision <\/br>/" ../README.md
 sed -i "s/^Commit:.*$/Commit: $commit <\/br>/" ../README.md
 sed -i "s/^Branch:.*$/Branch: master <\/br>/" ../README.md
 git commit ../README.md -m "Update readme date/rev"
-./mergePre.sh $1
+./mergePre.sh $branch $1 || exit 1
 git tag $new_tag
 #git push --set-upstream origin master
 git push --tags

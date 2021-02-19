@@ -91,6 +91,11 @@ def handle_delete_container(tdir, deletecontainer):
         if not deletecontainer_line_found:
             start_config_file.write(line)
     start_config_file.close()
+    dest_dfile = 'dockerfiles/Dockerfile.%s.%s.student' % (labname, deletecontainer)
+    try:
+        os.remove(dest_dfile)
+    except:
+        pass
 
 def copy_container(start_config_file, oldcontainer, newcontainer):
     grabbed = []
@@ -129,7 +134,6 @@ def add_container(start_config_filename, newcontainer, basename):
     start_config_file = open(start_config_filename, 'a')
     start_config_file.write('CONTAINER %s\n' % newcontainer)
     start_config_file.write('\tUSER ubuntu\n')
-    start_config_file.write('\tSCRIPT NONE\n')
     start_config_file.write('\tX11 YES\n')
     start_config_file.close()
 
@@ -704,6 +708,13 @@ def check_valid_lab(current_dir):
             is_valid = False
     return is_valid
 
+def fixBase(base):
+    version2 = ['wireshark', 'base', 'network']
+    retval = base
+    if base in version2:
+        retval = base+"2"
+    return retval
+    
 def main():
     try:
         LABTAINER_DIR = os.environ['LABTAINER_DIR']
@@ -739,6 +750,7 @@ def main():
         base_name = 'base'
     else:
         base_name = args.base_name
+    base_name = fixBase(base_name)
     is_valid = check_valid_lab(current_dir)
     if num_arg == 1 or (num_arg == 3 and args.base_name is not None):
         if is_valid:

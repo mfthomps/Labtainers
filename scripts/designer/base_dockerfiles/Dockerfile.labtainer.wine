@@ -1,6 +1,7 @@
 ARG registry
 FROM $registry/labtainer.network
 LABEL description="This is base Docker image for Labtainer Wine installations"
+RUN mv /var/tmp/sources.list /etc/apt/sources.list
 RUN apt-get update && apt-get install -y software-properties-common apt-transport-https
 # restore original apt-sources to get i386 packages
 RUN mv /var/tmp/sources.list /etc/apt/sources.list 

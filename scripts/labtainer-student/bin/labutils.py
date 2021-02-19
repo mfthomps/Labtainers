@@ -79,6 +79,10 @@ FAILURE=1
 ''' 
 framework_version = 3
 
+osTypeMap = {}
+
+networkImages = []
+
 # Create a directory path based on input path
 # Note: Do not create if the input path already exists as a directory
 #       If input path is a file, remove the file then create directory
@@ -175,15 +179,19 @@ def getDocker0IPAddr():
         return get_ip_address('docker0')
 
 # Parameterize my_container_name container
-def ParameterizeMyContainer(mycontainer_name, container_user, container_password, lab_instance_seed, 
+def ParameterizeMyContainer(mycontainer_name, mycontainer_image_name, container_user, container_password, lab_instance_seed, 
                             user_email, labname, lab_path, name, image_info, running_container=None):
     retval = True
     if running_container == None:
         running_container = mycontainer_name
     ''' copy lab_bin and lab_sys files into .local/bin and / respectively '''
-    CopyLabBin(running_container, container_user, lab_path, name, image_info)
+    CopyLabBin(running_container, mycontainer_image_name, container_user, lab_path, name, image_info)
 
     cmd = 'docker exec %s script -q -c "chown -R %s:%s /home/%s"' % (mycontainer_name, container_user, container_user, container_user)
+    if not DockerCmd(cmd):
+        logger.error('failed %s' % cmd)
+        exit(1)
+    cmd = 'docker exec %s script -q -c "chown root:root /usr"' % (mycontainer_name)
     if not DockerCmd(cmd):
         logger.error('failed %s' % cmd)
         exit(1)
@@ -191,6 +199,7 @@ def ParameterizeMyContainer(mycontainer_name, container_user, container_password
     cmd_path = '/home/%s/.local/bin/parameterize.sh' % (container_user)
     if container_password == "":
         container_password = container_user
+
 
     version = '0'
     if image_info is None or image_info.version is None:
@@ -216,6 +225,20 @@ def ParameterizeMyContainer(mycontainer_name, container_user, container_password
     out_string = child.stdout.read().decode('utf-8').strip()
     if len(out_string) > 0:
         logger.debug('ParameterizeMyContainer %s' % out_string)
+
+    if mycontainer_image_name in networkImages:
+        cmd = "docker exec %s bash -c 'mkdir -p /run/sshd'" % (mycontainer_name)
+        if not DockerCmd(cmd):
+            logger.error('Failed mkdir of /run/sshd')
+            exit(1)
+        cmd = "docker exec %s bash -c 'chmod 0755 /run/sshd'" % (mycontainer_name)
+        if not DockerCmd(cmd):
+            logger.error('Failed chmod of /run/sshd')
+            exit(1)
+    else:
+        pass
+    
+
     return retval
 
 def DoCmd(cmd):
@@ -407,14 +430,15 @@ def GetX11SSH():
     return retval 
 
 def isUbuntuSystemd(image_name):
+    ''' NOTE side effect of update networkImages global '''
     done = False
-    retval = False
+    retval = None
     #print('check if %s is systemd' % image_name)
     cmd = "docker inspect -f '{{json .Config.Labels.base}}' --type image %s" % image_name
     ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[0].strip()) > 0:
-            logger.debug('isUbuntuSystemd base %s' % output[0].decode('utf-8'))
+            #logger.debug('isUbuntuSystemd base %s' % output[0].decode('utf-8'))
             if output[0].decode('utf-8').strip() == 'null': 
                 base = image_name
             else:
@@ -430,8 +454,16 @@ def isUbuntuSystemd(image_name):
             ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             output = ps.communicate()
             for line in output[0].decode('utf-8').splitlines():
+                if 'sshd' in line or 'xinetd' in line:
+                    net_image = image_name
+                    if '/' in image_name:
+                        net_image = image_name.split('/')[1]
+                    if net_image not in networkImages:
+                        networkImages.append(net_image) 
                 if 'Labtainer base image from ubuntu-systemd' in line:
-                    retval = True
+                    retval = 'ubuntu16'
+                    if 'ubuntu20' in line:
+                        retval = 'ubuntu20'
                     break
 
     return retval
@@ -502,7 +534,6 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
         base_registry = container.base_registry
     logger.debug("Create Single Container for %s using registry %s" % (container.name, container_registry))
     image_info = imageInfo(container.image_name, container_registry, base_registry, labtainer_config, quiet=quiet)
-    start_script = container.script     
     if image_info is None:
         logger.error('Could not find image for %s' % container.image_name)
         retval = False
@@ -516,17 +547,18 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
         logger.debug("getDockerIPAddr result (%s)" % docker0_IPAddr)
         volume=''
         ubuntu_systemd = isUbuntuSystemd(new_image_name)
+        if ubuntu_systemd is not None:
+           osTypeMap[container.image_name] = ubuntu_systemd
         is_firefox = isFirefox(new_image_name)
         if is_firefox:
             shm = '--shm-size=2g'
         else:
             shm = ''
-        if container.script == '' or ubuntu_systemd:
+        if container.script == '' or ubuntu_systemd is not None:
             logger.debug('Container %s is systemd or has script empty <%s>' % (new_image_name, container.script))
             ''' a systemd container, centos or ubuntu? '''
-            if ubuntu_systemd:
+            if ubuntu_systemd == 'ubuntu16':
                 ''' A one-off run to set some internal values.  This is NOT what runs the lab container '''
-                start_script = ''
                 #volume='--security-opt seccomp=confined --tmpfs /run --tmpfs /run/lock -v /sys/fs/cgroup:/sys/fs/cgroup:ro'
                 volume='--security-opt seccomp=unconfined --tmpfs /run --tmpfs /run/lock -v /sys/fs/cgroup:/sys/fs/cgroup:ro'
                 cmd = 'docker run --rm --privileged -v /:/host %s setup' % new_image_name
@@ -537,13 +569,12 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
                 if len(output[1]) > 0:
                     logger.debug('back from docker run, error %s' % (output[1].decode('utf-8')))
                 volume = '' 
-            else:
-                pass
-                #volume='-v /sys/fs/cgroup:/sys/fs/cgroup:ro'
-                #volume='--security-opt seccomp=unconfined --tmpfs /run --tmpfs /run/lock -v /sys/fs/cgroup:/sys/fs/cgroup:ro'
+            elif ubuntu_systemd == 'ubuntu20':
+                volume = volume + " -v /sys/fs/cgroup:/sys/fs/cgroup:ro "
         if container.x11.lower() == 'yes':
             #volume = '-e DISPLAY -v /tmp/.Xll-unix:/tmp/.X11-unix --net=host -v$HOME/.Xauthority:/home/developer/.Xauthority'
-            volume = volume+' --env="DISPLAY" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw"'
+            #volume = volume+' --env="DISPLAY" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw"'
+            volume = volume+' --env="DISPLAY" --volume="/tmp/.X11-unix:/var/tmp/.X11-unix:rw"'
             logger.debug('container using X11')
 
         volume = HandleVolumes(volume, container)
@@ -567,8 +598,10 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
             if ':' not in item:
                if item in start_config.lan_hosts:
                    for entry in start_config.lan_hosts[item]:
-                       add_this = '--add-host %s ' % entry
-                       add_hosts += add_this
+                       if not entry.startswith(container.name):
+                           add_this = '--add-host %s ' % entry
+                           add_hosts += add_this
+                        
                else:
                    logger.error('ADD-HOST entry in start.config missing colon: %s' % item)
                    logger.error('sytax: ADD-HOST <host>:<ip>')
@@ -616,21 +649,23 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
 
 
         clone_names = GetContainerCloneNames(container)
+
+
         for clone_fullname in clone_names:
             clone_host = clone_names[clone_fullname]
             if mysubnet_name is not None:
                 subnet_ip, mac = GetNetParam(start_config, mysubnet_name, mysubnet_ip, clone_fullname)
             #createsinglecommand = "docker create -t %s --ipc host --cap-add NET_ADMIN %s %s %s %s %s --name=%s --hostname %s %s %s %s %s" % (dns_param, 
             if len(container.docker_args) == 0:
-                createsinglecommand = "docker create %s -t %s --cap-add NET_ADMIN %s %s %s %s %s %s --name=%s --hostname %s %s %s %s %s" % \
+                createsinglecommand = "docker create %s -t %s --cap-add NET_ADMIN %s %s %s %s %s %s --name=%s --hostname %s %s %s %s" % \
                     (shm, dns_param, network_param, subnet_ip, mac, priv_param, add_host_param,  
                     publish_param, clone_fullname, clone_host, volume, 
-                    multi_user, new_image_name, start_script)
+                    multi_user, new_image_name)
             else:
-                createsinglecommand = "docker create %s %s --shm-size=2g -t %s --cap-add NET_ADMIN %s %s %s %s %s %s --name=%s --hostname %s %s %s %s %s" % \
+                createsinglecommand = "docker create %s %s --shm-size=2g -t %s --cap-add NET_ADMIN %s %s %s %s %s %s --name=%s --hostname %s %s %s %s" % \
                     (shm, container.docker_args, dns_param, network_param, subnet_ip, mac, priv_param, add_host_param,  
                     publish_param, clone_fullname, clone_host, volume, 
-                    multi_user, new_image_name, start_script)
+                    multi_user, new_image_name)
             logger.debug("Command to execute was (%s)" % createsinglecommand)
             ps = subprocess.Popen(shlex.split(createsinglecommand), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             output = ps.communicate()
@@ -815,15 +850,16 @@ def GetLabSeed(lab_master_seed, student_email):
 
 #def ParamStartConfig(lab_seed):
     
-def ParamForStudent(lab_master_seed, mycontainer_name, container_user, container_password, labname, 
+def ParamForStudent(lab_master_seed, mycontainer_name, mycontainer_image_name, container_user, container_password, labname, 
                     student_email, lab_path, name, image_info, running_container=None):
+    # NOTE image_info may or may not be populated.
     if running_container == None:
         running_container = mycontainer_name
 
     mymd5_hex_string = GetLabSeed(lab_master_seed, student_email)
     logger.debug(mymd5_hex_string)
 
-    if not ParameterizeMyContainer(mycontainer_name, container_user, container_password, mymd5_hex_string,
+    if not ParameterizeMyContainer(mycontainer_name, mycontainer_image_name, container_user, container_password, mymd5_hex_string,
                                    student_email, labname, lab_path, name, image_info, running_container):
         logger.error("Failed to parameterize lab container %s!\n" % mycontainer_name)
         sys.exit(1)
@@ -865,7 +901,7 @@ def CopyInstrConfig(mycontainer_name, container_user, lab_path):
         exit(1)
 
 
-def CopyLabBin(mycontainer_name, container_user, lab_path, name, image_info):
+def CopyLabBin(mycontainer_name, mycontainer_image_name, container_user, lab_path, name, image_info):
     here = os.path.dirname(os.path.abspath(__file__))
     parent = os.path.dirname(here)
     lab_bin_path = os.path.join(parent, 'lab_bin')
@@ -886,16 +922,17 @@ def CopyLabBin(mycontainer_name, container_user, lab_path, name, image_info):
         os.makedirs(tmp_dir)
     except os.error:
         logger.error("did not expect to find dir %s" % tmp_dir)
-    capinout = os.path.join(parent, 'lab_sys', 'sbin', 'capinout') 
+    capinout = os.path.join(parent, 'lab_sys', 'usr','sbin', 'capinout') 
     if not os.path.isfile(capinout):
         print('\n\n********* ERROR ***********')
         print('%s is missing.  If this is a development system, you may need to' % capinout)
         print('go to the tool-src/capinout directory and run ./mkit.sh')
-        
+    
+    ''' Copy file to /lib and /sys.  Account for sym link fu '''
     dest_tar = os.path.join(tmp_dir, 'labsys.tar')
     lab_sys_path = os.path.join(parent, 'lab_sys')
 
-    cmd = 'tar cf %s -C %s sbin lib' % (dest_tar, lab_sys_path)
+    cmd = 'tar cf %s -C %s usr etc' % (dest_tar, lab_sys_path)
     ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[1].strip()) > 0:
@@ -907,16 +944,25 @@ def CopyLabBin(mycontainer_name, container_user, lab_path, name, image_info):
         exit(1)
 
     cmd = 'docker exec %s script -q -c "sudo tar -x --keep-directory-symlink -f /var/tmp/labsys.tar -C /"' % (mycontainer_name)
+    #if mycontainer_image_name in osTypeMap and osTypeMap[mycontainer_image_name] == 'ubuntu18':
+    #    cmd = 'docker exec %s script -q -c "sudo tar -x --keep-directory-symlink -f /var/tmp/labsys.tar -C /"' % (mycontainer_name)
+    #else:
+    #    cmd = 'docker exec %s script -q -c "sudo tar -x --keep-directory-symlink -f /var/tmp/labsys.tar -C /usr/"' % (mycontainer_name)
     if not DockerCmd(cmd):
-        '''
-        cmd = 'docker exec %s script -q -c "sudo tar -x -f /var/tmp/labsys.tar -C /"' % (mycontainer_name)
-        if not DockerCmd(cmd):
-        '''
         cmd = 'docker cp lab_sys/.  %s:/' % (mycontainer_name)
+        #if osTypeMap[mycontainer_image_name] == 'ubuntu18':
+        #    cmd = 'docker cp lab_sys/.  %s:/' % (mycontainer_name)
+        #else:
+        #    cmd = 'docker cp lab_sys/.  %s:/usr/' % (mycontainer_name)
         if not DockerCmd(cmd):
             logger.error('failed %s' % cmd)
             exit(1)
         logger.debug('CopyLabBin tar failed for lab_sys, explicit copy')
+    if mycontainer_image_name in osTypeMap and osTypeMap[mycontainer_image_name] == 'ubuntu20':
+        cmd = 'docker exec %s script -q -c "sed -i \'s/env python/env python3/\' /usr/sbin/mynotify.py"' % (mycontainer_name)
+        if not DockerCmd(cmd):
+            logger.error('failed changing mynotify to python3: %s' % cmd)
+            exit(1)
 
 # Copy Students' Artifacts from host to instructor's lab container
 def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_user, container_password):
@@ -1246,6 +1292,7 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                 logger.error("Container %s failed to start!\n" % mycontainer_name)
                 results.append(False)
                 return
+
             defineAdditionalIP(mycontainer_name, post_start_if, post_start_nets)
 
             clone_need_seeds = need_seeds
@@ -1261,12 +1308,23 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
             # If the container is just created, then use the previous user's e-mail
             # then parameterize the container
             elif quiet_start and clone_need_seeds:
-                ParamForStudent(start_config.lab_master_seed, mycontainer_name, container_user, container_password, 
+                ParamForStudent(start_config.lab_master_seed, mycontainer_name, mycontainer_image_name, container_user, container_password, 
                                 labname, student_email, lab_path, name, image_info)
             
             elif clone_need_seeds:
-                ParamForStudent(start_config.lab_master_seed, mycontainer_name, container_user, 
+                ParamForStudent(start_config.lab_master_seed, mycontainer_name, mycontainer_image_name, container_user, 
                                                  container_password, labname, student_email, lab_path, name, image_info)
+            if container.x11.lower() == 'yes':
+                ''' Avoid problems caused by container wiping out all of /tmp on startup '''
+                cmd = "docker exec %s bash -c 'if [ -d /tmp/.X11-unix ]; then rm -Rf /tmp/.X11-unix; fi'" % (mycontainer_name)
+                if not DockerCmd(cmd):
+                    logger.error('failed %s' % cmd)
+                    exit(1)
+                cmd = "docker exec %s bash -c 'ln -s /var/tmp/.X11-unix /tmp/.X11-unix'" % (mycontainer_name)
+                if not DockerCmd(cmd):
+                    logger.error('failed %s' % cmd)
+                    exit(1)
+
             if container.no_gw:
                 cmd = "docker exec %s bash -c 'sudo /bin/ip route del 0/0'" % (mycontainer_name)
                 DockerCmd(cmd)
@@ -1635,7 +1693,11 @@ def DoStart(start_config, labtainer_config, lab_path,
             container_warning_printed = True
         image_info = None
         if container_images is not None:
+            logger.debug('container images not none,get for %s' % name) 
             image_info = container_images[name]
+            logger.debug('container images got image_info %s' % image_info)
+            if image_info is None:
+                print('is none, map is %s' % str(container_images))
         t = threading.Thread(target=DoStartOne, args=(labname, name, container, start_config, labtainer_config, lab_path, 
               student_email, quiet_start, results, auto_grade, image_info))
         threads.append(t)

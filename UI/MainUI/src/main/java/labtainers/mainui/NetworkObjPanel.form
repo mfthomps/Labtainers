@@ -115,6 +115,7 @@
         </Component>
         <Component class="javax.swing.JTextField" name="NetworkConfigGatewayTextField">
           <Properties>
+            <Property name="toolTipText" type="java.lang.String" value="IP used as the default gateway on containers connected to this network.  Used to communicate with the host computer and the outside world.  This should not be the IP address of any of the containers."/>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
               <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
                 <TitledBorder title="External gateway">

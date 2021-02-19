@@ -101,6 +101,7 @@ public class NetworkObjPanel extends javax.swing.JPanel {
 
         NetworkConfigMaskTextfield.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Subnet", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 14))); // NOI18N
 
+        NetworkConfigGatewayTextField.setToolTipText("IP used as the default gateway on containers connected to this network.  Used to communicate with the host computer and the outside world.  This should not be the IP address of any of the containers.");
         NetworkConfigGatewayTextField.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "External gateway", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 14))); // NOI18N
 
         NetworkConfigCancelButton.setText("Cancel");

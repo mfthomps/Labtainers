@@ -50,7 +50,7 @@ else
     cat $MYHOME/.local/bin/profile-add >> $target
     echo "export DISPLAY=$DISPLAY" >> $target
     echo "export DISPLAY=$DISPLAY" >> $root_target
-    if [[ -f /sbin/capinout ]]; then
+    if [[ -f /usr/sbin/capinout ]]; then
         cat $MYHOME/.local/bin/bashrc-add  |  sed 's@PRECMD_HOME_REPLACE_ME@'"$MYHOME"'@' >> $MYHOME/.bashrc
         cat $MYHOME/.local/bin/bashrc-add  |  sed 's@PRECMD_HOME_REPLACE_ME@'"$MYHOME"'@' >> /root/.bashrc
     fi

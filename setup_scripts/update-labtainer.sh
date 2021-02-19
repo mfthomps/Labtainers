@@ -80,7 +80,7 @@ if [[ "$TEST_REGISTRY" != TRUE ]]; then
 else
     cp /media/sf_SEED/test_vms/$HOSTNAME/labtainer.tar .
     echo "USING SHARED FILE TAR, NOT PULLING FROM WEB"
-    test_flag="-t -m"
+    test_flag="-t"
 fi
 cd ..
 tar xf labtainer/labtainer.tar --keep-newer-files --warning=none

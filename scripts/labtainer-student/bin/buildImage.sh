@@ -56,7 +56,7 @@ if [ "$#" -ne 9 ]; then
     exit
 fi
 mkdir -p $LABTAINER_DIR/logs
-exec &> >(tee -a "$LABTAINER_DIR/logs/docker_build.log")
+exec &> >(tee -a "$LABTAINER_DIR/logs/docker_build.log") 2>&1
 echo "Labname is $lab with image name $imagename"
 
 LAB_DIR=$LAB_TOP/$lab
@@ -111,7 +111,7 @@ else
         echo nothing at $LABIMAGE_DIR/_system
         # make empty tar
         mkdir $LABIMAGE_DIR/_system
-        cd -p $LABIMAGE_DIR/_system
+        cd $LABIMAGE_DIR/_system
         tar --atime-preserve -czvf $SYS_TAR .
     fi
     #cd $ORIG_PWD/lab_sys
@@ -155,8 +155,16 @@ else
                  --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY \
                  --build-arg NO_PROXY=$NO_PROXY  --build-arg no_proxy=$NO_PROXY \
                  --build-arg registry=$REGISTRY --build-arg version=$VERSION \
-               $pull -f $dfile -t $labimage .
+               $pull -f $dfile -t $labimage.tmp .
     result=$?
+    if [ $result == 0 ]; then
+        # rsyslog has gotten particular
+        echo "FROM $labimage.tmp" > $dfile
+        echo "RUN chown root:root /var" >> $dfile
+        docker build -f $dfile -t $labimage .
+        result=$?
+    fi
+         
 fi
 
 rm $dfile

@@ -34,13 +34,20 @@ import java.io.IOException;
  
 public class CompareTextFiles
 {	
+    private static boolean plainComment(String line){
+        boolean retval = false;
+        if(line.trim().startsWith("#") && !line.contains("DOC:")){
+            retval = true;
+        }
+        return retval;
+    }
     private static String nextLine(BufferedReader br) throws IOException{
         String line = br.readLine();
         //System.out.println("nextLine line: "+line);
         // when did java lose its evaluation precidence?
         if(line != null){
             line = line.trim().replaceAll(" +", " "); 
-            while(line != null && (line.trim().startsWith("#") || line.trim().length() == 0)){
+            while(line != null && (plainComment(line) || line.trim().length() == 0)){
                 line = br.readLine();
                 if(line == null)
                     break;
@@ -70,9 +77,11 @@ public class CompareTextFiles
             }
             else if((line1 != null && line2 != null) && (! line1.trim().equalsIgnoreCase(line2.trim())))
             {
+                    /*
                     System.out.println("DIFFERENT");
                     System.out.println("\t"+line1);
                     System.out.println("\t"+line2);
+                    */
                     areEqual = false;
                     break;
             }
@@ -87,9 +96,11 @@ public class CompareTextFiles
         }
         else
         {
-            //System.out.println("Two files have different content. They differ at line "+lineNum);
-             
-            //System.out.println("File1 has "+line1+" and File2 has "+line2+" at line "+lineNum);
+            /*
+            System.out.println("Two files have different content. They differ at line "+lineNum);
+            System.out.println("File1 has "+line1+" and File2 has "+line2+" at line "+lineNum);
+            System.out.println("file1 "+path1+" file2: "+path2);
+            */
         }
          
         reader1.close();
