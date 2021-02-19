@@ -3014,7 +3014,6 @@ described below in \ref{smoketest}
 
 	\item Ensure your system's \$PATH includes \$LABTAINERS\_DIR/testsets/bin 
 
-	\item Ensure the saved email used for each lab is 'frank@beans.com'. You can do this by modifying {\tt \url{~}/.local/share/labtainers/email.txt} with only 'frank@beans.com' at the top. 
 \end{itemize}
 
 \subsection {Running SimLab}
@@ -3104,4 +3103,6 @@ directory.  The that lab lacks {\tt simthis.txt} file, then the lab is simply st
 (hence the tool's name).  The tool will stop upon encountering the first error.
 If a lab's simlab includes an expected directory it will compare the results and report on whether they match.
 If no expected results are found, no status is displayed (unless an error is encountered.)
+
+If you are using smoketest to check against archived expected results from NPS, make sure the saved email used for each lab is 'frank@beans.com'. You can do this by modifying {\tt \url{~}/.local/share/labtainers/email.txt} with only 'frank@beans.com' at the top. 
 \end{document}
