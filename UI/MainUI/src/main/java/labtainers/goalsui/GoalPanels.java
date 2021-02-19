@@ -439,6 +439,11 @@ public class GoalPanels extends javax.swing.JPanel {
     }
     
     private void goalTypeListener(){
+        Object item = GoalTypeComboBox.getSelectedItem();
+        if(item == null){
+           System.out.println("Goal type item "+item);
+           return; 
+        }
         String goalType = ((ToolTipWrapper)GoalTypeComboBox.getSelectedItem()).getItem();
         
         if(opInput.contains(goalType))

@@ -56,6 +56,8 @@ import static labtainers.goalsui.ParamReferenceStorage.resultTagInput;
 import labtainers.mainui.MainWindow;
 import labtainers.mainui.ToolTipHandlers.ToolTipWrapper;
 import labtainers.mainui.CompareTextFiles;
+import labtainers.mainui.LabData;
+import labtainers.resultsui.ResultsData;
 
 /**
  *
@@ -63,17 +65,13 @@ import labtainers.mainui.CompareTextFiles;
  */
 public class GoalsData {
     private List<GoalValues> listofGoals; 
-    final private List<String> resultTagList;
-    final private List<String> parameters;
-    final private List<String> booleanResults;
+    //final private List<String> resultTagList;
     private int rowCount;
     MainWindow mainUI;
     
     public GoalsData(MainWindow main, File labPath){
         listofGoals = new ArrayList<>();
-        resultTagList = new ArrayList<>();
-        parameters = new ArrayList<>();
-        booleanResults = new ArrayList<>();
+        //resultTagList = new ArrayList<>();
         rowCount = 0;
         this.mainUI = main;
     }
@@ -81,20 +79,14 @@ public class GoalsData {
     // Creates a deep copy of the original
     public GoalsData(GoalsData original){
         listofGoals = new ArrayList<>(); 
-        for(GoalValues goal : original.getListofGoals())
+        for(GoalValues goal : original.getListofGoals()){
             listofGoals.add(new GoalValues(goal));
+        }
         
-        resultTagList = new ArrayList<>();
-        for(String resultTag : original.getResultTagList())
-            resultTagList.add(resultTag);
+        //resultTagList = new ArrayList<>();
+        //for(String resultTag : original.getResultTagList())
+        //    resultTagList.add(resultTag);
         
-        parameters = new ArrayList<>();
-        for(String parameter : original.getParameters())
-            parameters.add(parameter);
-        
-        booleanResults = new ArrayList<>();
-        for(String booleanResult : original.getBooleanResults())
-            booleanResults.add(booleanResult);
         
         rowCount = original.getRowCount();
         mainUI = original.getMainUI();
@@ -105,13 +97,14 @@ public class GoalsData {
     
     //Checks if the lab exists and will load lab's goals.config if it does
     public void retrieveData(){
-        if(retrieveResultTags() && retrieveGoals()){
-            retrieveParameters();
-            retrieveBooleanResults();
+        //if(retrieveResultTags() && retrieveGoals()){
+        if(retrieveGoals()){
+            //retrieveParameters();
+            //retrieveBooleanResults();
         }
     }
-    
-    //Updates the resultTagList (all goal panels refer to this list to fill in the resultTag combobox)
+    /* 
+    //Updates the resultTagList from the config file. (all goal panels refer to this list to fill in the resultTag combobox)
     private boolean retrieveResultTags(){
         File resultsConfig = new File(mainUI.getCurrentLab() + File.separator + "instr_config" + File.separator + "results.config");
         try {
@@ -142,7 +135,7 @@ public class GoalsData {
             return false;
        }
     }    
-    
+    */ 
     //Parses the goals.config to obtain all the relevant goal lines, 
     //extracts the values of each goal line and stores them into a list of "goals"(Goal Values)
     private boolean retrieveGoals(){
@@ -155,7 +148,8 @@ public class GoalsData {
         else
             return false;    
     }
-    
+   
+    /* 
     //Get the parameter.config IDs
     private void retrieveParameters(){        
         File parameterConfig = new File(mainUI.getCurrentLab() + File.separator + "config" + File.separator + "parameter.config");
@@ -182,7 +176,8 @@ public class GoalsData {
             Logger.getLogger(GoalsUI.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+    */ 
+    /* 
     //Get the result tags that are boolean result types
     private void retrieveBooleanResults(){
         File resultsConfig = new File(mainUI.getCurrentLab() + File.separator + "instr_config" + File.separator + "results.config");
@@ -211,11 +206,13 @@ public class GoalsData {
             Logger.getLogger(GoalsUI.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    */ 
     
 //WRITING~~~~~~~~~~~~~~~~~~~~~~~~          
         
     //Update the results.config file with the user's input
     public String writeGoalsConfig(boolean usetmp){
+         List<String> booleanResults = mainUI.getCurrentData().getResultsData().getBooleanResults();
          File goalsConfigFile = null;
          try {
             String goalID,
@@ -244,13 +241,17 @@ public class GoalsData {
                 error.checkReset(); //Reset the error statuses for a new goal line
                 
                 String goalConfigLine = listofGoals.get(i).comments; 
+                if(goalConfigLine == null){
+                    goalConfigLine = "";
+                }
                 
                 //Goal ID
                 goalID = listofGoals.get(i).goalID;
                 goalIDs.add(goalID);
                 //Checks if goal ID is valid or inputted
-                if(error.checkGoalID(goalID))
+                if(error.checkGoalID(goalID)){
                    goalConfigLine += (goalID + " = "); //add to goal ID Config line
+                }
                 
                 //Goal Type
                 if(listofGoals.get(i).goalType == null){
@@ -294,9 +295,9 @@ public class GoalsData {
                     goal2 = listofGoals.get(i).goal2;
                     
                     ArrayList<String> listOfAboveGoals = getAboveGoals("GOAL1&2", i);
-                    if(error.checkGoal1(goal1, listOfAboveGoals))
+                    if(error.checkGoal1(goal1, listOfAboveGoals, booleanResults))
                         goalConfigLine += goal1+" : ";                    
-                    if(error.checkGoal2(goal2, listOfAboveGoals))
+                    if(error.checkGoal2(goal2, listOfAboveGoals, booleanResults))
                         goalConfigLine += goal2;
                 }
                 
@@ -358,7 +359,7 @@ public class GoalsData {
 
                 //If there's no error, put the goalConfigLine in the resultsConfigText string, 
                 //Otherwise the overallPass of the user input is false
-                if(error.userInputCheck(i+1)){
+                if(error.userInputCheck(i+1, booleanResults)){
                     if(i < listofGoals.size()-1)
                         goalConfigLine+= System.lineSeparator();
                     //Add the goal config line to the Results Config text
@@ -376,7 +377,7 @@ public class GoalsData {
                 //Resets the results.config file
                 goalsConfigFile = initializeGoalsConfig(usetmp);
 
-                try ( //Write the resultsConfigText to the results.config
+                try ( //Write the goals configuration to the results.config
                     BufferedWriter writer = new BufferedWriter(new FileWriter(goalsConfigFile, true))) {
                     writer.write(goalsConfigText+"\n");
                 }
@@ -545,7 +546,7 @@ public class GoalsData {
         
         
         //Builds error message detailing the errors that appear in the user input
-        boolean userInputCheck(int goalIndex){
+        boolean userInputCheck(int goalIndex, List<String> booleanResults){
             boolean rowPassed = true;
             String infoMsg = "Goal Line: " + goalIndex + System.lineSeparator();
 
@@ -659,7 +660,7 @@ public class GoalsData {
         
         
         //Checks if goal 1 is either an above goal or a boolean results
-        boolean checkGoal1(String goal1, List<String> listOfAboveGoals){
+        boolean checkGoal1(String goal1, List<String> listOfAboveGoals, List<String> booleanResults){
             if(goal1.isEmpty() || goal1.equals("")){
                goal1Missing = true;
                return false;
@@ -674,7 +675,7 @@ public class GoalsData {
         }
         
         //Checks if goal 2 is either an above goal or a boolean results
-        boolean checkGoal2(String goal2, List<String> listOfAboveGoals){
+        boolean checkGoal2(String goal2, List<String> listOfAboveGoals, List<String> booleanResults){
             if(goal2.isEmpty() || goal2.equals("")){
                goal2Missing = true;
                return false;
@@ -1069,6 +1070,9 @@ public class GoalsData {
         ArrayList<GoalValues> officialListofGoals = new ArrayList<>();
 
         ArrayList<String> goalLines = getGoalLines();
+        LabData ldata = mainUI.getCurrentData();
+        ResultsData rdata = ldata.getResultsData();
+        ArrayList<String> resultTagList = mainUI.getCurrentData().getResultsData().getResultNames();
         if(goalLines != null){
             for(String goalLine : goalLines){
                 GoalValues values = new GoalValues(goalLine, resultTagList);
@@ -1134,7 +1138,6 @@ public class GoalsData {
             String goalID = ((GoalPanels) goal).getGoalIDTextField().getText();
             //GoalType
             ToolTipWrapper goalType = (ToolTipWrapper)((GoalPanels) goal).getGoalTypeComboBox().getSelectedItem();
-            
             
             //Operator
             ToolTipWrapper operator = (ToolTipWrapper)((GoalPanels) goal).getOperatorComboBox().getSelectedItem();
@@ -1311,15 +1314,16 @@ public class GoalsData {
     }
     
     List<String> getResultTagList(){
+        ArrayList<String> resultTagList = mainUI.getCurrentData().getResultsData().getResultNames();
         return resultTagList;
     }
     
     List<String> getParameters(){
-        return parameters;
+        return mainUI.getCurrentData().getParamsData().getParamNames();
     }
     
     List<String> getBooleanResults(){
-        return booleanResults;
+        return mainUI.getCurrentData().getResultsData().getBooleanResults();
     }
     
     MainWindow getMainUI() {

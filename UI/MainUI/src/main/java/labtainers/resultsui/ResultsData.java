@@ -51,6 +51,7 @@ import labtainers.mainui.MainWindow;
 import static labtainers.resultsui.ParamReferenceStorage.justFieldType;
 import static labtainers.resultsui.ParamReferenceStorage.lineParamAccessible;
 import static labtainers.resultsui.ParamReferenceStorage.timeStampDelimiterAccessible;
+import static labtainers.goalsui.ParamReferenceStorage.booleanResultTypes;
 import labtainers.mainui.ToolTipHandlers.ToolTipWrapper;
 
 /**
@@ -132,6 +133,9 @@ public class ResultsData {
                 
                 String artifactConfigLine = "";
                 artifactConfigLine = listofArtifacts.get(i).comments; 
+                if(artifactConfigLine == null){
+                    artifactConfigLine = "";
+                }
                 
               //RESULTS TAG
                 resultTag = listofArtifacts.get(i).resultTag;
@@ -806,5 +810,25 @@ public class ResultsData {
     protected MainWindow getMainWindow(){
         return mainUI;
     }  
+    public ArrayList<String> getResultNames(){
+        ArrayList<String> resultTagList = new ArrayList<String>(); 
+        String resultTag; 
+        //Iterate through each artifact
+        for(int i=0;i < listofArtifacts.size();i++){
+            resultTag = listofArtifacts.get(i).resultTag;
+            resultTagList.add(resultTag); 
+        }
+        return resultTagList;
+    }
+    public List<String> getBooleanResults(){
+        List<String> booleanResults = new ArrayList<String>();
+        for(int i=0;i < listofArtifacts.size();i++){
+            if(booleanResultTypes.contains(listofArtifacts.get(i).fieldType)){
+                String resultTag = listofArtifacts.get(i).resultTag;
+                booleanResults.add(resultTag); 
+            }
+        }
+        return booleanResults;
+    }
     
 }

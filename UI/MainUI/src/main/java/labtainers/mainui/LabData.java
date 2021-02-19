@@ -158,6 +158,17 @@ public class LabData {
         
         retrieveData(main); 
     }
+    public void retrieveResultsGoalsParams(){
+                //Set the list of containers the results UI will references, then parse the results.config file
+                ResultsData.setContainerList(getContainerNames());
+                ParamsData.setContainerList(getContainerNames());
+                resultsData.retrieveData();
+
+                //Parse the goals.config
+                goalsData.retrieveData();
+
+                paramsData.retrieveData();
+    }
     
     // Parse the start.config and parse the goasl.config and results.config if the start.config exists
     private void retrieveData(MainWindow main) throws FileNotFoundException, IOException{
@@ -330,15 +341,6 @@ public class LabData {
                     //go to next line
                     line = bufferedReader.readLine();
                 }
-                //Set the list of containers the results UI will references, then parse the results.config file
-                ResultsData.setContainerList(getContainerNames());
-                ParamsData.setContainerList(getContainerNames());
-                resultsData.retrieveData();
-
-                //Parse the goals.config
-                goalsData.retrieveData();
-
-                paramsData.retrieveData();
             
         }
         else{
@@ -411,7 +413,9 @@ public class LabData {
     }
     
     public void setGoalsData(GoalsData data){
-        goalsData = new GoalsData(data);
+        //goalsData = new GoalsData(data);
+        // eh?
+        goalsData = data;
     }
 
     public void setParamsData(ParamsData data){

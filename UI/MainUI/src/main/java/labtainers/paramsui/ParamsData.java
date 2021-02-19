@@ -110,7 +110,7 @@ public class ParamsData {
         }
     }
     
-    //Updates the containerlist (all artifct panels refer to this list to fill in the container combobox)
+    //Updates the containerlist (all parameter panels refer to this list to fill in the container combobox)
     static public void setContainerList(ArrayList<String> newContainerList){
         containerList = newContainerList;
     }
@@ -619,5 +619,14 @@ public class ParamsData {
     protected MainWindow getMainWindow(){
         return mainUI;
     }  
+    public ArrayList<String> getParamNames(){
+        ArrayList<String> paramTagList = new ArrayList<String>(); //Used for duplication checking
+        
+        for(int i=0;i < listofParams.size();i++){
+            String paramID = listofParams.get(i).paramID;
+            paramTagList.add(paramID); 
+        }
+        return paramTagList;
+    }
     
 }

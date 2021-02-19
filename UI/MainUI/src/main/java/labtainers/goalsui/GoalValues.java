@@ -149,6 +149,8 @@ public class GoalValues {
         //Deep copy
         GoalValues(GoalValues original){
             goalID = original.goalID;
+            goalType = original.goalType;
+            operator = original.operator;
             resultTag = original.resultTag;
             answerTag = original.answerTag;
             answerType = original.answerType;

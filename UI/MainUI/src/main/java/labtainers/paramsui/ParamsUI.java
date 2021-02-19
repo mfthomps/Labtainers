@@ -211,7 +211,7 @@ public class ParamsUI extends javax.swing.JFrame {
     
     // Adds a new param panel
     private void createButton(){
-        addParamsPanel(new ParamPanels(this, ParamsData.containerList, data.rowCount+1));
+        addParamsPanel(new ParamPanels(this, data.rowCount+1));
         paramsScrollPaneBar.setValue(paramsScrollPaneBar.getMaximum());
     }
     
@@ -224,6 +224,9 @@ public class ParamsUI extends javax.swing.JFrame {
             this.mainUI.getCurrentData().setParamsData(saved);
             this.mainUI.updateParameters();
         }
+        mainUI.setParamsClosed();
+        setVisible(false);
+        dispose(); 
     }
     
     // Removes all the param panels
@@ -277,7 +280,7 @@ public class ParamsUI extends javax.swing.JFrame {
     
     // Load the param panel into GUI
     private void loadParam(ParamValues paramVal, int rowNum){
-        ParamPanels newParam = new ParamPanels(this, ParamsData.containerList, rowNum,
+        ParamPanels newParam = new ParamPanels(this, rowNum,
                                                         paramVal.paramID, 
                                                         paramVal.fileList, 
                                                         paramVal.operator, 

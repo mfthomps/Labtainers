@@ -225,6 +225,7 @@ public class MainWindow extends javax.swing.JFrame {
         LocalBuildCheckbox = new javax.swing.JCheckBoxMenuItem();
         StopLabMenuItem = new javax.swing.JMenuItem();
         checkWorkMenuItem = new javax.swing.JMenuItem();
+        SimLabMenu = new javax.swing.JMenuItem();
         EditMenu = new javax.swing.JMenu();
         AboutLabMenuItem = new javax.swing.JMenuItem();
         LabDocumentsMenuItem = new javax.swing.JMenuItem();
@@ -882,6 +883,14 @@ public class MainWindow extends javax.swing.JFrame {
         });
         RunMenu.add(checkWorkMenuItem);
 
+        SimLabMenu.setText("SimLab");
+        SimLabMenu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                SimLabMenuActionPerformed(evt);
+            }
+        });
+        RunMenu.add(SimLabMenu);
+
         MainMenuBar.add(RunMenu);
 
         EditMenu.setText("Edit");
@@ -1057,7 +1066,7 @@ public class MainWindow extends javax.swing.JFrame {
     private void windowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_windowClosing
         if(labName != null){
             try{
-                saveLab(true);
+                saveLab(true, false);
             } catch (IOException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -1082,7 +1091,7 @@ public class MainWindow extends javax.swing.JFrame {
             saveAsButton();
         }else{
             try {
-                saveLab(false);
+                saveLab(false, false);
             } 
             catch (FileNotFoundException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
@@ -1098,7 +1107,7 @@ public class MainWindow extends javax.swing.JFrame {
         rememberOpenedlab();
         if(labName != null){
             try{
-                saveLab(true);
+                saveLab(true, false);
             } catch (IOException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -1197,7 +1206,7 @@ public class MainWindow extends javax.swing.JFrame {
     }
     private void BuildOnlyMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuildOnlyMenuItemActionPerformed
         try {
-            saveLab(false);
+            saveLab(true, true);
         } 
         catch (FileNotFoundException ex) {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
@@ -1247,8 +1256,8 @@ public class MainWindow extends javax.swing.JFrame {
 
     private void checkWorkMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkWorkMenuItemActionPerformed
         String path = this.labtainerPath+File.separator+"scripts"+File.separator+"labtainer-student";
-        String cmd = "gnome-terminal -t 'checkwork' --working-directory="+path+" -- checkwork -p";
-        System.out.println("checkwork cmd "+cmd);
+        String cmd = "gnome-terminal -t 'checkwork' --working-directory="+path+" -- checkwork "+this.labName+" -p";
+        //System.out.println("checkwork cmd "+cmd);
         doCommand(cmd);
     }//GEN-LAST:event_checkWorkMenuItemActionPerformed
 
@@ -1267,7 +1276,7 @@ public class MainWindow extends javax.swing.JFrame {
 
     private void BuildAndRunActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuildAndRunActionPerformed
         try {
-            saveLab(false);
+            saveLab(true, true);
         } 
         catch (FileNotFoundException ex) {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
@@ -1311,12 +1320,25 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_LabDocumentsMenuItemActionPerformed
 
     private void SimlabDirectivesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SimlabDirectivesMenuItemActionPerformed
-        // TODO add your handling code here:
+        String labtainerPath = System.getenv("LABTAINER_DIR");
+        System.out.println("labtainerdir is "+labtainerPath);
+        File labtainer_path = new File(labtainerPath);
+        String parent = labtainer_path.getParentFile().getPath();
+        System.out.println("parent is "+parent);
+        File simlab_dir = new File(parent+File.separator+"simlab"+File.separator+this.labName);
+        try{
+            simlab_dir.mkdir();
+        }catch(Exception ex){
+        }
+        String cmd = "gnome-terminal --working-directory="+simlab_dir;
+        System.out.println("cmd: "+cmd);
+        doCommand(cmd);
+        
     }//GEN-LAST:event_SimlabDirectivesMenuItemActionPerformed
 
     private void readfirstMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_readfirstMenuActionPerformed
         String readFirstPath = this.currentLab.toString()+File.separator+"docs"+File.separator+"read_first.txt";
-        String cmd = "gnome-terminal -- "+getTextEditor()+readFirstPath+" &";
+        String cmd = getTextEditor()+readFirstPath+" &";
         doCommand(cmd);
     }//GEN-LAST:event_readfirstMenuActionPerformed
 
@@ -1335,6 +1357,11 @@ public class MainWindow extends javax.swing.JFrame {
         }
          
     }//GEN-LAST:event_LocalBuildCheckboxActionPerformed
+
+    private void SimLabMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SimLabMenuActionPerformed
+        String cmd = "SimLab.py "+this.labName;
+        doStudentCommand(cmd);
+    }//GEN-LAST:event_SimLabMenuActionPerformed
 
     
     //BUTTON FUNCTIONS//
@@ -1383,7 +1410,7 @@ public class MainWindow extends javax.swing.JFrame {
     private void openLabButton() throws IOException{
         if(labName != null){
             try{
-                saveLab(true);
+                saveLab(true, false);
             } catch (IOException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -1403,7 +1430,7 @@ public class MainWindow extends javax.swing.JFrame {
     private void newLabButton(){
         if(labName != null){
             try{
-                saveLab(true);
+                saveLab(true, false);
             } catch (IOException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -1584,6 +1611,7 @@ public class MainWindow extends javax.swing.JFrame {
         this.currentLab = lab;
         this.labName = lab.toString().substring(lab.toString().lastIndexOf(File.separator)+1);
         this.labDataCurrent = new LabData(this, lab, labName); 
+        this.labDataCurrent.retrieveResultsGoalsParams();
         // Load UI
         closeAllDialogs(); 
         resetWindow();
@@ -1652,7 +1680,7 @@ public class MainWindow extends javax.swing.JFrame {
     }
          
     // Writes current state of the UI the file system
-    private boolean saveLab(boolean usetmp) throws FileNotFoundException{
+    private boolean saveLab(boolean usetmp, boolean force) throws FileNotFoundException{
         // If usetmp, save to temporary diretory and compare to current.  If they differ,
         // prompts the user to save or discard changes.
         // Return false if user cancels (does not want to exit).
@@ -1684,6 +1712,7 @@ public class MainWindow extends javax.swing.JFrame {
             LabData labDataOrig = null;
             try{
                 labDataOrig = new LabData(this, this.currentLab, labName); 
+                labDataOrig.retrieveResultsGoalsParams();
                 f1 = labDataCurrent.writeStartConfig(usetmp);
                 f2 = labDataOrig.writeStartConfig(usetmp);
                 something_changed = ! CompareTextFiles.compare(f1, f2);
@@ -1726,13 +1755,15 @@ public class MainWindow extends javax.swing.JFrame {
             if(something_changed){
                 //int confirm = JOptionPane.showConfirmDialog(null, "Changes made to lab config files have not been saved. Save them?\n",
                 //                                        "Save changes?",  JOptionPane.YES_NO_CANCEL_OPTION);
-                int confirm = JOptionPane.showConfirmDialog(null, "Changes made to lab config files have not been saved. Save them?\n",
+                if(!force){
+                    int confirm = JOptionPane.showConfirmDialog(null, "Changes made to lab config files have not been saved. Save them?\n",
                                                         "Save changes?",  JOptionPane.YES_NO_OPTION);
-                if (confirm == JOptionPane.YES_OPTION){
-                    System.out.println("Saved changes");
-                    saveLab(false);
-                //}else if(confirm == JOptionPane.CANCEL_OPTION){
-                //    retval = false;
+                    if (confirm == JOptionPane.YES_OPTION){
+                        System.out.println("Saved changes");
+                        saveLab(false, true);
+                    }
+                }else{
+                    saveLab(false, true);
                 }
             }
         }else{
@@ -1760,7 +1791,7 @@ public class MainWindow extends javax.swing.JFrame {
 
             // Write the current state to the new lab's start.config
             try {
-                saveLab(false);
+                saveLab(false, false);
             } 
             catch (FileNotFoundException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
@@ -1814,10 +1845,9 @@ public class MainWindow extends javax.swing.JFrame {
             openLab(defaultLab);
         }
         String localBuild = prefProperties.getProperty("localBuild");
-        //System.out.println("loaded localbuid with "+localBuild);
         if(localBuild == null){
             writeValueToINI("localBuild", "false");
-        }else if(localBuild == "true"){
+        }else if(localBuild.equals("true")){
             this.LocalBuildCheckbox.setSelected(true);
         }else{
             this.LocalBuildCheckbox.setSelected(false);
@@ -2169,6 +2199,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JTextField SaveAsLabNameTextField;
     private javax.swing.JMenuItem SaveAsMenuItem;
     private javax.swing.JMenuItem SaveMenuItem;
+    private javax.swing.JMenuItem SimLabMenu;
     private javax.swing.JMenuItem SimlabDirectivesMenuItem;
     private javax.swing.JMenuItem StopLabMenuItem;
     private javax.swing.JMenuItem StudentMenuItem;
