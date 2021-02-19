@@ -84,9 +84,6 @@ else
 fi
 cd ..
 tar xf labtainer/labtainer.tar --keep-newer-files --warning=none
-cd labtainer/trunk/setup_scripts
-./pull-all.py $test_flag
-cd ../../..
 #
 # ensure labtainer paths in .bashrc
 #

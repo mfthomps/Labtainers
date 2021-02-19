@@ -1,8 +1,4 @@
-hasnew=$(docker images | grep labtainers/labtainer.base)
-if [[ -z $hasnew ]];then
-    #echo "nope"
-    $LABTAINER_DIR/setup_scripts/pull-all.py
-fi
+$LABTAINER_DIR/setup_scripts/pull-all.py $test_flag 
 hascommit=$(grep "^Commit:" labtainer/trunk/README.md)
 hasgit=$(grep "github.*releases" labtainer/update-labtainer.sh)
 if [ -z "$hascommit" ] || [ -z "$hasgit" ]; then
