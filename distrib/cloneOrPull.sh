@@ -4,6 +4,8 @@ if [[ ! -d Labtainers ]]; then
     cd Labtainers
 else
     cd Labtainers
+    # avoid conflicts
+    rm README.md
     git pull
 fi
 git checkout premaster
