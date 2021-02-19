@@ -495,6 +495,14 @@ After installing Jenkins, add the jenkins user to the vboxfs and the docker grou
   sudo usermod -a -G docker jenkins
 \end{verbatim}
 
+Jenkins workspace is at /var/lib/jenkins/workspace/labtainer-build/Labtainers
+Check logs to make sure Jenkins git repo is not falling behind.
+
+Manually go to the Jenkins labtainer-build directory and clone the Labtainer-simlab repo
+\begin{verbatim}
+git clone https://<token name>:<token>@gitlab.nps.edu/mfthomps/Labtainers-simlab.git
+\end{verbatim}
+
 \section{Developer guidelines}
 \subsection{Testing and Running Existing Labs}
 When running labs, the goal is to force ourselves to run the distributed labs unless we have specific reasons to do otherwise.
