@@ -6,6 +6,8 @@
 # are not generally distributed.
 # Assumes the simlab files are in ../../Labtainers-simlab/simlab
 #
+mkdir -p /tmp/$USER
+exec &> >(tee -a "/tmp/$USER/mktest.log") 2>&1
 if [[ -z $myshare ]]; then
     myshare=/media/sf_SEED
 fi
@@ -21,13 +23,13 @@ echo "Make test set distribution from branch: $branch"
 $here/fix-git-dates.py distrib $trunk $branch
 $here/fix-git-dates.py testsets $trunk $branch
 cd ../Labtainers-simlab
+git pull
 branch=$(git rev-parse --abbrev-ref HEAD)
 echo "Make simlab distribution from branch: $branch"
 $here/fix-git-dates.py simlab $tmp_dir $branch
 #git archive master simlab | tar -x -C $tmp_dir
 cd $tmp_dir
-mkdir -p /tmp/$USER
-tar czf /tmp/$USER/labtainer-tests.tar trunk simlab
+tar --exclude *.zip -czf /tmp/$USER/labtainer-tests.tar trunk simlab
 cp /tmp/$USER/labtainer-tests.tar $myshare
 mv /tmp/$USER/labtainer-tests.tar $here/
 tar --exclude expected -czf /tmp/$USER/simlab-dist.tar simlab

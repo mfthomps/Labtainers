@@ -22,8 +22,8 @@ class SmokeTest():
         self.labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_path, None)
         self.logger = LabtainerLogging.LabtainerLogging("smoketest.log", 'smoketest', labtainer_config_path)
         self.simlab = None
-        ldir = os.getenv('LABTAINER_DIR')
-        outfile_path = os.path.join(ldir, 'logs', 'smoke.out')
+        self.ldir = os.getenv('LABTAINER_DIR')
+        outfile_path = os.path.join(self.ldir, 'logs', 'smoke.out')
         self.outfile = open(outfile_path, 'w')
 
         labutils.logger = self.logger
@@ -148,13 +148,15 @@ class SmokeTest():
                     f = os.path.basename(line).strip()
                     print('adding [%s]' % f)
                     skip.append(f)
-        skip_tests = os.path.abspath('../../testsets/bin/skip_test.txt')
+        skip_tests = os.path.join(self.ldir,'testsets', 'bin', 'skip_test.txt')
         if os.path.isfile(skip_tests):
             with open(skip_tests) as fh:
                 for line in fh:
                     f = os.path.basename(line).strip()
                     print('adding [%s]' % f)
                     skip.append(f)
+        else:
+            print('No skip tests at %' % skip_tests)
         skip.append('cyberciege')
         lab_parent = os.path.abspath('../../labs')
         lab_list = os.listdir(lab_parent)
