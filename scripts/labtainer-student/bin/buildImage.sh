@@ -56,7 +56,7 @@ if [ "$#" -ne 9 ]; then
     exit
 fi
 mkdir -p $LABTAINER_DIR/logs
-exec &> >(tee -a "$LABTAINER_DIR/logs/docker_build.log")
+exec &> >(tee -a "$LABTAINER_DIR/logs/docker_build.log") 2>&1
 echo "Labname is $lab with image name $imagename"
 
 LAB_DIR=$LAB_TOP/$lab
@@ -162,6 +162,7 @@ else
         echo "FROM $labimage.tmp" > $dfile
         echo "RUN chown root:root /var" >> $dfile
         docker build -f $dfile -t $labimage .
+        result=$?
     fi
          
 fi
