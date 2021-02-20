@@ -14,12 +14,12 @@ import InspectRemoteReg
 import registry
 parser = argparse.ArgumentParser(description='Pull all base images if they do not yet exist')
 parser.add_argument('-f', '--force', action='store_true', default=False, help='always pull latest')
-parser.add_argument('-t', '--test_registry', action='store_true', default=False, help='pull all Labtainer base images')
+parser.add_argument('-t', '--test_registry',labtainer_dir, action='store_true', default=False, help='pull all Labtainer base images')
 parser.add_argument('-m', '--metasploit', action='store_true', default=False, help='include metasploitable and kali images')
 args = parser.parse_args()
 
-lab_config_file = os.path.join('../config', 'labtainer.config')
-labutils.logger = LabtainerLogging.LabtainerLogging("pull.log", 'pull-all', "../config/labtainer.config")
+lab_config_file = os.path.join(labtainer_dir,'config', 'labtainer.config')
+labutils.logger = LabtainerLogging.LabtainerLogging("pull.log", 'pull-all', lab_config_file)
 logger = labutils.logger
 labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(lab_config_file, logger)
 test_registry = False
