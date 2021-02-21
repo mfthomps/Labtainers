@@ -48,6 +48,7 @@ import java.util.Date;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.Set;
 import javax.swing.JFileChooser;
 import javax.swing.JScrollBar;
 import java.util.function.Consumer;
@@ -65,6 +66,7 @@ import java.util.Collections;
 
 import labtainers.mainui.LabData.ContainerData;
 import labtainers.mainui.LabData.NetworkData;
+import labtainers.mainui.Status;
 import labtainers.goalsui.GoalsUI;
 import labtainers.resultsui.ResultsData;
 import labtainers.resultsui.ResultsUI;
@@ -127,6 +129,13 @@ public class MainWindow extends javax.swing.JFrame {
         logo.setIcon(logoImg);
         // For use in creating new labs
         getBaseImageDockerfiles();   
+        Status status = new Status(RunningLabel, "Lab running: ", this.labName+"\\.");
+        status.addLabel(GraderRunning, "Grader running: ", "igrader");
+        Thread thread1 = new Thread(status);
+        thread1.setDaemon(true);
+        thread1.setName("status-thread");
+        System.out.println("Starting status thread...");
+        thread1.start();
     }
     private void setMnemonics(){
         FileMenuBar.setMnemonic(java.awt.event.KeyEvent.VK_F);
@@ -189,6 +198,8 @@ public class MainWindow extends javax.swing.JFrame {
         SaveAsConfirmButton = new javax.swing.JButton();
         Header = new javax.swing.JPanel();
         LabnameLabel = new javax.swing.JLabel();
+        RunningLabel = new javax.swing.JLabel();
+        GraderRunning = new javax.swing.JLabel();
         ContainerPanel = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         ContainerScrollPane = new javax.swing.JScrollPane();
@@ -220,12 +231,15 @@ public class MainWindow extends javax.swing.JFrame {
         jSeparator5 = new javax.swing.JPopupMenu.Separator();
         ExitMenuItem = new javax.swing.JMenuItem();
         RunMenu = new javax.swing.JMenu();
+        RunLabMenu = new javax.swing.JMenuItem();
         BuildAndRun = new javax.swing.JMenuItem();
         BuildOnlyMenuItem = new javax.swing.JMenuItem();
         LocalBuildCheckbox = new javax.swing.JCheckBoxMenuItem();
         StopLabMenuItem = new javax.swing.JMenuItem();
         checkWorkMenuItem = new javax.swing.JMenuItem();
         SimLabMenu = new javax.swing.JMenuItem();
+        GradeLabMenu = new javax.swing.JMenuItem();
+        StopGraderMenu = new javax.swing.JMenuItem();
         EditMenu = new javax.swing.JMenu();
         AboutLabMenuItem = new javax.swing.JMenuItem();
         LabDocumentsMenuItem = new javax.swing.JMenuItem();
@@ -590,6 +604,10 @@ public class MainWindow extends javax.swing.JFrame {
         LabnameLabel.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         LabnameLabel.setText("Lab:");
 
+        RunningLabel.setText("Running: ");
+
+        GraderRunning.setText("gradelab");
+
         javax.swing.GroupLayout HeaderLayout = new javax.swing.GroupLayout(Header);
         Header.setLayout(HeaderLayout);
         HeaderLayout.setHorizontalGroup(
@@ -597,14 +615,23 @@ public class MainWindow extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, HeaderLayout.createSequentialGroup()
                 .addGap(20, 20, 20)
                 .addComponent(LabnameLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(831, 831, 831))
+                .addGap(153, 153, 153)
+                .addGroup(HeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(GraderRunning, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(RunningLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(477, 477, 477))
         );
         HeaderLayout.setVerticalGroup(
             HeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(HeaderLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(LabnameLabel)
-                .addContainerGap(17, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(HeaderLayout.createSequentialGroup()
+                .addComponent(RunningLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(GraderRunning)
+                .addContainerGap())
         );
 
         ContainerPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -843,6 +870,14 @@ public class MainWindow extends javax.swing.JFrame {
         RunMenu.setText("Run");
         RunMenu.setFont(new java.awt.Font("Ubuntu", 0, 18)); // NOI18N
 
+        RunLabMenu.setText("Run lab");
+        RunLabMenu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                RunLabMenuActionPerformed(evt);
+            }
+        });
+        RunMenu.add(RunLabMenu);
+
         BuildAndRun.setText("Build and run");
         BuildAndRun.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -890,6 +925,22 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
         RunMenu.add(SimLabMenu);
+
+        GradeLabMenu.setText("Grade lab");
+        GradeLabMenu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                GradeLabMenuActionPerformed(evt);
+            }
+        });
+        RunMenu.add(GradeLabMenu);
+
+        StopGraderMenu.setText("Stop grader");
+        StopGraderMenu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                StopGraderMenuActionPerformed(evt);
+            }
+        });
+        RunMenu.add(StopGraderMenu);
 
         MainMenuBar.add(RunMenu);
 
@@ -1177,10 +1228,17 @@ public class MainWindow extends javax.swing.JFrame {
         return lastLine;
     }
     public void doStudentCommand(String cmd){
+        String path = this.labtainerPath+File.separator+"scripts"+File.separator+"labtainer-student";
+        doCommand(cmd, path);
+    }
+    public void doInstructorCommand(String cmd){
+        String path = this.labtainerPath+File.separator+"scripts"+File.separator+"labtainer-instructor";
+        doCommand(cmd, path);
+    }
+    public void doCommand(String cmd, String path){
         output(cmd+"\n");
         ProcessBuilder builder = new ProcessBuilder();
         builder.command("sh", "-c", cmd);
-        String path = this.labtainerPath+File.separator+"scripts"+File.separator+"labtainer-student";
         builder.directory(new File(path));
         try{
             Process process = builder.start();
@@ -1257,7 +1315,6 @@ public class MainWindow extends javax.swing.JFrame {
     private void checkWorkMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkWorkMenuItemActionPerformed
         String path = this.labtainerPath+File.separator+"scripts"+File.separator+"labtainer-student";
         String cmd = "gnome-terminal -t 'checkwork' --working-directory="+path+" -- checkwork "+this.labName+" -p";
-        //System.out.println("checkwork cmd "+cmd);
         doCommand(cmd);
     }//GEN-LAST:event_checkWorkMenuItemActionPerformed
 
@@ -1362,6 +1419,21 @@ public class MainWindow extends javax.swing.JFrame {
         String cmd = "SimLab.py "+this.labName;
         doStudentCommand(cmd);
     }//GEN-LAST:event_SimLabMenuActionPerformed
+
+    private void GradeLabMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GradeLabMenuActionPerformed
+        String path = this.labtainerPath+File.separator+"scripts"+File.separator+"labtainer-instructor";
+        String cmd = "gnome-terminal -t 'gradelab' --working-directory="+path+" -- gradelab "+this.labName+" -wrp";
+        doCommand(cmd);
+    }//GEN-LAST:event_GradeLabMenuActionPerformed
+
+    private void StopGraderMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_StopGraderMenuActionPerformed
+        String cmd = "stopgrade";
+        doInstructorCommand(cmd);
+    }//GEN-LAST:event_StopGraderMenuActionPerformed
+
+    private void RunLabMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RunLabMenuActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_RunLabMenuActionPerformed
 
     
     //BUTTON FUNCTIONS//
@@ -1867,6 +1939,10 @@ public class MainWindow extends javax.swing.JFrame {
     } 
     // Get list of base images for making new lab and set ui elements that uses them as input
     private void getBaseImageDockerfiles(){
+        /* See the base.list in resources for the bases to appear first.  Then skip this
+           list below because they are obsolete. */
+        Set<String> OBE = Set.of("base", "network", "centos6", "centos", "network.ssh"); 
+
         ArrayList<String> baseList = new ArrayList<String>();
         InputStream inputStream = brokenJavaNaming("base.list");
         if(inputStream == null){
@@ -1889,14 +1965,16 @@ public class MainWindow extends javax.swing.JFrame {
             public boolean accept(File dockerfileBasesPath, String filename)
                 {return filename.startsWith("Dockerfile.labtainer."); }
         } );
-        
+        Arrays.sort(baseFiles);
         for(int i = 0;i<baseFiles.length;i++){
-            String base = baseFiles[i].getName().split("Dockerfile.labtainer.")[1];
-            if(!baseList.contains(base)){
-                baseList.add(base);
+            String base = baseFiles[i].getName().split("Dockerfile.labtainer.")[1].trim();
+            if(!OBE.contains(base)){
+                if(!baseList.contains(base)){
+                    baseList.add(base);
+                }
             }
+            
         }
-        Collections.sort(baseList); 
         //Set the base image combobox options for making new labs and adding containers
         for(String baseImage : baseList){
             NewLabBaseImageComboBox.addItem(baseImage);
@@ -2161,6 +2239,8 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JMenu EditMenu;
     private javax.swing.JMenuItem ExitMenuItem;
     private javax.swing.JMenu FileMenuBar;
+    private javax.swing.JMenuItem GradeLabMenu;
+    private javax.swing.JLabel GraderRunning;
     private javax.swing.JPanel Header;
     private javax.swing.JMenu HelpMenu;
     private javax.swing.JPanel IndividualizePanel;
@@ -2191,7 +2271,9 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JMenuItem OpenLabMenuItem;
     private javax.swing.JTextArea OutputTextArea;
     private javax.swing.JMenuItem PreferencesMenuItem;
+    private javax.swing.JMenuItem RunLabMenu;
     private javax.swing.JMenu RunMenu;
+    private javax.swing.JLabel RunningLabel;
     private javax.swing.JButton SaveAsCancelButton;
     private javax.swing.JButton SaveAsConfirmButton;
     private javax.swing.JDialog SaveAsDialog;
@@ -2201,6 +2283,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JMenuItem SaveMenuItem;
     private javax.swing.JMenuItem SimLabMenu;
     private javax.swing.JMenuItem SimlabDirectivesMenuItem;
+    private javax.swing.JMenuItem StopGraderMenu;
     private javax.swing.JMenuItem StopLabMenuItem;
     private javax.swing.JMenuItem StudentMenuItem;
     private javax.swing.JMenu ViewMenu;

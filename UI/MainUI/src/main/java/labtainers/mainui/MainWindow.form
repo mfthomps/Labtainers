@@ -647,6 +647,14 @@
             </Property>
           </Properties>
           <SubComponents>
+            <MenuItem class="javax.swing.JMenuItem" name="RunLabMenu">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Run lab"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="RunLabMenuActionPerformed"/>
+              </Events>
+            </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="BuildAndRun">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Build and run"/>
@@ -693,6 +701,22 @@
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="SimLabMenuActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="GradeLabMenu">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Grade lab"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="GradeLabMenuActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="StopGraderMenu">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Stop grader"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="StopGraderMenuActionPerformed"/>
               </Events>
             </MenuItem>
           </SubComponents>
@@ -896,7 +920,12 @@
               <Group type="102" alignment="1" attributes="0">
                   <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
                   <Component id="LabnameLabel" max="32767" attributes="0"/>
-                  <EmptySpace min="-2" pref="831" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="153" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="GraderRunning" min="-2" pref="215" max="-2" attributes="0"/>
+                      <Component id="RunningLabel" min="-2" pref="201" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace min="-2" pref="477" max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -905,7 +934,13 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="LabnameLabel" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace pref="17" max="32767" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
+              </Group>
+              <Group type="102" alignment="0" attributes="0">
+                  <Component id="RunningLabel" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
+                  <Component id="GraderRunning" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -918,6 +953,16 @@
             </Property>
             <Property name="horizontalAlignment" type="int" value="2"/>
             <Property name="text" type="java.lang.String" value="Lab:"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="RunningLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Running: "/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="GraderRunning">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="gradelab"/>
           </Properties>
         </Component>
       </SubComponents>
