@@ -422,6 +422,7 @@ def main():
     parser.add_argument('-u', '--update', action='store_true', help='Update grader image, deletes existing grader containers')
     parser.add_argument('-a', '--add_terminal', action='store_true', help='Create an additional virtual terminal attached to an existing grade \
                                container started with the -d option')
+    parser.add_argument('-p', '--prompt', action='store_true', help='Prompt for user input before exiting.')
     args = parser.parse_args()
     labname = args.labname
     if args.add_terminal:
@@ -431,6 +432,12 @@ def main():
         if args.update:
             redo = True
         doGrade(labname, args.test_registry, args.debug, redo, args.update, web=args.web, test_web=args.volume)
+        if args.prompt:
+            prompt = "Press <enter> to close."
+            if sys.version_info >=(3,0):
+                user_input = input(prompt)
+            else:
+                user_input = raw_input(prompt)
 
     
 labutils.logger = LabtainerLogging.LabtainerLogging("grader.log", 'instructor', "../../config/labtainer.config")
