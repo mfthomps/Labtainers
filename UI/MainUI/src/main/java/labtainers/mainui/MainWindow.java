@@ -1432,7 +1432,8 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_StopGraderMenuActionPerformed
 
     private void RunLabMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RunLabMenuActionPerformed
-        // TODO add your handling code here:
+        String cmd = "labtainer -q "+this.labName;
+        doStudentCommand(cmd);
     }//GEN-LAST:event_RunLabMenuActionPerformed
 
     
