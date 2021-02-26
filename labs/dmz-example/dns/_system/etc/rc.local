@@ -3,3 +3,4 @@
 route del -host 172.17.0.1
 
 echo "198.18.1.2" > /etc/resolv.conf
+echo "198.18.1.2" > /etc/resolv.conf
