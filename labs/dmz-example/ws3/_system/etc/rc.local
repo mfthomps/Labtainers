@@ -1,7 +1,7 @@
 #!/bin/bash
 echo "" > /etc/resolv.conf
 echo "nameserver 198.18.1.3" > /etc/resolv.conf
-route del -host 172.17.0.1
 
 route del default
-
+/usr/bin/set_default_gw.sh 192.168.2.INNER_LAN2
+route del -host 172.17.0.1

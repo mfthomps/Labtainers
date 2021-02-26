@@ -7,6 +7,3 @@
 #  not not permit nopassword, then use:
 #  echo $1 | sudo -S the-command
 #
-# Use gateway as the name server
-#
-sudo /usr/bin/set_default_gw.sh 192.168.1.INNER_LAN1

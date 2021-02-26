@@ -46,7 +46,7 @@ iptables -A FORWARD -j DROP
 
 
 # restart dns forwarder
-/etc/init.d/dnsmasq restart
 echo "nameserver 198.18.0.1" > /etc/resolv.conf
+sudo systemctl restart dnsmasq 
 route del -host 172.17.0.1
 
