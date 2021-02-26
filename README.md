@@ -22,10 +22,10 @@ The Labtainers website, and downloads (including VM appliances with Labtainers p
 [designer-guide]: docs/labdesigner/labdesigner.pdf
 [Papers]: https://nps.edu/web/c3o/labtainers#papers
 
-Distribution created: 02/21/2021 07:54 </br>
-Revision: v1.3.4d </br>
-Commit: da1272c3 </br>
-Branch: master </br>
+Distribution created: 02/26/2021 01:00 </br>
+Previous revision: v1.3.4d </br>
+Commit: 028decdf </br>
+Branch: premaster </br>
 
 ## Content
 [Distribution and Use](#distribution-and-use)
@@ -88,6 +88,9 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+
+February 26, 2021
+- The dmz-example lab had errors in routing and setup of dnsmasq on some components.
 
 February 18, 2021
 - UI was rebuilding images because it was updating file times without cause
