@@ -112,6 +112,9 @@ def grades():
     goals_list = getGoalsList()
     with open(grade_json) as fh:
         grade_dict = json.load(fh)
+        if len(grade_dict) == 0:
+            error = 'No results for lab %s' % lab
+            return render_template('error.html', error=error)
         first_key = list(grade_dict.keys())[0]
         has_goals = False
         for goal in grade_dict[first_key]['grades']:
