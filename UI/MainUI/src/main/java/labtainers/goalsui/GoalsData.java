@@ -103,39 +103,6 @@ public class GoalsData {
             //retrieveBooleanResults();
         }
     }
-    /* 
-    //Updates the resultTagList from the config file. (all goal panels refer to this list to fill in the resultTag combobox)
-    private boolean retrieveResultTags(){
-        File resultsConfig = new File(mainUI.getCurrentLab() + File.separator + "instr_config" + File.separator + "results.config");
-        try {
-            if(resultsConfig.exists()){
-                try (FileReader fileReader = new FileReader(resultsConfig)) {
-                    BufferedReader bufferedReader = new BufferedReader(fileReader);
-                    
-                    String line = bufferedReader.readLine();
-                    while (line != null) {
-                        if(!line.isEmpty() && line.charAt(0) != '#' && !Character.isWhitespace(line.charAt(0)))
-                            resultTagList.add(line.split(" = ")[0]);
-                        line = bufferedReader.readLine(); 
-                    }
-                } 
-                return true;
-            }
-            else{
-                System.out.println("results.config is missing");
-                return false;
-            }
-        } 
-        catch (FileNotFoundException ex) {
-            Logger.getLogger(GoalsUI.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
-        }
-        catch (IOException ex) {
-            Logger.getLogger(GoalsUI.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
-       }
-    }    
-    */ 
     //Parses the goals.config to obtain all the relevant goal lines, 
     //extracts the values of each goal line and stores them into a list of "goals"(Goal Values)
     private boolean retrieveGoals(){
@@ -149,64 +116,6 @@ public class GoalsData {
             return false;    
     }
    
-    /* 
-    //Get the parameter.config IDs
-    private void retrieveParameters(){        
-        File parameterConfig = new File(mainUI.getCurrentLab() + File.separator + "config" + File.separator + "parameter.config");
-        try {
-            if(parameterConfig.exists()){
-                try (FileReader fileReader = new FileReader(parameterConfig)) {
-                    BufferedReader bufferedReader = new BufferedReader(fileReader);
-                    
-                    String line = bufferedReader.readLine();
-                    while (line != null) {
-                        if(!line.isEmpty() && line.charAt(0) != '#' && !Character.isWhitespace(line.charAt(0)))
-                            parameters.add(line.split(" : ")[0]);
-                        line = bufferedReader.readLine(); 
-                    }
-                } 
-            }
-            else
-                System.out.println("parameter.config is missing");
-        } 
-        catch (FileNotFoundException ex) {
-            Logger.getLogger(GoalsUI.class.getName()).log(Level.SEVERE, null, ex);
-        } 
-        catch (IOException ex) {
-            Logger.getLogger(GoalsUI.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    */ 
-    /* 
-    //Get the result tags that are boolean result types
-    private void retrieveBooleanResults(){
-        File resultsConfig = new File(mainUI.getCurrentLab() + File.separator + "instr_config" + File.separator + "results.config");
-        try {
-            if(resultsConfig.exists()){
-                try (FileReader fileReader = new FileReader(resultsConfig)) {
-                    BufferedReader bufferedReader = new BufferedReader(fileReader);
-                    
-                    String line = bufferedReader.readLine();
-                    while (line != null) {
-                        if(!line.isEmpty() && line.charAt(0) != '#' && !Character.isWhitespace(line.charAt(0)))
-                            if(booleanResultTypes.contains(line.split(" : ")[1]))
-                                booleanResults.add(line.split(" = ")[0]);
-   
-                        line = bufferedReader.readLine(); 
-                    }
-                } 
-            }
-            else
-                System.out.println("results.config is missing");
-        } 
-        catch (FileNotFoundException ex) {
-            Logger.getLogger(GoalsUI.class.getName()).log(Level.SEVERE, null, ex);
-        } 
-        catch (IOException ex) {
-            Logger.getLogger(GoalsUI.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    */ 
     
 //WRITING~~~~~~~~~~~~~~~~~~~~~~~~          
         
