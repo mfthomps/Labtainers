@@ -768,10 +768,11 @@ def getResultValue(student_id, result_id):
     student_dir = os.path.join(lab_dir, student_id)
     student_inter_dir = os.path.join(student_dir, '.local','result')
     result_json_file = os.path.join(student_inter_dir, lab)
-    with open(result_json_file) as fh:
-        results = json.load(fh)
-    if result_id in results:
-        retval = results[result_id]
+    if os.path.isfile(result_json_file):
+        with open(result_json_file) as fh:
+            results = json.load(fh)
+        if result_id in results:
+            retval = results[result_id]
     return retval
            
 
