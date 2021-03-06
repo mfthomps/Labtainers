@@ -22,10 +22,10 @@ The Labtainers website, and downloads (including VM appliances with Labtainers p
 [designer-guide]: docs/labdesigner/labdesigner.pdf
 [Papers]: https://nps.edu/web/c3o/labtainers#papers
 
-Distribution created: 02/25/2021 11:03 </br>
-Revision: v1.3.4e </br>
-Commit: a9778b8b </br>
-Branch: master </br>
+Distribution created: 03/05/2021 01:00 </br>
+Previous revision: v1.3.4e </br>
+Commit: bece88ba </br>
+Branch: premaster </br>
 
 ## Content
 [Distribution and Use](#distribution-and-use)
@@ -88,6 +88,10 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+
+March 5, 2021
+- Error handling on gradelab web interface when missing results.
+- labedit addition of precheck, msc bug fixes.
 
 February 26, 2021
 - The dmz-example lab had errors in routing and setup of dnsmasq on some components.
