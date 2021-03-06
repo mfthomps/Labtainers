@@ -821,12 +821,12 @@ and reside at:
 \end{verbatim}
 \noindent Note the fixlocal.sh script runs as the user defined in the start.config for the container, 
 regardless of whether root is set as the user in the Dockerfile.  The {\tt fixlocal.sh} script is primarily
-intended for parameterizing labs.  Other initialization and synchronization between multiple components 
+intended for parameterizing labs.  It only runs on the first start of the container, and thus will not catch configuration changes 
+imposed by Docker, such as default routing. Other initialization and synchronization between multiple components 
 should be performed as within any Linux system, e.g., via services or rc.local.
 
-
-\footnote{Use of {\tt sed -i ...} to modify configuration files (e.g., in etc), might result in overwriting symbolic links.
-Use {\tt sed -i --follow-symlinks ...} to avoid that pit.}
+Note that use of {\tt sed -i ...} to modify configuration files (e.g., in etc), might result in overwriting symbolic links.
+Use {\tt sed -i --follow-symlinks ...} to avoid that pit.  Also note that CentOS rc.local files are in {\tt /etc/rc.d/rc.local}
 
 \subsection{Persistent storage}
 \label{persistent}
@@ -2377,11 +2377,15 @@ is described below.  This does not require that you use the Labtainer VM or git.
 the telnet-lab manual.
 \begin{itemize}
 \item Create your version of the manual in the pdf format (if the manual source is docx, export it as pdf).
-\item Put that manual in a file with the original name, in a directory whose name is the lab, e.g.,
+\item Put that manual in a file with the original name, in an otherwise empty directory structure that includes the name is the lab
+and ``docs'', e.g.,
 \begin{verbatim}
-    telnet-lab/telnet-lab.pdf
+    telnet-lab/docs/telnet-lab.pdf
 \end{verbatim}
-\item Create a tar file of the manual including the lab name in the path.
+\item Create a tar file of directory structures starting at the lab name.  (Issue the tar file from the parent of the lab directory.)
+\begin{verbatim}
+    tar cv imodule.tar telnet-lab
+\end{verbatim}
 \item Publish that tar file onto a web server, i.e., something that responds to {\tt http get} commands.
 \item Instruct your students to provide that URL to the {\tt imodule} command. 
 \end{itemize}
