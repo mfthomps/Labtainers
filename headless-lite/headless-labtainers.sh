@@ -17,6 +17,7 @@ case "$OSTYPE" in
                # add link to docker.raw.sock, see issue at https://github.com/docker/for-mac/issues/4755
                sudo ln -s "$HOME/Library/Containers/com.docker.docker/Data/docker.raw.sock" /var/run/docker.sock.raw
                # now fix the docker-compose file to use the docker.sock.raw
+               cd ~/headless-labtainers
                sed -i '' s%/var/run/docker.sock:/var/run/docker.sock%/var/run/docker.sock.raw:/var/run/docker.sock% docker-compose.yml
                echo "Changes complete for OSX"
             fi
