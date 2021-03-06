@@ -129,6 +129,7 @@ public class MainWindow extends javax.swing.JFrame {
         logo.setIcon(logoImg);
         // For use in creating new labs
         getBaseImageDockerfiles();   
+        // Update status of whether a lab is running
         Status status = new Status(RunningLabel, "Lab running: ", this.labName+"\\.");
         status.addLabel(GraderRunning, "Grader running: ", "igrader");
         Thread thread1 = new Thread(status);
@@ -1416,6 +1417,10 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_LocalBuildCheckboxActionPerformed
 
     private void SimLabMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SimLabMenuActionPerformed
+        if(! isLabRunning()){
+            output("Lab is not running.");
+            return;
+        }
         String cmd = "SimLab.py "+this.labName;
         doStudentCommand(cmd);
     }//GEN-LAST:event_SimLabMenuActionPerformed
@@ -2114,7 +2119,14 @@ public class MainWindow extends javax.swing.JFrame {
             ((NetworkObjPanel)network).getNetworkConfigDialog().dispose();
         }
     }
-    
+    public boolean isLabRunning(){
+        String text = RunningLabel.getText();
+        if(text.contains("Yes")){
+            return true;
+        }else{
+            return false;
+        }
+    } 
     
     //PUBLIC FUNCTIONS (getters,setters, etc)
     
