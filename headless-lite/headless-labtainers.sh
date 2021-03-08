@@ -7,6 +7,7 @@ function do_up {
    echo "Your results are in ~/headless-labtainers/labtainer_xfer"
 }
 
+function fix_it {
 case "$OSTYPE" in
   solaris*) echo "SOLARIS" ;;
   darwin*)  echo "OSX"
@@ -27,7 +28,7 @@ case "$OSTYPE" in
   msys*)    echo "WINDOWS" ;;
   *)        echo "unknown: $OSTYPE" ;;
 esac
-
+}
 
 while [[ -n "$1" ]]; do
     if [[ "$1" == -h ]]; then
@@ -51,6 +52,7 @@ if [[ "$LABTAINER_TEST" == "TRUE" ]];then
 fi
 if [[ -d ./mystuff ]]; then
     echo "Running Headless Labtainers."
+    fix_it
     do_up
 else
     echo "Installing and running Headless Labtainers."
@@ -79,6 +81,7 @@ else
     else
         curl https://raw.githubusercontent.com/mfthomps/Labtainers/master/headless-lite/docker-compose.yml > docker-compose.yml 
     fi
+    fix_it
     do_up
     HEADLESS_DIR=`pwd`
     echo "Add $HEADLESS_DIR to your PATH environment variable and run headless-labtainers from there in the future."
