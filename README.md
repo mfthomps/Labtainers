@@ -89,6 +89,10 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+March 8, 2021
+- Deprecate use of HOST\_HOME\_XFER,  all labs use directory per the labtainer.config file.
+- Add documentation comment to start.config for REGISTRY and BASE\_REGISTRY
+
 March 5, 2021
 - Error handling on gradelab web interface when missing results.
 - labedit addition of precheck, msc bug fixes.
