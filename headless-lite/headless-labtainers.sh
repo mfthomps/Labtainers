@@ -19,9 +19,9 @@ case "$OSTYPE" in
                sudo ln -s "$HOME/Library/Containers/com.docker.docker/Data/docker.raw.sock" /var/run/docker.sock.raw
                # now fix the docker-compose file to use the docker.sock.raw
                cd ~/headless-labtainers
-               sed -i '' s%/var/run/docker.sock:/var/run/docker.sock%/var/run/docker.sock.raw:/var/run/docker.sock% docker-compose.yml
                echo "Changes complete for OSX"
             fi
+            sed -i '' s%/var/run/docker.sock:/var/run/docker.sock%/var/run/docker.sock.raw:/var/run/docker.sock% docker-compose.yml
             ;;
   linux*)   echo "LINUX" ;;
   bsd*)     echo "BSD" ;;
