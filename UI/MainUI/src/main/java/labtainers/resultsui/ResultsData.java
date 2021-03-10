@@ -823,7 +823,7 @@ public class ResultsData {
     public List<String> getBooleanResults(){
         List<String> booleanResults = new ArrayList<String>();
         for(int i=0;i < listofArtifacts.size();i++){
-            if(booleanResultTypes.contains(listofArtifacts.get(i).fieldType)){
+            if(booleanResultTypes.contains(listofArtifacts.get(i).fieldType.getItem())){
                 String resultTag = listofArtifacts.get(i).resultTag;
                 booleanResults.add(resultTag); 
             }
