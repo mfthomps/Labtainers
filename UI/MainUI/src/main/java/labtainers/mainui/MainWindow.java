@@ -88,6 +88,7 @@ public class MainWindow extends javax.swing.JFrame {
     private final Properties prefProperties;
     private String[] bases;
     private String textEditorPref;
+    private Status status=null;
     
     SimpleDateFormat formatter;
     Date date;
@@ -130,7 +131,7 @@ public class MainWindow extends javax.swing.JFrame {
         // For use in creating new labs
         getBaseImageDockerfiles();   
         // Update status of whether a lab is running
-        Status status = new Status(RunningLabel, "Lab running: ", this.labName+"\\.");
+        status = new Status(RunningLabel, "Lab running: ", this.labName+"\\.");
         status.addLabel(GraderRunning, "Grader running: ", "igrader");
         Thread thread1 = new Thread(status);
         thread1.setDaemon(true);
@@ -1695,6 +1696,9 @@ public class MainWindow extends javax.swing.JFrame {
         resetWindow();
         loadLab();
         checkManual();
+        if(status != null){
+            status.changeLook(RunningLabel, this.labName+"\\.");
+        }
         
     }    
     
