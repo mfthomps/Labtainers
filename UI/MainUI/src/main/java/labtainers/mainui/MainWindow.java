@@ -88,6 +88,7 @@ public class MainWindow extends javax.swing.JFrame {
     private final Properties prefProperties;
     private String[] bases;
     private String textEditorPref;
+    private Status status=null;
     
     SimpleDateFormat formatter;
     Date date;
@@ -103,6 +104,8 @@ public class MainWindow extends javax.swing.JFrame {
         initComponents();
         setMnemonics();
         
+        this.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+
         containerScrollPaneBar = ContainerScrollPane.getVerticalScrollBar();
         networkScrollPaneBar = NetworkScrollPane.getVerticalScrollBar();
         LabExistLabel.setVisible(false);
@@ -129,7 +132,8 @@ public class MainWindow extends javax.swing.JFrame {
         logo.setIcon(logoImg);
         // For use in creating new labs
         getBaseImageDockerfiles();   
-        Status status = new Status(RunningLabel, "Lab running: ", this.labName+"\\.");
+        // Update status of whether a lab is running
+        status = new Status(RunningLabel, "Lab running: ", this.labName+"\\.");
         status.addLabel(GraderRunning, "Grader running: ", "igrader");
         Thread thread1 = new Thread(status);
         thread1.setDaemon(true);
@@ -1117,11 +1121,19 @@ public class MainWindow extends javax.swing.JFrame {
     private void windowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_windowClosing
         if(labName != null){
             try{
-                saveLab(true, false);
+                if(!saveLab(true, false)){
+                    int result = JOptionPane.showConfirmDialog(this,"Changes not saved due to errors and will be lost if you exit. Exit anyway?", "Errors",
+                           JOptionPane.YES_NO_OPTION,
+                           JOptionPane.QUESTION_MESSAGE);
+                    if(result != JOptionPane.YES_OPTION){
+                        return;
+                    }
+                } 
             } catch (IOException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        this.dispose();
         rememberOpenedlab();
     }//GEN-LAST:event_windowClosing
    
@@ -1264,7 +1276,10 @@ public class MainWindow extends javax.swing.JFrame {
     }
     private void BuildOnlyMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuildOnlyMenuItemActionPerformed
         try {
-            saveLab(true, true);
+            if(!saveLab(true, true)){
+                output("Build aborted due to errors in lab.\n");
+                return;
+            }
         } 
         catch (FileNotFoundException ex) {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
@@ -1333,7 +1348,10 @@ public class MainWindow extends javax.swing.JFrame {
 
     private void BuildAndRunActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuildAndRunActionPerformed
         try {
-            saveLab(true, true);
+            if(!saveLab(true, true)){
+                output("Build aborted due to errors in lab.\n");
+                return;
+            }
         } 
         catch (FileNotFoundException ex) {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
@@ -1416,6 +1434,10 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_LocalBuildCheckboxActionPerformed
 
     private void SimLabMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SimLabMenuActionPerformed
+        if(! isLabRunning()){
+            output("Lab is not running.");
+            return;
+        }
         String cmd = "SimLab.py "+this.labName;
         doStudentCommand(cmd);
     }//GEN-LAST:event_SimLabMenuActionPerformed
@@ -1690,6 +1712,9 @@ public class MainWindow extends javax.swing.JFrame {
         resetWindow();
         loadLab();
         checkManual();
+        if(status != null){
+            status.changeLook(RunningLabel, this.labName+"\\.");
+        }
         
     }    
     
@@ -1796,6 +1821,10 @@ public class MainWindow extends javax.swing.JFrame {
             }
             if(!something_changed){
                 f1 = labDataCurrent.getResultsData().writeResultsConfig(usetmp);
+                if(f1 == null){
+                    output("Error in Results.\n");
+                    return false;
+                }
                 f2 = labDataOrig.getResultsData().writeResultsConfig(usetmp);
                 try{
                     something_changed = ! CompareTextFiles.compare(f1, f2);
@@ -1806,6 +1835,10 @@ public class MainWindow extends javax.swing.JFrame {
             }
             if(!something_changed){
                 f1 = labDataCurrent.getGoalsData().writeGoalsConfig(usetmp);
+                if(f1 == null){
+                    output("Error in Goals.\n");
+                    return false;
+                }
                 f2 = labDataOrig.getGoalsData().writeGoalsConfig(usetmp);
                 try{
                     something_changed = ! CompareTextFiles.compare(f1, f2);
@@ -1816,6 +1849,10 @@ public class MainWindow extends javax.swing.JFrame {
             }
             if(!something_changed){
                 f1 = labDataCurrent.getParamsData().writeParamsConfig(usetmp);
+                if(f1 == null){
+                    output("Error in Parameters.\n");
+                    return false;
+                }
                 f2 = labDataOrig.getParamsData().writeParamsConfig(usetmp);
                 try{
                     something_changed = ! CompareTextFiles.compare(f1, f2);
@@ -1841,9 +1878,23 @@ public class MainWindow extends javax.swing.JFrame {
             }
         }else{
             labDataCurrent.writeStartConfig(usetmp);
-            labDataCurrent.getResultsData().writeResultsConfig(usetmp);
-            labDataCurrent.getGoalsData().writeGoalsConfig(usetmp);
-            labDataCurrent.getParamsData().writeParamsConfig(usetmp);
+            String fname = labDataCurrent.getResultsData().writeResultsConfig(usetmp);
+            if(fname == null){
+                output("Error in Results, refusing to save.\n");
+                retval = false;
+            }else{
+                fname = labDataCurrent.getGoalsData().writeGoalsConfig(usetmp);
+                if(fname == null){
+                    output("Error in Goals, refusing to save.\n");
+                    retval = false;
+                }else{
+                    fname = labDataCurrent.getParamsData().writeParamsConfig(usetmp);
+                    if(fname == null){
+                        output("Error in Parameters, refusing to save.\n");
+                        retval = false;
+                    }
+                }
+            }
         }
         //System.out.println("Lab Saved (or not)");
         return retval;
@@ -2114,7 +2165,14 @@ public class MainWindow extends javax.swing.JFrame {
             ((NetworkObjPanel)network).getNetworkConfigDialog().dispose();
         }
     }
-    
+    public boolean isLabRunning(){
+        String text = RunningLabel.getText();
+        if(text.contains("Yes")){
+            return true;
+        }else{
+            return false;
+        }
+    } 
     
     //PUBLIC FUNCTIONS (getters,setters, etc)
     

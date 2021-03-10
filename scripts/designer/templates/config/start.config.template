@@ -3,7 +3,6 @@
 #     Establish the names of lab containers and some of their properties, including:
 #       User names
 #       Network connections
-#       trasfer directory
 #       lab master seed
 #
 # Typically, labs consisting of a single container can use the file without modification.
@@ -11,11 +10,13 @@
 
 GLOBAL_SETTINGS
 
-        # HOST_HOME_XFER - directory to transfer artifact to/from containers, relative to the user's HOME
-	HOST_HOME_XFER seed_dir/
-
 	# LAB_MASTER_SEED - this is the master seed string specific to this laboratory
 	LAB_MASTER_SEED this_will_be_replaced
+
+        # Uncomment and change to match your registry (if not labtainers)
+        #REGISTRY your_registry 
+        # Uncomment and change to match the registry of base images (if not labtainers)
+        #BASE_REGISTRY your_registry 
 
         # Uncomment the following to cause the content of the lab/docs directory
         # to be collected and included in the student artifacts.

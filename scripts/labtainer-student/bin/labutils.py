@@ -1530,6 +1530,7 @@ def ContainerTerminals(lab_path, start_config, container, terminal_count, termin
                                 time.sleep(0.2)
                     
         # If the number of terminals is -1 or zero -- do not spawn
+        #print('container terms %s is %d' % (mycontainer_name, num_terminal))
         if not (num_terminal == 0 or num_terminal == -1):
             for x in range(num_terminal):
                 #sys.stderr.write("%d \n" % terminal_count)
@@ -1624,7 +1625,7 @@ def DoTerminals(start_config, lab_path, run_container=None, servers=None, contai
         spawn_command = 'gnome-terminal %s %s' % (terminal_location, tab_commands)
         FNULL = open(os.devnull, 'w')
         result = subprocess.Popen(shlex.split(spawn_command), close_fds=True, stdout=FNULL, stderr=subprocess.STDOUT)
-        logger.debug("gnome spawn: %s" % spawn_command)
+        logger.debug("gnome spawn tg: %s" % spawn_command)
         #os.system(spawn_command)
 
 def GetWaitTapDir():

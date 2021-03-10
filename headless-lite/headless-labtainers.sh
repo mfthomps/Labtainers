@@ -1,11 +1,35 @@
 #!/bin/bash
 function do_up {
-   echo "Open a browser and goto http://localhost:6901/vnc.html?password="
+   echo "When you see two 'done's below, open a browser and goto http://localhost:6901/vnc.html?password="
    echo "No password is needed, just click 'submit' if prompted."
    echo "Use ctrl-C to stop Headless Labtainers."
    docker-compose up >> /tmp/headless.log
    echo "Your results are in ~/headless-labtainers/labtainer_xfer"
 }
+
+function fix_it {
+case "$OSTYPE" in
+  solaris*) echo "SOLARIS" ;;
+  darwin*)  echo "OSX"
+            # To work around a persistent problem on docker for mac, test if docker.sock.raw file exists or not, if not, then add symlink, see issue at https://github.com/docker/for-mac/issues/4755
+
+            if [ ! -L "/var/run/docker.sock.raw" ]; then
+               echo "Fixing Files for OSX"
+               # add link to docker.raw.sock, see issue at https://github.com/docker/for-mac/issues/4755
+               sudo ln -s "$HOME/Library/Containers/com.docker.docker/Data/docker.raw.sock" /var/run/docker.sock.raw
+               # now fix the docker-compose file to use the docker.sock.raw
+               cd ~/headless-labtainers
+               echo "Changes complete for OSX"
+            fi
+            sed -i '' s%/var/run/docker.sock:/var/run/docker.sock%/var/run/docker.sock.raw:/var/run/docker.sock% docker-compose.yml
+            ;;
+  linux*)   echo "LINUX" ;;
+  bsd*)     echo "BSD" ;;
+  msys*)    echo "WINDOWS" ;;
+  *)        echo "unknown: $OSTYPE" ;;
+esac
+}
+
 while [[ -n "$1" ]]; do
     if [[ "$1" == -h ]]; then
         echo "-d to use your local yml file"
@@ -28,6 +52,7 @@ if [[ "$LABTAINER_TEST" == "TRUE" ]];then
 fi
 if [[ -d ./mystuff ]]; then
     echo "Running Headless Labtainers."
+    fix_it
     do_up
 else
     echo "Installing and running Headless Labtainers."
@@ -43,7 +68,7 @@ else
         cp $LABTAINER_DIR/headless-lite/docker-compose.yml .
     elif [[ "$LABTAINER_TEST" == "TRUE" ]];then
         echo "Using labtainer.headless.tester"
-        curl https://raw.githubusercontent.com/mfthomps/Labtainers/premaster/headless-lite/docker-compose.yml > docker-compose.yml 
+        curl https://raw.githubusercontent.com/mfthomps/Labtainers/master/headless-lite/docker-compose.yml > docker-compose.yml 
         sed -i s%labtainers/labtainer.master.headless%testregistry:5000/labtainer.headless.tester% docker-compose.yml
         sed -i s%accetto/ubuntu-vnc-xfce%testregistry:5000/ubuntu-vnc-xfce% docker-compose.yml
         echo "frank@beans.com" > /home/labtainer/headless-labtainers/labtainers/email.txt
@@ -54,8 +79,9 @@ else
         #
         sudo chown root:docker /var/run/docker.sock
     else
-        curl https://raw.githubusercontent.com/mfthomps/Labtainers/premaster/headless-lite/docker-compose.yml > docker-compose.yml 
+        curl https://raw.githubusercontent.com/mfthomps/Labtainers/master/headless-lite/docker-compose.yml > docker-compose.yml 
     fi
+    fix_it
     do_up
     HEADLESS_DIR=`pwd`
     echo "Add $HEADLESS_DIR to your PATH environment variable and run headless-labtainers from there in the future."

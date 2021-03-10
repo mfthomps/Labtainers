@@ -149,11 +149,13 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         fixlocalMenuItem = new javax.swing.JMenuItem();
         treataslocalMenuItem = new javax.swing.JMenuItem();
         openShellMenu = new javax.swing.JMenuItem();
+        precheckMenuItem = new javax.swing.JMenuItem();
         ContainerRightClick = new javax.swing.JPopupMenu();
         editMenu = new javax.swing.JMenu();
         editDockerMenuItem1 = new javax.swing.JMenuItem();
         fixlocalMenuItem1 = new javax.swing.JMenuItem();
         treataslocalMenuItem1 = new javax.swing.JMenuItem();
+        precheckMenuItem1 = new javax.swing.JMenuItem();
         openShellMenuItem = new javax.swing.JMenuItem();
         renameContainerOption = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
@@ -614,6 +616,14 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         });
         editMenuBar.add(openShellMenu);
 
+        precheckMenuItem.setText("precheck");
+        precheckMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                precheckMenuItemActionPerformed(evt);
+            }
+        });
+        editMenuBar.add(precheckMenuItem);
+
         jMenuBar1.add(editMenuBar);
 
         ContainerConfigWindow.setJMenuBar(jMenuBar1);
@@ -668,6 +678,14 @@ public class ContainerObjPanel extends javax.swing.JPanel {
             }
         });
         editMenu.add(treataslocalMenuItem1);
+
+        precheckMenuItem1.setText("precheck");
+        precheckMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                precheckMenuItem1ActionPerformed(evt);
+            }
+        });
+        editMenu.add(precheckMenuItem1);
 
         ContainerRightClick.add(editMenu);
 
@@ -826,6 +844,14 @@ public class ContainerObjPanel extends javax.swing.JPanel {
     private void PasswordTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PasswordTFActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_PasswordTFActionPerformed
+
+    private void precheckMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_precheckMenuItem1ActionPerformed
+        editBin("precheck.sh");
+    }//GEN-LAST:event_precheckMenuItem1ActionPerformed
+
+    private void precheckMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_precheckMenuItemActionPerformed
+        editBin("precheck.sh");
+    }//GEN-LAST:event_precheckMenuItemActionPerformed
     
     // BUTTONS/HANDLERS //
     
@@ -1295,6 +1321,8 @@ public class ContainerObjPanel extends javax.swing.JPanel {
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JMenuItem openShellMenu;
     private javax.swing.JMenuItem openShellMenuItem;
+    private javax.swing.JMenuItem precheckMenuItem;
+    private javax.swing.JMenuItem precheckMenuItem1;
     private javax.swing.JMenuItem renameContainerOption;
     private javax.swing.JMenuItem treataslocalMenuItem;
     private javax.swing.JMenuItem treataslocalMenuItem1;

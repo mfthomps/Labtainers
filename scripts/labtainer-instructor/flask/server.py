@@ -112,6 +112,9 @@ def grades():
     goals_list = getGoalsList()
     with open(grade_json) as fh:
         grade_dict = json.load(fh)
+        if len(grade_dict) == 0:
+            error = 'No results for lab %s' % lab
+            return render_template('error.html', error=error)
         first_key = list(grade_dict.keys())[0]
         has_goals = False
         for goal in grade_dict[first_key]['grades']:
@@ -765,10 +768,11 @@ def getResultValue(student_id, result_id):
     student_dir = os.path.join(lab_dir, student_id)
     student_inter_dir = os.path.join(student_dir, '.local','result')
     result_json_file = os.path.join(student_inter_dir, lab)
-    with open(result_json_file) as fh:
-        results = json.load(fh)
-    if result_id in results:
-        retval = results[result_id]
+    if os.path.isfile(result_json_file):
+        with open(result_json_file) as fh:
+            results = json.load(fh)
+        if result_id in results:
+            retval = results[result_id]
     return retval
            
 

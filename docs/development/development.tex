@@ -295,8 +295,10 @@ branches are tested and merged into the master git branch.
 \subsection{Build artifacts}
 Labtainers development creates the following artifacts:
 \begin{itemize}
-\item The distribution tar file for students
-\item A distribution tar file for lab designers (which is a superset of that for students).
+\item The distribution tar file for students, available as an artifact on GitHub
+\item A distribution tar file for lab designers.  This is simply the master tar file from GitHub.
+\item A zip file of all the lab manuals, available as an artifact on GitHub.
+\item A JAR file for the labedit UI, available as an artifact on GitHub.
 \item A test script tar distribution containing SimLab scripts. (These come from a separately managed repo.)
 \item The Docker container images for each lab.
 \item The Docker container image for the grader.
@@ -307,10 +309,11 @@ a Docker registry using the publish.py script, which includes file dependency lo
 of their sources change.  By default, the publish.py script pushes to a local registry rather than to the DockerHub.  
 Updated images are pushed to the DockerHub as part of publishing a new revision of Labtainers.
 
-Currently, there is no attempt to archive artifacts, i.e., only the latest versions are available on publishing sites.
+Currently, there is no attempt to archive Docker image artifacts, i.e., only the latest versions are available on publishing sites.
+Code artifacts are managed within GitHub.
 
 \subsubsection{Build steps}
-The following steps must be performed for each build to ensure distributions are based on the latest file versions.
+The following steps must be performed for each build to ensure testing is based on the latest file versions.
 These steps are implemented with in the {\tt full\_build.sh} script.
 \begin{enumerate}
 \item Pull the latest git version of the current branch with {\tt git pull}
@@ -358,6 +361,16 @@ LABEL version=$version
 A Labtainers \textit{release} contains the set of artifacts described above.  File versions within the tar files
 of a release are all pulled from the git \textit{master} git branch on the development system.  Docker container images within a release are built from a 
 \textit{premaster} git branch as described below, and then pushed to DockerHub via the {\tt refresh\_mirror.py} script.
+
+New releases are created as follows:
+\begin{itemize}
+\item The premaster branch is tested using {\tt full\_build.sh} to ensure container images reflect the latest code, and Jenkins builds which
+ensure the premaster in github runs all regression tests.
+\item Merge premaster into master.  Do this manually (ignore automated scripts in distrib directory), and fix any merge conflicts.
+\item Use {\tt refresh\_mirror.py} to push premaster registry images to Docker Hub.
+\item Determine the next git tag to use for the version ID, and pass that to {\tt justrelease.sh} (be sure to first activate an
+ssh agent and get the github personal access token.
+\end{itemize}
 
 \subsubsection{The premaster branch}
 Labtainers source control management includes a \textit{premaster} branch which shall always be on the workflow of 
@@ -587,6 +600,9 @@ This device will go away on a reboot.
 Add latex template and makefile when new\_lab\_setup is run.
 
 Collect bash history from all users.
+
+Clean up the webtrack lab  manual to clarify steps, and to clarify no login to the labadserver site 
+is necessary.
 
 \subsubsection{Docker problems}
 The check\_nets.py tests for problems that sometimes crop up in Docker.  These include Linux routes defined

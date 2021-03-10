@@ -76,6 +76,14 @@ public class Status implements Runnable {
       stat.label.setText(stat.message+" No");
       this.status_info.add(stat);
    }
+   public void changeLook(javax.swing.JLabel label, String look_for){
+       for(StatusInfo stat : this.status_info){
+           if(stat.label == label){
+               stat.look_for = look_for;
+               break;
+           }
+       }
+   }
    
    public void run() {
       Set<String> running_set;

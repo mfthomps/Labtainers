@@ -52,7 +52,6 @@ class ParseStartConfig():
         self.subnets    = {} # dictionary of subnets 
         self.labname = labname
         self.caller = 'student'
-        self.host_home_xfer= "" # HOST_HOME_XFER - directory to transfer artifact to/from containers
         self.lab_master_seed= None # LAB_MASTER_SEED - this is the master seed string for to this laboratory
         self.grade_container = None # Deprecated
         self.registry = None # Registry used for this lab, defaults to LabtainerConfig default_registry
@@ -257,6 +256,9 @@ class ParseStartConfig():
                     active.mounts.append(val)
                 elif hasattr(active, key):
                     setattr(active, key, val) 
+                elif key == 'host_home_xfer':
+                    ''' deprecated '''
+                    pass
                 else:
                     try:
                         active.add_net(key,val)
@@ -280,10 +282,6 @@ class ParseStartConfig():
                 self.logger.error("Unexpected collect_docs value in ParseStartConfig module : %s\n" % self.collect_docs)
                 exit(1)
         
-        if not self.host_home_xfer:
-            self.logger.error("Missing host_home_xfer in start.config!\n")
-            exit(1)
-        
         if not self.lab_master_seed:
            self.logger.error("Missing lab_master_seed in start.config!\n")
            exit(1)
@@ -301,7 +299,6 @@ class ParseStartConfig():
         """Combines info provided by user with what we already know about the
            lab to get the final settings we want."""
         # fixing up global parameters
-        self.host_home_xfer = os.path.join(self.host_home_xfer,self.labname)
         self.lab_master_seed = self.labname + self.lab_master_seed
 
         ''' fix macvlan networks, assign use_macvan value based on whether ...'''

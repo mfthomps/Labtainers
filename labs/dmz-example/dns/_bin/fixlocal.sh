@@ -7,10 +7,14 @@
 #  not not permit nopassword, then use:
 #  echo $1 | sudo -S the-command
 #
-sudo sed -i '/directory/a  dump-file "/var/cache/bind/dump.db";\nforwarders {\n198.18.1.2;\n};\nquery-source port 33333;' /etc/bind/named.conf.options
+#
+sudo apt-get purge -y dnsmasq
+sudo sed -i '/directory/a  dump-file "/var/cache/bind/dump.db";\nforwarders {\n198.18.1.2;\n};\nquery-source port 33333;\nallow-query {any;};' /etc/bind/named.conf.options
+sudo sed -i 's/dnssec-validation auto;/dnssec-enable no;\ndnssec-validation no;/' /etc/bind/named.conf.options
 # define example.com
 echo "include \"/etc/bind/example.conf\";" | sudo tee -a /etc/bind/named.conf.local
 sudo chown bind:bind /var/cache/bind/*
+
 echo "check alive" >> /tmp/fixlocal.output
 ~/.local/bin/alive.sh 198.18.1.2
 echo "back and alive" >> /tmp/fixlocal.output

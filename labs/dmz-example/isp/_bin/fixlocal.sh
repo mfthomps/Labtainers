@@ -7,8 +7,5 @@
 #  not not permit nopassword, then use:
 #  echo $1 | sudo -S the-command
 #
-lan1=$(ifconfig | grep -B1 "inet addr:198.18.0.1" | awk '$1!="inet" && $1!="--" {print $1}')
-wan=$(ifconfig | grep -B1 "inet addr:10.10.0.1" | awk '$1!="inet" && $1!="--" {print $1}')
-sudo iptables --table nat -I POSTROUTING 1 --out-interface $wan -j MASQUERADE
-sudo iptables --append FORWARD --in-interface $lan1 -j ACCEPT
-
+sudo systemctl enable dnsmasq
+sudo systemctl start dnsmasq
