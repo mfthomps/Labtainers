@@ -385,6 +385,16 @@ public class LabData {
         return global_settings_params;
     }
     
+    public String getGlobalValue(String tag){
+        String retval = null;
+        for(String line : global_settings_params){
+             if(line.trim().startsWith(tag)){
+                 retval = line.trim().split(" ")[1];
+                 break;
+             }
+        }
+        return retval;
+    } 
     public ResultsData getResultsData(){
         return resultsData;
     }
@@ -429,6 +439,21 @@ public class LabData {
     public void resetNetworks(){
         listOfNetworks = new ArrayList<NetworkData>();
     }
+    public void setGlobalValue(String tag, String value){
+        boolean gotit = false;
+        int index = 0;
+        for(String line : global_settings_params){
+             if(line.trim().startsWith(tag)){
+                 global_settings_params.set(index,   tag+" "+value);
+                 gotit = true;
+             }
+             index++;
+        }
+        if(!gotit){
+            String entry = tag+" "+value;
+            global_settings_params.add(entry);
+        }
+    } 
     
     
     // DATA MANIPULATION //
