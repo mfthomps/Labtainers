@@ -185,10 +185,11 @@ public class GoalsUI extends javax.swing.JFrame {
     }//GEN-LAST:event_RemoveAllButtonActionPerformed
     
     private void UpdateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UpdateButtonActionPerformed
-        updateButton();
-        mainUI.setGoalsClosed();
-        setVisible(false);
-        dispose(); 
+        if(updateButton()){
+            mainUI.setGoalsClosed();
+            setVisible(false);
+            dispose(); 
+        }
     }//GEN-LAST:event_UpdateButtonActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
@@ -213,10 +214,17 @@ public class GoalsUI extends javax.swing.JFrame {
         }          
     }
     
-    private void updateButton(){
+    private boolean updateButton(){
+        boolean retval = true;
         data.updateListofGoals(PanelofGoals);
         saved = new GoalsData(data);
-        this.mainUI.getCurrentData().setGoalsData(saved);
+        String fname = saved.writeGoalsConfig(true);
+        if(fname == null){
+            retval = false;
+        }else{
+            this.mainUI.getCurrentData().setGoalsData(saved);
+        }
+        return retval;
     }
 
     public void updateParameters(){
