@@ -1401,10 +1401,7 @@ public class MainWindow extends javax.swing.JFrame {
         String parent = labtainer_path.getParentFile().getPath();
         System.out.println("parent is "+parent);
         File simlab_dir = new File(parent+File.separator+"simlab"+File.separator+this.labName);
-        try{
-            simlab_dir.mkdir();
-        }catch(Exception ex){
-        }
+        simlab_dir.mkdirs();
         String cmd = "gnome-terminal --working-directory="+simlab_dir;
         System.out.println("cmd: "+cmd);
         doCommand(cmd);
@@ -2232,6 +2229,8 @@ public class MainWindow extends javax.swing.JFrame {
     }
     public void outputClear(){
         OutputTextArea.setText("");
+        OutputTextArea.setCaretPosition(OutputTextArea.getDocument().getLength());
+
     } 
     public void output(String line){
         OutputTextArea.append(line);
@@ -2371,7 +2370,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JButton paramsButton;
     private javax.swing.JMenuItem readfirstMenu;
     // End of variables declaration//GEN-END:variables
-
+    
     private static class StreamGobbler implements Runnable {
         private InputStream inputStream;
         private Consumer<String> consumer;
@@ -2387,4 +2386,5 @@ public class MainWindow extends javax.swing.JFrame {
               .forEach(consumer);
         }
     }
+
 }
