@@ -249,6 +249,7 @@ public class MainWindow extends javax.swing.JFrame {
         LabDocumentsMenuItem = new javax.swing.JMenuItem();
         readfirstMenu = new javax.swing.JMenuItem();
         SimlabDirectivesMenuItem = new javax.swing.JMenuItem();
+        configMenuItem = new javax.swing.JMenuItem();
         HelpMenu = new javax.swing.JMenu();
         DesignerMenuItem = new javax.swing.JMenuItem();
         StudentMenuItem = new javax.swing.JMenuItem();
@@ -983,6 +984,14 @@ public class MainWindow extends javax.swing.JFrame {
         });
         EditMenu.add(SimlabDirectivesMenuItem);
 
+        configMenuItem.setText("Config (registry)");
+        configMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                configMenuItemActionPerformed(evt);
+            }
+        });
+        EditMenu.add(configMenuItem);
+
         MainMenuBar.add(EditMenu);
 
         HelpMenu.setText("Help");
@@ -1454,6 +1463,23 @@ public class MainWindow extends javax.swing.JFrame {
         String cmd = "labtainer -q "+this.labName;
         doStudentCommand(cmd);
     }//GEN-LAST:event_RunLabMenuActionPerformed
+
+    private void configMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_configMenuItemActionPerformed
+        LabPanel panel = new LabPanel();
+
+        //panel.setVisible(true);
+        JDialog dialog = new JDialog();
+        panel.setDialog(dialog);
+        panel.setData(this.labDataCurrent);
+        //dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setModal(true);
+        dialog.add(panel);
+        dialog.pack();
+        dialog.setLocation(200, 200);
+        dialog.setTitle("Lab configuration");
+        dialog.setVisible(true);
+        dialog.dispose();
+    }//GEN-LAST:event_configMenuItemActionPerformed
 
     
     //BUTTON FUNCTIONS//
@@ -2229,12 +2255,12 @@ public class MainWindow extends javax.swing.JFrame {
     }
     public void outputClear(){
         OutputTextArea.setText("");
-        OutputTextArea.setCaretPosition(OutputTextArea.getDocument().getLength());
 
     } 
     public void output(String line){
         OutputTextArea.append(line);
         OutputTextArea.requestFocus();
+        OutputTextArea.setCaretPosition(OutputTextArea.getDocument().getLength());
     }
     public String getTextEditor(){
         return prefProperties.getProperty("textEditor")+" ";
@@ -2349,6 +2375,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JButton addNetworkButton;
     private javax.swing.JMenuItem buildMenuItem;
     private javax.swing.JMenuItem checkWorkMenuItem;
+    private javax.swing.JMenuItem configMenuItem;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;

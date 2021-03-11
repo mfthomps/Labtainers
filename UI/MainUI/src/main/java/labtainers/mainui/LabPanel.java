@@ -29,25 +29,19 @@ POSSIBILITY OF SUCH DAMAGE.
 */
 
 package labtainers.mainui;
-import java.util.Properties;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.io.FileReader;
-import java.io.File;
-import java.io.FileOutputStream;
 
 /**
  *
  * @author mike
  */
-public class PreferencesPanel extends javax.swing.JPanel {
+public class LabPanel extends javax.swing.JPanel {
     javax.swing.JDialog dialog;
-    private File iniFile=null;
-    private Properties prefProperties = null;
+    LabData labData = null;
+
     /**
-     * Creates new form PreferencesPanel
+     * Creates new form LabPanel
      */
-    public PreferencesPanel() {
+    public LabPanel() {
         initComponents();
     }
 
@@ -60,18 +54,12 @@ public class PreferencesPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
-        editorTextField = new javax.swing.JTextField();
-        labtainersPathTextField = new javax.swing.JTextField();
+        registryTextField = new javax.swing.JTextField();
         OKButton = new javax.swing.JButton();
         CancelButton = new javax.swing.JButton();
-        registryTextField = new javax.swing.JTextField();
+        jLabel1 = new javax.swing.JLabel();
 
-        jLabel1.setText("Preferences");
-
-        editorTextField.setBorder(javax.swing.BorderFactory.createTitledBorder("Text editor"));
-
-        labtainersPathTextField.setBorder(javax.swing.BorderFactory.createTitledBorder("LABTAINERS_DIR path"));
+        registryTextField.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Registry", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 14))); // NOI18N
 
         OKButton.setText("OK");
         OKButton.addActionListener(new java.awt.event.ActionListener() {
@@ -87,7 +75,7 @@ public class PreferencesPanel extends javax.swing.JPanel {
             }
         });
 
-        registryTextField.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Registry", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 14))); // NOI18N
+        jLabel1.setText("Lab properties");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -96,39 +84,40 @@ public class PreferencesPanel extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(241, 241, 241)
+                        .addGap(128, 128, 128)
+                        .addComponent(OKButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(CancelButton))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(147, 147, 147)
                         .addComponent(jLabel1))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(73, 73, 73)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(labtainersPathTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 483, Short.MAX_VALUE)
-                            .addComponent(editorTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 472, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(registryTextField)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(157, 157, 157)
-                        .addComponent(OKButton)
-                        .addGap(64, 64, 64)
-                        .addComponent(CancelButton)))
-                .addContainerGap(58, Short.MAX_VALUE))
+                        .addGap(21, 21, 21)
+                        .addComponent(registryTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 357, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(22, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel1)
-                .addGap(39, 39, 39)
-                .addComponent(editorTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(labtainersPathTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(registryTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 53, Short.MAX_VALUE)
-                .addGap(18, 18, 18)
+                .addGap(51, 51, 51)
+                .addComponent(registryTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 59, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(OKButton)
                     .addComponent(CancelButton))
-                .addGap(41, 41, 41))
+                .addGap(62, 62, 62))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void OKButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_OKButtonActionPerformed
+        String registry = registryTextField.getText().trim();
+        if(registry.length() > 0){
+            this.labData.setGlobalValue("REGISTRY", registry);
+        }
+        this.dialog.setVisible(false);
+    }//GEN-LAST:event_OKButtonActionPerformed
 
     private void CancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CancelButtonActionPerformed
         this.dialog.setVisible(false);
@@ -136,48 +125,19 @@ public class PreferencesPanel extends javax.swing.JPanel {
     public void setDialog(javax.swing.JDialog dialog){
         this.dialog = dialog;
     }
+    public void setData(LabData labData){
+        this.labData = labData;
+        String registry = labData.getGlobalValue("REGISTRY");
+        if(registry != null){
+            this.registryTextField.setText(registry);
+        }
+    }
 
-    private void OKButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_OKButtonActionPerformed
-         savePrefs();
-        this.dialog.setVisible(false);
-    }//GEN-LAST:event_OKButtonActionPerformed
-    void setPrefs(File iniFile, Properties prefProperties){
-        this.iniFile = iniFile;
-        this.prefProperties = prefProperties;
-        String textEditorPref = prefProperties.getProperty("textEditor");
-        String labtainerPath = prefProperties.getProperty("labtainerPath");
-        System.out.println("labtainerPath "+labtainerPath);
-        this.editorTextField.setText(textEditorPref);
-        this.labtainersPathTextField.setText(labtainerPath);
-    }
-    void savePrefs(){
-        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-        prefProperties.put("textEditor", this.editorTextField.getText());
-        String path = this.labtainersPathTextField.getText();
-        if(new File(path).isDirectory()){
-            prefProperties.put("labtainerPath", this.labtainersPathTextField.getText());
-        }else{
-            System.out.println("Error path does not exist, ignored: "+path);
-        }
-        // write update to the ini File
-        Date date = new Date();
-        try{
-            FileOutputStream out = new FileOutputStream(this.iniFile);
-            prefProperties.store(out, "Updated: "+ formatter.format(date));
-            out.close();
-        }catch(java.io.FileNotFoundException ex){
-            System.out.println(ex);
-        }catch(java.io.IOException ex){
-            System.out.println(ex);
-        }
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton CancelButton;
     private javax.swing.JButton OKButton;
-    private javax.swing.JTextField editorTextField;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JTextField labtainersPathTextField;
     private javax.swing.JTextField registryTextField;
     // End of variables declaration//GEN-END:variables
 }
