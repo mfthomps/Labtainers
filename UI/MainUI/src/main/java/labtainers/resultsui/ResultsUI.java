@@ -210,10 +210,11 @@ public class ResultsUI extends javax.swing.JFrame {
     }//GEN-LAST:event_RemoveAllButtonActionPerformed
 
     private void UpdateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UpdateButtonActionPerformed
-        updateButon();
-        mainUI.setResultsClosed();
-        setVisible(false);
-        dispose(); 
+        if(updateButon()){
+            mainUI.setResultsClosed();
+            setVisible(false);
+            dispose(); 
+        }
     }//GEN-LAST:event_UpdateButtonActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
@@ -234,10 +235,17 @@ public class ResultsUI extends javax.swing.JFrame {
     }
     
     // Updates the results data object basd on the current results configuration UI state
-    private void updateButon(){
+    private boolean updateButon(){
+        boolean retval = true;
         data.updateListofArtifacts(PanelofArtifacts);
         saved = new ResultsData(data);
-        this.mainUI.getCurrentData().setResultsData(saved);
+        String fname = saved.writeResultsConfig(true);
+        if(fname == null){
+            retval = false;
+        }else{ 
+            this.mainUI.getCurrentData().setResultsData(saved);
+        }
+        return retval;
     }
     
     // Removes all the artifact panels
