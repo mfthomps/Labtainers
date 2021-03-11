@@ -5,7 +5,7 @@ the Labtainer VM Appliance.
 
 # Quick Start 
 Execute the ./headless-labtainers.sh script.  Or download from 
-   https://raw.githubusercontent.com/mfthomps/Labtainers/premaster/headless-lite/headless-labtainers.sh 
+   https://raw.githubusercontent.com/mfthomps/Labtainers/master/headless-lite/headless-labtainers.sh 
 and make executable and then run.
 On a Mac, this would be done from a terminal.  On Windows, use Powershell.
 
