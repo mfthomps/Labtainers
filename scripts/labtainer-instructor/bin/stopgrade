@@ -17,3 +17,4 @@ if has_running_containers:
         if container.endswith('-igrader'):
             cmd = 'docker stop %s' % container
             os.system(cmd)
+            print("Grader has stopped.")

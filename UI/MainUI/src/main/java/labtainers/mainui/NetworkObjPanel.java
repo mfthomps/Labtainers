@@ -99,8 +99,10 @@ public class NetworkObjPanel extends javax.swing.JPanel {
         jLabel5.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel5.setText("MACVLAN:");
 
+        NetworkConfigMaskTextfield.setFont(new java.awt.Font("Ubuntu", 0, 18)); // NOI18N
         NetworkConfigMaskTextfield.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Subnet", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 14))); // NOI18N
 
+        NetworkConfigGatewayTextField.setFont(new java.awt.Font("Ubuntu", 0, 18)); // NOI18N
         NetworkConfigGatewayTextField.setToolTipText("IP used as the default gateway on containers connected to this network.  Used to communicate with the host computer and the outside world.  This should not be the IP address of any of the containers.");
         NetworkConfigGatewayTextField.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "External gateway", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 14))); // NOI18N
 
@@ -118,9 +120,9 @@ public class NetworkObjPanel extends javax.swing.JPanel {
             }
         });
 
-        NetworkConfigMacVLanExtSpinner.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        NetworkConfigMacVLanExtSpinner.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
 
-        NetworkConfigMacVLanSpinner.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        NetworkConfigMacVLanSpinner.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
 
         TapRadioButton.setFont(new java.awt.Font("Ubuntu", 1, 15)); // NOI18N
         TapRadioButton.setText("TAP");
@@ -231,7 +233,7 @@ public class NetworkObjPanel extends javax.swing.JPanel {
         NetworkLabelName.setText("network_name");
         add(NetworkLabelName);
 
-        NetworkMaskLabel.setFont(new java.awt.Font("Ubuntu", 0, 15)); // NOI18N
+        NetworkMaskLabel.setFont(new java.awt.Font("Ubuntu", 0, 18)); // NOI18N
         NetworkMaskLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         NetworkMaskLabel.setText("000.00.0.000/00");
         add(NetworkMaskLabel);

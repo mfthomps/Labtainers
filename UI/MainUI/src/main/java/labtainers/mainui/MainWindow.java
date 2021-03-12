@@ -609,8 +609,10 @@ public class MainWindow extends javax.swing.JFrame {
         LabnameLabel.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         LabnameLabel.setText("Lab:");
 
+        RunningLabel.setFont(new java.awt.Font("Ubuntu", 0, 18)); // NOI18N
         RunningLabel.setText("Running: ");
 
+        GraderRunning.setFont(new java.awt.Font("Ubuntu", 0, 18)); // NOI18N
         GraderRunning.setText("gradelab");
 
         javax.swing.GroupLayout HeaderLayout = new javax.swing.GroupLayout(Header);
@@ -810,6 +812,7 @@ public class MainWindow extends javax.swing.JFrame {
         );
 
         OutputTextArea.setColumns(20);
+        OutputTextArea.setFont(new java.awt.Font("Ubuntu", 0, 16)); // NOI18N
         OutputTextArea.setRows(5);
         jScrollPane1.setViewportView(OutputTextArea);
 

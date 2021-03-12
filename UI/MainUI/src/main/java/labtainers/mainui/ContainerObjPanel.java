@@ -174,11 +174,11 @@ public class ContainerObjPanel extends javax.swing.JPanel {
 
         containerTabPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        UserTF.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        UserTF.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         UserTF.setText("ubuntu");
         UserTF.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "User name", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 14))); // NOI18N
 
-        PasswordTF.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        PasswordTF.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         PasswordTF.setToolTipText("Defaults to user name.");
         PasswordTF.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Password", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 14))); // NOI18N
         PasswordTF.addActionListener(new java.awt.event.ActionListener() {
@@ -194,6 +194,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         TerminalGroupTextfield.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         TerminalGroupTextfield.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Terminal group", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 14))); // NOI18N
 
+        LabGatewayTextfield.setFont(new java.awt.Font("Ubuntu", 0, 18)); // NOI18N
         LabGatewayTextfield.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Lab Gateway", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 14))); // NOI18N
 
         NoGWCheckbox.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
