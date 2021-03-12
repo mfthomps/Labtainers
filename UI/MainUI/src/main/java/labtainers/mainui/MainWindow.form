@@ -965,11 +965,17 @@
         </Component>
         <Component class="javax.swing.JLabel" name="RunningLabel">
           <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Ubuntu" size="18" style="0"/>
+            </Property>
             <Property name="text" type="java.lang.String" value="Running: "/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="GraderRunning">
           <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Ubuntu" size="18" style="0"/>
+            </Property>
             <Property name="text" type="java.lang.String" value="gradelab"/>
           </Properties>
         </Component>
@@ -1283,6 +1289,9 @@
         <Component class="javax.swing.JTextArea" name="OutputTextArea">
           <Properties>
             <Property name="columns" type="int" value="20"/>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Ubuntu" size="16" style="0"/>
+            </Property>
             <Property name="rows" type="int" value="5"/>
           </Properties>
         </Component>
