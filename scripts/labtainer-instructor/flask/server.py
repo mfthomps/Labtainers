@@ -808,6 +808,18 @@ def goals_config():
 def home():
     manual = '%s.pdf' % lab
     path = os.path.join('lab_doc', manual)
+    lab_doc_path = os.path.join(os.path.dirname(__file__), 'static', 'lab_doc')
+    test_path = os.path.join(lab_doc_path, manual)
+    print('test_path %s' % test_path)
+    if not os.path.isfile(test_path):
+        print(' no file')
+        g = glob.glob(lab_doc_path+"/*.pdf")
+        if len(g)>0:
+            manual = os.path.basename(g[0])
+            path = os.path.join('lab_doc', manual)
+            print('use this path: %s' % path)
+
+
     lab_manual = url_for('static', filename=path)
     return render_template('home.html', lab=lab, grades=url_for('grades'), lab_manual=lab_manual)
 
