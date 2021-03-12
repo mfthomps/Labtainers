@@ -22,9 +22,9 @@ The Labtainers website, and downloads (including VM appliances with Labtainers p
 [designer-guide]: docs/labdesigner/labdesigner.pdf
 [Papers]: https://nps.edu/web/c3o/labtainers#papers
 
-Distribution created: 03/05/2021 01:00 </br>
-Previous revision: v1.3.4e </br>
-Commit: bece88ba </br>
+Distribution created: 03/11/2021 01:00 </br>
+Previous revision: v1.3.4m </br>
+Commit: 7d3fadcf </br>
 Branch: premaster </br>
 
 ## Content
@@ -88,6 +88,9 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+
+March 11, 2021
+- labedit UI add registry setting in new global lab configuration panel.
 
 March 10, 2021
 - labedit UI fixes to not build if syntax error in lab
