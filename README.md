@@ -89,6 +89,11 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+March 12, 2021
+- labedit UI: Remove old wireshark image from list of base images.
+- labedit UI: Increase some font sizes.
+- grader web interface failed to display lab manuals if the manual name does not follow naming conventions.
+
 March 11, 2021
 - labedit UI add registry setting in new global lab configuration panel.
 
