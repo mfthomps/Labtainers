@@ -2019,7 +2019,7 @@ public class MainWindow extends javax.swing.JFrame {
     private void getBaseImageDockerfiles(){
         /* See the base.list in resources for the bases to appear first.  Then skip this
            list below because they are obsolete. */
-        Set<String> OBE = Set.of("base", "network", "centos6", "centos", "network.ssh"); 
+        Set<String> OBE = Set.of("base", "network", "centos6", "centos", "network.ssh", "wireshark"); 
 
         ArrayList<String> baseList = new ArrayList<String>();
         InputStream inputStream = brokenJavaNaming("base.list");
