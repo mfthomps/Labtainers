@@ -140,7 +140,10 @@ def InstDocsToHostDir(labname, labtainer_config, lab_path):
 
         # remove and re-create temporary directory for the students' zip file
         shutil.rmtree(tmpdir, ignore_errors=True)
-        os.makedirs(tmpdir)
+        try:
+            os.makedirs(tmpdir)
+        except:
+            pass
 
     # Finally done for all students' zip file in the host_home_xfer directory
     # Final removal of temporary directory
