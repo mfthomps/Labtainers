@@ -226,6 +226,7 @@ they do on the VM.  This can be achieved by defining a shared folder for use by 
 \begin{itemize}
 \item Pick a directory on your host that you will share with the VM. Somewhere within that directory create a
 {\tt labtainer\_xfer} subdirectory.
+\item Make that directory accessible by anyone on your host machine.  
 \item Define a shared folder for your guest VM, e.g., on VirtualBox, use Machine / Settings / Shared folders, map it
 to your selected directory.  
 \item On VirtualBox, ensure your user ID is within the vboxsf group, and reboot.
@@ -291,4 +292,25 @@ In addition to the assessment summary, any student lab reports will be available
 \end{verbatim}
 \noindent Those reports will include any that the student separately uploaded into Sakai (it is 
 important to remind students to NOT change the name of lab report documents.)
+
+\subsection{Moodle}
+See the Moodle user guide at 
+\newline
+\url{https://moodleuserguides.org/guides/bulk-download-assignment-submissions/}
+for information on getting a bulk download, but DO NOT unzip the file.  Copy the resulting zip into the lab transfer directory 
+on the Linux host, i.e.,
+\begin{verbatim}
+    ~/labtainer_xfer/<labname>
+\end{verbatim}
+\noindent Do not unzip the file and do not change its file name.
+You can then run the {\tt gradelab <labname>} command from the {\tt labtainer-instructor} directory.
+In addition to the assessment summary, any student lab reports will be available in:
+\begin{verbatim}
+   ~/labtainer_xfer/<labname>/reports/<student name> 
+\end{verbatim}
+\noindent Those reports will include any that the student separately uploaded into Moodle (it is 
+important to remind students to NOT change the name of lab report documents.)
+
+\subsection{Other LMS}
+Send me a sample of the bulk download file from other LMS systems and we'll roll it into a future Labtainers release. (mfthomps at nps.edu)
 \end{document}

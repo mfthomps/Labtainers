@@ -62,6 +62,10 @@ def CopyStudentArtifacts(labtainer_config, container_name, labname, regress_test
     for fname in zip_filelist:
         logger.debug("name is %s" % fname)
         base_fname = os.path.basename(fname)
+        if saki.isMoodle(fname):
+            continue
+        if base_fname.startswith('bulk_download'):
+            continue
         # check for Moodle fu 
         if 'assignsubmission_file_' in base_fname:
             new_fname = base_fname.split('assignsubmission_file_')[1]
