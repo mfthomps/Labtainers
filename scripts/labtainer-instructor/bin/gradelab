@@ -62,8 +62,13 @@ def CopyStudentArtifacts(labtainer_config, container_name, labname, regress_test
     for fname in zip_filelist:
         logger.debug("name is %s" % fname)
         base_fname = os.path.basename(fname)
+        # check for Moodle fu 
+        if 'assignsubmission_file_' in base_fname:
+            new_fname = base_fname.split('assignsubmission_file_')[1]
+        else:
+            new_fname = base_fname
         # Copy zip file 
-        command = 'docker cp "%s" %s:/home/instructor/' % (fname, container_name)
+        command = 'docker cp "%s" %s:/home/instructor/%s' % (fname, container_name, new_fname)
         logger.debug("Command to execute is (%s)" % command)
         result = subprocess.call(shlex.split(command))
         logger.debug("Result of subprocess.call CopyStudentArtifacts copy zipfile (%s) is %s (1=>FAILURE)" % (fname, result))
@@ -71,9 +76,9 @@ def CopyStudentArtifacts(labtainer_config, container_name, labname, regress_test
             logger.error("Failed to copy student artifacts into container %s!\n" % container_name)
             sys.exit(1)
         
-        cmd = 'docker exec %s chown instructor:instructor "/home/instructor/%s"' % (container_name, base_fname)
+        cmd = 'docker exec %s chown instructor:instructor "/home/instructor/%s"' % (container_name, new_fname)
         if not labutils.DockerCmd(cmd):
-            logger.error('chown of zip failed %s' % base_fname)
+            logger.error('chown of zip failed %s' % new_fname)
 
 def InstDocsToHostDir(labname, labtainer_config, lab_path):
     xfer_dir = os.path.join(labtainer_config.host_home_xfer, labname)

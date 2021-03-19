@@ -92,6 +92,7 @@ first time.
 March 19, 2021
 - gradelab ignore makdirs error, problem with Windows rmtree on shared folders.
 - gradelab handle spaces in student zip file names.
+- gradelab handle zip file names from Moodle
 
 March 12, 2021
 - labedit UI: Remove old wireshark image from list of base images.
