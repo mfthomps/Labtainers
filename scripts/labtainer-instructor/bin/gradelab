@@ -71,7 +71,7 @@ def CopyStudentArtifacts(labtainer_config, container_name, labname, regress_test
             logger.error("Failed to copy student artifacts into container %s!\n" % container_name)
             sys.exit(1)
         
-        cmd = "docker exec %s chown instructor:instructor /home/instructor/%s" % (container_name, base_fname)
+        cmd = 'docker exec %s chown instructor:instructor "/home/instructor/%s"' % (container_name, base_fname)
         if not labutils.DockerCmd(cmd):
             logger.error('chown of zip failed %s' % base_fname)
 
