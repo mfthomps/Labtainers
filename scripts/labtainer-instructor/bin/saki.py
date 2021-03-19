@@ -33,8 +33,13 @@ def reportSum(zip_fname, xfer, expect_lab):
     with zipfile.ZipFile(zip_fname) as zip_file:
         for member_info in zip_file.infolist():
             member = member_info.filename
-            parts = member.split('/')
-            student = parts[1].strip()
+            if 'assignsubmission_file_' in member:
+                parts = member.split('assignsubmission_file_')
+                sfile = parts[1]
+                student = sfile.rsplit('.', 2)[0]
+            else:
+                parts = member.split('/')
+                student = parts[1].strip()
             if student not in student_list:
                 student_list.append(student)
     sum_fh.write('%-50s %-10s %-10s\n' % ('STUDENT', 'ZIP',  'REPORT'))
@@ -72,6 +77,14 @@ def reportSum(zip_fname, xfer, expect_lab):
         sum_fh.write('%-50s %-10s %-10s\n' % (student.strip(), zip_line, rep_line))
     sum_fh.close()
 
+def isMoodle(zip_fname):
+    with zipfile.ZipFile(zip_fname) as zip_file:
+        for member_info in zip_file.infolist():
+            member = member_info.filename
+            if 'assignsubmission_file' in member:
+                return True
+            else:
+                return False
 '''
 Extract individual zip files from a saki bulk download
 '''
@@ -87,9 +100,26 @@ def extract(zip_fname, xfer, expect_lab):
     unexpected = 0
     with zipfile.ZipFile(zip_fname) as zip_file:
         for member_info in zip_file.infolist():
+            extract_from = zip_file
             member = member_info.filename
-            parts = member.split('/')
-            student = parts[1]
+            ''' special case handling of zip in zip '''
+            studnet_fu = None
+            if 'assignsubmission_file' in member:
+                ''' Moodle '''
+                parts = member.split('assignsubmission_file_')
+                sfile = parts[1]
+                student = sfile.rsplit('.', 2)[0]
+                if '_at_' not in student:
+                    ''' student did not follow directions, extract zip if it is in this zip '''
+                    zfiledata = BytesIO(zip_file.read(member))
+                    student_fu = zipfile.ZipFile(zfiledata) 
+                    for zf in student_fu.infolist():
+                        if zf.filename.endswith('.zip'):
+                            extract_from = student_fu
+                            member = zf.filename
+            else:
+                parts = member.split('/')
+                student = parts[1]
             #print('STUDENT %s fname %s' % (student, member))
             date_time = time.mktime(member_info.date_time + (0, 0, -1))
             filename = os.path.basename(member)
@@ -106,12 +136,12 @@ def extract(zip_fname, xfer, expect_lab):
                     continue
 
                 # copy file (taken from zipfile's extract) into xfer for lab
-                source = zip_file.open(member)
+                source = extract_from.open(member)
                 #print("filename <%s>  lab_xfer is %s" % (filename, lab_xfer))
                 if not os.path.isdir(lab_xfer):
-                    print('ERROR ******: no such xfer directory. student: %s, file %s' % (student, member))
+                    print('ERROR ******: no such xfer directory %s. student: %s, file %s' % (lab_xfer, student, member))
                     continue 
-                target = file(os.path.join(lab_xfer, filename), "wb")
+                target = open(os.path.join(lab_xfer, filename), "wb")
                 with source, target:
                     shutil.copyfileobj(source, target)
 
@@ -121,7 +151,7 @@ def extract(zip_fname, xfer, expect_lab):
                     os.makedirs(target_dir)
                 except OSError:
                     pass
-                zip_file_data = BytesIO(zip_file.read(member))
+                zip_file_data = BytesIO(extract_from.read(member))
                 with zipfile.ZipFile(zip_file_data) as zip_zips:
                    for zi in zip_zips.namelist():
                        if zi == 'docs.zip':
@@ -136,7 +166,7 @@ def extract(zip_fname, xfer, expect_lab):
                                        if not os.path.isfile(os.path.join(target_dir, zdoc)):
                                            source = zip_docs.open(zdoc)
                                            if os.path.isdir(target_dir):
-                                               target = file(os.path.join(target_dir, os.path.basename(zdoc)), "wb")
+                                               target = open(os.path.join(target_dir, os.path.basename(zdoc)), "wb")
                                                #zip_docs.extract(zdoc, target_dir)
                                                shutil.copyfileobj(source, target)
                                                #print('copied report %s to %s' % (zdoc, target_dir))
@@ -150,9 +180,15 @@ def extract(zip_fname, xfer, expect_lab):
                 fname, ext = os.path.splitext(filename)
                 #print('fname is %s' % fname)
                 if (ext == '.docx' or ext == '.odt' or ext == '.xlsx'): 
-                    source = zip_file.open(member)
-                    parts = member.split('/')
-                    student = parts[1]
+                    source = extract_from.open(member)
+                    if 'assignsubmission_file' in member:
+                        ''' Moodle '''
+                        parts = member.split('assignsubmission_file_')
+                        sfile = parts[1]
+                        student = sfile.rsplit('.', 2)[0]
+                    else:
+                        parts = member.split('/')
+                        student = parts[1]
                     target_dir = os.path.join(results_dir, student)
                     #print('target_dir is %s' % target_dir)
                     try:
@@ -160,18 +196,21 @@ def extract(zip_fname, xfer, expect_lab):
                     except OSError:
                         pass
                     #zip_file.extract(member, target_dir)
-                    target = file(os.path.join(target_dir, filename), "wb")
+                    target = open(os.path.join(target_dir, filename), "wb")
       
                     #print('copied %s to %s' % (source, target))
                     shutil.copyfileobj(source, target)
                     os.utime(os.path.join(target_dir, filename), (date_time, date_time))
+        if student_fu is not None:
+            student_fu.close()
+  
     if count > 0:
         print('Extracted %d student zip files' % count)
     if unexpected > 0:
         print('Extracted %d for other labs' % unexpected)
-    reportSum(zip_fname, xfer, expect_lab)
-   
-               
+    if not isMoodle(zip_fname):
+        reportSum(zip_fname, xfer, expect_lab)
+  
 
 def checkBulkSaki(lab, logger=None):
     labtainer_config_dir = '../../config/labtainer.config'
@@ -189,15 +228,18 @@ def checkBulkSaki(lab, logger=None):
         lxfer = os.path.join(xfer, lab)
         zfiles = glob.glob(lxfer+'/*.zip')
         for z in zfiles:
-            f = os.path.basename(z).rsplit('.',1)[0]
-            if '_' in f:
-                ts = f.rsplit('_', 1)[1]
-                try:
-                    v = time.mktime(datetime.datetime.strptime(ts,'%Y%m%d%H%M%S').timetuple())
-                    print('Assuming Sakai bulk download: %s' % z)
-                    extract(z, xfer, lab)
-                except:
-                    pass
+            if isMoodle(z):
+                extract(z, xfer, lab)
+            else:
+                f = os.path.basename(z).rsplit('.',1)[0]
+                if '_' in f:
+                    ts = f.rsplit('_', 1)[1]
+                    try:
+                        v = time.mktime(datetime.datetime.strptime(ts,'%Y%m%d%H%M%S').timetuple())
+                        print('Assuming Sakai bulk download: %s' % z)
+                        extract(z, xfer, lab)
+                    except:
+                        pass
 
 
 if __name__ == '__main__':
