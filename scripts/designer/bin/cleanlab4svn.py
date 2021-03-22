@@ -41,7 +41,7 @@ import tarfile
 # 1. Any tarball '*.tar.gz' in the lab directory, i.e., <lab>/*.tar.gz files
 # 2. Any tar list file, i.e., <lab>/config/*_tar.list files
 # 3. Any empty tar file, i.e., <lab>/<containers>/*tar/*.tar files
-# 4. Any pdf file in docs directory, i.e., <lab>/docs/*.pdf files
+# 4. Any intermediate pdf file in docs directory, i.e., <lab>/docs/*.aux files
 # Note:
 # 1. This script checks to make sure LABTAINER_DIR is defined
 #
@@ -98,10 +98,10 @@ def DoWork(current_dir, lab_name):
                 print("Fails to remove tar file (%s)" % name)
                 sys.exit(1)
 
-    # 4. Any pdf file in docs directory, i.e., <lab>/docs/*.pdf files that starts
+    # 4. Any intermediate pdf file in docs directory, e.g., <lab>/docs/*.aux files that starts
     #    with the labname
     #print "pdflist is (%s)" % pdflist
-    pdf_extensions = ['pdf','dvi','out','log','aux']
+    pdf_extensions = ['dvi','out','log','aux']
     for ext in pdf_extensions:
         pdflist = glob.glob('%s/docs/*.%s' % (current_dir, ext))
         for name in pdflist:
