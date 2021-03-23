@@ -95,7 +95,10 @@ class ParameterParser():
                 outfile.write('%s\n' % the_string)
             outfile.close()
    
-    def compatRandInt(self, low, high):
+    def compatRandInt(self, low, high, step=1):
+        high = high + 1
+        low = low * step
+        high = high * step
         if sys.version_info >=(3,0):
             randint_compat = lambda lo, hi: lo + int(random.random() * (hi + 1 - lo))
             x = randint_compat(low, high)
@@ -103,15 +106,16 @@ class ParameterParser():
         else:
             x = random.randint(low, high)
             #print('is 2, x %d' % x)
-        return x
+        retval = x / step
+        return retval
  
     def CheckRandReplaceEntry(self, param_id, each_value, unique=False):
-        # RAND_REPLACE : <filename> : <token> : <LowerBound> : <UpperBound>
+        # RAND_REPLACE : <filename> : <token> : <LowerBound> : <UpperBound> : <step>
         #print "Checking RAND_REPLACE entry"
         entryline = each_value.split(': ')
         #print entryline
         numentry = len(entryline)
-        if numentry != 4:
+        if numentry < 4:
             self.logger.error("RAND_REPLACE (%s) improper format" % each_value)
             #logger.error("RAND_REPLACE : <filename> : <token> : <LowerBound> : <UpperBound>")
             sys.exit(1)
@@ -119,7 +123,9 @@ class ParameterParser():
         token = entryline[1].strip()
         #print "filename is (%s)" % myfilename
         #print "token is (%s)" % token
-    
+        step = 1 
+        if numentry == 5:
+            step = int(entryline[4].strip()) 
         # Converts lowerbound and upperbound as integer - and pass to
         # random.randint(a,b)
         # Starts with assuming will use integer (instead of hexadecimal)
@@ -167,7 +173,7 @@ class ParameterParser():
                     self.unique_values[key].append(random_int)
                     break
         else:
-            random_int = self.compatRandInt(lowerbound_int, upperbound_int)
+            random_int = self.compatRandInt(lowerbound_int, upperbound_int, step=step)
         #print "random value is (%d)" % random_int
         if use_integer:
             random_str = '%s' % int(random_int)
