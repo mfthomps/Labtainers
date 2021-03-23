@@ -107,7 +107,7 @@ class ParameterParser():
             x = random.randint(low, high)
             #print('is 2, x %d' % x)
         retval = x / step
-        return retval
+        return int(retval)
  
     def CheckRandReplaceEntry(self, param_id, each_value, unique=False):
         # RAND_REPLACE : <filename> : <token> : <LowerBound> : <UpperBound> : <step>
