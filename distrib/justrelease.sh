@@ -33,11 +33,13 @@ here=`pwd`
 # Make sure we are up to date with master
 #
 cd $release_dir
-git pull || exit
+git checkout premaster || exit
+git pull
 git checkout master || exit
+git pull || exit
 
 git tag $new_tag
-#git push --set-upstream origin master
+git push --set-upstream origin master
 git push --tags
 
 revision=$new_tag
@@ -77,3 +79,4 @@ github-release upload --security-token $gitpat --user mfthomps --repo Labtainers
 echo "Upload UI"
 github-release upload --security-token $gitpat --user mfthomps --repo Labtainers --tag $new_tag --name MainUI.jar --file artifacts/MainUI.jar
 git checkout premaster
+git fetch --tags
