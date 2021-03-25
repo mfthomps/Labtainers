@@ -138,8 +138,14 @@ public class ParamReferenceStorage {
         // 11        
         new ToolTipWrapper("value", "<html>The goal value is assigned the given resulttag value from<br>" +
                                     "the most recent timestamped file that contains the resulttag.</html>"),
+        // 12        
+        new ToolTipWrapper("value_sum", "<html>The goal value is assigned the sum of all the given<br>" +
+                                    "resulttag values.</html>"),
+        // 13        
+        new ToolTipWrapper("value_max", "<html>The goal value is assigned the maximum resulttag value<br>" +
+                                    "</html>"),
             
-        // 12
+        // 14
         new ToolTipWrapper("matchExpression", "<html>The resultTag is an arithmetic expression</html>")};
 
     
@@ -231,6 +237,8 @@ public class ParamReferenceStorage {
         //Input format 2: [resultTag]
         public static final ArrayList<String> resultTagInput = new ArrayList<String>(Arrays.asList(
                 "count_value",
-                "value"       
+                "value",
+                "value_sum",
+                "value_max"       
         ));
 }
