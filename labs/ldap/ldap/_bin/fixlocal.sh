@@ -17,3 +17,4 @@ echo "URI     ldap://localhost" | sudo tee -a /etc/ldap/ldap.conf
 sudo /var/tmp/configure.sh
 sudo systemctl restart slapd
 /var/tmp/addusers.sh
+sudo systemctl restart slapd
