@@ -89,6 +89,13 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+April 7, 2021
+- ldap lab failed when moved to Ubuntu 20.  Problem traced to problem with nscd cache of pwd.  Move ldap to Ubuntu 20
+
+March 23, 2021
+- Parameterizing with RANDOM did not include the upper bound.
+- Add optional step parameter to RANDOM, e.g., to ensure word boundaries.
+
 March 19, 2021
 - gradelab ignore makdirs error, problem with Windows rmtree on shared folders.
 - gradelab handle spaces in student zip file names.
