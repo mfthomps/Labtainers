@@ -288,6 +288,7 @@ public class ParamsUI extends javax.swing.JFrame {
                                                         paramVal.hashedString, 
                                                         paramVal.upperBound, 
                                                         paramVal.lowerBound,
+                                                        paramVal.step,
                                                         paramVal.comments);
         addParamsPanel(newParam);
     }
