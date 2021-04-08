@@ -96,6 +96,8 @@ March 23, 2021
 - Parameterizing with RANDOM did not include the upper bound.
 - Add optional step parameter to RANDOM, e.g., to ensure word boundaries.
 - db-access lab: add mysql-workbench to database computer.
+- New overrun lab to illustrate memory references beyond bounds of c data structures.
+- New printf lab to introduce memory references made by the printf function.
 
 March 19, 2021
 - gradelab ignore makdirs error, problem with Windows rmtree on shared folders.
