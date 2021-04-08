@@ -95,6 +95,7 @@ April 7, 2021
 March 23, 2021
 - Parameterizing with RANDOM did not include the upper bound.
 - Add optional step parameter to RANDOM, e.g., to ensure word boundaries.
+- db-access lab: add mysql-workbench to database computer.
 
 March 19, 2021
 - gradelab ignore makdirs error, problem with Windows rmtree on shared folders.
