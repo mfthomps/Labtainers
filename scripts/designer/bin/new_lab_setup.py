@@ -724,7 +724,7 @@ def main():
     tdir = os.path.join(LABTAINER_DIR, 'scripts','designer','templates')
     parser = argparse.ArgumentParser(description='Create a new lab or change an existing lab.  If no arguments are given, create a new lab in the current directory. ')
     #parser.add_argument('basename', default='NONE', nargs='?', action='store', help='What base dockerfile this ') 
-    parser.add_argument('-c', '--clone_container', action='store', help='Clone the current lab to a new lab', metavar='')
+    parser.add_argument('-c', '--clone_lab', action='store', help='Clone the current lab to a new lab', metavar='')
     parser.add_argument('-a', '--add_container', action='store', help='Add a container to this lab', metavar='')
     parser.add_argument('-A', '--copy_container', action='store', nargs = 2, help='Add a container to this lab copied from an existing container.', metavar='')
     parser.add_argument('-r', '--rename_container', action='store', nargs = 2, help='Rename container in the lab, e.g., "-r old new"', metavar='')
@@ -768,9 +768,9 @@ def main():
         elif args.copy_container is not None:
             handle_copy_container(tdir, args.copy_container[0], args.copy_container[1])
             print("Container %s copied to %s." % (args.copy_container[0], args.copy_container[1]))
-        elif args.clone_container is not None:
-            oldlabname = handle_clone_lab(tdir, args.clone_container)
-            print("Lab %s cloned to new lab %s." % (oldlabname, args.clone_container))
+        elif args.clone_lab is not None:
+            oldlabname = handle_clone_lab(tdir, args.clone_lab)
+            print("Lab %s cloned to new lab %s." % (oldlabname, args.clone_lab))
         elif args.delete_container is not None:
             handle_delete_container(tdir, args.delete_container)
             print("Container %s deleted." % args.delete_container)
