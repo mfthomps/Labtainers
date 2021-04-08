@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<data grt_format="2.0">
+  <value _ptr_="0x1114410" type="list" content-type="object" content-struct-name="db.mgmt.ServerInstance">
+    <value type="object" struct-name="db.mgmt.ServerInstance" id="6fc9616a-97f3-11eb-948b-0242ac190003" struct-checksum="0x367436e2">
+      <link type="object" struct-name="db.mgmt.Connection" key="connection">6fc9641c-97f3-11eb-948b-0242ac190003</link>
+      <value _ptr_="0x16c7b70" type="dict" key="loginInfo"/>
+      <value _ptr_="0x16c7c00" type="dict" key="serverInfo">
+        <value type="int" key="setupPending">1</value>
+        <value type="string" key="sys.config.path"></value>
+        <value type="string" key="sys.config.section">mysqld</value>
+        <value type="string" key="sys.preset">Custom</value>
+        <value type="string" key="sys.system">Linux</value>
+      </value>
+      <value type="string" key="name">Local 3306</value>
+      <link type="object" struct-name="GrtObject" key="owner">6fbdfa46-97f3-11eb-948b-0242ac190003</link>
+    </value>
+    <value type="object" struct-name="db.mgmt.ServerInstance" id="8339094e-97f3-11eb-948b-0242ac190003" struct-checksum="0x367436e2">
+      <link type="object" struct-name="db.mgmt.Connection" key="connection">778834b2-97f3-11eb-948b-0242ac190003</link>
+      <value _ptr_="0x16b3320" type="dict" key="loginInfo">
+        <value type="string" key="ssh.hostName"></value>
+        <value type="string" key="ssh.key">~/.ssh/ssh_private_key</value>
+        <value type="string" key="ssh.localPort">3306</value>
+        <value type="int" key="ssh.useKey">0</value>
+        <value type="string" key="ssh.userName">mysql</value>
+      </value>
+      <value _ptr_="0x15bacc0" type="dict" key="serverInfo">
+        <value type="string" key="serverVersion">5.1</value>
+        <value type="int" key="setupPending">1</value>
+        <value type="string" key="sys.config.path">/etc/mysql/my.cnf</value>
+        <value type="string" key="sys.config.section">mysqld</value>
+        <value type="string" key="sys.mysqld.start">/etc/init.d/mysqld start</value>
+        <value type="string" key="sys.mysqld.stop">/etc/init.d/mysqld stop</value>
+        <value type="string" key="sys.system">Linux</value>
+        <value type="int" key="sys.usesudo">1</value>
+      </value>
+      <value type="string" key="name">admin</value>
+      <link type="object" struct-name="GrtObject" key="owner">6fbdfa46-97f3-11eb-948b-0242ac190003</link>
+    </value>
+  </value>
+</data>

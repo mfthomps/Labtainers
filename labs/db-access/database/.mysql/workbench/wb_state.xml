@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<data grt_format="2.0" document_type="MySQL Workbench Application State" version="1.0.0">
+  <value _ptr_="0x10c4490" type="dict">
+    <value type="string" key="geometry:MainWindow">356 183 1024 680</value>
+    <value type="string" key="global:last-run-as">6.3.6</value>
+    <value type="int" key="home:WBSampleModelFilesShown">1</value>
+  </value>
+</data>
