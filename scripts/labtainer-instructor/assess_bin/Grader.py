@@ -589,6 +589,61 @@ def processValue(result_sets, eachgoal, grades, logger):
             value = resulttagresult
     #print 'count is %d' % count
     grades[goalid] = value
+
+def processValueSum(result_sets, eachgoal, grades, logger):
+    ''' assign the sum of all result values '''
+    retval = 0
+    goalid = eachgoal['goalid']
+    #print goalid
+    jsonanswertag = eachgoal['answertag']
+    #print jsonanswertag
+    resulttag = eachgoal['resulttag']
+    if resulttag.startswith('result.'):
+       resulttag = resulttag[len('result.'):]
+
+    value = None
+    for ts in result_sets.getStamps():
+        results = result_sets.getSet(ts)
+
+        if results == {}:
+            # empty - skip
+            continue
+
+        try:
+            resulttagresult = results[resulttag]
+        except KeyError:
+            continue
+        if resulttagresult != None:
+            retval = retval+resulttagresult
+    grades[goalid] = retval
+
+def processMaxValue(result_sets, eachgoal, grades, logger):
+    ''' assign the max of all result values '''
+    retval = 0
+    goalid = eachgoal['goalid']
+    #print goalid
+    jsonanswertag = eachgoal['answertag']
+    #print jsonanswertag
+    resulttag = eachgoal['resulttag']
+    if resulttag.startswith('result.'):
+       resulttag = resulttag[len('result.'):]
+
+    value = None
+    for ts in result_sets.getStamps():
+        results = result_sets.getSet(ts)
+
+        if results == {}:
+            # empty - skip
+            continue
+
+        try:
+            resulttagresult = results[resulttag]
+        except KeyError:
+            continue
+        if resulttagresult != None:
+            if resulttagresult > retval:
+                retval = resulttagresult
+    grades[goalid] = retval
  
 def processCount(result_sets, eachgoal, grades, logger):
     #print "Inside processCount"
@@ -982,6 +1037,10 @@ def processLabExercise(studentlabdir, labidname, grades, goals, bool_results, go
             processCount(result_sets, eachgoal, grades, logger)
         elif eachgoal['goaltype'] == "value":
             processValue(result_sets, eachgoal, grades, logger)
+        elif eachgoal['goaltype'] == "value_sum":
+            processValueSum(result_sets, eachgoal, grades, logger)
+        elif eachgoal['goaltype'] == "value_max":
+            processValueMax(result_sets, eachgoal, grades, logger)
         elif eachgoal['goaltype'].startswith('is_'):
             processTrueFalse(result_sets, eachgoal, goal_times)
         else:

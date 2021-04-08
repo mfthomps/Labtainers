@@ -1759,7 +1759,12 @@ def CreateHostHomeXfer(host_xfer_dir):
         #    logger.debug("host_home_xfer directory (%s) exists" % host_xfer_dir)
     else:
         # does not exists, create directory
-        os.makedirs(host_xfer_dir)
+        try:
+            os.makedirs(host_xfer_dir)
+        except FileNotFoundError as ex:
+            print('The directory %s does not exist.  Perhaps a shared volume is not mounted?' % os.path.dirname(host_xfer_dir))
+            exit(1)
+
 
 # CopyChownGradesFile
 def CopyChownGradesFile(start_config, labtainer_config, name, container_name, container_user, ignore_stop_error):

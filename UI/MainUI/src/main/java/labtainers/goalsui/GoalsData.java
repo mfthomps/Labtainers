@@ -1051,7 +1051,7 @@ public class GoalsData {
             //Operator
             ToolTipWrapper operator = (ToolTipWrapper)((GoalPanels) goal).getOperatorComboBox().getSelectedItem();
             String resultTag = "";
-            if(goalType.equals(GoalType_ITEMS[12])){ //matchExpression              
+            if(goalType.equals(GoalType_ITEMS[14])){ //matchExpression              
                 resultTag = ((GoalPanels) goal).getArithmeticResultTagTextField().getText();
             }
             else{

@@ -165,6 +165,8 @@ public class GoalValues {
         
         //set the answertype & answertag to be displayed on the gui based on the config's answer tag
         private void answerTagModifier(String aT, List<String> resultTags){
+            answerTag = "";
+            try{
                 if(aT.contains("answer=")){
                     answerTag = aT.split("answer=")[1];
                     //System.out.println("answer tag set to "+answerTag);
@@ -185,6 +187,9 @@ public class GoalValues {
                     answerTag = aT.split("parameter_ascii.")[1];
                     answerType = answerTypes[3]; //Parameter_ASCII
                 }
+            }catch(java.lang.ArrayIndexOutOfBoundsException ex){ 
+                System.out.println("Error in goal value "+aT); 
+            }
         }
         
         

@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<data grt_format="2.0">
+  <value _ptr_="0x1114540" type="list" content-type="object" content-struct-name="db.mgmt.Connection">
+    <value type="object" struct-name="db.mgmt.Connection" id="6fc9641c-97f3-11eb-948b-0242ac190003" struct-checksum="0x96ba47d8">
+      <link type="object" struct-name="db.mgmt.Driver" key="driver">com.mysql.rdbms.mysql.driver.native</link>
+      <value type="string" key="hostIdentifier">Mysql@localhost:3306</value>
+      <value type="int" key="isDefault">0</value>
+      <value _ptr_="0x16c58e0" type="dict" key="modules"/>
+      <value _ptr_="0x16c5970" type="dict" key="parameterValues">
+        <value type="string" key="hostName">localhost</value>
+        <value type="int" key="port">3306</value>
+        <value type="string" key="userName">root</value>
+      </value>
+      <value type="string" key="name">Local instance 3306</value>
+    </value>
+    <value type="object" struct-name="db.mgmt.Connection" id="778834b2-97f3-11eb-948b-0242ac190003" struct-checksum="0x96ba47d8">
+      <link type="object" struct-name="db.mgmt.Driver" key="driver">com.mysql.rdbms.mysql.driver.native</link>
+      <value type="string" key="hostIdentifier">Mysql@127.0.0.1:3306</value>
+      <value type="int" key="isDefault">0</value>
+      <value _ptr_="0x14bfc00" type="dict" key="modules"/>
+      <value _ptr_="0x14bfc90" type="dict" key="parameterValues">
+        <value type="string" key="SQL_MODE"></value>
+        <value type="string" key="hostName">127.0.0.1</value>
+        <value type="string" key="password"></value>
+        <value type="int" key="port">3306</value>
+        <value type="string" key="schema"></value>
+        <value type="string" key="sslCA"></value>
+        <value type="string" key="sslCert"></value>
+        <value type="string" key="sslCipher"></value>
+        <value type="string" key="sslKey"></value>
+        <value type="int" key="useSSL">1</value>
+        <value type="string" key="userName">admin</value>
+      </value>
+      <value type="string" key="name">admin</value>
+    </value>
+  </value>
+</data>

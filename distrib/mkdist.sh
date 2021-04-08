@@ -69,26 +69,29 @@ if [[ "$1" != "-r" ]]; then
     sed -i "s/^Branch:.*$/Branch: $branch <\/br>/" README.md
 fi
 cp README.md $ltrunk/
-#git archive master config | tar -x -C $ltrunk
-$here/fix-git-dates.py config $ltrunk $branch
-$here/fix-git-dates.py setup_scripts $ltrunk $branch
-$here/fix-git-dates.py docs $ltrunk $branch
-$here/fix-git-dates.py tool-src $ltrunk $branch
-$here/fix-git-dates.py distrib/skip-labs $ltrunk $branch
 mkdir $scripts
-$here/fix-git-dates.py scripts/labtainer-student $ltrunk $branch
-$here/fix-git-dates.py scripts/labtainer-instructor $ltrunk $branch
+dlist="config setup_scripts docs tool-src distrib/skip-labs scripts/labtainer-student scripts/labtainer-instructor"
+#git archive master config | tar -x -C $ltrunk
+for d in $dlist; do
+    $here/fix-git-dates.py $d $ltrunk $branch || exit 1
+done
 mkdir $labs
 llist=$(git ls-files labs | cut -d '/' -f 2 | uniq)
 for lab in $llist; do
     if [ $(contains "${skiplist[@]}" $lab) != "y" ]; then
-        $here/fix-git-dates.py labs/$lab/config $ltrunk $branch
-        $here/fix-git-dates.py labs/$lab/instr_config $ltrunk $branch
-        if [[ -d labs/$lab/docs ]]; then
-            $here/fix-git-dates.py labs/$lab/docs $ltrunk $branch
+        $here/fix-git-dates.py labs/$lab/config $ltrunk $branch || exit 1
+        $here/fix-git-dates.py labs/$lab/instr_config $ltrunk $branch || exit 1
+        docdir=labs/$lab/docs
+        if [[ -d $docdir ]]; then
+            if [ "$(ls -A $docdir)" ]; then
+               $here/fix-git-dates.py labs/$lab/docs $ltrunk $branch || exit 1
+            fi
         fi
-        if [[ -d labs/$lab/bin ]]; then
-            $here/fix-git-dates.py labs/$lab/bin $ltrunk $branch
+        bindir=labs/$lab/bin
+        if [[ -d $bindir ]]; then
+            if [ "$(ls -A $bindir)" ]; then
+                $here/fix-git-dates.py labs/$lab/bin $ltrunk $branch || exit 1
+            fi
         fi
     fi
 done

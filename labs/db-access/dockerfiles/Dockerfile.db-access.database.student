@@ -53,6 +53,8 @@ RUN adduser $user_name sudo
 #
 #  **** Perform all root operations, e.g.,           ****
 #  **** "apt-get install" prior to the USER command. ****
+RUN apt-get update && apt-get install -y --no-install-recommends mysql-workbench xdg-utils libcanberra-gtk3-module firefox sqlite3 && rm -rf /var/cache/apt/
+
 #
 USER $user_name
 ENV HOME /home/$user_name

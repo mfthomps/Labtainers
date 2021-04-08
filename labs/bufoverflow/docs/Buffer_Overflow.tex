@@ -22,8 +22,8 @@
 
 \section{Lab Overview}
 
-The learning objective of this lab is for students to gain the first-hand
-experience on buffer-overflow vulnerability by putting what they have learned
+The learning objective of this lab is for students to gain first-hand
+experience with a buffer-overflow vulnerability by putting what they have learned
 about the vulnerability from class into action. 
 Buffer overflow is defined as the condition in which a program attempts to
 write data beyond the boundaries of pre-allocated fixed length buffers. This
@@ -33,6 +33,10 @@ due to the mixing of the storage for data (e.g. buffers) and the
 storage for controls (e.g. return addresses): an overflow in the data part can
 affect the control flow of the program, because an overflow can
 change the return address.
+
+This lab builds off of concepts introduced in the \textit{overrun} lab.
+While the overrun lab is not a prerequisite to performing this lab, it may help
+students are are new to low level references to data structures.
 
 In this lab, students will be given a program with a buffer-overflow
 vulnerability; their task is to develop a scheme to exploit 

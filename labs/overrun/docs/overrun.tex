@@ -1,0 +1,147 @@
+\input{header}
+\begin{document}
+
+\begin{center}
+{\LARGE Overrun of intended bounds in a C program}
+\vspace{0.1in}\\
+\end{center}
+
+
+\section{Overview}
+This exercise illustrates overrunning the intended bounds of
+data structures in a C program.   It introduces memory 
+addressing concepts that are a key part of understanding software
+vulnerabilities that may lead to memory corruption or data leakage.
+This lab provides an introduction to techniques that are used
+in the buffer overflow (bufoverflow and buf64) and the printf labs
+(formatstring and format64).
+
+\subsection{Background}
+This exercise assumes the student has some basic C language programming
+experience and is familiar with simple data structures.
+No coding is required in this lab, but it will help if the student
+can understand a simple C program.
+
+The GDB program is used to explore the executing program, including viewing
+a bit of its disassembly.  However no assembly language background is necessary to perform
+the lab.
+
+\section{Lab Environment}
+This lab runs in the Labtainer framework,
+available at http://nps.edu/web/c3o/labtainers.
+That site includes links to a pre-built virtual machine
+that has Labtainers installed, however Labtainers can
+be run on any Linux host that supports Docker containers
+or on Docker Desktop on PCs and Macs.
+
+From your labtainer-student directory start the lab using:
+\begin{verbatim}
+    labtainer overrun
+\end{verbatim}
+A link to this lab manual will be displayed.
+
+
+\section{Tasks}
+
+\subsection{Review the mystuff.c program}
+A terminal opens when you start the lab.  At that terminal, view the mystuff.c program.  Use either {\tt vi} or {\tt nano}, or just type {\tt less mystuff.c}.
+
+\subsubsection{The myData structure}
+Look at the {\tt myData} structure.  
+In the program, we declare the variable {\tt my\_data} to be a {\tt myData} struct.
+Note the {\tt public\_info} character array has 20 elements.  As with any array, we can refer 
+to elements of the array using an index. For example, {\tt my\_data.public\_info[4]} refers to the
+fifth character in the array, and {\tt my\_data.public\_info[19]} refers to the very last character
+in the array.
+
+If 19 is the very last character in the array, what would {\tt my\_data.public\_info[20]} refer to?
+
+\subsubsection{Addresses of fields}
+After the program initializes the {\tt my\_data} structure, it displays the addresses of the
+start of the {\tt public\_data} field, and the {\tt pin} field.  And it displays the memory values of those
+fields.
+
+\subsubsection{Memory content}
+The program then enters a loop in which it allows the user to display hex values of individual characters
+within the {\tt public\_info} field.  It is this loop that will let us explore the question asked earlier,
+nameley: what would {\tt my\_data.public\_info[20]} refer to?
+
+\subsection{Compile and run the program}
+Use this command to compile the program:
+\begin{verbatim}
+    gcc -m32 -g -o mystuff mystuff.c
+\end{verbatim}
+\noindent Note the {\tt -m32} switch creates a 32-bit binary and the {\tt -g} switch includes symbols in the 
+binary that will let us explore the program's execution using {\tt gdb}.
+
+Run the program:
+\begin{verbatim}
+    ./mystuff
+\end{verbatim}
+\noindent and explore the values displayed at different offsets within (and beyond) the {\tt public\_info} field.
+Note the displayed address of the {\tt public\_info} field and the address of the {\tt pin} field.  How many 
+bytes separate the two fields?  Use the program to display the value of the pin field.  Note that if
+your {\tt fav\_color} buffer size is odd, the compiler will \textit{pad} the buffer so that the next
+variable starts on 4-byte word boundary.
+
+\subsection{Explore with gdb}
+Run the program under the GDB debugger:
+\begin{verbatim}
+    gdb mystuff
+\end{verbatim}
+\noindent Use the {\tt list} command to view the source code.  Set a breakpoint in the {\tt showMemory} 
+function on the line where it will print the value at the given offset. (Use {\tt list showMemory} to view
+source for that function.)  And then run the program from within
+gdb:
+\begin{verbatim}
+   break <line number>
+   run
+\end{verbatim}
+\noindent When the program hits the breakpoint, display 10 words (40 bytes) of system memory as hex
+values starting at the {\tt data} structure:
+\begin{verbatim}
+   x/10x &data
+\end{verbatim}
+Does the memory content correspond to what you observed while running the program?
+
+\subsubsection{Extra exploration}
+Set a breakpoint at the end of the {\tt handleMyStuff} funtion, i.e., on the line of the final right brace
+({\tt\}}) in that function.  Then continue with the {\tt c} command.  At the prompt for the next offset,
+enter a q.  Then, when the program hits the breakpoint, display the disassembled program using:
+\begin{verbatim}
+   display/i $pc
+   stepi
+\end{verbatim}
+\noindent And single step through the remainder of the {\tt handleMyStuff} function disassembly by
+repeatedly pressing the {\tt Return} key until the program gets to the {\tt ret} instruction.
+
+This is the point in the program at which the {\tt handleMyStuff} function will return to the {\tt main}
+function.  The {\tt ret} instruction directs the processor to jump to the instruction at the address
+contained at the current stack pointer.  Display the memory content pointed to by the stack register using:
+\begin{verbatim}
+  x $esp
+\end{verbatim}
+\noindent  The displayed value will become the next instruction address, which you can confirm using one
+more {\tt nexti}.   Make note of that current instruction pointer.  
+Look again at the stack address that held this return value.  Note that it is higher
+than the address of the {\tt data} structure observed in the {\tt showMemory} function.  Compute 
+and record the difference between the two addresses.
+
+Rerun the program outside of the debugger and use it to display the return address value, one byte at a time.
+Confirm that address is what you observed in gdb\footnote{The address may appear backwards to you.  Don't let 
+that hang you up, it is an artifact of machine architecture that you can learn about 
+by googling \textit{Endianess}}.  Imagine that the program let us modify the individual 
+items in the {\tt public\_info} array.  When the program hits the {\tt ret} instruction that you viewed
+in gdb, it would then \textit{return} to an address you wrote.
+
+\section{Submission}
+After finishing the lab, go to the terminal on your Linux system that was used to start the lab and type:
+\begin{verbatim}
+    stoplab 
+\end{verbatim}
+When you stop the lab, the system will display a path to the zipped lab results on your Linux system.  Provide that file to 
+your instructor, e.g., via the Sakai site.
+
+\copyrightnotice
+
+\end{document}
