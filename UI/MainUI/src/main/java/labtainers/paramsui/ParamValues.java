@@ -46,7 +46,7 @@ public class ParamValues {
     //Values to be obtained
         String paramID, symbol, hashedString;
         ArrayList<String> fileList = new ArrayList<String>();
-        String upperBound, lowerBound;
+        String upperBound, lowerBound, step;
         String comments = "";
         String operator;
         String inputLine = ""; 
@@ -68,6 +68,7 @@ public class ParamValues {
             String operator_string;
             paramID = symbol = hashedString = "";
             upperBound = lowerBound = "0"; 
+            step = "1";
             operator = null;
             
           //Parsing the paramLine 
@@ -87,6 +88,9 @@ public class ParamValues {
                 if(operator_string.contains("RAND")){
                     lowerBound = paramParsedLine[4].trim();
                     upperBound = paramParsedLine[5].trim();
+                    if(paramParsedLine.length > 6){
+                        step = paramParsedLine[6].trim();
+                    } 
                 }
             }
             if(operator.equals("HASH_CREATE")){
@@ -99,7 +103,7 @@ public class ParamValues {
         //Constructor for temporarily storing values of artifacts in the UI
         ParamValues(String paramID, ArrayList<String> fileList, String operator, 
                      String symbol, String hashedString,
-                     String lowerBound, String upperBound, String comments){
+                     String lowerBound, String upperBound, String step, String comments){
             this.paramID = paramID; 
             this.fileList = fileList;
             this.operator = operator; 
@@ -107,6 +111,7 @@ public class ParamValues {
             this.hashedString = hashedString; 
             this.lowerBound = lowerBound; 
             this.upperBound = upperBound; 
+            this.step = step; 
             this.comments = comments; 
         }
         
@@ -121,6 +126,7 @@ public class ParamValues {
             this.hashedString = original.hashedString; 
             this.lowerBound = original.lowerBound; 
             this.upperBound = original.upperBound; 
+            this.step = original.step; 
             this.comments = original.comments; 
         }
         

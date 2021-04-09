@@ -89,6 +89,10 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+April 9, 2021
+- New gdb-cpp tutorial lab for using GDB on a simple C++ program.
+- Floating point exceptions were revealing use of exec\_wrap.sh for stdin/stdout mirroring.
+
 April 7, 2021
 - ldap lab failed when moved to Ubuntu 20.  Problem traced to problem with nscd cache of pwd.  Move ldap to Ubuntu 20
 

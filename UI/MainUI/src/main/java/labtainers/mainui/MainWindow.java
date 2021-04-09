@@ -1272,6 +1272,15 @@ public class MainWindow extends javax.swing.JFrame {
             System.out.println("exit code is "+exitCode);
             if(exitCode == 0){
                 output("Command successful.\n");
+            }else if(cmd.startsWith("SimLab")){
+                output("SimLab failed, see diagnostics in terminal that started labedit.\n");
+            }else if(cmd.contains("build")){
+                output("Command failed, see the labtainer log and/or the docker build log.\n");
+                String log_path = this.labtainerPath+File.separator+"logs"+File.separator+"labtainer.log";
+                String last = getLastLine(log_path);
+                if(last.contains("ERROR")){
+                    output(last+"\n");
+                }
             }else{
                 output("Command failed, see the labtainer log and/or the docker build log.\n");
                 String log_path = this.labtainerPath+File.separator+"logs"+File.separator+"labtainer.log";
