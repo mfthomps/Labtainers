@@ -22,10 +22,11 @@ branch=$(git rev-parse --abbrev-ref HEAD)
 echo "Make test set distribution from branch: $branch"
 $here/fix-git-dates.py distrib $trunk $branch
 $here/fix-git-dates.py testsets $trunk $branch
-cd ../Labtainers-simlab
+cd ../Labtainers-simlab/simlab
 git pull
 branch=$(git rev-parse --abbrev-ref HEAD)
 echo "Make simlab distribution from branch: $branch"
+cd ../
 $here/fix-git-dates.py simlab $tmp_dir $branch
 #git archive master simlab | tar -x -C $tmp_dir
 cd $tmp_dir
