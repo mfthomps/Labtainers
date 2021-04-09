@@ -209,18 +209,6 @@ def CheckTars(container_dir, image_name, logger):
                 logger.debug('remove tree at %s' % tmp_loc)
                 shutil.rmtree(tmp_loc)
         os.chdir(here)
-    noskip_file = os.path.join(container_dir,'_bin', 'noskip')
-    #print('look for %s' % noskip_file)
-    if os.path.isfile(noskip_file):
-        ''' files from home_tar that we want to collect from student -- normally home_tar files are not collected '''
-        #print('is a skip')
-        with open(noskip_file) as fh:
-            for line in fh:
-                line = line.strip()
-                #print('check for %s' % line)
-                if len(line) > 0:
-                    cmd = 'sed -i /%s$/d %s' % (line, manifest)
-                    os.system(cmd)
                         
                      
 def __main__():                    
