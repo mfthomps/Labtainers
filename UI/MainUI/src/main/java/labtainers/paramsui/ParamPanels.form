@@ -152,13 +152,15 @@
                   <Component id="FileNameTextField" min="-2" pref="234" max="-2" attributes="0"/>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Component id="ShowListButton" min="-2" pref="25" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" pref="120" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="38" max="-2" attributes="0"/>
                   <Component id="SymbolTextField" min="-2" pref="142" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" pref="31" max="-2" attributes="0"/>
-                  <Component id="LowerBoundTextField" min="-2" pref="124" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" pref="27" max="-2" attributes="0"/>
-                  <Component id="UpperBoundTextField" min="-2" pref="124" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="LowerBoundTextField" min="-2" pref="109" max="-2" attributes="0"/>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <Component id="UpperBoundTextField" min="-2" pref="108" max="-2" attributes="0"/>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <Component id="stepTextField" min="-2" pref="111" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
                   <Component id="HashedStringTextField" min="-2" pref="223" max="-2" attributes="0"/>
                   <EmptySpace max="32767" attributes="0"/>
               </Group>
@@ -179,6 +181,7 @@
                                   <Component id="LowerBoundTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="SymbolTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="UpperBoundTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="stepTextField" alignment="3" max="32767" attributes="0"/>
                                   <Component id="HashedStringTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
@@ -224,6 +227,7 @@
         </Component>
         <Component class="javax.swing.JTextField" name="SymbolTextField">
           <Properties>
+            <Property name="horizontalAlignment" type="int" value="2"/>
             <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Symbol within the  file that is to be replaced, e.g., with a hash or a random value.&lt;/html&gt;"/>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
               <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
@@ -292,6 +296,23 @@
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ShowListButtonActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JTextField" name="stepTextField">
+          <Properties>
+            <Property name="horizontalAlignment" type="int" value="2"/>
+            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+              <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
+                <TitledBorder title="Step">
+                  <Border PropertyName="innerBorder" info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
+                    <EtchetBorder/>
+                  </Border>
+                </TitledBorder>
+              </Border>
+            </Property>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="stepTextFieldActionPerformed"/>
           </Events>
         </Component>
       </SubComponents>

@@ -74,7 +74,7 @@ public class ParamPanels extends javax.swing.JPanel {
     //Loading params line
     public ParamPanels(ParamsUI ui, int rowNum, String paramID, ArrayList<String> fileList, 
               String operator, String symbol, 
-              String hashedString, String upperBound, String lowerBound, String comments){
+              String hashedString, String upperBound, String lowerBound, String step, String comments){
         initComponents();
         this.uiParam = ui;
         this.dataUI = ui.data;
@@ -93,6 +93,7 @@ public class ParamPanels extends javax.swing.JPanel {
         setHashedStringTextField(hashedString);        
         setUpperBoundTextField(upperBound);        
         setLowerBoundTextField(lowerBound);        
+        setStepTextField(step);        
  
         this.revalidate();
         this.repaint();
@@ -120,6 +121,7 @@ public class ParamPanels extends javax.swing.JPanel {
         UpperBoundTextField = new javax.swing.JTextField();
         HashedStringTextField = new javax.swing.JTextField();
         ShowListButton = new javax.swing.JButton();
+        stepTextField = new javax.swing.JTextField();
         DocButton = new javax.swing.JButton();
 
         setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -174,6 +176,7 @@ public class ParamPanels extends javax.swing.JPanel {
         FileNameTextField.setToolTipText("<html>Name of the file containing parameterized data.</html>");
         FileNameTextField.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "File name"));
 
+        SymbolTextField.setHorizontalAlignment(javax.swing.JTextField.LEFT);
         SymbolTextField.setToolTipText("<html>Symbol within the  file that is to be replaced, e.g., with a hash or a random value.</html>");
         SymbolTextField.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Symbol"));
 
@@ -197,6 +200,14 @@ public class ParamPanels extends javax.swing.JPanel {
             }
         });
 
+        stepTextField.setHorizontalAlignment(javax.swing.JTextField.LEFT);
+        stepTextField.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Step"));
+        stepTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                stepTextFieldActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout ParamPanelLayout = new javax.swing.GroupLayout(ParamPanel);
         ParamPanel.setLayout(ParamPanelLayout);
         ParamPanelLayout.setHorizontalGroup(
@@ -210,13 +221,15 @@ public class ParamPanels extends javax.swing.JPanel {
                 .addComponent(FileNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 234, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(ShowListButton, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(120, 120, 120)
+                .addGap(38, 38, 38)
                 .addComponent(SymbolTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(31, 31, 31)
-                .addComponent(LowerBoundTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(27, 27, 27)
-                .addComponent(UpperBoundTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(LowerBoundTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(UpperBoundTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(stepTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(HashedStringTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 223, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -234,6 +247,7 @@ public class ParamPanels extends javax.swing.JPanel {
                                 .addComponent(LowerBoundTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(SymbolTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(UpperBoundTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(stepTextField)
                                 .addComponent(HashedStringTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addComponent(ShowListButton)
                     .addComponent(FileNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -356,6 +370,10 @@ public class ParamPanels extends javax.swing.JPanel {
         }
         dialog.dispose();
     }//GEN-LAST:event_ShowListButtonActionPerformed
+
+    private void stepTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stepTextFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_stepTextFieldActionPerformed
     
     private void deleteButton(){
        JPanel panelOfParams = (JPanel)this.getParent();
@@ -373,6 +391,7 @@ public class ParamPanels extends javax.swing.JPanel {
         if(op_string.contains("RAND")){
             LowerBoundTextField.setVisible(true); 
             UpperBoundTextField.setVisible(true); 
+            stepTextField.setVisible(true); 
         }else{
             LowerBoundTextField.setVisible(false); 
             UpperBoundTextField.setVisible(false); 
@@ -422,6 +441,9 @@ public class ParamPanels extends javax.swing.JPanel {
     public JTextField getUpperBoundTextField(){
         return UpperBoundTextField;
     }
+    public JTextField getStepTextField(){
+        return stepTextField;
+    }
     public String getComments(){
         return this.comments;
     }
@@ -444,6 +466,9 @@ public class ParamPanels extends javax.swing.JPanel {
     private void setUpperBoundTextField(String v){
         UpperBoundTextField.setText(v);
     }
+    private void setStepTextField(String v){
+        stepTextField.setText(v);
+    }
     private void setOperatorComboBox(String v){
         ToolTipWrapper tip = ParamReferenceStorage.getWrapper(Operator_ITEMS, v);
         OperationComboBox.setSelectedItem(tip);
@@ -464,5 +489,6 @@ public class ParamPanels extends javax.swing.JPanel {
     private javax.swing.JButton UpButton;
     private javax.swing.JTextField UpperBoundTextField;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JTextField stepTextField;
     // End of variables declaration//GEN-END:variables
 }

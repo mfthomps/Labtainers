@@ -127,7 +127,7 @@ public class ParamsData {
                        containerFile,
                        symbol,
                        hashedString;
-            String upperBound, lowerBound;
+            String upperBound, lowerBound, step;
             String comments;
             String paramsConfigText = "";
             
@@ -176,11 +176,16 @@ public class ParamsData {
                 if(operator.contains("RAND")){
                     String upper = listofParams.get(i).upperBound.trim();
                     String lower = listofParams.get(i).lowerBound.trim();
+                    String step_str = listofParams.get(i).step.trim();
                     if(upper.length() == 0 || lower.length() == 0){
                         error.badRange = true;
                         System.out.println("Bad range for random values: "+lower+":"+upper);
                     }
-                    paramConfigLine += " : "+lower+" : "+upper;
+                    if(step_str == "1"){
+                        paramConfigLine += " : "+lower+" : "+upper;
+                    }else{
+                        paramConfigLine += " : "+lower+" : "+upper+" : "+step_str;
+                    }
                 }
                 if(operator.contains("HASH")){
                     paramConfigLine += " : "+listofParams.get(i).hashedString;
@@ -506,9 +511,10 @@ public class ParamsData {
            String hashedString = ((ParamPanels) param).getHashedStringTextField().getText();
            String lowerBound = ((ParamPanels) param).getLowerBoundTextField().getText();
            String upperBound = ((ParamPanels) param).getUpperBoundTextField().getText();
+           String step = ((ParamPanels) param).getStepTextField().getText();
            String comments = ((ParamPanels) param).getComments();
            
-           listofParamsTMP.add(new ParamValues(paramID, fileList, operator, symbol, hashedString, lowerBound, upperBound, comments));
+           listofParamsTMP.add(new ParamValues(paramID, fileList, operator, symbol, hashedString, lowerBound, upperBound, step, comments));
        }
        
        listofParams = listofParamsTMP; //overwrite the old listofParams with the temp listofParams
