@@ -89,6 +89,9 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+April 13, 2021
+- CyberCIEGE lab failed because X11 socket was not relocated prior to starting Wine via fixlocal.
+
 April 9, 2021
 - New gdb-cpp tutorial lab for using GDB on a simple C++ program.
 - Floating point exceptions were revealing use of exec\_wrap.sh for stdin/stdout mirroring.
