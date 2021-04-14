@@ -1295,6 +1295,16 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
 
             defineAdditionalIP(mycontainer_name, post_start_if, post_start_nets)
 
+            if container.x11.lower() == 'yes':
+                ''' Avoid problems caused by container wiping out all of /tmp on startup '''
+                cmd = "docker exec %s bash -c 'mkdir -p /var/tmp/.X11-unix'" % (mycontainer_name)
+                if not DockerCmd(cmd):
+                    logger.error('failed %s' % cmd)
+                    exit(1)
+                cmd = "docker exec %s bash -c 'ln -s /var/tmp/.X11-unix/X0 /tmp/.X11-unix/X0'" % (mycontainer_name)
+                if not DockerCmd(cmd):
+                    logger.error('failed %s' % cmd)
+                    exit(1)
             clone_need_seeds = need_seeds
             if not clone_need_seeds:
                 cmd = "docker exec %s bash -c 'ls -l /var/labtainer/did_param'" % (mycontainer_name)
@@ -1314,16 +1324,6 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
             elif clone_need_seeds:
                 ParamForStudent(start_config.lab_master_seed, mycontainer_name, mycontainer_image_name, container_user, 
                                                  container_password, labname, student_email, lab_path, name, image_info)
-            if container.x11.lower() == 'yes':
-                ''' Avoid problems caused by container wiping out all of /tmp on startup '''
-                cmd = "docker exec %s bash -c 'if [ -d /tmp/.X11-unix ]; then rm -Rf /tmp/.X11-unix; fi'" % (mycontainer_name)
-                if not DockerCmd(cmd):
-                    logger.error('failed %s' % cmd)
-                    exit(1)
-                cmd = "docker exec %s bash -c 'ln -s /var/tmp/.X11-unix /tmp/.X11-unix'" % (mycontainer_name)
-                if not DockerCmd(cmd):
-                    logger.error('failed %s' % cmd)
-                    exit(1)
 
             if container.no_gw:
                 cmd = "docker exec %s bash -c 'sudo /bin/ip route del 0/0'" % (mycontainer_name)
