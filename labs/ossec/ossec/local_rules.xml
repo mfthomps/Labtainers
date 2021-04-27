@@ -1,0 +1,12 @@
+
+  <rule id="100202" level="9">
+    <if_sid>31108</if_sid>
+    <url_pcre2>plan</url_pcre2>
+    <description>it is a dog.</description>
+  </rule>
+  <rule id="100203" level="9">
+    <if_sid>31101</if_sid>
+    <url_pcre2>plan</url_pcre2>
+    <description>it is a failed dog.</description>
+  </rule>
+
