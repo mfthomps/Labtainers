@@ -8,8 +8,8 @@ void main() {
     count = 15;
     while(count > 0) { /* Modify this line only */
 	total = count / num;
+	printf("%d divided by %d is: %d\n", count, num, total);
 	count--;
 	num--;
-	printf("Total is: %d\n", total);
     }
 }

@@ -288,22 +288,35 @@ class SimLab():
         cmd = 'docker cp %s %s:%s' % (src_path, full_containername, dst_path)
         os.system(cmd)
 
-    def addFile(self, params, replace=False):
-        from_file, to_file = params.split()
-        from_file = os.path.join(self.sim_path, from_file) 
-        cmd = 'vi %s' % to_file
-        self.typeLine(cmd.strip()) 
-        if replace:
-            cmd = "type '9999dd'"
-            self.dotool(cmd)
-        else:
+    def addFile(self, params):
+        parts = params.split()
+        if len(parts) == 2:
+            from_file = os.path.join(self.sim_path, parts[0])
+            to_file = parts[1]
+            cmd = 'vi %s' % to_file
+            self.typeLine(cmd.strip()) 
             self.dotool("type 'G'")
-        self.dotool("type 'o'")
+            self.dotool("type 'o'")
+        elif len(parts) == 3:
+            ''' issue the search command before adding lines above resulting line '''
+            from_file = os.path.join(self.sim_path, parts[0])
+            to_file = parts[1]
+            search = parts[2]
+            cmd = 'vi %s' % to_file
+            self.typeLine(cmd.strip()) 
+            print('search is "%s"' % search)
+            time.sleep(1)
+            self.typeLine(search)
+            self.dotool("type 'O'")
+
         with open(from_file) as fh:
             for line in fh:
                 self.typeLine(line.rstrip())
+        time.sleep(1)
         self.dotool("key Escape")
+        self.typeLine(":w!")
         self.dotool("type 'ZZ'")
+        print('done saving')
        
     def includeFile(self, fname):
         full = os.path.join(self.sim_path, fname)
