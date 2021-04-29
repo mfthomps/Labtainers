@@ -1300,11 +1300,13 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                 cmd = "docker exec %s bash -c 'mkdir -p /var/tmp/.X11-unix; mkdir -p /tmp/.X11-unix'" % (mycontainer_name)
                 if not DockerCmd(cmd):
                     logger.error('failed %s' % cmd)
-                    exit(1)
+                    results.append(False)
+                    return
                 cmd = "docker exec %s bash -c 'ln -s /var/tmp/.X11-unix/X0 /tmp/.X11-unix/X0'" % (mycontainer_name)
                 if not DockerCmd(cmd):
                     logger.error('failed %s' % cmd)
-                    exit(1)
+                    results.append(False)
+                    return
             clone_need_seeds = need_seeds
             if not clone_need_seeds:
                 cmd = "docker exec %s bash -c 'ls -l /var/labtainer/did_param'" % (mycontainer_name)
@@ -1313,7 +1315,8 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                    print('Please restart this lab with the "-r" option.')
                    DoStop(start_config, labtainer_config, lab_path, False)
                    logger.error('One or more containers exists but not parameterized.')
-                   sys.exit(1)
+                   results.append(False)
+                   return
     
             # If the container is just created, then use the previous user's e-mail
             # then parameterize the container
