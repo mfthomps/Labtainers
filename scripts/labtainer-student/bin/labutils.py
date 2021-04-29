@@ -1297,13 +1297,17 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
 
             if container.x11.lower() == 'yes':
                 ''' Avoid problems caused by container wiping out all of /tmp on startup '''
-                cmd = "docker exec %s bash -c 'mkdir -p /var/tmp/.X11-unix; mkdir -p /tmp/.X11-unix'" % (mycontainer_name)
+                cmd = "docker exec %s bash -c 'mkdir -p /var/tmp/.X11-unix'" % (mycontainer_name)
                 if not DockerCmd(cmd):
                     logger.error('failed %s' % cmd)
                     results.append(False)
                     return
+                count = 0
                 cmd = "docker exec %s bash -c 'ln -s /var/tmp/.X11-unix/X0 /tmp/.X11-unix/X0'" % (mycontainer_name)
-                if not DockerCmd(cmd):
+                while not DockerCmd(cmd) and count<5:
+                    time.sleep(1)
+                    count += 1
+                if count >= 5:
                     logger.error('failed %s' % cmd)
                     results.append(False)
                     return
