@@ -197,7 +197,7 @@ The {\tt if\_sid} entry reflects the OSSEC rule chaining strategy.  It says to c
 already matched rule id 530, which is a rule that identifies output from monitored commands.
 The {\tt pcre2} entry identifies which command output to evaluate, in this case, output from the netstat command defined
 to run on the web server\footnote{pcre2 is a ``regular expression'' syntax.  This simple example just does a string match.
-Use ``man pcre'' to learn more.}.  The {\tt check\_diff} entry tells OSSEC to generate alerts when the monitored messages change.
+Use ``man pcre'' to learn more, and checkout regexone.com for a tutorial.}.  The {\tt check\_diff} entry tells OSSEC to generate alerts when the monitored messages change.
 
 Close the file and restart the ossec service.  Then go to the web server and use the {\tt netcat} command to listen to some
 arbitrary port, e.g.,
