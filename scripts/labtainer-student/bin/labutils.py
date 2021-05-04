@@ -865,7 +865,7 @@ def ParamForStudent(lab_master_seed, mycontainer_name, mycontainer_image_name, c
         sys.exit(1)
     logger.debug('back from ParameterizeMyContainer for %s' % mycontainer_name)
 
-def DockerCmd(cmd, noloop=False):
+def DockerCmd(cmd, noloop=False, good_error=None):
     ok = False
     count = 0
     if noloop:
@@ -876,7 +876,11 @@ def DockerCmd(cmd, noloop=False):
         output = ps.communicate()
         if len(output[1].decode('utf-8')) > 0:
             count += 1
-            logger.debug("Failed cmd %s %s" % (cmd, output[1].decode('utf-8')))
+            err_string =  output[1].decode('utf-8')
+            if good_error is not None and good_error in err_string:
+                logger.debug("Failed cmd %s BUT got good error %s" % (cmd, good_error))
+                return True 
+            logger.debug("Failed cmd %s %s" % (cmd, err_string))
             if count > 1:
                 return False
             time.sleep(1)
@@ -1304,7 +1308,7 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                     return
                 count = 0
                 cmd = "docker exec %s bash -c 'ln -s /var/tmp/.X11-unix/X0 /tmp/.X11-unix/X0'" % (mycontainer_name)
-                while not DockerCmd(cmd) and count<5:
+                while not DockerCmd(cmd, noloop=True, good_error='File exists') and count<5:
                     time.sleep(1)
                     count += 1
                 if count >= 5:
