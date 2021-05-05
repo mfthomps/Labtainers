@@ -89,6 +89,14 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+May 5, 2021
+- Introduce a new users lab to introduce user/group management
+- Surpress Apparmor host messages in centos container syslogs
+
+April 28, 2021
+- New base2 images lacked man pages.  Used unminimize to restore them in the base image.
+- Introduce a OSSEC host-based IDS lab.
+
 April 13, 2021
 - CyberCIEGE lab failed because X11 socket was not relocated prior to starting Wine via fixlocal.
 

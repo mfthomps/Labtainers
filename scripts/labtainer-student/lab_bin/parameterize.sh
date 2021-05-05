@@ -126,6 +126,11 @@ date
 if [ -f /etc/rsyslog.d/50-default.conf ]; then
    echo $CONTAINER_PASSWORD | sudo -S sed -i '/^daemon...mail/,+3 d' /etc/rsyslog.d/50-default.conf
 fi
+# keep rsyslog from eating garbage from apparmor
+if [ -f /etc/rsyslog.conf ]; then
+    echo $CONTAINER_PASSWORD |  sudo -S sed -i '/^. Don.t log private.*/a :msg, !contains, "apparmor"' /etc/rsyslog.conf
+    systemctl restart rsyslog
+fi
 
 if [ -f /var/tmp/home.tar ]; then
    cd $HOME

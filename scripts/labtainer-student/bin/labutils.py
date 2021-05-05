@@ -865,7 +865,7 @@ def ParamForStudent(lab_master_seed, mycontainer_name, mycontainer_image_name, c
         sys.exit(1)
     logger.debug('back from ParameterizeMyContainer for %s' % mycontainer_name)
 
-def DockerCmd(cmd, noloop=False):
+def DockerCmd(cmd, noloop=False, good_error=None):
     ok = False
     count = 0
     if noloop:
@@ -876,7 +876,11 @@ def DockerCmd(cmd, noloop=False):
         output = ps.communicate()
         if len(output[1].decode('utf-8')) > 0:
             count += 1
-            logger.debug("Failed cmd %s %s" % (cmd, output[1].decode('utf-8')))
+            err_string =  output[1].decode('utf-8')
+            if good_error is not None and good_error in err_string:
+                logger.debug("Failed cmd %s BUT got good error %s" % (cmd, good_error))
+                return True 
+            logger.debug("Failed cmd %s %s" % (cmd, err_string))
             if count > 1:
                 return False
             time.sleep(1)
@@ -1300,11 +1304,17 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                 cmd = "docker exec %s bash -c 'mkdir -p /var/tmp/.X11-unix'" % (mycontainer_name)
                 if not DockerCmd(cmd):
                     logger.error('failed %s' % cmd)
-                    exit(1)
+                    results.append(False)
+                    return
+                count = 0
                 cmd = "docker exec %s bash -c 'ln -s /var/tmp/.X11-unix/X0 /tmp/.X11-unix/X0'" % (mycontainer_name)
-                if not DockerCmd(cmd):
+                while not DockerCmd(cmd, noloop=True, good_error='File exists') and count<5:
+                    time.sleep(1)
+                    count += 1
+                if count >= 5:
                     logger.error('failed %s' % cmd)
-                    exit(1)
+                    results.append(False)
+                    return
             clone_need_seeds = need_seeds
             if not clone_need_seeds:
                 cmd = "docker exec %s bash -c 'ls -l /var/labtainer/did_param'" % (mycontainer_name)
@@ -1313,7 +1323,8 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                    print('Please restart this lab with the "-r" option.')
                    DoStop(start_config, labtainer_config, lab_path, False)
                    logger.error('One or more containers exists but not parameterized.')
-                   sys.exit(1)
+                   results.append(False)
+                   return
     
             # If the container is just created, then use the previous user's e-mail
             # then parameterize the container

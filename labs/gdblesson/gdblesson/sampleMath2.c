@@ -23,7 +23,7 @@ void main(int argc, char *argv[]) {
 	}
     }
     total = abs(total);
-    printf("The value of 1 should be 3.\nThe value of 2 should be 7.\nThe value of 3 should be 14.\nThe value of 4 should be 22.\nYour total is: %d\n", total);
+    printf("The result of 1 should be 3.\nThe result of 2 should be 7.\nThe result of 3 should be 14.\nThe result of 4 should be 22.\nYour total is: %d\n", total);
 }
 	
         

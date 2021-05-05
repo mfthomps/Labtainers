@@ -48,3 +48,5 @@ ADD system/bin/set_default_gw.sh /usr/bin/
 ADD system/sbin/waitparam.sh /usr/sbin/waitparam.sh
 ADD system/lib/systemd/system/waitparam.service /lib/systemd/system/waitparam.service
 RUN systemctl enable waitparam.service
+ENV DEBIAN_FRONTEND noninteractive
+RUN yes | /usr/local/sbin/unminimize -y

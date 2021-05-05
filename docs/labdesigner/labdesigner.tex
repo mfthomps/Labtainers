@@ -874,7 +874,7 @@ Each line of that file must start with a \verb!"<parameter_id> : "!, which is an
 is followed by one of the following operations:
 
 \begin{verbatim}
- RAND_REPLACE : <filename> : <symbol> : <LowerBound> : <UpperBound>
+ RAND_REPLACE : <filename> : <symbol> : <LowerBound> : <UpperBound> : <step>
    Replace a symbol within the named file with a random value within a given
    range.  The random value generator is initialized with the lab instance
    seed.
@@ -889,7 +889,9 @@ is followed by one of the following operations:
                          to randomize IP addresses.
            <symbol> - the string to be replaced
            <LowerBound> and <UpperBound> specifies the lower and upper bound
-                                       to be used by random generator
+                                       to be used by random generator, and
+           <step>       optionally ensures the value falls on a modulo boundary,
+                        e.g., to ensure offsets are word-aligned.
    example:
 
      some_parameter_id : RAND_REPLACE : client:/home/ubuntu/stack.c 
@@ -2969,6 +2971,11 @@ scripts so that they happen on each boot.
 Note also, that the Docker group (in which containers execute) is root 
 equivalent, and thus a hostile container can do damage to the Linux host.
 
+\subsubsection{Kernel logging}
+Since kernels are shared, system logs of a container may reflect kernel events occuring
+elsewhere, e.g., the host VM.  See the ossec lab web server component for an example
+of the rsyslog.conf file that filters out aparmor logs entries.
+
 \subsection {Test registry setup}
 The test registry is a Docker container that runs on the host, i.e., native OS
 upon which the VMs run.  The same test registry is shared by multiple development VMs.
@@ -3069,9 +3076,10 @@ A {\tt wait\_proc} function is then automatically performed on the line.
 a keypress.  The lines should contain X11 keysims.  Blank lines cause a 2 second sleep.
 \item \textbf{replace\_file} $<$source file$>$ $<$container$>$:$<$dest file$>$ -- Copies content of a source
 file on the Linux host relative the simlab directory, to a destination path on the named selected container.  
-\item \textbf{add\_file} $<$source file$>$ $<$dest file$>$ -- Will append text from the source file to the 
+\item \textbf{add\_file} $<$source file$>$ $<$dest file$>$ [search] -- Will append text from the source file to the 
 end of the destination file.  The destination file will be accessed from the currently selected virtual
-terminal.  This uses a simple VI scheme to append text, and thus assumes the window and cwd are as needed.
+terminal.  This uses a simple VI scheme to append text, and thus assumes the window and cwd are as needed.  The optional
+search string will be issued to VI followed by an "O" for inserting above the target line.
 \item \textbf{include} $<$file$>$ Reads the named file and treats each line as a SimLab directive,
 and then continues processing the next directive in the source file.  This is similar to the C
 include directive.

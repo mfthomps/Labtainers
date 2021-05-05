@@ -1,0 +1,22 @@
+#!/usr/bin/env python
+import os
+import sys
+if len(sys.argv) != 2:
+    print('Usage:  eggcheck <file>')
+    exit(0)
+fname = os.path.join('/shared_stuff', sys.argv[1])
+if not os.path.isfile(fname):
+    print('No file found at %s' % fname)
+    exit(1)
+with open(fname) as fh:
+    has_egg = False
+    newfile = open('/tmp/tmpfile.txt', 'w')
+    for line in fh:
+        newfile.write(line+'\n')
+        if 'egg' in line.lower():
+            has_egg = True
+    if has_egg:
+        print('The %s recipe has eggs.' % sys.argv[1])
+    else:
+        print('The %s recipe does not have eggs.' % sys.argv[1])
+

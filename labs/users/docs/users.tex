@@ -1,0 +1,164 @@
+\input{header}
+\begin{document}
+
+\begin{center}
+{\LARGE Unix users and groups}
+\vspace{0.1in}\\
+\end{center}
+
+
+\section{Overview}
+This exercise introduces management of users and groups on a Unix system.  
+The lab includes the following objectives:
+\begin{itemize}
+\item Add users to a shared system.
+\item Define a group on the system, and assign users to that group.
+\item Observe how user and group IDs can affect access to files.
+\item Observe a limitation of discretionary access controls.
+\item Grant a user \textit{sudo} or \textit{superuser} privileges.
+\end{itemize}
+
+This lab does not provide in-depth coverage of users, groups and Unix permissions.  It introduces the concepts
+and provides hands-on experience.  Use the Unix help facilities, e.g., {\tt useradd -h} to view detailed options
+for different commands covered in this lab.
+
+\subsection{Background}
+This is an introductory lab that only requires a bit of familiarity with the Unix command line.
+
+\section{Lab Environment}
+This lab runs in the Labtainer framework,
+available at http://nps.edu/web/c3o/labtainers.
+That site includes links to a pre-built virtual machine
+that has Labtainers installed, however Labtainers can
+be run on any Linux host that supports Docker containers.
+
+From your labtainer-student directory start the lab using:
+\begin{verbatim}
+    labtainer users
+\end{verbatim}
+A link to this lab manual will be displayed.
+
+\section{Environment}
+While interfaces for adding and managing users may vary between installations, the concept of Unix users
+and groups are the same across all Unix and Linux systems.  In this lab you will manage a CentOS7 system
+using the \textit{useradd} command.
+
+When the lab starts, two virtual terminals appear, each with a standard Unix login prompt.  Both terminals
+connect to the same computer, called \textit{shared}.  Initially, there is one user named \textit{admin} defined, 
+with a password of \textit{password123}.
+
+Login to one of the terminals as admin and use {\tt sudo su} to get a root shell.
+Use that root shell to manage users for the lab.  Use the other terminal to test those users per the
+lab directions below.
+
+\section{Tasks}
+
+\subsection{Add user Bob}
+Use this command to add a user with id {\tt bob}:
+\begin{verbatim}
+    useradd -m bob
+\end{verbatim}
+The {\tt -m} option causes a home directory to be created for the user at {\tt /home/bob}.
+Go to the other login terminal and try to login as the new user bob.  Oh, that's right, the user
+does not yet have a password.  Passwords are assigned and changed using the {\tt passwd} program. Use:
+\begin{verbatim}
+    man passwd
+\end{verbatim}
+\noindent to learn about options for the {\tt passwd program}.  For this lab, we'd like to assign bob a password so
+that bob can login, but we want the password to be expired so that bob is forced to change it.
+Use the {\tt passwd} program to assign bob a password, and then run the {\tt passwrd} program to cause
+bob's password to be expired.  Then login as bob and confirm that bob is required
+to change the password.  Do that and make note of the password for later.  (For this lab it is \textbf{OK} to write down
+passwords!)
+
+Then use {\tt exit} to log bob out of the terminal.
+\subsection{Add user Mary}
+Add a user with id {\tt mary} just like you added bob.  Before you try to login as Mary, take a look at a file
+that Mary will need to access.  Use this command:
+\begin{verbatim}
+ls -l /shared_stuff/tarts.txt
+\end{verbatim}
+\noindent Note who owns the file, and the permitted access modes for the owner, the group and other.  
+\begin{verbatim}
+  -rw-rw---- 1 frank bakers 8 Apr 29 23:48 /shared_stuff/tarts.txt
+\end{verbatim}
+A brief tutorial on Unix file permissions can be viewed at: \url{https://mason.gmu.edu/~montecin/UNIXpermiss.htm}.
+For this file, the owner has read and write permission, as do members of the group. Users other than the owner
+or members of the group have no access to the file. The owner is {\tt frank}
+and the group is {\tt bakers}.   The permissions indicate that only members of the bakers group should be able
+to read or write the file.
+
+We want Mary to 
+be able to access this file because she is a baker.  So, add Mary to the bakers group.  This is done with the {\tt usermod}
+command:
+\begin{verbatim}
+   usermod -a -G bakers mary
+\end{verbatim}
+Now login to the terminal as mary.  Then use the {\tt id} command to confirm that mary is in the bakers group.
+Then confirm at Mary can view the file:
+\begin{verbatim}
+    cat /shared_stuff/tarts.txt
+\end{verbatim}
+\noindent Now run one of the bakers' application programs:
+\begin{verbatim}
+    eggcheck tarts.txt
+\end{verbatim}
+\noindent When the eggcheck program runs, it runs as mary with her permissions.  This lets the program read the file.
+
+Use the {\tt id} command again.  Note how the user is mary and the group is mary.  While mary is a member of both the
+mary group and the bakers group, her current id reflects the mary group.  Use this command to create a new file as mary:
+\begin{verbatim}
+   touch newfile.txt
+\end{verbatim}
+Use {\tt ls -l} to view ownership of the file.  Then change Mary's current group by using:
+\begin{verbatim}
+   newgrp bakers
+\end{verbatim}
+\noindent and use {\tt ls -l} again.  Many things can affect the permissions of a file, including the current group
+of the user creating the file.
+
+\subsection{Re-login as bob}
+Use {\tt exit} to exit the mary session and login as bob again.  Try to view the tarts.txt file:
+\begin{verbatim}
+    cat /shared_stuff/tarts.txt
+\end{verbatim}
+\noindent Since Bob is not a member of the bakers group, Bob is not able to access the file.  This type
+of control over access to files is called \textit{discretionary access control} because it relies on
+the discretion of the members of the bakers group.  For example, at their discretion, a member of
+the bakers group could create a copy
+of the tarts.txt file that is visible to users who are not in the bakers group.  However, it is not only the discretion
+of the users, but also the discretion of the \textit{programs} executed by those users.  Recall Mary ran the
+{\tt eggcheck} program.  That program happens to creates a temporary copy of the file that it reads, and places that
+copy in {\tt /tmp/tmpfile.txt}.  Try to cat that file as bob.  While none of the bakers used their discretion to make
+that recipe available to everyone, it happened anyway as a side effect of the implementation of an application used by
+the bakers.
+
+This is the nature of discretionary file controls such as those in Unix.  They rely on the user knowing what the
+programs are actually doing.  And that is not always the case.
+
+\subsection{Add a privileged user}
+Add a new user to your system with an id of {\tt lisa}.  Lisa will help administer the system and requires
+the ability to perform privileged functions, sometimes referred to as \textit{sudo}, short for ``Superuser do''. 
+
+In modern Unix systems, superuser privileges are assigned to members of groups defined in the {\tt /etc/sudoers} file.
+In older CentOS systems, membership in the group \textit{wheel} provided superuser privileges.  That group no longer
+has special significance.  View the {\tt /etc/sudoers} file to see that in our installation, membership in the {\tt admin} group
+is what provides this privilege.  Add lisa to the admin group just as you added mary to the bakers group.
+
+Then login as lisa and perform the privileged function of removing a user.  In this case, terminate the bob user
+with this command:
+\begin{verbatim}
+  sudo userdel bob
+\end{verbatim}
+\noindent Then try to login as bob to confirm the user was deleted.
+\section{Submission}
+After finishing the lab, go to the terminal on your Linux system that was used to start the lab and type:
+\begin{verbatim}
+    stoplab 
+\end{verbatim}
+When you stop the lab, the system will display a path to the zipped lab results on your Linux system.  Provide that file to 
+your instructor, e.g., via the Sakai site.
+
+\copyrightnotice
+
+\end{document}

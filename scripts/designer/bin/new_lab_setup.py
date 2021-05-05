@@ -97,9 +97,15 @@ def handle_delete_container(tdir, deletecontainer):
     except:
         pass
 
-def copy_container(start_config_file, oldcontainer, newcontainer):
+def copy_container(start_config_file, oldcontainer, newcontainer, oldlab=None):
     grabbed = []
-    with open(start_config_file, 'r') as fh:
+    source_config = start_config_file
+    if oldlab is not None:
+        source_config = '../%s/%s' % (oldlab, start_config_file)
+        if not os.path.isfile(source_config):
+            print('No start config for named lab at %s' % source_config)
+            exit(1)
+    with open(source_config, 'r') as fh:
         grab = False
         for line in fh:
             if not grab and line.strip().startswith('CONTAINER'): 
@@ -127,6 +133,17 @@ def handle_copy_container(tdir, oldcontainer, newcontainer):
     dest_dfile = 'dockerfiles/Dockerfile.%s.%s.student' % (labname, newcontainer)
     shutil.copyfile(source_dfile, dest_dfile)
     shutil.copytree(os.path.join('./',oldcontainer), os.path.join('./',newcontainer))
+    print('** Manually adjust IP addresses for the new %s container **' % newcontainer)
+
+def handle_copy_lab_container(tdir, oldlab, oldcontainer, newcontainer):
+    start_config_filename = 'config/start.config'
+    copy_container(start_config_filename, oldcontainer, newcontainer, oldlab=oldlab)
+    here = os.getcwd()
+    labname = os.path.basename(here)
+    source_dfile = '../%s/dockerfiles/Dockerfile.%s.%s.student' % (oldlab, oldlab, oldcontainer)
+    dest_dfile = 'dockerfiles/Dockerfile.%s.%s.student' % (labname, newcontainer)
+    shutil.copyfile(source_dfile, dest_dfile)
+    shutil.copytree(os.path.join('../', oldlab, oldcontainer), os.path.join('./',newcontainer))
     print('** Manually adjust IP addresses for the new %s container **' % newcontainer)
         
 def add_container(start_config_filename, newcontainer, basename):
@@ -726,7 +743,8 @@ def main():
     #parser.add_argument('basename', default='NONE', nargs='?', action='store', help='What base dockerfile this ') 
     parser.add_argument('-c', '--clone_lab', action='store', help='Clone the current lab to a new lab', metavar='')
     parser.add_argument('-a', '--add_container', action='store', help='Add a container to this lab', metavar='')
-    parser.add_argument('-A', '--copy_container', action='store', nargs = 2, help='Add a container to this lab copied from an existing container.', metavar='')
+    parser.add_argument('-A', '--copy_container', action='store', nargs = 2, help='Add a container to this lab copied from an existing container, e.g., -A from_container new_container.', metavar='')
+    parser.add_argument('-C', '--copy_lab_container', action='store', nargs = 3, help='Add a container to this lab copied from an existing container in a different lab, e.g., -A from_lab from_container new_container.', metavar='')
     parser.add_argument('-r', '--rename_container', action='store', nargs = 2, help='Rename container in the lab, e.g., "-r old new"', metavar='')
     parser.add_argument('-m', '--rename_lab', action='store',  help='Rename the current lab to the given name. Warning: may break subversion!"', metavar='')
     parser.add_argument('-d', '--delete_container', action='store', help='Delete a container from this lab', metavar='')
@@ -768,6 +786,10 @@ def main():
         elif args.copy_container is not None:
             handle_copy_container(tdir, args.copy_container[0], args.copy_container[1])
             print("Container %s copied to %s." % (args.copy_container[0], args.copy_container[1]))
+        elif args.copy_lab_container is not None:
+            handle_copy_lab_container(tdir, args.copy_lab_container[0], args.copy_lab_container[1], args.copy_lab_container[2])
+            print("Container %s from lab %s copied to %s." % (args.copy_lab_container[1], 
+                 args.copy_lab_container[0], args.copy_lab_container[2]))
         elif args.clone_lab is not None:
             oldlabname = handle_clone_lab(tdir, args.clone_lab)
             print("Lab %s cloned to new lab %s." % (oldlabname, args.clone_lab))
