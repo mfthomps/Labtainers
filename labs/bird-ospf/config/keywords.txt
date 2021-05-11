@@ -1,0 +1,4 @@
+routing tables
+ospf
+open shortest first path
+router
