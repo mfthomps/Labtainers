@@ -39,6 +39,7 @@ import argparse
 import stat
 import subprocess
 import CurrentLab
+import keywords
 '''
 Start a Labtainers exercise.
 '''
@@ -152,6 +153,8 @@ def main():
     parser.add_argument('-q', '--quiet', action='store_true', help='Do not prompt for email, use previoulsy supplied email.')
     parser.add_argument('-r', '--redo', action='store_true', help='Creates new instance of the lab, previous work will be lost.')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s '+rev)
+    parser.add_argument('-k', '--keywords', action='store_true', help='List all searchable keywords.')
+    parser.add_argument('-f', '--find', action='store', nargs='+', help='List all labs having a given keyword (use quotes if spaces.)')
     parser.add_argument('-d', '--diagnose', action='store_true', help='Run diagnostics on the environment expected by Labtainers')
     parser.add_argument('-s', '--servers', action='store_true', help='Intended for distributed Labtainers, start the containers that are not clients.')
     parser.add_argument('-w', '--workstation', action='store_true', help='Intended for distributed Labtainers, start the client workstation.')
@@ -171,6 +174,12 @@ def main():
         showLabs(dirs, path, versions, skip)
         exit(0)
     args = parser.parse_args()
+    if args.keywords:
+        keywords.list()
+        exit(0)
+    if args.find is not None:
+        keywords.find(' '.join(args.find))
+        exit(0)
     labname = args.labname
     if labname == 'NONE' and not args.diagnose:
         sys.stderr.write("Missing lab name\n")
