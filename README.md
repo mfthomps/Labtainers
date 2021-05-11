@@ -22,10 +22,10 @@ The Labtainers website, and downloads (including VM appliances with Labtainers p
 [designer-guide]: docs/labdesigner/labdesigner.pdf
 [Papers]: https://nps.edu/web/c3o/labtainers#papers
 
-Distribution created: 03/19/2021 15:10 </br>
+Distribution created: 05/05/2021 01:00 </br>
 Previous revision: v1.3.4m </br>
-Commit: 8e473caa </br>
-Branch: master </br>
+Commit: 27bdede8 </br>
+Branch: premaster </br>
 
 ## Content
 [Distribution and Use](#distribution-and-use)
@@ -88,6 +88,10 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+
+May 5, 2021
+- Introduce a new users lab to introduce user/group management
+- Surpress Apparmor host messages in centos container syslogs
 
 April 28, 2021
 - New base2 images lacked man pages.  Used unminimize to restore them in the base image.
