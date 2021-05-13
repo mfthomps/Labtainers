@@ -89,6 +89,9 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+May 11, 2011
+- Add searchable keywords to each lab.  See "labtainer -h" for usage.
+
 May 5, 2021
 - Introduce a new users lab to introduce user/group management
 - Surpress Apparmor host messages in centos container syslogs
