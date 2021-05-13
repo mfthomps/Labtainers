@@ -59,6 +59,7 @@ def find(keyword):
     labs_dir = os.path.join(labtainer_dir, 'labs')
     labdirs = os.listdir(labs_dir) 
     lab_list = []
+    lab_descrip = []
     for lab in labdirs:
         keypath = os.path.join(labs_dir, lab, 'config', 'keywords.txt')
         if os.path.isfile(keypath):
@@ -69,6 +70,12 @@ def find(keyword):
                     if keyword.startswith(line.strip()) or line.startswith(keyword):
                         if lab not in lab_list: 
                             lab_list.append(lab)
-
-    for lab in sorted(lab_list):
+                            about_path = os.path.join(labs_dir, lab, 'config', 'about.txt')
+                            if os.path.isfile(about_path):
+                                with open(about_path) as about_fh:
+                                    descrip = '%s -- %s' % (lab, about_fh.read())
+                                    lab_descrip.append(descrip)
+                            else:
+                                lab_descrip.append(lab)
+    for lab in sorted(lab_descrip):
         print(lab)
