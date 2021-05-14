@@ -95,11 +95,12 @@ def showLabs(dirs, path, versions, skip):
             continue
         versionfile = os.path.join(path, loc, "config", "version")
         lname, dumb = getLabVersion(versionfile)
+        aboutfile = None
         if lname is None or isLatestVersion(versions[lname], loc):
             description = description+'\n  '+loc
             aboutfile = os.path.join(path, loc, "config", "about.txt")
            
-        if(os.path.isfile(aboutfile)):
+        if aboutfile is not None and os.path.isfile(aboutfile):
             description += ' - '
             with open(aboutfile) as fh:
                 for line in fh:

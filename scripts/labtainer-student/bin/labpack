@@ -1,0 +1,100 @@
+#!/usr/bin/env python3
+'''
+This software was created by United States Government employees at 
+The Center for Cybersecurity and Cyber Operations (C3O) 
+at the Naval Postgraduate School NPS.  Please note that within the 
+United States, copyright protection is not available for any works 
+created  by United States Government employees, pursuant to Title 17 
+United States Code Section 105.   This software is in the public domain 
+and is not subject to copyright. 
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+'''
+import sys
+import os
+import argparse
+import json
+import glob
+'''
+Track student progress completing labs in a Labpack.
+'''
+packroot = os.path.join(os.getenv('LABTAINER_DIR'), 'labpacks')
+labroot = os.path.join(os.getenv('LABTAINER_DIR'), 'labs')
+lab_list = os.listdir(labroot)
+
+def list():
+        print('List of existing Labpack names:')
+        flist = os.listdir(packroot)
+        for f in flist:
+            parts = f.split('.',1)
+            if len(parts)>1:
+                pack_name = parts[0]
+                pack_path = os.path.join(packroot, f)
+                the_pack = []
+                with open(pack_path) as fh:
+                    the_pack = json.load(fh)
+                print('%s  -- %s' % (pack_name, the_pack['description']))
+        print('\nUsage: labpack <name>')
+
+def main():
+    parser = argparse.ArgumentParser(prog='labpack', description='Track performance of labs in a Labpack')
+    parser.add_argument('name', default='NONE', nargs='?', action='store', help='The Labpack to track.')
+    if len(sys.argv) < 2:
+        list()
+        exit(0)
+    args = parser.parse_args()
+    packname = args.name
+    try:
+        os.makedirs(packroot)
+    except:
+        pass
+    pack_file = '%s.labpack' % packname
+    pack_path = os.path.join(packroot, pack_file)
+    if not os.path.isfile(pack_path):
+        print('Labpack not found: %s' % packname)
+        list()
+        exit(1)
+    the_pack = []
+    with open(pack_path) as fh:
+        the_pack = json.load(fh)
+    print('Labpack: %s' % packname)
+    if len(the_pack['description']) > 0:
+        print('Description: %s' % (the_pack['description']))
+    for entry in the_pack['labs']:
+        done = '[n]'
+        lab = entry['name']
+        xfer = os.path.join(os.getenv('HOME'), 'labtainer_xfer', lab)
+        if os.path.isdir(xfer):
+            gpath = os.path.join(xfer, '*.zip')
+            glist = glob.glob(gpath)
+            if len(glist) > 0:
+                done = '[Y]'
+        about_path = os.path.join(labroot, lab, 'config', 'about.txt')
+        if os.path.isfile(about_path):
+            with open(about_path) as about_fh:
+                  print('%s %s\n\t%s' % (done, lab, about_fh.read()))
+        else:
+            print('%s %s' % (done, lab))
+        if len(entry['notes']) > 0:
+            print('\tNote: %s' % entry['notes'])
+
+if __name__ == '__main__':
+    sys.exit(main())

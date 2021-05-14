@@ -29,6 +29,7 @@ POSSIBILITY OF SUCH DAMAGE.
 '''
 import sys
 import os
+import labList
 ''' Read keywords from each lab and print a list of them '''
 def list():
     labtainer_dir = os.getenv('LABTAINER_DIR') 
@@ -36,7 +37,8 @@ def list():
         print('LABTAINER_DIR not defined')
         exit(1)
     labs_dir = os.path.join(labtainer_dir, 'labs')
-    lablist = os.listdir(labs_dir) 
+    #lablist = os.listdir(labs_dir) 
+    lablist = labList.getLabs()
     key_list = []
     for lab in lablist:
         keypath = os.path.join(labs_dir, lab, 'config', 'keywords.txt')
@@ -57,7 +59,8 @@ def find(keyword):
         print('LABTAINER_DIR not defined')
         exit(1)
     labs_dir = os.path.join(labtainer_dir, 'labs')
-    labdirs = os.listdir(labs_dir) 
+    #labdirs = os.listdir(labs_dir) 
+    labdirs = labList.getLabs()
     lab_list = []
     lab_descrip = []
     for lab in labdirs:
