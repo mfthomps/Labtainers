@@ -1,7 +1,7 @@
-routing-basics2.pdf: routing-basics.tex header.tex
-	pdflatex -jobname=routing-basics routing-basics
-	pdflatex -jobname=routing-basics routing-basics
+routing-basics2.pdf: routing-basics2.tex header.tex
+	pdflatex -jobname=routing-basics2 routing-basics2
+	pdflatex -jobname=routing-basics2 routing-basics2
 
 clean:
 	rm -fr auto
-	rm -f routing-basics.aux routing-basics.log routing-basics.pdf routing-basics.dvi routing-basics.out
+	rm -f *.aux *.log *.dvi *.out
