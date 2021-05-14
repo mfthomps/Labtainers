@@ -112,7 +112,7 @@ def copy_container(start_config_file, oldcontainer, newcontainer, oldlab=None):
                 cname = line.strip().split()[1]
                 if cname == oldcontainer:
                     grab = True
-                    cline = 'CONTAINER %s' % newcontainer
+                    cline = 'CONTAINER %s\n' % newcontainer
                     grabbed.append(cline)
             elif grab:
                 if line.strip().startswith('CONTAINER'): 
