@@ -37,12 +37,14 @@ student_cwd = instructor_cwd.replace('labtainer-instructor', 'labtainer-student'
 # Append Student CWD to sys.path
 sys.path.append(student_cwd+"/bin")
 import keywords
+import labList
 
 ''' Create and maintain Labpacks (collections of Labtainer exercises). '''
 ''' Labpacks are stored in $HOME/labpacks.  TBD make this a preference. '''
 packroot = os.path.join(os.getenv('LABTAINER_DIR'), 'labpacks')
 labroot = os.path.join(os.getenv('LABTAINER_DIR'), 'labs')
-lab_list = os.listdir(labroot)
+#lab_list = os.listdir(labroot)
+lab_list = labList.getLabs()
 def newPack(pack_path):
     print('Creating new Labpack: %s' % os.path.basename(pack_path))
 
@@ -56,6 +58,7 @@ def help():
     print('\t s)how labs in this pack')
     print('\t k)ey list all keywords')
     print('\t f)ind labs with given keyword')
+    print('\t d)escribe the Labpack, i.e., a summary')
     print('\t h)elp')
     print('\t q)uit')
     print('\n')
@@ -69,16 +72,16 @@ def remove(line, pack_path, the_pack):
     parts = line.split(' ',2)
     if parts[0] == 'r' or parts[0] == 'remove':
         if len(parts) == 1:
-            add = input('Name of lab to remove: ')
-            lab = add.strip()
+            remove = input('Name of lab to remove: ')
+            lab = remove.strip()
         else:
             lab = parts[1].strip()
         remove_this = None
-        for entry in the_pack:
+        for entry in the_pack['labs']:
             if entry['name'] == lab:
                 remove_this = entry
         if remove_this is not None:
-            the_pack.remove(remove_this)
+            the_pack['labs'].remove(remove_this)
         else:
             print('No lab entry found for %s' % lab)
     
@@ -104,7 +107,7 @@ def add(line, pack_path, the_pack):
             pack_entry = {}
             pack_entry['name']=lab         
             pack_entry['notes']=notes
-            the_pack.append(pack_entry)
+            the_pack['labs'].append(pack_entry)
             savePack(pack_path, the_pack)
         else:
             print('Lab not found: %s' % lab)
@@ -115,7 +118,7 @@ def add(line, pack_path, the_pack):
 def getIndex(lab, the_pack):
     retval = None
     index = 0
-    for entry in the_pack:
+    for entry in the_pack['labs']:
         if entry['name'] == lab.strip():
             retval = index
             break
@@ -129,7 +132,7 @@ def insert(line, pack_path, the_pack):
         notes = ''
         if len(parts) == 1:
             before = input('Insert before which lab?')
-            index = getIndex(before, the_pack)
+            index = getIndex(before, the_pack['labs'])
             if index is None:
                 print('no existing lab named %s' % before)
                 return
@@ -145,7 +148,7 @@ def insert(line, pack_path, the_pack):
             help()
         else:
             before = parts[1].strip()
-            index = getIndex(before, the_pack)
+            index = getIndex(before, the_pack['labs'])
             if index is None:
                 print('no existing lab named %s' % before)
                 return
@@ -156,7 +159,7 @@ def insert(line, pack_path, the_pack):
             pack_entry = {}
             pack_entry['name']=lab         
             pack_entry['notes']=notes
-            the_pack.insert(index, pack_entry)
+            the_pack['labs'].insert(index, pack_entry)
             savePack(pack_path, the_pack)
         else:
             print('Lab not found: %s' % lab)
@@ -173,6 +176,18 @@ def find(line):
             key = parts[1] 
         keywords.find(key)
     
+def describe(line, pack_path, the_pack):
+    parts = line.split(' ',1)
+    if parts[0] == 'd' or parts[0] == 'describe':
+        if len(parts) == 1:
+            descript = input('Describe the Labpack:')
+        else:
+            descript = parts[1]
+        the_pack['description'] = descript
+        savePack(pack_path, the_pack)
+    else:
+        print('Unknown command')
+        help()
     
 def loop(pack_path, the_pack):
     pack_name = os.path.basename(pack_path)
@@ -187,9 +202,13 @@ def loop(pack_path, the_pack):
         elif select.startswith('i'):
             insert(select, pack_path, the_pack)         
         elif select.startswith('s'):
+            print('Content of Labpack %s' % name)
+            if len(the_pack['description']) > 0:
+                print('Description: %s' % the_pack['description'])
+            print('\n')
             print('\t%-15s Notes' % 'Lab')
             print('\t%-15s =====' % '===')
-            for entry in the_pack:
+            for entry in the_pack['labs']:
                 print('\t%-15s %s' % (entry['name'], entry['notes']))
         elif select.startswith('r'):
             remove(select, pack_path, the_pack)
@@ -199,6 +218,8 @@ def loop(pack_path, the_pack):
             keywords.list()
         elif select.startswith('f'):
             find(select)
+        elif select.startswith('d'):
+            describe(select, pack_path, the_pack)
         elif select != 'q':
             print('Unknown command')
             help()
@@ -225,7 +246,9 @@ def main():
     pack_file = '%s.labpack' % packname
     pack_path = os.path.join(packroot, pack_file)
     if not os.path.isfile(pack_path):
-        the_pack = []
+        the_pack = {}
+        the_pack['description'] = ''
+        the_pack['labs'] = []
         newPack(pack_path) 
     else:
         with open(pack_path) as fh:
