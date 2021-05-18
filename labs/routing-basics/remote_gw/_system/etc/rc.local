@@ -1,0 +1,25 @@
+#!/bin/bash
+route delete default
+route add default gw 240.0.114.1
+#
+# get ethernet device names for the three interfaces
+#
+lan1=$(ifconfig | grep -B1 "inet .*:172.16.0.10" | awk '$1!="inet" && $1!="--" {print substr($1,1,length($1)-1)}')
+wan=$(ifconfig | grep -B1 "inet .*203.0.113.20" | awk '$1!="inet" && $1!="--" {print substr($1,1,length($1)-1)}')
+#
+# Define NAT for traffic from LANs to the WAN
+#
+iptables --flush
+iptables -t nat --flush
+iptables --delete-chain
+iptables -t nat --delete-chain
+iptables --table nat -I POSTROUTING 1 --out-interface $wan -j MASQUERADE
+iptables --append FORWARD --in-interface $lan1 -j ACCEPT
+#
+# restart the DNS forwarder (rely on DNS provided by ISP)
+#
+
+echo "nameserver 203.0.113.1" > /etc/resolv.conf
+route del -host 172.17.0.1
+/etc/init.d/dnsmasq restart
+
