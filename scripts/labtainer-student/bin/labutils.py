@@ -522,7 +522,14 @@ def HandleVolumes(volume, container):
         volume = volume + ' -v %s:%s:rw' % (host_path, container_path)
     return volume
 
-def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_name=None, mysubnet_ip=None, quiet=False):
+def checkSbin(lab_path, name):
+    sbin = os.path.join(lab_path, name, '_system','sbin')
+    if os.path.isdir(sbin) and not os.path.islink(sbin):
+        return False
+    else:
+        return True
+    
+def CreateSingleContainer(labtainer_config, start_config, container, lab_path, mysubnet_name=None, mysubnet_ip=None, quiet=False):
     ''' create a single container -- or all clones of that container per the start.config '''
     retval = True
     #image_exists, result, new_image_name = ImageExists(container.image_name, container.registry)
@@ -549,6 +556,10 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
         ubuntu_systemd = isUbuntuSystemd(new_image_name)
         if ubuntu_systemd is not None:
            osTypeMap[container.image_name] = ubuntu_systemd
+           if ubuntu_systemd == 'ubuntu20':
+               if not checkSbin(lab_path, container.name): 
+                   logger.error('/sbin found in ubuntu20 container %s.  Would be fatal, exiting.' % container.name)
+                   return False
         is_firefox = isFirefox(new_image_name)
         if is_firefox:
             shm = '--shm-size=2g'
@@ -1234,7 +1245,7 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
             # Use CreateSingleContainer()
             containerCreated = False
             if len(container.container_nets) == 0 or container.tap == 'yes':
-                containerCreated = CreateSingleContainer(labtainer_config, start_config, container, quiet=quiet_start)
+                containerCreated = CreateSingleContainer(labtainer_config, start_config, container, lab_path, quiet=quiet_start)
             else:
                 #mysubnet_name, mysubnet_ip = container.container_nets.popitem()
                 mysubnet_name = next(iter(container.container_nets))
@@ -1244,7 +1255,8 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                 if ':' in mysubnet_name:
                     subnet_name = mysubnet_name.split(':')[0] 
                     post_start_if[subnet_name] = mysubnet_ip
-                containerCreated = CreateSingleContainer(labtainer_config, start_config, container, subnet_name, mysubnet_ip, quiet=quiet_start)
+                containerCreated = CreateSingleContainer(labtainer_config, start_config, container, lab_path,
+                   mysubnet_name=subnet_name, mysubnet_ip=mysubnet_ip, quiet=quiet_start)
                 
             logger.debug("CreateSingleContainer %s result (%s)" % (mycontainer_name, containerCreated))
             if not containerCreated:

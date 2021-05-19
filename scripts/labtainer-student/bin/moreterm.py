@@ -82,7 +82,8 @@ def main():
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
     labutils.logger.debug("Begin logging moreterm.py for %s lab" % labname)
     lab_path = os.path.join(os.path.abspath('../../labs'), labname)
-    labutils.DoMoreterm(lab_path, container, clone_number)
+    if not labutils.DoMoreterm(lab_path, container, clone_number):
+        print('Terminals not supported for %s' % container)
 
     return 0
 
