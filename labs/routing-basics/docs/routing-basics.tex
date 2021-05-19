@@ -94,7 +94,7 @@ using reverse DNS to put names to IP address and ports.}:
 
 \noindent Then, on ws1:
 \begin{verbatim}
-    ping [ws2 IP]
+    ping [ws2 IP] -c 3
 \end{verbatim}
 
 Now consider ws2 and ws3.  Since they are both on the same subnet, they can ping
@@ -145,7 +145,7 @@ gateway, i.e., our gateway component.  The gateway routing table is configured t
 send external traffic to the simulated ISP at 203.0.113.1.  However, before that traffic is sent, we need
 to translate the source IP address to our exernal 203.0.113.10 address so that google or our ISP knows
 where to send replies.  
-Use this command:
+Use this command on the gatway (use ctrl-c to break out of tcpdump if it is running):
 \begin{verbatim}
     sudo iptables -L -v -t nat
 \end{verbatim}
