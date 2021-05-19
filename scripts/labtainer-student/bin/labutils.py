@@ -605,6 +605,9 @@ def CreateSingleContainer(labtainer_config, start_config, container, lab_path, m
         #    #volume = volume+' --device="/dev/sdb"'
 
         add_hosts = ''     
+        if "_" in container.name:
+            no_underscores = container.name.replace("_","")
+            add_hosts = '--add-host %s:127.0.0.1' % no_underscores
         for item in container.add_hosts:
             if ':' not in item:
                if item in start_config.lan_hosts:
@@ -2196,6 +2199,9 @@ def GetListRunningLabType():
                 ''' gns3 labtainer image '''
                 labname = image_name.split('_', 1)[0]
                 is_gns3 = True
+            elif container_name.endswith('.student'):
+                ''' docker is sick, changed image name to checksum. '''
+                labname = container_name.split('.')[0]
             else:
                 logger.debug('not a labtainer: %s' % image_name)
                 continue
