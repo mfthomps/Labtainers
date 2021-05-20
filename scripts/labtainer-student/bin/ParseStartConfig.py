@@ -165,7 +165,7 @@ class ParseStartConfig():
         def __init__(self, name, logger):
             self.name   = name
             self.mask = 0
-            self.gateway = 0
+            self.gateway = None
             self.macvlan = None
             self.macvlan_ext = None
             self.macvlan_use = None
@@ -182,7 +182,7 @@ class ParseStartConfig():
             except ValueError:
                 self.logger.error('bad ip subnet %s for subnet %s\n' % (self.mask, self.name))
                 exit(1)
-            if not IPAddress(self.gateway) in IPNetwork(self.mask):
+            if self.gateway is not None and (not IPAddress(self.gateway) in IPNetwork(self.mask)):
                 self.logger.error('network: %s Gateway IP (%s) not in subnet for SUBNET line(%s)!\n' % 
                     (self.name, self.gateway, self.mask))
                 exit(1)
