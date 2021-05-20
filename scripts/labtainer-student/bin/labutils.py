@@ -596,7 +596,7 @@ def CreateSingleContainer(labtainer_config, start_config, container, mysubnet_na
         add_hosts = ''     
         if "_" in container.name:
             no_underscores = container.name.replace("_","")
-            add_hosts = '--add-host %s:127.0.0.1' % no_underscores
+            add_hosts = '--add-host %s:127.0.0.1 ' % no_underscores
         for item in container.add_hosts:
             if ':' not in item:
                if item in start_config.lan_hosts:
