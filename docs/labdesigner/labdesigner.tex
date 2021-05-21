@@ -2903,6 +2903,14 @@ delete the Docker-generated route:
 \noindent And the fixlocal.sh also replaces the resolv.conf entry with either a local DNS component, or a gateway running
 the dnsmasq utility.  The /etc/rc.local script generally sets the default gateway, and configures iptables.
 
+\subsubsection{Move to network2 base}
+Transitioning labs from using the network base to using the network2 base involves moving to Ubuntu20, which 
+does not have native ifconfig and requires  installation of net-tools, which is done in the Dockerfile.  However,
+linux tool maintainer decided to fix the output of ifconfig.  Therefore if you have {\tt ifconfig | grep} fu in your 
+iptables definitions or elsewhere, change {\tt inet addr:xxx} to {\tt inet.*xxx}.  And use awk substr to remove
+the new colon that follows network interface device names.  See the routing-basics lab as an example.  
+
+
 \subsection{User management and sudo}
 The Dockerfile should make the initial user, i.e., the user named in the start.config file, a member of sudoers.
 Otherwise, the fixlocal.sh script will not be unable to modify the environment.  If desired, that user can be
@@ -3048,7 +3056,7 @@ The SimLab directives are as follows:
 \begin{itemize}
 \item \textbf{window} $<$text$>$ -- Selects the window having a title that contains.  Note that
 tabs within windows are selected by first selecting the window, and then use {\tt key "ctrl+Next"}
-to tab over to the desired terminal tab.
+or {\tt ctrl+Prior} to tab over to the desired terminal tab.
 the given text.  Will timeout and fail after 20 seconds.
 \item \textbf{window\_wait} $<$text$>$ -- Like window, but no timeout.  Intended for
 use when the xterm title is changed by a program.

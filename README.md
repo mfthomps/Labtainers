@@ -95,6 +95,9 @@ May 19, 2011
 - Remove routing-basics2 lab, it is now redundant.
 - sudo on some containers failed because hostnames remove underscores, leading to mismatch
   with the hosts file.  Fix with extra entry in the hosts file with container name sans underscore.
+- New Labpack feature to package a collection of labs, and makepack tool to create Labpacks.
+- routing-basics lab guide expansion and move to network2.
+- Error check for /sbin directory when using ubuntu20 -- would be silently fatal.
 
 May 5, 2021
 - Introduce a new users lab to introduce user/group management
