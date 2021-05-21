@@ -747,7 +747,7 @@ not simply added to your container via package managers.)
 
 
 \subsection {Lab Text and Instructions for Students} \label{instructions}
-Create a 'docs' directory in the [labname] directory if there isn't one there. This is where most textual information about the lab, as well as the lab manual, should be stored and modified. The 'about.txt' is an exception to this. \\ 
+Create a 'docs' directory in the [labname] directory if there isn't one there. This is where most textual information about the lab, as well as the lab manual, should be stored and modified. \\ 
 
 \noindent Use LateX to write and create PDF files in the docs directory. Look at other lab's docs directory on how to create a Makefile for the LateX file. \\ 
 
@@ -766,7 +766,8 @@ to a [labname].pdf file within that same docs directory. And ``LAB\_DOCS'' is re
 \end{itemize}
 	
 
-\noindent An 'about.txt' file will be present in the 'config' directory of the lab. Any text inside will be displayed as a description to the lab when listed from running the 'labtainer' command in \$LABTAINER\_DIR/trunk/scripts/labtainer-student. This text will also appear when clicking on the logo in the GNS3 environment of Labtainers. \\ 
+\noindent An {\tt about.txt} file should be present in the 'config' directory of the lab. Any text inside will be displayed as a description to the lab when listed from running the {\tt labtainer} command. This text will also appear when clicking on the logo in the GNS3 environment of Labtainers. That directory should also include a {\tt keywords.txt} file that associates searchable keywords with the lab.  Use
+the {\tt labtainer -k} option to view a list of existing keywords.  Do no create new keywords unless clearly needed.\\ 
 
 \noindent If the start.config file includes ``COLLECT\_DOCS YES'', the content of the lab/docs directory will be
 included with the student artifacts and available extracted into the instructor's 
