@@ -1,0 +1,1 @@
+{"description": "Network traffic analysis", "labs": [{"name": "packet-introspection", "notes": ""}, {"name": "pcap-lib", "notes": ""}, {"name": "netflow", "notes": ""}, {"name": "grassmarlin", "notes": ""}, {"name": "plc-traffic", "notes": ""}, {"name": "plc-forensics", "notes": ""}], "order": 600, "name": "net-traffic"}

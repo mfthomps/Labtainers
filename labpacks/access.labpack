@@ -1,0 +1,1 @@
+{"description": "Authentication and access control", "labs": [{"name": "users", "notes": ""}, {"name": "acl", "notes": ""}, {"name": "sshlab", "notes": ""}, {"name": "ssh-agent", "notes": ""}, {"name": "ldap", "notes": ""}, {"name": "radius", "notes": ""}, {"name": "db-access", "notes": ""}], "order": 500, "name": "access"}

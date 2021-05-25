@@ -1,0 +1,1 @@
+{"description": "Web security labs", "labs": [{"name": "webtrack", "notes": ""}, {"name": "pubkey", "notes": ""}, {"name": "xforge", "notes": ""}, {"name": "xsite", "notes": ""}, {"name": "sql-inject", "notes": ""}], "order": 700, "name": "web-security"}

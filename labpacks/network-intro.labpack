@@ -1,0 +1,1 @@
+{"description": "Introduction to basic network concepts", "labs": [{"name": "network-basics", "notes": ""}, {"name": "routing-basics", "notes": ""}, {"name": "telnetlab", "notes": ""}, {"name": "pcapanalysis", "notes": ""}, {"name": "wireshark-intro", "notes": ""}], "order": 100, "name": "network-intro"}
