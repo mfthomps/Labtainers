@@ -22,9 +22,9 @@ The Labtainers website, and downloads (including VM appliances with Labtainers p
 [designer-guide]: docs/labdesigner/labdesigner.pdf
 [Papers]: https://nps.edu/web/c3o/labtainers#papers
 
-Distribution created: 05/19/2021 01:00 </br>
+Distribution created: 05/25/2021 01:00 </br>
 Previous revision: v1.3.4m </br>
-Commit: 3444f3b3 </br>
+Commit: 07fabcb2 </br>
 Branch: premaster </br>
 
 ## Content
@@ -89,15 +89,15 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
-May 19, 2011
+May 25, 2021
 - Add searchable keywords to each lab.  See "labtainer -h" for usage.
 - Expand routing-basics lab and lab manual
 - Remove routing-basics2 lab, it is now redundant.
 - sudo on some containers failed because hostnames remove underscores, leading to mismatch
   with the hosts file.  Fix with extra entry in the hosts file with container name sans underscore.
 - New Labpack feature to package a collection of labs, and makepack tool to create Labpacks.
-- routing-basics lab guide expansion and move to network2.
 - Error check for /sbin directory when using ubuntu20 -- would be silently fatal.
+- New network-basics lab
 
 May 5, 2021
 - Introduce a new users lab to introduce user/group management
