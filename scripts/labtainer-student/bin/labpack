@@ -33,49 +33,95 @@ import os
 import argparse
 import json
 import glob
+import shutil
+import subprocess
+import LabtainerLogging
 '''
 Track student progress completing labs in a Labpack.
 '''
 packroot = os.path.join(os.getenv('LABTAINER_DIR'), 'labpacks')
 labroot = os.path.join(os.getenv('LABTAINER_DIR'), 'labs')
 lab_list = os.listdir(labroot)
+home = os.getenv('HOME')
+''' Labpacks for this installation, used when updating. '''
+labpack_path = os.path.join(home, '.local/share/labtainers/labpacks.txt')
+
 
 def list():
-        print('List of existing Labpack names:')
-        flist = os.listdir(packroot)
-        for f in flist:
-            parts = f.split('.',1)
-            if len(parts)>1:
-                pack_name = parts[0]
-                pack_path = os.path.join(packroot, f)
-                the_pack = []
-                with open(pack_path) as fh:
-                    the_pack = json.load(fh)
-                print('%s  -- %s' % (pack_name, the_pack['description']))
-        print('\nUsage: labpack <name>')
+    plist = {}
+    print('List of installed Labpacks:')
+    flist = os.listdir(packroot)
+    for f in flist:
+        parts = f.split('.',1)
+        if len(parts)>1:
+            pack_name = parts[0]
+            pack_path = os.path.join(packroot, f)
+            the_pack = []
+            with open(pack_path) as fh:
+                the_pack = json.load(fh)
+            order = 0
+            if 'order' in the_pack:
+                order = int(the_pack['order'])
+            plist[order] = the_pack
+    for o in sorted(plist):
+        the_pack = plist[o]
+        print('\t%s  -- %s' % (the_pack['name'], the_pack['description']))
 
-def main():
+def update(logger, labpack_url):
+    tfile = '/tmp/labpack.tar'
     try:
-        os.makedirs(packroot)
+        os.rm(tfile)
     except:
         pass
-    parser = argparse.ArgumentParser(prog='labpack', description='Track performance of labs in a Labpack')
-    parser.add_argument('name', default='NONE', nargs='?', action='store', help='The Labpack to track.')
-    if len(sys.argv) < 2:
-        list()
-        exit(0)
-    args = parser.parse_args()
-    packname = args.name
-    pack_file = '%s.labpack' % packname
-    pack_path = os.path.join(packroot, pack_file)
-    if not os.path.isfile(pack_path):
-        print('Labpack not found: %s' % packname)
-        list()
-        exit(1)
+    if labpack_url.startswith('file://'):
+        shutil.copyfile(labpack_url[6:].strip(), '/tmp/labpack.tar')
+        logger.debug('copied local file from %s' % labpack_url[6:])
+    else:
+        cmd = 'wget -L -O /tmp/labpack.tar %s' % labpack_url.strip()
+        logger.debug('cmd is %s' % cmd)
+        ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        output = ps.communicate()
+        if len(output[1].strip()) > 0:
+            for line in output[1].decode('utf-8').splitlines(True):
+                logger.debug(line)
+        if len(output[0].strip()) > 0:
+            for line in output[0].decode('utf-8').splitlines(True):
+                logger.debug(line)
+    if os.path.isfile(tfile):
+        logger.debug('Got tar, expand from %s' % labpack_url)
+        cmd = 'tar -xf %s' % tfile
+        print('Updating Labpack from %s' % labpack_url.strip())
+        #print('expand into %s with command:' % os.getcwd())
+        #print(cmd)
+        ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        output = ps.communicate()
+        if len(output[1].strip()) > 0:
+            print('Error installing Labpack from %s, see $LABTAINER_DIR/logs/labpack.log' % labpack_url)
+            for line in output[1].decode('utf-8').splitlines(True):
+                logger.debug(line)
+        if len(output[0].strip()) > 0:
+            for line in output[0].decode('utf-8').splitlines(True):
+                logger.debug(line)
+    else:
+        print('Unable to retreive Labpack tar from %s' % labpack_url)
+
+def doUpdates(logger):
+    logger.debug('doUpdates')
+    if not doChdir():
+        print('Labpack update failed')
+    else:
+        if not os.path.isfile(labpack_path):
+            logger.debug('No labpacks at %s to update.' % labpack_path)
+            print('No labpacks defined.')
+            return 
+        with open(labpack_path) as fh:
+            for labpack_url in fh:
+                update(logger, labpack_url)
+
+def handlePack(pack_path):
     the_pack = []
     with open(pack_path) as fh:
         the_pack = json.load(fh)
-    print('Labpack: %s' % packname)
     if len(the_pack['description']) > 0:
         print('Description: %s' % (the_pack['description']))
     for entry in the_pack['labs']:
@@ -95,6 +141,59 @@ def main():
             print('%s %s' % (done, lab))
         if len(entry['notes']) > 0:
             print('\tNote: %s' % entry['notes'])
+
+def doChdir():
+    retval = True
+    here = os.getcwd()
+    try:
+        os.chdir(packroot)
+    except:
+        print('could not cd to %s' % packroot)
+        retval = False
+    return retval
+
+def main():
+    try:
+        os.makedirs(packroot)
+    except:
+        pass
+    config_file = os.path.join(os.getenv('LABTAINER_DIR'), 'config', 'labtainer.config') 
+    logger = LabtainerLogging.LabtainerLogging("/tmp/labpack.log", '', config_file)
+    parser = argparse.ArgumentParser(prog='labpack', description='Track performance of labs in a Labpack')
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('name', default='NONE', nargs='?', action='store', help='The Labpack to track.')
+    group.add_argument('-a', '--add', action='store', help='Get a Labpack from a URL.')
+    group.add_argument('-u', '--updates', action='store_true', default=False, help='Update Labpacks for this installation.')
+    args = parser.parse_args()
+    if len(sys.argv) < 2:
+        list()
+        if parser is None:
+            print('IS NONE')
+        print('\n')
+        parser.print_help()
+        exit(0)
+    if args.add is not None:
+        with open(labpack_path, 'a') as fh:
+            logger.debug('Adding labpack path %s' % args.add)
+            print('Adding labpack path %s' % args.add)
+            fh.write(args.add+'\n')
+        if doChdir():
+            update(logger, args.add)
+        else:
+            print('Labpack failed')
+    elif args.updates:
+        doUpdates(logger)
+    elif args.name is not 'NONE':
+        pack_file = '%s.labpack' % args.name
+        pack_path = os.path.join(packroot, pack_file)
+        if not os.path.isfile(pack_path):
+            print('Labpack not found: %s' % packname)
+            list()
+            print('\n')
+            parser.print_help()
+            exit(1)
+        print('Labpack: %s' % args.name)
+        handlePack(pack_path)
 
 if __name__ == '__main__':
     sys.exit(main())
