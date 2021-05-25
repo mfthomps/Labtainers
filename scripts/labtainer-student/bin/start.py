@@ -108,6 +108,7 @@ def showLabs(dirs, path, versions, skip):
         else:
             description += "\n"
             #sys.stderr.write(description)
+    description+="\n Use the -k option to see keywords and the -f option to view labs with a keyword.  Also try the 'labpack' command to view a list of lab collections called Labpacks."
     pydoc.pager(description)
     print('Use "-h" for help.')
 
@@ -149,9 +150,9 @@ def main():
     dirs = os.listdir(path)
     rev = getRev()
     #revision='%(prog)s %s' % rev
-    parser = argparse.ArgumentParser(prog='labtainer', description='Start a Labtainers lab.  Provide no arguments see a list of labs.')
+    parser = argparse.ArgumentParser(prog='labtainer', description='Start a Labtainers lab.  Provide no arguments to see a list of labs.')
     parser.add_argument('labname', default='NONE', nargs='?', action='store', help='The lab to run')
-    parser.add_argument('-q', '--quiet', action='store_true', help='Do not prompt for email, use previoulsy supplied email.')
+    parser.add_argument('-q', '--quiet', action='store_true', help='Do not prompt for email, use previously supplied email.')
     parser.add_argument('-r', '--redo', action='store_true', help='Creates new instance of the lab, previous work will be lost.')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s '+rev)
     parser.add_argument('-k', '--keywords', action='store_true', help='List all searchable keywords.')
@@ -159,7 +160,7 @@ def main():
     parser.add_argument('-d', '--diagnose', action='store_true', help='Run diagnostics on the environment expected by Labtainers')
     parser.add_argument('-s', '--servers', action='store_true', help='Intended for distributed Labtainers, start the containers that are not clients.')
     parser.add_argument('-w', '--workstation', action='store_true', help='Intended for distributed Labtainers, start the client workstation.')
-    parser.add_argument('-n', '--client_count', action='store', help='Number of clones of client components to create, itended for multi-user labs')
+    parser.add_argument('-n', '--client_count', action='store', help='Number of clones of client components to create, intended for multi-user labs')
     parser.add_argument('-o', '--only_container', action='store', help='Run only the named container')
     parser.add_argument('-t', '--test_registry', action='store_true', default=False, help='Run with images from the test registry')
     num_args = len(sys.argv)
@@ -184,7 +185,7 @@ def main():
     labname = args.labname
     if labname == 'NONE' and not args.diagnose:
         sys.stderr.write("Missing lab name\n")
-        parser.usage()
+        parser.print_help()
         sys.exit(1)
     if args.diagnose:
         diagnose()
