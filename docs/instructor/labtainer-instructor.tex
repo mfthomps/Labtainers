@@ -33,13 +33,12 @@ labs using Labtainers.
 Labtainers provide a consistent execution environment for performing
 laboratory exercises, and can include execution of several different
 computers interconnected via virtual networks.  Refer to our published
-papers at \url{https://my.nps.edu/web/c3o/labtainers} for additional information
-on the use of Labtainers.  And see the \underline{Lab Designer User Guide}"
-at \url{https://github.com/mfthomps/Labtainers/raw/master/docs/labdesigner/labdesigner.pdf}
-information on creating and maintaining Labtainer exercises.
+papers at \url{https://nps.edu/web/c3o/labtainers} for additional information
+on the use of Labtainers.  
+See \ref{customizing} for information on creating and maintaining Labtainer exercises.
 
 The easiest way to get Labtainers is to use our pre-built VM available at the Labtainer
-website \url{https://my.nps.edu/web/c3o/virtual-machine-images}.
+website \url{https://nps.edu/web/c3o/virtual-machine-images}.
 Note that any Linux system can be used as long as it supports Docker,
 and it can be used on \textit{Docker Desktop} installations on 
 Mac and Windows computers as an alternative to using the VM appliance.
@@ -51,7 +50,6 @@ Running Labtainers on servers, e.g., cloud deployments is discussed in
 section \ref{servers}
 
 \section{Assigning Labs}
-Available labs are summerized and organized into broad categories at \url{https://nps.edu/web/c3o/labtainer-lab-summary1}.
 Pior to assigning a lab, become familiar with it by reviewing the lab and its manual.
 
 Student instructions for using Labtainers are in the \underline{Labtainer Student Guide}.  
@@ -59,6 +57,7 @@ Students work from the {\tt labtainer-student} directory, i.e.,
 \begin{verbatim}
     cd ~/labtainer/trunk/scripts/labtainer-student
 \end{verbatim}
+\subsection{Selecting Labs}
 Available labs are listed via the {\tt labtainer} script:
 \begin{verbatim}
     labtainer
@@ -66,6 +65,24 @@ Available labs are listed via the {\tt labtainer} script:
 \noindent Use the {\tt -k} option to see a list of searchable keywords, and the {\tt -f <keyword>} option to view a summary
 of labs having that keyword.
 
+Lab exercises are also organized into \textit{Labpacks}. These are ordered collections of multiple related labs that you may
+wish to assign to students.  Use this command:
+\begin{verbatim}
+    labpack
+\end{verbatim}
+\noindent to view a list of Lab Packs, and provide the name of a Labpack as an argument to see a list of the labs
+within a Labpack.  You may also create your own Labpacks as described in \ref{labpacks}. 
+
+Available labs are also summerized and organized into broad categories at \url{https://nps.edu/web/c3o/labtainer-lab-summary1}.
+
+Additional lab exercises created by instructors are available as IModules, which are listed at \url{https://nps.edu/web/c3o/imodules}.
+Students can get access to those labs using:
+\begin{verbatim}
+    imodule <url>
+\end{verbatim}
+\noindent where {\tt url} is that provided on the IModules web page.
+
+\subsection{Try the Lab}
 Start a lab by providing its name as an argument to the {\tt labtainer} command.
 This will typically display a link to a lab manual, or will display a lab manual in one of
 the resulting virtual terminals.  You can interact with the resulting computers just as a
@@ -267,13 +284,42 @@ including a sample cloud-config file.
 \end{enumerate}
 
 \section{Customizing Labtainers}
+\label{customizing}
+\subsection{New and custom lab exercises}
 Creating new labs and modifying existing labs is described in the \textit{Labtainers Lab Designer User Guide}.
 \url{https://github.com/mfthomps/Labtainers/raw/master/docs/labdesigner/labdesigner.pdf}
 
-That guide also describes how to provide your students with custom versions of the lab manuals, and how to
+That guide also describes how to use \textit{IModules} to provide your students with custom versions of the lab manuals, and how to
 publish new labs so that they can be incorporated into your student's Labtainers instances, and shared
 with other educators.
 
+\subsection{Create new Labpacks}
+You can organize lab exercises into your own Labapcks using the {\tt makepack} command.  First go to the
+\begin{verbatim}
+   $LABTAINER_HOME/scripts/labtainer-instructor
+\end{verbatim}
+\noindent directory and then use the {\tt makepack} command, providing the name of the Labpack that you wish
+to create or modify.\footnote{Do not modify other Labpacks, only modify those that you've created.}  
+\begin{verbatim}
+   makepack mypack1
+\end{verbatim}
+
+\noindent This results in a shell that accepts makepack comands.  Use either {\tt h} or {\tt ?} to get help.  
+Note that chages to Labpacks are stored immediately, there are no save/quit options.
+
+Labpacks are stored in the {\tt \$LABTAINER\_HOME/labpacks} directory.  To publish one or more Labpacks so that
+they are available to your students, go to the {\tt labpacks} directory and use tar to create a tarball containing
+each of your Labpacks.  For example:
+\begin{verbatim}
+    tar tf mypacks.tar mypack1 mypack2
+\end{verbatim}
+\noindent Include only the names of your custom Labpacks that you wish your students to receive.
+Then post the resulting tarball on a website and provide your students with the URL.  Students will then
+provide that URL to the {\tt labpack} command:
+\begin{verbatim}
+    labpack -a <url>
+\end{verbatim}
+\noindent to get access to your Labpacks.
 \newpage
 \appendix
 \section{\\LMS Assignment Collection}
