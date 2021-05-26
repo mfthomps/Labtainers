@@ -1,0 +1,4 @@
+metasploit
+vulnerability
+kali
+script kiddies

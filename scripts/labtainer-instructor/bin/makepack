@@ -1,0 +1,301 @@
+#!/usr/bin/env python3
+'''
+This software was created by United States Government employees at 
+The Center for Cybersecurity and Cyber Operations (C3O) 
+at the Naval Postgraduate School NPS.  Please note that within the 
+United States, copyright protection is not available for any works 
+created  by United States Government employees, pursuant to Title 17 
+United States Code Section 105.   This software is in the public domain 
+and is not subject to copyright. 
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+'''
+import sys
+import os
+import argparse
+import json
+instructor_cwd = os.getcwd()
+student_cwd = instructor_cwd.replace('labtainer-instructor', 'labtainer-student')
+# Append Student CWD to sys.path
+sys.path.append(student_cwd+"/bin")
+import keywords
+import labList
+
+''' Create and maintain Labpacks (collections of Labtainer exercises). '''
+''' Labpacks are stored in $HOME/labpacks.  TBD make this a preference. '''
+packroot = os.path.join(os.getenv('LABTAINER_DIR'), 'labpacks')
+labroot = os.path.join(os.getenv('LABTAINER_DIR'), 'labs')
+#lab_list = os.listdir(labroot)
+lab_list = labList.getLabs()
+def newPack(pack_path):
+    print('Creating new Labpack: %s' % os.path.basename(pack_path))
+
+def help():
+    print('Maintain a Labpack.  All changes are saved as they are made.')
+    print('Files are stored in %s.  Manage your own backups.\n\n' % packroot)
+    print('\t a)dd lab and optional notes.  "a <lab> [notes]"')
+    print('\t i)nsert a lab prior to a existing lab. "i <before> <lab> [notes]')
+    print('\t r)emove lab')
+    print('\t l)ist all labs')
+    print('\t s)how labs in this pack')
+    print('\t k)ey list all keywords')
+    print('\t f)ind labs with given keyword')
+    print('\t d)escribe the Labpack, i.e., a summary')
+    print('\t o)rder in which the Labpack should be displayed (as in integer).')
+    print('\t h)elp')
+    print('\t q)uit')
+    print('\n')
+
+def savePack(pack_path, the_pack):
+    jstring = json.dumps(the_pack)
+    with open(pack_path, 'w') as fh:
+        fh.write(jstring)
+
+def remove(line, pack_path, the_pack):
+    parts = line.split(' ',2)
+    if parts[0] == 'r' or parts[0] == 'remove':
+        if len(parts) == 1:
+            remove = input('Name of lab to remove: ')
+            lab = remove.strip()
+        else:
+            lab = parts[1].strip()
+        remove_this = None
+        for entry in the_pack['labs']:
+            if entry['name'] == lab:
+                remove_this = entry
+        if remove_this is not None:
+            the_pack['labs'].remove(remove_this)
+        else:
+            print('No lab entry found for %s' % lab)
+    
+    else:
+        print('Unknown command')
+        help()
+
+def add(line, pack_path, the_pack):
+    parts = line.split(' ',2)
+    if parts[0] == 'a' or parts[0] == 'add':
+        notes = ''
+        if len(parts) == 1:
+            add = input('Lab name and optional note: ')
+            parts = add.split(' ',1)
+            lab = parts[0]
+            if len(parts) > 1:
+                notes = parts[1]
+        else:
+            lab = parts[1]
+            if len(parts) > 2:
+                notes = parts[2]
+        if lab in lab_list:
+            pack_entry = {}
+            pack_entry['name']=lab         
+            pack_entry['notes']=notes
+            the_pack['labs'].append(pack_entry)
+            savePack(pack_path, the_pack)
+        else:
+            print('Lab not found: %s' % lab)
+    else:
+        print('Unknown command')
+        help()
+
+def getIndex(lab, labs):
+    retval = None
+    index = 0
+    for entry in labs:
+        if entry['name'] == lab.strip():
+            retval = index
+            break
+        else:
+            index +=1
+    return retval
+
+def insert(line, pack_path, the_pack):
+    parts = line.split(' ',3)
+    if parts[0] == 'i' or parts[0] == 'insert':
+        notes = ''
+        if len(parts) == 1:
+            before = input('Insert before which lab?')
+            index = getIndex(before, the_pack['labs'])
+            if index is None:
+                print('no existing lab named %s' % before)
+                return
+            add = input('Lab name and optional note: ')
+            parts = add.split(' ',1)
+            parts = add.split(' ',1)
+            parts = add.split(' ',1)
+            lab = parts[0]
+            if len(parts) > 1:
+                notes = parts[1]
+        elif len(parts) < 3:
+            print('Unknown command')
+            help()
+        else:
+            before = parts[1].strip()
+            index = getIndex(before, the_pack['labs'])
+            if index is None:
+                print('no existing lab named %s' % before)
+                return
+            lab = parts[2]
+            if len(parts) > 3:
+                notes = parts[3]
+        if lab in lab_list:
+            pack_entry = {}
+            pack_entry['name']=lab         
+            pack_entry['notes']=notes
+            the_pack['labs'].insert(index, pack_entry)
+            savePack(pack_path, the_pack)
+        else:
+            print('Lab not found: %s' % lab)
+    else:
+        print('Unknown command')
+        help()
+
+def find(line):
+    parts = line.split(' ',1)
+    if parts[0] == 'f' or parts[0] == 'find':
+        if len(parts) == 1:
+            key = input('keyword to search for?')
+        else:
+            key = parts[1] 
+        keywords.find(key)
+    
+def describe(line, pack_path, the_pack):
+    parts = line.split(' ',1)
+    if parts[0] == 'd' or parts[0] == 'describe':
+        if len(parts) == 1:
+            descript = input('Describe the Labpack:')
+        else:
+            descript = parts[1]
+        the_pack['description'] = descript
+        savePack(pack_path, the_pack)
+    else:
+        print('Unknown command')
+        help()
+
+def order(line, pack_path, the_pack):
+    parts = line.split(' ',1)
+    if parts[0] == 'o' or parts[0] == 'order':
+        if len(parts) == 1:
+            order = input('Integer value for ordering:')
+        else:
+            order = parts[1]
+        try:
+            the_pack['order'] = int(order)
+        except:
+            print('Order must be an integer')
+            help()
+            return
+        
+       
+        savePack(pack_path, the_pack)
+    else:
+        print('Unknown command')
+        help()
+    
+def loop(pack_path, the_pack):
+    pack_name = os.path.basename(pack_path)
+    name = pack_name.split('.')[0]
+    select = None
+    while select != 'q':
+        select = input('%s: ' % name)
+        if select == '?' or select == 'h' or select == 'help':
+            help()
+        elif select.startswith('a'):
+            add(select, pack_path, the_pack)         
+        elif select.startswith('i'):
+            insert(select, pack_path, the_pack)         
+        elif select.startswith('s'):
+            print('Content of Labpack %s' % name)
+            if len(the_pack['description']) > 0:
+                print('Description: %s' % the_pack['description'])
+            print('\n')
+            print('\t%-15s Notes' % 'Lab')
+            print('\t%-15s =====' % '===')
+            for entry in the_pack['labs']:
+                print('\t%-15s %s' % (entry['name'], entry['notes']))
+        elif select.startswith('r'):
+            remove(select, pack_path, the_pack)
+        elif select == 'l' or select == 'list':
+            keywords.find('')
+        elif select == 'k' or select == 'keywords':
+            keywords.list()
+        elif select.startswith('f'):
+            find(select)
+        elif select.startswith('d'):
+            describe(select, pack_path, the_pack)
+        elif select.startswith('o'):
+            order(select, pack_path, the_pack)
+        elif select != 'q':
+            print('Unknown command')
+            help()
+      
+def list():
+    plist = {}
+    print('List of existing Labpack names:')
+    flist = os.listdir(packroot)
+    for f in flist:
+        parts = f.split('.',1)
+        if len(parts)>1:
+            pack_name = parts[0]
+            pack_path = os.path.join(packroot, f)
+            the_pack = []
+            with open(pack_path) as fh:
+                the_pack = json.load(fh)
+            order = 0
+            if 'order' in the_pack:
+                order = the_pack['order']
+            if 'name' not in the_pack:
+                the_pack['name'] = pack_name
+                savePack(pack_path, the_pack)
+            plist[order] = the_pack
+    for o in sorted(plist):
+        the_pack = plist[o]
+        print('\t%s %d -- %s' % (the_pack['name'], o, the_pack['description']))
+ 
+
+def main():
+    parser = argparse.ArgumentParser(description='Create and maintain Labpacks')
+    parser.add_argument('name', nargs='?', help='The name of the Labpack to create or modify.')
+    if len(sys.argv) < 2:
+        print('List of existing Labpack names:')
+        list()
+        parser.print_help()
+        exit(0)
+    args = parser.parse_args()
+    packname = args.name
+    try:
+        os.makedirs(packroot)
+    except:
+        pass
+    pack_file = '%s.labpack' % packname
+    pack_path = os.path.join(packroot, pack_file)
+    if not os.path.isfile(pack_path):
+        the_pack = {}
+        the_pack['description'] = ''
+        the_pack['labs'] = []
+        newPack(pack_path) 
+    else:
+        with open(pack_path) as fh:
+            the_pack = json.load(fh)
+    loop(pack_path, the_pack)
+
+if __name__ == '__main__':
+    sys.exit(main())

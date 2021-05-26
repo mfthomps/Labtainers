@@ -1,0 +1,4 @@
+telnet
+passwords
+ssh
+tcpdump

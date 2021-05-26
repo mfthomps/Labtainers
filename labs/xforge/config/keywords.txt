@@ -1,0 +1,4 @@
+vulnerability
+csrf
+xsrf
+cross site request forgery

@@ -112,7 +112,7 @@ def copy_container(start_config_file, oldcontainer, newcontainer, oldlab=None):
                 cname = line.strip().split()[1]
                 if cname == oldcontainer:
                     grab = True
-                    cline = 'CONTAINER %s' % newcontainer
+                    cline = 'CONTAINER %s\n' % newcontainer
                     grabbed.append(cline)
             elif grab:
                 if line.strip().startswith('CONTAINER'): 
@@ -744,7 +744,7 @@ def main():
     parser.add_argument('-c', '--clone_lab', action='store', help='Clone the current lab to a new lab', metavar='')
     parser.add_argument('-a', '--add_container', action='store', help='Add a container to this lab', metavar='')
     parser.add_argument('-A', '--copy_container', action='store', nargs = 2, help='Add a container to this lab copied from an existing container, e.g., -A from_container new_container.', metavar='')
-    parser.add_argument('-C', '--copy_lab_container', action='store', nargs = 3, help='Add a container to this lab copied from an existing container in a different lab, e.g., -A from_lab from_container new_container.', metavar='')
+    parser.add_argument('-C', '--copy_lab_container', action='store', nargs = 3, help='Add a container to this lab copied from an existing container in a different lab, e.g., -C from_lab from_container new_container.', metavar='')
     parser.add_argument('-r', '--rename_container', action='store', nargs = 2, help='Rename container in the lab, e.g., "-r old new"', metavar='')
     parser.add_argument('-m', '--rename_lab', action='store',  help='Rename the current lab to the given name. Warning: may break subversion!"', metavar='')
     parser.add_argument('-d', '--delete_container', action='store', help='Delete a container from this lab', metavar='')

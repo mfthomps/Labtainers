@@ -4,8 +4,8 @@ route add default gw 240.0.114.1
 #
 # get ethernet device names for the three interfaces
 #
-lan1=$(ifconfig | grep -B1 "inet addr:172.16.0.10" | awk '$1!="inet" && $1!="--" {print $1}')
-wan=$(ifconfig | grep -B1 "inet addr:240.0.114.10" | awk '$1!="inet" && $1!="--" {print $1}')
+lan1=$(ifconfig | grep -B1 "inet .*:172.16.0.10" | awk '$1!="inet" && $1!="--" {print substr($1,1,length($1)-1)}')
+wan=$(ifconfig | grep -B1 "inet .*240.0.114.10" | awk '$1!="inet" && $1!="--" {print substr($1,1,length($1)-1)}')
 #
 # Define NAT for traffic from LANs to the WAN
 #
