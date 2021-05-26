@@ -70,7 +70,7 @@ if [[ "$1" != "-r" ]]; then
 fi
 cp README.md $ltrunk/
 mkdir $scripts
-dlist="config setup_scripts docs tool-src distrib/skip-labs scripts/labtainer-student scripts/labtainer-instructor"
+dlist="config setup_scripts docs tool-src distrib/skip-labs scripts/labtainer-student scripts/labtainer-instructor labpacks"
 #git archive master config | tar -x -C $ltrunk
 for d in $dlist; do
     $here/fix-git-dates.py $d $ltrunk $branch || exit 1
