@@ -1,0 +1,90 @@
+\input{header}
+\begin{document}
+
+\begin{center}
+{\LARGE VPN Lab Exercise (host-to-host VPN)}
+\vspace{0.1in}\\
+\end{center}
+
+\section{Overview}
+This Labtainer exercise illustrates a simple
+host-to-host vpn implemented with openvpn, and
+a static shared key.
+
+The example network includes a client and a 
+server with a router between them.  The server
+offers a simple HTTP service,  and the student
+will use wget on the client to retrieve html
+files from the server.
+
+\section{Lab Environment}
+This lab runs in the Labtainer framework,
+available at http://nps.edu/web/c3o/labtainers.
+That site includes links to a pre-built virtual machine
+that has Labtainers installed, however Labtainers can
+be run on any Linux host that supports Docker containers
+or on Docker Desktop on PCs and Macs.
+
+From your labtainer-student directory start the lab using:
+\begin{verbatim}
+    labtainer vpnlab
+\end{verbatim}
+A link to this lab manual will be displayed.
+
+The openvpn application is pre-installed
+on the client and the server, and the
+corresponding openvpn configurtion files
+already exist.  To create an encrypted tunnel,
+the student only has to execute openvpn on
+the client and the server.
+
+The student will observe both unencrypted 
+and encrypted network traffic using
+tcpdump on the router.
+
+\section{Tasks}
+
+\subsection{Observe unencrypted traffic}
+Use tcpdump on the router to display network traffic:
+\begin{verbatim}
+    sudo tcpdump -n -XX -i eth0
+\end{verbatim}
+
+Use wget on the client to fetch the index.html file
+\begin{verbatim}
+    wget  http://<IPADDr>/index.html
+\end{verbatim}
+Where $<$IPADDR$>$ is the server network address, which you
+can learn by running "ifconfig" on the server.
+
+Observe the network traffic from tcpdump.  Note plain-text
+html in the data stream.
+
+\subsection{Start the VPN}
+Start the openvpn program on the server:
+\begin{verbatim}
+    sudo openvpn --config server.conf --daemon
+\end{verbatim}
+
+Start the openvpn program on the client:
+\begin{verbatim}
+    sudo  openvpn --config client.conf --daemon
+\end{verbatim}
+
+Use wget again, but this time using the server's
+tunnel address, (which appears in interface "tun0"
+of output from ifconfig on the server).
+
+Observe the network traffic in tcpdump.
+
+\section{Submission}
+After finishing the lab, go to the terminal on your Linux system that was used to start the lab and type:
+\begin{verbatim}
+    stoplab 
+\end{verbatim}
+When you stop the lab, the system will display a path to the zipped lab results on your Linux system.  Provide that file to 
+your instructor, e.g., via the Sakai site.
+
+\copyrightnotice
+
+\end{document}
