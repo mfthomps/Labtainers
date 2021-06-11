@@ -89,6 +89,10 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+June 10, 2021
+- All lab manual PDFs are now in the github repo
+- Convert vpnlab and vpnlab2 instructions to PDF lab manuals.
+
 May 25, 2021
 - Add searchable keywords to each lab.  See "labtainer -h" for usage.
 - Expand routing-basics lab and lab manual

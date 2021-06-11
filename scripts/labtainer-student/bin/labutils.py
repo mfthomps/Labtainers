@@ -1573,7 +1573,7 @@ def ContainerTerminals(lab_path, start_config, container, terminal_count, termin
                     terminal_groups[container.terminal_group].append(group_command)
                 else:
                     terminal_count += 1
-                    spawn_command = 'gnome-terminal %s -- docker exec -it --env COLUMNS=%d --env LINES=%d %s %s &' % (terminal_location,
+                    spawn_command = 'gnome-terminal %s --profile=labtainers -- docker exec -it --env COLUMNS=%d --env LINES=%d %s %s >/dev/null 2>&1 &' % (terminal_location,
                        columns, lines, mycontainer_name, cmd)
                     logger.debug("gnome spawn: %s" % spawn_command)
                     #print spawn_command
@@ -1648,7 +1648,7 @@ def DoTerminals(start_config, lab_path, run_container=None, servers=None, contai
             #tab_commands = tab_commands+' --tab %s --' % command
         terminal_location, columns, lines = terminalCounter(terminal_count)
         terminal_count += 1
-        spawn_command = 'gnome-terminal %s %s' % (terminal_location, tab_commands)
+        spawn_command = 'gnome-terminal %s --profile=labtainers %s >/dev/null 2>&1' % (terminal_location, tab_commands)
         FNULL = open(os.devnull, 'w')
         result = subprocess.Popen(shlex.split(spawn_command), close_fds=True, stdout=FNULL, stderr=subprocess.STDOUT)
         logger.debug("gnome spawn tg: %s" % spawn_command)
@@ -2652,7 +2652,7 @@ def DoMoreterm(lab_path, container_name, clone_num=None, alt_name=None):
         logger.debug("No terminals supported for %s" % container_name)
         return False
     else:
-        spawn_command = "gnome-terminal -- docker exec -it %s bash -l -c bash&" % 	mycontainer_name
+        spawn_command = "gnome-terminal --profile=labtainers -- docker exec -it %s bash -l -c bash > /dev/null 2>&1 &" % 	mycontainer_name
         logger.debug("spawn_command is (%s)" % spawn_command)
         os.system(spawn_command)
     return True
