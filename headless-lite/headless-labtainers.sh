@@ -29,7 +29,9 @@ case "$OSTYPE" in
   *)        echo "unknown: $OSTYPE" ;;
 esac
 }
-
+export LABTAINER_UPDATE=""
+export LABTAINER_DEV=""
+export LABTAINER_TEST=""
 while [[ -n "$1" ]]; do
     if [[ "$1" == -h ]]; then
         echo "-d to use your local yml file"
