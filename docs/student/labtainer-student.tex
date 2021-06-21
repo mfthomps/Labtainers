@@ -17,6 +17,9 @@
 \usepackage{pdfpages}
 \usepackage{graphicx}
 \usepackage[autostyle, english = american]{csquotes}
+\usepackage[page,toc,titletoc,title]{appendix}
+\usepackage{textcomp}
+
 \begin{document}
 \begin{titlepage}
 \centering
@@ -66,7 +69,7 @@ VM unless and until you have the time and the bandwidth.
 You may now skip to section \ref{performing}.
 
 \subsection{Alternatives to the Labtainers VM Appliance}
-Skip this section and go to section \ref{performing} if you are using a Labtainers VM appliance or accessing
+Skip this section and go to section \ref{selecting} if you are using a Labtainers VM appliance or accessing
 Labtainers remotely via a browser.
 
 \textbf{Please note} that Docker runs as a privileged service on your computer, and Labtainers containers run as privileged containers.
@@ -107,15 +110,27 @@ make it executable and run it.  On a Mac, this would be done from a terminal.  O
 Open a browser and goto \url{http://localhost:6901/vnc.html?password=}
 No password is needed, if prompted, simply click the submit button.
 
-In addition to starting the Labtainers, the script will create a ~/headless-labtainers directory.  You should then run
-{\tt headless-labtainers.sh} from that directory in the future to start Labtainers.  That directory will also contain persistent data, including
+In addition to starting the Labtainers, the script will create a {\tt \$HOME/headless-labtainers} directory.  
+\newline
+\newline
+\noindent \textbf{To start Labtainers from Docker Desktop}:
+\begin{itemize}
+\item Open a terminal (Powershell on Windows)
+\item {\tt cd \$HOME/headless-labtainers}
+\item {\tt ./headless-labtainers.sh}
+\end{itemize}
+That {\tt \$HOME/headless-labtainers} directory will also contain persistent data, including
 results stored in the {\tt labtainer\_xfer} subdirectory.  \textbf{Note:} Where lab messages and lab manuals indicate 
-results are found in {\tt ~/labtainer\_xfer}, your results will be in {\tt ~/headless-labtainers/labtainer\_xfer}
+results are found in {\tt \$HOME/labtainer\_xfer}, your results will be in 
+\begin{verbatim}
+    $HOME/headless-labtainers/labtainer\_xfer
+\end{verbatim}
 
-Use {\tt ctrl-C} to quit Labtainers. 
+Use {\tt ctrl-c} to quit Labtainers. 
 
-\section{Performing a Lab}
-\label{performing}
+
+\section{Selecting a Lab}
+\label{selecting}
 All labs are run from the same Labtainer workspace directory, which is typically at:
 \begin{verbatim}
     cd $LABTAINER_DIR/scripts/labtainer-student
@@ -129,14 +144,37 @@ To see a list of available labs, run the {\tt labtainer} command with no argumen
 \noindent Use the {\tt -k} option to see a list of searchable keywords, and the {\tt -f <keyword>} option to view a summary
 of labs having that keyword.
 
-To run a specific lab, include the name of the lab:
+Lab exercises are also organized into \textit{Labpacks} that are a collection multiple related labs that you may
+wish to perform in sequence (e.g., based on direction from your instructor.)  Use the
+\begin{verbatim}
+    labpack
+\end{verbatim}
+\noindent to view a list of Lab Packs, and provide the name of a Labpack as an argument to see a list of the labs
+within a Labpack.  That command output also includes an indication ({\tt [Y] or [N]}) of whether you've generated any results from 
+each lab.  Your instructor may provide you with custom Labpacks in the form of a URL.  You may add those to your system by
+using the 
+\begin{verbatim}
+    labpack -a <url>
+\end{verbatim}
+
+Your instructor may direct you to add new or custom lab exercises to your installation by providing you with a URL of an \textit{IModule}.
+To get access to those labs, use:
+\begin{verbatim}
+    imodule <url>
+\end{verbatim}
+Additional lab exercises created by other instructors are available as IModules, whose URLs are listed at \url{https://nps.edu/web/c3o/imodules}.
+
+\section{Performing a Lab}
+\label{performing}
+
+To run a specific lab, include the name of the lab in the {\tt labtainer} command:
 \begin{verbatim}
     labtainer <labname>
 \end{verbatim}
 \noindent where \textit{labname} is the name of the lab to run.  
 
 Most labs direct you to a PDF version of a lab manual, which can usually 
-be done by right clicking on the displayed path, or you can open the file in a browser.
+be viewed by right clicking on the displayed path, or you can open the file in a browser.
 Please note that some of the initial lab instructions repeat the steps you've already taken, and you need
 not perform those again. 
 
@@ -148,7 +186,8 @@ the lab.  While running the lab, if you require more virtual terminals, use:
     moreterm.py <labname> <container>
 \end{verbatim}
 \noindent where \textit{container} is the host name of the component on which to attach a terminal.  
-It can be omitted for labs having a single component.
+It can be omitted for labs having a single component.  See Appendix \ref{sec:appendixB} for information
+on customizing terminal window colors and text.
 
 The virtual terminals for most labs present bash shells via which you can interact
 with the attached computer, (which is actually a Docker container designed to appear
@@ -256,10 +295,12 @@ those containers as Linux systems, and explore them.
 Pasting multiple commands into a labtainer terminal may result in the not all of the
 commands being executed.
 
-\appendix 
+\pagebreak
+\begin{appendices}
+%\appendix 
 \pagenumbering{Alph}
 \setcounter{page}{3}
-\section* {Appendix A: Labtainer Command Summary}
+\section{Labtainer Command Summary}
 \label{sec:appendixA}
 The following labtainer commands are available from the \texttt{labtainer/labtainer-student}
 directory.  Most of these commands include a {\tt -h} option for help:
@@ -284,5 +325,17 @@ in a new terminal created using the moreterm.py script:
     less instructions.txt
 \end{verbatim}
 
+\section{Customizing terminals}
+\label{sec:appendixB}
+Terminal colors and text size can be customized by right clicking on a terminal and selecting {\tt Preferences}.  From there, select
+the {\tt Unnamed} or {\tt Default} profile and click its down-arrow and select "clone".  Give the new profile a name, and then
+select your new profile.  Adjust the colors and text appearance by selecting the tabs on the top of the window.  Experiment
+by creating a new terminal window, right-click and select your profile from the {\tt Profiles} submenus.
 
+If you want all of your terminals to look like a new profile, click the down arrow on your new profile and make it the ``default''.
+
+If you create a terminal profile named \textit{labtainers}, that profile will be used with Labtainers lab terminals.  This can 
+be helpful to distinguish the Labtainers terminals from other terminals on your desktop.
+
+\end{appendices}
 \end{document}

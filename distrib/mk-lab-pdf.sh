@@ -32,15 +32,6 @@ for lab in $llist; do
         if [[ -d docs ]]; then
             echo "lab is $lab"
             cd docs
-            cp -p $LABPDF/$lab/*.pdf .
-            if [[ -f Makefile ]]; then
-                make
-            else
-                doc=$lab.docx
-                if [[ -f $doc ]]; then
-                    soffice --convert-to pdf $doc --headless
-                fi
-            fi
             cp -p *pdf $LABPDF/$lab/
         else
             cp */instructions.txt $LABPDF/$lab/ 2>/dev/null

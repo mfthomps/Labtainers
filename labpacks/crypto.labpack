@@ -1,0 +1,1 @@
+{"description": "Applied cryptography", "labs": [{"name": "onewayhash", "notes": ""}, {"name": "macs-hash", "notes": ""}, {"name": "pubkey", "notes": ""}, {"name": "sshlab", "notes": ""}, {"name": "ssl", "notes": ""}, {"name": "symkeylab", "notes": ""}, {"name": "vpnlab2", "notes": ""}, {"name": "pass-crack", "notes": ""}], "order": 400, "name": "crypto"}

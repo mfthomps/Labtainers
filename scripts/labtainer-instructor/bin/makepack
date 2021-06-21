@@ -59,6 +59,7 @@ def help():
     print('\t k)ey list all keywords')
     print('\t f)ind labs with given keyword')
     print('\t d)escribe the Labpack, i.e., a summary')
+    print('\t o)rder in which the Labpack should be displayed (as in integer).')
     print('\t h)elp')
     print('\t q)uit')
     print('\n')
@@ -115,10 +116,10 @@ def add(line, pack_path, the_pack):
         print('Unknown command')
         help()
 
-def getIndex(lab, the_pack):
+def getIndex(lab, labs):
     retval = None
     index = 0
-    for entry in the_pack['labs']:
+    for entry in labs:
         if entry['name'] == lab.strip():
             retval = index
             break
@@ -188,6 +189,26 @@ def describe(line, pack_path, the_pack):
     else:
         print('Unknown command')
         help()
+
+def order(line, pack_path, the_pack):
+    parts = line.split(' ',1)
+    if parts[0] == 'o' or parts[0] == 'order':
+        if len(parts) == 1:
+            order = input('Integer value for ordering:')
+        else:
+            order = parts[1]
+        try:
+            the_pack['order'] = int(order)
+        except:
+            print('Order must be an integer')
+            help()
+            return
+        
+       
+        savePack(pack_path, the_pack)
+    else:
+        print('Unknown command')
+        help()
     
 def loop(pack_path, the_pack):
     pack_name = os.path.basename(pack_path)
@@ -220,22 +241,43 @@ def loop(pack_path, the_pack):
             find(select)
         elif select.startswith('d'):
             describe(select, pack_path, the_pack)
+        elif select.startswith('o'):
+            order(select, pack_path, the_pack)
         elif select != 'q':
             print('Unknown command')
             help()
-       
+      
+def list():
+    plist = {}
+    print('List of existing Labpack names:')
+    flist = os.listdir(packroot)
+    for f in flist:
+        parts = f.split('.',1)
+        if len(parts)>1:
+            pack_name = parts[0]
+            pack_path = os.path.join(packroot, f)
+            the_pack = []
+            with open(pack_path) as fh:
+                the_pack = json.load(fh)
+            order = 0
+            if 'order' in the_pack:
+                order = the_pack['order']
+            if 'name' not in the_pack:
+                the_pack['name'] = pack_name
+                savePack(pack_path, the_pack)
+            plist[order] = the_pack
+    for o in sorted(plist):
+        the_pack = plist[o]
+        print('\t%s %d -- %s' % (the_pack['name'], o, the_pack['description']))
+ 
 
 def main():
     parser = argparse.ArgumentParser(description='Create and maintain Labpacks')
     parser.add_argument('name', nargs='?', help='The name of the Labpack to create or modify.')
     if len(sys.argv) < 2:
         print('List of existing Labpack names:')
-        flist = os.listdir(packroot)
-        for f in flist:
-            parts = f.split('.',1)
-            if len(parts)>1:
-                print('\t%s' % parts[0])
-        print('\n\n Usage: makepack <name>')
+        list()
+        parser.print_help()
         exit(0)
     args = parser.parse_args()
     packname = args.name
