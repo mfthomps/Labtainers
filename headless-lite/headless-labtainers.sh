@@ -2,7 +2,7 @@
 check_docker() {
 /usr/local/bin/docker ps
 result=$?
-if [ ! $result == 0 ]; then
+if [ ! $result = 0 ]; then
     echo "Docker Desktop not installed or not running" >>/tmp/lab-preinstall.log
 
     case "$OSTYPE" in
@@ -25,12 +25,14 @@ fi
 
 
 do_up() {
+   echo "\n\nStarting Labtainers..."
    echo "When you see two 'done's below, open a browser and goto"
    echo "   http://localhost:6901/vnc.html?password="
+   echo ""
    echo "No password is needed, just click 'submit' if prompted."
    echo "Use ctrl-C to stop Headless Labtainers."
    docker-compose up >> /tmp/headless.log
-   echo "Your results are in ~/headless-labtainers/labtainer_xfer"
+   echo "\nYour results are in ~/headless-labtainers/labtainer_xfer"
 }
 
 fix_it() {
@@ -65,24 +67,24 @@ export LABTAINER_DEV=""
 export LABTAINER_TEST=""
 export TEST_REGISTRY=""
 while [ -n "$1" ]; do
-    if [ "$1" == -h ]; then
+    if [ "$1" = -h ]; then
         echo "-d to use your local yml file"
         echo "-n to supress updates on the container, e.g. if you created your own labtainer.tar"
         exit 0
-    elif [ "$1" == -n ]; then
+    elif [ "$1" = -n ]; then
         export LABTAINER_UPDATE="FALSE"
         shift
-    elif [ "$1" == -d ]; then
+    elif [ "$1" = -d ]; then
         LABTAINER_DEV="TRUE"
         shift
-    elif [ "$1" == -t ]; then
+    elif [ "$1" = -t ]; then
         LABTAINER_TEST="TRUE"
         shift
     fi
 done
 
 
-if [ "$LABTAINER_TEST" == "TRUE" ];then
+if [ "$LABTAINER_TEST" = "TRUE" ];then
    export TEST_REGISTRY=TRUE
 fi
 if [ -d ./mystuff ]; then
@@ -99,10 +101,10 @@ else
     mkdir -p mystuff
     mkdir -p labtainer_xfer
     mkdir -p labtainers
-    if [ "$LABTAINER_DEV" == "TRUE" ];then
+    if [ "$LABTAINER_DEV" = "TRUE" ];then
         echo "Using local yml"
         cp $LABTAINER_DIR/headless-lite/docker-compose.yml .
-    elif [ "$LABTAINER_TEST" == "TRUE" ];then
+    elif [ "$LABTAINER_TEST" = "TRUE" ];then
         echo "Using labtainer.headless.tester"
         curl https://raw.githubusercontent.com/mfthomps/Labtainers/master/headless-lite/docker-compose.yml > docker-compose.yml 
         sed -i s%labtainers/labtainer.master.headless%testregistry:5000/labtainer.headless.tester% docker-compose.yml
