@@ -1,0 +1,12 @@
+#!/bin/bash
+/usr/local/bin/docker ps
+result=$?
+if [[ ! $result == 0 ]]; then
+    echo "Docker Desktop not installed or not running" >>/tmp/lab-preinstall.log
+    osascript <<'END'
+    set theDialogText to "Installation failed.  Docker Desktop is not running.  Make sure it is installed and running. Then open the installation package again."
+    display dialog theDialogText buttons {"OK"} default button "OK"
+END
+    exit 1
+fi
+exit 0

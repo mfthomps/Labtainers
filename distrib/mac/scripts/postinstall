@@ -1,0 +1,21 @@
+#!/bin/bash
+echo "doing post" > /tmp/lab-install.log
+mkdir -p $HOME/headless-labtainers
+HEADLESS_PREMASTER=`launchctl getenv HEADLESS_PREMASTER`
+echo "env is $HEADLESS_PREMASTER" >>/tmp/lab-install.log
+if [ "$HEADLESS_PREMASTER" = "TRUE" ];then
+    branch=premaster
+    echo "Using premaster branch" >> /tmp/lab-install.log
+else
+    branch=master
+fi
+curl https://raw.githubusercontent.com/mfthomps/Labtainers/$branch/headless-lite/headless-labtainers.sh > $HOME/headless-labtainers/headless-labtainers.sh
+# reset env so it does not follow you to your grave
+launchctl setenv HEADLESS_PREMASTER FALSE
+
+chmod a+x $HOME/headless-labtainers/headless-labtainers.sh
+echo "did copy" >> /tmp/lab-install.log
+echo "doing osasript" >> /tmp/lab-install.log
+osascript -e 'tell app "Terminal" to do script "cd $HOME/headless-labtainers;source ./headless-labtainers.sh"'
+echo "backfrom osascript" >> /tmp/lab-install.log
+exit 0
