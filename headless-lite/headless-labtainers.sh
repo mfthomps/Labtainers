@@ -1,25 +1,53 @@
 #!/bin/bash
-function do_up {
-   echo "When you see two 'done's below, open a browser and goto http://localhost:6901/vnc.html?password="
+check_docker() {
+/usr/local/bin/docker ps
+result=$?
+if [ ! $result = 0 ]; then
+    echo "Docker Desktop not installed or not running" >>/tmp/lab-preinstall.log
+
+    case "$OSTYPE" in
+      solaris*) echo "SOLARIS" ;;
+      darwin*)  
+        osascript <<'END'
+        set theDialogText to "Installation failed.  Docker Desktop is not running.  Make sure it is installed and running. Then open the installation package again."
+        display dialog theDialogText buttons {"OK"} default button "OK"
+END
+            ;;
+      linux*)   echo "LINUX" ;;
+      bsd*)     echo "BSD" ;;
+      msys*)    echo "WINDOWS" ;;
+      *)        echo "unknown: $OSTYPE" ;;
+    esac
+    exit 1
+fi
+
+}
+
+
+do_up() {
+   echo "\n\nStarting Labtainers..."
+   echo "When you see two 'done's below, open a browser and goto"
+   echo "   http://localhost:6901/vnc.html?password="
+   echo ""
    echo "No password is needed, just click 'submit' if prompted."
    echo "Use ctrl-C to stop Headless Labtainers."
    docker-compose up >> /tmp/headless.log
-   echo "Your results are in ~/headless-labtainers/labtainer_xfer"
+   echo "\nYour results are in ~/headless-labtainers/labtainer_xfer"
 }
 
-function fix_it {
+fix_it() {
 case "$OSTYPE" in
   solaris*) echo "SOLARIS" ;;
-  darwin*)  echo "OSX"
+  darwin*)  echo "fix up OSX" >> /tmp/headless.log
             # To work around a persistent problem on docker for mac, test if docker.sock.raw file exists or not, if not, then add symlink, see issue at https://github.com/docker/for-mac/issues/4755
 
             if [ ! -L "/var/run/docker.sock.raw" ]; then
-               echo "Fixing Files for OSX"
+               echo "Fixing Files for OSX" >> /tmp/headless.log
                # add link to docker.raw.sock, see issue at https://github.com/docker/for-mac/issues/4755
                sudo ln -s "$HOME/Library/Containers/com.docker.docker/Data/docker.raw.sock" /var/run/docker.sock.raw
                # now fix the docker-compose file to use the docker.sock.raw
                cd ~/headless-labtainers
-               echo "Changes complete for OSX"
+               echo "Changes complete for OSX" >> /tmp/headless.log
             fi
             sed -i '' s%/var/run/docker.sock:/var/run/docker.sock%/var/run/docker.sock.raw:/var/run/docker.sock% docker-compose.yml
             ;;
@@ -30,28 +58,38 @@ case "$OSTYPE" in
 esac
 }
 
-while [[ -n "$1" ]]; do
-    if [[ "$1" == -h ]]; then
+#
+#
+#
+
+export LABTAINER_UPDATE=""
+export LABTAINER_DEV=""
+export LABTAINER_TEST=""
+export TEST_REGISTRY=""
+while [ -n "$1" ]; do
+    if [ "$1" = -h ]; then
         echo "-d to use your local yml file"
         echo "-n to supress updates on the container, e.g. if you created your own labtainer.tar"
         exit 0
-    elif [[ "$1" == -n ]]; then
+    elif [ "$1" = -n ]; then
         export LABTAINER_UPDATE="FALSE"
         shift
-    elif [[ "$1" == -d ]]; then
+    elif [ "$1" = -d ]; then
         LABTAINER_DEV="TRUE"
         shift
-    elif [[ "$1" == -t ]]; then
+    elif [ "$1" = -t ]; then
         LABTAINER_TEST="TRUE"
         shift
     fi
 done
 
-if [[ "$LABTAINER_TEST" == "TRUE" ]];then
+
+if [ "$LABTAINER_TEST" = "TRUE" ];then
    export TEST_REGISTRY=TRUE
 fi
-if [[ -d ./mystuff ]]; then
+if [ -d ./mystuff ]; then
     echo "Running Headless Labtainers."
+    check_docker
     fix_it
     do_up
 else
@@ -63,10 +101,10 @@ else
     mkdir -p mystuff
     mkdir -p labtainer_xfer
     mkdir -p labtainers
-    if [[ "$LABTAINER_DEV" == "TRUE" ]];then
+    if [ "$LABTAINER_DEV" = "TRUE" ];then
         echo "Using local yml"
         cp $LABTAINER_DIR/headless-lite/docker-compose.yml .
-    elif [[ "$LABTAINER_TEST" == "TRUE" ]];then
+    elif [ "$LABTAINER_TEST" = "TRUE" ];then
         echo "Using labtainer.headless.tester"
         curl https://raw.githubusercontent.com/mfthomps/Labtainers/master/headless-lite/docker-compose.yml > docker-compose.yml 
         sed -i s%labtainers/labtainer.master.headless%testregistry:5000/labtainer.headless.tester% docker-compose.yml
@@ -81,8 +119,11 @@ else
     else
         curl https://raw.githubusercontent.com/mfthomps/Labtainers/master/headless-lite/docker-compose.yml > docker-compose.yml 
     fi
+    check_docker
     fix_it
     do_up
     HEADLESS_DIR=`pwd`
-    echo "Add $HEADLESS_DIR to your PATH environment variable and run headless-labtainers from there in the future."
+    echo "In the future, open a terminal, cd to"
+    echo " $HEADLESS_DIR and run:"
+    echo "./headless-labtainers.sh"
 fi

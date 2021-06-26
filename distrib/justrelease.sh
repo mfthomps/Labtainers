@@ -66,8 +66,11 @@ cd $release_dir
 echo "Build GUI Jar"
 cd UI/bin
 ./buildUI2.sh -n || exit
-cp MainUI.jar $release_dir/distrib//artifacts/
+cp MainUI.jar $release_dir/distrib/artifacts/
 cd $release_dir/distrib
+
+# Mac install package
+cp mac/labtainers-desktop.pkg $release_dir/distrib/artifacts/
 echo "Now generate release"
 
 github-release release --security-token $gitpat --user mfthomps --repo Labtainers --tag $new_tag

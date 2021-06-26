@@ -89,6 +89,9 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+June 25, 2021
+- Support Mac package installation of headless Labtainers.
+
 June 10, 2021
 - All lab manual PDFs are now in the github repo
 - Convert vpnlab and vpnlab2 instructions to PDF lab manuals.
