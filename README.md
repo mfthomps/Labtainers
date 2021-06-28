@@ -22,9 +22,9 @@ The Labtainers website, and downloads (including VM appliances with Labtainers p
 [designer-guide]: docs/labdesigner/labdesigner.pdf
 [Papers]: https://nps.edu/web/c3o/labtainers#papers
 
-Distribution created: 06/11/2021 01:00 </br>
+Distribution created: 06/25/2021 01:00 </br>
 Previous revision: v1.3.4m </br>
-Commit: 3ad00c3c </br>
+Commit: f10bc061 </br>
 Branch: premaster </br>
 
 ## Content
@@ -88,6 +88,9 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+
+June 25, 2021
+- Support Mac package installation of headless Labtainers.
 
 June 10, 2021
 - All lab manual PDFs are now in the github repo
