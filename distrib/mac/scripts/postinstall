@@ -13,6 +13,7 @@ curl https://raw.githubusercontent.com/mfthomps/Labtainers/$branch/headless-lite
 # reset env so it does not follow you to your grave
 launchctl setenv HEADLESS_PREMASTER FALSE
 
+chown -R $USER:staff $HOME/headless-labtainers
 chmod a+x $HOME/headless-labtainers/headless-labtainers.sh
 echo "did copy" >> /tmp/lab-install.log
 echo "doing osasript" >> /tmp/lab-install.log
