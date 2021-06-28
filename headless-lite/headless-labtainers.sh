@@ -25,14 +25,14 @@ fi
 
 
 do_up() {
-   echo "\n\nStarting Labtainers..."
-   echo "When you see two 'done's below, open a browser and goto"
-   echo "   http://localhost:6901/vnc.html?password="
-   echo ""
-   echo "No password is needed, just click 'submit' if prompted."
-   echo "Use ctrl-C to stop Headless Labtainers."
+   printf "\n\nStarting Labtainers...\n"
+   printf "When you see two 'done's below, open a browser and goto\n"
+   printf "   http://localhost:6901/vnc.html?password=\n"
+   printf "\n"
+   printf "No password is needed, just click 'submit' if prompted.\n"
+   printf "Use ctrl-C to stop Headless Labtainers.\n"
    docker-compose up >> /tmp/headless.log
-   echo "\nYour results are in ~/headless-labtainers/labtainer_xfer"
+   printf "\nYour results are in ~/headless-labtainers/labtainer_xfer\n"
 }
 
 fix_it() {
