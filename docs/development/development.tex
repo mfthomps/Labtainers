@@ -366,7 +366,7 @@ New releases are created as follows:
 \begin{itemize}
 \item The premaster branch is tested using {\tt full\_build.sh} to ensure container images reflect the latest code, and Jenkins builds which
 ensure the premaster in github runs all regression tests.
-\item Merge premaster into master.  Do this manually (ignore automated scripts in distrib directory), and fix any merge conflicts.
+\item Merge premaster into master.  Do this manually (ignore automated scripts in distrib directory), and fix any merge conflicts. {git merge --no-ff premaster}
 \item Use {\tt refresh\_mirror.py} to push premaster registry images to Docker Hub.
 \item Determine the next git tag to use for the version ID, and pass that to {\tt justrelease.sh} (be sure to first activate an
 ssh agent and get the github personal access token.
@@ -622,6 +622,18 @@ included multiple CMD entries (one in the latest file, one in the parent file).
 
 \subsubsection{Grader updates}
 Automate detection of need to update a local grader image, e.g., in response to a fix to the grader.
+
+\subsubsection{UI fixes}
+\begin{itemize}
+\item Resize windows and potentially alter font size.
+\item default buttons, e.g., so enter key makes default selection.
+\item right click menu for copy/paste in text fields.
+\item visual clue that lab needs saving.
+\item keyboard shortcuts
+\item UI for makepack
+\item Visual clue that results/goals window is open, color button?
+\item expand UI text area todo to flag goals/results without documentation
+\end{itemize}
 
 \subsection{ongoing}
 Updated framework and grader to use python3.  Intent is to not affect existing labs.  Need to publish centos-log2 and
