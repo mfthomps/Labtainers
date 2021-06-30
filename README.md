@@ -91,6 +91,7 @@ first time.
 
 June 25, 2021
 - Support Mac package installation of headless Labtainers.
+- The routing-basics lab automated assessment failed due to lack of treataslocal files
 
 June 10, 2021
 - All lab manual PDFs are now in the github repo
