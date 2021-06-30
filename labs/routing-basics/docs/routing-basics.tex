@@ -89,7 +89,7 @@ can be demonstrated by using \texttt{ping} from ws1 to reach ws2 via the gateway
 {\tt tcpdump} on the gateway to view traffic on the two network interfaces\footnote{use the -n option to prevent tcpdump from
 using reverse DNS to put names to IP address and ports.}:   
 \begin{verbatim}
-   tcpdump tcpdump -i eth0 -n -vv
+   sudo tcpdump -i eth0 -n -vv
 \end{verbatim}
 
 \noindent Then, on ws1:
@@ -135,7 +135,8 @@ fix, which is sufficient for this lab}.  If you
 modify that file on ws3 to match that of ws2, that will tell ws3 to use the gateway
 as its DNS.  (While the gateway is not a DNS, it runs a \textit{dnsmasq} service to forward DNS requests to
 the DNS that it uses.)   Modify the {\tt resolv.conf} file and confirm you can resolve the www.google.com
-address using {\tt wget www.google.com}.
+address using {\tt wget www.google.com}.  Use {\tt sudo vi} or {\tt sudo nano} to modify the file.  See the 
+{\tt nix-commands} lab if you are not familiar with text editors.
 
 \subsection{Use of Network Address Translation (NAT)}
 Now, review how the gateway component implements NAT using the \texttt{iptables} 

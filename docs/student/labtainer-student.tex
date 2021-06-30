@@ -228,7 +228,33 @@ This will delete any previous containers associated with this lab and start it f
 \subsection{Checking your work}
 Some labs include criteria by which to automatically assess your progress.
 Where enabled and supported, this feature can be utilized by issuing the {\tt checkwork} command from Linux system.
-That command can be run while the lab is still running.
+That command can be run while the lab is still running.  If the lab has been stopped, you must provide the lab name to
+the checkwork command, e.g.,
+\begin{verbatim}
+    checkwork telnetlab
+\end{verbatim}
+
+\subsection{Submitting your work}
+The location of your results depends on whether your are using Linux, e.g., the Labtainers VM appliance, or Docker Desktop.
+
+\subsubsection{From the Labtainers VM or Linux}
+When you've completed a lab and run the {\tt stoplab} command, your results are stored in a zip file in the directory at:
+\begin{verbatim}
+    $HOME/labtainer_xfer/<lab name>
+\end{verbatim}
+\noindent That file should be provided to your instructor.  There are several ways to transfer the file.
+\begin{enumerate}
+\item Use the browser on the VM to email the file to your instructor.
+\item Use the browser on the VM to access your school's LMS system such as Saki or Blackboard, and upload the file.
+\item Configure the VM to enable \textit{drag and drop}, then move the file to your host computer to email or upload to an LMS.
+\item Configure the VM and host to share folders and copy the zip file to the shared folder to email or upload to an LMS.
+\end{enumerate}
+\subsubsection{From Docker Desktop}
+On Docker Desktop installations of Labtainers, your results are stored in a zip file at:
+\begin{verbatim}
+    $HOME/headless-labtainers/labtainer_xfer/<lab nam>
+\end{verbatim}
+\noindent Provide that file to your instructor by email or uploading it to your school's LMS, e.g, Blackboard or Saki.
 
 %----------------
 \subsection{Getting Help and Things to Avoid}
@@ -237,15 +263,17 @@ To get help, type:
     labtainer -h
 \end{verbatim}
 \noindent from the Linux system from which you issued the {\tt labtainer} command. A list of useful labtainer commands will be displayed.
+Also see our support page at \url{nps.edu/web/c3o/support1}
 
 Do not run multiple labs simultaneously.  Consistent results cannot be guaranteed when more than one lab runs at the same time.
 
+\section{Other Considerations}
 %----------------
 \subsection{Networking}
 In addition to network properties defined for the lab,
 each component \texttt{/etc/host} file includes a ``my\_host entry'' that names
-the host Linux.  Most containers will include a default gateway that
-leads to the Linux host.  This allows students to scp files to/from the container and host.
+the Linux host, e.g., the VM.  Most containers will include a default gateway that
+leads to the Linux host.  This allows students to scp files to/from the container and Linux host.
 It also allows the student to reach external networks, e.g., to fetch additional packages in
 support of student exploration.
 
@@ -255,7 +283,7 @@ can use to toggle the default gateway between one that leads to the host, and on
 This allows students to add packages on components having lab-specific default gateways.
 Use of the \textit{togglegw.sh} script is not necessary to reach the Linux host, (e.g., to scp files).
 
-%----------------
+
 \subsection{Installing and Using Labtainers Behind a Web Proxy}
 If you are not behind a web proxy, ignore this section (most school environments
 are not behind proxies). 

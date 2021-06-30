@@ -4,7 +4,7 @@
 \usepackage[colorlinks=true,linkcolor=blue,urlcolor=black]{hyperref}
 \usepackage{bookmark}
 \usepackage[autostyle, english = american]{csquotes}
-\usepackage{appendix}
+\usepackage[page,toc,titletoc,title]{appendix}
 \usepackage{graphicx}
 \begin{document}
 \begin{titlepage}
@@ -93,20 +93,31 @@ When the student stops a lab, i.e., using {\tt stoplab}, Labtainers creates a zi
 student artifacts (including lab reports) and then displays the path to this zip file to
 the student.  The easiest way for the student to forward this zip file to you is by starting
 a browser on the Linux VM and either emailing you the zip file, or uploading the file
-into an LMS, (e.g., Sakai).  Alternately, the student can define a shared folder in the VM
-and copy the zip to the host computer.
+into an LMS, (e.g., Sakai).  See the \textit{Labtainers Student Guide} for a discussion of
+ways in which students can forward results to the instrutor.
 
-Collect all of the lab zip files from each student into your Labtainer transfer directory, which
-is typically at
+Collect all of the lab zip files from each student into your Labtainer transfer directory.  On
+Linux systems, e.g., the Labtainer VM appliance, the transfer directory is located at:
+
 \begin{verbatim}
-    ~/labtainer_xfer/<labname>
+    $HOME/labtainer_xfer/<labname>
 \end{verbatim}
 \noindent where labname is the name of the lab.  Do not unzip the files.  Alternately student
 assignments can be bulk-collected from a learning management system (LMS) per Appendix \ref{lms collection}
 and the resulting zip  would be copied into the
 Labtainer transfer directory.  Again, do not unzip files and do not change the file names of zip files.
-See subsection \ref{shared_labtainer_xfer} for how to manage the student zip files on your host computer.
 
+\subsection{Moving student results onto your Linux VM}
+There are several ways to move student results into your transfer directory:
+\begin{itemize}
+\item Use the VM's browser to access email or your school's LMS system, e.g., Blackboard or Sakai.
+\item Enable \textit{drag and drop} on the VM and copy the files into the transfer directory.
+\item Define a shared directory as described in Appendix \ref{shared-directory}.
+\item Removable media, e.g., a USB drive alternately connected to the host and the VM.
+\item Enable port forwarding on the host and use {\tt scp} to move the files.
+\end{itemize}
+
+\subsection{Using gradelab}
 Instructor assessment of labs takes place from the {\tt labtainer-instructor} directory, i.e.,
 \begin{verbatim}
     cd ~/labtainer/trunk/scripts/labtainer-instructor
@@ -238,34 +249,6 @@ exporting it as an appliance.
 Note that a few labs deliberately access the Internet, e.g., the public key lab.  You can either avoid use
 of those labs, or alter them to direct students to alternate network addresses.
 
-\subsection{Collecting student zip files on the host computer}
-\label{shared_labtainer_xfer}
-It is often more convenient for instructors to gather student zip files on the computer that hosts a Labtainers
-VM rather than on the VM.  For example, email clients and/or LMS interfaces may run more easily on the host than
-they do on the VM.  This can be achieved by defining a shared folder for use by the VM guest, as follows:
-\begin{itemize}
-\item Pick a directory on your host that you will share with the VM. Somewhere within that directory create a
-{\tt labtainer\_xfer} subdirectory.
-\item Make that directory accessible by anyone on your host machine.  
-\item Define a shared folder for your guest VM, e.g., on VirtualBox, use Machine / Settings / Shared folders, map it
-to your selected directory.  
-\item On VirtualBox, ensure your user ID is within the vboxsf group, and reboot.
-\begin{verbatim}
-    sudo usermod -G vboxsf -a $USER
-    sudo reboot
-\end{verbatim}
-\item On the virtual machine, identify the path to the {\tt labtainer\_xfer} directory in the shared folder.  For example,
-if you shared a directory called {\tt mydir} on VirtualBox, that might be found at {\tt /media/sf\_mdir/labtainer\_xfer}.
-\item From the \$HOME directory on the virtual machine, remove the {\tt labtainer\_xfer} directory and replace it with
-a symbolic link to the shared {\tt labtainer\_xfer} directory, e.g.,
-\begin{verbatim}
-   cd 
-   ln -s /media/sf_mydir/labtainer_xfer
-\end{verbatim}
-\noindent depending on where you created the new {\tt labtainer\_xfer} directory within the shared folder.
-\item Now place student zip files on the host within the {\tt labtainer\_xfer/<labname>} directory.  Note
-the lab subdirectory will be created when you start the lab to run it yourself -- or you can create it manually.
-\end{itemize}
 
 
 \subsection{Deploying on servers}
@@ -321,7 +304,10 @@ provide that URL to the {\tt labpack} command:
 \end{verbatim}
 \noindent to get access to your Labpacks.
 \newpage
-\appendix
+\begin{appendices}
+%\appendix 
+\pagenumbering{Alph}
+\setcounter{page}{3}
 \section{\\LMS Assignment Collection}
 \label{lms collection}
 \subsection{Sakai}
@@ -362,4 +348,35 @@ important to remind students to NOT change the name of lab report documents.)
 
 \subsection{Other LMS}
 Send me a sample of the bulk download file from other LMS systems and we'll roll it into a future Labtainers release. (mfthomps at nps.edu)
+
+\newpage
+\section{Defining shared folders}
+\label{shared-directory}
+It is often more convenient for instructors to gather student zip files on the computer that hosts a Labtainers
+VM rather than on the VM.  For example, email clients and/or LMS interfaces may run more easily on the host than
+they do on the VM.  One way that this can be achieved is by defining a shared folder for use by the VM guest, as follows:
+\begin{itemize}
+\item Pick a directory on your host that you will share with the VM. Somewhere within that directory create a
+{\tt labtainer\_xfer} subdirectory.
+\item Make that directory accessible by anyone on your host machine.  
+\item Define a shared folder for your guest VM, e.g., on VirtualBox, use Machine / Settings / Shared folders, map it
+to your selected directory.  
+\item On VirtualBox, ensure your user ID is within the vboxsf group, and reboot.
+\begin{verbatim}
+    sudo usermod -G vboxsf -a $USER
+    sudo reboot
+\end{verbatim}
+\item On the virtual machine, identify the path to the {\tt labtainer\_xfer} directory in the shared folder.  For example,
+if you shared a directory called {\tt mydir} on VirtualBox, that might be found at {\tt /media/sf\_mdir/labtainer\_xfer}.
+\item From the \$HOME directory on the virtual machine, remove the {\tt labtainer\_xfer} directory and replace it with
+a symbolic link to the shared {\tt labtainer\_xfer} directory, e.g.,
+\begin{verbatim}
+   cd 
+   ln -s /media/sf_mydir/labtainer_xfer
+\end{verbatim}
+\noindent depending on where you created the new {\tt labtainer\_xfer} directory within the shared folder.
+\item Now place student zip files on the host within the {\tt labtainer\_xfer/<labname>} directory.  Note
+the lab subdirectory will be created when you start the lab to run it yourself -- or you can create it manually.
+\end{itemize}
+\end{appendices}
 \end{document}
