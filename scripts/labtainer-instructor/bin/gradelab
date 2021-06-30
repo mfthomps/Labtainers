@@ -101,6 +101,12 @@ def CopyStudentArtifacts(labtainer_config, container_name, labname, regress_test
         else:
             new_fname = base_fname
         # Copy zip file 
+        if labname not in new_fname:
+            logger.error('This file does not appear to be a result from lab %s: %s' % (labname, fname))
+            print('Stopping grader...')
+            cmd = 'docker stop %s' % container_name
+            labutils.DockerCmd(cmd)
+            exit(1)
         command = 'docker cp "%s" %s:/home/instructor/%s' % (fname, container_name, new_fname)
         logger.debug("Command to execute is (%s)" % command)
         result = subprocess.call(shlex.split(command))
