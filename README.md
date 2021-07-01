@@ -22,10 +22,10 @@ The Labtainers website, and downloads (including VM appliances with Labtainers p
 [designer-guide]: docs/labdesigner/labdesigner.pdf
 [Papers]: https://nps.edu/web/c3o/labtainers#papers
 
-Distribution created: 06/26/2021 08:58 </br>
+Distribution created: 07/01/2021 01:00 </br>
 Previous revision: v1.3.4m </br>
-Commit: 7c459cac </br>
-Branch: master </br>
+Commit: 222d0aec </br>
+Branch: premaster </br>
 
 ## Content
 [Distribution and Use](#distribution-and-use)
@@ -89,9 +89,11 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
-June 25, 2021
+July 1, 2021
 - Support Mac package installation of headless Labtainers.
 - The routing-basics lab automated assessment failed due to lack of treataslocal files
+- Correct typos and incorrect addresses in routing-basics lab, and fix automated assessment.
+- Assessment of pcapanalysis was failing.
 
 June 10, 2021
 - All lab manual PDFs are now in the github repo
