@@ -480,21 +480,30 @@ def handle_expression(resulttag, json_output, logger):
     if resulttag.startswith('(') and resulttag.endswith(')'):
         express = resulttag[resulttag.find("(")+1:resulttag.find(")")]
         for tag in json_output:
-            logger.debug('is tag %s in express %s' % (tag, express))
+            logger.debug('is tag %s in express %s ?' % (tag, express))
+            express_replaced = None
             if tag in express:
                 if json_output[tag] != None:
-                    express = express.replace(tag, json_output[tag])
+                    express_replaced = express.replace(tag, json_output[tag])
+                    #print('replaced become %s' % express_replaced)
+                    break
                 else:
+                    #print('json[%s] is none' % tag)
                     return None
-        try:
-            logger.debug('try eval of <%s>' % express)
-            result = evalExpress.eval_expr(express)
-        except:
-            logger.error('could not evaluation %s, which became %s' % (resulttag, express))
-            sys.exit(1)
+        if express_replaced is None:
+            logger.debug('expression did not change, must be no results')
+        else:
+            try:
+                logger.debug('try eval of <%s>' % express_replaced)
+                result = evalExpress.eval_expr(express_replaced)
+                #print('result is %d' % result)
+            except:
+                logger.error('could not evaluate %s, which became %s' % (resulttag, express_replaced))
+                sys.exit(1)
     else:
         logger.error('handleExpress called with %s, expected expression in parens' % resulttag)
     return result
+
 
         
 def processMatchAny(result_sets, eachgoal, goal_times, logger):

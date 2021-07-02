@@ -1,4 +1,4 @@
-routing-basics.pdf: routing-basics.tex header.tex
+routing-basics.pdf: routing-basics.tex header.tex routing-basics.odg
 	pdflatex -jobname=routing-basics routing-basics
 	pdflatex -jobname=routing-basics routing-basics
 

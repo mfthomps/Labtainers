@@ -160,7 +160,7 @@ Use {\tt wget google.com} from ws1 and observe the source IP address in the tcpd
 to the subnet containing ws1.  Then use ctrl-c to stop tcpdump and restart it on the gateway's
 network interface on the ISP's subnet:
 \begin{verbatim}
-   tcpdump tcpdump -i eth1 -vv -n
+   sudo tcpdump -i eth2 -vv -n
 \end{verbatim}
 \noindent And then wget again.  Note how the source address of the packets has changed.
 

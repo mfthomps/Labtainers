@@ -617,7 +617,7 @@ def getConfigItems(labidname, line, studentlabdir, container_list, logger, param
     logger.debug('targetfile is %s, containername is %s' % (targetfile, containername))
     if containername is not None and containername not in container_list:
         print("Config line (%s) containername %s not in container list (%s), skipping..." % (line, containername, str(container_list)))
-        logger.debug("Config line (%s) containername %s not in container list (%s), skipping..." % (line, 
+        logger.error("Config line (%s) containername %s not in container list (%s), skipping..." % (line, 
               containername, str(container_list)))
         return None, None, result_key, None, None, None, None, None 
 
@@ -782,6 +782,9 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
         linestrip = line.rstrip()
         if linestrip is not None and not linestrip.startswith('#') and len(line.strip())>0:
             containername, targetfile, result_key, command, field_type, token_id, lookupstring, result_home = getConfigItems(labidname, linestrip, studentlabdir, container_list, logger, parameter_list)
+            if targetfile is None:
+                logger.error('Failed to get file from %s' % linestrip)
+                continue
             quiet = False
             if 'mysql' in targetfile:
                 ''' some sql log entries have no ts '''

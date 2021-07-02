@@ -89,8 +89,11 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
-June 25, 2021
+July 1, 2021
 - Support Mac package installation of headless Labtainers.
+- The routing-basics lab automated assessment failed due to lack of treataslocal files
+- Correct typos and incorrect addresses in routing-basics lab, and fix automated assessment.
+- Assessment of pcapanalysis was failing.
 
 June 10, 2021
 - All lab manual PDFs are now in the github repo
