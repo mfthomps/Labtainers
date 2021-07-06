@@ -1240,6 +1240,8 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
         haveContainer = AllContainersCreated(container)
         logger.debug("DoStart for %s AllContainersCreated result (%s)" % (container.name, haveContainer))
 
+        display = os.getenv('DISPLAY')
+        display_num = int(display[1:])
         # Set need_seeds=False first
         need_seeds=False
         # IsContainerCreated return False if container does not exists
@@ -1322,7 +1324,7 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                     results.append(False)
                     return
                 count = 0
-                cmd = "docker exec %s bash -c 'ln -s /var/tmp/.X11-unix/X0 /tmp/.X11-unix/X0'" % (mycontainer_name)
+                cmd = "docker exec %s bash -c 'ln -s /var/tmp/.X11-unix/X%d /tmp/.X11-unix/X%d'" % (mycontainer_name, display_num, display_num)
                 while not DockerCmd(cmd, noloop=True, good_error='File exists') and count<5:
                     time.sleep(1)
                     count += 1

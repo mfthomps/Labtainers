@@ -89,6 +89,9 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+July 5, 2021
+- Errors in DISPLAY env variable management broke GUI applications on Docker Desktop.
+
 July 1, 2021
 - Support Mac package installation of headless Labtainers.
 - The routing-basics lab automated assessment failed due to lack of treataslocal files
