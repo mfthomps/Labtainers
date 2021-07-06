@@ -3,6 +3,10 @@ check_docker() {
 /usr/local/bin/docker ps
 result=$?
 if [ ! $result = 0 ]; then
+    /usr/bin/docker ps
+    result=$?
+fi
+if [ ! $result = 0 ]; then
     echo "Docker Desktop not installed or not running" >>/tmp/lab-preinstall.log
 
     case "$OSTYPE" in
