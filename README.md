@@ -22,10 +22,10 @@ The Labtainers website, and downloads (including VM appliances with Labtainers p
 [designer-guide]: docs/labdesigner/labdesigner.pdf
 [Papers]: https://nps.edu/web/c3o/labtainers#papers
 
-Distribution created: 06/30/2021 13:22 </br>
-Revision: v1.3.5k </br>
-Commit: 1e9ec4f9 </br>
-Branch: master </br>
+Distribution created: 07/06/2021 01:00 </br>
+Previous revision: v1.3.5k </br>
+Commit: 6d9403ab </br>
+Branch: premaster </br>
 
 ## Content
 [Distribution and Use](#distribution-and-use)
@@ -88,6 +88,9 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+
+July 5, 2021
+- Errors in DISPLAY env variable management broke GUI applications on Docker Desktop.
 
 July 1, 2021
 - Support Mac package installation of headless Labtainers.
