@@ -17,6 +17,8 @@ Open a browser and goto http://localhost:6901/vnc.html?password= (uses blank def
 In addition to starting the Headless Labtainers, the script will create a ~/headless-labtainers directory.  A student would then run
 headless-labtainers.sh from that directory in the future.  That directory will also contain persistent data.
 
+The user name and password on the resulting Labtainers container are both "labatiner.
+
 **Warning**: if you run docker-compose directly prior to running headless-labtainers.sh, you may end up with broken file 
 permissions (though running it directly after first running headless-labtainers.sh should work fine).
 
