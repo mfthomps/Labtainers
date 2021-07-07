@@ -1,4 +1,8 @@
 # Headless Labtainers
+**NOTE** This capability is experimental on Docker Desktop for Macs and Windows.  At the moment, Docker Desktop is too unstable
+for us to support Labtainers on it.  The information below is for those who wish to experiment, and for use of cloud based 
+deployments.  
+
 Run Labtainers on systems that lack X11 desktops.  This assumes you have installed Docker, e.g., Docker Desktop on a Mac or
 Windows machine. Cloud-based solutions are also supported using remote servers.  Headless Labtainers are an alternative to 
 the Labtainer VM Appliance.
