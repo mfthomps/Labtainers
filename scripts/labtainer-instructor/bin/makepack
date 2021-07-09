@@ -291,6 +291,7 @@ def main():
         the_pack = {}
         the_pack['description'] = ''
         the_pack['labs'] = []
+        the_pack['name'] = packname
         newPack(pack_path) 
     else:
         with open(pack_path) as fh:
