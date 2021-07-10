@@ -1,0 +1,9 @@
+#!/bin/bash
+iface=$1
+if [[ ! -f /taps/$iface ]]; then
+    echo "No file at /taps/$iface"
+    exit 1
+fi
+mkfifo /tmp/$iface
+wireshark -k -i /tmp/$iface &
+tail -f -c +0 /taps/$iface > /tmp/$iface
