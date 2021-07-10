@@ -492,6 +492,13 @@ def isFirefox(image_name):
 
     return retval
 
+def FindTap(start_config):
+    for container_name in start_config.containers:
+        #logger.debug('FindTapMonitor check %s' % container_name)
+        if start_config.containers[container_name].tap.lower() == 'yes':
+            return container_name
+    return None
+
 def FindTapMonitor(start_config):
     for container_name in start_config.containers:
         #logger.debug('FindTapMonitor check %s' % container_name)
@@ -1218,12 +1225,28 @@ def MakeNetMap(start_config, mycontainer_name, container_user):
         cmd = 'docker cp /tmp/net_map.txt  %s:/var/tmp/' % (mycontainer_name)
         DockerCmd(cmd)
        
-def WaitForTap():
+def WaitForTap(start_config):
+    retval = True
     tap_dir = GetWaitTapDir()
     tap_lock = os.path.join(tap_dir,'lock')
+    fail_at = 10
     while not os.path.isdir(tap_lock):
+        fail_at = fail_at - 1
+        if fail_at <= 0:
+            retval = False
+            logger.error('tap lock dir not created at %s, exiting' % tap_lock)
+            log_path = os.path.join(os.getenv('LABTAINER_DIR'), 'logs', 'start_labdump.log')
+            tap = FindTap(start_config)
+            if tap is None:
+                logger.error('No component with TAP attribute')
+                break 
+            cmd = 'docker cp %s:/var/log/start_labdump.log %s' % (tap, log_path)
+            if not DockerCmd(cmd):
+                logger.error('failed to copy start_labdump.log')
+            break
         logger.debug('tap dir does not yet exist')
         time.sleep(1)
+    return retval
     
 def DoStartOne(labname, name, container, start_config, labtainer_config, lab_path,  
                student_email, quiet_start, results, auto_grade, image_info):
@@ -1267,7 +1290,7 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
             if not containerCreated:
                 logger.error("CreateSingleContainer fails to create container %s!\n" % mycontainer_name)
                 results.append(False)
-                return
+                return 
 
             # Give the container some time -- just in case
             #time.sleep(3)
@@ -1307,7 +1330,9 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                 else:
                     connectNetworkResult = ConnectNetworkToContainer(start_config, mycontainer_name, mysubnet_name, mysubnet_ip)
             if wait_for_tap:
-                WaitForTap()
+                if not WaitForTap(start_config):
+                    results.append(False)
+                    return
             # Start the container
             if not StartMyContainer(mycontainer_name):
                 logger.error("Container %s failed to start!\n" % mycontainer_name)
@@ -1324,7 +1349,8 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                     results.append(False)
                     return
                 count = 0
-                cmd = "docker exec %s bash -c 'ln -s /var/tmp/.X11-unix/X%d /tmp/.X11-unix/X%d'" % (mycontainer_name, display_num, display_num)
+                cmd = "docker exec %s bash -c 'ln -s /var/tmp/.X11-unix/X%d /tmp/.X11-unix/X%d'" % (mycontainer_name, 
+                  display_num, display_num)
                 while not DockerCmd(cmd, noloop=True, good_error='File exists') and count<5:
                     time.sleep(1)
                     count += 1
