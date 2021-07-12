@@ -1229,7 +1229,7 @@ def WaitForTap(start_config):
     retval = True
     tap_dir = GetWaitTapDir()
     tap_lock = os.path.join(tap_dir,'lock')
-    fail_at = 10
+    fail_at = 40
     while not os.path.isdir(tap_lock):
         fail_at = fail_at - 1
         if fail_at <= 0:
