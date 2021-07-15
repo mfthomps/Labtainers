@@ -1384,6 +1384,9 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                 DockerCmd(cmd)
                 cmd = "docker exec %s bash -c 'sudo route del default'" % (mycontainer_name)
                 DockerCmd(cmd)
+            if container.no_resolve:
+                cmd = "docker exec %s bash -c 'sudo echo \"\" > /etc/resolv.conf'" % (mycontainer_name)
+                DockerCmd(cmd)
             if container.tap == 'yes':
                 MakeNetMap(start_config, mycontainer_name, container_user)
             if container.lab_gateway is not None:
@@ -1397,14 +1400,15 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                     results.append(False)
                     return
                 '''
+                cmd = "docker exec %s bash -c 'sudo route del my_host'" % (mycontainer_name)
+                DockerCmd(cmd)
+            if container.name_server is not None:
                 cmd = "docker exec %s bash -c 'sudo echo \"nameserver %s\" >/etc/resolv.conf'" % (mycontainer_name, 
                         container.lab_gateway)
                 if not DockerCmd(cmd):
                     logger.error('Fatal error in docker command %s' % cmd) 
                     results.append(False)
                     return
-                cmd = "docker exec %s bash -c 'sudo route del my_host'" % (mycontainer_name)
-                DockerCmd(cmd)
     
         results.append(retval)
 
