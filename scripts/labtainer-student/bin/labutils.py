@@ -1403,7 +1403,7 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                 cmd = "docker exec %s bash -c 'sudo route del my_host'" % (mycontainer_name)
                 DockerCmd(cmd)
             if container.name_server is not None:
-                cmd = "docker exec %s bash -c 'sudo echo \"nameserver %s\" >/etc/resolv.conf'" % (mycontainer_name, 
+                cmd = "docker exec %s bash -c 'echo \"nameserver %s\" | sudo tee /etc/resolv.conf'" % (mycontainer_name, 
                         container.lab_gateway)
                 if not DockerCmd(cmd):
                     logger.error('Fatal error in docker command %s' % cmd) 
