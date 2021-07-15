@@ -592,8 +592,8 @@ labs.
 \item LAB\_GATEWAY -- Optional IP address of the component's default network gateway.   If set, this will replace the
 default Docker gateway.  Students can toggle between gateways by using the togglegw.sh command, e.g., to enable communication
 with the host VM or the internet\footnote{This replaces use of the set\_default\_gw.sh script from 
-within fixlocal.sh scripts}.  This option will also replace the components resolv.conf with the given IP and will cause the
-static route to the {\tt my\_host} address to be deleted.
+within fixlocal.sh scripts}.  This option will also cause the static route to the {\tt my\_host} address to be deleted.
+\item NAME\_SERVER -- Optional IP address to provide with the {\tt nameserver} directive to replace the content of {\tt /etc/resolv.conf}
 \item NO\_GW [YES/NO] -- Disable the Docker default gateway, preventing network communication with the host or external devices.
 \item REGISTRY [registry] -- The id of the Docker Hub registry that is to contain the lab images. This overrides the value
 set in the GLOBAL section. 
