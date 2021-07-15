@@ -277,13 +277,20 @@ which is root-equivalent.  In other words, even though you start a Docker contai
 as a non-privileged user, software in the resulting container can modify the Linux host,
 e.g., the VM.
 
-The computers each include a ``local'' directory beneath the HOME directory.  This is used
+The computers each include a {\tt .local/} directory beneath the HOME directory.  This is used
 by the Labtainer framework and includes results that get packaged up for forwarding to the
 instructor.  Do not modify any files beneath the .local directory.  Otherwise, you can treat
 those containers as Linux systems, and explore them.
 
 Pasting multiple commands into a labtainer terminal may result in the not all of the
 commands being executed.
+
+\subsubsection{Network Limitations}
+Labtainer containers do not include typical OS network configuration files such as /etc/network/interfaces
+or /etc/netplan.  Nor do the containers include networking daemons such as {\tt networkd}.  The initial post-boot network interface
+configurations are managed by Docker as prescribed by the labs design.  Users may alter network configurations, e.g., 
+via the {\tt ip} command, and may control DNS naming by directly modifying the {\tt /etc/resolv.conf} file.  Persistent
+changes to the {\tt resolv.conf} DNS naming can be achieved using {\tt /etc/rc.local}.
 
 \pagebreak
 \begin{appendices}
