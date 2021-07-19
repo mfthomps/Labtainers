@@ -22,9 +22,9 @@ The Labtainers website, and downloads (including VM appliances with Labtainers p
 [designer-guide]: docs/labdesigner/labdesigner.pdf
 [Papers]: https://nps.edu/web/c3o/labtainers#papers
 
-Distribution created: 07/15/2021 01:00 </br>
+Distribution created: 07/19/2021 01:00 </br>
 Previous revision: v1.3.5k </br>
-Commit: 1bbbfc96 </br>
+Commit: 1ca3bab5 </br>
 Branch: premaster </br>
 
 ## Content
@@ -89,10 +89,11 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
-July 15, 2021
+July 19, 2021
 - Add a DNS lab to introduce the DNS protocol and configuration.
 - Revised VirtualBox appliance image to start with the correct update script.
 - Split resolv.conf nameserver parameter out of the lab\_gw configuration field into its own value.
+- IModule command failed if run before any labs had been started.
 
 July 5, 2021
 - Errors in DISPLAY env variable management broke GUI applications on Docker Desktop.
