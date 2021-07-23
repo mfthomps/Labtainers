@@ -957,7 +957,7 @@ def CopyLabBin(mycontainer_name, mycontainer_image_name, container_user, lab_pat
     dest_tar = os.path.join(tmp_dir, 'labsys.tar')
     lab_sys_path = os.path.join(parent, 'lab_sys')
 
-    cmd = 'tar cf %s -C %s usr etc' % (dest_tar, lab_sys_path)
+    cmd = 'tar cf %s -C %s usr etc bin' % (dest_tar, lab_sys_path)
     ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[1].strip()) > 0:
@@ -1404,7 +1404,7 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                 DockerCmd(cmd)
             if container.name_server is not None:
                 cmd = "docker exec %s bash -c 'echo \"nameserver %s\" | sudo tee /etc/resolv.conf'" % (mycontainer_name, 
-                        container.lab_gateway)
+                        container.name_server)
                 if not DockerCmd(cmd):
                     logger.error('Fatal error in docker command %s' % cmd) 
                     results.append(False)
@@ -1548,20 +1548,20 @@ def ContainerTerminals(lab_path, start_config, container, terminal_count, termin
         CopyFilesToHost(lab_path, container.name, mycontainer_name, container.user)
         ''' HACK remove after a while....  catch case where framework updated to remove XTERM Instructions, but still using image
             that includes instructions, which then consumes a window '''
-        if container.xterm is None:
-            cmd = "docker exec %s bash -c 'ls -l $HOME/instructions.txt'" % (mycontainer_name)
-            if DockerCmd(cmd, noloop=True):
-                logger.debug('Found instructions, force xterm')
-                container.xterm = 'instructions'
+        #if container.xterm is None:
+        #    cmd = "docker exec %s bash -c 'ls -l $HOME/instructions.txt'" % (mycontainer_name)
+        #    if DockerCmd(cmd, noloop=True):
+        #        logger.debug('Found instructions, force xterm')
+        #        container.xterm = 'instructions'
 
         if container.xterm is not None:
                 logger.debug('container.xterm is <%s>' % container.xterm)
                 parts = container.xterm.split()
                 title = parts[0]
                 command = None
-                if title.lower() == 'instructions' and len(parts) == 1:
-                    command = 'startup.sh'
-                elif len(parts) == 2:
+                #if title.lower() == 'instructions' and len(parts) == 1:
+                #    command = 'startup.sh'
+                if len(parts) == 2:
                     command = parts[1]
                 else:
                     logger.error("Bad XTERM entryin in start.config: %s" % container.xterm)
@@ -2754,8 +2754,8 @@ def CopyFilesToHost(lab_path, container_name, full_container_name, container_use
     isValidLab(lab_path)
     config_path       = os.path.join(lab_path,"config") 
     copy_path = os.path.join(config_path,"files_to_host.config")
-    logger.debug('CopyFilesToHost %s %s %s' % (labname, container_name, full_container_name))
-    logger.debug('CopyFilesToHost copypath %s' % copy_path)
+    #logger.debug('CopyFilesToHost %s %s %s' % (labname, container_name, full_container_name))
+    #logger.debug('CopyFilesToHost copypath %s' % copy_path)
     if os.path.isfile(copy_path):
         with open(copy_path) as fh:
             for line in fh:
