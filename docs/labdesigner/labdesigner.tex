@@ -2904,6 +2904,10 @@ linux tool maintainer decided to fix the output of ifconfig.  Therefore if you h
 iptables definitions or elsewhere, change {\tt inet addr:xxx} to {\tt inet.*xxx}.  And use awk substr to remove
 the new colon that follows network interface device names.  See the routing-basics lab as an example.  
 
+The move to network2 was motivated in part to get the latest QT GUI for wireshark to avoid black windows.
+Note however that many packages will not install on Ubuntu 20.  You must either install the snap package manager, 
+which drags a ton of extra stuff, or find an alternate package source (e.g., the .deb packages).
+
 
 \subsection{User management and sudo}
 The Dockerfile should make the initial user, i.e., the user named in the start.config file, a member of sudoers.
