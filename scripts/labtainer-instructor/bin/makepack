@@ -83,6 +83,7 @@ def remove(line, pack_path, the_pack):
                 remove_this = entry
         if remove_this is not None:
             the_pack['labs'].remove(remove_this)
+            savePack(pack_path, the_pack)
         else:
             print('No lab entry found for %s' % lab)
     
@@ -104,12 +105,14 @@ def add(line, pack_path, the_pack):
             lab = parts[1]
             if len(parts) > 2:
                 notes = parts[2]
-        if lab in lab_list:
+        if lab in lab_list and getIndex(lab, the_pack['labs'])==None:
             pack_entry = {}
             pack_entry['name']=lab         
             pack_entry['notes']=notes
             the_pack['labs'].append(pack_entry)
             savePack(pack_path, the_pack)
+        elif lab in lab_list and getIndex(lab, the_pack['labs'])!=None:
+            print(lab + ' already exists inside this labpack.')
         else:
             print('Lab not found: %s' % lab)
     else:
@@ -139,8 +142,6 @@ def insert(line, pack_path, the_pack):
                 return
             add = input('Lab name and optional note: ')
             parts = add.split(' ',1)
-            parts = add.split(' ',1)
-            parts = add.split(' ',1)
             lab = parts[0]
             if len(parts) > 1:
                 notes = parts[1]
@@ -156,12 +157,14 @@ def insert(line, pack_path, the_pack):
             lab = parts[2]
             if len(parts) > 3:
                 notes = parts[3]
-        if lab in lab_list:
+        if lab in lab_list and getIndex(lab, the_pack['labs'])==None:
             pack_entry = {}
             pack_entry['name']=lab         
             pack_entry['notes']=notes
             the_pack['labs'].insert(index, pack_entry)
             savePack(pack_path, the_pack)
+        elif lab in lab_list and getIndex(lab, the_pack['labs'])!=None:
+            print(lab + ' already exists inside this labpack.')
         else:
             print('Lab not found: %s' % lab)
     else:
@@ -265,10 +268,13 @@ def list():
             if 'name' not in the_pack:
                 the_pack['name'] = pack_name
                 savePack(pack_path, the_pack)
-            plist[order] = the_pack
+            if order not in plist:
+                plist[order]= []
+            plist[order].append(the_pack)
+
     for o in sorted(plist):
-        the_pack = plist[o]
-        print('\t%s %d -- %s' % (the_pack['name'], o, the_pack['description']))
+        for the_pack in plist[o]:
+            print('\t%s %d -- %s' % (the_pack['name'], o, the_pack['description']))
  
 
 def main():
