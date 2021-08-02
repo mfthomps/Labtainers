@@ -552,8 +552,6 @@ script.  The script should be placed in container \_bin directory, i.e.,
 \begin{verbatim}
     $LABTAINER_DIR/labs/[labname]/[container]/_bin
 \end{verbatim}
-\noindent If the title is ``INSTRUCTIONS'', no script is necessary and the instructions.txt file
-in the container home directory will be displayed.
 \item USER [user name] -- The user name whose account will be accessed via the virtual terminals. 
 This defaults to ``ubuntu.''
 \item PASSWORD [password] -- The password for the user name whose account will be accessed via the virtual terminals. 
@@ -592,8 +590,8 @@ labs.
 \item LAB\_GATEWAY -- Optional IP address of the component's default network gateway.   If set, this will replace the
 default Docker gateway.  Students can toggle between gateways by using the togglegw.sh command, e.g., to enable communication
 with the host VM or the internet\footnote{This replaces use of the set\_default\_gw.sh script from 
-within fixlocal.sh scripts}.  This option will also replace the components resolv.conf with the given IP and will cause the
-static route to the {\tt my\_host} address to be deleted.
+within fixlocal.sh scripts}.  This option will also cause the static route to the {\tt my\_host} address to be deleted.
+\item NAME\_SERVER -- Optional IP address to provide with the {\tt nameserver} directive to replace the content of {\tt /etc/resolv.conf}
 \item NO\_GW [YES/NO] -- Disable the Docker default gateway, preventing network communication with the host or external devices.
 \item REGISTRY [registry] -- The id of the Docker Hub registry that is to contain the lab images. This overrides the value
 set in the GLOBAL section. 
@@ -746,7 +744,7 @@ See section \ref{suggestions} for guidance on including 3rd party applications w
 not simply added to your container via package managers.)
 
 
-\subsection {Lab Text and Instructions for Students} \label{instructions}
+\subsection {Lab Instructions for Students} \label{instructions}
 Create a 'docs' directory in the [labname] directory if there isn't one there. This is where most textual information about the lab, as well as the lab manual, should be stored and modified. \\ 
 
 \noindent Use LateX to write and create PDF files in the docs directory. Look at other lab's docs directory on how to create a Makefile for the LateX file. \\ 
@@ -772,10 +770,6 @@ the {\tt labtainer -k} option to view a list of existing keywords.  Do no create
 \noindent If the start.config file includes ``COLLECT\_DOCS YES'', the content of the lab/docs directory will be
 included with the student artifacts and available extracted into the instructor's 
 labtainer\_xfer/[lab]/docs directory. \\
-
-\noindent A deprecated feature that still exists in a tiny handful of labs: "Lab instructions for students can be displayed in a virtual terminal by placing an
-``instructions.txt'' file within the home directory of one of the containers.  Refer to existing
-labs for conventions."  
 
 
 \subsection {Running programs in Virtual Terminals}
@@ -2909,6 +2903,10 @@ does not have native ifconfig and requires  installation of net-tools, which is 
 linux tool maintainer decided to fix the output of ifconfig.  Therefore if you have {\tt ifconfig | grep} fu in your 
 iptables definitions or elsewhere, change {\tt inet addr:xxx} to {\tt inet.*xxx}.  And use awk substr to remove
 the new colon that follows network interface device names.  See the routing-basics lab as an example.  
+
+The move to network2 was motivated in part to get the latest QT GUI for wireshark to avoid black windows.
+Note however that many packages will not install on Ubuntu 20.  You must either install the snap package manager, 
+which drags a ton of extra stuff, or find an alternate package source (e.g., the .deb packages).
 
 
 \subsection{User management and sudo}

@@ -111,6 +111,7 @@ class ParseStartConfig():
             self.disable = None
             self.no_pull = False
             self.no_gw = False
+            self.no_resolve = False
             self.thumb_volume = None
             self.thumb_command = None
             self.thumb_stop = None
@@ -123,6 +124,7 @@ class ParseStartConfig():
             self.did_nets = []
             self.mounts = []   # persist licensed sw installations across labs, e.g., IDA
             self.lab_gateway = None    # automatic call to set_default_gw.sh
+            self.name_server = None    # update resolv.conf
 
         def add_net(self, name, ipaddr):
             self.container_nets[name] = ipaddr

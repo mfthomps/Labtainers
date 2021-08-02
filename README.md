@@ -89,6 +89,12 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+July 19, 2021
+- Add a DNS lab to introduce the DNS protocol and configuration.
+- Revised VirtualBox appliance image to start with the correct update script.
+- Split resolv.conf nameserver parameter out of the lab\_gw configuration field into its own value.
+- IModule command failed if run before any labs had been started.
+
 July 5, 2021
 - Errors in DISPLAY env variable management broke GUI applications on Docker Desktop.
 

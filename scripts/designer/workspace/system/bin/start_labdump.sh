@@ -21,7 +21,6 @@ while read line; do
     br=br-${strarr[0]}
     # name of docker network
     net=${strarr[1]}
-    # MAC of ethernet interface
     ( /bin/labdump.sh $br $net $SERVER $PORT & )
     echo "started for $br $net $SERVER $PORT"
 done </var/tmp/net_map.txt

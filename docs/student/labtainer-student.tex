@@ -100,39 +100,6 @@ completes.
 After the Linux host reboots, open a terminal to your Linux host and
 change directory to wherever you untarred the tarball, e.g., your HOME directory.
 
-\subsubsection{Docker Desktop on Mac and Windows}
-NOTE: Labs that include GUI's such as Wireshark do not currently work on Docker Desktop.
-
-This option assumes you have installed Docker Desktop and are familiar with its operation
-and its security considerations.  Instead of using the window manager of your computer, this option lets you use a web browser
-to interact with windows managed by the NOVNC program.  The window manager appears in your browser.
-
-Download the script from \url{https://raw.githubusercontent.com/mfthomps/Labtainers/master/headless-lite/headless-labtainers.sh},
-make it executable and run it (first make sure Docker is running).  On a Mac, this would be done from a terminal.  On Windows, use Powershell
-with the sh command.
-Open a browser and goto \url{http://localhost:6901/vnc.html?password=}
-No password is needed, if prompted, simply click the submit button.
-
-In addition to starting the Labtainers, the script will create a {\tt \$HOME/headless-labtainers} directory.  
-\newline
-\newline
-\noindent \textbf{To start Labtainers from Docker Desktop}:
-\begin{itemize}
-\item Open a terminal (Powershell on Windows)
-\item {\tt cd \$HOME/headless-labtainers}
-\item {\tt ./headless-labtainers.sh}
-\end{itemize}
-That {\tt \$HOME/headless-labtainers} directory will also contain persistent data, including
-results stored in the {\tt labtainer\_xfer} subdirectory.  \textbf{Note:} Where lab messages and lab manuals indicate 
-results are found in {\tt \$HOME/labtainer\_xfer}, your results will be in 
-\begin{verbatim}
-    $HOME/headless-labtainers/labtainer\_xfer
-\end{verbatim}
-
-Use {\tt ctrl-c} to quit Labtainers. 
-
-The password for the {\tt labtainer} user on the Labtainer computer is {\tt labtainer}.
-
 \section{Selecting a Lab}
 \label{selecting}
 All labs are run from the same Labtainer workspace directory, which is typically at:
@@ -238,9 +205,6 @@ the checkwork command, e.g.,
 \end{verbatim}
 
 \subsection{Submitting your work}
-The location of your results depends on whether your are using Linux, e.g., the Labtainers VM appliance, or Docker Desktop.
-
-\subsubsection{From the Labtainers VM or Linux}
 When you've completed a lab and run the {\tt stoplab} command, your results are stored in a zip file in the directory at:
 \begin{verbatim}
     $HOME/labtainer_xfer/<lab name>
@@ -252,12 +216,6 @@ When you've completed a lab and run the {\tt stoplab} command, your results are 
 \item Configure the VM to enable \textit{drag and drop}, then move the file to your host computer to email or upload to an LMS.
 \item Configure the VM and host to share folders and copy the zip file to the shared folder to email or upload to an LMS.
 \end{enumerate}
-\subsubsection{From Docker Desktop}
-On Docker Desktop installations of Labtainers, your results are stored in a zip file at:
-\begin{verbatim}
-    $HOME/headless-labtainers/labtainer_xfer/<lab nam>
-\end{verbatim}
-\noindent Provide that file to your instructor by email or uploading it to your school's LMS, e.g, Blackboard or Saki.
 
 %----------------
 \subsection{Getting Help and Things to Avoid}
@@ -319,13 +277,20 @@ which is root-equivalent.  In other words, even though you start a Docker contai
 as a non-privileged user, software in the resulting container can modify the Linux host,
 e.g., the VM.
 
-The computers each include a ``local'' directory beneath the HOME directory.  This is used
+The computers each include a {\tt .local/} directory beneath the HOME directory.  This is used
 by the Labtainer framework and includes results that get packaged up for forwarding to the
 instructor.  Do not modify any files beneath the .local directory.  Otherwise, you can treat
 those containers as Linux systems, and explore them.
 
 Pasting multiple commands into a labtainer terminal may result in the not all of the
 commands being executed.
+
+\subsubsection{Network Limitations}
+Labtainer containers do not include typical OS network configuration files such as /etc/network/interfaces
+or /etc/netplan.  Nor do the containers include networking daemons such as {\tt networkd}.  The initial post-boot network interface
+configurations are managed by Docker as prescribed by the labs design.  Users may alter network configurations, e.g., 
+via the {\tt ip} command, and may control DNS naming by directly modifying the {\tt /etc/resolv.conf} file.  Persistent
+changes to the {\tt resolv.conf} DNS naming can be achieved using {\tt /etc/rc.local}.
 
 \pagebreak
 \begin{appendices}

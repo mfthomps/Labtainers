@@ -1,0 +1,1 @@
+Introduces the Internet Domain Naming Service (DNS) and its protocol.

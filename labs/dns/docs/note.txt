@@ -1,0 +1,18 @@
+
+Local DNS entries.  Demonstrate simple DNZ zone file.
+Example implementation is bind9, aka named.
+
+Initial config has
+gw
+|
+dns
+|
+|____________
+ |     |    |
+ws1   ws2  ws3
+
+The ws1 and ws2 are configured.  Say ws3 was recently added.
+Student must configure it to use DNS server for naming,
+and must configure the dns to add the new ws3.
+
+Set up a TAP to watch the traffic.
