@@ -89,6 +89,14 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+August 3, 2021
+- Add a "WAIT\_FOR" configuration option to cause a container to delay parameterization until
+another container completes its parameterization.
+- Support for Mariadb log formats in results parsing
+- Remove support for Mac and Windows use of Docker Desktop.  That product is too unstable for us to support.
+- Supress stderr messages when user uses built-in bash commands such as "which".
+- Bug fixes to makepack/labpack programs.
+
 July 19, 2021
 - Add a DNS lab to introduce the DNS protocol and configuration.
 - Revised VirtualBox appliance image to start with the correct update script.
