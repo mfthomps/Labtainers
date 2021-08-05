@@ -125,6 +125,7 @@ class ParseStartConfig():
             self.mounts = []   # persist licensed sw installations across labs, e.g., IDA
             self.lab_gateway = None    # automatic call to set_default_gw.sh
             self.name_server = None    # update resolv.conf
+            self.wait_for = None    # don't do parameterize/fixlocal until this continer is done.
 
         def add_net(self, name, ipaddr):
             self.container_nets[name] = ipaddr
@@ -384,6 +385,10 @@ class ParseStartConfig():
                     self.containers[name].clone_copies = self.clone_count
             if self.containers[name].clone is not None:
                 self.container[name].clone_copies = self.contaienrs[name].clone
+            if self.containers[name].wait_for is not None:
+                if self.containers[name].wait_for not in self.containers:
+                    self.logger.error('Unknow wait_for container: %s for %s' % (self.containers[name].wait_for, name))
+                    exit(1)
 
     def show_current_settings(self):
         bar = "="*80

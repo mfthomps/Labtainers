@@ -872,20 +872,27 @@ def GetLabSeed(lab_master_seed, student_email):
 
 #def ParamStartConfig(lab_seed):
     
-def ParamForStudent(lab_master_seed, mycontainer_name, mycontainer_image_name, container_user, container_password, labname, 
+def ParamForStudent(lab_master_seed, mycontainer_name, container, labname, 
                     student_email, lab_path, name, image_info, running_container=None):
     # NOTE image_info may or may not be populated.
     if running_container == None:
         running_container = mycontainer_name
 
+    
     mymd5_hex_string = GetLabSeed(lab_master_seed, student_email)
     logger.debug(mymd5_hex_string)
 
-    if not ParameterizeMyContainer(mycontainer_name, mycontainer_image_name, container_user, container_password, mymd5_hex_string,
+    if container.wait_for is not None:
+        logger.debug('waiting for %s to finish parameterizing' % container.wait_for)
+        WaitStartSync(container.wait_for)
+
+    if not ParameterizeMyContainer(mycontainer_name, container.image_name, container.user, 
+                                   container.password, mymd5_hex_string,
                                    student_email, labname, lab_path, name, image_info, running_container):
         logger.error("Failed to parameterize lab container %s!\n" % mycontainer_name)
         sys.exit(1)
     logger.debug('back from ParameterizeMyContainer for %s' % mycontainer_name)
+    CreateStartSync(container.name) 
 
 def DockerCmd(cmd, noloop=False, good_error=None):
     ok = False
@@ -1256,7 +1263,6 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
         mycontainer_image_name = container.image_name
         container_user         = container.user
         container_password         = container.password
-        container_hostname         = container.hostname
         ''' mananage interfaces with multiple IP addresses, docker does not support directly '''
         post_start_if = {}
         post_start_nets = {}
@@ -1373,12 +1379,12 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
             # If the container is just created, then use the previous user's e-mail
             # then parameterize the container
             elif quiet_start and clone_need_seeds:
-                ParamForStudent(start_config.lab_master_seed, mycontainer_name, mycontainer_image_name, container_user, container_password, 
+                ParamForStudent(start_config.lab_master_seed, mycontainer_name, container,
                                 labname, student_email, lab_path, name, image_info)
             
             elif clone_need_seeds:
-                ParamForStudent(start_config.lab_master_seed, mycontainer_name, mycontainer_image_name, container_user, 
-                                                 container_password, labname, student_email, lab_path, name, image_info)
+                ParamForStudent(start_config.lab_master_seed, mycontainer_name, container,
+                                                 labname, student_email, lab_path, name, image_info)
 
             if container.no_gw:
                 cmd = "docker exec %s bash -c 'sudo /bin/ip route del 0/0'" % (mycontainer_name)
@@ -1694,6 +1700,31 @@ def GetWaitTapDir():
     wait_tap_dir = os.path.join('/tmp', user, 'wait_tap_dir')
     return wait_tap_dir
 
+def GetStartSyncDir():
+    user = os.getenv('USER')
+    sync_dir = os.path.join('/tmp', user, 'labtainer_sync')
+    return sync_dir
+
+def ClearStartSync():
+    sync_dir = GetStartSyncDir()
+    shutil.rmtree(sync_dir, ignore_errors=True)
+    try:
+        os.makedirs(sync_dir)
+    except os.error:
+        logger.error("did not expect to find dir %s" % sync_dir)
+    
+def WaitStartSync(container):
+    wait_dir = os.path.join(GetStartSyncDir(), container)
+    while not os.path.isdir(wait_dir):
+        time.sleep(1)
+
+def CreateStartSync(container):
+    my_dir = os.path.join(GetStartSyncDir(), container)
+    try:
+        os.makedirs(my_dir)
+    except os.error:
+        logger.error("did not expect to find dir %s" % my_dir)
+
 def DoStart(start_config, labtainer_config, lab_path, 
             quiet_start, run_container, servers, clone_count, auto_grade=False, debug_grade=False, container_images=None):
     labname = os.path.basename(lab_path)
@@ -1737,7 +1768,7 @@ def DoStart(start_config, labtainer_config, lab_path,
             os.makedirs(tap_lock_dir)
         except:
             pass
-        
+    ClearStartSync()    
     student_email = None
     threads = []
     results = []
