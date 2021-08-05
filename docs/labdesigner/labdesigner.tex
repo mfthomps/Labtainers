@@ -623,6 +623,8 @@ located at:
 \end{verbatim}
 \noindent The purpose is allow that host directory to be reused across labs to avoid re-installing licensed software, i.e.,
 something where the student takes a distinct action to acknowledge a license.
+\item WAIT\_FOR -- Optional name of another container whose parameterization and fixlocal processing should complete
+prior to this container starting its parameterization.
 \end{itemize}
 \end{itemize}
   
@@ -820,6 +822,9 @@ should be performed as within any Linux system, e.g., via services or rc.local.
 
 Note that use of {\tt sed -i ...} to modify configuration files (e.g., in etc), might result in overwriting symbolic links.
 Use {\tt sed -i --follow-symlinks ...} to avoid that pit.  Also note that CentOS rc.local files are in {\tt /etc/rc.d/rc.local}
+
+Synchronization between containers for purposes of sequencing the fixlocal processing can be achieved with the
+{\tt WAIT\_FOR} start.config parameter.
 
 \subsection{Persistent storage}
 \label{persistent}
