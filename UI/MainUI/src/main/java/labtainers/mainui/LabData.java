@@ -98,7 +98,9 @@ public class LabData {
         public int clone;
         public boolean no_pull;
         public String lab_gateway = "";
+        public String name_server = "";
         public boolean no_gw;
+        public boolean no_resolve;
         public String registry = "";
         public String base_registry = "";
         public String thumb_volume = "";
@@ -111,6 +113,7 @@ public class LabData {
         public boolean tap;
         public String mount1 = "";
         public String mount2 = "";
+        public String wait_for = "";
         
         public ArrayList<String> unknownContainerParams;
         
@@ -276,8 +279,14 @@ public class LabData {
                                         case "LAB_GATEWAY":
                                             currContainer.lab_gateway = line.split("LAB_GATEWAY ")[1].trim();
                                             break;
+                                        case "NAME_SERVER":
+                                            currContainer.name_server = line.split("NAME_SERVER ")[1].trim();
+                                            break;
                                         case "NO_GW":
                                             currContainer.no_gw = (line.split("NO_GW ")[1].trim()).equals("YES");
+                                            break;
+                                        case "NO_RESOLVE":
+                                            currContainer.no_resolve = (line.split("NO_RESOLVE ")[1].trim()).equals("YES");
                                             break;
                                         case "REGISTRY":
                                             currContainer.registry = line.split("REGISTRY ")[1].trim();
@@ -314,6 +323,9 @@ public class LabData {
                                             currContainer.mount1 = mountParam.split(":")[0].trim();
                                             currContainer.mount2 = mountParam.split(":")[1].trim();
                                             break;
+                                        case "WAIT_FOR":
+                                            currContainer.wait_for = (line.split("WAIT_FOR\\s+")[1].trim());
+                                            break;  
                                         default:
                                             boolean foundMatchingNetwork = false;
                                             String networkName = line.split("\\s+")[0].toUpperCase();
@@ -577,7 +589,9 @@ public class LabData {
         System.out.println("clone: " + data.clone);  
         System.out.println("no_pull: " + data.no_pull);  
         System.out.println("lab_gateway: " + data.lab_gateway);  
+        System.out.println("name_server: " + data.name_server);  
         System.out.println("no_gw: " + data.no_gw);  
+        System.out.println("no_resolve: " + data.no_resolve);  
         System.out.println("registry: " + data.registry);  
         System.out.println("base_registry: " + data.base_registry);  
         System.out.println("thumb_volume: " + data.thumb_volume);  
@@ -697,8 +711,14 @@ public class LabData {
             if(!data.lab_gateway.isEmpty()){
                 startConfigText += "     LAB_GATEWAY "+data.lab_gateway+"\n";
             }
+            if(!data.name_server.isEmpty()){
+                startConfigText += "     NAME_SERVER "+data.name_server+"\n";
+            }
             if(data.no_gw){
                 startConfigText += "     NO_GW YES\n";
+            }
+            if(data.no_resolve){
+                startConfigText += "     NO_RESOLVE YES\n";
             }
             if(!data.base_registry.isEmpty()){
                 startConfigText += "     BASE_REGISTRY "+data.base_registry+"\n";
@@ -732,6 +752,9 @@ public class LabData {
             }
             if(!data.mount1.isEmpty() && !data.mount2.isEmpty()){
                 startConfigText += "     MOUNT "+data.mount1+":"+data.mount2+"\n";
+            }
+            if(!data.wait_for.isEmpty()){
+                startConfigText += "     WAIT_FOR "+data.wait_for+"\n";
             }
             
         }
