@@ -671,6 +671,9 @@ def CreateSingleContainer(labtainer_config, start_config, container, lab_path, m
         num_cpu_str = ''
         if container.num_cpus is not None:
             num_cpu_str = '--cpus=%s' % container.num_cpus
+        cpu_set_str = ''
+        if container.cpu_set is not None:
+            cpu_set_str = '--cpuset-cpus=%s' % container.cpu_set
 
         clone_names = GetContainerCloneNames(container)
 
@@ -681,16 +684,16 @@ def CreateSingleContainer(labtainer_config, start_config, container, lab_path, m
                 subnet_ip, mac = GetNetParam(start_config, mysubnet_name, mysubnet_ip, clone_fullname)
             #createsinglecommand = "docker create -t %s --ipc host --cap-add NET_ADMIN %s %s %s %s %s --name=%s --hostname %s %s %s %s %s" % (dns_param, 
             if len(container.docker_args) == 0:
-                createsinglecommand = "docker create %s -t %s --cap-add NET_ADMIN %s %s %s %s %s %s --name=%s --hostname %s %s %s %s %s" % \
+                createsinglecommand = "docker create %s -t %s --cap-add NET_ADMIN %s %s %s %s %s %s --name=%s --hostname %s %s %s %s %s %s" % \
                     (shm, dns_param, network_param, subnet_ip, mac, priv_param, add_host_param,  
                     publish_param, clone_fullname, clone_host, volume, 
-                    multi_user, num_cpu_str, new_image_name)
+                    multi_user, num_cpu_str, cpu_set_str, new_image_name)
             else:
-                createsinglecommand = "docker create %s %s --shm-size=2g -t %s --cap-add NET_ADMIN %s %s %s %s %s %s --name=%s --hostname %s %s %s %s %s" % \
+                createsinglecommand = "docker create %s %s --shm-size=2g -t %s --cap-add NET_ADMIN %s %s %s %s %s %s --name=%s --hostname %s %s %s %s %s %s" % \
                     (shm, container.docker_args, dns_param, network_param, subnet_ip, mac, priv_param, add_host_param,  
                     publish_param, clone_fullname, clone_host, volume, 
-                    multi_user, num_cpu_str, new_image_name)
-            #logger.debug("Command to execute was (%s)" % createsinglecommand)
+                    multi_user, num_cpu_str, cpu_set_str, new_image_name)
+            logger.debug("Command to execute was (%s)" % createsinglecommand)
             ps = subprocess.Popen(shlex.split(createsinglecommand), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             output = ps.communicate()
             if len(output[1]) > 0:
