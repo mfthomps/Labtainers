@@ -136,6 +136,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         TapRadioButton = new javax.swing.JRadioButton();
         WaitForTextField = new javax.swing.JTextField();
         NumCPUTextField = new javax.swing.JTextField();
+        CPUSetTextField = new javax.swing.JTextField();
         ContainerConfigGNS3Tab = new javax.swing.JPanel();
         ThumbVolumeLabel = new javax.swing.JLabel();
         HideLabel = new javax.swing.JLabel();
@@ -477,6 +478,8 @@ public class ContainerObjPanel extends javax.swing.JPanel {
 
         NumCPUTextField.setBorder(javax.swing.BorderFactory.createTitledBorder("Num CPUs"));
 
+        CPUSetTextField.setBorder(javax.swing.BorderFactory.createTitledBorder("CPU Set"));
+
         javax.swing.GroupLayout ContainerConfigOtherTabLayout = new javax.swing.GroupLayout(ContainerConfigOtherTab);
         ContainerConfigOtherTab.setLayout(ContainerConfigOtherTabLayout);
         ContainerConfigOtherTabLayout.setHorizontalGroup(
@@ -514,7 +517,10 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                                 .addGap(1, 1, 1)
                                 .addComponent(MyStuffCheckbox))
                             .addComponent(WaitForTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 153, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(NumCPUTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(ContainerConfigOtherTabLayout.createSequentialGroup()
+                        .addComponent(NumCPUTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(28, 28, 28)
+                        .addComponent(CPUSetTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(103, Short.MAX_VALUE))
         );
         ContainerConfigOtherTabLayout.setVerticalGroup(
@@ -550,7 +556,9 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                         .addGap(16, 16, 16)
                         .addComponent(WaitForTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(9, 9, 9)
-                .addComponent(NumCPUTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(ContainerConfigOtherTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(NumCPUTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 56, Short.MAX_VALUE)
+                    .addComponent(CPUSetTextField))
                 .addContainerGap(291, Short.MAX_VALUE))
         );
 
@@ -1127,6 +1135,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         data.mount2 = MountTextfield2.getText();              
         data.wait_for = WaitForTextField.getText();
         data.num_cpus = NumCPUTextField.getText();
+        data.cpu_set = CPUSetTextField.getText();
         // GNS3
         data.thumb_command = ThumbCommandTextfield.getText();    
         data.thumb_stop = ThumbStopTextfield.getText();           
@@ -1264,6 +1273,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         this.MountTextfield2.setText(data.mount2);
         this.WaitForTextField.setText(data.wait_for);
         this.NumCPUTextField.setText(data.num_cpus);
+        this.CPUSetTextField.setText(data.cpu_set);
     }
     
     // Updates the comboboxes that reference the networks: ADDING, DELETING, RENAMING
@@ -1345,6 +1355,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
     private javax.swing.JScrollPane AddHostsScrollPane;
     private javax.swing.JPanel AddHostsSubPanel;
     private javax.swing.JTextField BaseRegistryTextfield;
+    private javax.swing.JTextField CPUSetTextField;
     private javax.swing.JSpinner ClonesSpinner;
     private javax.swing.JButton ContainerConfigAddHostIPButton;
     private javax.swing.JButton ContainerConfigAddHostNetworkButton;

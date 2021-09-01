@@ -621,7 +621,11 @@
                                       <Component id="WaitForTextField" min="-2" pref="153" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
-                              <Component id="NumCPUTextField" alignment="0" min="-2" pref="160" max="-2" attributes="0"/>
+                              <Group type="102" alignment="0" attributes="0">
+                                  <Component id="NumCPUTextField" min="-2" pref="160" max="-2" attributes="0"/>
+                                  <EmptySpace min="-2" pref="28" max="-2" attributes="0"/>
+                                  <Component id="CPUSetTextField" min="-2" pref="158" max="-2" attributes="0"/>
+                              </Group>
                           </Group>
                           <EmptySpace pref="103" max="32767" attributes="0"/>
                       </Group>
@@ -669,7 +673,10 @@
                               </Group>
                           </Group>
                           <EmptySpace min="-2" pref="9" max="-2" attributes="0"/>
-                          <Component id="NumCPUTextField" min="-2" pref="56" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                              <Component id="NumCPUTextField" pref="56" max="32767" attributes="0"/>
+                              <Component id="CPUSetTextField" max="32767" attributes="0"/>
+                          </Group>
                           <EmptySpace pref="291" max="32767" attributes="0"/>
                       </Group>
                   </Group>
@@ -783,6 +790,15 @@
                     <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                       <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
                         <TitledBorder title="Num CPUs"/>
+                      </Border>
+                    </Property>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JTextField" name="CPUSetTextField">
+                  <Properties>
+                    <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                      <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
+                        <TitledBorder title="CPU Set"/>
                       </Border>
                     </Property>
                   </Properties>
