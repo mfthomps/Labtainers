@@ -114,6 +114,7 @@ public class LabData {
         public String mount1 = "";
         public String mount2 = "";
         public String wait_for = "";
+        public String num_cpus = "";
         
         public ArrayList<String> unknownContainerParams;
         
@@ -325,6 +326,9 @@ public class LabData {
                                             break;
                                         case "WAIT_FOR":
                                             currContainer.wait_for = (line.split("WAIT_FOR\\s+")[1].trim());
+                                            break;  
+                                        case "NUM_CPUS":
+                                            currContainer.num_cpus = (line.split("NUM_CPUS\\s+")[1].trim());
                                             break;  
                                         default:
                                             boolean foundMatchingNetwork = false;
@@ -755,6 +759,9 @@ public class LabData {
             }
             if(!data.wait_for.isEmpty()){
                 startConfigText += "     WAIT_FOR "+data.wait_for+"\n";
+            }
+            if(!data.num_cpus.isEmpty()){
+                startConfigText += "     NUM_CPUS "+data.num_cpus+"\n";
             }
             
         }

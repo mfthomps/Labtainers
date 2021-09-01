@@ -135,6 +135,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         MountTextfield2 = new javax.swing.JTextField();
         TapRadioButton = new javax.swing.JRadioButton();
         WaitForTextField = new javax.swing.JTextField();
+        NumCPUTextField = new javax.swing.JTextField();
         ContainerConfigGNS3Tab = new javax.swing.JPanel();
         ThumbVolumeLabel = new javax.swing.JLabel();
         HideLabel = new javax.swing.JLabel();
@@ -474,6 +475,8 @@ public class ContainerObjPanel extends javax.swing.JPanel {
 
         WaitForTextField.setBorder(javax.swing.BorderFactory.createTitledBorder("Wait for"));
 
+        NumCPUTextField.setBorder(javax.swing.BorderFactory.createTitledBorder("Num CPUs"));
+
         javax.swing.GroupLayout ContainerConfigOtherTabLayout = new javax.swing.GroupLayout(ContainerConfigOtherTab);
         ContainerConfigOtherTab.setLayout(ContainerConfigOtherTabLayout);
         ContainerConfigOtherTabLayout.setHorizontalGroup(
@@ -510,7 +513,8 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                                 .addComponent(jLabel12)
                                 .addGap(1, 1, 1)
                                 .addComponent(MyStuffCheckbox))
-                            .addComponent(WaitForTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 153, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(WaitForTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 153, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(NumCPUTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(103, Short.MAX_VALUE))
         );
         ContainerConfigOtherTabLayout.setVerticalGroup(
@@ -545,7 +549,9 @@ public class ContainerObjPanel extends javax.swing.JPanel {
                     .addGroup(ContainerConfigOtherTabLayout.createSequentialGroup()
                         .addGap(16, 16, 16)
                         .addComponent(WaitForTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(280, Short.MAX_VALUE))
+                .addGap(9, 9, 9)
+                .addComponent(NumCPUTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(291, Short.MAX_VALUE))
         );
 
         containerTabPane.addTab("Other", ContainerConfigOtherTab);
@@ -1120,6 +1126,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         data.mount1 = MountTextfield1.getText();       
         data.mount2 = MountTextfield2.getText();              
         data.wait_for = WaitForTextField.getText();
+        data.num_cpus = NumCPUTextField.getText();
         // GNS3
         data.thumb_command = ThumbCommandTextfield.getText();    
         data.thumb_stop = ThumbStopTextfield.getText();           
@@ -1256,6 +1263,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
         this.MountTextfield1.setText(data.mount1);
         this.MountTextfield2.setText(data.mount2);
         this.WaitForTextField.setText(data.wait_for);
+        this.NumCPUTextField.setText(data.num_cpus);
     }
     
     // Updates the comboboxes that reference the networks: ADDING, DELETING, RENAMING
@@ -1364,6 +1372,7 @@ public class ContainerObjPanel extends javax.swing.JPanel {
     private javax.swing.JCheckBox NoPrivilegeCheckbox;
     private javax.swing.JCheckBox NoPullCheckbox;
     private javax.swing.JCheckBox NoResolveCheckbox;
+    private javax.swing.JTextField NumCPUTextField;
     private javax.swing.JTextField PasswordTF;
     private javax.swing.JTextField PublishTextfield;
     private javax.swing.JTextField RegistryTextfield;
