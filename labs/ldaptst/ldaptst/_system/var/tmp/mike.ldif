@@ -1,0 +1,17 @@
+dn: uid=mike,ou=People,dc=example,dc=local
+objectClass: top
+objectClass: account
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: mike
+uid: mike
+uidNumber: 1501
+gidNumber: 1500
+homeDirectory: /home/mike
+loginShell: /bin/bash
+gecos: Mike 
+userPassword: {crypt}x
+shadowLastChange: 17058
+shadowMin: 0
+shadowMax: 99999
+shadowWarning: 7
