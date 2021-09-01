@@ -625,6 +625,8 @@ located at:
 something where the student takes a distinct action to acknowledge a license.
 \item WAIT\_FOR -- Optional name of another container whose parameterization and fixlocal processing should complete
 prior to this container starting its parameterization.
+\item NUM\_CPUS -- Optional allocation of CPUs to this container.  Note the container sees all CPUs, e.g., every
+core allocated to the VM using {\tt lscpu}, but Docker will limit the container utilization of CPUs per this value.
 \end{itemize}
 \end{itemize}
   
