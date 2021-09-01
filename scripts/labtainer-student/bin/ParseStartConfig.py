@@ -126,6 +126,7 @@ class ParseStartConfig():
             self.lab_gateway = None    # automatic call to set_default_gw.sh
             self.name_server = None    # update resolv.conf
             self.wait_for = None    # don't do parameterize/fixlocal until this continer is done.
+            self.num_cpus = None
 
         def add_net(self, name, ipaddr):
             self.container_nets[name] = ipaddr
