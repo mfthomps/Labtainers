@@ -15,8 +15,4 @@
 #
 #   PERMLOCKDIR=/var/labtainer/did_param
 #   echo $1 | sudo -S mkdir -p "$PERMLOCKDIR"
-sudo mysql < /home/ubuntu/admin.sql
-mysql -uadmin -padmin < /home/ubuntu/users.sql
-sudo /home/ubuntu/configldap.sh
-sudo /home/ubuntu/netcnf.sh
-sudo systemctl restart mariadb
+
