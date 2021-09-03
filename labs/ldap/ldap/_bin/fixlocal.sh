@@ -18,3 +18,5 @@ sudo /var/tmp/configure.sh
 sudo systemctl restart slapd
 /var/tmp/addusers.sh
 sudo systemctl restart slapd
+cd /var/tmp
+sudo ./enable-ssl.sh
