@@ -276,19 +276,25 @@ publish new labs so that they can be incorporated into your student's Labtainers
 with other educators.
 
 \subsection{Create new Labpacks}
-You can organize lab exercises into your own Labapcks using the {\tt makepack} command.  First go to the
+You can organize lab exercises into your own Labapcks using the {\tt makepack} command, or with the {\tt makepackui} GUI.  
+Each of these commands are run from this directory:
 \begin{verbatim}
    $LABTAINER_DIR/scripts/labtainer-instructor
 \end{verbatim}
-\noindent directory and then use the {\tt makepack} command, providing the name of the Labpack that you wish
+\subsubsection{Command line}
+Use the {\tt makepack} command, providing the name of the Labpack that you wish
 to create or modify.\footnote{Do not modify other Labpacks, only modify those that you've created.}  
 \begin{verbatim}
    makepack mypack1
 \end{verbatim}
 
-\noindent This results in a shell that accepts makepack comands.  Use either {\tt h} or {\tt ?} to get help.  
+\noindent This results in a shell that accepts makepack commands.  Use either {\tt h} or {\tt ?} to get help.  
 Note that chages to Labpacks are stored immediately, there are no save/quit options.
 
+\subsubsection{GUI}
+The {\tt makepackui} command is functionally similar to makepack, but it provides a GUI.
+
+\subsubsection{Distributing Labpacks}
 Labpacks are stored in the {\tt \$LABTAINER\_DIR/labpacks} directory.  To publish one or more Labpacks so that
 they are available to your students, go to the {\tt labpacks} directory and use tar to create a tarball containing
 each of your Labpacks.  For example:
