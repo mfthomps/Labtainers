@@ -22,10 +22,10 @@ The Labtainers website, and downloads (including VM appliances with Labtainers p
 [designer-guide]: docs/labdesigner/labdesigner.pdf
 [Papers]: https://nps.edu/web/c3o/labtainers#papers
 
-Distribution created: 07/06/2021 15:49 </br>
-Revision: v1.3.5o </br>
-Commit: 270a49b3 </br>
-Branch: master </br>
+Distribution created: 08/31/2021 11:06 </br>
+Previous revision: v1.3.5o </br>
+Commit: 06c4a418 </br>
+Branch: premaster </br>
 
 ## Content
 [Distribution and Use](#distribution-and-use)
@@ -88,6 +88,13 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+
+September 14, 2021
+- Example labs for LDAP and Mariadb using SSL. Intended as templates for new labs.
+- Handle Mariadb log format
+- Add per-container parameters to limit CPU use or pin container to CPU set.
+- Labpack creation now available via a GUI (makepackui).
+- Tab completion for the labtainer, labpack and gradelab commands.
 
 August 3, 2021
 - Add a "WAIT\_FOR" configuration option to cause a container to delay parameterization until
