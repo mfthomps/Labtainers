@@ -21,6 +21,17 @@ cd labtainer/trunk/scripts/labtainer-student/bin
 if [ ! -L update-designer.sh ]; then
     ln -s ../../../setup_scripts/update-designer.sh
 fi
+if [[ "$TEST_REGISTRY" != TRUE ]]; then
+    mkdir -p $LABTAINER_DIR/MakepackUI/bin
+    wget --quiet https://github.com/mfthomps/Labtainers/releases/latest/download/makepackui.jar -O $LABTAINER_DIR/MakepackUI/bin/makepackui.jar
+fi
+target=~/.bashrc
+grep "lab-completion.bash" $target >>/dev/null
+result=$?
+if [[ result -ne 0 ]];then
+   echo 'source $LABTAINER_DIR/setup_scripts/lab-completion.bash' >> $target
+fi
+source $LABTAINER_DIR/setup_scripts/lab-completion.bash
 cd $here
 grep "^Distribution created:" labtainer/trunk/README.md | awk '{print "Updated to release of: ", $3, $4}'
 grep "^Branch:" labtainer/trunk/README.md | awk '{print "branch: ", $2}'
