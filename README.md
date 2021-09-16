@@ -23,9 +23,9 @@ The Labtainers website, and downloads (including VM appliances with Labtainers p
 [Papers]: https://nps.edu/web/c3o/labtainers#papers
 
 
-Distribution created: 09/16/2021 15:16 </br>
-Revision: v1.3.5q </br>
-Commit: da3a7ac0 </br>
+Distribution created: 09/16/2021 15:20 </br>
+Revision: v1.3.5r </br>
+Commit: d041becf </br>
 Branch: master </br>
 
 ## Content
