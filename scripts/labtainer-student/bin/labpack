@@ -62,11 +62,14 @@ def list():
             order = 0
             if 'order' in the_pack:
                 order = int(the_pack['order'])
-            plist[order] = the_pack
-    for o in sorted(plist):
-        the_pack = plist[o]
-        print('\t%s  -- %s' % (the_pack['name'], the_pack['description']))
+            if order not in plist:
+                plist[order] = []
+            plist[order].append(the_pack)
 
+    for o in sorted(plist):
+        for the_pack in plist[o]:
+            print('\t%s  -- %s' % (the_pack['name'], the_pack['description']))
+    
 def update(logger, labpack_url):
     tfile = '/tmp/labpack.tar'
     try:

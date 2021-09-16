@@ -46,6 +46,7 @@ revision=$new_tag
 commit=`git describe --always`
 sed -i "s/^Distribution created:.*$/Distribution created: $(date '+%m\/%d\/%Y %H:%M') <\/br>/" README.md
 sed -i "s/^Revision:.*$/Revision: $revision <\/br>/" README.md
+sed -i "s/^Previous revision:.*$/Revision: $revision <\/br>/" README.md
 sed -i "s/^Commit:.*$/Commit: $commit <\/br>/" README.md
 sed -i "s/^Branch:.*$/Branch: master <\/br>/" README.md
 git commit README.md -m "Update readme date/rev"
@@ -67,10 +68,13 @@ echo "Build GUI Jar"
 cd UI/bin
 ./buildUI2.sh -n || exit
 cp MainUI.jar $release_dir/distrib/artifacts/
+
+echo "Build MakepackUI Jar"
+cd MakepackUI/bin
+./buildUI2.sh -n || exit
+cp makepackui.jar $release_dir/distrib/artifacts/
 cd $release_dir/distrib
 
-# Mac install package
-cp mac/labtainers-desktop.pkg $release_dir/distrib/artifacts/
 echo "Now generate release"
 
 github-release release --security-token $gitpat --user mfthomps --repo Labtainers --tag $new_tag
@@ -81,5 +85,6 @@ echo "Upload PDF zip"
 github-release upload --security-token $gitpat --user mfthomps --repo Labtainers --tag $new_tag --name labtainer_pdf.zip --file artifacts/labtainer_pdf.zip
 echo "Upload UI"
 github-release upload --security-token $gitpat --user mfthomps --repo Labtainers --tag $new_tag --name MainUI.jar --file artifacts/MainUI.jar
+github-release upload --security-token $gitpat --user mfthomps --repo Labtainers --tag $new_tag --name makepackui.jar --file artifacts/makepackui.jar
 git checkout premaster
 git fetch --tags

@@ -209,6 +209,7 @@ public class MainWindow extends javax.swing.JFrame {
         ContainerScrollPane = new javax.swing.JScrollPane();
         ContainerPanePanel = new javax.swing.JPanel();
         addContainerButton = new javax.swing.JButton();
+        copyContainerButton = new javax.swing.JButton();
         NetworkPanel = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         NetworkScrollPane = new javax.swing.JScrollPane();
@@ -250,6 +251,7 @@ public class MainWindow extends javax.swing.JFrame {
         readfirstMenu = new javax.swing.JMenuItem();
         SimlabDirectivesMenuItem = new javax.swing.JMenuItem();
         configMenuItem = new javax.swing.JMenuItem();
+        keywordsMenuItem = new javax.swing.JMenuItem();
         HelpMenu = new javax.swing.JMenu();
         DesignerMenuItem = new javax.swing.JMenuItem();
         StudentMenuItem = new javax.swing.JMenuItem();
@@ -666,6 +668,14 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
 
+        copyContainerButton.setText("Copy from");
+        copyContainerButton.setToolTipText("Copy a container from another lab.");
+        copyContainerButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                copyContainerButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout ContainerPanelLayout = new javax.swing.GroupLayout(ContainerPanel);
         ContainerPanel.setLayout(ContainerPanelLayout);
         ContainerPanelLayout.setHorizontalGroup(
@@ -673,22 +683,30 @@ public class MainWindow extends javax.swing.JFrame {
             .addGroup(ContainerPanelLayout.createSequentialGroup()
                 .addGap(15, 15, 15)
                 .addGroup(ContainerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(ContainerScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)
+                    .addGroup(ContainerPanelLayout.createSequentialGroup()
+                        .addComponent(ContainerScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)
+                        .addGap(15, 15, 15))
                     .addGroup(ContainerPanelLayout.createSequentialGroup()
                         .addComponent(jLabel1)
-                        .addGap(38, 38, 38)
-                        .addComponent(addContainerButton, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(15, 15, 15))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(ContainerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(addContainerButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(copyContainerButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addContainerGap())))
         );
         ContainerPanelLayout.setVerticalGroup(
             ContainerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(ContainerPanelLayout.createSequentialGroup()
-                .addGap(10, 10, 10)
                 .addGroup(ContainerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(addContainerButton))
-                .addGap(5, 5, 5)
-                .addComponent(ContainerScrollPane)
+                    .addGroup(ContainerPanelLayout.createSequentialGroup()
+                        .addGap(10, 10, 10)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(ContainerPanelLayout.createSequentialGroup()
+                        .addComponent(addContainerButton, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(copyContainerButton, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(9, 9, 9)
+                .addComponent(ContainerScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 343, Short.MAX_VALUE)
                 .addGap(10, 10, 10))
         );
 
@@ -995,6 +1013,14 @@ public class MainWindow extends javax.swing.JFrame {
         });
         EditMenu.add(configMenuItem);
 
+        keywordsMenuItem.setText("keyworkds");
+        keywordsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                keywordsMenuItemActionPerformed(evt);
+            }
+        });
+        EditMenu.add(keywordsMenuItem);
+
         MainMenuBar.add(EditMenu);
 
         HelpMenu.setText("Help");
@@ -1120,7 +1146,10 @@ public class MainWindow extends javax.swing.JFrame {
     
     private void OpenLabMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_OpenLabMenuItemActionPerformed
         try {
-            openLabButton();
+            File lab = openLabButton();
+            if(lab != null){
+                openLab(lab);
+            }
         } catch (IOException ex) {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -1493,6 +1522,40 @@ public class MainWindow extends javax.swing.JFrame {
         dialog.dispose();
     }//GEN-LAST:event_configMenuItemActionPerformed
 
+    private void copyContainerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_copyContainerButtonActionPerformed
+        try{
+            File container = labContainerButton();
+            if(container != null){
+                
+                File lab = container.getParentFile();
+                File lab_dir = lab.getParentFile();
+                if(lab_dir.getName().equals("labs")){
+                    saveLab(false, true);
+                    System.out.println("container is "+container.getName());
+                    String cmd = "new_lab_setup.py -C "+lab.getName()+" "+container.getName()+" newcontainer";
+                    doLabCommand(cmd);
+                    reloadLab();
+                    ContainerObjPanel newPanel = getContainerPanel("newcontainer");
+                    if(newPanel != null){
+                        newPanel.renameContainerButton();
+                    }else{
+                        System.out.println("Error getting new container name");
+                    }
+                }else{
+                    output("Not a lab container: "+container.getName());
+                }
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_copyContainerButtonActionPerformed
+
+    private void keywordsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_keywordsMenuItemActionPerformed
+        String keywordPath = this.currentLab.toString()+File.separator+"config"+File.separator+"keywords.txt";
+        String cmd = getTextEditor()+" "+keywordPath+" &";
+        doCommand(cmd);
+    }//GEN-LAST:event_keywordsMenuItemActionPerformed
+
     
     //BUTTON FUNCTIONS//
     
@@ -1537,7 +1600,8 @@ public class MainWindow extends javax.swing.JFrame {
  
     // Opens up file chooser window that defaults to the labs directory relative to the set labtainerPath
     // and opens the lab based on the lab directory chosen
-    private void openLabButton() throws IOException{
+    private File openLabButton() throws IOException{
+        File retval = null;
         if(labName != null){
             try{
                 saveLab(true, false);
@@ -1552,10 +1616,27 @@ public class MainWindow extends javax.swing.JFrame {
             while(!lab.getParent().endsWith(File.separator+"labs")){
                 lab = new File(lab.getParent());
             }
-            openLab(lab);
+            retval = lab;
         } 
+        return retval;
     }
     
+    private File labContainerButton() throws IOException{
+        File retval = null;
+        if(labName != null){
+            try{
+                saveLab(true, false);
+            } catch (IOException ex) {
+                Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        labChooser.setCurrentDirectory(labsPath);   
+        int returnVal = labChooser.showOpenDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            retval = labChooser.getSelectedFile();
+        } 
+        return retval;
+    }
     // Preps the NewLab Dialog and makes it visible
     private void newLabButton(){
         if(labName != null){
@@ -1629,6 +1710,11 @@ public class MainWindow extends javax.swing.JFrame {
             String containerName = ContainerAddDialogNameTextfield.getText(); 
             if(containerName == null || containerName.trim().length() == 0){
                 System.out.println("No container name provided.");
+                return;
+            }
+            if(containerName.equals("newcontainer")){
+                JOptionPane.showMessageDialog(null, "The name 'newcontainer' is reserved and cannot b used.", "Warning", 
+                       JOptionPane.WARNING_MESSAGE);
                 return;
             }
             String baseImage = (String)ContainerAddDialogBaseImageCombobox.getSelectedItem();
@@ -1733,6 +1819,11 @@ public class MainWindow extends javax.swing.JFrame {
         if(!aboutFile.exists()){
             output("No about.txt found for this lab.\n");
         }
+        String keywordPath = this.currentLab.toString()+File.separator+"config"+File.separator+"keywords.txt";
+        File keyFile = new File(keywordPath);
+        if(!keyFile.exists()){
+            output("No keywords.txt found for this lab.\n");
+        }
     }
     // Loads data and UI for the selected lab
     private void openLab(File lab) throws IOException{        
@@ -1813,7 +1904,7 @@ public class MainWindow extends javax.swing.JFrame {
     }
          
     // Writes current state of the UI the file system
-    private boolean saveLab(boolean usetmp, boolean force) throws FileNotFoundException{
+    public boolean saveLab(boolean usetmp, boolean force) throws FileNotFoundException{
         // If usetmp, save to temporary diretory and compare to current.  If they differ,
         // prompts the user to save or discard changes.
         // Return false if user cancels (does not want to exit).
@@ -1932,6 +2023,12 @@ public class MainWindow extends javax.swing.JFrame {
             }
         }
         //System.out.println("Lab Saved (or not)");
+        try{
+            System.out.println("Check manuals");
+            checkManual();
+        }catch(IOException ex){
+            System.out.println("Error checking manuals: "+ex);
+        }
         return retval;
     }
     
@@ -2277,6 +2374,32 @@ public class MainWindow extends javax.swing.JFrame {
     public String getTextEditor(){
         return prefProperties.getProperty("textEditor")+" ";
     }
+    public void reloadLab(){
+        closeAllDialogs(); 
+        resetWindow();
+        try{
+            this.labDataCurrent = new LabData(this, this.currentLab, this.labName); 
+            this.labDataCurrent.retrieveResultsGoalsParams();
+            loadLab();
+            System.out.println("Did reload\n");
+        } catch (IOException ex) {
+            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
+    public ContainerObjPanel getContainerPanel(String name){
+        ContainerObjPanel retval=null;
+        Component[] containers = ContainerPanePanel.getComponents();
+        for(Component container : containers){
+            ContainerObjPanel panel = (ContainerObjPanel)container;
+            System.out.println("Compare "+panel.getContainerName()+" to "+name);
+            if(panel.getContainerName().equals(name)){
+                retval = panel;
+                break;
+            }
+        }
+        return retval;
+    }
     /**
      * @param args the command line arguments
      */
@@ -2388,6 +2511,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JMenuItem buildMenuItem;
     private javax.swing.JMenuItem checkWorkMenuItem;
     private javax.swing.JMenuItem configMenuItem;
+    private javax.swing.JButton copyContainerButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
@@ -2403,6 +2527,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JPopupMenu.Separator jSeparator2;
     private javax.swing.JPopupMenu.Separator jSeparator4;
     private javax.swing.JPopupMenu.Separator jSeparator5;
+    private javax.swing.JMenuItem keywordsMenuItem;
     private javax.swing.JFileChooser labChooser;
     private javax.swing.JMenuItem labtainerLogMenuItem;
     private javax.swing.JLabel logo;

@@ -1,0 +1,1 @@
+Not a lab, example of configuring LDAP server and client on CentOS 7 with SSL.

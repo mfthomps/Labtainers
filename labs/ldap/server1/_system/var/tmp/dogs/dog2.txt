@@ -7,7 +7,7 @@
 # Note: It is usually a good idea to use an IP address because it reduces risks of failure in the event name service problems.
 # 
 # LDAP server Uniform Resource Identifier:
-ldap-auth-config/ldapns/ldap-server="ldap://172.25.0.2"
+ldap-auth-config/ldapns/ldap-server="ldap://ldap"
 
 # Please enter the distinguished name of the LDAP search base. Many sites use the components of their domain names for this purpose. For example,
 # the domain "example.net" would use "dc=example,dc=net" as the distinguished name of the search base.

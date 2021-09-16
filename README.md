@@ -22,6 +22,7 @@ The Labtainers website, and downloads (including VM appliances with Labtainers p
 [designer-guide]: docs/labdesigner/labdesigner.pdf
 [Papers]: https://nps.edu/web/c3o/labtainers#papers
 
+
 Distribution created: 08/02/2021 09:56 </br>
 Revision: v1.3.5p </br>
 Commit: d40a4c9a </br>
@@ -88,6 +89,28 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+
+September 14, 2021
+- Example labs for LDAP and Mariadb using SSL. Intended as templates for new labs.
+- Handle Mariadb log format
+- Add per-container parameters to limit CPU use or pin container to CPU set.
+- Labpack creation now available via a GUI (makepackui).
+- Tab completion for the labtainer, labpack and gradelab commands.
+- New parallel computing lab ``parallel'' using MPI.
+
+August 3, 2021
+- Add a "WAIT\_FOR" configuration option to cause a container to delay parameterization until
+another container completes its parameterization.
+- Support for Mariadb log formats in results parsing
+- Remove support for Mac and Windows use of Docker Desktop.  That product is too unstable for us to support.
+- Supress stderr messages when user uses built-in bash commands such as "which".
+- Bug fixes to makepack/labpack programs.
+
+July 19, 2021
+- Add a DNS lab to introduce the DNS protocol and configuration.
+- Revised VirtualBox appliance image to start with the correct update script.
+- Split resolv.conf nameserver parameter out of the lab\_gw configuration field into its own value.
+- IModule command failed if run before any labs had been started.
 
 July 5, 2021
 - Errors in DISPLAY env variable management broke GUI applications on Docker Desktop.

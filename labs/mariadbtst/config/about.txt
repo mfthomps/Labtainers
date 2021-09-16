@@ -1,0 +1,1 @@
+Not a lab -- example of Mariadb database using LDAP and SSL on Centos 7

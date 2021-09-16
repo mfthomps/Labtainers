@@ -120,6 +120,7 @@ def copy_container(start_config_file, oldcontainer, newcontainer, oldlab=None):
                 else:
                     grabbed.append(line)
     fh = open(start_config_file, 'a')
+    print('adding %d lines to startconfig' % len(grabbed))
     for line in grabbed:
         fh.write(line)
     fh.close()
@@ -379,20 +380,20 @@ def handle_clone_lab(tdir, newlabname):
             newline = line.replace(oldlabname, newlabname)
             start_config_file.write(newline)
 
-    # If we are cloning - fix the 'parameter.config', 'results.config' and 'goals.config'
-    # i.e., use the templates configuration files instead
-    parameter_config = os.path.join(newlabpath, 'config', 'parameter.config')
-    results_config = os.path.join(newlabpath, 'instr_config', 'results.config')
-    goals_config = os.path.join(newlabpath, 'instr_config', 'goals.config')
-    template_parameter_config = os.path.join(tdir, 'config', 'parameter.config')
-    template_results_config = os.path.join(tdir, 'instr_config', 'results.config')
-    template_goals_config = os.path.join(tdir, 'instr_config', 'goals.config')
-    os.remove(parameter_config)
-    os.remove(results_config)
-    os.remove(goals_config)
-    shutil.copy(template_parameter_config, parameter_config)
-    shutil.copy(template_results_config, results_config)
-    shutil.copy(template_goals_config, goals_config)
+        # If we are cloning 1 container - fix the 'parameter.config', 'results.config' and 'goals.config'
+        # i.e., use the templates configuration files instead
+        parameter_config = os.path.join(newlabpath, 'config', 'parameter.config')
+        results_config = os.path.join(newlabpath, 'instr_config', 'results.config')
+        goals_config = os.path.join(newlabpath, 'instr_config', 'goals.config')
+        template_parameter_config = os.path.join(tdir, 'config', 'parameter.config')
+        template_results_config = os.path.join(tdir, 'instr_config', 'results.config')
+        template_goals_config = os.path.join(tdir, 'instr_config', 'goals.config')
+        os.remove(parameter_config)
+        os.remove(results_config)
+        os.remove(goals_config)
+        shutil.copy(template_parameter_config, parameter_config)
+        shutil.copy(template_results_config, results_config)
+        shutil.copy(template_goals_config, goals_config)
     return oldlabname
 
 def handle_replace_container(tdir, oldcontainer, newcontainer):

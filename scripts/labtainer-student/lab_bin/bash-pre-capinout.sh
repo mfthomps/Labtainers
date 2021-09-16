@@ -77,7 +77,7 @@ treatlocal(){
    if [[ $base_cmd == 'python' ]] || [[ $base_cmd == 'python3' ]]; then
        return 1
    fi
-   which=`which $cmd_path`
+   which=`which $cmd_path 2>&1`
    if [[ -z $which ]]; then
        # command does not exist
        return 0

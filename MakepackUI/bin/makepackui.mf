@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Class-Path: json-simple-1.1.1.jar
+Main-Class: newpackage/NewJFrame

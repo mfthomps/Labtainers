@@ -1,0 +1,4 @@
+dn: cn=projx,ou=Group,dc=example,dc=local
+objectClass: top
+objectClass: posixGroup
+gidNumber: 1500

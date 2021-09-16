@@ -16,7 +16,8 @@ to manage a single set of credentials that can then be used to access multiple c
 
 \subsection {Background}
 The student is expect to have separately learned about the basic elements of Linux
-users, groups and authentication, e.g., the /etc/passwd and /etc/shadow files.  
+users, groups and authentication, e.g., the /etc/passwd and /etc/shadow files. 
+For example, see the {\tt users} lab. 
 The student is also expected to have a basic knowledge of the use of Lightweight Directory
 Access Protocol (LDAP).
 
@@ -42,7 +43,8 @@ From your labtainer-student directory start the lab using:
 This lab includes a client computer, two servers and
 an ldap server shown in Figure~\ref{fig:topology}.
 When the lab starts, you will get one virtual terminal connected 
-to the client, and one connected to the ldap server.
+to the client, and one connected to the ldap server.  You will also
+get terminals connected to the two servers.
 
 The host names of each component are per the diagram.  The /etc/hosts files
 allow use of these host names instead of explicit ip addresses.
@@ -128,6 +130,47 @@ Use the ldapadd command to add the new group and the new user.  Use the ldappass
 assign an initial password to mary.  Again, the password for the LDAP administrator is ``adminpass''.
 
 Then go to the client computer and test your ability to ssh as mary to both server1 and server2.
+
+\subsection{Encrypt LDAP traffic}
+Go back to the Wireshark window and set the packet display filter to {\tt ldap.bindRequest\_element}.
+Explore the protocol elements of one of the bind requests using Wireshark.  See anything alarming?
+User passwords are transmitted in plain text!  
+
+Restart the Wireshark capturing, i.e., press the leftmost sharkfin button and clear the filter..
+
+The LDAP server has a self-signed PKI certificate and has been configured to accept encrypted SSL traffic as well as the unencrypted 
+traffic that you've observed.  We did not encrypt the traffic to start with so that you could see
+the protocol.  You will now configure the LDAP clients (i.e., the two servers) to communicate with
+LDAP via SSL.
+
+The mechanisms for causing an LDAP client to use SSL (or TLS) varies by LDAP product and Linux distibution.  For these Ubuntu servers
+do the following:
+
+\begin{itemize}
+\item Edit the {\tt /etc/ldap.conf} file and change the following line:
+\begin{verbatim}
+  uri ldap://ldap 
+\end{verbatim}
+\noindent to
+\begin{verbatim}
+  uri ldaps://ldap 
+\end{verbatim}
+\noindent and remove the comment from the line:
+\begin{verbatim}
+  #ssl on
+\end{verbatim}
+\noindent so that it is:
+\begin{verbatim}
+  ssl on
+\end{verbatim}
+\item Then edit the {\tt /etc/ldap/ldap.conf} file (\textbf{note} the different directory!) and add this line at the end:
+\begin{verbatim}
+  TLS_REQCERT allow
+\end{verbatim}
+ 
+\end{itemize}
+No login to one of the servers from the client and observe the LDAP traffic in Wireshark.
+
 
 \section{Submission}
 After finishing the lab, go to the terminal on your Linux system that was used to start the lab and type:

@@ -552,8 +552,6 @@ script.  The script should be placed in container \_bin directory, i.e.,
 \begin{verbatim}
     $LABTAINER_DIR/labs/[labname]/[container]/_bin
 \end{verbatim}
-\noindent If the title is ``INSTRUCTIONS'', no script is necessary and the instructions.txt file
-in the container home directory will be displayed.
 \item USER [user name] -- The user name whose account will be accessed via the virtual terminals. 
 This defaults to ``ubuntu.''
 \item PASSWORD [password] -- The password for the user name whose account will be accessed via the virtual terminals. 
@@ -592,8 +590,8 @@ labs.
 \item LAB\_GATEWAY -- Optional IP address of the component's default network gateway.   If set, this will replace the
 default Docker gateway.  Students can toggle between gateways by using the togglegw.sh command, e.g., to enable communication
 with the host VM or the internet\footnote{This replaces use of the set\_default\_gw.sh script from 
-within fixlocal.sh scripts}.  This option will also replace the components resolv.conf with the given IP and will cause the
-static route to the {\tt my\_host} address to be deleted.
+within fixlocal.sh scripts}.  This option will also cause the static route to the {\tt my\_host} address to be deleted.
+\item NAME\_SERVER -- Optional IP address to provide with the {\tt nameserver} directive to replace the content of {\tt /etc/resolv.conf}
 \item NO\_GW [YES/NO] -- Disable the Docker default gateway, preventing network communication with the host or external devices.
 \item REGISTRY [registry] -- The id of the Docker Hub registry that is to contain the lab images. This overrides the value
 set in the GLOBAL section. 
@@ -625,6 +623,13 @@ located at:
 \end{verbatim}
 \noindent The purpose is allow that host directory to be reused across labs to avoid re-installing licensed software, i.e.,
 something where the student takes a distinct action to acknowledge a license.
+\item WAIT\_FOR -- Optional name of another container whose parameterization and fixlocal processing should complete
+prior to this container starting its parameterization.
+\item NUM\_CPUS -- Optional allocation of CPUs to this container.  Note the container sees all CPUs, e.g., every
+core allocated to the VM using {\tt lscpu}, but Docker will limit the container utilization of CPUs per this value,
+which may be a decimal value.
+\item CPU\_SET -- Optional allocation of specific CPU sets to this container. Format is either a comma separated list
+or a range, e.g, 1-3. 
 \end{itemize}
 \end{itemize}
   
@@ -746,7 +751,7 @@ See section \ref{suggestions} for guidance on including 3rd party applications w
 not simply added to your container via package managers.)
 
 
-\subsection {Lab Text and Instructions for Students} \label{instructions}
+\subsection {Lab Instructions for Students} \label{instructions}
 Create a 'docs' directory in the [labname] directory if there isn't one there. This is where most textual information about the lab, as well as the lab manual, should be stored and modified. \\ 
 
 \noindent Use LateX to write and create PDF files in the docs directory. Look at other lab's docs directory on how to create a Makefile for the LateX file. \\ 
@@ -772,10 +777,6 @@ the {\tt labtainer -k} option to view a list of existing keywords.  Do no create
 \noindent If the start.config file includes ``COLLECT\_DOCS YES'', the content of the lab/docs directory will be
 included with the student artifacts and available extracted into the instructor's 
 labtainer\_xfer/[lab]/docs directory. \\
-
-\noindent A deprecated feature that still exists in a tiny handful of labs: "Lab instructions for students can be displayed in a virtual terminal by placing an
-``instructions.txt'' file within the home directory of one of the containers.  Refer to existing
-labs for conventions."  
 
 
 \subsection {Running programs in Virtual Terminals}
@@ -826,6 +827,9 @@ should be performed as within any Linux system, e.g., via services or rc.local.
 
 Note that use of {\tt sed -i ...} to modify configuration files (e.g., in etc), might result in overwriting symbolic links.
 Use {\tt sed -i --follow-symlinks ...} to avoid that pit.  Also note that CentOS rc.local files are in {\tt /etc/rc.d/rc.local}
+
+Synchronization between containers for purposes of sequencing the fixlocal processing can be achieved with the
+{\tt WAIT\_FOR} start.config parameter.
 
 \subsection{Persistent storage}
 \label{persistent}
@@ -2760,7 +2764,11 @@ PASSWD : CLONE_REPLACE : .local/bin/fixlocal.sh : CLONE_NUM : CLONE
 \end{itemize}
 
 \section{Limitations} \label{limitations}
-The labtainers framework limits labs to the Linux execution environment.
+This sections describes some limitations of Labtainers that may affect a
+students perception of the computers and may limit some lab development.
+
+\begin{itemize}
+\item The labtainers framework limits labs to the Linux execution environment.
 However, a lab designer could prescribe the inclusion of a separate
 VM, e.g., a Windows system, and that VM could be networked with the Linux
 VM that hosts the Docker containers as described in \ref{external hosts}.  
@@ -2768,27 +2776,34 @@ Future work would be necessary to include
 artifacts from the Windows system within the framework's automated assessment
 and parameterization.
 
-The user does not see the /etc/fstab file.  Only virtual file systems can be
+\item The user does not see the /etc/fstab file.  Only virtual file systems can be
 mounted (or those mounted when the container is created.)
 
-Kernel logs do not appear in {\tt /var/log/kern.log}.  For logging events
+\item Kernel logs do not appear in {\tt /var/log/kern.log}.  For logging events
 such as iptables, consider using ulogd and a ``NFLOG'' directive in place of
 a ``LOG'' directive.  See the dmz-lab as an example.
 
-The available Docker network drivers do not permit IP address overlap between virtual networks.
+\item The available Docker network drivers do not permit IP address overlap between virtual networks.
 For example, you cannot define two 192.168.1.0/24 LANs.
 
-Student use of the shell directive "source" will cause stdin/stdout to not be captured.
+\item Student use of the shell directive "source" will cause stdin/stdout to not be captured.
 
-Inquisitive students will see evidence of artifact collection.  Home directories
+\item Inquisitive students will see evidence of artifact collection.  Home directories
 on containers includes a \texttt{.local} directory that includes Labtainer scripts that manage
 capturing and collection of artifacts, and that directory contains the stdin and
 stdout files generated by student actions. Additionally, when the student starts a process
 that will have stdin and stdout captured, the student will see extra processes within
 that process tree, e.g., the \texttt{tee} function that generates copies of those data streams.
-All of the containers share the Linux kernel with the Linux host.  Changes to
+
+\item All of the containers share the Linux kernel with the Linux host.  Changes to
 kernel configuration settings, e.g., enabling ASLR, will be visible across all
 of the containers.
+
+\item All processor and memory resources of the host (e.g., the Labtainers VM),  are visible to the student, e.g., via 
+{\tt /proc/cpuinfo}.  A lab designer can limit the processing available to a container using the
+{\tt NUM\_CPUS} container value.  And a specific set of CPUs can be allocated to a container using the
+{\tt CPU\_SET} value.  However, these values do not alter the content of {\tt /proc/cpuinfo}.
+\end{itemize}
 
 
 \section{Notes} \label{Notes}
@@ -2909,6 +2924,10 @@ does not have native ifconfig and requires  installation of net-tools, which is 
 linux tool maintainer decided to fix the output of ifconfig.  Therefore if you have {\tt ifconfig | grep} fu in your 
 iptables definitions or elsewhere, change {\tt inet addr:xxx} to {\tt inet.*xxx}.  And use awk substr to remove
 the new colon that follows network interface device names.  See the routing-basics lab as an example.  
+
+The move to network2 was motivated in part to get the latest QT GUI for wireshark to avoid black windows.
+Note however that many packages will not install on Ubuntu 20.  You must either install the snap package manager, 
+which drags a ton of extra stuff, or find an alternate package source (e.g., the .deb packages).
 
 
 \subsection{User management and sudo}

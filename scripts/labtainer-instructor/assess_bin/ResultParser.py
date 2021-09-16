@@ -339,23 +339,35 @@ def lineHasCommand(line, look_for):
                 retval += 1
     return retval
 
-def getTS(line, quiet):
+def getTS(line, previous_ts):
     retval = None
     ''' try syslog format first '''
     ts_string = line[:15]
-    now = datetime.datetime.now()
-    ts_string = '%d %s' % (now.year, ts_string)
-    try:
-        time_val = datetime.datetime.strptime(ts_string, '%Y %b %d %H:%M:%S')
-        retval = time_val.strftime("%Y%m%d%H%M%S")
-    except:
-        pass
+    if len(ts_string.strip()) == 0:
+        retval = previous_ts
+    if retval is None:
+        now = datetime.datetime.now()
+        ts_string = '%d %s' % (now.year, ts_string)
+        try:
+            time_val = datetime.datetime.strptime(ts_string, '%Y %b %d %H:%M:%S')
+            retval = time_val.strftime("%Y%m%d%H%M%S")
+        except:
+            pass
     if retval is None:
         ''' snort format '''
         ts_string = line[:14]
         ts_string = '%d %s' % (now.year, ts_string)
         try:
             time_val = datetime.datetime.strptime(ts_string, '%Y %m/%d-%H:%M:%S')
+            retval = time_val.strftime("%Y%m%d%H%M%S")
+        except:
+            pass
+
+    if retval is None:
+        ''' mariadb format '''
+        ts_string = line[:15]
+        try:
+            time_val = datetime.datetime.strptime(ts_string, '%y%m%d %H:%M:%S')
             retval = time_val.strftime("%Y%m%d%H%M%S")
         except:
             pass
@@ -381,8 +393,9 @@ def getTS(line, quiet):
             except:
                 pass
 
-    if not quiet and retval is None:
-        print('ERROR getting timestamp from %s' % line)
+    if retval is None:
+        ''' assume multiline log entry and use previous.  TBD, downside?'''
+        retval = previous_ts
     return retval 
          
 
@@ -780,15 +793,12 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
     ts_nametags = {}
     for line in configfilelines:
         linestrip = line.rstrip()
+        prior_time_val = None
         if linestrip is not None and not linestrip.startswith('#') and len(line.strip())>0:
             containername, targetfile, result_key, command, field_type, token_id, lookupstring, result_home = getConfigItems(labidname, linestrip, studentlabdir, container_list, logger, parameter_list)
             if targetfile is None:
                 logger.error('Failed to get file from %s' % linestrip)
                 continue
-            quiet = False
-            if 'mysql' in targetfile:
-                ''' some sql log entries have no ts '''
-                quiet = True
         
             if command == 'HAVESTRING_TS':
                 if not os.path.isfile(targetfile):
@@ -797,9 +807,10 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
                     targetlines = fh.readlines()
                 for currentline in targetlines:
                     if lookupstring in currentline:
-                        time_val = getTS(currentline, quiet)
+                        time_val = getTS(currentline, prior_time_val)
                         if time_val is None:
                             continue
+                        prior_time_val = time_val
                         ts = str(time_val)
                         if ts not in ts_nametags:
                             ts_nametags[ts] = {}
@@ -814,9 +825,10 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
                     targetlines = fh.readlines()
                 for currentline in targetlines:
                     if lookupstring in currentline:
-                        time_val = getTS(currentline, quiet)
+                        time_val = getTS(currentline, prior_time_val)
                         if time_val is None:
                             continue
+                        prior_time_val = time_val
                         ts = str(time_val)
                         if ts not in ts_nametags:
                             ts_nametags[ts] = {}
@@ -831,9 +843,10 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
                 prev_time_val = None
                 last_time_val = None
                 for currentline in targetlines:
-                    time_val = getTS(currentline, quiet)
+                    time_val = getTS(currentline, prior_time_val)
                     if time_val is None:
                         continue
+                    prior_time_val = time_val
                     if prev_time_val is None:
                         prev_time_val = time_val
                     if stringMatch(currentline, lookupstring, command):
@@ -870,9 +883,10 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
                 for currentline in targetlines:
                     sobj = re.search(lookupstring, currentline)
                     if sobj is not None:
-                        time_val = getTS(currentline, quiet)
+                        time_val = getTS(currentline, prior_time_val)
                         if time_val is None:
                             continue
+                        prior_time_val = time_val
                         ts = str(time_val)
                         if ts not in ts_nametags:
                             ts_nametags[ts] = {}
@@ -893,9 +907,10 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
                 for currentline in targetlines:
                     sobj = re.search(lookupstring, currentline)
                     if sobj is not None:
-                        time_val = getTS(currentline, quiet)
+                        time_val = getTS(currentline, prior_time_val)
                         if time_val is None:
                             continue
+                        prior_time_val = time_val
                         ts = str(time_val)
                         if ts not in ts_nametags:
                             ts_nametags[ts] = {}
@@ -937,12 +952,11 @@ def doFileTimeDelim(ts_nametags, result_home, targetfile, result_key, command, l
     ts = 0
     current_ts_end = delim_ts_set[0]
     index = 0
-    quiet = False
-    if 'mysql' in targetfile:
-        quiet = True
+    prior_time_val = None
     with open(fname) as fh:
         for currentline in fh:
-            time_val = getTS(currentline, quiet)
+            time_val = getTS(currentline, prior_time_val)
+            prior_time_val = time_val
             logger.debug('ts[index] %s  my_time %s' % (delim_ts_set[index], time_val))
             if time_val > delim_ts_set[index]:
                 logger.debug('time greater')

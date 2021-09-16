@@ -1,0 +1,8 @@
+[Unit]
+Description=mynotify
+
+[Service]
+ExecStart=/sbin/mynotify.py
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,12 @@
+ARG registry
+FROM $registry/labtainer.network2
+LABEL description="This is base Docker image for Labtainer mariadb clients"
+ENV DEBIAN_FRONTEND noninteractive
+RUN wget https://downloads.mariadb.com/MariaDB/mariadb_repo_setup
+RUN chmod +x mariadb_repo_setup
+RUN apt-get update && apt-get install -y curl
+RUN ./mariadb_repo_setup
+RUN apt-get update && apt-get install -y mariadb-client
+# modified to create new instance
+RUN systemd-machine-id-setup
+

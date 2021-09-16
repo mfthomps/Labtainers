@@ -1,0 +1,14 @@
+$TTL 3D
+@	IN	SOA	ns.example.com. admin.example.com. (
+		2008111001
+		8H
+		2H
+		4W
+		1D)
+
+@	IN	NS	ns.example.com.
+@	IN	MX	10 mail.example.com.
+
+ns	IN	A	192.168.0.3
+ws1	IN	A	192.168.0.11
+ws2	IN	A	192.168.0.12

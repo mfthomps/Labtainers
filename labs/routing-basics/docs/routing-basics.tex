@@ -131,8 +131,8 @@ On ws2, the DNS is defined to be the
 gateway component, and this is achieved in the \texttt{/etc/resolv.conf} file \footnote{
 Many Linux systems include functions for defining your DNS, and these tools will overwrite
 the resolv.conf file.  So modifying the {\tt resolv.conf} file may be only a temporary
-fix, which is sufficient for this lab}.  If you 
-modify that file on ws3 to match that of ws2, that will tell ws3 to use the gateway
+fix, which is sufficient for this lab.}.  If you 
+modify the {\tt resolv.conf} file on ws3 to match that of ws2, that will tell ws3 to use the gateway
 as its DNS.  (While the gateway is not a DNS, it runs a \textit{dnsmasq} service to forward DNS requests to
 the DNS that it uses.)   Modify the {\tt resolv.conf} file and confirm you can resolve the www.google.com
 address using {\tt wget www.google.com}.  Use {\tt sudo vi} or {\tt sudo nano} to modify the file.  See the 
@@ -180,7 +180,7 @@ otherwise be hidden by NAT.
 NAT rules can be configured to map port numbers of incoming traffic to internal components.  For example, the gateway
 is configured to route web requests on port 80 to the web server.  Revisit the output of the
 \begin{verbatim}
-    iptables -v -n -t nat
+    sudo iptables -L -v -n -t nat
 \end{verbatim}
 command. You will notice a \textit{Destination NAT} (DNAT) rule in the PREROUTING chain and 
 a \textit{Source NAT} (SNAT) rule in the POSTROUTING chain. 
