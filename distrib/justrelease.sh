@@ -68,6 +68,11 @@ echo "Build GUI Jar"
 cd UI/bin
 ./buildUI2.sh -n || exit
 cp MainUI.jar $release_dir/distrib/artifacts/
+
+echo "Build MakepackUI Jar"
+cd MakepackUI/bin
+./buildUI2.sh -n || exit
+cp makepackui.jar $release_dir/distrib/artifacts/
 cd $release_dir/distrib
 
 echo "Now generate release"
@@ -80,5 +85,6 @@ echo "Upload PDF zip"
 github-release upload --security-token $gitpat --user mfthomps --repo Labtainers --tag $new_tag --name labtainer_pdf.zip --file artifacts/labtainer_pdf.zip
 echo "Upload UI"
 github-release upload --security-token $gitpat --user mfthomps --repo Labtainers --tag $new_tag --name MainUI.jar --file artifacts/MainUI.jar
+github-release upload --security-token $gitpat --user mfthomps --repo Labtainers --tag $new_tag --name makepackui.jar --file artifacts/makepackui.jar
 git checkout premaster
 git fetch --tags
