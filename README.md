@@ -95,6 +95,7 @@ September 14, 2021
 - Add per-container parameters to limit CPU use or pin container to CPU set.
 - Labpack creation now available via a GUI (makepackui).
 - Tab completion for the labtainer, labpack and gradelab commands.
+- New parallel computing lab ``parallel'' using MPI.
 
 August 3, 2021
 - Add a "WAIT\_FOR" configuration option to cause a container to delay parameterization until
