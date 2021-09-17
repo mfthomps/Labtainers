@@ -90,6 +90,9 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+September 17, 2021
+- Ghidra lab guide had wrong IP address, was not remade from source.
+
 September 14, 2021
 - Example labs for LDAP and Mariadb using SSL. Intended as templates for new labs.
 - Handle Mariadb log format
