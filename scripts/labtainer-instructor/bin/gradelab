@@ -102,11 +102,9 @@ def CopyStudentArtifacts(labtainer_config, container_name, labname, regress_test
             new_fname = base_fname
         # Copy zip file 
         if labname not in new_fname:
-            logger.error('This file does not appear to be a result from lab %s: %s' % (labname, fname))
-            print('Stopping grader...')
-            cmd = 'docker stop %s' % container_name
-            labutils.DockerCmd(cmd)
-            exit(1)
+            if not (saki.isSaki(new_fname) or saki.isMoodle(new_fname)):
+                logger.warning('This file does not appear to be a result from lab %s: %s' % (labname, fname))
+            continue
         command = 'docker cp "%s" %s:/home/instructor/%s' % (fname, container_name, new_fname)
         logger.debug("Command to execute is (%s)" % command)
         result = subprocess.call(shlex.split(command))

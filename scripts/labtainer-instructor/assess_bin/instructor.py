@@ -156,16 +156,22 @@ def Check_SecondLevel_EmailWatermark_OK(gradesjson, email_labname, student_id, z
         if zname == ".local/.email" or zname == ".local/.seed" or zname == ".local/.watermark":
             zipoutput.extract(zi, TMPDIR)
 
-    with open(TempEmailFile) as fh:
-        student_id_from_file = fh.read().strip().replace("@","_at_")
+    student_id_from_file = None
+    if os.path.isfile(TempEmailFile):
+        with open(TempEmailFile) as fh:
+            student_id_from_file = fh.read().strip().replace("@","_at_")
 
-    # Student ID obtained from zip_file_name must match the one from E-mail file
-    if not all(c in string.printable for c in student_id_from_file): 
-        student_id_from_file = 'not_printable'
-    if student_id != student_id_from_file:
-        print("mismatch student_id is (%s) student_id_from_file is (%s)" % (student_id, student_id_from_file))
-        store_student_secondlevelzip(gradesjson, email_labname, student_id_from_file)
-        #check_result = False
+    if student_id_from_file is not None:
+        # Student ID obtained from zip_file_name must match the one from E-mail file
+        if not all(c in string.printable for c in student_id_from_file):
+            student_id_from_file = 'not_printable'
+        if student_id != student_id_from_file:
+            print("mismatch student_id is (%s) student_id_from_file is (%s)" % (student_id, student_id_from_file))
+            store_student_secondlevelzip(gradesjson, email_labname, student_id_from_file)
+            #check_result = False
+    else:
+        print('%s missing file %s' % (email_labname, TempEmailFile))
+        store_student_secondlevelzip(gradesjson, email_labname, 'No_email_file')
 
     if os.path.exists(TempWatermarkFile):
         with open(TempWatermarkFile) as fh:
@@ -319,7 +325,8 @@ def main():
         if os.path.isfile(src_count_path):
             #  ad-hoc fix to remnants of old bug, remove this
             if os.path.isdir(dst_count_path):
-                logger.warning('removing errored directory %s' % dst_count_path)
+                logger.debug('removing errored directory %s' % dst_count_path)
+                print('removing errored directory %s' % dst_count_path)
                 shutil.rmtree(dst_count_path)
             parent = os.path.dirname(dst_count_path)
             #print('parent %s' % parent)
@@ -380,6 +387,9 @@ def main():
         # TBD also getting what, student parameters from first container.  
         # Better way to get instr_config files than do duplicate on each container?  Just put on grader? 
         student_parameter = GoalsParser.ParseGoals(MYHOME, DestDirName, logger)
+        if student_parameter is None:
+            print('Could not grade %s, skipping' % email_labname)
+            continue
         for param in student_parameter:
             env_var = 'LABTAINER_%s' % param
             os.environ[env_var] = student_parameter[param]
