@@ -70,6 +70,7 @@ cd UI/bin
 cp MainUI.jar $release_dir/distrib/artifacts/
 
 echo "Build MakepackUI Jar"
+cd $release_dir
 cd MakepackUI/bin
 ./buildUI2.sh -n || exit
 cp makepackui.jar $release_dir/distrib/artifacts/

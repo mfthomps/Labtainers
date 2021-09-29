@@ -133,11 +133,12 @@ def ValidateTag(parameter_list, studentdir, goal_type, inputtag, allowed_special
 def GetLabInstanceSeed(studentdir, logger):
     seed_dir = os.path.join(studentdir, ".local",".seed")
     student_lab_instance_seed = None
-    with open(seed_dir) as fh:
-        student_lab_instance_seed = fh.read().strip()
-    if student_lab_instance_seed is None:
-        logger.error('could not get lab instance seed from %s' % seed_dir)
-        sys.exit(1)
+    if os.path.isfile(seed_dir):
+        with open(seed_dir) as fh:
+            student_lab_instance_seed = fh.read().strip()
+        if student_lab_instance_seed is None:
+            logger.error('could not get lab instance seed from %s' % seed_dir)
+            #sys.exit(1)
     return student_lab_instance_seed
 
 def ParseGoals(homedir, studentdir, logger_in):
@@ -149,6 +150,10 @@ def ParseGoals(homedir, studentdir, logger_in):
     configfilelines = configfile.readlines()
     configfile.close()
     lab_instance_seed = GetLabInstanceSeed(studentdir, logger)
+    if lab_instance_seed is None:
+        logger.debug('No lab instance seed, not grading %s' % studentdir)
+        print('No lab instance seed, not grading %s' % studentdir)
+        return
     container_user = ""
     param_filename = os.path.join(MYHOME, '.local', 'config',
           'parameter.config')

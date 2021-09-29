@@ -1113,14 +1113,15 @@ def ProcessStudentLab(studentlabdir, labidname, logger):
     except:
         pass
     goalsjsonfname = os.path.join(resultsdir,'goals.json')
-    with open(goalsjsonfname) as fh:
-        goals = json.load(fh)
+    if os.path.isfile(goalsjsonfname):
+        with open(goalsjsonfname) as fh:
+            goals = json.load(fh)
 
-    boolresultsfname = os.path.join(resultsdir,'bool_results.json')
-    with open(boolresultsfname) as fh:
-        bool_results = json.load(fh)
+        boolresultsfname = os.path.join(resultsdir,'bool_results.json')
+        with open(boolresultsfname) as fh:
+            bool_results = json.load(fh)
 
-    processLabExercise(studentlabdir, labidname, grades, goals, bool_results, goal_times, logger)
+        processLabExercise(studentlabdir, labidname, grades, goals, bool_results, goal_times, logger)
     
     return grades
 

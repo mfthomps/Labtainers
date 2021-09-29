@@ -103,7 +103,7 @@ def extract(zip_fname, xfer, expect_lab):
             extract_from = zip_file
             member = member_info.filename
             ''' special case handling of zip in zip '''
-            studnet_fu = None
+            student_fu = None
             if 'assignsubmission_file' in member:
                 ''' Moodle '''
                 parts = member.split('assignsubmission_file_')
@@ -120,10 +120,31 @@ def extract(zip_fname, xfer, expect_lab):
             else:
                 parts = member.split('/')
                 student = parts[1]
-            #print('STUDENT %s fname %s' % (student, member))
             date_time = time.mktime(member_info.date_time + (0, 0, -1))
             filename = os.path.basename(member)
             if filename.endswith('.zip'):
+                #print('check zip %s' % filename)
+                if '=' in filename:
+                    print('Student submitted wrong zip file: %s' % filename)
+                    ''' student extracted results from zip, just use that '''
+                    lab = filename.split('=')[1].split('.')[0]
+                    lab_xfer = os.path.join(xfer, lab)
+                    source = extract_from.open(member)
+                    new_filename = filename.split('=')[0]+'.zip'
+                    filename_path = os.path.join(lab_xfer, filename)
+                    target = open(filename_path, "wb")
+                    shutil.copyfileobj(source, target)
+                    target.close()
+                    #print('copied zip to %s' % filename_path) 
+                    zipobj = zipfile.ZipFile(os.path.join(lab_xfer, new_filename), 'w', compression=zipfile.ZIP_DEFLATED) 
+                    #print('create new zip at %s' % os.path.join(lab_xfer, new_filename))
+                    zipobj.write(filename_path, arcname=filename)
+                    #print('wrote file %s with arcname %s' % (filename_path, filename))
+                    zipobj.close()
+                        
+                    ''' assume nothing else in zip '''
+                    os.remove(os.path.join(lab_xfer, filename))
+                    continue
                 parts = filename.split('.')
                 lab = parts[-2]
                 if lab == expect_lab:
@@ -131,9 +152,6 @@ def extract(zip_fname, xfer, expect_lab):
                 else:
                     unexpected += 1
                 lab_xfer = os.path.join(xfer, lab)
-                # skip directories
-                if not filename:
-                    continue
 
                 # copy file (taken from zipfile's extract) into xfer for lab
                 source = extract_from.open(member)
@@ -211,6 +229,17 @@ def extract(zip_fname, xfer, expect_lab):
     if not isMoodle(zip_fname):
         reportSum(zip_fname, xfer, expect_lab)
   
+def isSaki(z):
+    retval = False
+    f = os.path.basename(z).rsplit('.',1)[0]
+    if '_' in f:
+        ts = f.rsplit('_', 1)[1]
+        try:
+            v = time.mktime(datetime.datetime.strptime(ts,'%Y%m%d%H%M%S').timetuple())
+            retval = True
+        except:
+            pass
+    return retval
 
 def checkBulkSaki(lab, logger=None):
     labtainer_config_dir = '../../config/labtainer.config'
@@ -229,18 +258,11 @@ def checkBulkSaki(lab, logger=None):
         zfiles = glob.glob(lxfer+'/*.zip')
         for z in zfiles:
             if isMoodle(z):
+                print('Assuming Moodle bulk download: %s' % z)
                 extract(z, xfer, lab)
-            else:
-                f = os.path.basename(z).rsplit('.',1)[0]
-                if '_' in f:
-                    ts = f.rsplit('_', 1)[1]
-                    try:
-                        v = time.mktime(datetime.datetime.strptime(ts,'%Y%m%d%H%M%S').timetuple())
-                        print('Assuming Sakai bulk download: %s' % z)
-                        extract(z, xfer, lab)
-                    except:
-                        pass
-
+            elif isSaki(z):
+                print('Assuming Sakai bulk download: %s' % z)
+                extract(z, xfer, lab)
 
 if __name__ == '__main__':
     lab = sys.argv[1]

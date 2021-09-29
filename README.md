@@ -90,6 +90,9 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+September 29, 2021
+- Gradelab error handling, reduce instances of crashes due to bad zip files.
+
 September 17, 2021
 - Ghidra lab guide had wrong IP address, was not remade from source.
 
