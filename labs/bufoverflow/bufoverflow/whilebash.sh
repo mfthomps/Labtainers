@@ -8,6 +8,7 @@
 # Arguments:
 #    None
 
+trap "exit" SIGINT
 gotroot=0
 while [ $gotroot -eq 0 ]
 do

@@ -360,13 +360,11 @@ on the address randomization:
 If running the vulnerable code once does not get you the root shell, how 
 about running it for many times? You can run {\tt ./stack} 
 using the whilebash.sh script, and see what will happen. If your exploit
-program is designed properly, you should be able to get the root shell
-after a while. You can modify your exploit program to increase the
+program is designed properly, you would eventually be able to get the root shell.
+You can modify your exploit generation program to increase the
 probability of success (i.e., reduce the time that you have to wait).
-After getting a root shell, display the secret file (this is required):
-\begin{verbatim}
-  cat /root/.secret
-\end{verbatim}
+You may get lucky and get a root prompt before too long.  Otherwise use
+{\tt ctrl c} to break out of the whilebash.sh script.
 
 \subsection{Task 3: Stack Guard}
 
