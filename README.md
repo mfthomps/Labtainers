@@ -91,6 +91,7 @@ first time.
 
 September 29, 2021
 - Gradelab error handling, reduce instances of crashes due to bad zip files.
+- Limit stdout artifact files to 1MB
 
 September 17, 2021
 - Ghidra lab guide had wrong IP address, was not remade from source.
