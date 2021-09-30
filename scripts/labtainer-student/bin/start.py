@@ -165,14 +165,14 @@ def main():
     parser.add_argument('-t', '--test_registry', action='store_true', default=False, help='Run with images from the test registry')
     num_args = len(sys.argv)
     versions = getVerList(dirs, path)
+    skip_labs = os.path.join(dir_path, 'distrib', 'skip-labs')
+    skip = []
+    if os.path.isfile(skip_labs):
+        with open(skip_labs) as fh:
+            for line in fh:
+                f = os.path.basename(line).strip()
+                skip.append(f)
     if num_args < 2: 
-        skip_labs = os.path.join(dir_path, 'distrib', 'skip-labs')
-        skip = []
-        if os.path.isfile(skip_labs):
-            with open(skip_labs) as fh:
-                for line in fh:
-                    f = os.path.basename(line).strip()
-                    skip.append(f)
         showLabs(dirs, path, versions, skip)
         exit(0)
     args = parser.parse_args()
@@ -197,6 +197,9 @@ def main():
         sys.stderr.write("Make sure you have all the latest labs by running:\n")
         sys.stderr.write("   update-labtainer.sh\n")
         sys.exit(1)
+
+    if labname in skip:
+        print('Warning, %s has been deprecated and is no longer supported.  It may not work as expected.' % labname)
     
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
     labutils.logger.info("Begin logging start.py for %s lab" % labname)
