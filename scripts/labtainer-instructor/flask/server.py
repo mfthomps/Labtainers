@@ -108,7 +108,7 @@ def grades():
     GoalTableCls = create_table('GoalTableCls', options=tbl_options)\
             .add_column('name', LinkCol('Name', 'student_select',
                    url_kwargs=dict(student_id='student_id'), attr='name'))
-
+    print('in grades')
     goals_list = getGoalsList()
     with open(grade_json) as fh:
         grade_dict = json.load(fh)
@@ -134,10 +134,13 @@ def grades():
             row['name'] = parts[0]
             row['student_id'] = student
             row['timestamp'] = 'None'
+            print('do student %s' % student)
             for key in grade_dict[student]['grades']:
                 if not key.startswith('_') and not key.startswith('cw_'):
                     row[key] = '%s:%s' % (key, grade_dict[student]['grades'][key])
-            rows.append(row)
+                    print('row[%s] is %s' % (key, row[key]))
+            if len(grade_dict[student]['grades']) > 0:
+                rows.append(row)
         tbl = GoalTableCls(rows) 
         if has_goals:    
             goal_doc = getGoalDoc()
