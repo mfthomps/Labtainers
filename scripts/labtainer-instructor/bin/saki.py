@@ -152,7 +152,8 @@ def extract(zip_fname, xfer, expect_lab):
                     count += 1
                 else:
                     unexpected += 1
-                    print('unexpected lab %s in file %s' % (lab, filename))
+                    print('Unexpected lab %s in file %s' % (lab, filename))
+                    print('Those results are copied into the %s xfer directory.  Consider regrading that lab with nww results.')
                 lab_xfer = os.path.join(xfer, lab)
 
                 # copy file (taken from zipfile's extract) into xfer for lab
