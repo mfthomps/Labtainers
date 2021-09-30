@@ -144,6 +144,7 @@ def extract(zip_fname, xfer, expect_lab):
                         
                     ''' assume nothing else in zip '''
                     os.remove(os.path.join(lab_xfer, filename))
+                    print('removed %s' % os.path.join(lab_xfer, filename))
                     continue
                 parts = filename.split('.')
                 lab = parts[-2]
@@ -151,6 +152,7 @@ def extract(zip_fname, xfer, expect_lab):
                     count += 1
                 else:
                     unexpected += 1
+                    print('unexpected lab %s in file %s' % (lab, filename))
                 lab_xfer = os.path.join(xfer, lab)
 
                 # copy file (taken from zipfile's extract) into xfer for lab

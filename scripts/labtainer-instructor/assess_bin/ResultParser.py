@@ -123,7 +123,7 @@ def ProcessConfigLine(actual_parsing, studentlabdir, container_list, labidname, 
     values = [x.strip() for x in result_value.split(' : ')]
     #print values
     numvalues = len(values)
-    logger.debug("result_value is %s -- numvalues is (%d)" % (result_value, numvalues))
+    #logger.debug("result_value is %s -- numvalues is (%d)" % (result_value, numvalues))
     if numvalues < 2:
         logger.error("found no ':' delimiter in %s" % result_value)
         sys.exit(1)
@@ -144,7 +144,7 @@ def ProcessConfigLine(actual_parsing, studentlabdir, container_list, labidname, 
 
     # get optional container name and determine if it is 'stdin' or 'stdout'
     newprogname_type = values[0].strip()
-    logger.debug('newprogname_type is %s' % newprogname_type)
+    #logger.debug('newprogname_type is %s' % newprogname_type)
     cmd = values[1].strip()
     # <cfgcontainername>:<exec_program>.<type>
     if ':' in newprogname_type:
@@ -196,10 +196,10 @@ def ProcessConfigLine(actual_parsing, studentlabdir, container_list, labidname, 
         # Can only parse for wildcard if it is actual parsing - not validation
         if exec_program == "*" and actual_parsing:
             exec_program_list = GetExecProgramList(containername, studentlabdir, container_list, targetfile)
-            logger.debug("wildcard, exec_program_list is %s" % exec_program_list)
+            #logger.debug("wildcard, exec_program_list is %s" % exec_program_list)
         else:
             exec_program_list.append(exec_program)
-            logger.debug('exec_program %s, append to list, container is %s' % (exec_program, containername))
+            #logger.debug('exec_program %s, append to list, container is %s' % (exec_program, containername))
         if containername != "":
             #print('containername is %s' % containername)
             if containername not in container_exec_proglist:
@@ -207,7 +207,7 @@ def ProcessConfigLine(actual_parsing, studentlabdir, container_list, labidname, 
             for cur_exec_program in exec_program_list:
                 if cur_exec_program not in container_exec_proglist[containername]:
                     container_exec_proglist[containername].append(cur_exec_program)
-            logger.debug('proglist is %s' %  str(container_exec_proglist[containername]))
+            #logger.debug('proglist is %s' %  str(container_exec_proglist[containername]))
         else:
             if "CURRENT" not in container_exec_proglist:
                 container_exec_proglist["CURRENT"] = []
@@ -230,7 +230,7 @@ def ProcessConfigLine(actual_parsing, studentlabdir, container_list, labidname, 
 
     # Sanity check for 'PARAM' type
     if values[line_at] == 'PARAM':
-        logger.debug("progname_type is (%s)" % progname_type)
+        #logger.debug("progname_type is (%s)" % progname_type)
         if not progname_type.endswith('stdin'):
             logger.error("results.config line (%s)\n" % result_value)
             logger.error("PARAM field_type on non stdin file")
@@ -290,7 +290,7 @@ def getToken(linerequested, field_type, token_id, logger):
                     linetokenidx = linetokenidx + 1
                 numlinetokens = len(linetokens)
             elif field_type == 'SEARCH':
-                logger.debug('is search token_id %s  linerequested %s' % (token_id, linerequested))
+                #logger.debug('is search token_id %s  linerequested %s' % (token_id, linerequested))
                 search_results = parse.search(token_id, linerequested)
                 if search_results is not None:
                     token = str(search_results[0])
@@ -454,7 +454,7 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                 else:
                     # Config file 'PARAM' has been validated against stdin
                     # Treat this as can't find token
-                    logger.debug('PARAM only valid for stdin files: %s' % current_targetfname)
+                    #logger.debug('PARAM only valid for stdin files: %s' % current_targetfname)
                     return ''
                 if 'PROGRAM_ARGUMENTS' in targetlines[0]:
                     try:
@@ -475,7 +475,7 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                         except:
                             # Couldn't find the corresponding parameter
                             # Treat this as can't find token
-                            logger.debug('did not find parameter %d in %s' % (index-1, param_str))
+                            #logger.debug('did not find parameter %d in %s' % (index-1, param_str))
                             return ''
                     return tagstring
             elif command == 'CHECKSUM':
@@ -544,7 +544,7 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                             break
                 # If not found - set to None
                 if found_lookupstring == False:
-                    logger.debug('*** No line starts with %s ***' % (lookupstring))
+                    #logger.debug('*** No line starts with %s ***' % (lookupstring))
                     linerequested = None
             elif command == 'NEXT_STARTSWITH':
                 found_lookupstring = False
@@ -558,7 +558,7 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                     prev_line = currentline
                 # If not found - set to None
                 if found_lookupstring == False:
-                    logger.debug('*** No next line starts with %s ***' % (lookupstring))
+                    #logger.debug('*** No next line starts with %s ***' % (lookupstring))
                     linerequested = None
             else:
                 # config file should have been validated
@@ -572,7 +572,7 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                     token = ''
             else:
                 token = getToken(linerequested, field_type, token_id, logger)
-            logger.debug('field_type %s, token_id %s, got token %s' % (field_type, token_id, token))
+            #logger.debug('field_type %s, token_id %s, got token %s' % (field_type, token_id, token))
             return token
     
 def getParamList(MYHOME, studentdir, logger):    
@@ -593,7 +593,7 @@ def getConfigItems(labidname, line, studentlabdir, container_list, logger, param
          return
     containername= targetfile= result_key= command= field_type= token_id= lookupstring= result_home  = None
     #print('line is %s' % line)
-    logger.debug('line is %s' % line)
+    #logger.debug('line is %s' % line)
     (result_key, result_value) = line.split('=', 1)
     result_key = result_key.strip()
 
@@ -607,7 +607,7 @@ def getConfigItems(labidname, line, studentlabdir, container_list, logger, param
     # NOTE: Split using ' : ' - i.e., "space colon space"
     values = [x.strip() for x in result_value.split(' : ', num_splits)]
     newtargetfile = values[0].strip()
-    logger.debug('line_at is %d newtargetvalue = %s, values: %s' % (line_at, newtargetfile, str(values)))
+    #logger.debug('line_at is %d newtargetvalue = %s, values: %s' % (line_at, newtargetfile, str(values)))
     #print('newtargetfile is %s' % newtargetfile)
     # <cfgcontainername>:<exec_program>.<type>
     containername = None
@@ -627,7 +627,7 @@ def getConfigItems(labidname, line, studentlabdir, container_list, logger, param
     if targetfile.startswith('/'):
         targetfile = os.path.join(result_home, targetfile[1:])
     #print('targetfile is %s containername is %s' % (targetfile, containername))
-    logger.debug('targetfile is %s, containername is %s' % (targetfile, containername))
+    #logger.debug('targetfile is %s, containername is %s' % (targetfile, containername))
     if containername is not None and containername not in container_list:
         print("Config line (%s) containername %s not in container list (%s), skipping..." % (line, containername, str(container_list)))
         logger.error("Config line (%s) containername %s not in container list (%s), skipping..." % (line, 
@@ -660,7 +660,7 @@ def getConfigItems(labidname, line, studentlabdir, container_list, logger, param
         if lookupstring.startswith('$'):
             tstring = lookupstring[1:]
             if tstring in parameter_list:
-                logger.debug('replacing %s with %s' % (lookupstring, parameter_list[tstring]))
+                #logger.debug('replacing %s with %s' % (lookupstring, parameter_list[tstring]))
                 lookupstring = parameter_list[tstring]
 
     return containername, targetfile, result_key, command, field_type, token_id, lookupstring, result_home 
@@ -680,7 +680,7 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
         elif fname.endswith('stdin'):
             fname = targetfile[:-6]
         container_file = '%s:%s' % (containername, fname)
-        logger.debug('is cw %s ts %s file %s' % (result_key, timestamppart, container_file))   
+        #logger.debug('is cw %s ts %s file %s' % (result_key, timestamppart, container_file))   
         if container_file not in latest_dict or timestamppart != latest_dict[container_file]:
             ''' is a checkwork (current-state) result and is not the latest timestamp for the file, ignore '''
             logger.debug('NOT the latest')
@@ -692,7 +692,7 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
             return retval
         else:
             logger.debug('is the latest')
-    logger.debug('command %s, field_type %s, token_id %s' % (command, field_type, token_id))
+    #logger.debug('command %s, field_type %s, token_id %s' % (command, field_type, token_id))
     targetfname_list = []
     if targetfile.startswith('*'):
         # Handle 'asterisk' -- 
@@ -743,7 +743,8 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
     for current_targetfname in targetfname_list:
         if not os.path.exists(current_targetfname):
             # If file does not exist, treat as can't find token
-            logger.debug("No %s file does not exist\n" % current_targetfname)
+            #logger.debug("No %s file does not exist\n" % current_targetfname)
+            pass
         else:
             #print('get  cmd %s for %s' % (command, current_targetfname))
             token = getTokenFromFile(current_targetfname, command, field_type, token_id, logger, lookupstring, line, result_key)
@@ -935,7 +936,7 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
 
 def doFileTimeDelim(ts_nametags, result_home, targetfile, result_key, command, lookupstring, logger):
     fname, delim_prog = targetfile.split(':')
-    logger.debug('targetfile is time delim %s delim_prog %s fname %s' % (targetfile, delim_prog, fname))
+    #logger.debug('targetfile is time delim %s delim_prog %s fname %s' % (targetfile, delim_prog, fname))
     look_for = os.path.join(result_home,'%s.stdout.*' % delim_prog)
     #print('look for %s' % look_for)
     delim_list = glob.glob(look_for)
@@ -957,9 +958,9 @@ def doFileTimeDelim(ts_nametags, result_home, targetfile, result_key, command, l
         for currentline in fh:
             time_val = getTS(currentline, prior_time_val)
             prior_time_val = time_val
-            logger.debug('ts[index] %s  my_time %s' % (delim_ts_set[index], time_val))
+            #logger.debug('ts[index] %s  my_time %s' % (delim_ts_set[index], time_val))
             if time_val > delim_ts_set[index]:
-                logger.debug('time greater')
+                #logger.debug('time greater')
                 if ts in ts_nametags:
                     ts_nametags[ts]['PROGRAM_ENDTIME'] = time_val
                 ts = delim_ts_set[index]
@@ -1001,7 +1002,7 @@ def ParseConfigForTimeDelim(studentlabdir, labidname, configfilelines, ts_jsonfn
                 delim_list = []
                 for tf in tf_list:
                     ''' set of timestamped values delimited by named program '''
-                    logger.debug('targetfile is time delim %s ' % (tf))
+                    #logger.debug('targetfile is time delim %s ' % (tf))
                     look_for = os.path.join(result_home,'%s.stdout.*' % tf)
                     #print('look for %s' % look_for)
                     tf_ts = glob.glob(look_for)
@@ -1062,7 +1063,7 @@ def ParseConfigForFile(studentlabdir, labidname, configfilelines,
         if timestamppart < end_time:
             program_end_time = end_time
         else:
-            logger.debug('timestamppart of %s was greater than end_time %s, use it' % (timestamppart, end_time))
+            #logger.debug('timestamppart of %s was greater than end_time %s, use it' % (timestamppart, end_time))
             program_end_time = timestamppart
  
     else:
@@ -1134,7 +1135,7 @@ def ParseStdinStdout(homedir, studentlabdir, container_list, instructordir, labi
     '''
     jsonoutputfilename = labidname
     #print("ParseStdinStdout: jsonoutputfilename is (%s) studentlabdir %s" % (jsonoutputfilename, studentlabdir))
-    logger.debug("ParseStdinStdout: jsonoutputfilename is (%s) studentlabdir %s" % (jsonoutputfilename, studentlabdir))
+    #logger.debug("ParseStdinStdout: jsonoutputfilename is (%s) studentlabdir %s" % (jsonoutputfilename, studentlabdir))
 
     timestamplist.clear()
 
@@ -1173,7 +1174,7 @@ def ParseStdinStdout(homedir, studentlabdir, container_list, instructordir, labi
             stdinfiles = '%s%s.%s.' % (RESULTHOME, exec_prog, "stdin")
             stdoutfiles = '%s%s.%s.' % (RESULTHOME, exec_prog, "stdout")
             prgoutfiles = '%s%s.%s.' % (RESULTHOME, exec_prog, "prgout")
-            logger.debug('stdin %s stdout %s' % (stdinfiles, stdoutfiles))
+            #logger.debug('stdin %s stdout %s' % (stdinfiles, stdoutfiles))
             globstdinfnames = glob.glob('%s*' % stdinfiles)
             globstdoutfnames = glob.glob('%s*' % stdoutfiles)
             if globstdoutfnames != []:
@@ -1205,7 +1206,7 @@ def ParseStdinStdout(homedir, studentlabdir, container_list, instructordir, labi
                     container_file = '%s:%s' % (mycontainername, exec_prog)
                     if container_file not in latest_dict or timestamppart > latest_dict[container_file]:
                         ''' track the most recent of each file for use if result type is checkwork (cw_ prefix) '''
-                        logger.debug('adding latest_dict[%s] = %s' % (container_file, timestamppart))
+                        #logger.debug('adding latest_dict[%s] = %s' % (container_file, timestamppart))
                         latest_dict[container_file] = timestamppart
                     
                 else:
