@@ -22,9 +22,9 @@ The Labtainers website, and downloads (including VM appliances with Labtainers p
 [designer-guide]: docs/labdesigner/labdesigner.pdf
 [Papers]: https://nps.edu/web/c3o/labtainers#papers
 
-Distribution created: 08/31/2021 11:06 </br>
+Distribution created: 09/30/2021 08:53 </br>
 Previous revision: v1.3.5o </br>
-Commit: 06c4a418 </br>
+Commit: 398a9d1a </br>
 Branch: premaster </br>
 
 ## Content
@@ -88,6 +88,13 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+
+September 30, 2021
+- Change bufoverflow lab guide and grading to not expect succes with ASLR turned on, assess whether it was run.
+- Error handling for web grader for cases where student lacks results.
+- Print warning when deprecated lab is run.
+- Change formatstring grading to remove unused "\_leaked\_secret" description and clarify value of leaked\_no\_scanf.
+- Also change formatstring grading to allow any name for the vulnerable executable.
 
 September 29, 2021
 - Gradelab error handling, reduce instances of crashes due to bad zip files.
