@@ -3,6 +3,10 @@ cmd=$1
 trap "echo got signal" SEGV
 trap "echo got signal" ILL
 trap "echo got signal" SIGFPE
+trap "echo got signal" SIGKILL
+trap "echo got signal" SIGTERM
+trap "echo got signal" SIGINT
+
 if [[ ! -z "$2" ]];then
    shift
    #echo eval $cmd $@
