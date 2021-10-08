@@ -78,13 +78,17 @@ def reportSum(zip_fname, xfer, expect_lab):
     sum_fh.close()
 
 def isMoodle(zip_fname):
-    with zipfile.ZipFile(zip_fname) as zip_file:
-        for member_info in zip_file.infolist():
-            member = member_info.filename
-            if 'assignsubmission_file' in member:
-                return True
-            else:
-                return False
+    try:
+        with zipfile.ZipFile(zip_fname) as zip_file:
+            for member_info in zip_file.infolist():
+                member = member_info.filename
+                if 'assignsubmission_file' in member:
+                    return True
+                else:
+                    return False
+    except FileNotFoundError:
+        print('Trouble with zip file %s' % zip_fname)
+        return False
 '''
 Extract individual zip files from a saki bulk download
 '''
@@ -153,7 +157,7 @@ def extract(zip_fname, xfer, expect_lab):
                 else:
                     unexpected += 1
                     print('Unexpected lab %s in file %s' % (lab, filename))
-                    print('Those results are copied into the %s xfer directory.  Consider regrading that lab with nww results.')
+                    print('Those results are copied into the %s xfer directory.  Consider regrading that lab with nww results.' % lab)
                 lab_xfer = os.path.join(xfer, lab)
 
                 # copy file (taken from zipfile's extract) into xfer for lab
