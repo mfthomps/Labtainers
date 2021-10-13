@@ -26,15 +26,15 @@
               </Group>
               <Group type="102" alignment="0" attributes="0">
                   <Component id="containerTabPane" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                  <EmptySpace min="0" pref="2" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="1" attributes="0">
-                  <Component id="containerTabPane" min="-2" pref="547" max="-2" attributes="0"/>
-                  <EmptySpace pref="9" max="32767" attributes="0"/>
+                  <Component id="containerTabPane" min="-2" pref="606" max="-2" attributes="0"/>
+                  <EmptySpace pref="31" max="32767" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="ContainerConfigUpdateButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="ContainerConfigCancelButton" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -145,8 +145,7 @@
                           <EmptySpace min="-2" pref="35" max="-2" attributes="0"/>
                           <Component id="ContainerConfigNetworksAddButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                          <Component id="ContainerConfigNetworksScrollpane" min="-2" pref="205" max="-2" attributes="0"/>
-                          <EmptySpace max="32767" attributes="0"/>
+                          <Component id="ContainerConfigNetworksScrollpane" pref="200" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -393,7 +392,7 @@
                               <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
                               <Component id="NoPrivilegeCheckbox" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace pref="279" max="32767" attributes="0"/>
+                          <EmptySpace pref="338" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -504,7 +503,7 @@
                               <Component id="ContainerConfigAddHostNetworkButton" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="AddHostsScrollPane" pref="446" max="32767" attributes="0"/>
+                          <Component id="AddHostsScrollPane" pref="505" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -677,7 +676,7 @@
                               <Component id="NumCPUTextField" pref="56" max="32767" attributes="0"/>
                               <Component id="CPUSetTextField" max="32767" attributes="0"/>
                           </Group>
-                          <EmptySpace pref="291" max="32767" attributes="0"/>
+                          <EmptySpace pref="274" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -859,7 +858,7 @@
                               <Component id="HideLabel" min="-2" max="-2" attributes="0"/>
                               <Component id="HideCheckbox" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace pref="314" max="32767" attributes="0"/>
+                          <EmptySpace pref="373" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
