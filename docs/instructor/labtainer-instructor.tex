@@ -143,9 +143,11 @@ message:
 \noindent Even when no automated assessment is performed, you can still observe student performance
 artifacts, e.g., the {\tt .bash\_history} file and files created by the student as described below in \ref{review-artifacts}.
 
-Use the {\tt -r} option to perform a fresh grading, e.g., if you've removed files from the {\tt labtainer\_xfer} directory.
+By default, each time you run gradelab, a fresh grader container is created and is populated with files from the 
+{\tt labtainer\_xfer} directory.   Use the {\tt -c} option to force reuse of the previous grader for that lab, in which case
+any new files in the xfer directory will be added to the previous container content.
 Sometimes zip files within the {\tt labtainer\_xfer} directory are corrupted.  If error messages indicate a bad zip file,
-try removing it from the directory and then use the {\tt -r} option to perform a fresh grading.
+try removing it from the directory and then run gradelab again.
 Use the {\tt -u } option to update your gradelab to the latest image.
 
 Student reports (if any) are  copied into 
