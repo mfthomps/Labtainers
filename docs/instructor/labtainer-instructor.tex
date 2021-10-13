@@ -90,7 +90,9 @@ student would.
 \section{Assessing Lab Performance}
 When the student stops a lab, i.e., using {\tt stoplab}, Labtainers creates a zip file of
 student artifacts (including lab reports) and then displays the path to this zip file to
-the student.  The easiest way for the student to forward this zip file to you is by starting
+the student.  This zip file has an extension of {\tt .lab} to confuse GUI-based file managers,
+thus preventing click-happy students from opening the zip and submitting its internal files rather than the entire
+zip (lab) file.  The easiest way for the student to forward this zip file to you is by starting
 a browser on the Linux VM and either emailing you the zip file, or uploading the file
 into an LMS, (e.g., Sakai).  See the \textit{Labtainers Student Guide} for a discussion of
 ways in which students can forward results to the instrutor.
@@ -105,6 +107,9 @@ Linux systems, e.g., the Labtainer VM appliance, the transfer directory is locat
 assignments can be bulk-collected from a learning management system (LMS) per Appendix \ref{lms collection}
 and the resulting zip  would be copied into the
 Labtainer transfer directory.  Again, do not unzip files and do not change the file names of zip files.
+If you wish to manually review the content of the student artifact files, copy them to a different directory and
+then use the {\tt unzip} command on the command line.  That utility will not be confused by the {\tt .lab} extension
+and the prepended text that is intended to prevent GUI file managers from unzipping the files.
 
 \subsection{Moving student results onto your Linux VM}
 There are several ways to move student results into your transfer directory:
@@ -183,7 +188,7 @@ You can view all student results, including their original artifacts by using th
 with the {\tt gradelab} command.  This results in a virtual terminal connected to a grading
 container that contains all student artifacts and results.  If you have not first run the
 {\tt gradelab} command without the ``-d'' option, run {\tt instructor.py} from within the
-virtual terminal to cause the zip files to be extracted.  A student's home directory can
+virtual terminal to cause the zip files (with a {\tt .lab} extension) to be extracted.  A student's home directory can
 then be found in
 \begin{verbatim}
 <student email>/<lab>.<container>.student
