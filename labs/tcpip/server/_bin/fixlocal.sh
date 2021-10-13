@@ -7,3 +7,7 @@
 #  not not permit nopassword, then use:
 #  echo $1 | sudo -S the-command
 #
+sudo useradd -ms /bin/bash joe
+echo "joe:password4joe" | sudo -S chpasswd
+sudo mv /home/admin/documents /home/joe/
+sudo chown -R joe:joe /home/joe/documents
