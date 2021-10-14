@@ -89,6 +89,11 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+October 13, 2021
+- Revise the tcpip lab guide to not a successful syn-flood attack is not possible.  Fix its automated assessment and add SimLab scripts. 
+- Change artifact file extension from zip to lab, and add a preamble to confuse GUI file managers.  Students were opening the zip and submiting its guts.
+- Make the -r option to gradelab the default, add a -c option for cumulative use of grader.
+
 September 30, 2021
 - Change bufoverflow lab guide and grading to not expect succes with ASLR turned on, assess whether it was run.
 - Error handling for web grader for cases where student lacks results.
