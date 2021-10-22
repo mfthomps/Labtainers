@@ -462,7 +462,8 @@ def removeGraders(registry):
 def main():
     parser = argparse.ArgumentParser(description='Grade a Labtainers lab')
     parser.add_argument('labname', default='NONE', nargs='?', action='store', help='The lab to grade')
-    parser.add_argument('-r', '--redo', action='store_true', help='Creates new instance of the lab, previous work will be lost.')
+    parser.add_argument('-r', '--redo', action='store_true', default=True, help='Creates new instance of the lab, previous work will be lost. This is the default.')
+    parser.add_argument('-c', '--cumulative', action='store_true', help='Reuse the previous gradelab instance, adding any new files from the xfer directory.')
     parser.add_argument('-d', '--debug', action='store_true', help='Create the grading container leave it running with a terminal')
     parser.add_argument('-w', '--web', action='store_true', help='Start web server for analysis of student work.')
     parser.add_argument('-v', '--volume', action='store_true', help='Use local development flask directory mounted as a volume.')
@@ -479,7 +480,10 @@ def main():
         removeGraders(registry)
         print('Graders have been removed, the next gradelab will pull a new grader')
     else:
-        redo = args.redo
+        if args.cumulative:
+            redo = False
+        else:
+            redo = True
         if args.update:
             redo = True
         doGrade(labname, args.test_registry, args.debug, redo, args.update, web=args.web, test_web=args.volume)
