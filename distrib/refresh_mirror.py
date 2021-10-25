@@ -40,6 +40,11 @@ import InspectRemoteReg
 import LabtainerLogging
 import ParseLabtainerConfig
 import LabtainerBase
+import datetime
+import calendar
+from dateutil import parser
+from dateutil.parser import parse
+
 '''
 Update the Docker Hub registry to match what is in the registry named in the
 labtainer.config file.  Includes an option to go the other direct for use in
@@ -64,6 +69,7 @@ def refreshLab(labdir, lab, role, remote_reg, local_reg, logger, no_copy):
     if not os.path.isdir(docker_dir):
         logger.debug('No docker file for %s, bail' % lab)
         return
+
     df_list = [f for f in os.listdir(docker_dir) if os.path.isfile(os.path.join(docker_dir, f))]
     for df in df_list:
         if df.endswith('.swp'):
@@ -75,12 +81,13 @@ def refreshLab(labdir, lab, role, remote_reg, local_reg, logger, no_copy):
         except:
             print('could not get image from %s' % df);
             continue
+        local_created, local_user, local_version, tag, base  = InspectLocalReg.inspectLocal(image, logger, local_reg, no_pull=True)
+        logger.debug('%s %s' % (image, local_created))
+
         with_reg = '%s/%s' % (remote_reg, image)
         remote_created, remote_user, remote_version, tag = InspectRemoteReg.inspectRemote(with_reg, logger, no_pull=True)
         logger.debug('%s %s' % (with_reg, remote_created))
         if remote_created is not None:
-            local_created, local_user, local_version, tag, base  = InspectLocalReg.inspectLocal(image, logger, local_reg, no_pull=True)
-            logger.debug('%s %s' % (image, local_created))
             if local_created != remote_created:
                 print('DIFFERENT: %s:%s local created/version %s/%s  remote: %s/%s' % (lab, container, local_created, 
                       local_version, remote_created, remote_version))
@@ -94,11 +101,12 @@ def refreshLab(labdir, lab, role, remote_reg, local_reg, logger, no_copy):
             print('ERROR, no remote info for image %s' % image)
             exit(1)
 
-def updateLab(labdir, lab, role, remote_reg, local_reg, logger, no_copy):
+def updateLab(labdir, lab, role, remote_reg, local_reg, logger, no_copy, release_date):
     ''' push local lab containers to remote, i.e., as part of a release '''
     docker_dir = os.path.join(labdir, lab, 'dockerfiles')
     if not os.path.isdir(docker_dir):
         return
+
     df_list = [f for f in os.listdir(docker_dir) if os.path.isfile(os.path.join(docker_dir, f))]
     for df in df_list:
         if df.endswith('.swp'):
@@ -111,6 +119,17 @@ def updateLab(labdir, lab, role, remote_reg, local_reg, logger, no_copy):
             print('could not get image from %s' % df);
             continue
         local_created, local_user, local_version, tag, base  = InspectLocalReg.inspectLocal(image, logger, local_reg, no_pull=True)
+
+        x=parse(local_created)
+        image_date = calendar.timegm(x.timetuple())
+        #print('image ts %s' % image_date)
+        #print('file ts %s' % release_date)
+
+        if image_date < release_date:
+            #print('image %s local: %s prior to release: %s' % (image, image_date, release_date))
+            continue
+        else:
+            print('image %s local: %s NOT prior to release: %s  WOULD check remote' % (image, image_date, release_date))
 
         if local_created is not None:
             with_reg = '%s/%s' % (remote_reg, image)
@@ -150,31 +169,46 @@ def doUpdateOrRefresh(local_registry, remote_registry, args, lgr):
         print('LABTAINER_DIR not defined.')
         exit(1)
     labdir = os.path.join(ldir, 'labs')
+
+    homedir = os.getenv('HOME') 
+    release_file=os.path.join(homedir, 'labtainerRelease', 'Labtainers', 'distrib', 'artifacts', 'labtainer.tar')
+    if not os.path.isfile(release_file):
+        logger.error('No release file found at %s, would use date of that file to skip dockerhub queries.')
+        exit(1)
+    release_date = os.path.getmtime(release_file) 
+
     if args.lab is not None:
         if not args.refresh:
-            updateLab(labdir, args.lab, 'student', remote_registry, local_registry, lgr, args.no_copy)
+            updateLab(labdir, args.lab, 'student', remote_registry, local_registry, lgr, args.no_copy, release_date)
         else:
             refreshLab(labdir, args.lab, 'student', remote_registry, local_registry, lgr, args.no_copy)
     else:
+
         lgr.debug('Do all images')
         grader = 'labtainer.grader'
         local_created, local_user, local_version, tag, base  = InspectLocalReg.inspectLocal(grader, lgr, local_registry)
 
         if local_created is not None:
-            with_reg = '%s/%s' % (remote_registry, grader)
-            remote_created, remote_user, remote_version, tag = InspectRemoteReg.inspectRemote(with_reg, lgr, no_pull=True)
-            lgr.debug('%s  local: %s  remote: %s' % (grader, local_created, remote_created))
-            if local_created != remote_created:
-                print('DIFFERENT: %s local created %s  remote: %s' % (grader, local_created, remote_created))
-                if not args.no_copy:
-                    if not args.refresh:
-                        pull_push(grader, local_registry, remote_registry)
-                    else:
-                        pull_push(grader, remote_registry, local_registry)
+            x=parse(local_created)
+            image_date = calendar.timegm(x.timetuple())
+
+            if image_date > release_date:
+                print('gradelab local: %s NOT prior to release: %s  WOULD check remote' % (image_date, release_date))
+                with_reg = '%s/%s' % (remote_registry, grader)
+                remote_created, remote_user, remote_version, tag = InspectRemoteReg.inspectRemote(with_reg, lgr, no_pull=True)
+                lgr.debug('%s  local: %s  remote: %s' % (grader, local_created, remote_created))
+                if local_created != remote_created:
+                    print('DIFFERENT: %s local created %s  remote: %s' % (grader, local_created, remote_created))
+                    if not args.no_copy:
+                        if not args.refresh:
+                            pull_push(grader, local_registry, remote_registry)
+                        else:
+                            pull_push(grader, remote_registry, local_registry)
         else:
             print('No %s image on docker hub!' % grader)
             lgr.debug('No %s image on docker hub!' % grader)
             exit(1)
+
         skip = []
         with open('skip-labs') as fh:
            for line in fh:
@@ -194,7 +228,7 @@ def doUpdateOrRefresh(local_registry, remote_registry, args, lgr):
         for lab in sorted(lab_list):
             if lab not in skip:
                 if not args.refresh:
-                    updateLab(labdir, lab, 'student', remote_registry, local_registry, lgr, args.no_copy)
+                    updateLab(labdir, lab, 'student', remote_registry, local_registry, lgr, args.no_copy, release_date)
                 else:
                     refreshLab(labdir, lab, 'student', remote_registry, local_registry, lgr, args.no_copy)
     
@@ -203,6 +237,7 @@ def doUpdateOrRefresh(local_registry, remote_registry, args, lgr):
                 print('Comparing base images in %s to  %s, and replacing content of %s if different' % (local_registry, remote_registry, remote_registry))
             else:
                 print('Comparing base images in %s to  %s, and replacing content of %s if different' % (local_registry, remote_registry, local_registry))
+        '''
         base_names = LabtainerBase.getBaseList()
         for base in base_names:
             with_registry = '%s/%s' % (remote_registry, base)
@@ -229,7 +264,7 @@ def doUpdateOrRefresh(local_registry, remote_registry, args, lgr):
                         pull_push(base, local_registry, remote_registry)
                     else:
                         pull_push(base, remote_registry, local_registry)
-
+        '''
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Update the remote (Docker Hub) registry to match the local test registry (premaster).')
