@@ -1,0 +1,10 @@
+#!/bin/bash
+#flush
+iptables -F
+iptables -t nat -F
+iptables -X
+iptables -P FORWARD DROP
+iptables -P INPUT   DROP
+iptables -P OUTPUT  ACCEPT
+iptables -A OUTPUT -p icmp --icmp-type 3 -j DROP
+iptables -A INPUT -p icmp --icmp-type 3 -j DROP

@@ -333,6 +333,8 @@ void waitRightDie()
 
 int ioLoop()
 {
+     int limit = 1000000;
+     int out_size = 0;
      char input[150];
      fd_set fd_in;
      int rc;
@@ -375,7 +377,10 @@ int ioLoop()
                         fprintf(debug,"write to fdm_in only wrote %d, expected %d\n", wc, rc);
                         fflush(debug);
                     }
-                    write(stdout_fd, tmp, rc);
+                    if(out_size < limit){
+                        write(stdout_fd, tmp, rc);
+                        out_size = out_size + rc;
+                    }
                   }else{
                     break;
                   }
@@ -513,7 +518,10 @@ int ioLoop()
                       fprintf(debug,"write to fdm_in only wrote %d, expected %d\n", wc, rc);
                       fflush(debug);
                   }
-                  write(stdout_fd, tmp, rc);
+                  if(out_size < limit){
+                        write(stdout_fd, tmp, rc);
+                        out_size = out_size + rc;
+                   }
                   //fprintf(debug, "fdm_out got [%s]\n", tmp);
                   fflush(debug);
               } else {

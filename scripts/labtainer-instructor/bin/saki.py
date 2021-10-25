@@ -21,6 +21,8 @@ def reportSum(zip_fname, xfer, expect_lab):
     sum_report = os.path.join(lab_xfer, 'missing_submits.txt')
     sum_fh = open(sum_report, 'w')
     ziplist = glob.glob(lab_xfer+'/*.zip')
+    lablist = glob.glob(lab_xfer+'/*.lab')
+    ziplist.extend(lablist)
     labs_dir = os.path.abspath('../../labs')
     lab_doc_dir = os.path.join(labs_dir, expect_lab, 'docs')
     orig_doc = glob.glob(lab_doc_dir+'/*emplate*docx')
@@ -78,13 +80,17 @@ def reportSum(zip_fname, xfer, expect_lab):
     sum_fh.close()
 
 def isMoodle(zip_fname):
-    with zipfile.ZipFile(zip_fname) as zip_file:
-        for member_info in zip_file.infolist():
-            member = member_info.filename
-            if 'assignsubmission_file' in member:
-                return True
-            else:
-                return False
+    try:
+        with zipfile.ZipFile(zip_fname) as zip_file:
+            for member_info in zip_file.infolist():
+                member = member_info.filename
+                if 'assignsubmission_file' in member:
+                    return True
+                else:
+                    return False
+    except FileNotFoundError:
+        print('Trouble with zip file %s' % zip_fname)
+        return False
 '''
 Extract individual zip files from a saki bulk download
 '''
@@ -114,7 +120,7 @@ def extract(zip_fname, xfer, expect_lab):
                     zfiledata = BytesIO(zip_file.read(member))
                     student_fu = zipfile.ZipFile(zfiledata) 
                     for zf in student_fu.infolist():
-                        if zf.filename.endswith('.zip'):
+                        if zf.filename.endswith('.zip') or zf.filename.endswith('.lab'):
                             extract_from = student_fu
                             member = zf.filename
             else:
@@ -122,7 +128,7 @@ def extract(zip_fname, xfer, expect_lab):
                 student = parts[1]
             date_time = time.mktime(member_info.date_time + (0, 0, -1))
             filename = os.path.basename(member)
-            if filename.endswith('.zip'):
+            if filename.endswith('.zip') or filename.endswith('.lab'):
                 #print('check zip %s' % filename)
                 if '=' in filename:
                     print('Student submitted wrong zip file: %s' % filename)
@@ -130,7 +136,7 @@ def extract(zip_fname, xfer, expect_lab):
                     lab = filename.split('=')[1].split('.')[0]
                     lab_xfer = os.path.join(xfer, lab)
                     source = extract_from.open(member)
-                    new_filename = filename.split('=')[0]+'.zip'
+                    new_filename = filename.split('=')[0]+'.lab'
                     filename_path = os.path.join(lab_xfer, filename)
                     target = open(filename_path, "wb")
                     shutil.copyfileobj(source, target)
@@ -144,6 +150,7 @@ def extract(zip_fname, xfer, expect_lab):
                         
                     ''' assume nothing else in zip '''
                     os.remove(os.path.join(lab_xfer, filename))
+                    print('removed %s' % os.path.join(lab_xfer, filename))
                     continue
                 parts = filename.split('.')
                 lab = parts[-2]
@@ -151,6 +158,8 @@ def extract(zip_fname, xfer, expect_lab):
                     count += 1
                 else:
                     unexpected += 1
+                    print('Unexpected lab %s in file %s' % (lab, filename))
+                    print('Those results are copied into the %s xfer directory.  Consider regrading that lab with nww results.' % lab)
                 lab_xfer = os.path.join(xfer, lab)
 
                 # copy file (taken from zipfile's extract) into xfer for lab

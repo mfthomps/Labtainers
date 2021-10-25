@@ -259,6 +259,8 @@ def main():
     ''' unzip everything ''' 
     ''' First level unzip '''
     zip_files = glob.glob(MYHOME+'/*.zip')
+    lab_files = glob.glob(MYHOME+'/*.lab')
+    zip_files.extend(lab_files)
     first_level_zip = []
     for zfile in zip_files:
         zip_file_name = os.path.basename(zfile)

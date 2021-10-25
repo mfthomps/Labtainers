@@ -166,7 +166,7 @@ containers, e.g., to hook bash and parameterize containers.
 \item Container scripts -- perform grading functions.
 \item Web interface -- The {\tt -w} option to gradelab starts a Flask web server on the container, found in the
 {\tt flask/server.py}.  When debugging and enhancing this, use the {\tt -v} option instead of the {\tt -w} option to
-cause the development flask directory to be mounted by the container.
+cause the development flask directory to be mounted by the container.  Then start the server with {\tt .local/flask/server.py labname}.
 	\end{itemize}
 
 	\item {\bf Lab designer} \begin{itemize}
@@ -620,6 +620,9 @@ in start.config, seems to fix it?  NO: that breaks it by keeping services from r
 in attacker seems to keep the crash from happening?  Also happened in a hackazon container derived from a dockerfile that
 included multiple CMD entries (one in the latest file, one in the parent file).
 
+Sometimes (only see on testing), the container ID reverts from the labtainer name to its hash.  This can be accompanied by an
+inability to manually stop the container. Seems to be a Docker bug, but only appears every 6 months or so of daily regression testing.
+
 \subsubsection{Grader updates}
 Automate detection of need to update a local grader image, e.g., in response to a fix to the grader.
 
@@ -732,5 +735,12 @@ tapped networks?  Advantage is designer need not configure individual components
 Labs having defined registries do not have test registry images.  The ParseStartConfig.py does not insert a test registry
 for these labs, thus any running of IModules on test or development systems will cause the Docker Hub instance of container
 images to run.
+
+\subsection{Gradelab via browser}
+The Flask web server is integrated with the grader container.  The {\tt labtainer-instructor/flask/server.py} program implements
+the server along with the flask/templates files.  For debugging, use the {\tt -vd} option instead of {\tt -w} to cause the local repo
+flask directory to be mounted and used within the container.  When you get a terminal to the grader container, run the instructor.py command
+and then start the server with {\tt .local/flask/server.py labname}.  The templates files contain dynamic HTML for the various links displayed
+on each page, and these have corresponding {\tt app.route} decorators in the server.py code.  Review the Flask product documentation to understand the dynamic HTML syntax and how values are replaced.
 
 \end{document}

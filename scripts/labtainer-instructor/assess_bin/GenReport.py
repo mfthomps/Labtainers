@@ -78,8 +78,8 @@ def ValidateLabGrades(labgrades):
         else:
             # Check to make sure labname is the same throughout
             if storedlabname != labname:
-                sys.stderr.write("ERROR: inconsistent labname (%s) vs (%s)\n" % (storedlabname, labname))
-                sys.exit(1)
+                sys.stdout.write("WARNING: inconsistent labname (%s) vs (%s)\n" % (storedlabname, labname))
+                #sys.exit(1)
 
         currentgoalsline = ''
         currentbarline = ''

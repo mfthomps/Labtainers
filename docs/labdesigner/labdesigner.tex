@@ -1073,6 +1073,8 @@ a ``ignorelocal'' file in that same directory.  \footnote{These should not inclu
 The student commands are parsed to first account for the use of {\tt sudo}, {\tt time}, {\tt python} or {\tt python3}.
 The commands are also processed to account for the use of pipes and redirection. 
 
+The stdout files truncate after about 1MB to avoid swamping the grading system (and the instructor's computer) with large files.
+
 \subsubsection{Capturing program file output}
 \label{program output}
 Sometimes program file output is of interest to automated assessment, e.g., the program
@@ -1343,6 +1345,8 @@ The {\tt line\_type} value is one of the following:
 no {\tt line\_type} or {\tt line\_id} fields.
 \begin{itemize}
 \item \textbf{LINE\_COUNT} -- The quantity of lines in the file. Remaining fields 
+                             are ignored.
+\item \textbf{SIZE} -- The size of the file. Remaining fields 
                              are ignored.
 \item \textbf{CHECKSUM}   -- The result value is set to the md5 checksum 
                              of the file.

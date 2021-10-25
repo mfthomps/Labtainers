@@ -546,7 +546,7 @@ def processMatchAny(result_sets, eachgoal, goal_times, logger):
             try:
                 resulttagresult = results[resulttag]
             except KeyError:
-                logger.debug('%s not found in file %s' % (resulttag, ts))
+                #logger.debug('%s not found in file %s' % (resulttag, ts))
                 continue
         if resulttagresult == None:
             continue 
@@ -901,11 +901,11 @@ def processBoolean(eachgoal, goal_times, studentlabdir, logger):
     bool_json = {}
     for timestamppart, current_goals in goals_ts_id.items():
         if timestamppart != default_timestamp or len(goals_ts_id)==1:
-            logger.debug('eval %s against %s tspart %s' % (t_string, str(current_goals), timestamppart))
+            #logger.debug('eval %s against %s tspart %s' % (t_string, str(current_goals), timestamppart))
             bool_json[timestamppart] = current_goals
             evalBooleanResult = evalBoolean.evaluate_boolean_expression(t_string, current_goals, logger, glist)
             if evalBooleanResult is not None:
-                logger.debug('bool evaluated to %r' % evalBooleanResult)
+                #logger.debug('bool evaluated to %r' % evalBooleanResult)
                 goal_times.addGoal(goalid, timestamppart, evalBooleanResult)
     bool_fname = 'bool_%s.json' % goalid
     bool_path = os.path.join(studentlabdir, '.local', 'result', bool_fname)

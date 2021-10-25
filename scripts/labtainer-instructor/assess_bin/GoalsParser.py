@@ -111,7 +111,7 @@ def ValidateTag(parameter_list, studentdir, goal_type, inputtag, allowed_special
     elif inputtag.startswith('(') and inputtag.endswith(')'):
         returntag = 'result.%s' % inputtag
     elif '.' in inputtag:
-        logger.debug("tag %s contains '.'" % inputtag)
+        #logger.debug("tag %s contains '.'" % inputtag)
         (target, finaltag) = inputtag.split('.')
         if not target in answer_tokens:
             logger.error("goals.config tag=<string> then tag must be:(%s), got %s" % (','.join(answer_tokens), inputtag))
@@ -122,7 +122,7 @@ def ValidateTag(parameter_list, studentdir, goal_type, inputtag, allowed_special
 
         returntag = getTagValue(parameter_list, target, finaltag, logger)
     else:
-        logger.debug("tag is %s" % inputtag)
+        #logger.debug("tag is %s" % inputtag)
         if not MyUtil.CheckAlphaDashUnder(inputtag):
             logger.error("Invalid characters in goals.config's tag (%s)" % inputtag)
             sys.exit(1)
@@ -166,7 +166,7 @@ def ParseGoals(homedir, studentdir, logger_in):
         linestrip = line.rstrip()
         if linestrip:
             if not linestrip.startswith('#'):
-                logger.debug("Current linestrip is (%s)" % linestrip)
+                #logger.debug("Current linestrip is (%s)" % linestrip)
                 try:
                     (each_key, each_value) = linestrip.split('=', 1)
                 except:
@@ -186,7 +186,7 @@ def ParseGoals(homedir, studentdir, logger_in):
                 # <type> : <string>
                 values = each_value.split(" : ")
                 numvalues = len(values)
-                logger.debug('numvalues is %d  values are: %s' % (numvalues, str(values)))
+                #logger.debug('numvalues is %d  values are: %s' % (numvalues, str(values)))
                 if not (numvalues == 4 or numvalues == 3 or numvalues == 2):
                     logger.error("goals.config contains unexpected value (%s) format" % each_value)
                     sys.exit(1)

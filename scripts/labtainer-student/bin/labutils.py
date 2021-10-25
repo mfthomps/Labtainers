@@ -1025,6 +1025,8 @@ def CopyStudentArtifacts(labtainer_config, mycontainer_name, labname, container_
     username = getpass.getuser()
     xfer_dir = os.path.join(labtainer_config.host_home_xfer, labname)
     zip_filelist = glob.glob('/home/%s/%s/*.zip' % (username, xfer_dir))
+    lab_filelist = glob.glob('/home/%s/%s/*.lab' % (username, xfer_dir))
+    zip_filelist.extend(lab_filelist)
     logger.debug("filenames is (%s)" % zip_filelist)
     # Copy zip files from 'Shared' folder to 'home/$CONTAINER_USER'
     for fname in zip_filelist:
@@ -2581,9 +2583,15 @@ def GatherZips(zip_file_list, labtainer_config, start_config, labname, lab_path)
     logger.debug("zip_file_list is ")
     logger.debug(zip_file_list)
     logger.debug("baseZipFilename is (%s)" % baseZipFilename)
-    combinedZipFilename = "%s/%s.zip" % (xfer_dir, baseZipFilename)
+    oldfile = "%s/%s.zip" % (xfer_dir, baseZipFilename)
+    if os.path.isfile(oldfile):
+        os.remove(oldfile)
+    combinedZipFilename = "%s/%s.lab" % (xfer_dir, baseZipFilename)
     logger.debug("The combined zip filename is %s" % combinedZipFilename)
-    zipoutput = zipfile.ZipFile(combinedZipFilename, "w")
+    with open(combinedZipFilename, 'w') as fh:
+        fh.write('Foil click-happy students')
+    
+    zipoutput = zipfile.ZipFile(combinedZipFilename, "a")
     # Go to the xfer_dir
     os.chdir(xfer_dir)
     for fname in zip_file_list:

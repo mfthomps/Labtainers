@@ -22,7 +22,6 @@ The Labtainers website, and downloads (including VM appliances with Labtainers p
 [designer-guide]: docs/labdesigner/labdesigner.pdf
 [Papers]: https://nps.edu/web/c3o/labtainers#papers
 
-
 Distribution created: 09/29/2021 13:05 </br>
 Revision: v1.3.5t </br>
 Commit: e822af28 </br>
@@ -90,8 +89,23 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+October 22, 2021
+- Revise the tcpip lab guide to not a successful syn-flood attack is not possible.  Fix its automated assessment and add SimLab scripts. 
+- Change artifact file extension from zip to lab, and add a preamble to confuse GUI file managers.  Students were opening the zip and submitting its guts.
+- Make the -r option to gradelab the default, add a -c option for cumulative use of grader.
+- Modify refresh\_mirror to refer to the local release date to avoid frequent queries of DockerHub.  Each such query counts as an image pull, 
+and they are now trying to monetize those.
+
+September 30, 2021
+- Change bufoverflow lab guide and grading to not expect success with ASLR turned on, assess whether it was run.
+- Error handling for web grader for cases where student lacks results.
+- Print warning when deprecated lab is run.
+- Change formatstring grading to remove unused "\_leaked\_secret" description and clarify value of leaked\_no\_scanf.
+- Also change formatstring grading to allow any name for the vulnerable executable.
+
 September 29, 2021
 - Gradelab error handling, reduce instances of crashes due to bad zip files.
+- Limit stdout artifact files to 1MB
 
 September 17, 2021
 - Ghidra lab guide had wrong IP address, was not remade from source.

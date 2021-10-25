@@ -180,11 +180,11 @@ When you want to stop working for a while or are finished and ready to turn it i
 
 \noindent from the Linux system from which you issued the {\tt labtainer} command. All changes to the files, etc. will be preserved and you will be able to resume the lab just the way you started it. You can resume your work, as needed.
 
-The {\tt stoplab }command always displays the directory containing a zip file that should be provided to your instructor. It shows the current results of your work. 
+The {\tt stoplab }command always displays the directory containing a file with a {\tt .lab} extension that should be provided to your instructor. It shows the current results of your work. 
 
-The easiest way to forward the complete zip file to the instructor is to start a browser, e.g., Firefox, on the VM from which you
-are running Labtainers.  Then use the browser to either email the zip file, or upload it into an LMS system, e.g., Sakai.
-Alternately, you can configure the VM to use a shared folder, and use that to copy the zip file to the host computer.
+The easiest way to forward the complete {\tt .lab} file to the instructor is to start a browser, e.g., Firefox, on the VM from which you
+are running Labtainers.  Then use the browser to either email the file, or upload it into an LMS system, e.g., Sakai.
+Alternately, you can configure the VM to use a shared folder, and use that to copy the {\tt .lab} file to the host computer.
 
 %----------------
 \subsection{Redoing a Lab}
@@ -205,7 +205,8 @@ the checkwork command, e.g.,
 \end{verbatim}
 
 \subsection{Submitting your work}
-When you've completed a lab and run the {\tt stoplab} command, your results are stored in a zip file in the directory at:
+When you've completed a lab and run the {\tt stoplab} command, your results are stored in a file with a {\tt .lab} extension
+in the directory at:
 \begin{verbatim}
     $HOME/labtainer_xfer/<lab name>
 \end{verbatim}
@@ -214,7 +215,7 @@ When you've completed a lab and run the {\tt stoplab} command, your results are 
 \item Use the browser on the VM to email the file to your instructor.
 \item Use the browser on the VM to access your school's LMS system such as Saki or Blackboard, and upload the file.
 \item Configure the VM to enable \textit{drag and drop}, then move the file to your host computer to email or upload to an LMS.
-\item Configure the VM and host to share folders and copy the zip file to the shared folder to email or upload to an LMS.
+\item Configure the VM and host to share folders and copy the {\tt .lab} file to the shared folder to email or upload to an LMS.
 \end{enumerate}
 
 %----------------

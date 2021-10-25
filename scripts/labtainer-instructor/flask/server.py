@@ -108,7 +108,7 @@ def grades():
     GoalTableCls = create_table('GoalTableCls', options=tbl_options)\
             .add_column('name', LinkCol('Name', 'student_select',
                    url_kwargs=dict(student_id='student_id'), attr='name'))
-
+    #print('in grades')
     goals_list = getGoalsList()
     with open(grade_json) as fh:
         grade_dict = json.load(fh)
@@ -134,10 +134,13 @@ def grades():
             row['name'] = parts[0]
             row['student_id'] = student
             row['timestamp'] = 'None'
+            #print('do student %s' % student)
             for key in grade_dict[student]['grades']:
                 if not key.startswith('_') and not key.startswith('cw_'):
                     row[key] = '%s:%s' % (key, grade_dict[student]['grades'][key])
-            rows.append(row)
+                    #print('row[%s] is %s' % (key, row[key]))
+            if len(grade_dict[student]['grades']) > 0:
+                rows.append(row)
         tbl = GoalTableCls(rows) 
         if has_goals:    
             goal_doc = getGoalDoc()
@@ -436,7 +439,7 @@ def getBoolTable(student_id, student_inter_dir, goal_id, goals_json, bool_tbl_li
         for item in bool_json[ts]:
             if (' %s ' % item) in the_string:
                 row[item] = '%s:%s' % (item, bool_json[ts][item])
-                print('added %s' % row[item])
+                #print('added %s' % row[item])
         ''' exclude the row if it lacks any column '''
         skip_row = False
         for c in columns:
@@ -590,7 +593,7 @@ def getResultRec(student_id, result_id):
 
 @app.route('/grades/goals/<student_id>/<goal>/<timestamp>')
 def goal_select(student_id, goal, timestamp):
-    print('GOAL SELECT')
+    #print('GOAL SELECT')
     global raw_fpath
     student_dir = os.path.join(lab_dir, student_id)
     student_inter_dir = os.path.join(student_dir, '.local','result')
@@ -620,7 +623,7 @@ def goal_select(student_id, goal, timestamp):
             did_these = [goal_id]
             bool_tbl_list = getBoolTable(student_id, student_inter_dir, goal_id, goals_json, bool_tbl_list, did_these)
         elif goal_entry['goaltype'] == 'matchany':
-            print('IS matchany')
+            #print('IS matchany')
             resulttag = goal_entry['resulttag']
             answertag = goal_entry['answertag']
             if resulttag.startswith('result.'):
@@ -629,13 +632,13 @@ def goal_select(student_id, goal, timestamp):
                      result_id2 = answertag.split('.')[1]
                  else:
                      result_id2 = None
-                 print('select_goal result_id %s timestamp %s' % (result_id, timestamp))
+                 #print('select_goal result_id %s timestamp %s' % (result_id, timestamp))
                  if timestamp is not None and timestamp != 'None':
                      container, container_id, fname, expr = getResultFileName(student_id, result_id)
                      result_rec = getResultTSRec(student_id, timestamp, result_id, container, fname, expr)[0]
-                     print('got result_rec: %s' % str(result_rec))
+                     #print('got result_rec: %s' % str(result_rec))
                  else:
-                     print('call getTSTable for results %s and %s' % (result_id, result_id2))
+                     #print('call getTSTable for results %s and %s' % (result_id, result_id2))
                      ts_table, search_string = getTSTable(student_id, result_id, result_id2)
                      if ts_table is None:
                          result_rec = getResultRec(student_id, result_id)
@@ -780,7 +783,7 @@ def getResultValue(student_id, result_id):
 def result_select(student_id, timestamp, result):
     result_id = result.split(':')[0]
     container, container_id, fname, expr = getResultFileName(student_id, result_id)
-    print('result_select for result %s container %s fname is <%s> TS: %s' % (result, container, fname, timestamp))
+    #print('result_select for result %s container %s fname is <%s> TS: %s' % (result, container, fname, timestamp))
     if timestamp is None or timestamp == 'None':
         result_rec = getResultRec(student_id, result_id)
     else:
@@ -810,7 +813,7 @@ def home():
     path = os.path.join('lab_doc', manual)
     lab_doc_path = os.path.join(os.path.dirname(__file__), 'static', 'lab_doc')
     test_path = os.path.join(lab_doc_path, manual)
-    print('test_path %s' % test_path)
+    #print('test_path %s' % test_path)
     if not os.path.isfile(test_path):
         print(' no file')
         g = glob.glob(lab_doc_path+"/*.pdf")

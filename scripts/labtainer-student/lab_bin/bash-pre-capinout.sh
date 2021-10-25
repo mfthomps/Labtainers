@@ -251,7 +251,9 @@ preexec() {
               precheckoutfile="$PRECMD_HOME/.local/result/precheck.stdout.$timestamp"
               precheckinfile="$PRECMD_HOME/.local/result/precheck.stdin.$timestamp"
               # superstition?
-              touch $precheckoutfile
+              if [ ! -z "$precheckoutfile" ]; then
+                  touch $precheckoutfile
+              fi
               $PRECMD_HOME/.local/bin/precheck.sh $cmd_path >> $precheckoutfile 2>/dev/null
               if [[ ! -s $precheckoutfile ]]; then
                   rm -f $precheckoutfile
@@ -272,7 +274,9 @@ preexec() {
                precheckoutfile="$PRECMD_HOME/.local/result/precheck.stdout.$timestamp"
                precheckinfile="$PRECMD_HOME/.local/result/precheck.stdin.$timestamp"
                # superstition regarding concurrance with mynotify service?
-               touch $precheckoutfile
+               if [ ! -z "$precheckoutfile" ]; then
+                  touch $precheckoutfile
+               fi
                $PRECMD_HOME/.local/bin/precheck.sh $cmd_path >> $precheckoutfile 2>/dev/null
                if [[ ! -s $precheckoutfile ]]; then
                    rm -f $precheckoutfile
@@ -303,7 +307,9 @@ preexec() {
            if [ -f $PRECMD_HOME/.local/bin/precheck.sh ]
            then
                # superstition?
-               touch $precheckoutfile
+               if [ ! -z "$precheckoutfile" ]; then
+                  touch $precheckoutfile
+               fi
                precheckoutfile="$PRECMD_HOME/.local/result/precheck.stdout.$timestamp"
                precheckinfile="$PRECMD_HOME/.local/result/precheck.stdin.$timestamp"
                $PRECMD_HOME/.local/bin/precheck.sh $cmd_path >> $precheckoutfile 2>/dev/null
