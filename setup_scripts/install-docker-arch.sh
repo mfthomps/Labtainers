@@ -33,33 +33,38 @@ fi
 type sudo >/dev/null 2>&1 || { echo >&2 "Please install sudo.  Aborting."; exit 1; }
 sudo -v || { echo >&2 "Please make sure user is sudoer.  Aborting."; exit 1; }
 #---needed packages for install
-sudo pacman -Su --noconfirm ca-certificates curl device-mapper gnupg lvm2 openssh xterm
-RESULT=$?
-if [ $RESULT -ne 0 ];then
-    echo "problem fetching packages, exit"
-    exit 1
-fi
 version=$(lsb_release -a | grep Release: | cut -f 2)
 docker_package=docker
-sudo pacman -Su --noconfirm docker
+
+#---initial check for packages already installed otherwise install them
+#---installs python modules directly through Arch official repos
+#---prevents environment conflicts given the Arch rolling release model
+declare -a packagelist=("ca-certificates" "curl" "device-mapper" "$docker_package" "python-pip" "python-dateutil" "python-parse" "python-netaddr" "gnupg" "lvm2" "openssh" "xterm")
+for i in "${packagelist[@]}"
+do
+packagecheck=$(pacman -Q $i 2> /dev/null)
+    if [ -z "$packagecheck" ]; then
+        sudo pacman -Su $i
+        RESULT=$?
+        if [ $RESULT -ne 0 ];then
+            echo "problem fetching '$i' package, exit"
+            exit 1
+        fi
+        else
+            echo "package '$i' already installed"
+    fi
+done
 
 #---starts and enables docker
 sudo systemctl start docker
 sudo systemctl enable docker
 
 #---gives user docker commands
-sudo groupadd docker
-sudo usermod -aG docker $USER 
-
-#---other packages required by Labtainers
-#---install python modules directly through Arch official repos
-#---prevents environment conflicts with rolling release model
-sudo pacman -Su --noconfirm python-pip python-netaddr python-parse python-dateutil
+sudo groupadd docker || true
+sudo usermod -aG docker $USER || true 
 
 #---Checking if packages have been installed. If not, the system will not reboot and allow the user to investigate.
-declare -a packagelist=("ca-certificates" "curl" "device-mapper" "$docker_package" "python-pip" "gnupg" "lvm2" "openssh" "xterm")
 packagefail="false"
-
 for i in "${packagelist[@]}"
 do
 #echo $i
