@@ -84,12 +84,18 @@ case "$distrib" in
         ./install-docker-centos.sh
         RESULT=$?
         ;;
+    Arch)
+        echo is arch
+        ./install-docker-arch.sh
+        RESULT=$?
+        ;;
+
     *)
         if [[ -z "$1" ]]; then
             echo "Did not recognize distribution: $found_distrib"
-            echo "Try providing distribution as argument, either Ubuntu|Debian|Fedora|Centos"
+            echo "Try providing distribution as argument, either Ubuntu|Debian|Fedora|Centos|Arch"
         else
-            echo $"Usage: $0 Ubuntu|Debian|Fedora|Centos"
+            echo $"Usage: $0 Ubuntu|Debian|Fedora|Centos|Arch"
         fi
         exit 1
 esac
