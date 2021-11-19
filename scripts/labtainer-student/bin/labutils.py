@@ -1278,7 +1278,7 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
         logger.debug("DoStart for %s AllContainersCreated result (%s)" % (container.name, haveContainer))
 
         display = os.getenv('DISPLAY')
-        display_num = int(display[1:])
+        display_num = int(float(display[1:]))
         # Set need_seeds=False first
         need_seeds=False
         # IsContainerCreated return False if container does not exists
