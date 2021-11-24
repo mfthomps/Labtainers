@@ -2,6 +2,11 @@
 #
 # Invoked by a testvm .profile within a gnome terminal
 #
+#
+# disable ubuntu popup error reports
+sudo sed -i 's/enabled=1/enabled=0/' /etc/default/apport
+sudo systemctl restart apport
+
 export LABTAINER_DIR=$HOME/labtainer/trunk
 # next line altered by sed
 export LABTAINER_BRANCH=REPLACE_THIS
