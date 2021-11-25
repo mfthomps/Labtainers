@@ -22,10 +22,10 @@ The Labtainers website, and downloads (including VM appliances with Labtainers p
 [designer-guide]: docs/labdesigner/labdesigner.pdf
 [Papers]: https://nps.edu/web/c3o/labtainers#papers
 
-Distribution created: 09/29/2021 13:05 </br>
-Revision: v1.3.5t </br>
-Commit: e822af28 </br>
-Branch: master </br>
+Distribution created: 11/24/2021 09:43 </br>
+Previous revision: v1.3.5t </br>
+Commit: c67a3bb1 </br>
+Branch: premaster </br>
 
 ## Content
 [Distribution and Use](#distribution-and-use)
@@ -89,8 +89,12 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+November 23, 2021
+- Disable ubuntu popup errors on test VM.
+- Fix handling of different DISPLAY variable formats.
+
 October 22, 2021
-- Revise the tcpip lab guide to not a successful syn-flood attack is not possible.  Fix its automated assessment and add SimLab scripts. 
+- Revise the tcpip lab guide to note a successful syn-flood attack is not possible.  Fix its automated assessment and add SimLab scripts. 
 - Change artifact file extension from zip to lab, and add a preamble to confuse GUI file managers.  Students were opening the zip and submitting its guts.
 - Make the -r option to gradelab the default, add a -c option for cumulative use of grader.
 - Modify refresh\_mirror to refer to the local release date to avoid frequent queries of DockerHub.  Each such query counts as an image pull, 
