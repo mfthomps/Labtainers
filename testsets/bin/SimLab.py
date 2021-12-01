@@ -88,7 +88,7 @@ class SimLab():
                     retval = True
                     break
         else:
-            print('No recent winow for isProcInContainer')
+            print('No recent winow for isProcInContainer, title was %s' % title)
             exit(1)
         return retval
 
