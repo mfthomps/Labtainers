@@ -337,6 +337,10 @@ def lineHasCommand(line, look_for):
                 p = p[1:]
             if p.startswith(look_for):
                 retval += 1
+            else:
+                sobj = re.search(look_for, p)
+                if sobj is not None:
+                    retval += 1
     return retval
 
 def getTS(line, previous_ts):
@@ -701,7 +705,7 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
         # Replace targetfile as a list of files
         targetfileparts = targetfile.split('.')
         targetfilestdinstdout = None
-        if targetfileparts is not None:
+        if targetfileparts is not None and len(targetfileparts)>1:
             targetfilestdinstdout = targetfileparts[1]
         if targetfilestdinstdout is not None:
             #print("targetfilestdinstdout is %s" % targetfilestdinstdout)
