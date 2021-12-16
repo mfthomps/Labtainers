@@ -337,10 +337,12 @@ def lineHasCommand(line, look_for):
                 p = p[1:]
             if p.startswith(look_for):
                 retval += 1
+            '''
             else:
                 sobj = re.search(look_for, p)
                 if sobj is not None:
                     retval += 1
+            '''
     return retval
 
 def getTS(line, previous_ts):
