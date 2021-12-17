@@ -52,7 +52,8 @@ container_exec_proglist = {}
 stdoutfnameslist = []
 timestamplist = {}
 line_types = ['CHECKSUM', 'CONTAINS', 'FILE_REGEX', 'FILE_REGEX_TS', 'LINE', 'STARTSWITH', 'NEXT_STARTSWITH', 'HAVESTRING', 
-              'HAVESTRING_TS', 'LOG_TS', 'LOG_RANGE', 'RANGE_REGEX', 'REGEX', 'REGEX_TS', 'LINE_COUNT', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT', 'TIME_DELIM', 'SIZE']
+              'HAVESTRING_TS', 'LOG_TS', 'LOG_RANGE', 'RANGE_REGEX', 'REGEX', 'REGEX_TS', 'LINE_COUNT', 'PARAM', 'STRING_COUNT', 
+              'COMMAND_COUNT', 'COMMAND_COUNT_REGEX', 'TIME_DELIM', 'SIZE']
 just_field_type = ['CHECKSUM', 'LINE_COUNT', 'TIME_DELIM', 'SIZE']
 logger = None
 resultidlist = {}
@@ -112,7 +113,7 @@ def ProcessConfigLine(actual_parsing, studentlabdir, container_list, labidname, 
     This function populates a set of global structures used in processing the results
     '''
     valid_field_types = ['TOKEN', 'GROUP', 'PARENS', 'QUOTES', 'SLASH', 'LINE_COUNT', 'CHECKSUM', 'CONTAINS', 'FILE_REGEX',  
-                         'FILE_REGEX_TS', 'SEARCH', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT', 'SIZE']
+                         'FILE_REGEX_TS', 'SEARCH', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT', 'COMMAND_COUNT_REGEX', 'SIZE']
     if not MyUtil.CheckAlphaDashUnder(result_key):
         logger.error("Not allowed characters in results.config's key (%s)" % result_key)
         sys.exit(1)
@@ -345,6 +346,25 @@ def lineHasCommand(line, look_for):
             '''
     return retval
 
+def lineHasCommandRegex(line, look_for):
+    retval = 0
+    if not look_for.startswith('time ') and line.startswith('time'):
+        line = line[5:].strip()
+    if not look_for.startswith('sudo ') and line.startswith('sudo'):
+        line = line[5:].strip()
+    commands = line.split(';')
+    for c in commands:
+        c = c.strip()
+        pipes = c.split('|')
+        for p in pipes:
+            p = p.strip()
+            if p.startswith('('):
+                p = p[1:]
+            sobj = re.search(look_for, p)
+            if sobj is not None:
+                retval += 1
+    return retval
+
 def getTS(line, previous_ts):
     retval = None
     ''' try syslog format first '''
@@ -535,6 +555,16 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                 count=0
                 for currentline in targetlines:
                     occurances = lineHasCommand(currentline.strip(), look_for)
+                    count += occurances
+                return count
+
+            elif command == 'COMMAND_COUNT_REGEX':
+                ''' intended for bash_history files, look for occurances of what look like commands '''
+                remain = line.split(command,1)[1]
+                look_for = remain.split(':', 1)[1].strip()
+                count=0
+                for currentline in targetlines:
+                    occurances = lineHasCommandRegex(currentline.strip(), look_for)
                     count += occurances
                 return count
 
