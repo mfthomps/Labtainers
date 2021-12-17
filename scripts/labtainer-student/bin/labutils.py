@@ -1453,6 +1453,8 @@ def GetUserEmail(quiet_start):
                 user_input = raw_input(eprompt)
             if not all(c in string.printable for c in user_input):
                 print('Bad characters detected.  Please re-enter email')
+            elif '"' in user_input or "'" in user_input:
+                print('No quotes allowed. Please re-enter email')
             else:
                 user_email = user_input 
         if user_email is not None:
