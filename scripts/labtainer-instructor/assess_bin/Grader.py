@@ -710,7 +710,8 @@ def processCount(result_sets, eachgoal, grades, logger):
                 if found:
                     count += 1
             else:
-                count += 1
+                if resulttagresult:
+                    count += 1
     #print 'count is %d' % count
     grades[goalid] = count
 
