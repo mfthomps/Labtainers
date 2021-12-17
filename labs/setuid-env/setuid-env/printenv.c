@@ -14,7 +14,6 @@ void printenv()
 void main()
 {
    pid_t childPid;
-   signal(SIGHUP, SIG_IGN);
    printf("Environment variables for fork:\n");
    switch(childPid = fork()) {
       case 0:  /* child process */
