@@ -43,6 +43,7 @@ Derived from samples found at http://rachid.koucha.free.fr/tech_corner/pty_pdip.
 #include <sys/select.h>
 #include <sys/ioctl.h>
 #include <sys/wait.h>
+#include <sys/prctl.h>
 #include <string.h>
 #include <iostream>
 #include <string>
@@ -350,11 +351,17 @@ int ioLoop()
        int stat;
        //if(use_pty && cmd_pid != 0){
        if(cmd_pid != 0){
-          int wait_cmd = waitpid(cmd_pid, &stat, WNOHANG);
+          int wait_pid = waitpid(-1, &stat, WNOHANG);
           //fprintf(debug, "cmd_pid: %d wait_cmd got %d stat %d\n", cmd_pid, wait_cmd, stat);
-          if(wait_cmd == cmd_pid)
+          if(wait_pid > 0){
+              fprintf(debug, "saw death of pid %d status %d normal? %d\n", wait_pid, stat, WIFEXITED(stat));
+              if(WIFSIGNALED(stat))
+              {
+                  fprintf(debug, "was signaled with %d\n", WTERMSIG(stat));
+              }
+          }else if(wait_pid == -1 && errno == ECHILD)
           {
-              fprintf(debug, "MATCHED, cmd_pid gone \n");
+              fprintf(debug, "All kids are gone. \n");
               /* See if death rattle on stdout */
               int flags = fcntl(fdm_out, F_GETFL, 0);
               fcntl(fdm_out, F_SETFL, flags | O_NONBLOCK);
@@ -382,6 +389,7 @@ int ioLoop()
                         out_size = out_size + rc;
                     }
                   }else{
+                    fprintf(debug,"rattle read fdm_out got rc %d errno %d\n", rc, errno);
                     break;
                   }
               }
@@ -718,10 +726,6 @@ int main(int argc, char *argv[])
    sigaddset(&mysigset, SIGTERM);
    sigprocmask(SIG_BLOCK, &mysigset, &oldset);
 
-//   if(signal(SIGINT, sighandler) == SIG_ERR){
-//        fprintf(stderr, "error setting SIGINT signal handler\n");
- //  }
-
    std::string first_arg;
    std::vector<std::string> all_args;
    if (argc > 1) {
@@ -902,12 +906,6 @@ int main(int argc, char *argv[])
         tcsetattr (fds_in, TCSANOW, &orig_termios);
         latest_termios = orig_termios;
 
-        //struct termios slave_orig_term_settings; // Saved terminal settings
-        //struct termios new_term_settings; // Current terminal settings
-        //new_term_settings = slave_orig_term_settings;
-        //cfmakeraw (&new_term_settings);
-        //tcsetattr (fds_in, TCSANOW, &new_term_settings);
-        //latest_termios = new_term_settings;
      }else{
         close(fdm_in);
         close(fdm_out);
@@ -932,30 +930,58 @@ int main(int argc, char *argv[])
      { 
         // Now the original file descriptor is useless
         close(fds_in);
-   
         // Make the current process a new session leader
         setsid();
    
         // As the child is a session leader, set the controlling terminal to be the slave side of the PTY
         // (Mandatory for programs like the shell to make them manage correctly their outputs)
         ioctl(0, TIOCSCTTY, 1);
-     }
    
-     // Execution of the program
+     }
+     // Yet another fork so that children of command process do not receive sighup if the command process exits, e.g., 
+     // if the command process does a fork and immediate parent exit.
+     int next_pid = fork();
+     if(next_pid)
+     {
+         // parent  It will reap children so we know when they've all died.
+         // TBD perhaps an alternative that relies on detecting sighup each time a child attaches/detaches the ptty?
+         prctl(PR_SET_CHILD_SUBREAPER, 1, 0, 0, 0);
+         int stat;
+         fprintf(debug, "parent, waiting for 2nd child pid %d to die\n", next_pid);
+         fflush(debug);
+         while(1)
+         {
+             int wait_pid = waitpid(-1, &stat, 0);
+             if(wait_pid == -1 && errno == ECHILD){
+                 fprintf(debug, "parent all the kids are gone\n");
+                 break;
+             }
+             fprintf(debug, "parent saw death of pid %d status %d normal? %d\n", wait_pid, stat, WIFEXITED(stat));
+             fflush(debug);
+             if(WIFSIGNALED(stat))
+             {
+                 fprintf(debug, "parent child was signaled with %d\n", WTERMSIG(stat));
+                 fflush(debug);
+             }
+         }
+     }else{
+        // grand child,  will exec the command here.
+         fprintf(debug, "is child, do exec\n");
+         // Execution of the program
+    
+         /*
+         Get the exec arguments
+         */
+         char **my_args = getExecCmdArgs(cmd_exec_args);
+         //fprintf(debug, "fork command, now exec with [0] %s [1] %s [2] %s\n", my_args[0], my_args[1], my_args[2]);
+         fprintf(debug, "now exec with [0] %s [1] %s \n", my_args[0], my_args[1]);
+         fflush(debug);
+         rc = execvp(my_args[0], &my_args[0]);
+    
+         /* would be error if we get here */
+         fprintf(debug, "execvp error rc is %d errno %d\n", rc, errno);
 
-     /*
-     Get the exec arguments
-     */
-     char **my_args = getExecCmdArgs(cmd_exec_args);
-     //fprintf(debug, "fork command, now exec with [0] %s [1] %s [2] %s\n", my_args[0], my_args[1], my_args[2]);
-     fprintf(debug, "fork command, now exec with [0] %s [1] %s \n", my_args[0], my_args[1]);
-     fflush(debug);
-     rc = execvp(my_args[0], &my_args[0]);
-
-     /* would be error if we get here */
-     fprintf(debug, "execvp error rc is %d errno %d\n", rc, errno);
-
-     
+     } 
      return 1;
    }
    
