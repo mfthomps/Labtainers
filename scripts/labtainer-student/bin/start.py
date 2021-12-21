@@ -118,10 +118,13 @@ def getRev():
         for line in fh:
             if line.strip().startswith('Distribution created'):
                created = line.strip()
-            if line.strip().startswith('Revision:'):
+               created = created.replace("</br>","")
+            if line.strip().startswith('Revision:') or line.strip().startswith('Previous revision:'):
                 parts = line.split(':')
                 if len(parts) == 2 and len(parts[1].strip())>0:
-                    return 'revision: '+parts[1].strip()+" "+created
+                    rev = parts[1].strip()
+                    rev = rev.replace("</br>","")
+                    return 'revision: '+rev.strip()+" "+created
                 else:
                     return "no revision, build environment"
     return '??'
