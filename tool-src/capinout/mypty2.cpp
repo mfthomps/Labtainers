@@ -437,10 +437,11 @@ int ioLoop(int reaper_pid)
           {
               //fprintf(debug, "MATCHED wait_left\n");
               left_pid = 0;
-              //if(right_pid == 0){
-              //   fprintf(debug, "nothing on right, close fdm_in\n");
-             // }
+              if(right_pid == 0){
+                 //fprintf(debug, "nothing on right, close fdm_in\n");
+              }
               //fprintf(debug, "close fdm_in\n");
+              //fflush(debug);
               char crap[] = "this is the end";
               char etx = 0x03;
               write(fdm_in, crap, 9);
@@ -474,30 +475,37 @@ int ioLoop(int reaper_pid)
           //fflush(debug);
           select_errno = errno;
        }
-       tcgetattr(fds_in, &attr);
-       if(use_pty && !termsEqual(latest_termios, attr))
-       {
-           //fprintf(debug,"pty terminal settings changed, change ours\n");
-           tcsetattr (0, TCSANOW, &attr);
-           latest_termios = attr;
-           //fprintf(debug, "term iflag %d oflag %d cflag %d lflag %d\n", attr.c_iflag, attr.c_oflag, attr.c_cflag, attr.c_lflag);
+       if(use_pty){
+           tcgetattr(fds_in, &attr);
+           if(!termsEqual(latest_termios, attr))
+           {
+               //fprintf(debug,"pty terminal settings changed, change ours\n");
+               tcsetattr (0, TCSANOW, &attr);
+               latest_termios = attr;
+               //fprintf(debug, "term iflag %d oflag %d cflag %d lflag %d\n", attr.c_iflag, attr.c_oflag, attr.c_cflag, attr.c_lflag);
+           }
        }
        if(rc < 0 && select_errno != 4)
        {
            //fprintf(debug, "Error %d on select()\n", select_errno);
+           //fflush(debug);
            closeUpShop();
            exit(0);
    
        }else if(rc >= 0 || select_errno != 4){ 
+          //fprintf(debug, "select rc is %d,  master_stdin: %d  fdm_out: %d\n", rc, FD_ISSET(master_stdin, &fd_in),  FD_ISSET(fdm_out, &fd_in));
            // If data on standard input
           if (master_stdin >= 0 && FD_ISSET(master_stdin, &fd_in)) {
               rc = read(master_stdin, input, sizeof(input));
               //fprintf(debug, "read master_stdin rc is %d\n", rc);
+              //fflush(debug);
               if (rc > 0) {
                 // Send data on the master side of PTY
                 //input[rc] = 0;
                 //fprintf(debug, "read master_stdin [%s]\n", input);
                 int wc = write(fdm_in, input, rc);
+                //fprintf(debug, "wrote %d bytes to fdm_in\n", rc);
+                //fflush(debug);
                 if(wc != rc){
                     //fprintf(debug,"write to fdm_in only wrote %d, expected %d\n", wc, rc);
                     //fflush(debug);
@@ -514,10 +522,12 @@ int ioLoop(int reaper_pid)
                   //fflush(debug);
                 }else if(!orphaned) {
                   //fprintf(debug, "Error %d on read standard input\n", errno);
+                  //fflush(debug);
                   //closeUpShop();
                   exit(0);
                 }else{
                   //fprintf(debug, "Orphaned with Error %d on read standard input, close fdm_in and stdin\n", errno);
+                  //fflush(debug);
                   close(fdm_in);
                   close(master_stdin);
                   master_stdin = -1;
@@ -582,7 +592,7 @@ void sighandler(int signo)
 {
     char etx = 0x03;
     //fprintf(debug,"who_am_i? %d got signal %d\n", who_am_i, signo);
-    //fflush(debug);
+    fflush(debug);
     if(signo == SIGUSR1){
         //fprintf(debug,"stage got SIGUSR1 must be wakeup\n");
         //fflush(debug);
@@ -764,6 +774,7 @@ int doParent(bool use_pty, int count, char *append_filename, char *redirect_file
             master_stdout = pipe_right_fd[1];
             //fprintf(debug, "Forked right pid is %d, master std out should go to pipe %d\n", right_pid, master_stdout);
      }
+     fflush(debug);
      stdin_fd = open(stdinfile.c_str(), O_RDWR | O_CREAT, 0644);
      if(stdin_fd <=0 ){
          fprintf(stderr, "Could not open %s for writing. %d\n", stdinfile.c_str(), errno);
@@ -793,38 +804,32 @@ int doParent(bool use_pty, int count, char *append_filename, char *redirect_file
 }
 void doReaper(int count, char *append_filename, char *redirect_filename, bool redirect_stderr, char* cmd_exec_args)
 {
-     // CHILD
+     // Create/exec command process and reap any of its orphans
+     signal(SIGUSR1, sighandler);
      if(count < 2)
      { 
+        //fprintf(debug, "doReaper ptty close fdm_in and match terminal settings\n");
         // Close the master side of the PTY
         close(fdm_in);
    
         // match the pty to our original terminal settings
         tcsetattr (fds_in, TCSANOW, &orig_termios);
         latest_termios = orig_termios;
-
-     }else{
-        close(fdm_in);
-        close(fdm_out);
-     }
-   
-     // The slave side of the PTY becomes the standard input and outputs of the child process
-     close(0); // Close standard input (current terminal)
-     close(1); // Close standard output (current terminal)
-     if(redirect_stderr || (redirect_filename == NULL && append_filename == NULL)){
-        //fprintf(debug,"cmd child closed stderr\n");
-        close(2); // Close standard error (current terminal)
-     }
-   
-     dup(fds_in); // PTY becomes standard input (0)
-     dup(fds_out); // PTY becomes standard output (1)
-     if(redirect_stderr || (redirect_filename == NULL && append_filename == NULL)){
-        //fprintf(debug,"cmd child dup fds_out for stderr\n");
-        dup(fds_out); // PTY becomes standard error (2)
-     }
+         // The slave side of the PTY becomes the standard input and outputs of the child process
+         close(0); // Close standard input (current terminal)
+         close(1); // Close standard output (current terminal)
+         if(redirect_stderr || (redirect_filename == NULL && append_filename == NULL)){
+            //fprintf(debug,"cmd child closed stderr\n");
+            close(2); // Close standard error (current terminal)
+         }
+       
+         dup(fds_in); // PTY becomes standard input (0)
+         dup(fds_out); // PTY becomes standard output (1)
+         if(redirect_stderr || (redirect_filename == NULL && append_filename == NULL)){
+            //fprintf(debug,"cmd child dup fds_out for stderr\n");
+            dup(fds_out); // PTY becomes standard error (2)
+         }
   
-     if(count < 2)
-     { 
         // Now the original file descriptor is useless
         close(fds_in);
         // Make the current process a new session leader
@@ -834,12 +839,38 @@ void doReaper(int count, char *append_filename, char *redirect_filename, bool re
         // (Mandatory for programs like the shell to make them manage correctly their outputs)
         ioctl(0, TIOCSCTTY, 1);
    
+
+     }else{
+        //fprintf(debug, "doReaper not ptty close fdm_in and fdm_out\n");
+        close(fdm_in);
+        close(fdm_out);
+         close(0); // Close standard input (current terminal)
+         close(1); // Close standard output (current terminal)
+         if(redirect_stderr || (redirect_filename == NULL && append_filename == NULL)){
+           //fprintf(debug,"cmd child closed stderr\n");
+            close(2); // Close standard error (current terminal)
+         }
+       
+         dup(fds_in); // PTY becomes standard input (0)
+         dup(fds_out); // PTY becomes standard output (1)
+         if(redirect_stderr || (redirect_filename == NULL && append_filename == NULL)){
+            //fprintf(debug,"cmd child dup fds_out for stderr\n");
+            dup(fds_out); // fss_out becomes standard error (2)
+         }
+  
+        // Now the original file descriptor is useless
+        close(fds_in);
      }
+   
      // Yet another fork so that children of command process do not receive sighup if the command process exits, e.g., 
      // if the command process does a fork and immediate parent exit.
      cmd_pid  = fork();
      if(cmd_pid)
      {
+         signal(SIGUSR1, SIG_DFL);
+         close(fds_in);
+         close(fds_out);
+         kill(cmd_pid, SIGUSR1);
          // parent  It will reap children so we know when they've all died.
          prctl(PR_SET_CHILD_SUBREAPER, 1, 0, 0, 0);
          int stat;
@@ -882,7 +913,11 @@ void doReaper(int count, char *append_filename, char *redirect_filename, bool re
      }else{
          // CMD process,  will exec the command here.
          who_am_i = CMD;  
-         fprintf(debug, "is child, do exec\n");
+         //fprintf(debug, "is child, do exec\n");
+         if(!parent_woke_me){
+             pause();
+         }
+         signal(SIGUSR2, SIG_DFL);
          // Execution of the program
     
          /*
@@ -996,7 +1031,7 @@ int main(int argc, char *argv[])
    {
        //fprintf(debug, "left is %s\n", left_side);
    }
-   //fflush(debug);
+   fflush(debug);
    cmd_args = split(cmd);
    cmd_exec_args = cmd;
 
@@ -1036,22 +1071,31 @@ int main(int argc, char *argv[])
    }
    //fflush(debug);
    signal(SIGUSR2, sighandler);
-   int stage_pid = fork();
+   signal(SIGUSR1, sighandler);
+   int capinout_pid = fork();
    who_am_i = STAGE;
-   if(stage_pid){
+   if(capinout_pid){
        // stage parent, wait to exit, maybe orphan cmd process
        //fprintf(debug, "Stage pid %d,  who_am_i %d   now wait for capinout to exit or to tell us to orphan it\n", getpid(), who_am_i);
        //fflush(debug);
+       close(fdm_out);
+       close(fdm_in);
+       close(fds_out);
+       close(fds_in);
+       kill(capinout_pid, SIGUSR1);
        int wait_stat;
-       int got_wait = waitpid(stage_pid, &wait_stat, 0);
+       int got_wait = waitpid(capinout_pid, &wait_stat, 0);
        //fprintf(debug, "Stage parent exiting after waitpid return of %d stat %d\n", got_wait, wait_stat);
    }else{
        // capinout process
        // Create the reaper
        who_am_i = CAPINOUT;
+       if(!parent_woke_me){
+           pause();
+       }
+       parent_woke_me = false;
        //fprintf(debug, "capinout pid %d, who_am_i %d create reaper\n", getpid(), who_am_i);
        //fflush(debug);
-       signal(SIGUSR1, sighandler);
        int reaper_pid = fork();
        if (reaper_pid)
        {
@@ -1075,6 +1119,7 @@ int main(int argc, char *argv[])
            if(!parent_woke_me){
                pause();
            }
+           parent_woke_me = false;
            //fprintf(debug, "Reaper back from pause\n");
            //fflush(debug);
            signal(SIGUSR1, SIG_DFL);
