@@ -22,9 +22,9 @@ The Labtainers website, and downloads (including VM appliances with Labtainers p
 [designer-guide]: docs/labdesigner/labdesigner.pdf
 [Papers]: https://nps.edu/web/c3o/labtainers#papers
 
-Distribution created: 11/24/2021 09:43 </br>
+Distribution created: 12/21/2021 14:48 </br>
 Previous revision: v1.3.5t </br>
-Commit: c67a3bb1 </br>
+Commit: 514775bc </br>
 Branch: premaster </br>
 
 ## Content
@@ -88,6 +88,11 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+
+December 17, 2021
+- Revise setuid-env lab to add better assessment; simlab testing and avoid sighup in the printenv child.
+- Fix assessment goal count directive to exclude result tag values of false.
+- Do not require labname when using gradelab -a with a grader started with the debug option.
 
 November 23, 2021
 - Disable ubuntu popup errors on test VM.
