@@ -35,6 +35,7 @@ source $LABTAINER_DIR/setup_scripts/lab-completion.bash
 haspip3=$(dpkg -l python3-pip)
 if [ -z "$haspipe3" ]; then
     echo "Need to install python3-pip package, will sudo apt-get"
+    sudo apt-get update
     sudo apt-get install -y python3-pip
 fi
 hasdocker=$(pip3 list --format=legacy | grep docker)
