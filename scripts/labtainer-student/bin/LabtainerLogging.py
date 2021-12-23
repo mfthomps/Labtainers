@@ -74,9 +74,9 @@ class LabtainerLogging():
            if logfilename.startswith('/tmp/'):
                logfilename = logfilename[5:]
            logfilename = os.path.join(ldir,'logs',logfilename)
-       try:
+        try:
            os.makedirs(os.path.dirname(logfilename))
-       except:
+        except:
            pass
         #file_handler = logging.FileHandler(logfilename)
         file_handler = RotatingFileHandler(logfilename, maxBytes=6000000, backupCount=3)
