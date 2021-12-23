@@ -54,6 +54,7 @@ import traceback
 import string
 import errno
 import registry
+import dockerPull
 
 ''' assumes relative file positions '''
 here = os.path.dirname(os.path.abspath(__file__))
@@ -557,7 +558,7 @@ def CreateSingleContainer(labtainer_config, start_config, container, lab_path, m
         if not image_info.local_build:
             new_image_name = '%s/%s' % (container_registry, container.image_name) 
         if not image_info.local:
-            dockerPull(container_registry, container.image_name)
+            pullDockerImage(container_registry, container.image_name)
         docker0_IPAddr = getDocker0IPAddr()
         logger.debug("getDockerIPAddr result (%s)" % docker0_IPAddr)
         volume=''
@@ -1173,7 +1174,10 @@ def GetBothConfigs(lab_path, logger, servers=None, clone_count=None):
                        labtainer_config, logger, servers=servers, clone_count=clone_count)
     return labtainer_config, start_config
 
-def dockerPull(registry, image_name):
+def pullDockerImage(registry, image_name):
+    image = '%s/%s' % (registry, image_name)
+    return dockerPull.pull(image)
+    '''
     cmd = 'docker pull %s/%s' % (registry, image_name)
     logger.debug('%s' % cmd)
     print('pulling %s from %s' % (image_name, registry))
@@ -1183,6 +1187,7 @@ def dockerPull(registry, image_name):
         return False
     print('Done with pull')
     return True
+    '''
 
 
 def defineAdditionalIP(container_name, post_start_if, post_start_nets):
@@ -1983,7 +1988,7 @@ def StartLab(lab_path, force_build=False, is_redo=False, quiet_start=False,
                 print('and then try starting the lab again.') 
                 exit(0)
             if not image_info.local:
-                dockerPull(container_registry, mycontainer_image_name)
+                pullDockerImage(container_registry, mycontainer_image_name)
         else:
             logger.error('Could not find image info for %s' % name)
             exit(1)
