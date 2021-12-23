@@ -32,6 +32,11 @@ if [[ result -ne 0 ]];then
    echo 'source $LABTAINER_DIR/setup_scripts/lab-completion.bash' >> $target
 fi
 source $LABTAINER_DIR/setup_scripts/lab-completion.bash
+hasdocker=$(pip3 list --format=legacy | grep docker)
+if [ -z "$hasdocker" ]; then
+    echo "Need to install docker python module, will sudo pip3"
+    sudo pip3 install docker
+fi
 cd $here
 grep "^Distribution created:" labtainer/trunk/README.md | awk '{print "Updated to release of: ", $3, $4}'
 grep "^Branch:" labtainer/trunk/README.md | awk '{print "branch: ", $2}'
