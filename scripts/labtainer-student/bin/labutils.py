@@ -879,7 +879,7 @@ def GetLabSeed(lab_master_seed, student_email):
 #def ParamStartConfig(lab_seed):
     
 def ParamForStudent(lab_master_seed, mycontainer_name, container, labname, 
-                    student_email, lab_path, name, image_info, running_container=None):
+                    student_email, lab_path, name, image_info, num_containers, running_container=None):
     # NOTE image_info may or may not be populated.
     if running_container == None:
         running_container = mycontainer_name
@@ -899,6 +899,14 @@ def ParamForStudent(lab_master_seed, mycontainer_name, container, labname,
         sys.exit(1)
     logger.debug('back from ParameterizeMyContainer for %s' % mycontainer_name)
     CreateStartSync(container.name) 
+    num_done = CountStartSync()
+    dockerPull.moveUp(1)
+    if num_done == num_containers:
+        progress = 'Started %d containers, %d completed initialization. Done.\n' % (num_containers, num_done)
+    else:
+        progress = 'Started %d containers, %d completed initialization, please wait...\n' % (num_containers, num_done)
+    dockerPull.clearLine()
+    sys.stdout.write(progress)
 
 def DockerCmd(cmd, noloop=False, good_error=None):
     ok = False
@@ -1331,6 +1339,7 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
             results.append(False)
             return
        
+        num_containers = len(start_config.containers.items())
         clone_names = GetContainerCloneNames(container)
         for mycontainer_name in clone_names:
             wait_for_tap = False
@@ -1397,11 +1406,11 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
             # then parameterize the container
             elif quiet_start and clone_need_seeds:
                 ParamForStudent(start_config.lab_master_seed, mycontainer_name, container,
-                                labname, student_email, lab_path, name, image_info)
+                                labname, student_email, lab_path, name, image_info, num_containers)
             
             elif clone_need_seeds:
                 ParamForStudent(start_config.lab_master_seed, mycontainer_name, container,
-                                                 labname, student_email, lab_path, name, image_info)
+                                                 labname, student_email, lab_path, name, image_info, num_containers)
 
             if container.no_gw:
                 cmd = "docker exec %s bash -c 'sudo /bin/ip route del 0/0'" % (mycontainer_name)
@@ -1443,7 +1452,7 @@ def GetUserEmail(quiet_start):
     while user_email is None:
         done = True
         # Prompt user for e-mail address
-        eprompt = 'Please enter your e-mail address: '
+        eprompt = '\nPlease enter your e-mail address: '
         prev_email = getLastEmail()
         if prev_email is not None:
             eprompt = eprompt+" [%s]" % prev_email
@@ -1724,6 +1733,11 @@ def GetStartSyncDir():
     sync_dir = os.path.join('/tmp', user, 'labtainer_sync')
     return sync_dir
 
+def CountStartSync():
+    sync_dir = GetStartSyncDir()
+    dlist = os.listdir(sync_dir)
+    return len(dlist)
+
 def ClearStartSync():
     sync_dir = GetStartSyncDir()
     shutil.rmtree(sync_dir, ignore_errors=True)
@@ -1816,6 +1830,8 @@ def DoStart(start_config, labtainer_config, lab_path,
         t.setName(name)
         t.start()
     logger.debug('started all')
+    progress = 'Started %d containers, %d completed initialization, please wait...\n' % (len(threads), 0)
+    sys.stdout.write(progress)
     for t in threads:
         t.join()
         logger.debug('joined %s' % t.getName())
