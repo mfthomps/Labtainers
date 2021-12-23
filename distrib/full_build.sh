@@ -28,7 +28,8 @@ rm -fr $ldir
 ltrunk=$ldir/trunk
 mkdir -p $ltrunk
 cd ../
-git archive $branch --prefix premaster -o distrib/labtainer-master.tar
+git archive $branch --prefix premaster/ -o distrib/labtainer-master.tar
+cp distrib/labtainer-master.tar /media/sf_SEED/
 git clone --single-branch --branch $branch $LABTAINER_DIR $ltrunk
 
 #
