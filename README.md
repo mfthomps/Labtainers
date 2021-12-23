@@ -97,6 +97,7 @@ December 23, 2021
 and error handling.
 - Added display of progress bars of docker images being pulled when a lab is first run.
 - User feedback on progress of container initialization.
+- The pcap-lib lab was missing a notify file needed for automated  assessment; Remove extraneous step from Lab Manual.
 
 November 23, 2021
 - Disable ubuntu popup errors on test VM.
