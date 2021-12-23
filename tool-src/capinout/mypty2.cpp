@@ -67,6 +67,7 @@ int stdout_fd, stdin_fd;
 int master_pipe_stdin[2];
 int master_pipe_stdout[2];
 int cmd_pid = 0;
+int reaper_pid = 0;
 int left_pid = 0;
 int right_pid = 0;
 int master_stdin = 0; // master reads its stdin from here
@@ -384,6 +385,7 @@ int ioLoop(int reaper_pid)
                     char *tmp = input;
                     if(tmp[0] == '^' && tmp[1] == 'C' && ctrl_c_hack){
                           //fprintf(debug, "hack the control c\n");
+                          //fflush(debug);
                           ctrl_c_hack = false;
                           tmp = tmp+2;
                     }
@@ -592,7 +594,7 @@ void sighandler(int signo)
 {
     char etx = 0x03;
     //fprintf(debug,"who_am_i? %d got signal %d\n", who_am_i, signo);
-    fflush(debug);
+    //fflush(debug);
     if(signo == SIGUSR1){
         //fprintf(debug,"stage got SIGUSR1 must be wakeup\n");
         //fflush(debug);
@@ -613,14 +615,23 @@ void sighandler(int signo)
         return;
     }
     if(signo == SIGINT){
-        //fprintf(debug,"capinout got SIGINT\n");
-    }
-    if(cmd_pid != 0){
-        //fprintf(debug, "write ctrl C to  %d\n", cmd_pid);
-        write(fdm_in, &etx, 1);
-        ctrl_c_hack = true;
+        if(who_am_i == CAPINOUT){
+            //fprintf(debug,"capinout got SIGINT\n");
+            // signal reaper
+            //fprintf(debug, "capinout write ctrl C to  %d\n", cmd_pid);
+            //fflush(debug);
+            write(fdm_in, &etx, 1);
+            ctrl_c_hack = true;
+            //fprintf(debug,"capinout send sigint to reaper %d\n", reaper_pid);
+            kill(reaper_pid, SIGINT);
+        }else if(who_am_i == REAPER){
+            //fprintf(debug,"reaper got SIGINT, do nothing?\n");
+        }else{
+            //fprintf(debug,"stage? got sigint\n");
+        }
         //kill(cmd_pid, signo);
     }
+    //fflush(debug);
     if(left_pid != 0){
         //fprintf(debug, "kill left\n");
         kill(left_pid, signo);
@@ -629,10 +640,6 @@ void sighandler(int signo)
         //fprintf(debug, "kill right \n");
         kill(right_pid, signo);
     }
-    //fprintf(debug, "now do loop again\n");
-    //fflush(debug);
-    //signal(SIGINT, sighandler);
-    //ioLoop();
     return;
 }
 void getStdInOutFiles(std::vector<std::string> cmd_args, std::vector<std::string> all_args, std::string *stdinfile, std::string *stdoutfile)
@@ -774,7 +781,7 @@ int doParent(bool use_pty, int count, char *append_filename, char *redirect_file
             master_stdout = pipe_right_fd[1];
             //fprintf(debug, "Forked right pid is %d, master std out should go to pipe %d\n", right_pid, master_stdout);
      }
-     fflush(debug);
+     //fflush(debug);
      stdin_fd = open(stdinfile.c_str(), O_RDWR | O_CREAT, 0644);
      if(stdin_fd <=0 ){
          fprintf(stderr, "Could not open %s for writing. %d\n", stdinfile.c_str(), errno);
@@ -1031,7 +1038,7 @@ int main(int argc, char *argv[])
    {
        //fprintf(debug, "left is %s\n", left_side);
    }
-   fflush(debug);
+   //fflush(debug);
    cmd_args = split(cmd);
    cmd_exec_args = cmd;
 
@@ -1096,7 +1103,7 @@ int main(int argc, char *argv[])
        parent_woke_me = false;
        //fprintf(debug, "capinout pid %d, who_am_i %d create reaper\n", getpid(), who_am_i);
        //fflush(debug);
-       int reaper_pid = fork();
+       reaper_pid = fork();
        if (reaper_pid)
        {
          // Parent, (capinout).  Fix up FDs and enter IO loop 
