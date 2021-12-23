@@ -318,7 +318,7 @@ def getGradeImageName(labtainer_config, registry):
         if not image_info.local_build:
             new_image_name = '%s/%s' % (registry, image_name)
         if not image_info.local:
-            labutils.dockerPull(registry, image_name)
+            labutils.pullDockerImage(registry, image_name)
     return new_image_name
 
 def getRegistry(use_test_registry, labtainer_config):
