@@ -32,6 +32,11 @@ if [[ result -ne 0 ]];then
    echo 'source $LABTAINER_DIR/setup_scripts/lab-completion.bash' >> $target
 fi
 source $LABTAINER_DIR/setup_scripts/lab-completion.bash
+haspip3=$(dpkg -l python3-pip)
+if [ -z "$haspipe3" ]; then
+    echo "Need to install python3-pip package, will sudo apt-get"
+    sudo apt-get install -y python3-pip
+fi
 hasdocker=$(pip3 list --format=legacy | grep docker)
 if [ -z "$hasdocker" ]; then
     echo "Need to install docker python module, will sudo pip3"
