@@ -394,7 +394,7 @@ class SimLab():
             self.keyFile(params)
         elif cmd == 'type_line':
             self.typeLine(params.strip())
-            if params.strip()startswith('sudo su'):
+            if params.strip().startswith('sudo su'):
                 time.sleep(1)
         elif cmd == 'type_lit':
             self.typeLit(params.strip())
