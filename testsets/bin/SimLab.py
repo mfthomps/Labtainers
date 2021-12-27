@@ -402,8 +402,13 @@ class SimLab():
             self.typeString(params.strip())
         elif cmd == 'type_command':
             self.typeLine(params.strip())
+            ''' avoid duplicate timestamps '''
+            slept = False
             while self.isProcInContainer(params):
                 print('%s running, wait' % params)
+                time.sleep(1)
+                slept=True
+            if not slept:
                 time.sleep(1)
         elif cmd == 'command_file':
             self.commandFile(params)
