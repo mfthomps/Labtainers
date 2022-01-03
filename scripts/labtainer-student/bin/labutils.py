@@ -1835,6 +1835,10 @@ def DoStart(start_config, labtainer_config, lab_path,
     for t in threads:
         t.join()
         logger.debug('joined %s' % t.getName())
+    dockerPull.moveUp(1)
+    progress = 'Started %d containers, %d completed initialization. Done.\n' % (len(threads), len(threads))
+    dockerPull.clearLine()
+    sys.stdout.write(progress)
 
     if False in results:
         DoStop(start_config, labtainer_config, lab_path, False, run_container, servers)
