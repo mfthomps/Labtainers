@@ -59,7 +59,8 @@ The easiest way to obtain Labtainers is to download one of the pre-configured vi
 \url{https://nps.edu/web/c3o/virtual-machine-images}, and import it into either VirtualBox or VMWare.
 Follow the brief instructions on that download page.  When you first boot the resulting VM,
 Labtainers will take a moment to update itself.  You are then provided a terminal that includes
-some hints, and can be used to run Labtainers.  
+some hints, and can be used to run Labtainers.  A video tutorial on installing Labtainers is at
+\url{https://nps.edu/web/c3o/labtainers-tutorials}.
 
 Note that the VM's Ubuntu Linux distribution is configured to NOT
 automatically perform system updates.  It may prompt you to download and install updates.  That is typically
@@ -143,13 +144,17 @@ To run a specific lab, include the name of the lab in the {\tt labtainer} comman
     labtainer <labname>
 \end{verbatim}
 \noindent where \textit{labname} is the name of the lab to run.  
+The first time any given lab is run, a set of files are downloaded, and
+that progress is reported on the screen.  The size of the downloads varies
+between labs.
 
-Most labs direct you to a PDF version of a lab manual, which can usually 
+Most labs direct you to a PDF version of a lab manual, can 
 be viewed by right clicking on the displayed path, or you can open the file in a browser.
 Please note that some of the initial lab instructions repeat the steps you've already taken, and you need
 not perform those again. 
 
-A list of labtainer commands can be found in Appendix A of this document. 
+A list of Labtainer commands can be found in Appendix \ref{sec:appendixA} of this document. 
+A video tutorial on performing Labtainer labs is at \url{https://nps.edu/web/c3o/labtainers-tutorials}.
 
 Once you start the lab, you will typically see one or more virtual terminals connected to computers within
 the lab.  While running the lab, if you require more virtual terminals, use:
@@ -203,6 +208,9 @@ the checkwork command, e.g.,
 \begin{verbatim}
     checkwork telnetlab
 \end{verbatim}
+The meaning and value of the {\tt checkwork} output varies by lab.   The command output includes a description of what is being measured,  
+which in some cases may be quite mundane such as the quantity of times you tried a particular command.
+Please note that the {\tt checkwork{ output is not a ``score'' or a grade.  
 
 \subsection{Submitting your work}
 When you've completed a lab and run the {\tt stoplab} command, your results are stored in a file with a {\tt .lab} extension
@@ -300,28 +308,26 @@ changes to the {\tt resolv.conf} DNS naming can be achieved using {\tt /etc/rc.l
 \setcounter{page}{3}
 \section{Labtainer Command Summary}
 \label{sec:appendixA}
-The following labtainer commands are available from the \texttt{labtainer/labtainer-student}
+The following labtainer commands are available from the \texttt{labtainer-student}
 directory.  Most of these commands include a {\tt -h} option for help:
 \begin{itemize}
 \item \texttt{labtainer <lab> --}
-Start the named lab.  If no name is given, a list of available labs will be displayed.
+Start the named lab.  If no name is given, a list of available labs will be displayed. Command completion is
+supported, e.g., typing {\tt labtainer tel} followed by the tab key will display all labs starting with {\tt tel}.
 \item \texttt{stoplab  --} Stop the currently running lab.
 \item \texttt{moreterm.py <lab> <container> --} create a new virtual terminal for the container.
+\item \texttt{labpack} -- List the installed Labpacks, i.e., groups of related labs.
+\item \texttt{imodule} -- Manage local IModule labs, e.g., labs distributed by your instructor.
 \item \texttt{labtainer <lab> -r --}
 Delete any previous containers associated with this lab and start it fresh.  \textbf{Warning}: this will lose any
 previous data from the named lab.
 \item \texttt{checkwork} -- Performs automated assessment for selected labs and provides you with information about your progress.
+Note this is not a grade and is not a score.  It simply reflects a lab-dependent set of goals.
 \item \texttt{quiz} -- Provides a quiz for selected labs to help prepare you to perform the lab.
+\item \texttt{update-labtainer.py} -- Update the Labtainer installation to include bug fixes and new labs.
 \item \texttt{check\_nets.py} -- Runs diagnostics to potentially resolve Docker related problems.
 
 \end{itemize}
-
-Most labs display lab instructions in one of the windows that appears after the lab starts.  If those instructions
-stop displaying, e.g., because ``q'' is pressed in that window, then type the following in a virtual terminal (e.g.,
-in a new terminal created using the moreterm.py script:
-\begin{verbatim}
-    less instructions.txt
-\end{verbatim}
 
 \section{Customizing terminals}
 \label{sec:appendixB}
@@ -334,6 +340,7 @@ If you want all of your terminals to look like a new profile, click the down arr
 
 If you create a terminal profile named \textit{labtainers}, that profile will be used with Labtainers lab terminals.  This can 
 be helpful to distinguish the Labtainers terminals from other terminals on your desktop.
+A video tutorial on customizing terminals is at \url{https://nps.edu/web/c3o/labtainers-tutorials}.
 
 \end{appendices}
 \end{document}

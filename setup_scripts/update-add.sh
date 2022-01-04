@@ -14,6 +14,17 @@ if [ -z "$hascommit" ] || [ -z "$hasgit" ]; then
     cd ..
     tar xf labtainer/labtainer.tar --keep-newer-files --warning=none
 fi
+haspip3=$(dpkg -l python3-pip)
+if [ -z "$haspipe3" ]; then
+    echo "Need to install python3-pip package, will sudo apt-get"
+    sudo apt-get update
+    sudo apt-get install -y python3-pip
+fi
+hasdocker=$(pip3 list --format=legacy | grep docker)
+if [ -z "$hasdocker" ]; then
+    echo "Need to install docker python module, will sudo pip3"
+    sudo pip3 install docker
+fi
 $LABTAINER_DIR/setup_scripts/pull-all.py $test_flag 
 here=`pwd`
 rm -fr labtainer/trunk/setup-scripts

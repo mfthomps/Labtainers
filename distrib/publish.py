@@ -165,7 +165,9 @@ def DoLab(lab, labsdir, force, logger, do_login, use_default_registry, default_r
 def main():
     src_path = '../'
     labtainer_config_file = os.path.join(src_path, 'config', 'labtainer.config')
-    logger = LabtainerLogging.LabtainerLogging("/tmp/labtainer-publish.log", 'publish', labtainer_config_file)
+    logfile = os.path.join(os.getenv('LABTAINER_DIR'), 'logs', 'labtainer-publish.log')
+    logger = LabtainerLogging.LabtainerLogging(logfile, 'publish', labtainer_config_file)
+    logger.debug('Start publish log')
     labutils.logger = logger
 
     parser = argparse.ArgumentParser(description='Build the images labs and publish to a registry')

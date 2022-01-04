@@ -88,7 +88,7 @@ class SimLab():
                     retval = True
                     break
         else:
-            print('No recent winow for isProcInContainer')
+            print('No recent winow for isProcInContainer, title was %s' % title)
             exit(1)
         return retval
 
@@ -394,14 +394,21 @@ class SimLab():
             self.keyFile(params)
         elif cmd == 'type_line':
             self.typeLine(params.strip())
+            if params.strip().startswith('sudo su'):
+                time.sleep(1)
         elif cmd == 'type_lit':
             self.typeLit(params.strip())
         elif cmd == 'type_string':
             self.typeString(params.strip())
         elif cmd == 'type_command':
             self.typeLine(params.strip())
+            ''' avoid duplicate timestamps '''
+            slept = False
             while self.isProcInContainer(params):
                 print('%s running, wait' % params)
+                time.sleep(1)
+                slept=True
+            if not slept:
                 time.sleep(1)
         elif cmd == 'command_file':
             self.commandFile(params)

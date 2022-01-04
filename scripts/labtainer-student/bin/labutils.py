@@ -54,6 +54,7 @@ import traceback
 import string
 import errno
 import registry
+import dockerPull
 
 ''' assumes relative file positions '''
 here = os.path.dirname(os.path.abspath(__file__))
@@ -557,7 +558,7 @@ def CreateSingleContainer(labtainer_config, start_config, container, lab_path, m
         if not image_info.local_build:
             new_image_name = '%s/%s' % (container_registry, container.image_name) 
         if not image_info.local:
-            dockerPull(container_registry, container.image_name)
+            pullDockerImage(container_registry, container.image_name)
         docker0_IPAddr = getDocker0IPAddr()
         logger.debug("getDockerIPAddr result (%s)" % docker0_IPAddr)
         volume=''
@@ -878,7 +879,7 @@ def GetLabSeed(lab_master_seed, student_email):
 #def ParamStartConfig(lab_seed):
     
 def ParamForStudent(lab_master_seed, mycontainer_name, container, labname, 
-                    student_email, lab_path, name, image_info, running_container=None):
+                    student_email, lab_path, name, image_info, num_containers, running_container=None):
     # NOTE image_info may or may not be populated.
     if running_container == None:
         running_container = mycontainer_name
@@ -898,6 +899,14 @@ def ParamForStudent(lab_master_seed, mycontainer_name, container, labname,
         sys.exit(1)
     logger.debug('back from ParameterizeMyContainer for %s' % mycontainer_name)
     CreateStartSync(container.name) 
+    num_done = CountStartSync()
+    dockerPull.moveUp(1)
+    if num_done == num_containers:
+        progress = 'Started %d containers, %d completed initialization. Done.\n' % (num_containers, num_done)
+    else:
+        progress = 'Started %d containers, %d completed initialization, please wait...\n' % (num_containers, num_done)
+    dockerPull.clearLine()
+    sys.stdout.write(progress)
 
 def DockerCmd(cmd, noloop=False, good_error=None):
     ok = False
@@ -1173,7 +1182,10 @@ def GetBothConfigs(lab_path, logger, servers=None, clone_count=None):
                        labtainer_config, logger, servers=servers, clone_count=clone_count)
     return labtainer_config, start_config
 
-def dockerPull(registry, image_name):
+def pullDockerImage(registry, image_name):
+    image = '%s/%s' % (registry, image_name)
+    return dockerPull.pull(image)
+    '''
     cmd = 'docker pull %s/%s' % (registry, image_name)
     logger.debug('%s' % cmd)
     print('pulling %s from %s' % (image_name, registry))
@@ -1183,6 +1195,7 @@ def dockerPull(registry, image_name):
         return False
     print('Done with pull')
     return True
+    '''
 
 
 def defineAdditionalIP(container_name, post_start_if, post_start_nets):
@@ -1326,6 +1339,7 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
             results.append(False)
             return
        
+        num_containers = len(start_config.containers.items())
         clone_names = GetContainerCloneNames(container)
         for mycontainer_name in clone_names:
             wait_for_tap = False
@@ -1392,11 +1406,11 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
             # then parameterize the container
             elif quiet_start and clone_need_seeds:
                 ParamForStudent(start_config.lab_master_seed, mycontainer_name, container,
-                                labname, student_email, lab_path, name, image_info)
+                                labname, student_email, lab_path, name, image_info, num_containers)
             
             elif clone_need_seeds:
                 ParamForStudent(start_config.lab_master_seed, mycontainer_name, container,
-                                                 labname, student_email, lab_path, name, image_info)
+                                                 labname, student_email, lab_path, name, image_info, num_containers)
 
             if container.no_gw:
                 cmd = "docker exec %s bash -c 'sudo /bin/ip route del 0/0'" % (mycontainer_name)
@@ -1438,7 +1452,7 @@ def GetUserEmail(quiet_start):
     while user_email is None:
         done = True
         # Prompt user for e-mail address
-        eprompt = 'Please enter your e-mail address: '
+        eprompt = '\nPlease enter your e-mail address: '
         prev_email = getLastEmail()
         if prev_email is not None:
             eprompt = eprompt+" [%s]" % prev_email
@@ -1453,6 +1467,8 @@ def GetUserEmail(quiet_start):
                 user_input = raw_input(eprompt)
             if not all(c in string.printable for c in user_input):
                 print('Bad characters detected.  Please re-enter email')
+            elif '"' in user_input or "'" in user_input:
+                print('No quotes allowed. Please re-enter email')
             else:
                 user_email = user_input 
         if user_email is not None:
@@ -1717,6 +1733,11 @@ def GetStartSyncDir():
     sync_dir = os.path.join('/tmp', user, 'labtainer_sync')
     return sync_dir
 
+def CountStartSync():
+    sync_dir = GetStartSyncDir()
+    dlist = os.listdir(sync_dir)
+    return len(dlist)
+
 def ClearStartSync():
     sync_dir = GetStartSyncDir()
     shutil.rmtree(sync_dir, ignore_errors=True)
@@ -1809,9 +1830,15 @@ def DoStart(start_config, labtainer_config, lab_path,
         t.setName(name)
         t.start()
     logger.debug('started all')
+    progress = 'Started %d containers, %d completed initialization, please wait...\n' % (len(threads), 0)
+    sys.stdout.write(progress)
     for t in threads:
         t.join()
         logger.debug('joined %s' % t.getName())
+    dockerPull.moveUp(1)
+    progress = 'Started %d containers, %d completed initialization. Done.\n' % (len(threads), len(threads))
+    dockerPull.clearLine()
+    sys.stdout.write(progress)
 
     if False in results:
         DoStop(start_config, labtainer_config, lab_path, False, run_container, servers)
@@ -1981,7 +2008,7 @@ def StartLab(lab_path, force_build=False, is_redo=False, quiet_start=False,
                 print('and then try starting the lab again.') 
                 exit(0)
             if not image_info.local:
-                dockerPull(container_registry, mycontainer_image_name)
+                pullDockerImage(container_registry, mycontainer_image_name)
         else:
             logger.error('Could not find image info for %s' % name)
             exit(1)

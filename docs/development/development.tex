@@ -9,6 +9,7 @@
 \usepackage{courier}
 \usepackage{graphicx}
 \usepackage{mdframed}
+\usepackage{pdfpages}
 \begin{document}
 \begin{titlepage}
 \centering
@@ -552,6 +553,29 @@ Smoketest logs appear in a shared folder at ~/SEED/smokelogs.
 The host directory at {\tt SEED/test\_vms/<vmname>} is used to communicate with test VMs.
 The {\tt CURRENT\_BRANCH} environment variable is set to determine which test repo
 will be used as found in the config/registry.config file.
+
+\section{Capturing stdin/stdout}
+The user's {\tt .bashrc} sources two scripts to set up and manage functions that run prior to the 
+execution of the target command.  If the target command is to be monitored (e.g., is not a system command),
+then stdin and stdout are mirrored to timestamped files in the .local/result directory.  This mirroring
+is performed by the {\tt capinout} program whose source is in the {\tt tool-src/capinout} directory.
+The {\tt capinout} program is designed to handle use of pipes and redirection within the command.  The
+{\tt capinout} process (or one if its children) will fork/exec the {\tt wrap\_exec.sh} shell, which sets
+signal handling and uses {\tt eval} to run the target command. Commands
+that simply use stdin and stdout without pipes are managed using a pty that allows the command to control the
+terminal, e.g., to mask passwords or provide curses controls.  This requires a number of processes, as follows:
+\begin{itemize}
+\item The first process, called the \textit{stage}, simply waits for its child to exit, or for its child to report
+that the command process has orphaned a child, in which case the stage will exit, freeing up the terminal while the
+orphan continues to run and potentially send output to stdout and the timestamped mirrored file.  
+\item The stage
+process forks a child called \textit{capinout} that creates the master pty and performs the mirroring.  
+\item The capinout process creates a \textit{reaper} process that becomes the session leader and controller of the pty terminal.  
+\item The reaper then forks the command process which execs the wrap-exec.sh script.  Any orphans of the command process are reparented to the
+reaper, and if the reaper detects the command process exiting and leaving orphans, it signals the capinout process which
+in turn signals the stage so that the stage can exit.
+\end{itemize}
+\includepdf[pages=-,pagecommand={},width=\textwidth]{../../tool-src/capinout/capinout.pdf}
 
 \section {Notes}
 \subsection {Race condition on precheck.sh output}

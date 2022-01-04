@@ -47,7 +47,8 @@ From your labtainer-student directory start the lab using:
 \begin{verbatim}
     labtainer pcap-lib
 \end{verbatim}
-\noindent A link to this lab manual will be displayed.  
+\noindent It may take a while for the lab to start, as you will see, it contains a very large pcap file. 
+A link to this lab manual will be displayed.  
 
 The home directory of the resulting computer contains a directory named {\tt mystuff}.  That directory is shared with your Labtainers host,
 at:
@@ -55,7 +56,7 @@ at:
    labtainer-student/mystuff
 \end{verbatim}
 \noindent Files and directories that you create in {\tt mystuff} will persist independent of this lab (and other labs that make the mystuff
-directory available).  Consider placing your code and scripts there.
+directory available).  Consider placing your code and scripts there, but do not move the pcap file.
 
 \section{Tasks}
 This lab includes some detailed instructions to facilitate grading.  Failure to follow those instructions may result in your
@@ -64,11 +65,10 @@ lab results not being properly recorded.
 We will be analyzing an anonymized packet trace taken from an Internet exchange point.  This trace is
 in your home directory in: trace2.pcap.  \textbf{Do not move this file.}
 \begin{itemize}
-\item Uncompress (this will take a couple minutes, so be patient): \$ bzip2 -d <file>
 \item Try viewing the trace in either tcpdump or Wireshark.
 Clearly, (if it opens at all) the packet trace is much too large for a human to make sense of it, draw conclusions, or understand the traffic statistics. We will write a program using a pcap library to analyze the trace. You can use either Python or C++ to complete this lab. The appropriate pcap manipulation libraries for both languages are already installed on the VM.
 Relevant libraries and documentation links:
-\item C++: \#include <pcap/pcap.h> (http://www.tcpdump.org/manpages/pcap.3pcap.html)
+\item C++: \#include $<$pcap/pcap.h$>$ (http://www.tcpdump.org/manpages/pcap.3pcap.html)
 \item Python: import dpkt (https://dpkt.readthedocs.io/en/latest/api/api\_auto.html\#module-dpkt.pcap)
 \end{itemize}
 

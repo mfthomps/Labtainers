@@ -3,8 +3,8 @@ result=$?
 if [[ $result -ne 0 ]]; then
 cat << EOF
 Use this command:
-   radiusd -X
-to start the radius server in debug mode.
+   radiusd -fX
+to start the radius server in foreground and debug mode.
 Use ctrl-C to stop the server.
 
 Radius configuration files are in /etc/raddb

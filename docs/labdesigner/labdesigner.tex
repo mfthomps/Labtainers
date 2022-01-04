@@ -2254,6 +2254,10 @@ For example, \textbf{never} change container names for existing labs.  If such
 a change is needed, create a new lab, and assign version numbers to
 it and the old lab.  
 
+Another cause for creating a new lab version is a change to automated assessment
+criteria.  If new criteria is not consistent with potentially old results, a new
+version should be considered.
+
 Lab version numbers are kept in the optional {\tt labs/[lab]/config/version} file.
 There is no need to have such a file until there are two or more versions of the
 same lab.  (Note if you want two versions of a given lab to be runnable and to appear
@@ -3023,6 +3027,13 @@ CentOS base containers do not run 32-bit binaries.  Add the following to your do
 \begin{verbatim}
 RUN yum install -y compat-libstdc++-296.i686 compat-libstdc++-33.i686
 \end{verbatim}
+
+\subsection{Side effects of stdin/stdout mirroring}
+Labtainers uses a ptty within the mytty2.cpp program, which manages stdin and stdout for any monitored program the
+student starts.  In order to know when all children are done with the pty, we reap (reparent) all the chidren of the monitored
+program.  In a normal system, if the command program forks and then exits, its child would be reparented to the init process.
+In Labtainers, the reparenting is to a reaper process.  While commands or their children are running, 
+a process list will reveal extra processes named {\tt capinout} that the student would not see on a typical Linux system.
 
 \newpage
 \appendix

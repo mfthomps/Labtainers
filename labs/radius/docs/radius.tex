@@ -83,9 +83,9 @@ Start wireshark on the radius server:
 \end{verbatim}
 \noindent and select the eth0 interface and start capturing data.
 
-Then start the radius service in debug mode:
+Then start the radius service in foreground and debug mode:
 \begin{verbatim}
-    radiusd -X
+    radiusd -fX
 \end{verbatim}
 
 View the {\tt control\_admin} script on client1.  Note it simply uses {\tt ssh} to execute a program
