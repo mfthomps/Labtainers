@@ -16,6 +16,7 @@ complete -W "$lablist" labtainer
 
 
 ldir=~/labtainer_xfer
+mkdir -p $ldir
 lablist=$(ls $ldir)
 # replace newlines with spaces
 lablist="${lablist//$'\n'/ }"
