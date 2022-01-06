@@ -14,28 +14,23 @@ if [ -z "$hascommit" ] || [ -z "$hasgit" ]; then
     cd ..
     tar xf labtainer/labtainer.tar --keep-newer-files --warning=none
 fi
-haspip3=$(dpkg -l python3-pip)
-if [ -z "$haspip3" ]; then
-    echo "Need to install python3-pip package, will sudo apt-get"
-    # broken linux update garbage
-    echo -e password123 | sudo -S rm -f /var/lib/dpkg/lock
-    if [ $USER == student ]; then
-        echo -e password123 | sudo -S apt-get update
-        echo -e password123 | sudo -S apt-get install -y python3-pip
-    else
-        sudo apt-get update
-        sudo apt-get install -y python3-pip
-    fi
+distrib=`cat /etc/*-release | grep "^DISTRIB_ID" | awk -F "=" '{print $2}'`
+if [[ -z "$distrib" ]]; then
+        # fedora gotta be different
+        distrib=`cat /etc/*-release | grep "^NAME" | awk -F "=" '{print $2}'`
 fi
-hasdocker=$(pip3 list --format=legacy | grep docker)
-if [ -z "$hasdocker" ]; then
-    echo "Need to install docker python module, will sudo pip3"
-    if [ $USER == student ]; then
-       echo -e password123 | sudo -S pip3 install docker
-    else
-       sudo pip3 install docker
-    fi
-fi
+RESULT=0
+case "$distrib" in
+    Ubuntu)
+        echo is ubuntu
+        source $LABTAINER_DIR/setup_scripts/update-ubuntu.sh
+        RESULT=$?
+        ;;
+    *)
+        sudo pip3 install docker
+        ;;
+esac
+
 $LABTAINER_DIR/setup_scripts/pull-all.py $test_flag 
 here=`pwd`
 rm -fr labtainer/trunk/setup-scripts
