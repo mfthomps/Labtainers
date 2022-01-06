@@ -29,6 +29,8 @@ def pull(full_image_name):
         print('Failed Docker pull of %s, network problem or image does not exist.' % full_image_name)
         return False
     for line in pull_result:
+        if 'status' not in line:
+            continue
         status = line['status']
         if status.startswith('Digest:') or status.startswith('Status:'):
             sys.stdout.write('%s\n' % status)
