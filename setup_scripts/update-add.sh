@@ -17,13 +17,22 @@ fi
 haspip3=$(dpkg -l python3-pip)
 if [ -z "$haspipe3" ]; then
     echo "Need to install python3-pip package, will sudo apt-get"
-    sudo apt-get update
-    sudo apt-get install -y python3-pip
+    if [ $USER == student ]; then
+        echo password123 | sudo -S apt-get update
+        echo password123 | sudo -S apt-get install -y python3-pip
+    else
+        sudo apt-get update
+        sudo apt-get install -y python3-pip
+    fi
 fi
 hasdocker=$(pip3 list --format=legacy | grep docker)
 if [ -z "$hasdocker" ]; then
     echo "Need to install docker python module, will sudo pip3"
-    sudo pip3 install docker
+    if [ $USER == student ]; then
+       echo password123 | sudo -S pip3 install docker
+    else
+       sudo pip3 install docker
+    fi
 fi
 $LABTAINER_DIR/setup_scripts/pull-all.py $test_flag 
 here=`pwd`
