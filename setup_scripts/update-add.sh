@@ -15,7 +15,7 @@ if [ -z "$hascommit" ] || [ -z "$hasgit" ]; then
     tar xf labtainer/labtainer.tar --keep-newer-files --warning=none
 fi
 haspip3=$(dpkg -l python3-pip)
-if [ -z "$haspipe3" ]; then
+if [ -z "$haspip3" ]; then
     echo "Need to install python3-pip package, will sudo apt-get"
     # broken linux update garbage
     sudo rm -f /var/lib/dpkg/lock
