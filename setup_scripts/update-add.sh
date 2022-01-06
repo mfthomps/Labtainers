@@ -17,6 +17,8 @@ fi
 haspip3=$(dpkg -l python3-pip)
 if [ -z "$haspipe3" ]; then
     echo "Need to install python3-pip package, will sudo apt-get"
+    # broken linux update garbage
+    sudo rm -f /var/lib/dpkg/lock
     if [ $USER == student ]; then
         echo password123 | sudo -S apt-get update
         echo password123 | sudo -S apt-get install -y python3-pip
