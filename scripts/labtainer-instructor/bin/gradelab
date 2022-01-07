@@ -85,12 +85,16 @@ def CopyStudentArtifacts(labtainer_config, container_name, labname, regress_test
         zip_filelist = glob.glob('%s/*.zip' % xfer_dir)
         lab_filelist = glob.glob('%s/*.lab' % xfer_dir)
     else:
-        xfer_dir = os.path.join(labtainer_config.host_home_xfer, labname)
-        zip_filelist = glob.glob('/home/%s/%s/*.zip' % (username, xfer_dir))
-        lab_filelist = glob.glob('/home/%s/%s/*.lab' % (username, xfer_dir))
+        home = os.getenv('HOME')
+        xfer_dir = os.path.join(home,labtainer_config.host_home_xfer, labname)
+        zip_filelist = glob.glob('%s/*.zip' % (xfer_dir))
+        lab_filelist = glob.glob('%s/*.lab' % (xfer_dir))
     zip_filelist.extend(lab_filelist)
     #logger.debug("zip_filelist is (%s)" % zip_filelist)
     # Copy zip files from 'Shared' folder to 'home/$CONTAINER_USER'
+    if len(zip_filelist) is 0:
+        full_xfer = os.path
+        print('WARNING: there are no lab results files in %s' % xfer_dir)
     for fname in zip_filelist:
         logger.debug("name is %s" % fname)
         base_fname = os.path.basename(fname)
