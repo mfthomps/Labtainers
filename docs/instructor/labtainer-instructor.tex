@@ -97,16 +97,18 @@ a browser on the Linux VM and either emailing you the zip file, or uploading the
 into an LMS, (e.g., Sakai).  See the \textit{Labtainers Student Guide} for a discussion of
 ways in which students can forward results to the instrutor.
 
-Collect all of the lab zip files from each student into your Labtainer transfer directory.  On
+Collect all of the lab zip files from each student into the Labtainer transfer directory for
+that lab.  On
 Linux systems, e.g., the Labtainer VM appliance, the transfer directory is located at:
 
 \begin{verbatim}
     $HOME/labtainer_xfer/<labname>
 \end{verbatim}
-\noindent where labname is the name of the lab.  Do not unzip the files.  Alternately student
+\noindent where labname is the name of the lab.  Each lab has its own transfer directory.
+Do not unzip the files.  Alternately student
 assignments can be bulk-collected from a learning management system (LMS) per Appendix \ref{lms collection}
 and the resulting zip  would be copied into the
-Labtainer transfer directory.  Again, do not unzip files and do not change the file names of zip files.
+transfer directory for that lab.  Again, do not unzip files and do not change the file names of zip files.
 If you wish to manually review the content of the student artifact files, copy them to a different directory and
 then use the {\tt unzip} command on the command line.  That utility will not be confused by the {\tt .lab} extension
 and the prepended text that is intended to prevent GUI file managers from unzipping the files.
