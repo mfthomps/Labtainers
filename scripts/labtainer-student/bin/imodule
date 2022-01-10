@@ -128,5 +128,5 @@ if __name__ == '__main__':
         else:
             print('IModule failed')
     else:    
-        parser.usage()
+        parser.print_help()
         
