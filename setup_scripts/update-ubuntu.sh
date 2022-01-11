@@ -1,3 +1,8 @@
+if [ $USER == student ]; then
+    echo -e password123 | sudo -S apt-get -y --force-yes install containerd
+else
+    sudo apt-get -y --force-yes install containerd
+fi
 haspip3=$(dpkg -l python3-pip)
 if [ -z "$haspip3" ]; then
     echo "Need to install python3-pip package, will sudo apt-get"
