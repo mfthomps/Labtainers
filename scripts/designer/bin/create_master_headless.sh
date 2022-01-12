@@ -43,7 +43,8 @@ while [[ -n "$1" ]]; do
 done
 if [[ "$LABTAINER_DEV" != "TRUE" ]]; then
     echo "Getting labtainer.tar from NPS distribution."
-    wget https://nps.box.com/shared/static/afz87ok8ezr0vtyo2qtlqbfmc28zk08j.tar -O labtainer.tar
+    wget --quiet https://github.com/mfthomps/Labtainers/releases/latest/download/labtainer.tar -O labtainer.tar
+    sync
 else
     echo "Getting labtainer.tar from your distrib, assuming mkdist.sh was run."
     cp -a $LABTAINER_DIR/distrib/labtainer.tar ./
