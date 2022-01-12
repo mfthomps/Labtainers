@@ -63,6 +63,8 @@ END
 # reboot
 # setup-scripts/vm-profile-add.sh
 #
+# remove snapd and its /var/cache
+#
 echo "$HOME/.doterms.sh &" >> ~/.profile
 cat >~/.doterms.sh <<EOL
 sleep 1
