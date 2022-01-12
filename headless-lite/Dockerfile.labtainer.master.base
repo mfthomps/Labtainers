@@ -1,4 +1,3 @@
-# student@ubuntu:~/labtainer/trunk/scripts/designer$ cat base_dockerfiles/Dockerfile.labtainer.master 
 #
 # Create a master Labtainer image for use in running Labtainers from a container
 # on any system that has Docker installed, withou having to install Labtainers.
@@ -56,7 +55,7 @@ RUN  apt-get install -y --no-install-recommends \
     python3-pip \
     python3-setuptools
     
-RUN pip3 install netaddr parse python-dateutil
+RUN pip3 install netaddr parse python-dateutil docker
 #apt-get upgrade--fix-missing
 RUN  apt-get install -y --no-install-recommends \
      x11-xserver-utils 

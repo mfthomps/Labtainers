@@ -6,7 +6,8 @@ cat /etc/motd
 # Docker on window manages to screw this up 
 #
 echo labtainer | sudo -S chown root:docker /var/run/docker.sock
-
+mkdir -p /tmp/labtainer
+echo labtainer | sudo -S chown labtainer:labtainer /tmp/labtainer
 
 /wait-for-it.sh $VNCHOST:5901 > /dev/null 2>&1
 
