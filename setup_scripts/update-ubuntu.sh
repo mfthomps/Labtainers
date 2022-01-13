@@ -1,7 +1,9 @@
-if [ $USER == student ]; then
-    echo -e password123 | sudo -S DEBIAN_FRONTEND=noninteractive apt-get -y install containerd
-else
-    sudo apt-get -y install containerd
+if [ ! -d "$HOME/headless-labtainers" ]; then
+    if [ $USER == student ]; then
+        echo -e password123 | sudo -S DEBIAN_FRONTEND=noninteractive apt-get -y install containerd
+    else
+        sudo apt-get -y install containerd
+    fi
 fi
 haspip3=$(dpkg -l python3-pip)
 if [ -z "$haspip3" ]; then
