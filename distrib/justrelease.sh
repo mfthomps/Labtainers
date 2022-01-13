@@ -74,8 +74,15 @@ cd $release_dir
 cd MakepackUI/bin
 ./buildUI2.sh -n || exit
 cp makepackui.jar $release_dir/distrib/artifacts/
-cd $release_dir/distrib
 
+echo "Build Azure tar"
+cd $release_dir
+cd azure
+rm -f azure.tar
+tar -cf azure.tar *
+mv azure.tar $release_dir/distrib/artifacts
+
+cd $release_dir/distrib
 echo "Now generate release"
 
 github-release release --security-token $gitpat --user mfthomps --repo Labtainers --tag $new_tag
