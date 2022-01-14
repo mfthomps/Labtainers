@@ -24,7 +24,6 @@ az vm create \
  --admin-username labtainer \
  --image UbuntuLTS \
  --ssh-key-value "~/.ssh/id_labtainers.pub" \
- --generate-ssh-keys \
  --custom-data cloud_init.txt > $user_id.json
 
 ./waitdone.sh $user_id

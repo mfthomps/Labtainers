@@ -8,9 +8,12 @@ This requires that the Azure CLI be installed, e.g., on Windows, Mac or Linux:
 Then open a terminal or a Windows Powershell.
 Install the local scripts by getting this script (make it executable on Mac or Linux):
     https://raw.githubusercontent.com/mfthomps/Labtainers/master/azure/install_latainers.sh
-e.g.,
-    wget https://raw.githubusercontent.com/mfthomps/Labtainers/master/azure/install_latainers.sh -O install_labtainers.sh
+e.g., on Mac or Linux:
+    curl -L https://raw.githubusercontent.com/mfthomps/Labtainers/master/azure/install_latainers.sh --output install_labtainers.sh
     chmod a+x install_labtainers.sh  (only on Linux or Mac)
+
+On Windows Powershell:
+    wget https://raw.githubusercontent.com/mfthomps/Labtainers/master/azure/install_latainers.sh -O install_labtainers.sh
 
 And then run it.   
     ./install_labtainers.sh
@@ -24,6 +27,7 @@ The ID can be any name, e.g.,
 
 After the script finishes (it will take several minutes), point a browser
 to http://localhost:6901 and perform the labs.
+When prompted for a password in the browser, just click submit or OK, i.e., leave the password blank.
 
 When done with labs, run the get_results.sh script: 
     ./get_results <user ID>

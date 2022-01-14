@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "in checktunnel"
+echo "in delete_vm"
 if [ "$#" -ne 1 ]; then
     echo "checktunnel.sh <user ID>"
     exit
