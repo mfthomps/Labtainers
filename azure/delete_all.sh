@@ -1,1 +1,1 @@
-az vm delete --force --ids $(az vm list -g labtainerResources --query "[].id" -o tsv)
+az vm delete --yes --ids $(az vm list -g labtainerResources --query "[].id" -o tsv)

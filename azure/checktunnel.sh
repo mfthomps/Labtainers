@@ -15,7 +15,7 @@ fi
 result=$(ps aux | grep ssh | grep 6901)
 if [ -z "${result}" ]; then
     echo "No tunnel, create one."
-    ssh -AfN -L 6901:127.0.0.1:6901 -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -o "ServerAliveInterval 60" -i ~/.ssh/id_labtainers labtainer@$ip
+    ssh -AfN -L 6901:127.0.0.1:6901 -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -o "ServerAliveInterval 60" -i "~/.ssh/id_labtainers" labtainer@$ip
 else
    if [[ "$result" == *"$ip"* ]]; then
        echo "Proper tunnel already exists."
@@ -23,7 +23,7 @@ else
    else
        echo "Tunnel exists but has has wrong IP"
        kill $(echo $result | awk '{print $2}')
-       ssh -AfN -L 6901:127.0.0.1:6901 -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -o "ServerAliveInterval 60" -i ~/.ssh/id_labtainers labtainer@$ip
+       ssh -AfN -L 6901:127.0.0.1:6901 -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -o "ServerAliveInterval 60" -i "~/.ssh/id_labtainers" labtainer@$ip
    fi
 fi
 
