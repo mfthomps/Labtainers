@@ -8,10 +8,18 @@ This requires that the Azure CLI be installed, e.g., on Windows, Mac or Linux:
 Then open a terminal or a Windows Powershell.
 Install the local scripts by getting this script (make it executable on Mac or Linux):
     https://raw.githubusercontent.com/mfthomps/Labtainers/master/azure/install_latainers.sh
-And then run it.   That will create a ~/labtainers_azure directory.  
+e.g.,
+    wget https://raw.githubusercontent.com/mfthomps/Labtainers/master/azure/install_latainers.sh -O install_labtainers.sh
+    chmod a+x install_labtainers.sh  (only on Linux or Mac)
 
-CD to the ~/labtainres_azure directory and run the create_vm.sh script, passing in a user ID.
+And then run it.   
+    ./install_labtainers.sh
+
+That will create a ~/labtainers_azure directory.  
+
+CD to the ~/labtainers_azure directory and run the create_vm.sh script, passing in a user ID.
 The ID can be any name, e.g.,
+    cd ~/labtainers_azure
     ./create_vm.sh myname
 
 After the script finishes (it will take several minutes), point a browser

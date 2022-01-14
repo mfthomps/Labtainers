@@ -7,8 +7,6 @@
 users:
  - name: labtainer
    sudo: ALL=(ALL) NOPASSWD:ALL
-   ssh_authorized_keys:
-      - REPLACE_WITH_KEY
 
 system_info:
   default_user:
