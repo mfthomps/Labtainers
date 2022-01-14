@@ -11,6 +11,7 @@ if [ "$#" -ne 1 ]; then
 fi
 user_id=$1
 vm_name=$user_id-labtainervm
+rm -f ~/.ssh/id_labtainers*
 ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_labtainers -q -N ""
 key=$(cat ~/.ssh/id_labtainers.pub)
 echo "key generated"
@@ -20,7 +21,11 @@ echo "Creating Azure VM $vm_name for $user_id"
 az vm create \
  --resource-group labtainerResources \
  --name $vm_name \
+ --admin-username labtainer \
  --image UbuntuLTS \
+ --public-ip-sku Standard \
+ --ssh-key-value "~/.ssh/id_labtainers.pub" \
+ --generate-ssh-keys \
  --custom-data cloud_init.txt > $user_id.json
 
 ./waitdone.sh $user_id

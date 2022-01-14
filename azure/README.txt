@@ -1,8 +1,18 @@
 Create a Labtainers VM within Azure, assuming the user 
 has an Azure account, e.g., https://azure.microsoft.com/en-us/free/students/
 
-Simply run the create_vm.sh script, passing in a user ID.
-The ID can be any name.
+This requires that the Azure CLI be installed, e.g., on Windows, Mac or Linux:
+    https://docs.microsoft.com/en-us/cli/azure/install-azure-cli
+
+
+Then open a terminal or a Windows Powershell.
+Install the local scripts by getting this script (make it executable on Mac or Linux):
+    https://raw.githubusercontent.com/mfthomps/Labtainers/master/azure/install_latainers.sh
+And then run it.   That will create a ~/labtainers_azure directory.  
+
+CD to the ~/labtainres_azure directory and run the create_vm.sh script, passing in a user ID.
+The ID can be any name, e.g.,
+    ./create_vm.sh myname
 
 After the script finishes (it will take several minutes), point a browser
 to http://localhost:6901 and perform the labs.

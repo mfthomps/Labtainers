@@ -5,7 +5,7 @@ if [ "$#" -ne 1 ]; then
 fi
 user=$1
 # start the tunnel and wait for it to die, reflecting reboot.
-echo "start the tunnelx"
+echo "start the tunnel"
 ./checktunnel.sh $user  || exit 1
 echo "wait for dead tunnel"
 ./wait_tunnel.sh $user || exit 1
@@ -13,9 +13,10 @@ echo "Tunnel gone, wait 20 for reboot"
 sleep 20
 ./checktunnel.sh $user || exit 1
 rm -f index.html
+echo "Waiting for remote Labtainers to become available.  Please be patient."
 while :
 do
-    result=$(wget localhost:6901)
+    curl localhost:6901 --output index.html -s
     if [ -f index.html ]; then
         echo "Web server is up."
         break
