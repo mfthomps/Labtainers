@@ -7,3 +7,4 @@ fi
 user=$1
 vm=$user-labtainervm
 az vm delete --yes -g labtainerResources -n $vm
+echo "VM $vm has been deleted"

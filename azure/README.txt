@@ -4,8 +4,7 @@ has an Azure account, e.g., https://azure.microsoft.com/en-us/free/students/
 This requires that the Azure CLI be installed, e.g., on Windows, Mac or Linux:
     https://docs.microsoft.com/en-us/cli/azure/install-azure-cli
 
-
-Then open a terminal or a Windows Powershell.
+Then open a terminal on Mac/Linux, or a Windows Powershell.
 Install the local scripts by getting this script (make it executable on Mac or Linux):
     https://raw.githubusercontent.com/mfthomps/Labtainers/master/azure/install_latainers.sh
 e.g., on Mac or Linux:
@@ -44,7 +43,8 @@ You may move the keys to a different computer and access your Labtainers from th
 browser.  You must first run the install_labtainers.sh script on that computer, and then run
 the restart.sh script.
 
-When completely done with the VM, use the delete_all.sh script to stop
-incurring charges.   Shutting down the VM without deleting it will not stop charges.
+When completely done with the VM, use the delete_vm.sh script to stop incurring charges:
+    ./delete_vm.sh <user ID>
+Shutting down the VM without deleting it will not stop charges.
 
 Questions?   mfthomps at nps.edu
