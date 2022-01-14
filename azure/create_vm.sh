@@ -23,7 +23,6 @@ az vm create \
  --name $vm_name \
  --admin-username labtainer \
  --image UbuntuLTS \
- --public-ip-sku Standard \
  --ssh-key-value "~/.ssh/id_labtainers.pub" \
  --generate-ssh-keys \
  --custom-data cloud_init.txt > $user_id.json
