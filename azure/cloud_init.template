@@ -4,10 +4,6 @@
 #
 #
 
-users:
- - name: labtainer
-   sudo: ALL=(ALL) NOPASSWD:ALL
-
 system_info:
   default_user:
       name: labtainer
