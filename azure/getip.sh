@@ -6,4 +6,5 @@ if [ -z "${result}" ]; then
     echo "FAIL"
 else
     echo $result
+    echo $result > myip.txt
 fi
