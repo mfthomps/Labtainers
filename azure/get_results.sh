@@ -12,5 +12,5 @@ if [[ $ip == "FAIL" ]]; then
     echo "Failed to get ip of $vm"
     exit 1
 fi
-scp -r labtainer@$ip:~/headless-labtainers/labtainer_xfer/* ~/labtainer_xfer/
+scp -i "~/.ssh/id_labtainers" -r labtainer@$ip:~/headless-labtainers/labtainer_xfer/* ~/labtainer_xfer/
 echo "Results stored in $HOME/labtainer_xfer"
