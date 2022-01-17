@@ -94,5 +94,7 @@ github-release upload --security-token $gitpat --user mfthomps --repo Labtainers
 echo "Upload UI"
 github-release upload --security-token $gitpat --user mfthomps --repo Labtainers --tag $new_tag --name MainUI.jar --file artifacts/MainUI.jar
 github-release upload --security-token $gitpat --user mfthomps --repo Labtainers --tag $new_tag --name makepackui.jar --file artifacts/makepackui.jar
+echo "Upload Azure"
+github-release upload --security-token $gitpat --user mfthomps --repo Labtainers --tag $new_tag --name azure.tar --file artifacts/azure.tar
 git checkout premaster
 git fetch --tags
