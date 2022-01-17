@@ -21,13 +21,23 @@ And then run it.
 
 That will create a ~/labtainers_azure directory.  
 
-CD to the ~/labtainers_azure directory and run the create_vm.sh script, passing in a user ID.
-The ID can be any name, e.g.,
+CD to the ~/labtainers_azure directory 
     cd ~/labtainers_azure
+
+Log into your Azure account:
+    az login
+NOTE:  If your account has access to more than one Azure Subscription, you need to change these parameters to 
+specify the student subscription before running the install_labtainers script:
+    1.  Change the  ~/.azure/clouds.config to show your student subscription number
+    2. Change the entries in ~/.azureProfile.json so that only your student subscription shows 
+       “isDefault”= true, the rest being set to ‘false’.
+
+Once logged into Azure, run the create_vm.sh script, passing in a user ID.
+The ID can be any name, e.g.,
     ./create_vm.sh myname
 
-After the script finishes (it will take several minutes), point a browser
-to http://localhost:6901 and perform the labs.
+The create_vm.sh script may take a while to run.  The process is complete when you see “Labtainers is up.  
+Point a local browser to localhost:6901” and perform the labs.
 When prompted for a password in the browser, just click submit or OK, i.e., leave the password blank.
 
 When done with labs, run the get_results.sh script: 
@@ -45,8 +55,18 @@ You may move the keys to a different computer and access your Labtainers from th
 browser.  You must first run the install_labtainers.sh script on that computer, and then run
 the restart.sh script.
 
-When completely done with the VM, use the delete_vm.sh script to stop incurring charges:
+When done with a lab, use
+   ./deallocate_vm <user ID> 
+to stop incurring most charges.  Note however that any work you've performed on the Labtainers 
+might be lost (unless you've retrieved your results with get_results.sh.
+
+To restore a VM after you deallocated it, use:
+    ./restore_vm.sh <user ID>
+
+When completely done with the VM, use the delete_vm.sh script to stop incurring all charges:
     ./delete_vm.sh <user ID>
+
 Shutting down the VM without deleting it will not stop charges.
 
 Questions?   mfthomps at nps.edu
+

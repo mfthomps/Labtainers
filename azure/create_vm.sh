@@ -16,7 +16,7 @@ ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_labtainers -q -N ""
 key=$(cat ~/.ssh/id_labtainers.pub)
 echo "key generated"
 cp cloud_init.template cloud_init.txt
-./resourcecheck.sh
+./resourcecheck.sh || exit 1
 echo "Creating Azure VM $vm_name for $user_id"
 az vm create \
  --resource-group labtainerResources \

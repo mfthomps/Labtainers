@@ -4,12 +4,6 @@
 #
 #
 
-users:
- - name: labtainer
-   sudo: ALL=(ALL) NOPASSWD:ALL
-   ssh_authorized_keys:
-      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCuyuvVFDhuCf7MGO65MRSk+ws+fJ5XW3QM9OsrNf4xE3c5ZisgFxkN5QrbUz59Dcr0WEWOjlupx2gqsUnj1gSDe8vGZcRWuTLQAGTl4/oMCnjgnY0ZWT7zxNK7MHkof+HTQ0K/0YUINjtvZDpoD/6FDGqgZCCive4aQrOqlFoZnOHqgPTt44mlimcjFe6clrmkCoGAQSDlLUue9MY8exbnNCam1o570pr7AnigC/5EnRO8RwYmZuj10PwrLOHLyfrU7WV6k4x9xmvc5fpBmIIXNoAcPLGx1CQp4LvRcY1ZVZtY4NIekzk1vV/Iy5ow2ZlOOtxZ77WT/tTakCFrvDeb mike@Labtainer-dev
-
 system_info:
   default_user:
       name: labtainer
@@ -68,7 +62,6 @@ runcmd:
 - docker pull labtainers/labtainer.network2
 - docker pull labtainers/labtainer.wireshark2
 - docker pull labtainers/labtainer.network.ssh2
-- docker pull labtainers/labtainer.gradelab
 
 power_state:
   mode: reboot
