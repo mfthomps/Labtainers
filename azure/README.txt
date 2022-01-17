@@ -39,6 +39,7 @@ The ID can be any name, e.g.,
 The create_vm.sh script may take a while to run.  The process is complete when you see “Labtainers is up.  
 Point a local browser to localhost:6901” and perform the labs.
 When prompted for a password in the browser, just click submit or OK, i.e., leave the password blank.
+The password for the labtainer user in the VM is labtainer.  
 
 When done with labs, run the get_results.sh script: 
     ./get_results <user ID>
