@@ -1,18 +1,20 @@
 Create a Labtainers VM within Azure, assuming the user 
 has an Azure account, e.g., https://azure.microsoft.com/en-us/free/students/
 
-This requires that the Azure CLI be installed, e.g., on Windows, Mac or Linux:
+** Only for Mac and Linux systems.  Working with Windows computers and command **
+** lines is too painful for the moment.                                        **
+
+This requires that the Azure CLI be installed, e.g., Mac or Linux:
     https://docs.microsoft.com/en-us/cli/azure/install-azure-cli
 
-Then open a terminal on Mac/Linux, or a Windows Powershell.
+Then open a terminal on Mac/Linux
 Install the local scripts by getting this script (make it executable on Mac or Linux):
     https://raw.githubusercontent.com/mfthomps/Labtainers/master/azure/install_latainers.sh
-e.g., on Mac or Linux:
+
+On Mac or Linux:
     curl -L https://raw.githubusercontent.com/mfthomps/Labtainers/master/azure/install_latainers.sh --output install_labtainers.sh
     chmod a+x install_labtainers.sh  (only on Linux or Mac)
 
-On Windows Powershell:
-    wget https://raw.githubusercontent.com/mfthomps/Labtainers/master/azure/install_latainers.sh -O install_labtainers.sh
 
 And then run it.   
     ./install_labtainers.sh
