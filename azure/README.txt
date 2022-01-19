@@ -1,27 +1,30 @@
 Create a Labtainers VM within Azure, assuming the user 
 has an Azure account, e.g., https://azure.microsoft.com/en-us/free/students/
 
-** Only for Mac and Linux systems.  Working with Windows computers and command **
-** lines is too painful for the moment.                                        **
 
-This requires that the Azure CLI be installed, e.g., Mac or Linux:
+This requires that the Azure CLI be installed on  the Mac, Windows or Linux:
     https://docs.microsoft.com/en-us/cli/azure/install-azure-cli
 
-Then open a terminal on Mac/Linux
+Then open a terminal on Mac/Linux, or a PowerShell window on Windows.
 Install the local scripts by getting this script (make it executable on Mac or Linux):
     https://raw.githubusercontent.com/mfthomps/Labtainers/master/azure/install_latainers.sh
+Or on Windows:
+    https://raw.githubusercontent.com/mfthomps/Labtainers/master/azure/install_latainers.ps1
 
 On Mac or Linux:
     curl -L https://raw.githubusercontent.com/mfthomps/Labtainers/master/azure/install_latainers.sh --output install_labtainers.sh
     chmod a+x install_labtainers.sh  (only on Linux or Mac)
+On Windows:
+    wget https://raw.githubusercontent.com/mfthomps/Labtainers/master/azure/install_latainers.sh -OutFile install_labtainers.ps1
 
-
-And then run it.   
+And then run it (Mac/Linux).   
     ./install_labtainers.sh
+Windows:
+    ./install_labtainers.ps1
 
 That will create a ~/labtainers_azure directory.  
 
-CD to the ~/labtainers_azure directory 
+Change to the ~/labtainers_azure directory 
     cd ~/labtainers_azure
 
 Log into your Azure account:
@@ -32,17 +35,17 @@ specify the student subscription before running the install_labtainers script:
     2. Change the entries in ~/.azureProfile.json so that only your student subscription shows 
        “isDefault”= true, the rest being set to ‘false’.
 
-Once logged into Azure, run the create_vm.sh script, passing in a user ID.
+Once logged into Azure, run the create_vm.sh (or create_vm.ps1 for windows) script, passing in a user ID.
 The ID can be any name, e.g.,
     ./create_vm.sh myname
 
-The create_vm.sh script may take a while to run.  The process is complete when you see “Labtainers is up.  
+The create_vm script may take a while to run.  The process is complete when you see “Labtainers is up.  
 Point a local browser to localhost:6901” and perform the labs.
 When prompted for a password in the browser, just click submit or OK, i.e., leave the password blank.
 The password for the labtainer user in the VM is labtainer.  
 
-When done with labs, run the get_results.sh script: 
-    ./get_results <user ID>
+When done with labs, run the get_results.sh (or get_results.ps1) script: 
+    ./get_results.sh <user ID>
 This will store your Labtainer results in ~/labtainer_xfer.  Provide those
 results to your instructor.
 
