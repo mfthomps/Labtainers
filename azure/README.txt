@@ -35,6 +35,8 @@ specify the student subscription before running the install_labtainers script:
     2. Change the entries in ~/.azureProfile.json so that only your student subscription shows 
        “isDefault”= true, the rest being set to ‘false’.
 
+In the following command examples, use "ps1" instead of "sh" when using PowerShell.
+
 Once logged into Azure, run the create_vm.sh (or create_vm.ps1 for windows) script, passing in a user ID.
 The ID can be any name, e.g.,
     ./create_vm.sh myname
@@ -62,7 +64,8 @@ the restart.sh script.
 When done with a lab, use
    ./deallocate_vm <user ID> 
 to stop incurring most charges.  Note however that any work you've performed on the Labtainers 
-might be lost (unless you've retrieved your results with get_results.sh.
+might be lost (unless you've retrieved your results with get_results.sh), depending on how
+long the VM is dormant.
 
 To restore a VM after you deallocated it, use:
     ./restore_vm.sh <user ID>
@@ -70,7 +73,7 @@ To restore a VM after you deallocated it, use:
 When completely done with the VM, use the delete_vm.sh script to stop incurring all charges:
     ./delete_vm.sh <user ID>
 
-Shutting down the VM without deleting it will not stop charges.
+Shutting down the VM without deallocating or deleting it will not stop charges.
 
 Questions?   mfthomps at nps.edu
 
