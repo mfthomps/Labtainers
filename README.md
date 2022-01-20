@@ -89,6 +89,9 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+January 19, 2022
+- Introduce Labtainers on the Azure cloud.  See the Student Guide for details on how to use this.
+
 January 3, 2022
 - Revise setuid-env lab to add better assessment; simlab testing and avoid sighup in the printenv child.
 - Fix assessment goal count directive to exclude result tag values of false.
