@@ -5,6 +5,15 @@ These instructions assume you have a google cloud account.
 
 This requires that the Google Cloud SDK be installed on  the Mac, Windows or Linux:
     https://cloud.google.com/sdk/docs/quickstart
+*** Windows is not yet supported ***
+
+Add the google-cloud-sdk/bin directory to your PATH environment variable.  For example,
+if you put the SDK in your home directory, then add this to your 
+$HOME/.bash_profile
+   PATH=$PATH:$HOME/google-cloud-sdk/bin
+and then ru
+   source $HOME/.bash_profile
+
 
 Then open a terminal on Mac/Linux, or a PowerShell window on Windows.
 
@@ -30,12 +39,12 @@ Change to the ~/labtainers_google directory
     cd ~/labtainers_google
 
 Create a project, e.g., "labtainers" in your google cloud account.
+Log into your Google Cloud account:
+    gcloud auth login
+
 Set your default zone and region (e.g., by editing the set_defaults.sh script) and then use
    gcloud init 
 to initialize your client.
-
-Log into your Google Cloud account:
-    gcloud ath login
 
 In the following command examples, use "ps1" instead of "sh" when using PowerShell.
 
