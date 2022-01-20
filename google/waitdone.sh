@@ -23,4 +23,4 @@ do
     fi
     sleep 20
 done
-echo "Labtainers is up.  Point browser to localhost:6901"
+echo "Labtainers is up.  Point a browser to http://localhost:6901"
