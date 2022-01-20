@@ -38,9 +38,11 @@ That will create a ~/labtainers_google directory.
 Change to the ~/labtainers_google directory 
     cd ~/labtainers_google
 
-Create a project, e.g., "labtainers" in your google cloud account.
 Log into your Google Cloud account:
     gcloud auth login
+
+Create a "labtainers" project, your google cloud account:
+    ./project.sh
 
 Set your default zone and region (e.g., by editing the set_defaults.sh script) and then use
    gcloud init 
