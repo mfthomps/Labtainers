@@ -1,0 +1,13 @@
+#cloud-config
+#
+# Cloud Config file for Headless Labtainers. Assumes using published labtainervm image. 
+#
+#
+users:
+ - name: labtainer
+   sudo: ALL=(ALL) NOPASSWD:ALL
+
+system_info:
+  default_user:
+      name: labtainer
+      sudo: ALL=(ALL) NOPASSWD:ALL

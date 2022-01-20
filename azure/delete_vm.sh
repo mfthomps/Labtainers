@@ -1,7 +1,7 @@
 #!/bin/bash
 echo "in delete_vm"
 if [ "$#" -ne 1 ]; then
-    echo "checktunnel.sh <user ID>"
+    echo "delete_vm.sh <user ID>"
     exit
 fi
 user=$1

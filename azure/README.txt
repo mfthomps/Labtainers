@@ -7,15 +7,15 @@ This requires that the Azure CLI be installed on  the Mac, Windows or Linux:
 
 Then open a terminal on Mac/Linux, or a PowerShell window on Windows.
 Install the local scripts by getting this script (make it executable on Mac or Linux):
-    https://raw.githubusercontent.com/mfthomps/Labtainers/master/azure/install_latainers.sh
+    https://raw.githubusercontent.com/mfthomps/Labtainers/master/azure/install_labtainers.sh
 Or on Windows:
-    https://raw.githubusercontent.com/mfthomps/Labtainers/master/azure/install_latainers.ps1
+    https://raw.githubusercontent.com/mfthomps/Labtainers/master/azure/install_labtainers.ps1
 
 On Mac or Linux:
-    curl -L https://raw.githubusercontent.com/mfthomps/Labtainers/master/azure/install_latainers.sh --output install_labtainers.sh
+    curl -L https://raw.githubusercontent.com/mfthomps/Labtainers/master/azure/install_labtainers.sh --output install_labtainers.sh
     chmod a+x install_labtainers.sh  (only on Linux or Mac)
 On Windows:
-    wget https://raw.githubusercontent.com/mfthomps/Labtainers/master/azure/install_latainers.sh -OutFile install_labtainers.ps1
+    wget https://raw.githubusercontent.com/mfthomps/Labtainers/master/azure/install_labtainers.sh -OutFile install_labtainers.ps1
 
 And then run it (Mac/Linux).   
     ./install_labtainers.sh

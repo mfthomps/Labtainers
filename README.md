@@ -9,7 +9,7 @@ Labtainers include more than 50 cyber lab exercises and tools to build your own.
 * Individualized lab exercises to discourage sharing solutions
 
 Labtainers provide controlled and consistent execution environments in which students perform labs entirely within the confines of their computer, regardless of the Linux distribution and packages installed on the student's computer.  Labtainers run on our [VM appliance][vm-appliancee], or on any Linux
-with Dockers installed, and on Docker Workstation running on Mac or Windows computers.  
+with Dockers installed.  And Labtainers is available as cloud-based VMs, e.g., on Azure as described in the [Student Guide][student-guide].
 
 See the [Student Guide][student-guide] for installation and use, and the [Instructor Guide][instructor-guide] for student assessment.  Developing and customizing
 lab exercises is described in the [Designer Guide][designer-guide].
