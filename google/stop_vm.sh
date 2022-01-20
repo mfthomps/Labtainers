@@ -5,4 +5,4 @@ if [ "$#" -ne 1 ]; then
 fi
 user_id=$1
 vm_name=$user_id-labtainervm
-gcloud -q compute instances stop $vm_name --zone us-west1-a
+gcloud -q compute instances stop $vm_name 

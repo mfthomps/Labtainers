@@ -5,11 +5,6 @@ if [ "$#" -ne 1 ]; then
 fi
 user_id=$1
 vm_name=$user_id-labtainervm
-#rm -f ~/.ssh/id_labtainers*
-#ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_labtainers -q -N ""
-#key=$(cat ~/.ssh/id_labtainers.pub)
-#echo "key generated"
-#sed 's|REPLACE_WITH_KEY|$key|' cloud_init.template > cloud_init.txt
 cp cloud_init.template cloud_init.txt
 gcloud compute instances create $vm_name --image-family=ubuntu-1804-lts \
    --image-project=ubuntu-os-cloud \
