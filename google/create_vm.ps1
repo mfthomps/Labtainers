@@ -17,8 +17,9 @@ gcloud compute instances create $vm_name --image=https://www.googleapis.com/comp
 #
 ./waitup.ps1 $user_id 2>$null
 echo "Check keys"
-gcloud compute ssh labtainer@$vm_name --command="echo VM booted"
+gcloud compute ssh labtainer@$vm_name --command="echo VM booted" -- --strict-host-key-checking=no  
+#gcloud compute ssh labtainer@$vm_name --dry-run
 echo "Back from ssh"
 cp $HOME/.ssh/google_compute_engine $HOME/.ssh/id_labtainers
 cp $HOME/.ssh/google_compute_engine.pub $HOME/.ssh/id_labtainers.pub
-./waitdone.sh $user_id
+./waitdone.ps1 $user_id
