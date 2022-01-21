@@ -1,6 +1,6 @@
 $resource=$args[0]
 $vm=$args[1]
-$result=az vm show -d -g $resource -n $vm --query publicIps -o tsv
+result=gcloud compute instances describe $vm --format='get(networkInterfaces[0].accessConfigs[0].natIP)'
 If ($result -eq $null){
     echo "FAIL"
 }else{

@@ -13,6 +13,7 @@ $HOME/.bash_profile
    PATH=$PATH:$HOME/google-cloud-sdk/bin
 and then ru
    source $HOME/.bash_profile
+On Windows, just reopen a new PowerShell window after installing the SDK.
 
 
 Then open a terminal on Mac/Linux, or a PowerShell window on Windows.

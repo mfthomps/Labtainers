@@ -14,7 +14,7 @@ $vm_name=$user_id+"-labtainervm"
 gcloud compute instances create $vm_name --image=https://www.googleapis.com/compute/v1/projects/labtainers/global/images/labtainervm `
    --metadata-from-file=user-data=user_config.txt
 # instances fail ssh until settled
-./waitup.ps1 $user_id 2>/dev/null
+./waitup.ps1 $user_id 2>$null
 echo "Check keys"
 gcloud compute ssh labtainer@$vm_name --command="echo VM booted"
 cp $HOME/.ssh/google_compute_engine $HOME/.ssh/id_labtainers
