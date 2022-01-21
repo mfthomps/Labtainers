@@ -5,7 +5,7 @@
 # This will create an ssh key pair and use it when creating the VM
 #
 If ($args.Count -ne 1){
-    echo "checktunnel.sh <user ID>"
+    echo "create_vm.ps1 <user ID>"
     exit
 }
 $ErrorActionPreference = "Stop"

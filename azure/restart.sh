@@ -4,5 +4,5 @@ if [ "$#" -ne 1 ]; then
     exit
 fi
 user=$1
-./checktunnel.sh $1 || exit 1
+./checktunnel.sh $user || exit 1
 echo "Point your browser to http://localhost:6901"

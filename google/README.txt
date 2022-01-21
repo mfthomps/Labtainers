@@ -13,6 +13,7 @@ $HOME/.bash_profile
    PATH=$PATH:$HOME/google-cloud-sdk/bin
 and then ru
    source $HOME/.bash_profile
+On Windows, just reopen a new PowerShell window after installing the SDK.
 
 
 Then open a terminal on Mac/Linux, or a PowerShell window on Windows.
@@ -38,9 +39,11 @@ That will create a ~/labtainers_google directory.
 Change to the ~/labtainers_google directory 
     cd ~/labtainers_google
 
-Create a project, e.g., "labtainers" in your google cloud account.
 Log into your Google Cloud account:
     gcloud auth login
+
+Create a "labtainers" project, your google cloud account:
+    ./project.sh
 
 Set your default zone and region (e.g., by editing the set_defaults.sh script) and then use
    gcloud init 
