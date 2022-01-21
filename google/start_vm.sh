@@ -6,4 +6,5 @@ fi
 user_id=$1
 vm_name=$user_id-labtainervm
 gcloud -q compute instances start $vm_name 
-./checktunnel.sh $user_id
+./waitup.sh $user_id
+./waitdone.sh $user_id
