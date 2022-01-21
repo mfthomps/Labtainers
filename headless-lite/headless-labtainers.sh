@@ -38,7 +38,7 @@ do_up() {
    printf "Use 'update-labtainer.sh' to update your Labtainers before the first use.\n"
    printf "\n"
    printf "Use ctrl-C to stop Headless Labtainers.\n"
-   docker-compose up >> /tmp/headless.log
+   docker-compose up --no-recreate >> /tmp/headless.log
    printf "\nYour results are in ~/headless-labtainers/labtainer_xfer\n"
 }
 
