@@ -6,8 +6,7 @@ $user=$args[0]
 $suffix = "-labtainervm"
 $vm=$user+$suffix
 echo "get the IP for $vm"
-$ip=./getip.ps1 labtainerResources $vm
-echo "getipi got $ip"
+$ip=./getip.ps1 $vm
 
 if ($ip -eq "FAIL"){
     echo "Failed to get ip of $vm"

@@ -5,4 +5,4 @@ If ($args.Count -ne 1){
 $user=$args[0]
 $vm=$user+"-labtainervm"
 gcloud -q compute instances start $vm_name 
-./checktunnel.sh $user_id
+./checktunnel.ps1 $user_id

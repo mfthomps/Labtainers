@@ -8,7 +8,7 @@ echo "Retrieving Labtainer results from $vm"
 if (-not(test-path $HOME/labtainer_xfer)){
     mkdir -p $HOME/labtainer_xfer
 }
-$ip=./getip.ps1 labtainerResources $vm
+$ip=./getip.ps1 $vm
 if ($ip -eq "FAIL" ){
     echo "Failed to get ip of $vm"
     exit 1

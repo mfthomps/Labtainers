@@ -3,5 +3,5 @@ If ($args.Count -ne 1){
     exit
 }
 $user=$args[0]
-./checktunnel.sh $user 
+./checktunnel.ps1 $user 
 echo "Point your browser to http://localhost:6901"
