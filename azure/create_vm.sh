@@ -1,30 +1,17 @@
-#!/bin/bash
-#
-# Create an Azure VM for a student, assuming the user has
-# an Azure account and the CLI installed.
-#
-# This will create an ssh key pair and use it when creating the VM
-#
 if [ "$#" -ne 1 ]; then
     echo "create_vm.sh <user ID>"
     exit
 fi
 user_id=$1
 vm_name=$user_id-labtainervm
-rm -f ~/.ssh/id_labtainers*
-ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_labtainers -q -N ""
-key=$(cat ~/.ssh/id_labtainers.pub)
-echo "key generated"
-cp cloud_init.template cloud_init.txt
-./resourcecheck.sh || exit 1
-echo "Creating Azure VM $vm_name for $user_id"
+disk=$user_id-labtainervm-disk
+./create_disk.sh $disk || exit 1
 az vm create \
- --resource-group labtainerResources \
- --name $vm_name \
- --image UbuntuLTS \
- --admin-username labtainer \
- --generate-ssh-keys \
- --ssh-key-values ~/.ssh/id_labtainers.pub \
- --custom-data cloud_init.txt > $user_id.json
-
-./waitdone.sh $user_id
+    --resource-group labtainerResources \
+    --name $vm_name \
+    --os-type linux \
+    --attach-os-disk $disk \
+    --output none
+./update_user.sh $user_id || exit 1
+./get_headless.sh $user_id || exit 1
+./waitweb.sh $user_id
