@@ -4,4 +4,7 @@ if [ "$#" -ne 1 ]; then
 fi
 user_id=$1
 vm_name=$user_id-labtainervm
-az vm user update -u labtainer --ssh-key-value "$(< ~/.ssh/id_labtainers.pub)" -n $vm_name -g labtainerResources
+if [ ! -f ~/.ssh/id_labtainers ]; then
+    ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_labtainers -q -N ""
+fi
+az vm user update -u labtainer --ssh-key-value "$(< ~/.ssh/id_labtainers.pub)" -n $vm_name -g labtainerResources --output none
