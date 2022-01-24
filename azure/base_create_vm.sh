@@ -11,10 +11,10 @@ if [ "$#" -ne 1 ]; then
 fi
 user_id=$1
 vm_name=$user_id-labtainervm
-rm -f ~/.ssh/id_labtainers*
-ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_labtainers -q -N ""
-key=$(cat ~/.ssh/id_labtainers.pub)
-echo "key generated"
+if [ ! -f ~/.ssh/id_labtainers ]; then
+    ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_labtainers -q -N ""
+    echo "new key generated"
+fi
 cp cloud_init.template cloud_init.txt
 ./resourcecheck.sh || exit 1
 echo "Creating Azure VM $vm_name for $user_id"
