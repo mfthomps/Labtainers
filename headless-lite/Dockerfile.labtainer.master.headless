@@ -29,6 +29,7 @@ ENV VNCHOST=novnc
 COPY  --chown=labtainer:labtainer ./motd /etc/motd
 COPY  --chown=labtainer:labtainer ./docker-entrypoint /
 COPY  --chown=labtainer:labtainer ./wait-for-it.sh /
+COPY  ./waitForX.sh /usr/bin/
 COPY  --chown=labtainer:labtainer ./doterm.sh /home/labtainer/.doterm.sh
 COPY  --chown=labtainer:labtainer ./doupdate.sh /home/labtainer/.doupdate.sh
 RUN touch /home/labtainer/labtainer/.doupdate

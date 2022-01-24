@@ -12,13 +12,13 @@ $ErrorActionPreference = "Stop"
 $user_id=$args[0]
 $vm_name=$user_id+"-labtainervm"
 $disk=$user_id+"-labtainervm-disk"
-./create_disk.sh $disk 
-az vm create \
-    --resource-group labtainerResources \
-    --name $vm_name \
-    --os-type linux \
-    --attach-os-disk $disk \
+./create_disk.ps1 $disk 
+az vm create `
+    --resource-group labtainerResources `
+    --name $vm_name `
+    --os-type linux `
+    --attach-os-disk $disk `
     --output none
-./update_user.sh $user_id
-./get_headless.sh $user_id
-./waitweb.sh $user_id
+./update_user.ps1 $user_id
+./get_headless.ps1 $user_id
+./waitweb.ps1 $user_id

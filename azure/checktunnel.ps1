@@ -1,5 +1,5 @@
 If ($args.Count -ne 1){
-    echo "checktunnel.sh <user ID>"
+    echo "checktunnel.ps1 <user ID>"
     exit
 }
 $user=$args[0]

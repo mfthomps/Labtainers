@@ -5,4 +5,5 @@ If ($args.Count -ne 1){
 $user=$args[0]
 $vm=$user+"-labtainervm"
 az vm delete --yes -g labtainerResources -n $vm
+./delete_disk.sh $user
 echo "VM $vm has been deleted"
