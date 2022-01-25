@@ -312,7 +312,7 @@ changes to the {\tt resolv.conf} DNS naming can be achieved using {\tt /etc/rc.l
 \label{cloud-labtainers}
 Labtainers can be run on cloud services and accessed via a browser.
 Cloud service providers may offer free accounts for students or others looking to learn about their cloud services.
-Currently, Labtainers works with the Azure cloud as described below.
+Currently, Labtainers works with the Azure and Google cloud platforms as described below.
 
 \subsection{Azure Cloud}
 These instructions assume the user 
@@ -418,6 +418,121 @@ long the VM is dormant.
 \end{verbatim}
 
 \item Shutting down the VM without deallocating or deleting it will not stop charges.
+\end{itemize}
+
+\subsection{Google Cloud Platform}
+These instructions assume you have a google cloud account. \url{https://cloud.google.com/}
+
+This requires that the Google Cloud SDK be installed on  the Mac, Windows or Linux:
+\url{https://cloud.google.com/sdk/docs/quickstart}
+
+On Linux/Mac, add the {\tt google-cloud-sdk/bin} directory to your PATH environment variable.  For example,
+if you put the SDK in your home directory, then add this to your 
+{\tt \$HOME/.bash\_profile}
+\begin{verbatim}
+   PATH=$PATH:$HOME/google-cloud-sdk/bin
+\end{verbatim}
+\noindent and then run
+\begin{verbatim}
+   source $HOME/.bash_profile
+\end{verbatim}
+\noindent On Windows, just reopen a new PowerShell window after installing the SDK.
+
+In the following command examples, use the "ps1" file extension instead of "sh" when using PowerShell.
+\begin{itemize}
+\item Open a terminal on Mac/Linux, or a PowerShell window on Windows.
+\item Install the local scripts by getting this script (make it executable on Mac or Linux):
+\url{https://raw.githubusercontent.com/mfthomps/Labtainers/master/google/install\_labtainers.sh}
+Or on Windows:
+\url{https://raw.githubusercontent.com/mfthomps/Labtainers/master/google/install\_labtainers.ps1}
+
+On Mac or Linux:
+\begin{itemize}
+\item {\tt curl -L \url{https://raw.githubusercontent.com/mfthomps/Labtainers/master/google/install\_labtainers.sh}  --output install\_labtainers.sh}
+\item  {\tt chmod a+x install\_labtainers.sh}
+\end{itemize}
+\noindent On Windows:
+\begin{itemize}
+\item {\tt wget \url{https://raw.githubusercontent.com/mfthomps/Labtainers/master/google/install\_labtainers.sh} -OutFile install\_labtainers.ps1}
+\end{itemize}
+
+\item Then run it (Mac/Linux).   
+\begin{verbatim}
+    ./install_labtainers.sh
+\end{verbatim}
+\noindent Windows:
+\begin{verbatim}
+    ./install_labtainers.ps1
+\end{verbatim}
+
+\noindent That will create a {\tt \$HOME/labtainers\_google} directory.  
+
+\item Change to the {\tt \$HOME/labtainers\_google directory}
+\begin{verbatim}
+    cd $HOME/labtainers_google
+\end{verbatim}
+
+\item Log into your Google cloud account from the command line:
+\begin{verbatim}
+   gcloud auth login
+\end{verbatim}
+\item Define your default region and zone by editing and running the set\_defaults.sh script. And then initialize
+using:
+\begin{verbatim}
+   gcloud init
+\end{verbatim}
+
+\item Once logged into the Google Cloud with default region/zone defined, run the create\_vm.sh (or create\_vm.ps1 for windows) script, passing in a user ID.
+The ID can be any name, e.g.,
+\begin{verbatim}
+    ./create_vm.sh myname
+\end{verbatim}
+
+\item On Linux/Mac, you will be prompted for an ssh passphase, leave it blank.  On Windows, ignore the warnings
+about ssh keys.
+
+\item The create\_vm script may take a while to run.  The process is complete when you see “Labtainers is up.  
+Point a local browser to http://localhost:6901” and perform the labs.
+When prompted for a password in the browser, just click submit or OK, i.e., leave the password blank.
+The password for the labtainer user in the VM is labtainer.  
+
+\item When done with labs, run the get\_results.sh (or get\_results.ps1) script: 
+\begin{verbatim}
+    ./get_results.sh <user ID>
+\end{verbatim}
+\noindent This will store your Labtainer results in ~/labtainer\_xfer.  Provide those
+results to your instructor.
+
+\item If you become unable to reach the Labtainers via your browser, e.g., after 
+shutting down your computer, simple use the restart.sh script:
+\begin{verbatim}
+    ./restart.sh <user ID>
+\end{verbatim}
+
+\item The create\_vm.sh script will create an SSH key pair named id\_labtainers within your ~/.ssh directory.
+The private key in id\_labtainers is not passphrase protected, so you must protect it.
+You may move the keys to a different computer and access your Labtainers from that computer's
+browser.  You must first run the install\_labtainers.sh script on that computer, and then run
+the restart.sh script.
+
+\item When done with a lab, use
+\begin{verbatim}
+   ./stop_vm.sh <user ID> 
+\end{verbatim}
+to stop incurring processing charges.  Note you may still incur storage charges until the VM is delete.
+
+\item To restore a VM after you stopped it, use:
+\begin{verbatim}
+    ./start_vm.sh <user ID>
+\end{verbatim}
+
+\item When completely done with the VM, use the delete\_vm.sh script to stop incurring all charges:
+\begin{verbatim}
+    ./delete_vm.sh <user ID>
+\end{verbatim}
+
+\item Shutting down the VM without deleting it will not stop all charges, but will stop processing charges.
+See the Google Cloud dashboard and pricing for more information.
 \end{itemize}
 
 \pagebreak

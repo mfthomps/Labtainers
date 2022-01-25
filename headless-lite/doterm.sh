@@ -10,8 +10,11 @@ if [[ result -ne 0 ]];then
 fi
 source $LABTAINER_DIR/setup_scripts/lab-completion.bash
 
+/usr/bin/waitForX.sh 
+sleep 2
 gnome-terminal --geometry 120x31+150+100 --working-directory=$HOME/labtainer/labtainer-student -- bash -c "/bin/cat README; exec bash" &
 if [[ -f $HOME/labtainer/.doupdate ]] && [[ "$LABTAINER_UPDATE" != 'FALSE' ]]; then
     gnome-terminal --geometry 73x31+100+300 --working-directory=$HOME/labtainer -- bash -c  "/home/labtainer/.doupdate.sh"
+    rm $HOME/labtainer/.doupdate
 fi
 

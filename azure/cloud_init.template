@@ -45,7 +45,7 @@ runcmd:
 
 - mkdir /home/labtainer/headless-labtainers
 - chown labtainer:labtainer /home/labtainer/headless-labtainers
-- wget -P /home/labtainer/headless-labtainers https://raw.githubusercontent.com/mfthomps/Labtainers/premaster/headless-lite/headless-labtainers.sh
+- wget -P /home/labtainer/headless-labtainers https://raw.githubusercontent.com/mfthomps/Labtainers/master/headless-lite/headless-labtainers.sh
 - chmod a+x /home/labtainer/headless-labtainers/headless-labtainers.sh
 - systemctl enable headless-labtainers.service
 - docker pull labtainers/labtainer.master.headless
