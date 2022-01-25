@@ -1,6 +1,6 @@
 #!/bin/bash
 if [ "$#" -ne 1 ]; then
-    echo "stop.sh <user ID>"
+    echo "copy_to_blob.sh <user ID>"
     exit
 fi
 user=$1
