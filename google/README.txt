@@ -55,10 +55,11 @@ Once logged into the Google Cloud, run the create_vm.sh (or create_vm.ps1 for wi
 The ID can be any name, e.g.,
     ./create_vm.sh myname
 
-When prompted for an ssh passphase, leave it blank.
+One Linux/Mac, you will be prompted for an ssh passphase, leave it blank.  On Windows, ignore the warnings
+about ssh keys.
 
 The create_vm script may take a while to run.  The process is complete when you see “Labtainers is up.  
-Point a local browser to localhost:6901” and perform the labs.
+Point a local browser to http://localhost:6901” and perform the labs.
 When prompted for a password in the browser, just click submit or OK, i.e., leave the password blank.
 The password for the labtainer user in the VM is labtainer.  
 
