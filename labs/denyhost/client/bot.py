@@ -12,7 +12,7 @@ ON_POSIX = 'posix' in sys.builtin_module_names
 def doLogin(uid, passwd):
     retval = True
     logging.debug("in doLogin for %s %s" % (uid, passwd))
-    command = 'sshpass -p"%s" ssh -tt %s@172.20.0.3 exit' % (passwd, uid)
+    command = 'sshpass -p"%s" ssh  -o "StrictHostKeyChecking=no" -tt %s@172.20.0.3 exit' % (passwd, uid)
     #print "command is (%s)" % command
     p = Popen(command, shell=True, stdout=PIPE, stdin=PIPE, stderr=PIPE, bufsize=1, close_fds=ON_POSIX)
 
