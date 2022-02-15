@@ -1,5 +1,4 @@
 #!/bin/bash
-echo "in delete_vm"
 if [ "$#" -ne 1 ]; then
     echo "delete_vm.sh <user ID>"
     exit
