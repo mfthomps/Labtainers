@@ -18,6 +18,7 @@ copy cloud_init.template cloud_init.txt
 ./resourcecheck.ps1
 echo "Creating Azure VM $vm_name for $user_id"
 az vm create `
+ --public-ip-sku Standard `
  --resource-group labtainerResources `
  --name $vm_name `
  --image UbuntuLTS `

@@ -4,7 +4,7 @@ If ($args.Count -ne 1){
 }
 $user=$args[0]
 $vm=$user+"-labtainervm"
-Write-Host -NoNewLine "Waiting for VM to provision and reboot."
+Write-Host -NoNewLine "Waiting for VM to provision and reboot.  This may take a few minutes..."
 while($true){
     $result=netstat -an | findstr 6901
     If ($result -eq $null){
