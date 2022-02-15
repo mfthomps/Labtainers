@@ -24,6 +24,7 @@ az vm create \
  --name $vm_name \
  --image UbuntuLTS \
  --admin-username labtainer \
+ --nic-delete-option delete \
  --generate-ssh-keys \
  --ssh-key-values ~/.ssh/id_labtainers.pub \
  --custom-data cloud_init.txt > $user_id.json
