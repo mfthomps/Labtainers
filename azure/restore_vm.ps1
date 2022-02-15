@@ -5,6 +5,5 @@ If ($args.Count -ne 1){
 $user=$args[0]
 $vm=$user+"-labtainervm"
 az vm start  -g labtainerResources -n $vm
-./checktunnel.ps1 $user
-echo "VM $vm has been started."
-echo "Labtainers is up.  Point browser to localhost:6901"
+Start-Sleep -s 2
+./waitdone.ps1 $user_id
