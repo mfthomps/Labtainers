@@ -5,7 +5,7 @@ if [ "$#" -ne 1 ]; then
 fi
 user=$1
 vm=$user-labtainervm
-echo "vm is $vm"
+echo -n "Waiting for VM to provision and reboot.  This may take a few minutes..."
 while : 
 do
     result=$(ps aux | grep ssh | grep 6901)
@@ -13,7 +13,7 @@ do
         echo "gone"
         exit
     else
-        echo "still here"
+        echo -n "."
         sleep 20
     fi
 done

@@ -12,10 +12,11 @@ while :
 do
     curl localhost:6901 --output index.html -s
     if [ -f index.html ]; then
-        echo "\nWeb server is up."
+        echo ""
+        echo "Web server is up."
         break
     fi
     echo -n "."
     sleep 5
 done
-echo "Labtainers is up.  Point browser to http://localhost:6901"
+echo "Labtainers is up.  Point a browser to http://localhost:6901"

@@ -89,8 +89,11 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+February 15, 2022
+- Revert Azure cloud support to provision for each student.  Azure discourages sharing resources.
+
 January 24, 2022
-- Azure cloud now uses image stored in an Azure blob instead of reprovisioning for each student.
+- Azure cloud now uses image stored in an Azure blob instead of provisioning for each student.
 - Added support for Google Cloud.
 
 January 19, 2022

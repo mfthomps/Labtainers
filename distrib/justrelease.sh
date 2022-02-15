@@ -82,6 +82,13 @@ rm -f azure.tar
 tar -cf azure.tar *
 mv azure.tar $release_dir/distrib/artifacts
 
+echo "Build Google tar"
+cd $release_dir
+cd google
+rm -f google.tar
+tar -cf google.tar *
+mv google.tar $release_dir/distrib/artifacts
+
 cd $release_dir/distrib
 echo "Now generate release"
 
@@ -96,5 +103,7 @@ github-release upload --security-token $gitpat --user mfthomps --repo Labtainers
 github-release upload --security-token $gitpat --user mfthomps --repo Labtainers --tag $new_tag --name makepackui.jar --file artifacts/makepackui.jar
 echo "Upload Azure"
 github-release upload --security-token $gitpat --user mfthomps --repo Labtainers --tag $new_tag --name azure.tar --file artifacts/azure.tar
+echo "Upload Google"
+github-release upload --security-token $gitpat --user mfthomps --repo Labtainers --tag $new_tag --name google.tar --file artifacts/google.tar
 git checkout premaster
 git fetch --tags
