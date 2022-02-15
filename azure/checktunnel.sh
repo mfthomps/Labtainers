@@ -16,6 +16,12 @@ result=$(ps aux | grep ssh | grep 6901)
 if [ -z "${result}" ]; then
     echo "No tunnel, create one."
     ssh -AfN -L 6901:127.0.0.1:6901 -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -o "ServerAliveInterval 60" -i "~/.ssh/id_labtainers" labtainer@$ip
+    RESULT=$?
+    if [ $RESULT -ne 0 ]; then
+        echo "try again to create tunnel"
+        sleep 5
+        ssh -AfN -L 6901:127.0.0.1:6901 -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -o "ServerAliveInterval 60" -i "~/.ssh/id_labtainers" labtainer@$ip
+    fi
 else
    if [[ "$result" == *"$ip"* ]]; then
        echo "Proper tunnel already exists."

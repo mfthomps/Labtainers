@@ -13,5 +13,16 @@ export LABTAINER_DIR=/home/labtainer/labtainer/trunk
 /home/labtainer/.doterm.sh > /dev/null 2>&1
 while true
 do
+    sleep 5
+    got_term=$(ps aux | grep [g]nome-terminal)
+    if [ -z "$got_term" ]; then
+        echo "failed terminal, try again" >>/tmp/termfail.log
+        /home/labtainer/.doterm.sh > /dev/null 2>&1
+    else
+        break
+    fi
+done
+while true
+do
     sleep 2000
 done
