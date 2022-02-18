@@ -41,11 +41,15 @@ The easiest way to get Labtainers is to use our pre-built VM available at the La
 website \url{https://nps.edu/web/c3o/virtual-machine-images}.
 Note that any Linux system can be used as long as it supports Docker.
 
-If Labtainers is to be used on a system other than the pre-built VM,
+Students and instrutors can also create Labtainer VMs on the cloud using either Azure or Google cloud platforms.
+See the section on ``Cloud Labtainers'' in the 
+\underline{Labtainer Student Guide} for information on how to create Labtainer VMs in the cloud.
+
+If Labtainers is to be used on a system other than the pre-built VM or the cloud,
 refer to the \underline{Labtainer Student Guide} for information on
 installing Labtainers.
 
-Running Labtainers on servers, e.g., cloud deployments is discussed in
+Running Labtainers on servers, (e.g., Virtual Desktop Interface), deployments is discussed in
 section \ref{servers}
 
 \section{Assigning Labs}
@@ -261,8 +265,11 @@ of those labs, or alter them to direct students to alternate network addresses.
 
 \subsection{Deploying on servers}
 \label{servers}
-Labtainers can be deployed on servers and accessed by students using a web browser.  This assumes you have
-access to suitable infrastructure and IT support.  Two general approaches are:
+Labtainers can be deployed on servers and accessed by students using a web browser.  Labtainers includes
+scripts for creating and accessing Labtainer VMs in the Azure and Google cloud platforms as described in
+the Labtainers Student Guide.  
+
+You can also create you own deployments, assuming you have access to suitable infrastructure and IT support.  Two general approaches are:
 \begin{enumerate}
 \item Virtual Desktop Infrastructure -- Use VDI products such as VMWare Horizon 
 to run Labtainer VMs. In these environments, each student is allocated a VM, and that VM's desktop is seen 
