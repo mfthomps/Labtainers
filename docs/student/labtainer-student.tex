@@ -248,18 +248,29 @@ Do not run multiple labs simultaneously.  Consistent results cannot be guarantee
 %----------------
 \subsection{Networking}
 In addition to network properties defined for the lab,
-each component \texttt{/etc/host} file includes a ``my\_host entry'' that names
-the Linux host, e.g., the VM.  Most containers will include a default gateway that
-leads to the Linux host.  This allows students to scp files to/from the container and Linux host.
-It also allows the student to reach external networks, e.g., to fetch additional packages in
-support of student exploration.
+each component \texttt{/etc/host} file includes a {\tt my\_host entry} that names
+the Linux host, e.g., the VM.  This allows students to scp files to/from the container and Linux host.
 
-In some instances, the lab requires one or more components to a have different default route.
-Typically, these components will include a \textit{togglegw.sh} script that the student
-can use to toggle the default gateway between one that leads to the host, and one defined for the lab.
-This allows students to add packages on components having lab-specific default gateways.
-Use of the \textit{togglegw.sh} script is not necessary to reach the Linux host, (e.g., to scp files).
+Most containers will include a default gateway route that
+leads to a virtual gateway on the Linux host.  This allows the student to reach external networks, e.g., to 
+fetch additional packages in support of student exploration.  Note however that in some labs, one or 
+more components may have a different default route for purposes of the lab.  And these default routes preclude
+reaching external networks, e.g., to add new packages with {\tt apt-get}.  This limitation can be temporarily 
+remedied by running this command on the computer:
+\begin{verbatim}
+    /usr/bin/togglegw.sh host
+\end{verbatim}
+\noindent This will change the default route to use the virtual gateway.  When done, restore the original
+default route with:
+\begin{verbatim}
+    /usr/bin/togglegw.sh container
+\end{verbatim}
+Note however that a few labs preclude connection to external networks, regardless of routing.  The intent is to keep things
+like Metasploit off your campus network.
 
+Use of the \textit{togglegw.sh} script is not necessary to reach the Linux host, (e.g., to scp files) 
+if the default route leads to a gateway having a default route leading to the virtual gateway.  Try the scp, and
+if it fails try using the {\tt togglegw.sh} script.
 
 \subsection{Installing and Using Labtainers Behind a Web Proxy}
 If you are not behind a web proxy, ignore this section (most school environments
