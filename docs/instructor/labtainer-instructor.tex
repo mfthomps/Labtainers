@@ -248,6 +248,17 @@ either stop the lab using {\tt stoplab}, or simply pause the VM.  However, if th
 Labtainer-related work on the VM, (e.g., revisit a previous lab), they should first use {\tt stoplab} for the current
 lab.  When they restart the lab, none of their work will be lost.
 
+If you are using automated assessment for labs, it may be helpful to remind students to run stoplab prior to 
+sending you their results archive from the {\tt labtainer\_xfer} directory.
+
+Students can review their own work on labs that include automated assessment using the {\tt checkwork} command.
+A few labs include quiz questions.  For example, the database-access lab includes a quiz that students should perform
+to ensure they understand the desired security policy before making changes to database schema.
+
+\subsection{Networking}
+You may wish to direct students to install additional packages within a lab.  Please refer to the \textit{Networking} section
+of the student guide for information on access to external networks, e.g., to use {\tt apt-get} or {\tt yum}.
+
 \subsection{Deploying without the Internet}
 Labtainers pulls Docker images from Docker Hub when a student first runs any given lab.  You can deploy
 Labtainers within environments that have no Internet connection by first creating your own 
