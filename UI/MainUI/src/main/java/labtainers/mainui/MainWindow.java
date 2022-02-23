@@ -1731,6 +1731,14 @@ public class MainWindow extends javax.swing.JFrame {
             
             // Add the container into the user's file system
             addContainer(containerName, baseImage);
+            // Reload from newly modified start.config
+            File lab = null;
+            lab = new File(labsPath+File.separator+this.labName);
+            try{
+                this.labDataCurrent = new LabData(this, lab, this.labName); 
+            }catch(IOException ex){
+                System.out.println("failed load labData file for "+this.labName);
+            }
         }
         else {
             newContainer = new ContainerObjPanel(this, data);
