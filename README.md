@@ -89,6 +89,12 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+February 23, 2022
+- labedit was corrupting start.config after addition of new containers
+- Incorrect path to student guide in the student README file; dynamically change for cloud configs
+- Incorrect extension to update-labtainer.sh
+- Msc guide enahancements
+
 February 15, 2022
 - Revert Azure cloud support to provision for each student.  Azure discourages sharing resources.
 
