@@ -1243,8 +1243,9 @@ configuration file at:
 \begin{enumerate}
 \item The program that was invoked
 \item Whether the artifact is in stdin or stdout or is program output (prgout) as descrbed in section \ref{program output}
-\item An explicit file name, either as an absolute path or relative to the user HOME directory.  These are intended
-to be persistent log files, e.g., syslogs.
+\item An explicit file name, either as an absolute path or a path relative to the user HOME directory.  These are intended
+to be persistent files, e.g., syslogs.  \textbf{Note} files relative to the HOME directory must be expressed as relative paths and
+cannot be absolute paths.
 \end{enumerate}
 
 One or more properties of each artifact file are assigned symbolic names, referred to herein as \textit{results}, which 
@@ -1286,8 +1287,9 @@ or program output (prgout) artifacts will include timestamps.
 The optional {\tt container\_name} identifies the container hosting 
 the file.  Labs with a single container can omit this qualifier.  
 Alternately, an explicit {\tt file\_path} is intended for log files of services that persist 
-across multiple student operations.  If the given path is not 
-absolute, it is relative to the container user's home directory. 
+across multiple student operations.  If the file of interest is
+relative to the user's home directory, the path must be expressed as a relative
+path.  Otherwise, the path must be an absolute path.  
 The wildcard character '*' can be used in place of {\tt prog},
 i.e., *.stdin is for all stdin artifacts and *.stdout is for all 
 stdout artifacts. Note prestop files are excluded from wildcard
