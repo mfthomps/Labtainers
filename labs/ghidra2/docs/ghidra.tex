@@ -1,0 +1,101 @@
+\input{header}
+\begin{document}
+
+\begin{center}
+{\LARGE Ghidra Introduction}
+\vspace{0.1in}\\
+\end{center}
+
+
+\section{Overview}
+This lab introduces the Ghidra software reverse engineering suite \url{ghidra-sre.org}.
+You will use Ghidra to analyze a binary executable to determine some of its properties.
+
+\subsection {Background}
+The student is expect to have some background in low level programming and basic networking.
+
+\section{Lab Environment}
+This lab runs in the Labtainer framework,
+available at http://nps.edu/web/c3o/labtainers.
+That site includes links to a pre-built virtual machine
+that has Labtainers installed, however Labtainers can
+be run on any Linux host that supports Docker containers.
+
+From your labtainer-student directory start the lab using:
+\begin{verbatim}
+    labtainer ghidra
+\end{verbatim}
+\noindent A link to this lab manual will be displayed.  
+
+\section{Network Configuration}
+The lab includes two computers, one of which is a network server that is
+only visible via the network, i.e., it has no terminal.  The visible computer,
+name {\tt ghidra} contains the Ghidra tool suite and a copy of the service that
+is running on the server.  You have two terminal windows to this computer. Use the
+{\tt moreterm.py} command to get more.
+
+The server IP address is 172.25.0.2.  Use ping to confirm a connection:
+\begin{verbatim}
+ping 172.25.0.2
+\end{verbatim}
+
+\section{Lab Tasks}
+\subsection{Context}
+A copy of the software service is on the {\tt ghidra} computer in your home directory
+in a file named {\tt cadet01}\footnote{This program originated in DARPA Cyber Grand Challenge
+as the simple example of a vulnerable network service.}.  
+That program is running on the server.  Your goals are to communicate with the service; cause
+it to display an ``easter egg''; and then crash the program.  You will use Ghidra to analyze the
+{\tt cadet01} program to achieve these goals.
+
+\subsection{Start Ghidra}
+Ghidra is pre-installed on your computer.  Start it by running {\tt ./ghidra} from your home
+directory.  After accepting the license terms, you will see two windows.  One of those is online help.
+Use that to familiarize yourself with the tool.
+
+\subsubsection{Create a project and import cadet01}
+Use the Ghidra main window {\tt File / New project} menu item to create a new project.  Then use
+{\tt File / Import file} to import the {\tt cadet01} program.  After the {\tt cadet01} program appears
+int the {\tt Active Project} window, double click on it.  When prompted to analyze it, select {\tt Yes},
+and accept the default Analyzers.
+
+You should then see a new window titled {\tt CodeBrowser}...  On the left edge middle window pane, titled
+{\tt SymbolTree}, expand the item named {\tt Functions}.  View that list, it is the set of functions that Ghidra
+has identified within the executable.  Find the {\tt main} function and select it.  Note that the large middle pane
+now contains the disassembled listing of the main function, and the right-most pane contains a decompiled listing of
+pseudo-code resulting from the Ghidra analysis.
+
+Explore the program by looking at what functions are called by main, and what functions are called by those functions.
+
+\subsection{Find the service's network port}
+Look through the {\tt cadet01} functions to find the port number that is used when binding to the network socket.
+Once you have found the port number, use it to communicate with the service.  For example, use the {\tt netcat} program:
+\begin{verbatim}
+   echo "Hi" | nc 172.25.0.2 <port number>
+\end{verbatim}
+\noindent where {\tt port number} is what you found.  If you are successful you should see a reply from the service.
+
+\subsection{Find the Easter egg}
+A particular input to the service will cause it to display an Easter egg.  Use Ghidra to identify the required input.
+Use that knowldege to send the service a string that will cause the Easter egg to display.
+
+\subsection{Crash the service}
+Review how the {cadet01} service handles input read from the network.  Find the buffer variable into which the service receives
+network data and rename it to "buffer" -- do this in functions that reference the variable.  Make note of the buffer size.
+Also identify the variable that 
+constrains the quantity of bytes that will be read into the buffer.  Give it label of {\tt byte\_count}.
+
+Finally, based on what you found above, find an input that will cause the service to crash.
+You will know it has crashed if {\tt netcat} displays a ``Connection reset by peer'' message.
+
+\section{Submission}
+After finishing the lab, go to the terminal on your Linux system that was used to start the lab and type:
+\begin{verbatim}
+    stoplab 
+\end{verbatim}
+When you stop the lab, the system will display a path to the zipped lab results on your Linux system.  Provide that file to 
+your instructor, e.g., via the Sakai site.
+
+\copyrightnotice
+
+\end{document}

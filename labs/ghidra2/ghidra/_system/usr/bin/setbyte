@@ -1,0 +1,12 @@
+#!/usr/bin/env python
+import sys
+
+fileName = sys.argv[1]
+offset = int(sys.argv[2], 16)
+byte = int(sys.argv[3], 16)
+
+b = bytes([byte])[0]
+with open(fileName, "r+b") as fh:
+    fh.seek(offset)
+    fh.write(b)
+
