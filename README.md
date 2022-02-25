@@ -94,6 +94,7 @@ February 23, 2022
 - Incorrect path to student guide in the student README file; dynamically change for cloud configs
 - Incorrect extension to update-labtainer.sh
 - Msc guide enahancements
+- Update the ghidra lab to include version 10.1.2 of Ghidra
 
 February 15, 2022
 - Revert Azure cloud support to provision for each student.  Azure discourages sharing resources.
