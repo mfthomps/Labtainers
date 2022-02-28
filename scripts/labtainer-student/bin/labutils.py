@@ -1184,19 +1184,20 @@ def GetBothConfigs(lab_path, logger, servers=None, clone_count=None):
 
 def pullDockerImage(registry, image_name):
     image = '%s/%s' % (registry, image_name)
-    return dockerPull.pull(image)
-    '''
-    cmd = 'docker pull %s/%s' % (registry, image_name)
-    logger.debug('%s' % cmd)
-    print('pulling %s from %s' % (image_name, registry))
-    ps = subprocess.Popen(shlex.split(cmd), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-    output = ps.communicate()
-    if len(output[1]) > 0:
-        return False
-    print('Done with pull')
-    return True
-    '''
-
+    retval =  dockerPull.pull(image, logger=logger)
+    if not retval:
+        code = urllib.request.urlopen("https://hub.docker.com").getcode()
+        if code != 200:
+            print('Could not reach hub.docker.com')
+            logger('Could not reach hub.docker.com')
+            code = urllib.request.urlopen("https://google.com").getcode()
+            if code != 200:
+                print('Could not reach google either, is the network functioning?')
+                logger('Could not reach google either, is the network functioning?')
+        else:
+            print('Docker hub can be reached, maybe a problem with their site. Try later.')
+            logger('Docker hub can be reached, maybe a problem with their site. Try later.')
+    return retval
 
 def defineAdditionalIP(container_name, post_start_if, post_start_nets):
     for subnet in post_start_nets:

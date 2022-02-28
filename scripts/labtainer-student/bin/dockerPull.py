@@ -17,7 +17,11 @@ def hide():
 def show():
     cmd = "\033[?25h"
     sys.stdout.write(cmd)
-def pull(full_image_name):
+def log(s, logger):
+    if logger is not None:
+        logger.debug(s)
+ 
+def pull(full_image_name, logger=None):
     client = docker.from_env()
     #image = client.images.pull(full)
     #print(image.id)
@@ -27,6 +31,7 @@ def pull(full_image_name):
         pull_result = client.api.pull(full_image_name, stream=True, decode=True)
     except:
         print('Failed Docker pull of %s, network problem or image does not exist.' % full_image_name)
+        log(('Failed Docker pull of %s, network problem or image does not exist.' % full_image_name),logger)
         return False
     for line in pull_result:
         if 'status' not in line:
