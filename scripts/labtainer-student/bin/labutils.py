@@ -1186,17 +1186,30 @@ def pullDockerImage(registry, image_name):
     image = '%s/%s' % (registry, image_name)
     retval =  dockerPull.pull(image, logger=logger)
     if not retval:
-        code = urllib.request.urlopen("https://hub.docker.com").getcode()
-        if code != 200:
+        dockerok = False
+        try:
+            code = urllib.request.urlopen("https://hub.docker.com").getcode()
+            if code == 200:
+                dockerok = True
+            else:
+                print('Problem contacting docker hub, code %d' % code)
+                logger.debug('Problem contacting docker hub, code %d' % code)
+        except:
+            pass
+        if not dockerok:
             print('Could not reach hub.docker.com')
-            logger('Could not reach hub.docker.com')
-            code = urllib.request.urlopen("https://google.com").getcode()
-            if code != 200:
+            logger.debug('Could not reach hub.docker.com')
+            try:
+                code = urllib.request.urlopen("https://google.com").getcode()
+                if code != 200:
+                    print('Could not reach google either, is the network functioning?')
+                    logger.debug('Could not reach google either, is the network functioning?')
+            except:
                 print('Could not reach google either, is the network functioning?')
-                logger('Could not reach google either, is the network functioning?')
+                logger.debug('Could not reach google either, is the network functioning?')
         else:
             print('Docker hub can be reached, maybe a problem with their site. Try later.')
-            logger('Docker hub can be reached, maybe a problem with their site, or rate limites:')
+            logger.debug('Docker hub can be reached, maybe a problem with their site, or rate limites:')
             limit_cmd = os.path.join(os.getenv('LABTAINER_DIR'), 'scripts','labtainer-student', 'bin', 'ratelimit.sh')
             os.system(limit_cmd)
     return retval
