@@ -1196,7 +1196,7 @@ def pullDockerImage(registry, image_name):
                 logger('Could not reach google either, is the network functioning?')
         else:
             print('Docker hub can be reached, maybe a problem with their site. Try later.')
-            logger('Docker hub can be reached, maybe a problem with their site, or rate limites:'
+            logger('Docker hub can be reached, maybe a problem with their site, or rate limites:')
             limit_cmd = os.path.join(os.getenv('LABTAINER_DIR'), 'scripts','labtainer-student', 'bin', 'ratelimit.sh')
             os.system(limit_cmd)
     return retval
