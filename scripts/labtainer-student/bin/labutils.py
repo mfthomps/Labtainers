@@ -1407,26 +1407,27 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                     logger.error('failed %s' % cmd)
                     results.append(False)
                     return
-            clone_need_seeds = need_seeds
-            if not clone_need_seeds:
-                cmd = "docker exec %s bash -c 'ls -l /var/labtainer/did_param'" % (mycontainer_name)
-                if not DockerCmd(cmd):
-                   print('One or more containers exists but are not parameterized.')
-                   print('Please restart this lab with the "-r" option.')
-                   DoStop(start_config, labtainer_config, lab_path, False)
-                   logger.error('One or more containers exists but not parameterized.')
-                   results.append(False)
-                   return
-    
-            # If the container is just created, then use the previous user's e-mail
-            # then parameterize the container
-            elif quiet_start and clone_need_seeds:
-                ParamForStudent(start_config.lab_master_seed, mycontainer_name, container,
-                                labname, student_email, lab_path, name, image_info, num_containers)
-            
-            elif clone_need_seeds:
-                ParamForStudent(start_config.lab_master_seed, mycontainer_name, container,
-                                                 labname, student_email, lab_path, name, image_info, num_containers)
+            if not container.no_param: 
+                clone_need_seeds = need_seeds
+                if not clone_need_seeds:
+                    cmd = "docker exec %s bash -c 'ls -l /var/labtainer/did_param'" % (mycontainer_name)
+                    if not DockerCmd(cmd):
+                       print('One or more containers exists but are not parameterized.')
+                       print('Please restart this lab with the "-r" option.')
+                       DoStop(start_config, labtainer_config, lab_path, False)
+                       logger.error('One or more containers exists but not parameterized.')
+                       results.append(False)
+                       return
+        
+                # If the container is just created, then use the previous user's e-mail
+                # then parameterize the container
+                elif quiet_start and clone_need_seeds:
+                    ParamForStudent(start_config.lab_master_seed, mycontainer_name, container,
+                                    labname, student_email, lab_path, name, image_info, num_containers)
+                
+                elif clone_need_seeds:
+                    ParamForStudent(start_config.lab_master_seed, mycontainer_name, container,
+                                                     labname, student_email, lab_path, name, image_info, num_containers)
 
             if container.no_gw:
                 cmd = "docker exec %s bash -c 'sudo /bin/ip route del 0/0'" % (mycontainer_name)
@@ -2525,25 +2526,26 @@ def DoStopOne(start_config, labtainer_config, lab_path, name, container, zip_fil
                             logger.error("container %s not running\n" % (mycontainer_name))
                             retval = False
                     continue
-                GatherOtherArtifacts(lab_path, name, mycontainer_name, container_user, container_password, ignore_stop_error)
-                # Before stopping a container, run 'Student.py'
-                # This will create zip file of the result
+                if not container.no_param:
+                    GatherOtherArtifacts(lab_path, name, mycontainer_name, container_user, container_password, ignore_stop_error)
+                    # Before stopping a container, run 'Student.py'
+                    # This will create zip file of the result
+        
+                    baseZipFilename, currentContainerZipFilename = CreateCopyChownZip(start_config, labtainer_config, name, 
+                                 mycontainer_name, mycontainer_image, container_user, container_password, ignore_stop_error, keep_running)
+                    if baseZipFilename is not None:
+                        if currentContainerZipFilename is not None:
+                            zip_file_list.append(currentContainerZipFilename)
+                        else:
+                            logger.debug('currentContainerZipFilename is None for container %s' % mycontainer_name)
     
-                baseZipFilename, currentContainerZipFilename = CreateCopyChownZip(start_config, labtainer_config, name, 
-                             mycontainer_name, mycontainer_image, container_user, container_password, ignore_stop_error, keep_running)
-                if baseZipFilename is not None:
-                    if currentContainerZipFilename is not None:
-                        zip_file_list.append(currentContainerZipFilename)
+                        logger.debug("baseZipFilename is (%s)" % baseZipFilename)
                     else:
-                        logger.debug('currentContainerZipFilename is None for container %s' % mycontainer_name)
-
-                    logger.debug("baseZipFilename is (%s)" % baseZipFilename)
-                else:
-                    logger.debug("baseZipFileName is None for container %s" % mycontainer_name)
-
-                #command = 'docker exec %s echo "%s\n" | sudo -S rmdir /tmp/.mylockdir 2>/dev/null' % (mycontainer_name, container_password)
-                command = 'docker exec %s sudo rmdir /tmp/.mylockdir 2>/dev/null' % (mycontainer_name)
-                os.system(command)
+                        logger.debug("baseZipFileName is None for container %s" % mycontainer_name)
+    
+                    #command = 'docker exec %s echo "%s\n" | sudo -S rmdir /tmp/.mylockdir 2>/dev/null' % (mycontainer_name, container_password)
+                    command = 'docker exec %s sudo rmdir /tmp/.mylockdir 2>/dev/null' % (mycontainer_name)
+                    os.system(command)
                 if not keep_running:
                     did_this = []
                     for mysubnet_name, mysubnet_ip in container.container_nets.items():
@@ -2569,6 +2571,8 @@ def SynchStop(start_config, run_container=None):
     for name, container in start_config.containers.items():
         if run_container is not None and container.full_name != run_container:
             #print('not for me %s ' % run_container)
+            continue
+        if container.no_param:
             continue
         clone_names = GetContainerCloneNames(container)
         for mycontainer_name in clone_names:
