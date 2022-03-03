@@ -22,10 +22,10 @@ The Labtainers website, and downloads (including VM appliances with Labtainers p
 [designer-guide]: docs/labdesigner/labdesigner.pdf
 [Papers]: https://nps.edu/web/c3o/labtainers#papers
 
-Distribution created: 02/15/2022 15:31 </br>
-Revision: v1.3.6t </br>
-Commit: 9a2caf4f </br>
-Branch: master </br>
+Distribution created: 03/02/2022 08:28 </br>
+Previous revision: v1.3.6t </br>
+Commit: 0f983e87 </br>
+Branch: premaster </br>
 
 ## Content
 [Distribution and Use](#distribution-and-use)
@@ -88,6 +88,11 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+
+March 2, 2022
+- Add new ssh-tunnel lab (thanks GWD!)
+- Fix labedit failure to reflect X11 value set by new\_lab\_setup
+- Add option to not parameterize a container
 
 February 23, 2022
 - labedit was corrupting start.config after addition of new containers
