@@ -1,6 +1,6 @@
 #!/bin/bash
 pull_push(){
-   registry=mfthomps
+   registry=labtainers
    test_registry=testregistry:5000
    docker pull $registry/$1 
    docker tag $registry/$1 $test_registry/$1
