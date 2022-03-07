@@ -101,12 +101,23 @@ def DoWork(current_dir, lab_name):
     # 4. Any intermediate pdf file in docs directory, e.g., <lab>/docs/*.aux files that starts
     #    with the labname
     #print "pdflist is (%s)" % pdflist
+    version_base = None
+    version_path = os.path.join(current_dir,'config', 'version')
+    if os.path.isfile(version_path):
+        with open(version_path) as fh:
+            for line in fh:
+                if line.strip().startswith('#') or len(line.strip())==0:
+                    continue
+                parts = line.split()
+                if len(parts) == 2:
+                    version_base = parts[0]
+        
     pdf_extensions = ['dvi','out','log','aux']
     for ext in pdf_extensions:
         pdflist = glob.glob('%s/docs/*.%s' % (current_dir, ext))
         for name in pdflist:
-            #print "current name is %s" % name
-            if os.path.basename(name).startswith(lab_name):
+            #print("current name is %s lab_name %s" % (name, lab_name))
+            if os.path.basename(name).startswith(lab_name) or (version_base is not None and os.path.basename(name).startswith(version_base)):
                 try:
                     os.remove(name)
                 except:

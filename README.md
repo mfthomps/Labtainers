@@ -89,6 +89,11 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+March 2, 2022
+- Add new ssh-tunnel lab (thanks GWD!)
+- Fix labedit failure to reflect X11 value set by new\_lab\_setup
+- Add option to not parameterize a container
+
 February 23, 2022
 - labedit was corrupting start.config after addition of new containers
 - Incorrect path to student guide in the student README file; dynamically change for cloud configs

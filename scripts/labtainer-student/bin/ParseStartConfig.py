@@ -128,6 +128,7 @@ class ParseStartConfig():
             self.wait_for = None    # don't do parameterize/fixlocal until this continer is done.
             self.num_cpus = None
             self.cpu_set = None
+            self.no_param = False   # do not parameterize or collect results
 
         def add_net(self, name, ipaddr):
             self.container_nets[name] = ipaddr

@@ -44,6 +44,7 @@ import datetime
 import calendar
 from dateutil import parser
 from dateutil.parser import parse
+import time
 
 '''
 Update the Docker Hub registry to match what is in the registry named in the
@@ -171,11 +172,13 @@ def doUpdateOrRefresh(local_registry, remote_registry, args, lgr):
     labdir = os.path.join(ldir, 'labs')
 
     homedir = os.getenv('HOME') 
-    release_file=os.path.join(homedir, 'labtainerRelease', 'Labtainers', 'distrib', 'artifacts', 'labtainer.tar')
+    release_file=os.path.join(homedir, 'labtainerRelease', 'latest_refresh')
     if not os.path.isfile(release_file):
-        logger.error('No release file found at %s, would use date of that file to skip dockerhub queries.')
+        lgr.error('No release file found at %s, create that file to skip dockerhub queries.' % release_file)
         exit(1)
     release_date = os.path.getmtime(release_file) 
+    release_string = time.strftime('%m/%d/%Y %H:%M:%S', time.gmtime(release_date))
+    lgr.debug('Release date found: %s' % release_string)
 
     if args.lab is not None:
         if not args.refresh:
@@ -231,7 +234,11 @@ def doUpdateOrRefresh(local_registry, remote_registry, args, lgr):
                     updateLab(labdir, lab, 'student', remote_registry, local_registry, lgr, args.no_copy, release_date)
                 else:
                     refreshLab(labdir, lab, 'student', remote_registry, local_registry, lgr, args.no_copy)
-    
+   
+        with open(release_file, 'a') as fh:
+            ct = datetime.datetime.now()
+            ts = ct.strftime('%m/%d/%Y %H:%M:%S') 
+            fh.write(ts+'\n')
         if not args.no_copy:
             if not args.refresh:
                 print('Comparing base images in %s to  %s, and replacing content of %s if different' % (local_registry, remote_registry, remote_registry))

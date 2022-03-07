@@ -95,6 +95,7 @@ public class LabData {
         public ArrayList<ContainerNetworkSubData> listOfContainerNetworks;
         public ArrayList<ContainerAddHostSubData> listOfContainerAddHost;
         public boolean x11;
+        public boolean no_param;
         public int clone;
         public boolean no_pull;
         public String lab_gateway = "";
@@ -271,6 +272,9 @@ public class LabData {
                                             break;
                                         case "X11":
                                             currContainer.x11 = (line.split("X11 ")[1].trim()).equals("YES");
+                                            break;
+                                        case "NO_PARAM":
+                                            currContainer.no_param = (line.split("NO_PARAM ")[1].trim()).equals("YES");
                                             break;
                                         case "CLONE":
                                             currContainer.clone = Integer.parseInt(line.split("CLONE ")[1].trim());      
@@ -594,6 +598,7 @@ public class LabData {
         }
         
         System.out.println("x11: " + data.x11);  
+        System.out.println("no_param: " + data.no_param);  
         System.out.println("clone: " + data.clone);  
         System.out.println("no_pull: " + data.no_pull);  
         System.out.println("lab_gateway: " + data.lab_gateway);  
@@ -724,6 +729,9 @@ public class LabData {
             }
             if(data.no_gw){
                 startConfigText += "     NO_GW YES\n";
+            }
+            if(data.no_param){
+                startConfigText += "     NO_PARAM YES\n";
             }
             if(data.no_resolve){
                 startConfigText += "     NO_RESOLVE YES\n";

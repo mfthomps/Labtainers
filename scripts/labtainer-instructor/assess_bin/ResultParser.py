@@ -51,6 +51,7 @@ MYHOME = ""
 container_exec_proglist = {}
 stdoutfnameslist = []
 timestamplist = {}
+endtimelist = {}
 line_types = ['CHECKSUM', 'CONTAINS', 'FILE_REGEX', 'FILE_REGEX_TS', 'LINE', 'STARTSWITH', 'NEXT_STARTSWITH', 'HAVESTRING', 
               'HAVESTRING_TS', 'LOG_TS', 'LOG_RANGE', 'RANGE_REGEX', 'REGEX', 'REGEX_TS', 'LINE_COUNT', 'PARAM', 'STRING_COUNT', 
               'COMMAND_COUNT', 'COMMAND_COUNT_REGEX', 'TIME_DELIM', 'SIZE']
@@ -1155,6 +1156,15 @@ def ParseValidateResultConfig(actual_parsing, homedir, studentlabdir, container_
 
     return configfilelines, resultidlist, bool_results
 
+def EndTimeFromFile(fname):
+    ts = None
+    with open(fname, encoding='latin-1') as fh:
+        for line in fh:
+            if line.startswith('PROGRAM:FINISH'):
+                ts = line.split()[1]
+                #print('found ts of %s' % ts)
+    return ts
+
 def ParseStdinStdout(homedir, studentlabdir, container_list, instructordir, labidname, logger_in):
     MYHOME = homedir
     logger = logger_in
@@ -1228,6 +1238,9 @@ def ParseStdinStdout(homedir, studentlabdir, container_list, instructordir, labi
             # the only purpose of this is to establish the timestamp dictionary
             # only stdout is looked at.
             #print('for stdout %s' % stdoutfname)
+            # get program end ts from the file
+            end_ts = EndTimeFromFile(stdoutfname)
+
             for exec_prog in container_exec_proglist[mycontainername]:
                 stdoutfiles = '%s%s.%s.' % (RESULTHOME, exec_prog, "stdout")
                 if stdoutfiles in stdoutfname:
@@ -1239,6 +1252,13 @@ def ParseStdinStdout(homedir, studentlabdir, container_list, instructordir, labi
                         timestamplist[timestamppart] = targetmtime
                     elif targetmtime > timestamplist[timestamppart]:
                         timestamplist[timestamppart] = targetmtime
+
+                    if end_ts is not None:
+                        if timestamppart not in endtimelist:
+                            endtimelist[timestamppart] = end_ts
+                        elif end_ts > endtimelist[timestamppart]:
+                            endtimelist[timestamppart] = end_ts
+ 
                     container_file = '%s:%s' % (mycontainername, exec_prog)
                     if container_file not in latest_dict or timestamppart > latest_dict[container_file]:
                         ''' track the most recent of each file for use if result type is checkwork (cw_ prefix) '''
@@ -1252,7 +1272,10 @@ def ParseStdinStdout(homedir, studentlabdir, container_list, instructordir, labi
     ''' process each timestamped result file. '''
     for timestamppart in sorted(timestamplist):
         targetmtime_string = datetime.datetime.fromtimestamp(timestamplist[timestamppart])
-        end_time = targetmtime_string.strftime("%Y%m%d%H%M%S")
+        if timestamppart in endtimelist:
+            end_time = endtimelist[timestamppart]
+        else:
+            end_time = targetmtime_string.strftime("%Y%m%d%H%M%S")
         outputjsonfname = '%s%s.%s' % (OUTPUTRESULTHOME, jsonoutputfilename, timestamppart)
         logger.debug("ParseStdinStdout (1): Outputjsonfname is (%s)" % outputjsonfname)
         ParseConfigForFile(studentlabdir, labidname, configfilelines, outputjsonfname, 

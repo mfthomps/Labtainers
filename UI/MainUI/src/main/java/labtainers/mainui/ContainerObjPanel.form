@@ -568,6 +568,108 @@
                 </Component>
               </SubComponents>
             </Container>
+            <Container class="javax.swing.JPanel" name="ContainerConfigGNS3Tab">
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+                  <JTabbedPaneConstraints tabName="GNS3">
+                    <Property name="tabTitle" type="java.lang.String" value="GNS3"/>
+                  </JTabbedPaneConstraints>
+                </Constraint>
+              </Constraints>
+
+              <Layout>
+                <DimensionLayout dim="0">
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="102" alignment="0" attributes="0">
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="1" attributes="0">
+                              <Component id="ThumbStopLabel" min="-2" max="-2" attributes="0"/>
+                              <Component id="ThumbCommandLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                              <Component id="ThumbVolumeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                              <Component id="HideLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="ThumbStopTextfield" min="-2" pref="189" max="-2" attributes="0"/>
+                              <Component id="ThumbVolumeTextfield" min="-2" pref="189" max="-2" attributes="0"/>
+                              <Component id="ThumbCommandTextfield" min="-2" pref="189" max="-2" attributes="0"/>
+                              <Component id="HideCheckbox" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace pref="216" max="32767" attributes="0"/>
+                      </Group>
+                  </Group>
+                </DimensionLayout>
+                <DimensionLayout dim="1">
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="102" alignment="0" attributes="0">
+                          <EmptySpace min="-2" pref="21" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="ThumbVolumeTextfield" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
+                              <Component id="ThumbVolumeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace type="separate" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="ThumbCommandTextfield" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
+                              <Component id="ThumbCommandLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace type="separate" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="ThumbStopTextfield" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
+                              <Component id="ThumbStopLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace type="separate" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="1" attributes="0">
+                              <Component id="HideLabel" min="-2" max="-2" attributes="0"/>
+                              <Component id="HideCheckbox" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace pref="373" max="32767" attributes="0"/>
+                      </Group>
+                  </Group>
+                </DimensionLayout>
+              </Layout>
+              <SubComponents>
+                <Component class="javax.swing.JLabel" name="ThumbVolumeLabel">
+                  <Properties>
+                    <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                      <Font name="Arial" size="14" style="1"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" value="Thumb Volume:"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="HideLabel">
+                  <Properties>
+                    <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                      <Font name="Arial" size="14" style="1"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" value="Hide:"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="ThumbCommandLabel">
+                  <Properties>
+                    <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                      <Font name="Arial" size="14" style="1"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" value="Thumb Command:"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="ThumbStopLabel">
+                  <Properties>
+                    <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                      <Font name="Arial" size="14" style="1"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" value="Thumb Stop:"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JTextField" name="ThumbStopTextfield">
+                </Component>
+                <Component class="javax.swing.JTextField" name="ThumbVolumeTextfield">
+                </Component>
+                <Component class="javax.swing.JTextField" name="ThumbCommandTextfield">
+                </Component>
+                <Component class="javax.swing.JCheckBox" name="HideCheckbox">
+                </Component>
+              </SubComponents>
+            </Container>
             <Container class="javax.swing.JPanel" name="ContainerConfigOtherTab">
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
@@ -591,13 +693,6 @@
                                   <Component id="XtermScriptTextfield" min="-2" pref="189" max="-2" attributes="0"/>
                               </Group>
                               <Group type="102" alignment="0" attributes="0">
-                                  <Component id="jLabel13" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="MountTextfield1" min="-2" pref="189" max="-2" attributes="0"/>
-                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                  <Component id="MountTextfield2" min="-2" pref="189" max="-2" attributes="0"/>
-                              </Group>
-                              <Group type="102" alignment="0" attributes="0">
                                   <Group type="103" groupAlignment="0" attributes="0">
                                       <Group type="102" alignment="0" attributes="0">
                                           <Component id="jLabel10" min="-2" max="-2" attributes="0"/>
@@ -605,25 +700,40 @@
                                           <Component id="ClonesSpinner" min="-2" pref="45" max="-2" attributes="0"/>
                                       </Group>
                                       <Component id="TapRadioButton" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="NoParamCheckbox" alignment="0" min="-2" max="-2" attributes="0"/>
                                   </Group>
-                                  <EmptySpace min="-2" pref="97" max="-2" attributes="0"/>
                                   <Group type="103" groupAlignment="0" attributes="0">
                                       <Group type="102" attributes="0">
-                                          <Component id="jLabel11" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
+                                          <EmptySpace min="-2" pref="110" max="-2" attributes="0"/>
                                           <Component id="NoPullCheckbox" min="-2" max="-2" attributes="0"/>
                                           <EmptySpace type="separate" max="-2" attributes="0"/>
                                           <Component id="jLabel12" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace min="-2" pref="1" max="-2" attributes="0"/>
+                                          <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
                                           <Component id="MyStuffCheckbox" min="-2" max="-2" attributes="0"/>
                                       </Group>
-                                      <Component id="WaitForTextField" min="-2" pref="153" max="-2" attributes="0"/>
+                                      <Group type="102" alignment="1" attributes="0">
+                                          <EmptySpace min="-2" pref="46" max="-2" attributes="0"/>
+                                          <Component id="WaitForTextField" min="-2" pref="153" max="-2" attributes="0"/>
+                                          <EmptySpace min="-2" pref="98" max="-2" attributes="0"/>
+                                      </Group>
                                   </Group>
                               </Group>
                               <Group type="102" alignment="0" attributes="0">
                                   <Component id="NumCPUTextField" min="-2" pref="160" max="-2" attributes="0"/>
                                   <EmptySpace min="-2" pref="28" max="-2" attributes="0"/>
                                   <Component id="CPUSetTextField" min="-2" pref="158" max="-2" attributes="0"/>
+                              </Group>
+                              <Group type="102" alignment="0" attributes="0">
+                                  <Group type="103" groupAlignment="1" attributes="0">
+                                      <Component id="jLabel11" min="-2" max="-2" attributes="0"/>
+                                      <Group type="102" attributes="0">
+                                          <Component id="jLabel13" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="MountTextfield1" min="-2" pref="189" max="-2" attributes="0"/>
+                                      </Group>
+                                  </Group>
+                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                  <Component id="MountTextfield2" min="-2" pref="189" max="-2" attributes="0"/>
                               </Group>
                           </Group>
                           <EmptySpace pref="103" max="32767" attributes="0"/>
@@ -645,38 +755,41 @@
                               <Component id="MountTextfield1" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
                               <Component id="MountTextfield2" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace type="separate" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Group type="103" alignment="0" groupAlignment="3" attributes="0">
-                                  <Component id="jLabel10" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="ClonesSpinner" alignment="3" min="-2" pref="34" max="-2" attributes="0"/>
-                              </Group>
-                              <Component id="NoPullCheckbox" alignment="0" min="-2" pref="35" max="-2" attributes="0"/>
-                              <Component id="MyStuffCheckbox" alignment="0" min="-2" pref="40" max="-2" attributes="0"/>
                               <Group type="102" attributes="0">
-                                  <EmptySpace min="10" pref="10" max="-2" attributes="0"/>
+                                  <EmptySpace type="separate" max="-2" attributes="0"/>
                                   <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="jLabel11" alignment="0" min="-2" max="-2" attributes="0"/>
-                                      <Component id="jLabel12" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="MyStuffCheckbox" alignment="0" min="-2" pref="40" max="-2" attributes="0"/>
+                                      <Group type="103" alignment="0" groupAlignment="1" attributes="0">
+                                          <Component id="NoPullCheckbox" min="-2" pref="35" max="-2" attributes="0"/>
+                                          <Group type="103" groupAlignment="3" attributes="0">
+                                              <Component id="jLabel10" alignment="3" min="-2" max="-2" attributes="0"/>
+                                              <Component id="ClonesSpinner" alignment="3" min="-2" pref="34" max="-2" attributes="0"/>
+                                              <Component id="jLabel11" alignment="3" min="-2" max="-2" attributes="0"/>
+                                          </Group>
+                                      </Group>
                                   </Group>
                               </Group>
+                              <Group type="102" alignment="0" attributes="0">
+                                  <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
+                                  <Component id="jLabel12" min="-2" max="-2" attributes="0"/>
+                              </Group>
                           </Group>
+                          <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Group type="102" attributes="0">
-                                  <EmptySpace max="-2" attributes="0"/>
                                   <Component id="TapRadioButton" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="NoParamCheckbox" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <Group type="102" alignment="0" attributes="0">
-                                  <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
-                                  <Component id="WaitForTextField" min="-2" pref="61" max="-2" attributes="0"/>
-                              </Group>
+                              <Component id="WaitForTextField" alignment="1" min="-2" pref="61" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace min="-2" pref="9" max="-2" attributes="0"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" max="-2" attributes="0">
                               <Component id="NumCPUTextField" pref="56" max="32767" attributes="0"/>
                               <Component id="CPUSetTextField" max="32767" attributes="0"/>
                           </Group>
-                          <EmptySpace pref="274" max="32767" attributes="0"/>
+                          <EmptySpace pref="281" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -802,107 +915,13 @@
                     </Property>
                   </Properties>
                 </Component>
-              </SubComponents>
-            </Container>
-            <Container class="javax.swing.JPanel" name="ContainerConfigGNS3Tab">
-              <Constraints>
-                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
-                  <JTabbedPaneConstraints tabName="GNS3">
-                    <Property name="tabTitle" type="java.lang.String" value="GNS3"/>
-                  </JTabbedPaneConstraints>
-                </Constraint>
-              </Constraints>
-
-              <Layout>
-                <DimensionLayout dim="0">
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="1" attributes="0">
-                              <Component id="ThumbStopLabel" min="-2" max="-2" attributes="0"/>
-                              <Component id="ThumbCommandLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                              <Component id="ThumbVolumeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                              <Component id="HideLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="ThumbStopTextfield" min="-2" pref="189" max="-2" attributes="0"/>
-                              <Component id="ThumbVolumeTextfield" min="-2" pref="189" max="-2" attributes="0"/>
-                              <Component id="ThumbCommandTextfield" min="-2" pref="189" max="-2" attributes="0"/>
-                              <Component id="HideCheckbox" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace pref="216" max="32767" attributes="0"/>
-                      </Group>
-                  </Group>
-                </DimensionLayout>
-                <DimensionLayout dim="1">
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <EmptySpace min="-2" pref="21" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="ThumbVolumeTextfield" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
-                              <Component id="ThumbVolumeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace type="separate" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="ThumbCommandTextfield" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
-                              <Component id="ThumbCommandLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace type="separate" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="ThumbStopTextfield" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
-                              <Component id="ThumbStopLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace type="separate" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="1" attributes="0">
-                              <Component id="HideLabel" min="-2" max="-2" attributes="0"/>
-                              <Component id="HideCheckbox" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace pref="373" max="32767" attributes="0"/>
-                      </Group>
-                  </Group>
-                </DimensionLayout>
-              </Layout>
-              <SubComponents>
-                <Component class="javax.swing.JLabel" name="ThumbVolumeLabel">
+                <Component class="javax.swing.JCheckBox" name="NoParamCheckbox">
                   <Properties>
-                    <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                      <Font name="Arial" size="14" style="1"/>
-                    </Property>
-                    <Property name="text" type="java.lang.String" value="Thumb Volume:"/>
+                    <Property name="text" type="java.lang.String" value="No Parameterize"/>
                   </Properties>
-                </Component>
-                <Component class="javax.swing.JLabel" name="HideLabel">
-                  <Properties>
-                    <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                      <Font name="Arial" size="14" style="1"/>
-                    </Property>
-                    <Property name="text" type="java.lang.String" value="Hide:"/>
-                  </Properties>
-                </Component>
-                <Component class="javax.swing.JLabel" name="ThumbCommandLabel">
-                  <Properties>
-                    <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                      <Font name="Arial" size="14" style="1"/>
-                    </Property>
-                    <Property name="text" type="java.lang.String" value="Thumb Command:"/>
-                  </Properties>
-                </Component>
-                <Component class="javax.swing.JLabel" name="ThumbStopLabel">
-                  <Properties>
-                    <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                      <Font name="Arial" size="14" style="1"/>
-                    </Property>
-                    <Property name="text" type="java.lang.String" value="Thumb Stop:"/>
-                  </Properties>
-                </Component>
-                <Component class="javax.swing.JTextField" name="ThumbStopTextfield">
-                </Component>
-                <Component class="javax.swing.JTextField" name="ThumbVolumeTextfield">
-                </Component>
-                <Component class="javax.swing.JTextField" name="ThumbCommandTextfield">
-                </Component>
-                <Component class="javax.swing.JCheckBox" name="HideCheckbox">
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="NoParamCheckboxActionPerformed"/>
+                  </Events>
                 </Component>
               </SubComponents>
             </Container>

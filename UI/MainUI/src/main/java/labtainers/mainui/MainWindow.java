@@ -1531,16 +1531,15 @@ public class MainWindow extends javax.swing.JFrame {
                 File lab_dir = lab.getParentFile();
                 if(lab_dir.getName().equals("labs")){
                     saveLab(false, true);
-                    System.out.println("container is "+container.getName());
                     String cmd = "new_lab_setup.py -C "+lab.getName()+" "+container.getName()+" newcontainer";
                     doLabCommand(cmd);
-                    reloadLab();
                     ContainerObjPanel newPanel = getContainerPanel("newcontainer");
                     if(newPanel != null){
                         newPanel.renameContainerButton();
                     }else{
                         System.out.println("Error getting new container name");
                     }
+                    reloadLab();
                 }else{
                     output("Not a lab container: "+container.getName());
                 }
@@ -1718,17 +1717,6 @@ public class MainWindow extends javax.swing.JFrame {
                 return;
             }
             String baseImage = (String)ContainerAddDialogBaseImageCombobox.getSelectedItem();
-            ContainerData freshContainerData = new ContainerData(containerName);
-            newContainer = new ContainerObjPanel(this, freshContainerData);
-            
-            // Update the data object to include the new container
-            labDataCurrent.getContainers().add(freshContainerData);
-            ResultsData.containerList.add(containerName);
-            
-            // Update the Results UI to include the new container
-            if(resultsUI!= null)
-                resultsUI.refresh();
-            
             // Add the container into the user's file system
             addContainer(containerName, baseImage);
             // Reload from newly modified start.config
@@ -1739,6 +1727,20 @@ public class MainWindow extends javax.swing.JFrame {
             }catch(IOException ex){
                 System.out.println("failed load labData file for "+this.labName);
             }
+
+            //ContainerData freshContainerData = new ContainerData(containerName);
+            ArrayList<ContainerData> containerList = labDataCurrent.getContainers();
+            ContainerData newContainerData = containerList.get(containerList.size()-1);
+            newContainer = new ContainerObjPanel(this, newContainerData);
+            
+            // Update the data object to include the new container
+            // labDataCurrent.getContainers().add(newContainerData);
+            ResultsData.containerList.add(containerName);
+            
+            // Update the Results UI to include the new container
+            if(resultsUI!= null)
+                resultsUI.refresh();
+            
         }
         else {
             newContainer = new ContainerObjPanel(this, data);
