@@ -121,6 +121,10 @@ public class GoalsData {
         
     //Update the results.config file with the user's input
     public String writeGoalsConfig(boolean usetmp){
+        if(listofGoals == null){
+            mainUI.output("ERROR listofGoals is null\n");
+            return null; 
+        }
          List<String> booleanResults = mainUI.getCurrentData().getResultsData().getBooleanResults();
          File goalsConfigFile = null;
          try {
