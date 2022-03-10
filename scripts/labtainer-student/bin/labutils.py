@@ -956,7 +956,6 @@ def CopyLabBin(mycontainer_name, mycontainer_image_name, container_user, lab_pat
     if not DockerCmd(cmd):
         logger.error('failed %s' % cmd)
         exit(1)
-
     ''' TBD DO NOT move lab/config here -- would not catch the tar_list.txt files (skip list) '''
     ''' TBD perhaps move lab/_bin to here?  would it save duplicate containers?'''
     #container_bin = os.path.join(lab_path, name,'_bin')
@@ -1679,10 +1678,23 @@ def SkipContainer(run_container, name, start_config, servers):
                 return True
     return False
 
+def getInput(prompt):
+    retval = None
+    try:
+        if sys.version_info >=(3,0):
+            retval = input(prompt)
+        else:
+            retval = raw_input(prompt)
+    except ValueError:
+        print('Lab start failed, see $LABTAINER_DIR/logs/labtainer.log')
+        
+    return retval
+
 def readFirst(lab_path, labname, fname, quiet_start, bail_option=False):
     #
     #  If a fname exists in the lab's config directory, less it before the student continues.
     #
+    retval = True
     doc_dir = os.path.join(lab_path, 'docs')
     read_first = os.path.join(doc_dir, fname)
     pdf = '%s.pdf' % labname
@@ -1700,19 +1712,22 @@ def readFirst(lab_path, labname, fname, quiet_start, bail_option=False):
             less.wait()
             if not bail_option:
                 if sys.version_info >=(3,0):
-                    dumb = input("Press <enter> to start the lab\n")
+                    dumb = getInput("Press <enter> to start the lab\n")
                 else:
-                    dumb = raw_input("Press <enter> to start the lab\n")
+                    dumb = getInput("Press <enter> to start the lab\n")
+                if dumb is None:
+                    retval = False
             else:
                 if sys.version_info >=(3,0):
-                    dumb = input("Continue? (y/n)")
+                    dumb = getInput("Continue? (y/n)")
                 else:
-                    dumb = raw_input("Continue? (y/n)")
+                    dumb = getInput("Continue? (y/n)")
                 if dumb.lower() != 'y':
                     cmd = 'rm -fr .tmp/%s' % labname
                     os.system(cmd)
+                    retval = False
                     print('Exiting lab')
-                    exit(0)
+    return retval
 
 def DoTerminals(start_config, lab_path, run_container=None, servers=None, container_map={}):
     # spawn terminal for each container based on num_terminal
@@ -1863,7 +1878,10 @@ def DoStart(start_config, labtainer_config, lab_path,
         sys.exit(1)
 
 
-    readFirst(lab_path, labname, 'read_first.txt', quiet_start)
+    if not readFirst(lab_path, labname, 'read_first.txt', quiet_start):
+        logger.error('readFirst saw exit, stopping lab')
+        DoStop(start_config, labtainer_config, lab_path, False, run_container, servers)
+        sys.exit(1)
     
     DoTerminals(start_config, lab_path, run_container=run_container, servers=servers)
                 
