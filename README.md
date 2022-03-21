@@ -91,6 +91,7 @@ first time.
 
 March 21, 2022
 - Fix path to tap lock directory; was causing failure of labs using network taps
+- Update plc-traffic netmon computer to have openjfx needed for new grassmarlin in java environment 
 
 March 2, 2022
 - Add new ssh-tunnel lab (thanks GWD!)
