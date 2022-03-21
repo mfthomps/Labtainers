@@ -89,6 +89,9 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+March 21, 2022
+- Fix path to tap lock directory; was causing failure of labs using network taps
+
 March 2, 2022
 - Add new ssh-tunnel lab (thanks GWD!)
 - Fix labedit failure to reflect X11 value set by new\_lab\_setup
