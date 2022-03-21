@@ -1830,7 +1830,7 @@ def DoStart(start_config, labtainer_config, lab_path,
         except:
             pass
         try:
-            os.makedirs(tap_lock_dir)
+            os.makedirs(lock)
         except:
             pass
     ClearStartSync()    
