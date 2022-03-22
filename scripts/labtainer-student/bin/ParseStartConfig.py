@@ -254,7 +254,7 @@ class ParseStartConfig():
                    
                     '''
                     self.containers[val] = self.Container(val, self.logger)
-                    self.logger.debug('added container %s' % val)
+                    #self.logger.debug('added container %s' % val)
                     active = self.containers[val]
                 elif key == 'add-host':
                     active.add_hosts.append(val)
@@ -366,8 +366,8 @@ class ParseStartConfig():
                self.containers[name].script = "";
             if self.registry is None and self.containers[name].registry is None and \
                    use_test_registry is not None and (use_test_registry.lower() == 'yes' or use_test_registry.lower() == 'true'):
-                self.logger.debug('Changing registry from %s to test registry %s' % (self.containers[name].registry,
-                     self.labtainer_config.test_registry))
+                #self.logger.debug('Changing registry from %s to test registry %s' % (self.containers[name].registry,
+                #     self.labtainer_config.test_registry))
                 self.containers[name].registry = self.labtainer_config.test_registry
             else:
                 if self.containers[name].registry == None:
