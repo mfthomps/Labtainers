@@ -189,11 +189,7 @@ def ParameterizeMyContainer(mycontainer_name, mycontainer_image_name, container_
     ''' copy lab_bin and lab_sys files into .local/bin and / respectively '''
     CopyLabBin(running_container, mycontainer_image_name, container_user, lab_path, name, image_info)
 
-    cmd = 'docker exec %s script -q -c "chown -R %s:%s /home/%s"' % (mycontainer_name, container_user, container_user, container_user)
-    if not DockerCmd(cmd):
-        logger.error('failed %s' % cmd)
-        exit(1)
-    cmd = 'docker exec %s script -q -c "chown root:root /usr"' % (mycontainer_name)
+    cmd = 'docker exec %s script -q -c "/home/%s/.local/bin/dochown.sh"' % (mycontainer_name, container_user)
     if not DockerCmd(cmd):
         logger.error('failed %s' % cmd)
         exit(1)
@@ -914,7 +910,7 @@ def DockerCmd(cmd, noloop=False, good_error=None):
     if noloop:
         count = 1000
     while not ok:
-        #logger.debug("Command to execute is (%s)" % cmd)
+        logger.debug("Command to execute is (%s)" % cmd)
         ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         output = ps.communicate()
         if len(output[1].decode('utf-8')) > 0:
@@ -1290,7 +1286,19 @@ def WaitForTap(start_config):
         logger.debug('tap dir does not yet exist')
         time.sleep(1)
     return retval
-    
+   
+def doX11Link(cmd):
+    retval = True
+    count = 0
+    logger.debug('do x11 link')
+    while not DockerCmd(cmd, noloop=True, good_error='File exists') and count<5:
+        time.sleep(1)
+        count += 1
+    if count >= 5:
+        logger.error('failed %s' % cmd)
+        retval = False
+    return retval
+ 
 def DoStartOne(labname, name, container, start_config, labtainer_config, lab_path,  
                student_email, quiet_start, results, auto_grade, image_info):
         retval = True
@@ -1396,16 +1404,6 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                     logger.error('failed %s' % cmd)
                     results.append(False)
                     return
-                count = 0
-                cmd = "docker exec %s bash -c 'ln -s /var/tmp/.X11-unix/X%d /tmp/.X11-unix/X%d'" % (mycontainer_name, 
-                  display_num, display_num)
-                while not DockerCmd(cmd, noloop=True, good_error='File exists') and count<5:
-                    time.sleep(1)
-                    count += 1
-                if count >= 5:
-                    logger.error('failed %s' % cmd)
-                    results.append(False)
-                    return
             if not container.no_param: 
                 clone_need_seeds = need_seeds
                 if not clone_need_seeds:
@@ -1458,6 +1456,13 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                         container.name_server)
                 if not DockerCmd(cmd):
                     logger.error('Fatal error in docker command %s' % cmd) 
+                    results.append(False)
+                    return
+
+            if container.x11.lower() == 'yes':
+                cmd = "docker exec %s bash -c 'ln -s /var/tmp/.X11-unix/X%d /tmp/.X11-unix/X%d'" % (mycontainer_name, 
+                  display_num, display_num)
+                if not doX11Link(cmd):
                     results.append(False)
                     return
     
