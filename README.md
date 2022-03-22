@@ -89,9 +89,10 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
-March 21, 2022
+March 22, 2022
 - Fix path to tap lock directory; was causing failure of labs using network taps
 - Update plc-traffic netmon computer to have openjfx needed for new grassmarlin in java environment 
+- Speed up lab startup by avoiding chown -R, which is very slow in docker.
 
 March 2, 2022
 - Add new ssh-tunnel lab (thanks GWD!)
