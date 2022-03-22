@@ -93,6 +93,7 @@ March 22, 2022
 - Fix path to tap lock directory; was causing failure of labs using network taps
 - Update plc-traffic netmon computer to have openjfx needed for new grassmarlin in java environment 
 - Speed up lab startup by avoiding chown -R, which is very slow in docker.
+- Another shot at avoiding deletion of the X11 link in container /tmp directory.
 
 March 2, 2022
 - Add new ssh-tunnel lab (thanks GWD!)
