@@ -1160,8 +1160,8 @@ def imageInfo(image_name, registry, base_registry, labtainer_config, is_rebuild=
                     if not InspectRemoteReg.reachDockerHub():
                         logger.error('Unable to reach DockerHub.  \nIs the network functional?\n')
             if created is not None:
-                logger.debug('%s only on registry %s, ts %s %s version %s use_tag %s' % (with_registry, registry, created, user, version, use_tag)) 
-                #retval = ImageInfo(with_registry, created, user, False, False, version, use_tag)
+                #logger.debug('%s only on registry %s, ts %s %s version %s use_tag %s' % (with_registry, registry, created, user, version, use_tag)) 
+                retval = ImageInfo(with_registry, created, user, False, False, version, use_tag)
     if retval is None:
         logger.debug('%s not found local_build was %r' % (image_name, local_build))
 
