@@ -95,6 +95,7 @@ March 23, 2022
 - Speed up lab startup by avoiding chown -R, which is very slow in docker.
 - Another shot at avoiding deletion of the X11 link in container /tmp directory.
 - Fix webtrack counting of sites visited and remove live-headers goal, that tool is no longer available.
+  Clarified some lab manual steps.
 
 March 2, 2022
 - Add new ssh-tunnel lab (thanks GWD!)
