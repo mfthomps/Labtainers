@@ -44,8 +44,8 @@ URL & Description & Directory\\
 
 
 \subsection{Clear History and cookies} 
-
-Please follow the instructions to {\tt clear history} and {\tt cookies} from the Firefox browser.
+While performing the lab, you will be directed to clear history and cookies.  When so directed,
+please follow the instructions to {\tt clear history} and {\tt cookies} from the Firefox browser.
 
 \begin{enumerate}
   \item Within the Firefox browser, select {\tt Preferences} per Figure ~\ref{fig:clear_history1} from the top-right menu button, and click on {\tt Privacy and Security} as shown in Figure ~\ref{fig:clear_history2} 
@@ -86,8 +86,9 @@ and then click the
 	
 
 \subsection{Open a new private window in Firefox} 
-
-Please follow the instructions to open a new private window in Firefox and start a private browsing session.
+\label{private}
+While peforming the lab, some steps will direct you to open a private window.  When so directed, 
+please follow the instructions to open a new private window in Firefox and start a private browsing session.
 
 \begin{enumerate}
   \item With Firefox running, click on the menu button (upper-right) and select {\tt Open a New Private Window} option as shown in Figure ~\ref{fig:private_window}
@@ -131,12 +132,12 @@ Sometime later when the user visits another website, to his surprise he finds th
 
 The objective of this task is to understand the basic working of the web tracking. 
 In this task you need to open the E-commerce websites, view details of one or more products. 
-Once you login to the {\tt Elgg} website you should see the most visited product displayed as an advertisement. 
+Once you reload the {\tt Elgg} website you should see the most recently visited product displayed as an advertisement. 
 
 
 \begin{enumerate}
   \item Open {\tt Elgg} website without visiting any website and describe your observation in the lab report.
-  \item Open Firefox and open the {\tt CameraStore}, {\tt MobileStore}, {\tt ElectronicStore} and {\tt ShoeStore} websites.
+  \item Open a new Firefox tab and open the {\tt CameraStore}, {\tt MobileStore}, {\tt ElectronicStore} and {\tt ShoeStore} websites.
   \item Click on view details for any products in the websites.
   \item Refresh the {\tt Elgg} website in Firefox and describe your observation.
   \item Close the browser, reopen it and browse the {\tt Elgg} website. Describe your observation.       
@@ -230,13 +231,14 @@ In {\tt InPrivate} browsing the browser stores some information such as {\tt coo
 However, at the end of your {\tt InPrivate} browsing session, this information is discarded. 
 Once the {\tt InPrivate} browser is closed the {\tt cookies} are cleared, and temporary internet files are deleted for that session.
 
-The objective of this task is to understand the working of the web tracking in a private browser window. 
+The objective of this task is to understand the workings of web tracking in a private browser window. 
 In this task you need to open the E-commerce websites, view details of one or more products. 
-Once you login to the {\tt Elgg} website (in the same private browser) you should see the most visited product displayed as an advertisement.
+Once you refresh the {\tt Elgg} website (in the same private browser) you should see the most visited product displayed as an advertisement.
 
 \begin{enumerate}
+  \item Open a private browser window per the instrutions in section \ref{private}.
   \item Open {\tt Elgg} website without visiting any website and describe your observation in the lab report.
-  \item Open Firefox and open the {\tt CameraStore}, {\tt MobileStore}, {\tt ElectronicStore} and {\tt ShoeStore} websites.
+  \item Create a new tab in the private browsing window open the {\tt CameraStore}, {\tt MobileStore}, {\tt ElectronicStore} and {\tt ShoeStore} websites.
   \item Click on view details for any products in the websites.
   \item Refresh the {\tt Elgg} website in Firefox and describe your observation.
   \item Close the {\tt InPrivate} browser, reopen it and browse the {\tt Elgg} website. Describe your observation.
@@ -244,7 +246,6 @@ Once you login to the {\tt Elgg} website (in the same private browser) you shoul
 
 Compare your observations with Task1. Explain the reasons and provide evidence to support your observations.
 
-Note: Please follow the instructions in section 2.3 to open a new private window in Firefox.
 
 \subsection{Task 6: Real world tracking}
 
@@ -259,12 +260,12 @@ The websites are:
 \end{enumerate}
 
 Open the websites, observe the HTTP request and response in {\tt Web Developer / Network}. 
-Capture screenshot of one HTTP request to the real world ad server for each web site. 
+Capture a screenshot of one HTTP request to the real world ad server for each web site. 
 Also identify the {\tt third party cookie} used for that HTTP request.
 
 \subsection{Task 7: Countermeasures}
 
-There are certain countermeasures for the web tracking but most of the websites won’t work properly after implementing the counter measures. 
+There are certain countermeasures for the web tracking but most of the websites won't work properly after implementing the counter measures. 
 Most of the websites are highly dependent on {\tt JavaScript} and {\tt third party cookies}. 
 You must have observed that the web tracking tasks are mostly dependent on the {\tt third party cookies}.
 
@@ -281,7 +282,7 @@ Please follow the steps below and give your observation:
 
 \end{enumerate}
 
-Also there are other ways to mitigate the web tracking. To opt out of targeted advertisement, 
+Also there are other ways to mitigate web tracking. To opt out of targeted advertisement, 
 add browser extensions like RequestPolicy, NoScript and Ghostery which control the third party requests from the web browser. 
 Also one can keep {\tt cookies} for the browsing session, by setting a {\tt cookie} policy “only keep cookies until I close my browser” 
 which will delete all the {\tt cookies} after the browser window is closed. 
