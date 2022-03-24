@@ -82,6 +82,8 @@ echo "$USER_EMAIL" > $USER_EMAILFILE
 echo "$LAB_NAME" > $LAB_NAMEFILE
 echo "" > $WATERMARK_NAMEFILE
 
+# more ownership fu from Docker foibles
+echo $CONTAINER_PASSWORD | sudo -S chown -R $CONTAINER_USER:$CONTAINER_USER $HOME/.local
 # fix ownship of system file from _system directory.  Docker!
 #previous_match_string=""
 while read f;do
