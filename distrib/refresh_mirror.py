@@ -123,8 +123,9 @@ def updateLab(labdir, lab, role, remote_reg, local_reg, logger, no_copy, release
 
         x=parse(local_created)
         image_date = calendar.timegm(x.timetuple())
-        #print('image ts %s' % image_date)
-        #print('file ts %s' % release_date)
+        #print('%s' % image)
+        #print('\timage ts %s' % image_date)
+        #print('\trelease ts %s' % release_date)
 
         if image_date < release_date:
             #print('image %s local: %s prior to release: %s' % (image, image_date, release_date))
@@ -176,7 +177,15 @@ def doUpdateOrRefresh(local_registry, remote_registry, args, lgr):
     if not os.path.isfile(release_file):
         lgr.error('No release file found at %s, create that file to skip dockerhub queries.' % release_file)
         exit(1)
-    release_date = os.path.getmtime(release_file) 
+    release_date = None
+    with open(release_file) as fh:
+        for line in fh:
+            pass
+        try:
+            release_date = time.mktime(datetime.datetime.strptime(line.strip(), '%m/%d/%Y %H:%M:%S').timetuple())
+        except:
+            print('Error parsing times in %s' % release_file)
+            exit(1)
     release_string = time.strftime('%m/%d/%Y %H:%M:%S', time.gmtime(release_date))
     lgr.debug('Release date found: %s' % release_string)
 
@@ -230,16 +239,17 @@ def doUpdateOrRefresh(local_registry, remote_registry, args, lgr):
         #lab_list = [x[0] for x in os.walk(labdir)]
         for lab in sorted(lab_list):
             if lab not in skip:
-                if not args.refresh:
-                    updateLab(labdir, lab, 'student', remote_registry, local_registry, lgr, args.no_copy, release_date)
-                else:
-                    refreshLab(labdir, lab, 'student', remote_registry, local_registry, lgr, args.no_copy)
-   
-        with open(release_file, 'a') as fh:
-            ct = datetime.datetime.now()
-            ts = ct.strftime('%m/%d/%Y %H:%M:%S') 
-            fh.write(ts+'\n')
+                if args.start is None or lab >= args.start:
+                    if not args.refresh:
+                        updateLab(labdir, lab, 'student', remote_registry, local_registry, lgr, args.no_copy, release_date)
+                    else:
+                        refreshLab(labdir, lab, 'student', remote_registry, local_registry, lgr, args.no_copy)
+  
         if not args.no_copy:
+            with open(release_file, 'a') as fh:
+                ct = datetime.datetime.now()
+                ts = ct.strftime('%m/%d/%Y %H:%M:%S') 
+                fh.write(ts+'\n')
             if not args.refresh:
                 print('Comparing base images in %s to  %s, and replacing content of %s if different' % (local_registry, remote_registry, remote_registry))
             else:
@@ -279,6 +289,7 @@ if __name__ == '__main__':
     parser.add_argument('-r', '--refresh', action='store_true', default=False, help='Force mirror to match remote')
     parser.add_argument('-q', '--quiet', action='store_true', default=False, help='Do not prompt for confirmation')
     parser.add_argument('-l', '--lab', action='store', help='only check this lab')
+    parser.add_argument('-s', '--start', action='store', help='Start with this lab (Docker rate limits!)')
     args = parser.parse_args()
     
     config_file = '../config/labtainer.config'

@@ -93,7 +93,11 @@ cd $release_dir/distrib
 echo "Now generate release"
 
 github-release release --security-token $gitpat --user mfthomps --repo Labtainers --tag $new_tag
-
+echo "wait for github"
+while [ -z "$(github-release info --security-token $gitpat --user mfthomps --repo Labtainers --tag $new_tag | grep labtainer.tar)" ]; do
+    echo "release not yet created, sleep 2"
+    sleep 2
+done
 echo "Upload tar"
 github-release upload --security-token $gitpat --user mfthomps --repo Labtainers --tag $new_tag --name labtainer.tar --file artifacts/labtainer.tar
 echo "Upload PDF zip"
