@@ -94,7 +94,7 @@ echo "Now generate release"
 
 github-release release --security-token $gitpat --user mfthomps --repo Labtainers --tag $new_tag
 echo "wait for github"
-while [ -z "$(github-release info --security-token $gitpat --user mfthomps --repo Labtainers --tag $new_tag | grep labtainer.tar)" ]; do
+while [ -z "$(github-release info --security-token $gitpat --user mfthomps --repo Labtainers --tag $new_tag | grep releases:)" ]; do
     echo "release not yet created, sleep 2"
     sleep 2
 done
