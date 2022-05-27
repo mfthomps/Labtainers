@@ -6,6 +6,7 @@
 tlist="labtainer.tar labtainer-master.tar labtainer-tests.tar"
 dlist=$(ls /media/sf_SEED/test_vms)
 for d in $dlist; do
+    mkdir -p /media/sf_SEED/test_vms/$d
     for t in $tlist; do
         cp /media/sf_SEED/$t /media/sf_SEED/test_vms/$d/
     done
