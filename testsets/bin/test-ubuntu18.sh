@@ -11,6 +11,7 @@ if [[ $ok != 0 ]]; then
 fi
 vmdir="/media/sf_SEED/test_vms/ubuntu18smoke/"
 if [[ "$1" != "-n" ]]; then 
+    mkdir -p $vmdir
     cp testvm-do.sh $vmdir/dothis.sh
     chmod a+x $vmdir/dothis.sh
     if [[ "$1" != "-t" ]]; then
