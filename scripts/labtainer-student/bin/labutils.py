@@ -427,31 +427,45 @@ def GetX11SSH():
     #retval = '--env="DISPLAY" -v %s:%s -e XAUTHORITY="%s"' % (xauth, xauth, xauth)
     return retval 
 
-def isUbuntuSystemd(image_name):
+def isAlias(registry, labtainer_config):
+    ''' is the given registry one of the NPS registries? '''
+    if registry in [labtainer_config.default_registry, labtainer_config.test_registry, labtainer_config.legacy_registry]:
+        return True
+    else:
+        return False
+
+def isUbuntuSystemd(image_name, labtainer_config):
     ''' NOTE side effect of update networkImages global '''
     done = False
     retval = None
-    #print('check if %s is systemd' % image_name)
+    logger.debug('check if %s is systemd' % image_name)
     cmd = "docker inspect -f '{{json .Config.Labels.base}}' --type image %s" % image_name
     ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[0].strip()) > 0:
-            #logger.debug('isUbuntuSystemd base %s' % output[0].decode('utf-8'))
+            logger.debug('isUbuntuSystemd base %s' % output[0].decode('utf-8'))
             if output[0].decode('utf-8').strip() == 'null': 
+                ''' typically as part of a rebuld '''
                 base = image_name
             else:
                 base = output[0].decode('utf-8').rsplit('.', 1)[0]
                 if base.startswith('"'):
                     base = base[1:]
                 if '/' in base and '/' in image_name:
+                    ''' Hack to catch aliases of NPS registry, e.g., to keep testtregistry 
+                        images from pulling meta data from docker hub '''
                     my_registry = image_name.split('/')[0]
                     no_reg = base.split('/')[1]
-                    base = '%s/%s' % (my_registry, no_reg)
+                    base_reg = base.split('/')[0]
+                    if isAlias(base_reg, labtainer_config):
+                        logger.debug('is alias')
+                        base = '%s/%s' % (my_registry, no_reg)
                 
             cmd = "docker history --no-trunc %s" % base
             ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             output = ps.communicate()
             for line in output[0].decode('utf-8').splitlines():
+                #logger.debug('history line is '+line) 
                 if 'sshd' in line or 'xinetd' in line:
                     net_image = image_name
                     if '/' in image_name:
@@ -461,6 +475,7 @@ def isUbuntuSystemd(image_name):
                 if 'Labtainer base image from ubuntu-systemd' in line:
                     retval = 'ubuntu16'
                     if 'ubuntu20' in line:
+                        logger.debug('is ubuntu20')
                         retval = 'ubuntu20'
                     break
 
@@ -558,7 +573,7 @@ def CreateSingleContainer(labtainer_config, start_config, container, lab_path, m
         docker0_IPAddr = getDocker0IPAddr()
         logger.debug("getDockerIPAddr result (%s)" % docker0_IPAddr)
         volume=''
-        ubuntu_systemd = isUbuntuSystemd(new_image_name)
+        ubuntu_systemd = isUbuntuSystemd(new_image_name, labtainer_config)
         if ubuntu_systemd is not None:
            osTypeMap[container.image_name] = ubuntu_systemd
            if ubuntu_systemd == 'ubuntu20':

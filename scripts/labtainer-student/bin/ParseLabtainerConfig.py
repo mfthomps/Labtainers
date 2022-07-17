@@ -51,6 +51,7 @@ class ParseLabtainerConfig():
         self.console_log_level= "" # CONSOLE_LOG_LEVEL - level to log to console
         self.test_registry = 'testregistry:5000'
         self.default_registry = 'labtainers'
+        self.legacy_registry = 'mfthomps'
         self.apt_source='archive.ubuntu.com'
         self.checkwork='yes'
         if logger != None:
