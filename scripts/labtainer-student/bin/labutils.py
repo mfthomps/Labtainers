@@ -455,10 +455,9 @@ def isUbuntuSystemd(image_name, labtainer_config):
                     ''' Hack to catch aliases of NPS registry, e.g., to keep testtregistry 
                         images from pulling meta data from docker hub '''
                     my_registry = image_name.split('/')[0]
-                    no_reg = base.split('/')[1]
-                    base_reg = base.split('/')[0]
-                    if isAlias(base_reg, labtainer_config):
+                    if isAlias(my_registry, labtainer_config):
                         logger.debug('is alias')
+                        no_reg = base.split('/')[1]
                         base = '%s/%s' % (my_registry, no_reg)
                 
             cmd = "docker history --no-trunc %s" % base
