@@ -89,6 +89,9 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+July 18, 2022
+- Creation of Ubuntu20-based containers was failing within IModules. Issue #61.
+
 March 23, 2022
 - Fix path to tap lock directory; was causing failure of labs using network taps
 - Update plc-traffic netmon computer to have openjfx needed for new grassmarlin in java environment 
