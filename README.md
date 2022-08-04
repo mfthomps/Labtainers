@@ -89,6 +89,9 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+August 4, 2022
+- The labedit program was rebuilt with the wrong JDK, preventing older JREs from running labedit
+
 July 18, 2022
 - Creation of Ubuntu20-based containers was failing within IModules. Issue #61.
 
