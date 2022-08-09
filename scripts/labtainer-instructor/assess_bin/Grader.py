@@ -626,7 +626,7 @@ def processValueSum(result_sets, eachgoal, grades, logger):
             retval = retval+resulttagresult
     grades[goalid] = retval
 
-def processMaxValue(result_sets, eachgoal, grades, logger):
+def processValueMax(result_sets, eachgoal, grades, logger):
     ''' assign the max of all result values '''
     retval = 0
     goalid = eachgoal['goalid']

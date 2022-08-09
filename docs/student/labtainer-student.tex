@@ -332,6 +332,11 @@ has an Azure account, e.g., \url{https://azure.microsoft.com/en-us/free/students
 This approach requires that the Azure CLI be installed on  the Mac, Windows or Linux:
 \url{https://docs.microsoft.com/en-us/cli/azure/install-azure-cli}
 
+When installing or using the Azure CLI on the Mac, be sure to start a bash shell in your terminal, e.g.,
+\begin{verbatim}
+   bash
+\end{verbatim}
+
 In the following command examples, use the "ps1" file extension instead of "sh" when using PowerShell.
 \begin{itemize}
 \item Open a terminal on Mac/Linux, or a PowerShell window on Windows.
@@ -385,7 +390,8 @@ The ID can be any name, e.g.,
 \end{verbatim}
 
 The create\_vm script may take a while to run.  The process is complete when you see \textit{Labtainers is up}.  
-Point a local browser to \url{localhost:6901} and perform the labs.
+Point a local browser to \url{localhost:6901} and perform the labs.  If the browser fails to connect, the ssh
+tunnel may have failed.  Try running {\tt ./restart.sh} to recreate the tunnel.
 When prompted for a password in the browser, just click submit or OK, i.e., leave the password blank.
 The password for the \textit{labtainer user} in the VM is ``labtainer''.  
 
@@ -422,6 +428,9 @@ long the VM is dormant.
 \begin{verbatim}
     ./restore_vm.sh <user ID>
 \end{verbatim}
+
+\item When returning to the VM after a break, you need to first loging to the Azure, e.g., {\tt az login}.
+On the Mac, be sure to do that from a bash shell.
 
 \item When completely done with the VM, use the delete\_vm.sh script to stop incurring all charges:
 \begin{verbatim}
