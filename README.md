@@ -89,6 +89,9 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+August 9, 2022
+- Fix name of processValueMax function in grader.  Issue #63
+
 August 4, 2022
 - The labedit program was rebuilt with the wrong JDK, preventing older JREs from running labedit
 
