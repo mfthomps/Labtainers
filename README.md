@@ -89,6 +89,8 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+August 30, 2022
+- Use the X11 socket name when setting DISPLAY from a container's .profile
 August 9, 2022
 - Fix name of processValueMax function in grader.  Issue #63
 
