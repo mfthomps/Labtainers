@@ -1,3 +1,7 @@
-sock=$(ls /var/tmp/.X11-unix/)
-disp=${sock:1:99}
-export DISPLAY=:$disp
+if [[ -d /var/tmp/.X11-unix ]]; then
+    sock=$(ls /var/tmp/.X11-unix/)
+    disp=${sock:1:99}
+    export DISPLAY=:$disp
+else
+    export DISPLAY=:0
+fi
