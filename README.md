@@ -89,6 +89,8 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+September 20, 2022
+- Note user id and password for TCP/IP lab in the lab manual.
 August 30, 2022
 - Use the X11 socket name when setting DISPLAY from a container's .profile
 August 9, 2022
