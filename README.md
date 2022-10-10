@@ -88,6 +88,8 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+October 10, 2022
+- Fix Google cloud newterm.sh; expand that boot disk to 30G.
 
 September 20, 2022
 - Note user id and password for TCP/IP lab in the lab manual.
