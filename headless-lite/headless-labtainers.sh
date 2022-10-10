@@ -1,8 +1,9 @@
 #!/bin/bash
 check_docker() {
-/usr/local/bin/docker ps
-result=$?
-if [ ! $result = 0 ]; then
+if [[ -f /usr/local/bin/docker ]]; then
+    /usr/local/bin/docker ps
+    result=$?
+else
     /usr/bin/docker ps
     result=$?
 fi
