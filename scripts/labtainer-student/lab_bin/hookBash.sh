@@ -48,8 +48,8 @@ if grep --quiet startup.sh $target; then
 else
     #echo "hook not enabled, fix this"
     cat $MYHOME/.local/bin/profile-add >> $target
-    echo "export DISPLAY=$DISPLAY" >> $target
-    echo "export DISPLAY=$DISPLAY" >> $root_target
+    cat $MYHOME/.local/bin/profile-display >> $target
+    cat $MYHOME/.local/bin/profile-display >> $root_target
     if [[ -f /usr/sbin/capinout ]]; then
         cat $MYHOME/.local/bin/bashrc-add  |  sed 's@PRECMD_HOME_REPLACE_ME@'"$MYHOME"'@' >> $MYHOME/.bashrc
         cat $MYHOME/.local/bin/bashrc-add  |  sed 's@PRECMD_HOME_REPLACE_ME@'"$MYHOME"'@' >> /root/.bashrc

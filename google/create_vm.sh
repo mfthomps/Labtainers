@@ -10,6 +10,7 @@ user_id=$1
 vm_name=$user_id-labtainervm
 gcloud compute instances create $vm_name --image=https://www.googleapis.com/compute/v1/projects/labtainers/global/images/labtainervm \
    --metadata-from-file=user-data=user_config.txt
+gcloud compute disks resize $vm_name --size 30G -q
 # instances fail ssh until settled
 ./waitup.sh $user_id 2>/dev/null
 echo "Check keys"
