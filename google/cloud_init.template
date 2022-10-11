@@ -66,6 +66,7 @@ runcmd:
 - docker pull labtainers/labtainer.network2
 - docker pull labtainers/labtainer.wireshark2
 - docker pull labtainers/labtainer.network.ssh2
+- docker pull labtainers/labtainer.grader
 
 power_state:
   mode: reboot

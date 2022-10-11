@@ -5,7 +5,6 @@ These instructions assume you have a google cloud account.
 
 This requires that the Google Cloud SDK be installed on  the Mac, Windows or Linux:
     https://cloud.google.com/sdk/docs/quickstart
-*** Windows is not yet supported ***
 
 Add the google-cloud-sdk/bin directory to your PATH environment variable.  For example,
 if you put the SDK in your home directory, then add this to your 
