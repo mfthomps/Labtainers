@@ -410,6 +410,12 @@ shutting down your computer, use the restart.sh script:
     ./restart.sh <user ID>
 \end{verbatim}
 
+\item If the terminal on the desktop goes away, create a new
+terminal using this command:
+\begin{verbatim}
+   ./newterm.sh <user ID>
+\end{verbatim}
+
 \item The create\_vm.sh script will create an SSH key pair named id\_labtainers within your {\tt \$HOME/.ssh} directory.
 The private key in id\_labtainers is not passphrase protected, so you must protect it.
 You may move the keys to a different computer and access your Labtainers from that computer's
@@ -534,6 +540,12 @@ The private key in id\_labtainers is not passphrase protected, so you must prote
 You may move the keys to a different computer and access your Labtainers from that computer's
 browser.  You must first run the install\_labtainers.sh script on that computer, and then run
 the restart.sh script.
+
+\item If the terminal on the desktop goes away (e.g., a right-click will sometimes do that), create a new
+terminal using this command:
+\begin{verbatim}
+   ./newterm.sh <user ID>
+\end{verbatim}
 
 \item When done with a lab, use
 \begin{verbatim}
