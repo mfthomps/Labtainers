@@ -1,5 +1,8 @@
 Create a Labtainers VM within Azure, assuming the user 
-has an Azure account, e.g., https://azure.microsoft.com/en-us/free/students/
+has an Azure account. Note that Azure Student accounts
+(https://azure.microsoft.com/en-us/free/students/) are not
+recommended for use at this time because they are subject to
+unpredictable resource limitations.
 
 
 This requires that the Azure CLI be installed on  the Mac, Windows or Linux:
