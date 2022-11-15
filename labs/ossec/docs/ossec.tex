@@ -92,7 +92,7 @@ The configuration files for each agent in the lab have been preconfigured to ide
 get keys into each agent to get them talking with the server.
 Most OSSEC operations require use of sudo, so you might as well just "sudo su".
 \begin{itemize}
-\item On the server, run the {\tt /var/bin/manage\_agents} command to define an agent for the {\tt client1} computer and
+\item On the server, run the {\tt /var/ossec/bin/manage\_agents} command to define an agent for the {\tt client1} computer and
 to export a key for that client. (Just run the command, you'll figure it out.)
 \item Copy the key that was generated on the server.
 \item On the {\tt client1} computer, run the {\tt manage\_agents} command and import the key by pasting it when prompted.
