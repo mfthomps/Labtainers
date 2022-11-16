@@ -89,13 +89,16 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+
+
+November 16, 2022
+- Fix path to Snort Manual in snort lab.
+- In ossec manual,fix path to manage\_agents
 October 12, 2022
 - Google cloud remove background operator from gnome-terminal command, still crashes on right click
   but seems stable after running a newterm.sh.
-
 October 10, 2022
 - Fix Google cloud newterm.sh; expand that boot disk to 30G.
-
 September 20, 2022
 - Note user id and password for TCP/IP lab in the lab manual.
 August 30, 2022
