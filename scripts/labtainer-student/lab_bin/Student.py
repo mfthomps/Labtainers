@@ -74,6 +74,45 @@ def killMonitoredProcess(homeLocal, keep_running, logger):
                 os.system(cmd)
             fh.close()
 
+def otherUsers(start_time, zipoutput, studentHomeDir, skip_list, dt_skip_list, skip_starts):
+    ulist = directories=[d for d in os.listdir('/home') if os.path.isdir(d)]
+    here = os.getcwd()
+    udir = '/home'
+    os.chdir('/home')
+    for rootdir, subdirs, files in os.walk(udir):
+            if rootdir == studentHomeDir:
+                continue
+            newdir = rootdir.replace(udir, '.')
+            # TBD FIX this
+            if './.wine' in newdir or './.cache' in newdir:
+                continue
+            for fname in files:
+                savefname = os.path.join(newdir, fname)
+                #print "savefname is %s" % savefname
+                try:
+                    local_time = datetime.datetime.fromtimestamp(os.path.getmtime(savefname))
+                except OSError:
+                    ''' ephemeral '''
+                    continue 
+                ckname = savefname[2:]
+                if local_time < start_time and not ckname.startswith('.local/.'): 
+                    continue
+                local_time = local_time.replace(minute=0)
+                if ckname not in skip_list:
+                    skip_this = False
+                    for ss in skip_starts:
+                        if ckname.startswith(ss):
+                            skip_this = True
+                            break
+                    if skip_this:
+                        continue
+                    if ckname not in dt_skip_list or dt_skip_list[ckname] < local_time: 
+                        try:
+                            zipoutput.write(savefname, compress_type=zipfile.ZIP_DEFLATED)
+                        except:
+                            # do not die if ephemeral files go away
+                            pass
+    os.chdir(here)
 def main():
     #print "Running Student.py"
     if len(sys.argv) != 4:
@@ -219,6 +258,7 @@ def main():
                     except:
                         # do not die if ephemeral files go away
                         pass
+    otherUsers(start_time, zipoutput, studentHomeDir, skip_list, dt_skip_list, skip_starts)
     zipoutput.close()
    
     os.chmod(TempOutputName, 0666)
