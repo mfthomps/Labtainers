@@ -947,6 +947,24 @@ def DockerCmd(cmd, noloop=False, good_error=None):
     return True
 
 
+def CopyLabScripts(start_config, gradecontianer_name, container_user, lab_path):
+    cmd = "docker exec %s bash -c 'mkdir -p /home/%s/.local/lab_scripts'" % (gradecontianer_name, container_user)
+    if not DockerCmd(cmd):
+        logger.error('failed %s' % cmd)
+        exit(1)
+
+    for container_name in start_config.containers:
+        cmd = "docker exec %s bash -c 'mkdir -p /home/%s/.local/lab_scripts/%s'" % (gradecontianer_name, container_user, container_name)
+        if not DockerCmd(cmd):
+            logger.error('failed %s' % cmd)
+            exit(1)
+
+        cmd = 'docker cp %s/%s/_bin  %s:/home/%s/.local/lab_scripts/%s/_bin' % (lab_path, container_name, 
+              gradecontianer_name, container_user, container_name)
+        if not DockerCmd(cmd):
+            logger.error('failed %s' % cmd)
+            exit(1)
+
 def CopyInstrConfig(mycontainer_name, container_user, lab_path):
     cmd = 'docker cp %s/instr_config/.  %s:/home/%s/.local/instr_config/' % (lab_path, mycontainer_name, container_user)
     if not DockerCmd(cmd):

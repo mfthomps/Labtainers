@@ -388,8 +388,11 @@ def doGrade(labname, use_test_registry, debug, redo, update, web=False, regress_
     if not os.path.isdir(lab_path):
         print('No lab found at %s' % lab_path)
         exit(1)
-    labtainer_config_dir = os.path.join(os.path.dirname(os.path.dirname(lab_path)), 'config', 'labtainer.config')
-    labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_dir, logger)
+    #labtainer_config_dir = os.path.join(os.path.dirname(os.path.dirname(lab_path)), 'config', 'labtainer.config')
+    #labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_dir, logger)
+
+    labtainer_config, start_config = labutils.GetBothConfigs(lab_path, logger)
+
     registry = getRegistry(use_test_registry, labtainer_config)
     grade_image = getGradeImageName(labtainer_config, registry)
     if update:
@@ -430,6 +433,8 @@ def doGrade(labname, use_test_registry, debug, redo, update, web=False, regress_
         exit(1)
     copyAssessBin(grade_container, test_web)
     labutils.CopyInstrConfig(grade_container, 'instructor', lab_path)
+    if not checkwork:
+        labutils.CopyLabScripts(start_config, grade_container, 'instructor', lab_path)
     diddleProfile(grade_container)
     if debug:
         spawn_command = "gnome-terminal -- docker exec -it %s bash -l cd /home/instructor &" % 	grade_container
@@ -495,6 +500,9 @@ def main():
     elif args.update and args.labname is None:
         removeGraders(registry)
         print('Graders have been removed, the next gradelab will pull a new grader')
+    elif args.labname is None:
+        print('Missing lab name.')
+        print('Use "gradelab -h" for help.')
     else:
         if args.cumulative:
             redo = False
