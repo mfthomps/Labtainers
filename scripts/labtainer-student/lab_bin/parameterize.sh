@@ -168,6 +168,13 @@ echo "image version is $IMAGE_VERSION" >/tmp/mft.out
 # just for ubuntu, tbd limit to that?
 touch ~/.sudo_as_admin_successful
 
+userlist=$(ls /home)
+for user in $userlist; do
+    if [ $user != $CONTAINER_USER ]; then
+        echo "export PROMPT_COMMAND='history -a'" >> /home/$user/.bash_profile
+    fi
+done
+
 if [ -d $LOCKDIR ]; then
     rmdir $LOCKDIR
 fi
