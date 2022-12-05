@@ -528,7 +528,7 @@ def HandleVolumes(volume, container):
         try:
             hostv, containerv = m.split(':') 
         except:
-            self.lgr.error('Bad mount definition %s' % m)
+            logger.error('Bad mount definition %s' % m)
             exit(1)
         homedir = os.environ['HOME']
         host_path = os.path.join(homedir, '.local', 'share', 'labtainers', hostv)
@@ -2155,6 +2155,7 @@ def GatherOtherArtifacts(lab_path, name, container_name, container_user, contain
     did_file = []
     CopyAbsToResult(container_name, '/root/.bash_history', container_user, ignore_stop_error) 
     did_file.append('/root/.bash_history')
+ 
     with open (results_config_path) as fh:
         for line in fh:
             ''' container:filename is between "=" and first " : " '''
@@ -2771,7 +2772,7 @@ def DoStop(start_config, labtainer_config, lab_path, ignore_stop_error, run_cont
         return None
     ''' Check for empty email identifier '''
     if zip_file_list[0].startswith('.'):
-        lgr.error('Missing email for student, cannot gather artifacts')
+        logger.error('Missing email for student, cannot gather artifacts')
         return None
     GatherZips(zip_file_list, labtainer_config, start_config, labname, lab_path)
     return retval
