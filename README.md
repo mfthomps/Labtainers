@@ -89,7 +89,12 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
-
+December 5, 2022
+- When collecting artifacts, include modified files from directories of non-default users, e.g., their bash histories.
+- Alter web assessment to display the new "other user" files.
+- Include files from .local/bin on each container in artifacts.  Intended to make these available to instructor via web assesment.
+- In the ACL lab, include th /shared\_data/bob/fun file in the results for reference by the instructor.
+- Catch use of "sh" or "bash" from command line and skip when parsing for given command, e.g., as done with "time" or "sudo".
 
 November 16, 2022
 - Fix path to Snort Manual in snort lab.
