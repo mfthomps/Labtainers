@@ -74,7 +74,7 @@ treatlocal(){
    #echo "cmd_path is $cmd_path"
    local TAS=$PRECMD_HOME/.local/bin/treataslocal
    base_cmd=$(basename "$cmd_path")
-   if [[ $base_cmd == 'python' ]] || [[ $base_cmd == 'python3' ]]; then
+   if [[ $base_cmd == 'python' ]] || [[ $base_cmd == 'python3' ]] || [[ $base_cmd == 'sh' ]] || [[ $base_cmd == 'bash' ]]; then
        return 1
    fi
    which=`which $cmd_path 2>&1`
@@ -233,7 +233,8 @@ preexec() {
            counter=$[$counter +1]
        fi
        cmd_line_array=($command)
-       if [ ${cmd_line_array[0]} == "sudo" ] || [ ${cmd_line_array[0]} == "time" ]; then
+       if [ ${cmd_line_array[0]} == "sudo" ] || [ ${cmd_line_array[0]} == "time" ] || \
+          [ ${cmd_line_array[0]} == "sh" ] || [ ${cmd_line_array[0]} == "bash" ]; then
           cmd_path=`which ${cmd_line_array[1]} 2>/dev/null`
        else
           cmd_path=`which ${cmd_line_array[0]} 2>/dev/null`
