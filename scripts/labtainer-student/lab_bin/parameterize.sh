@@ -171,7 +171,8 @@ touch ~/.sudo_as_admin_successful
 userlist=$(ls /home)
 for user in $userlist; do
     if [ $user != $CONTAINER_USER ]; then
-        echo "export PROMPT_COMMAND='history -a'" >> /home/$user/.bash_profile
+        ''' Append history to bash_history and set terminal title which gets trashed by the PROMPT_COMMAND '''
+        echo "export PROMPT_COMMAND='history -a;echo -ne \"\033]0;${USER}@${HOSTNAME}: ${PWD/$HOME/~}\007\"'"
     fi
 done
 
