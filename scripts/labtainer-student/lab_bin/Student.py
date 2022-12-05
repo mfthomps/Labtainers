@@ -107,8 +107,9 @@ def otherUsers(start_time, zipoutput, studentHomeDir, skip_list, dt_skip_list, s
                     if skip_this:
                         continue
                     if ckname not in dt_skip_list or dt_skip_list[ckname] < local_time: 
+                        arcname = os.path.join('other_users', savefname)
                         try:
-                            zipoutput.write(savefname, compress_type=zipfile.ZIP_DEFLATED)
+                            zipoutput.write(savefname, arcname=arcname, compress_type=zipfile.ZIP_DEFLATED)
                         except:
                             # do not die if ephemeral files go away
                             pass
