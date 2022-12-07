@@ -242,7 +242,7 @@ def main():
                 ''' ephemeral '''
                 continue 
             ckname = savefname[2:]
-            if local_time < start_time and not ckname.startswith('.local/.'): 
+            if local_time < start_time and not ckname.startswith('.local/.') and not ckname.startswith('.local/bin'): 
                 continue
             local_time = local_time.replace(minute=0)
             if ckname not in skip_list:
