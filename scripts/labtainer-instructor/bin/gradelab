@@ -433,8 +433,6 @@ def doGrade(labname, use_test_registry, debug, redo, update, web=False, regress_
         exit(1)
     copyAssessBin(grade_container, test_web)
     labutils.CopyInstrConfig(grade_container, 'instructor', lab_path)
-    if not checkwork:
-        labutils.CopyLabScripts(start_config, grade_container, 'instructor', lab_path)
     diddleProfile(grade_container)
     if debug:
         spawn_command = "gnome-terminal -- docker exec -it %s bash -l cd /home/instructor &" % 	grade_container
