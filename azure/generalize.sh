@@ -11,5 +11,6 @@ if [[ $ip == "FAIL" ]]; then
     echo "Failed to get ip of $vm"
     exit 1
 fi
-ssh -i "~/.ssh/id_labtainers" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null labtainer@$ip "sudo waagent -deprovision+user"
+ssh -i "~/.ssh/id_labtainers" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null labtainer@$ip "sudo waagent -deprovision"
 ./deallocate_vm.sh $user
+az vm generalize --resource-group labtainerResources --name $vm

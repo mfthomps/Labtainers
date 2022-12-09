@@ -17,16 +17,16 @@ key=$(cat ~/.ssh/id_labtainers.pub)
 echo "key generated"
 cp cloud_init.template cloud_init.txt
 ./resourcecheck.sh || exit 1
+imgdef="/CommunityGalleries/LabtainersImages-fb345820-6f7a-4fbf-b106-7d50e3b601f2/Images/labtainersImageDefinition/Versions/latest"
 echo "Creating Azure VM $vm_name for $user_id"
 az vm create \
- --public-ip-sku Standard \
  --resource-group labtainerResources \
  --name $vm_name \
- --image UbuntuLTS \
+ --image $imgdef \
+ --size Standard_B2s \
  --admin-username labtainer \
- --nic-delete-option delete \
  --generate-ssh-keys \
- --ssh-key-values ~/.ssh/id_labtainers.pub \
- --custom-data cloud_init.txt > $user_id.json
+ --verbose \
+ --ssh-key-values ~/.ssh/id_labtainers.pub 
 
 ./waitdone.sh $user_id
