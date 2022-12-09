@@ -89,6 +89,10 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+December 9, 2022
+- Modify Azure vm creation script to use a prebuilt Labtainer VM image from the Azure Community Gallery.
+- Terminals on cloud VMs crash for unknown reasons during startup or right click on the terminal.  Attempt
+  to address by start/stop of a terminal.
 December 5, 2022
 - When collecting artifacts, include modified files from directories of non-default users, e.g., their bash histories.
 - Alter web assessment to display the new "other user" files.
@@ -96,7 +100,6 @@ December 5, 2022
 - In the ACL lab, include th /shared\_data/bob/fun file in the results for reference by the instructor.
 - Catch use of "sh" or "bash" from command line and skip when parsing for given command, e.g., as done with "time" or "sudo".
 - In the tcpip lab, could not ssh into the server during subsequent lab sessions, the /run/sshd directory was not being remade.
-
 November 16, 2022
 - Fix path to Snort Manual in snort lab.
 - In ossec manual,fix path to manage\_agents
