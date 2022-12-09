@@ -27,6 +27,7 @@ az vm create \
  --admin-username labtainer \
  --generate-ssh-keys \
  --verbose \
+ --accept-term \
  --ssh-key-values ~/.ssh/id_labtainers.pub 
 
 ./waitdone.sh $user_id
