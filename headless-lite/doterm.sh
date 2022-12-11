@@ -14,6 +14,7 @@ source $LABTAINER_DIR/setup_scripts/lab-completion.bash
 #
 sed -i '1,/student/{s%student/labtainer%labtainer/labtainer%}' $HOME/labtainer/trunk/scripts/labtainer-student/README
 /usr/bin/waitForX.sh 
+gnome-terminal --geometry 120x31+150+100 --working-directory=$HOME/labtainer/labtainer-student -- bash -c "exit" 
 sleep 2
 gnome-terminal --geometry 120x31+150+100 --working-directory=$HOME/labtainer/labtainer-student -- bash -c "/bin/cat README; exec bash" 
 if [[ -f $HOME/labtainer/.doupdate ]] && [[ "$LABTAINER_UPDATE" != 'FALSE' ]]; then
