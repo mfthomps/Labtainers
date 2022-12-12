@@ -7,7 +7,7 @@ if [[ -f $HOME/labtainer/.dosmoke ]]; then
         gnome-terminal --geometry 120x31+150+300 -e "bash -c \"exec bash -c $myscript \"" &
     else
         echo "No script at $myscript , just do smoke test" > /tmp/profile.log
-        gnome-terminal --geometry 120x31+150+300 --working-directory=$LABTAINER_DIR/setup_scripts -e "bash -c \"exec bash -c ./full-smoke-test.sh \"" &
+        gnome-terminal --geometry 120x31+150+300 --working-directory=$LABTAINER_DIR/setup_scripts -- "bash -c \"exec bash -c ./full-smoke-test.sh \"" &
    fi
 fi
 EOL

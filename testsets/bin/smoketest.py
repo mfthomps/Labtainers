@@ -50,11 +50,14 @@ class SmokeTest():
             pass
         cmd = 'labtainer %s -q -r %s' % (lab, test_flag)
         result = subprocess.call(cmd, shell=True, stderr=self.outfile, stdout=self.outfile)
-        self.logger.debug('result is %d' % result)
-        while not os.path.isdir(syncdir):
-            self.logger.debug('synch not found, wait for labtainers to be ready.')
-            print('synch %s not found, wait for labtainers to be ready.' % syncdir)
-            time.sleep(1)
+        if result == FAILURE:
+            self.logger.debug('result is %d' % result)
+            self.logger.debug('from cmd %s' % cmd)
+        else:
+            while not os.path.isdir(syncdir):
+                self.logger.debug('synch not found, wait for labtainers to be ready.')
+                print('synch %s not found, wait for labtainers to be ready.' % syncdir)
+                time.sleep(1)
         self.simlab = None
         if result == FAILURE:
             retval = False

@@ -168,6 +168,14 @@ echo "image version is $IMAGE_VERSION" >/tmp/mft.out
 # just for ubuntu, tbd limit to that?
 touch ~/.sudo_as_admin_successful
 
+userlist=$(ls /home)
+for user in $userlist; do
+    if [ $user != $CONTAINER_USER ]; then
+        ''' Append history to bash_history and set terminal title which gets trashed by the PROMPT_COMMAND '''
+        echo "export PROMPT_COMMAND='history -a;echo -ne \"\033]0;${USER}@${HOSTNAME}: ${PWD/$HOME/~}\007\"'"
+    fi
+done
+
 if [ -d $LOCKDIR ]; then
     rmdir $LOCKDIR
 fi

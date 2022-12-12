@@ -577,6 +577,14 @@ in turn signals the stage so that the stage can exit.
 \end{itemize}
 \includepdf[pages=-,pagecommand={},width=\textwidth]{../../tool-src/capinout/capinout.pdf}
 
+\section {Headless Labtainers}
+See README files in the headless-lite; azure; and google directories for information about flavors of headless Labtainers (that run
+on cloud servers or other platforms lacking standard X11 desktops.
+\subsection{Gnome terminal issues}
+If gnome termainals are created prior to completion of container initialization, the gnome terminal may start and then exit.  This
+might occur when the initial Labtainers terminal is created on the labtainers container in a headless environment.  It may also occur
+when starting a lab (but why then would it also kill the original Labtainers terminal?).
+
 \section {Notes}
 \subsection {Race condition on precheck.sh output}
 If an mynotify.py event causes an output to a timestamped file named precheck, that may conflict with
@@ -646,6 +654,16 @@ included multiple CMD entries (one in the latest file, one in the parent file).
 
 Sometimes (only see on testing), the container ID reverts from the labtainer name to its hash.  This can be accompanied by an
 inability to manually stop the container. Seems to be a Docker bug, but only appears every 6 months or so of daily regression testing.
+
+\subsubsection{Lab fixes}
+These fixes were deferred to avoid unnecessary rebuilds.  The problems are due to 
+files missed from git, or directories that are not created.
+
+ssl -- to fixlocal on ca:
+    mkdir ~/ca/private
+    mkdir ~/ca/certs
+    mkdir ~/ca/intermediate/private
+    mkdir ~/ca/intermediate/certs
 
 \subsubsection{Grader updates}
 Automate detection of need to update a local grader image, e.g., in response to a fix to the grader.
@@ -766,5 +784,11 @@ the server along with the flask/templates files.  For debugging, use the {\tt -v
 flask directory to be mounted and used within the container.  When you get a terminal to the grader container, run the instructor.py command
 and then start the server with {\tt .local/flask/server.py labname}.  The templates files contain dynamic HTML for the various links displayed
 on each page, and these have corresponding {\tt app.route} decorators in the server.py code.  Review the Flask product documentation to understand the dynamic HTML syntax and how values are replaced.
+
+\subsection{Lab versions}
+Some labs have multiple versions, reflecting substantive changes, e.g., changes to assessment artifacts, or introduction of new containers.
+This introduces naming issues, such as {\tt somelab} and {\tt somelab2}.  Lab listings will only show the latest version of a given lab, unless
+an earlier version is already installed.  While it may be tempting to hide version numbers from students and instructors, doing so can introduce
+its own problems.  For example, which xfer directory should the labs show up in, and what if they have different grading? 
 
 \end{document}

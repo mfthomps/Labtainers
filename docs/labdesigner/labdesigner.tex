@@ -1057,6 +1057,9 @@ These packages of artifacts are then transferred to the instructor, (e.g., via e
 ingested into the instructor's system where lab assessment occurs. Timestamped stdin and stdout files
 are captured in \texttt{\$HOME/.local/result}
 
+Each container within a lab includes a default user, and it is only that user's stdin/stdout artificts that are
+captured.   
+
 By default, stdin and stdout for all non-system programs is captured, e.g., the results of an ``ls'' command
 are not captured.  The stdin and stdout of system programs\footnote{The ``source'' directive is not a system
 program, and should not be included in a treataslocal file.} will be captured if the program
@@ -1107,7 +1110,9 @@ program    delim_type:delim_value
 \subsubsection{Bash History}
 The framework collects all student bash history into the \texttt{\$HOME/.bash\_history} and \newline
 \texttt{/root/.bash\_history} files.  These files are
-available for reference as an artifact file.  
+available for reference as an artifact file.  The bash history for the default user is collected from each
+container.  If a container has users other than the default user, files created or modified by those users
+beneath their home directories (e.g., their bash histories) are also collected.
 
 \subsubsection{System logs}
 All files referenced in the {\tt results.config} file, (described below in section \ref{results.config}

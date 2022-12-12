@@ -11,9 +11,19 @@
 <ul>
     {% for file in files %}
     <li>
-        <a href="{{ (request.path + '/' if request.path != '/' else '') + file }}">
-            {{prefix}}{{ (request.path[trim:] + '/' if request.path != '/' else '') + file }}
-        </a>
+        {% if 'other_users' in file %}
+            <a href="{{ (request.path + '/' if request.path != '/' else '') + file }}">
+                {{ (request.path[trim:] + '/' if request.path != '/' else '') + file }}
+            </a>
+        {% elif 'other_users' in request.path %}
+            <a href="{{ (request.path + '/' if request.path != '/' else '') + file }}">
+                {{ (request.path[trim:] + '/' if request.path != '/' else '') + file }}
+            </a>
+        {% else %}
+            <a href="{{ (request.path + '/' if request.path != '/' else '') + file }}">
+                {{prefix}}{{ (request.path[trim:] + '/' if request.path != '/' else '') + file }}
+            </a>
+        {% endif %}
     </li>
     {% endfor %}
 </ul>
