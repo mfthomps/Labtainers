@@ -145,7 +145,10 @@ class ParameterParser():
                 #self.logger.error("RAND_REPLACE : <filename> : <token> : <LowerBound> : <UpperBound>")
                 sys.exit(1)
             use_integer = False
-            upperbound_int = int(upperboundstr, 16)
+            try:
+                upperbound_int = int(upperboundstr, 16)
+            except:
+                self.logger.error("RAND_REPLACE (%s) failed parsing as hex: %s" % (each_value, upperboundstr))
         else:
             if use_integer == False:
                 # Inconsistent format of lowerbound (hexadecimal format)
@@ -153,7 +156,10 @@ class ParameterParser():
                 self.logger.error("RAND_REPLACE (%s) inconsistent lowerbound/upperbound format" % each_value)
                 #self.logger.error("RAND_REPLACE : <filename> : <token> : <LowerBound> : <UpperBound>")
                 sys.exit(1)
-            upperbound_int = int(upperboundstr, 10)
+            try:
+                upperbound_int = int(upperboundstr, 10)
+            except:
+                self.logger.error("RAND_REPLACE (%s) failed parsing as int: %s" % (each_value, upperboundstr))
         #print "lowerbound is (%d)" % lowerbound_int
         #print "upperbound is (%d)" % upperbound_int
         if lowerbound_int > upperbound_int:
