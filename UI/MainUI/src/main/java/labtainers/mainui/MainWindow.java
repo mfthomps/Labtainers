@@ -1326,7 +1326,7 @@ public class MainWindow extends javax.swing.JFrame {
     }
     private void BuildOnlyMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuildOnlyMenuItemActionPerformed
         try {
-            if(!saveLab(true, true)){
+            if(!saveLab(false, true)){
                 output("Build aborted due to errors in lab.\n");
                 return;
             }
@@ -1398,7 +1398,7 @@ public class MainWindow extends javax.swing.JFrame {
 
     private void BuildAndRunActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuildAndRunActionPerformed
         try {
-            if(!saveLab(true, true)){
+            if(!saveLab(false, true)){
                 output("Build aborted due to errors in lab.\n");
                 return;
             }
@@ -1446,14 +1446,14 @@ public class MainWindow extends javax.swing.JFrame {
 
     private void SimlabDirectivesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SimlabDirectivesMenuItemActionPerformed
         String labtainerPath = System.getenv("LABTAINER_DIR");
-        System.out.println("labtainerdir is "+labtainerPath);
+        //System.out.println("labtainerdir is "+labtainerPath);
         File labtainer_path = new File(labtainerPath);
         String parent = labtainer_path.getParentFile().getPath();
-        System.out.println("parent is "+parent);
+        //System.out.println("parent is "+parent);
         File simlab_dir = new File(parent+File.separator+"simlab"+File.separator+this.labName);
         simlab_dir.mkdirs();
         String cmd = "gnome-terminal --working-directory="+simlab_dir;
-        System.out.println("cmd: "+cmd);
+        //System.out.println("cmd: "+cmd);
         doCommand(cmd);
         
     }//GEN-LAST:event_SimlabDirectivesMenuItemActionPerformed
@@ -1915,6 +1915,7 @@ public class MainWindow extends javax.swing.JFrame {
          
     // Writes current state of the UI the file system
     public boolean saveLab(boolean usetmp, boolean force) throws FileNotFoundException{
+        //System.out.println("savelab"); 
         // If usetmp, save to temporary diretory and compare to current.  If they differ,
         // prompts the user to save or discard changes.
         // Return false if user cancels (does not want to exit).
@@ -1924,7 +1925,7 @@ public class MainWindow extends javax.swing.JFrame {
         for(Component network : networks){
             NetworkObjPanel panel = (NetworkObjPanel)network;
             if(panel.configShowing()){
-                System.out.println("network visible"); 
+                //System.out.println("network visible"); 
                 panel.networkConfigUpdateButton();
             }
         }
@@ -1934,12 +1935,13 @@ public class MainWindow extends javax.swing.JFrame {
         for(Component container : containers){
             ContainerObjPanel panel = (ContainerObjPanel)container;
             if(panel.configShowing()){
-                System.out.println("container visible"); 
+                //System.out.println("container visible"); 
                 panel.updateData();
             }
         }
         
         if(usetmp){ 
+            //System.out.println("is usetmp"); 
             String f1 = null;
             String f2 = null;
             boolean something_changed = true;
@@ -2014,6 +2016,7 @@ public class MainWindow extends javax.swing.JFrame {
             }
         }else{
             labDataCurrent.writeStartConfig(usetmp);
+            //System.out.println("Lab results saved");
             String fname = labDataCurrent.getResultsData().writeResultsConfig(usetmp);
             if(fname == null){
                 output("Error in Results, refusing to save.\n");
@@ -2034,7 +2037,7 @@ public class MainWindow extends javax.swing.JFrame {
         }
         //System.out.println("Lab Saved (or not)");
         try{
-            System.out.println("Check manuals");
+            //System.out.println("Check manuals");
             checkManual();
         }catch(IOException ex){
             System.out.println("Error checking manuals: "+ex);
