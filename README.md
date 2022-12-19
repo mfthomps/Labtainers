@@ -89,6 +89,10 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+December 19, 2022
+- Add strace lab to introduce system call tracing.
+- X11 DISPLAY value was incorrect if multiple devices in the /tmp/.X11-unix directory.
+- Use of python/bash/sh/etc with no arguments was causing capinout to crash.
 December 9, 2022
 - Modify Azure vm creation script to use a prebuilt Labtainer VM image from the Azure Community Gallery.
 - Terminals on cloud VMs crash for unknown reasons during startup or right click on the terminal.  Attempt

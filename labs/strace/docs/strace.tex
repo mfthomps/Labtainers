@@ -1,0 +1,113 @@
+\input{header}
+\begin{document}
+
+\begin{center}
+{\LARGE The strace utility}
+\vspace{0.1in}\\
+\end{center}
+
+
+\section{Overview}
+This exercise introduces use of the Unix strace utility to record system
+calls make by a running program.
+The lab includes the following objectives:
+\begin{itemize}
+\item How to run strace.
+\item Understanding how the output of strace corresponds to system calls.
+\item Potential use of strace for dynamic analysis of software.
+\end{itemize}
+
+\subsection{Background}
+This lab assumes some familiarity with the Unix command line and some introduction to system calls.
+
+The strace utility trace system calls, so you will want to become familiar with the kinds of system
+calls that might be made by a service that handles UDP traffic.  You can learn about UDP traffic
+by using man, e.g.,
+\begin{verbatim}
+   man udp
+\end{verbatim}
+\noindent Or try your favorite web sources.
+Learn about strace using:
+\begin{verbatim}
+   man strace
+\end{verbatim}
+
+\section{Lab Environment}
+This lab runs in the Labtainer framework,
+available at http://nps.edu/web/c3o/labtainers.
+That site includes links to a pre-built virtual machine
+that has Labtainers installed, however Labtainers can
+be run on any Linux host that supports Docker containers.
+
+From your labtainer-student directory start the lab using:
+\begin{verbatim}
+    labtainer strace
+\end{verbatim}
+A link to this lab manual will be displayed.
+
+\section{Environment}
+The lab includes two computers, one called \textit{the-client} and another called \textit{the-server}.
+You will only get a terminal on the-client.  
+
+The IP address of the-server is {\tt 10.10.0.2}, which can be reached from the-client.
+A service is running on the-server called \textit{observer} and that service has been known to provide
+some kind of network communication using UDP.  
+
+You have a copy of the observer executable on the-client.
+
+\section{Tasks}
+Your objective is to use strace to dynamically analyze the observer program and determine the
+port number that it listens on.
+
+\subsection{Explore}
+\begin{itemize}
+\item Use the ping command to confirm the-client can reach the-server (10.10.0.2).
+
+\item Use the Unix {\tt file} command to learn a bit about the observer program.
+
+\item Try running the observer program.
+\end{itemize}
+
+\subsection{Use strace}
+Use the strace utility to observe Linux system calls made by the observer program as it executes:
+\begin{verbatim}
+    strace ./observer
+\end{verbatim}
+Pay attention to the progress made by the program and to any issues that may cause it to fail.
+Don't be afraid to create files on the client if that helps you to get further with the program.
+And keep in mind that your goal is to find the port number being listened to.  You need not get the 
+program to run successfully.
+
+\subsection{Test the port with sendudp.py}
+Once you think you've found the port number, test it by using the sendudp.py script on the-client:
+\begin{verbatim}
+    ./sendudp.py <port>
+\end{verbatim}
+
+\subsection{Extra}
+Consider situations where they type of dynamic analysis provided by strace might be useful due to limited alternative approaches.
+For example, tools such a nmap can have difficulty identifying open UDP ports.  Try it from the-client if you'd like, assuming you
+are familiar with nmap (see the nmap-discover and nmap-ssh labs).
+Even when you know the port number to scan, nmap may not be reliable.  Try that:
+\begin{verbatim}
+    sudo nmap -sU -p <port> 10.10.0.2
+\end{verbatim}
+Static analysis tools such as Ghidra are another alternative for reverse engineering program functions.  However, some programs
+may obfuscate their functions, complicating the process of determining things like port numbers.  
+Your the-client computer has Ghidra installed, which you can start using:
+\begin{verbatim}
+   ./ghidra
+\end{verbatim}
+If you are not familiar with Ghidra, consider trying the ghidra lab.
+
+\section{Submission}
+After finishing the lab, go to the terminal on your Linux system that was used to start the lab and type:
+\begin{verbatim}
+    stoplab 
+\end{verbatim}
+When you stop the lab, the system will display a path to the zipped lab results on your Linux system.  Provide that file to 
+your instructor, e.g., via the Sakai site.
+
+\copyrightnotice
+
+\end{document}

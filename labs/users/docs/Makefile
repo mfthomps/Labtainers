@@ -1,4 +1,4 @@
-ossec.pdf: users.tex header.tex
+users.pdf: users.tex header.tex
 	pdflatex -jobname=users users
 	pdflatex -jobname=users users
 
