@@ -17,4 +17,3 @@
 #   echo $1 | sudo -S mkdir -p "$PERMLOCKDIR"
 cd $HOME
 ./mkit.sh
-rm ob.c
