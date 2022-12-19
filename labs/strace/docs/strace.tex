@@ -85,14 +85,20 @@ Once you think you've found the port number, test it by using the sendudp.py scr
 \end{verbatim}
 
 \subsection{Extra}
-Consider situations where they type of dynamic analysis provided by strace might be useful.
-For example, tools such a nmap can have difficulty identifying open UDP ports.  Try it from the-client if you'd like.
+Consider situations where they type of dynamic analysis provided by strace might be useful due to limited alternative approaches.
+For example, tools such a nmap can have difficulty identifying open UDP ports.  Try it from the-client if you'd like, assuming you
+are familiar with nmap (see the nmap-discover and nmap-ssh labs).
 Even when you know the port number to scan, nmap may not be reliable.  Try that:
 \begin{verbatim}
     sudo nmap -sU -p <port> 10.10.0.2
 \end{verbatim}
-Static analysis tools such as Ghidra are another alternative for reverse engineering program functions.  However, some program
-may obfuscate their functions.
+Static analysis tools such as Ghidra are another alternative for reverse engineering program functions.  However, some programs
+may obfuscate their functions, complicating the process of determining things like port numbers.  
+Your the-client computer has Ghidra installed, which you can start using:
+\begin{verbatim}
+   ./ghidra
+\end{verbatim}
+If you are not familiar with Ghidra, consider trying the ghidra lab.
 
 \section{Submission}
 After finishing the lab, go to the terminal on your Linux system that was used to start the lab and type:
