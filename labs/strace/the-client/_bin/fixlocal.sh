@@ -16,4 +16,4 @@
 #   PERMLOCKDIR=/var/labtainer/did_param
 #   echo $1 | sudo -S mkdir -p "$PERMLOCKDIR"
 cd $HOME
-./mkit.sh
+.local/bin/mkit.sh
