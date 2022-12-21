@@ -4,6 +4,7 @@ Description=HTTP Service
 [Service]
 Type=simple
 ExecStart=/home/attacker/MyHTTPServer.py
+WorkingDirectory=/home/attacker/
 StandardOutput=null
 
 [Install]
