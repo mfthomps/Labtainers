@@ -89,10 +89,12 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+January 4, 2022
+- Containers using systemd were failing on newer systemd present in Ubuntu 22
+- Add --zone parameter to google cloud scripts, with value derived from the set\_defaults script.
 December 21, 2022
 - Fix xforge results criteria to not expect pathname, and add check to see if POST issued to edit profile. And fix attacker
   http server to run from the home directory.
-
 December 19, 2022
 - Add strace lab to introduce system call tracing.
 - X11 DISPLAY value was incorrect if multiple devices in the /tmp/.X11-unix directory.
