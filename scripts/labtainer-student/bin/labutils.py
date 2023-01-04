@@ -573,6 +573,7 @@ def CreateSingleContainer(labtainer_config, start_config, container, lab_path, m
         logger.debug("getDockerIPAddr result (%s)" % docker0_IPAddr)
         volume=''
         ubuntu_systemd = isUbuntuSystemd(new_image_name, labtainer_config)
+        logger.debug('wtf, over, ubuntu_systemd is %s' % ubuntu_systemd)
         if ubuntu_systemd is not None:
            osTypeMap[container.image_name] = ubuntu_systemd
            if ubuntu_systemd == 'ubuntu20':
@@ -585,14 +586,14 @@ def CreateSingleContainer(labtainer_config, start_config, container, lab_path, m
         else:
             shm = ''
         if container.script == '' or ubuntu_systemd is not None:
-            #logger.debug('Container %s is systemd or has script empty <%s>' % (new_image_name, container.script))
+            logger.debug('Container %s is systemd or has script empty <%s>' % (new_image_name, container.script))
             ''' a systemd container, centos or ubuntu? '''
             if ubuntu_systemd == 'ubuntu16':
                 ''' A one-off run to set some internal values.  This is NOT what runs the lab container '''
                 #volume='--security-opt seccomp=confined --tmpfs /run --tmpfs /run/lock -v /sys/fs/cgroup:/sys/fs/cgroup:ro'
                 volume='--security-opt seccomp=unconfined --tmpfs /run --tmpfs /run/lock -v /sys/fs/cgroup:/sys/fs/cgroup:ro'
                 cmd = 'docker run --rm --privileged -v /:/host %s setup' % new_image_name
-                logger.debug('cmd is %s' % cmd)
+                logger.debug('ubuntu16 cmd is %s' % cmd)
                 ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
                 output = ps.communicate()
                 logger.debug('back from docker run, output %s' % (output[0].decode('utf-8')))
@@ -600,7 +601,9 @@ def CreateSingleContainer(labtainer_config, start_config, container, lab_path, m
                     logger.debug('back from docker run, error %s' % (output[1].decode('utf-8')))
                 volume = '' 
             elif ubuntu_systemd == 'ubuntu20':
-                volume = volume + " -v /sys/fs/cgroup:/sys/fs/cgroup:ro "
+                #volume = volume + " -v /sys/fs/cgroup:/sys/fs/cgroup:rw --cgroupns=host --tmpfs=/run/lock --tmpfs=/run "
+                volume = volume + " -v /sys/fs/cgroup:/sys/fs/cgroup:rw --cgroupns=host --tmpfs=/run/lock --tmpfs=/run "
+                logger.debug('volume is %s' % volume)
         if container.x11.lower() == 'yes':
             #volume = '-e DISPLAY -v /tmp/.Xll-unix:/tmp/.X11-unix --net=host -v$HOME/.Xauthority:/home/developer/.Xauthority'
             #volume = volume+' --env="DISPLAY" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw"'

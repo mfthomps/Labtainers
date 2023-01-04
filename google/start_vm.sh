@@ -5,6 +5,7 @@ if [ "$#" -ne 1 ]; then
 fi
 user_id=$1
 vm_name=$user_id-labtainervm
-gcloud -q compute instances start $vm_name 
+zone=$(./findzone.sh)
+gcloud -q compute instances start $vm_name --zone=$zone
 ./waitup.sh $user_id
 ./waitdone.sh $user_id

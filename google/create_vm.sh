@@ -8,9 +8,10 @@ if [ "$#" -ne 1 ]; then
 fi
 user_id=$1
 vm_name=$user_id-labtainervm
+zone=$(./findzone.sh)
 gcloud compute instances create $vm_name --image=https://www.googleapis.com/compute/v1/projects/labtainers/global/images/labtainervm5 \
    --metadata-from-file=user-data=user_config.txt
-gcloud compute disks resize $vm_name --size 30G -q
+gcloud compute disks resize $vm_name --size 30G --zone=$zone -q
 # instances fail ssh until settled
 ./waitup.sh $user_id 2>/dev/null
 echo "Check keys"
