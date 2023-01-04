@@ -51,7 +51,7 @@ to initialize your client.
 In the following command examples, use "ps1" instead of "sh" when using PowerShell.
 
 Once logged into the Google Cloud, run the create_vm.sh (or create_vm.ps1 for windows) script, passing in a user ID.
-The ID can be any name, e.g.,
+The ID can be any name without special characters, e.g.,
     ./create_vm.sh myname
 
 One Linux/Mac, you will be prompted for an ssh passphase, leave it blank.  On Windows, ignore the warnings
