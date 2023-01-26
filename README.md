@@ -89,7 +89,9 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
-January 4, 2022
+January 26, 2023
+- Modified powershell scripts for gcloud to use the selected zone to qualify VM names.
+January 4, 2023
 - Containers using systemd were failing on newer systemd present in Ubuntu 22
 - Add --zone parameter to google cloud scripts, with value derived from the set\_defaults script.
 December 21, 2022

@@ -1,5 +1,6 @@
 $vm=$args[0]
-$result=gcloud compute instances describe $vm --format='get(networkInterfaces[0].accessConfigs[0].natIP)'
+$zone=$(./findzone.sh)
+$result=gcloud compute instances describe $vm --format='get(networkInterfaces[0].accessConfigs[0].natIP)' --zone=$zone
 If ($result -eq $null){
     echo "FAIL"
 }else{
