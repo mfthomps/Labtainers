@@ -1,5 +1,5 @@
 $gdir = "$HOME\labtainers_google"
-if(-Not test-path $gdir){
+if(-Not (test-path $gdir)){
    mkdir -p "$gdir"
 }
 cd "$gdir"
