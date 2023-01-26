@@ -4,4 +4,5 @@ If ($args.Count -ne 1){
 }
 $user=$args[0]
 $vm=$user+"-labtainervm"
-gcloud -q compute instances stop $vm
+$zone=$(./findzone.sh)
+gcloud -q compute instances stop $vm --zone=$zone

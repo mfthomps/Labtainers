@@ -12,7 +12,7 @@ if ($ip -eq "FAIL"){
     echo "Failed to get ip of $vm"
     exit 1
 }
-$result=netstat -an | findstr 6901
+$result=netstat -an | Select-String -pattern "6901"
 If ($result -eq $null){
     echo "No tunnel, create one."
       $fname=$HOME+"\.ssh\id_labtainers"
