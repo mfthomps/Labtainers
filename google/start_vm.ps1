@@ -4,7 +4,7 @@ If ($args.Count -ne 1){
 }
 $user=$args[0]
 $vm=$user+"-labtainervm"
-$zone=$(./findzone.sh)
+$zone=./findzone.ps1
 gcloud -q compute instances start $vm --zone=$zone
 ./waitup.ps1 $user
 ./waitdone.ps1 $user

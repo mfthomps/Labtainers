@@ -4,6 +4,6 @@ If ($args.Count -ne 1){
 }
 $user=$args[0]
 $vm=$user+"-labtainervm"
-$zone=$(./findzone.sh)
+$zone=./findzone.ps1
 gcloud -q compute instances delete $vm --zone=$zone
 echo "VM $vm has been deleted"

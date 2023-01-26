@@ -11,7 +11,7 @@ If ($args.Count -ne 1){
 $ErrorActionPreference = "Stop"
 $user_id=$args[0]
 $vm_name=$user_id+"-labtainervm"
-$zone=$(./findzone.sh)
+$zone=./findzone.ps1
 gcloud compute instances create $vm_name --image=https://www.googleapis.com/compute/v1/projects/labtainers/global/images/labtainervm5 `
    --metadata-from-file=user-data=user_config.txt
 gcloud compute disks resize $vm_name --size 30G --zone=$zone -q
