@@ -89,6 +89,8 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+February 1, 2023
+- Bash history for non-default users was not being saved.
 January 26, 2023
 - Modified powershell scripts for gcloud to use the selected zone to qualify VM names.
 January 4, 2023
