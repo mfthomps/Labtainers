@@ -1,5 +1,5 @@
 #
-# Create an Azure VM for a student, assuming the user has
+# Create an gcloud VM for a student, assuming the user has
 # an Azure account and the CLI installed.
 #
 # This will create an ssh key pair and use it when creating the VM
