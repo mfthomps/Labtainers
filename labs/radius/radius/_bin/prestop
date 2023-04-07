@@ -1,0 +1,6 @@
+run=$(ps -aux | grep [r]adius)
+if [[ ! -z "$run" ]]; then
+    echo "radiusd running"
+else
+    echo "radiusd is not running"
+fi
