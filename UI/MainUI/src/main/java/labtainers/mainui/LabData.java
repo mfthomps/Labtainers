@@ -678,7 +678,7 @@ public class LabData {
                 startConfigText += "     MACVLAN "+data.macvlan+"\n";
             }
             if(data.macvlan_ext > 0){
-                startConfigText += "     MACVLAN_EXT" +data.macvlan_ext+"\n";
+                startConfigText += "     MACVLAN_EXT " +data.macvlan_ext+"\n";
             }
             
             if(data.tap){
