@@ -144,7 +144,16 @@ def checkVersion():
     else:
        #print('version is %s' % str(sys.version_info))
        pass
-     
+
+def printLabList(dirs, path, versions, skip):
+    for loc in sorted(dirs):
+        if loc in skip: 
+            continue
+        versionfile = os.path.join(path, loc, "config", "version")
+        lname, dumb = getLabVersion(versionfile)
+        if lname is None or isLatestVersion(versions[lname], loc):
+            print(loc)
+
 def main():
     checkVersion()
     dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -166,6 +175,7 @@ def main():
     parser.add_argument('-n', '--client_count', action='store', help='Number of clones of client components to create, intended for multi-user labs')
     parser.add_argument('-o', '--only_container', action='store', help='Run only the named container')
     parser.add_argument('-t', '--test_registry', action='store_true', default=False, help='Run with images from the test registry')
+    parser.add_argument('-l', '--list', action='store_true', default=False, help='Print list of labs. Use no options for verbose list.')
     num_args = len(sys.argv)
     versions = getVerList(dirs, path)
     skip_labs = os.path.join(dir_path, 'distrib', 'skip-labs')
@@ -184,6 +194,9 @@ def main():
         exit(0)
     if args.find is not None:
         keywords.find(' '.join(args.find))
+        exit(0)
+    if args.list:
+        printLabList(dirs, path, versions, skip)
         exit(0)
     labname = args.labname
     if labname == 'NONE' and not args.diagnose:
