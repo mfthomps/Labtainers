@@ -1421,6 +1421,12 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                     logger.error('failed %s' % cmd)
                     results.append(False)
                     return
+            
+                cmd = "docker exec %s bash -c 'ln -s /var/tmp/.X11-unix/X%d /tmp/.X11-unix/X%d'" % (mycontainer_name, 
+                  display_num, display_num)
+                if not doX11Link(cmd):
+                    results.append(False)
+                    return
             if not container.no_param: 
                 clone_need_seeds = need_seeds
                 if not clone_need_seeds:
@@ -1475,13 +1481,14 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                     logger.error('Fatal error in docker command %s' % cmd) 
                     results.append(False)
                     return
-
+            ''' repeat x11 because /tmp may have been wiped '''
             if container.x11.lower() == 'yes':
                 cmd = "docker exec %s bash -c 'ln -s /var/tmp/.X11-unix/X%d /tmp/.X11-unix/X%d'" % (mycontainer_name, 
                   display_num, display_num)
                 if not doX11Link(cmd):
                     results.append(False)
                     return
+
     
         results.append(retval)
 
