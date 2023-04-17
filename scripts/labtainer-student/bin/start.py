@@ -85,6 +85,18 @@ def isLatestVersion(versions, lab):
                        return False
     return True
         
+def getLatestVersion(versions, lab):
+    retval = lab
+    if versions is not None:
+        if lab in versions:
+            this_version = versions[lab]
+            #print('this_version is %s' % this_version)
+            for l in versions:
+               if versions[l] > this_version:
+                   retval = l
+                   this_version = versions[l]
+                   #print('this_version now %s' % this_version)
+    return retval
 
 def showLabs(dirs, path, versions, skip):
     description = ''
@@ -207,12 +219,19 @@ def main():
         diagnose()
         if labname == 'NONE':
             exit(0)
-    
+
     if labname not in dirs:
         sys.stderr.write("ERROR: Lab named %s was not found.\n" % labname)
         sys.stderr.write("Make sure you have all the latest labs by running:\n")
         sys.stderr.write("   update-labtainer.sh\n")
         sys.exit(1)
+
+    lpath = os.path.join(path, labname, 'config', 'version')
+    lname, version = getLabVersion(lpath)
+    latest_lab = getLatestVersion(versions[lname], labname)    
+    if labname != latest_lab:
+        print('Lab %s has been deprecated, will run %s instead.' % (labname, latest_lab))
+        labname = latest_lab
 
     if labname in skip:
         print('Warning, %s has been deprecated and is no longer supported.  It may not work as expected.' % labname)
@@ -253,7 +272,7 @@ def main():
         labutils.RedoLab(lab_path, quiet_start=args.quiet, 
                      run_container=args.only_container, servers=distributed, clone_count=args.client_count)
     current_lab = CurrentLab.CurrentLab()
-    current_lab.add('lab_name', args.labname)
+    current_lab.add('lab_name', labname)
     current_lab.add('clone_count', args.client_count)
     current_lab.add('servers', distributed)
     current_lab.save()
