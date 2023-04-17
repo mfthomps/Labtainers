@@ -1483,7 +1483,7 @@ def DoStartOne(labname, name, container, start_config, labtainer_config, lab_pat
                     return
             ''' repeat x11 because /tmp may have been wiped '''
             if container.x11.lower() == 'yes':
-                cmd = "docker exec %s bash -c 'ln -s /var/tmp/.X11-unix/X%d /tmp/.X11-unix/X%d'" % (mycontainer_name, 
+                cmd = "docker exec %s bash -c 'ln -fs /var/tmp/.X11-unix/X%d /tmp/.X11-unix/X%d'" % (mycontainer_name, 
                   display_num, display_num)
                 if not doX11Link(cmd):
                     results.append(False)
