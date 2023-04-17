@@ -94,6 +94,7 @@ April 17, 2023
 - CyberCIEGE lab installation was failing due to X11 race condition. (Issue #76)
 - Note in CyberCIEGE readme to direct students to save collected logs in $HOME directory. (Issue #75)
 - Radius lab checkwork was incorrectly reporting "radiusd not running", missing prestop script. (Issue #74)
+- Labedit corrupted the start configuration file when the MACVLAN\_EXT option was used. (Issue #73)
 
 February 1, 2023
 - Bash history for non-default users was not being saved.
