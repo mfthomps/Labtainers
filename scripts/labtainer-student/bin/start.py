@@ -233,10 +233,11 @@ def main():
 
     lpath = os.path.join(path, labname, 'config', 'version')
     lname, version = getLabVersion(lpath)
-    latest_lab = getLatestVersion(versions[lname], labname)    
-    if labname != latest_lab:
-        print('Lab %s has been deprecated, will run %s instead.' % (labname, latest_lab))
-        labname = latest_lab
+    if lname is not None:
+        latest_lab = getLatestVersion(versions[lname], labname)    
+        if labname != latest_lab:
+            print('Lab %s has been deprecated, will run %s instead.' % (labname, latest_lab))
+            labname = latest_lab
 
     if labname in skip:
         print('Warning, %s has been deprecated and is no longer supported.  It may not work as expected.' % labname)
