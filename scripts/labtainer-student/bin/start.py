@@ -124,9 +124,10 @@ def showLabs(dirs, path, versions, skip):
     pydoc.pager(description)
     print('Use "-h" for help.')
 
-def getRev():
+def getRev(labtainer_dir):
     created = ""
-    with open('../../README.md') as fh:
+    readme = os.path.join(labtainer_dir, 'README.md')
+    with open(readme) as fh:
         for line in fh:
             if line.strip().startswith('Distribution created'):
                created = line.strip()
@@ -167,12 +168,16 @@ def printLabList(dirs, path, versions, skip):
             print(loc)
 
 def main():
+    labtainer_dir = os.getenv('LABTAINER_DIR')
+    if labtainer_dir is None:
+        print('LABTAINER_DIR not defined.  Cannot run Labtainers.')
+        exit(1)
     checkVersion()
     dir_path = os.path.dirname(os.path.realpath(__file__))
     dir_path = dir_path[:dir_path.index("scripts/labtainer-student")]    
     path = dir_path + "labs/"
     dirs = os.listdir(path)
-    rev = getRev()
+    rev = getRev(labtainer_dir)
     #revision='%(prog)s %s' % rev
     parser = argparse.ArgumentParser(prog='labtainer', description='Start a Labtainers lab.  Provide no arguments to see a list of labs.')
     parser.add_argument('labname', default='NONE', nargs='?', action='store', help='The lab to run')
