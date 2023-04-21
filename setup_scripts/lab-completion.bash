@@ -7,8 +7,7 @@
 #
 # Get list of labtainer labs
 #
-ldir=$LABTAINER_DIR/labs
-lablist=$(ls $ldir)
+lablist=$($LABTAINER_DIR/scripts/labtainer-student/bin/start.py -l)
 # replace newlines with spaces
 lablist="${lablist//$'\n'/ }"
 # tell bash to use this list for tab completion of the "labtainer" command.

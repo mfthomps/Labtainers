@@ -1,0 +1,10 @@
+#!/bin/bash
+#
+# intended for use to advise user who uses checkwork
+#
+run=$(ps -aux | grep [r]adius)
+if [[ ! -z "$run" ]]; then
+    echo "radiusd running"
+else
+    echo "radiusd is not running"
+fi

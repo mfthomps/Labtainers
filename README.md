@@ -89,6 +89,15 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+April 17, 2023
+- Force use latest lab version, e.g., iptables2 intead of iptables.  Fix tab completion to only display latest. (Issue #77)
+- CyberCIEGE lab installation was failing due to X11 race condition. (Issue #76)
+- Note in CyberCIEGE readme to direct students to save collected logs in $HOME directory. (Issue #75)
+- Radius lab checkwork was incorrectly reporting "radiusd not running", missing prestop script. (Issue #74)
+- Labedit corrupted the start configuration file when the MACVLAN\_EXT option was used. (Issue #73)
+
+February 1, 2023
+- Bash history for non-default users was not being saved.
 January 26, 2023
 - Modified powershell scripts for gcloud to use the selected zone to qualify VM names.
 January 4, 2023

@@ -85,6 +85,18 @@ def isLatestVersion(versions, lab):
                        return False
     return True
         
+def getLatestVersion(versions, lab):
+    retval = lab
+    if versions is not None:
+        if lab in versions:
+            this_version = versions[lab]
+            #print('this_version is %s' % this_version)
+            for l in versions:
+               if versions[l] > this_version:
+                   retval = l
+                   this_version = versions[l]
+                   #print('this_version now %s' % this_version)
+    return retval
 
 def showLabs(dirs, path, versions, skip):
     description = ''
@@ -112,9 +124,10 @@ def showLabs(dirs, path, versions, skip):
     pydoc.pager(description)
     print('Use "-h" for help.')
 
-def getRev():
+def getRev(labtainer_dir):
     created = ""
-    with open('../../README.md') as fh:
+    readme = os.path.join(labtainer_dir, 'README.md')
+    with open(readme) as fh:
         for line in fh:
             if line.strip().startswith('Distribution created'):
                created = line.strip()
@@ -144,14 +157,27 @@ def checkVersion():
     else:
        #print('version is %s' % str(sys.version_info))
        pass
-     
+
+def printLabList(dirs, path, versions, skip):
+    for loc in sorted(dirs):
+        if loc in skip: 
+            continue
+        versionfile = os.path.join(path, loc, "config", "version")
+        lname, dumb = getLabVersion(versionfile)
+        if lname is None or isLatestVersion(versions[lname], loc):
+            print(loc)
+
 def main():
+    labtainer_dir = os.getenv('LABTAINER_DIR')
+    if labtainer_dir is None:
+        print('LABTAINER_DIR not defined.  Cannot run Labtainers.')
+        exit(1)
     checkVersion()
     dir_path = os.path.dirname(os.path.realpath(__file__))
     dir_path = dir_path[:dir_path.index("scripts/labtainer-student")]    
     path = dir_path + "labs/"
     dirs = os.listdir(path)
-    rev = getRev()
+    rev = getRev(labtainer_dir)
     #revision='%(prog)s %s' % rev
     parser = argparse.ArgumentParser(prog='labtainer', description='Start a Labtainers lab.  Provide no arguments to see a list of labs.')
     parser.add_argument('labname', default='NONE', nargs='?', action='store', help='The lab to run')
@@ -166,6 +192,7 @@ def main():
     parser.add_argument('-n', '--client_count', action='store', help='Number of clones of client components to create, intended for multi-user labs')
     parser.add_argument('-o', '--only_container', action='store', help='Run only the named container')
     parser.add_argument('-t', '--test_registry', action='store_true', default=False, help='Run with images from the test registry')
+    parser.add_argument('-l', '--list', action='store_true', default=False, help='Print list of labs. Use no options for verbose list.')
     num_args = len(sys.argv)
     versions = getVerList(dirs, path)
     skip_labs = os.path.join(dir_path, 'distrib', 'skip-labs')
@@ -185,6 +212,9 @@ def main():
     if args.find is not None:
         keywords.find(' '.join(args.find))
         exit(0)
+    if args.list:
+        printLabList(dirs, path, versions, skip)
+        exit(0)
     labname = args.labname
     if labname == 'NONE' and not args.diagnose:
         sys.stderr.write("Missing lab name\n")
@@ -194,12 +224,20 @@ def main():
         diagnose()
         if labname == 'NONE':
             exit(0)
-    
+
     if labname not in dirs:
         sys.stderr.write("ERROR: Lab named %s was not found.\n" % labname)
         sys.stderr.write("Make sure you have all the latest labs by running:\n")
         sys.stderr.write("   update-labtainer.sh\n")
         sys.exit(1)
+
+    lpath = os.path.join(path, labname, 'config', 'version')
+    lname, version = getLabVersion(lpath)
+    if lname is not None:
+        latest_lab = getLatestVersion(versions[lname], labname)    
+        if labname != latest_lab:
+            print('Lab %s has been deprecated, will run %s instead.' % (labname, latest_lab))
+            labname = latest_lab
 
     if labname in skip:
         print('Warning, %s has been deprecated and is no longer supported.  It may not work as expected.' % labname)
@@ -240,7 +278,7 @@ def main():
         labutils.RedoLab(lab_path, quiet_start=args.quiet, 
                      run_container=args.only_container, servers=distributed, clone_count=args.client_count)
     current_lab = CurrentLab.CurrentLab()
-    current_lab.add('lab_name', args.labname)
+    current_lab.add('lab_name', labname)
     current_lab.add('clone_count', args.client_count)
     current_lab.add('servers', distributed)
     current_lab.save()

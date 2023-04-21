@@ -14,3 +14,6 @@ For more information about CyberCIEGE, see https://my.nps.edu/web/c3o/cyberciege
 
 This version of CyberCIEGE will not display the tutorial videos from the
 Encyclopedia.  Please view the videos from https://my.nps.edu/web/c3o/movies
+
+If CyberCIEGE logs are to be collected, save them into the /home/ubuntu directory
+using the Collect Logs menu option.
