@@ -89,6 +89,9 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+August 8, 2023
+- Handle change to DockerHub image json format.  Thanks Kees!
+
 April 17, 2023
 - Force use latest lab version, e.g., iptables2 intead of iptables.  Fix tab completion to only display latest. (Issue #77)
 - CyberCIEGE lab installation was failing due to X11 race condition. (Issue #76)
