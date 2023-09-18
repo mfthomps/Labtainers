@@ -89,6 +89,9 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+September 18, 2023
+- Previous fix implementation was flawed.
+
 August 8, 2023
 - Handle change to DockerHub image json format.  Thanks Kees!
 
