@@ -67,6 +67,7 @@ runcmd:
 - docker pull labtainers/labtainer.wireshark2
 - docker pull labtainers/labtainer.network.ssh2
 - docker pull labtainers/labtainer.grader
-
+- sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="console=ttyS0"/GRUB_CMDLINE_LINUX_DEFAULT="console=ttyS0 systemd.unified_cgroup_hierarchy=0"/' /etc/default/grub.d/50-cloudimg-settings.cfg
+- update-grub
 power_state:
   mode: reboot

@@ -89,6 +89,9 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+November 27, 2023
+- Add Google Cloud Platform option for ubuntu22 on ec2 machine.
+
 September 18, 2023
 - Previous fix implementation was flawed.
 
