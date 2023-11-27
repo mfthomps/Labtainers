@@ -22,9 +22,9 @@ The Labtainers website, and downloads (including VM appliances with Labtainers p
 [designer-guide]: docs/labdesigner/labdesigner.pdf
 [Papers]: https://nps.edu/web/c3o/labtainers#papers
 
-Distribution created: 09/18/2023 10:30 </br>
-Revision: v1.3.7t </br>
-Commit: 3f544d96 </br>
+Distribution created: 11/27/2023 08:11 </br>
+Revision: v1.3.7u </br>
+Commit: 17480149 </br>
 Branch: master </br>
 
 ## Content
