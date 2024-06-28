@@ -67,8 +67,8 @@ sudo mkdir -p /opt/labtainer/venv
 sudo python3 -m venv /opt/labtainer/venv
 sudo ln -s /opt/labtainer/venv/bin/python /opt/labtainer/python3
 #-- downgrade requests and urllib packages due to docker python module bug
-/opt/labtainer/venv/bin/python3 -m pip install 'requests<2.29.0' 'urllib3<2.0' || exit 1
-/opt/labtainer/venv/bin/python3 -m pip install netaddr parse dateutil docker || exit 1
+sudo /opt/labtainer/venv/bin/python3 -m pip install 'requests<2.29.0' 'urllib3<2.0' || exit 1
+sudo /opt/labtainer/venv/bin/python3 -m pip install netaddr parse python-dateutil docker || exit 1
 
 #---other packages required by Labtainers
 sudo apt-get -y install openssh-server || exit 1
