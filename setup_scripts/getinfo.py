@@ -1,4 +1,4 @@
-#!/opt/labtainer/python3
+#!/opt/labtainer/venv/bin/python3
 
 # Filename: getinfo.py
 # Description: simple script to get Linux host resources

@@ -1,4 +1,4 @@
-#!/opt/labtainer/python3
+#!/opt/labtainer/venv/bin/python3
 import os
 import sys
 import argparse

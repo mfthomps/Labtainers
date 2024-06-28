@@ -104,7 +104,7 @@ if [ $result -ne 0 ]; then
 fi
 cd $ldir
 if [[ -z $myshare ]]; then
-    myshare=$HOME/labtainer_dist
+    myshare=/mnt/shared
     mkdir -p $myshare
 fi
 
