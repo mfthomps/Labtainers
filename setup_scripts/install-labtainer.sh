@@ -70,32 +70,12 @@ case "$distrib" in
         ./install-docker-ubuntu.sh
         RESULT=$?
         ;;
-    Debian|\"Debian*)
-        echo is debian
-        ./install-docker-debian.sh
-        RESULT=$?
-        ;;
-    Fedora)
-        echo is fedora
-        ./install-docker-fedora.sh
-        ;;
-    Centos)
-        echo is centos
-        ./install-docker-centos.sh
-        RESULT=$?
-        ;;
-    Arch)
-        echo is arch
-        ./install-docker-arch.sh
-        RESULT=$?
-        ;;
 
     *)
         if [[ -z "$1" ]]; then
-            echo "Did not recognize distribution: $found_distrib"
-            echo "Try providing distribution as argument, either Ubuntu|Debian|Fedora|Centos|Arch"
+            echo "This install script only supports Ubuntu.  Sorry."
         else
-            echo $"Usage: $0 Ubuntu|Debian|Fedora|Centos|Arch"
+            echo $"Usage: $0 Ubuntu"
         fi
         exit 1
 esac

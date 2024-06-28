@@ -55,7 +55,7 @@ END
 # add terminal to desktop
 # bidirectional shared clipboard
 # sudo apt-get install net-tools
-# wget https://my.nps.edu/documents/107523844/109121513/labtainer.tar
+# wget --quiet https://github.com/mfthomps/Labtainers/releases/latest/download/labtainer.tar -O labtainer.tar
 # tar xf labtainer.tar
 # rm labtainer.tar
 # cd labtainer

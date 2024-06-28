@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/opt/labtainer/python3
 import docker
 import json
 import sys

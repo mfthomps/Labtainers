@@ -49,9 +49,9 @@ sudo dnf makecache fast
 sudo dnf -y install docker-ce
 
 #additional packages needed
-sudo dnf -y install python3-pip
+sudo dnf -y install python3-pip python3-parse
 sudo pip3 install --upgrade pip3
-sudo pip3 install netaddr parse python-dateutil
+sudo pip3 install netaddr python-dateutil
 sudo dnf install -y openssh-server 
 sudo dnf install -y xterm
 
@@ -93,13 +93,6 @@ if [ -z "$pipcheck" ]; then
     #echo $packagefail
 fi
 
-pipcheck=$(pip3 list 2> /dev/null | grep -F parse)
-#echo $pipcheck
-if [ -z "$pipcheck" ]; then
-    echo "ERROR: 'parse' package did not install properly. Please check the terminal output for any errors related to the package installation. Make sure 'python3-pip' is installed and then try running this command: 'sudo -H pip3 install parse' "
-    packagefail="true"
-    #echo $packagefail
-fi
 
 if [ $packagefail = "true" ]; then
     exit 1

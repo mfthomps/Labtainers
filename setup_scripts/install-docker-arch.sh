@@ -24,7 +24,7 @@ END
 #
 
 #Check if current user is user login. (Targeted to avoid adding root user into docker group instead of the the user logged in account.)
-currUser=`who | awk '{print $1}'`
+currUser=`who | head -n1 | awk '{print $1}'`
 if [ "$USER" != "$currUser" ]; then
     echo "You are not the login user. If you are root user, please exit. And run this script again."
     exit
@@ -39,7 +39,7 @@ docker_package=docker
 #---initial check for packages already installed otherwise install them
 #---installs python modules directly through Arch official repos
 #---prevents environment conflicts given the Arch rolling release model
-declare -a packagelist=("ca-certificates" "curl" "device-mapper" "$docker_package" "python-pip" "python-dateutil" "python-parse" "python-netaddr" "gnupg" "lvm2" "openssh" "xterm")
+declare -a packagelist=("ca-certificates" "curl" "device-mapper" "$docker_package" "python-pip" "python-dateutil" "python3-parse" "python-netaddr" "gnupg" "lvm2" "openssh" "xterm")
 for i in "${packagelist[@]}"
 do
 packagecheck=$(pacman -Q $i 2> /dev/null)
@@ -81,7 +81,7 @@ packagecheck=$(pacman -Q $i 2> /dev/null)
     fi
 done
 
-declare -a piplist=("dateutil" "parse" "netaddr")
+declare -a piplist=("dateutil" "netaddr")
 for i in "${piplist[@]}"
 do
 pipcheck=$(pip list 2> /dev/null | grep -F $i)

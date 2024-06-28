@@ -50,9 +50,9 @@ sudo systemctl start docker
 sudo systemctl enable docker
 
 #additional packages needed for labtainers
-sudo apt-get -y install python3-pip 
+sudo apt-get -y install python3-pip python3-parse
 sudo pip3 install --upgrade pip3 
-sudo pip3 install netaddr parse python-dateutil
+sudo pip3 install netaddr python-dateutil
 sudo apt-get -y install openssh-server
 
 #---Checking if packages have been installed. If not, the system will not reboot and allow the user to investigate.
