@@ -62,7 +62,7 @@ sudo groupadd docker
 sudo usermod -aG docker $USER 
 
 #---Use virtual python environment to avoid Ubuntu lockdown
-sudo apt install python3.12-venv
+sudo apt -y install python3.12-venv
 sudo mkdir -p /opt/labtainer/venv
 sudo python3 -m venv /opt/labtainer/venv
 sudo ln -s /opt/labtainer/venv/bin/python /opt/labtainer/python3

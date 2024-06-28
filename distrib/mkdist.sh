@@ -104,7 +104,8 @@ if [ $result -ne 0 ]; then
 fi
 cd $ldir
 if [[ -z $myshare ]]; then
-    myshare=/media/sf_SEED/
+    myshare=$HOME/labtainer_dist
+    mkdir -p $myshare
 fi
 
 mv trunk/setup_scripts/install-labtainer.sh .
