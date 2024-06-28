@@ -47,7 +47,7 @@ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 
 #---sets up stable repository
 sudo apt-get update
-sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+sudo add-apt-repository -y "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 
 #---installs Docker: Community Edition
 sudo apt-get update
@@ -67,11 +67,11 @@ sudo mkdir -p /opt/labtainer/venv
 sudo python3 -m venv /opt/labtainer/venv
 sudo ln -s /opt/labtainer/venv/bin/python /opt/labtainer/python3
 #-- downgrade requests and urllib packages due to docker python module bug
-/opt/labtainer/python3 -m pip install 'requests<2.29.0' 'urllib3<2.0'
-/opt/labtainer/python3 -m pip install netaddr parse dateutil docker
+/opt/labtainer/venv/bin/python3 -m pip install 'requests<2.29.0' 'urllib3<2.0' || exit 1
+/opt/labtainer/venv/bin/python3 -m pip install netaddr parse dateutil docker || exit 1
 
 #---other packages required by Labtainers
-sudo apt-get -y install openssh-server
+sudo apt-get -y install openssh-server || exit 1
 
 exit 0
 
