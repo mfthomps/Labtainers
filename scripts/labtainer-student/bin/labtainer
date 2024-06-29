@@ -29,23 +29,6 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 END
 
-#
-# Start labtainer, prefer to use python3, but avoid broken version
-#
-VER="$(python3 -V 2>&1)"
-OK=$?
-if [ $OK -eq 0 ];then
-    #echo "python versionx is $VER"
-    NUM=$(echo $VER | cut -d$' ' -f 2)
-    if [[ "$NUM" == "3.5.2" ]]; then
-        #echo "is bad, very bad"
-        cmd="python"
-    else
-        #echo "is ok"
-        cmd="python3"
-    fi
-else
-    echo "no python3?"
-    cmd="python"
-fi
+# use virt env for python
+cmd=/opt/labtainer/venv/bin/python
 exec $cmd bin/start.py $@

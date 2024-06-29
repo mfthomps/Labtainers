@@ -5,15 +5,6 @@
 if [ -z "$LABTAINER_DIR" ] || [ ! -d "$LABTAINER_DIR" ]; then
     export LABTAINER_DIR=/home/student/labtainer/trunk
 fi
-hascommit=$(grep "^Commit:" labtainer/trunk/README.md)
-hasgit=$(grep "github.*releases" labtainer/update-labtainer.sh)
-if [ -z "$hascommit" ] || [ -z "$hasgit" ]; then
-    cd labtainer
-    wget --quiet https://github.com/mfthomps/Labtainers/releases/latest/download/labtainer.tar -O labtainer.tar
-    sync
-    cd ..
-    tar xf labtainer/labtainer.tar --keep-newer-files --warning=none
-fi
 distrib=`cat /etc/*-release | grep "^DISTRIB_ID" | awk -F "=" '{print $2}'`
 if [[ -z "$distrib" ]]; then
         # fedora gotta be different
@@ -27,7 +18,8 @@ case "$distrib" in
         RESULT=$?
         ;;
     *)
-        sudo pip3 install docker
+        echo "Only Ubuntu is currently supported."
+        exit 1
         ;;
 esac
 

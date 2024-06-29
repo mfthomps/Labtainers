@@ -75,7 +75,9 @@ fi
 EOL
 chmod a+x $HOME/.doterms.sh
 touch $HOME/labtainer/.doupdate 
-gsettings set org.gnome.settings-daemon.plugins.power button-power 'shutdown'
+#gsettings set org.gnome.settings-daemon.plugins.power power-button-action 'shutdown'
+# shutdown no longer supported.  ubuntu has become a nanny.
+gsettings set org.gnome.settings-daemon.plugins.power power-button-action 'suspend'
 gsettings set org.gnome.nm-applet disable-disconnected-notifications "true"
 gsettings set org.gnome.nm-applet disable-connected-notifications "true"
 gsettings set org.gnome.desktop.session idle-delay 0
