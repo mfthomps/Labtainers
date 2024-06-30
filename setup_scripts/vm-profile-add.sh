@@ -65,16 +65,25 @@ END
 #
 # remove snapd and its /var/cache
 #
-echo "$HOME/.doterms.sh &" >> ~/.profile
-cat >~/.doterms.sh <<EOL
-sleep 1
-gnome-terminal --geometry 120x31+150+300 --working-directory=$HOME/labtainer/labtainer-student -e "bash -c \"/bin/cat README; exec bash\"" &
-if [[ -f $HOME/labtainer/.doupdate ]]; then
-    gnome-terminal --geometry 73x31+100+300 --working-directory=$HOME/labtainer -x ./update-labtainer.sh
-fi
-EOL
-chmod a+x $HOME/.doterms.sh
+echo "rm -f \$HOME/.did_message" >> ~/.profile
+echo "export PATH=\${PATH}:./bin" >> ~/.profile
+
+mkdir -p $HOME/.config/autostart
+cp $HOME/labtainer/trunk/setup-scripts/gnome-terminal.desktop $HOME/.config/autostart/
 touch $HOME/labtainer/.doupdate 
+
+target=$HOME/.bashrc
+cat <<EOT >>$target
+   if [ ! -f $HOME/.did_message ]; then
+       cat README
+   fi
+   if [ -f $HOME/.doupdate ]; then
+       rm -f $HOME/.doupdate
+       gnome-terminal --geometry 73x31+100+300 --working-directory=$HOME/labtainer -- $HOME/labtainer/update-labtainer.sh
+   fi
+EOT
+
+
 #gsettings set org.gnome.settings-daemon.plugins.power power-button-action 'shutdown'
 # shutdown no longer supported.  ubuntu has become a nanny.
 gsettings set org.gnome.settings-daemon.plugins.power power-button-action 'suspend'
