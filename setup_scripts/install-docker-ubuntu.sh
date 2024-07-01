@@ -72,7 +72,7 @@ sudo /opt/labtainer/venv/bin/python3 -m pip install netaddr parse python-dateuti
 
 #---other packages required by Labtainers
 sudo apt-get -y install openssh-server || exit 1
-echo '$LABTAINER_DIR/setup_scripts/lab-completion.bash' >> /home/$USER/.bashrc
+echo 'source $LABTAINER_DIR/setup_scripts/lab-completion.bash' >> /home/$USER/.bashrc
 
 exit 0
 
