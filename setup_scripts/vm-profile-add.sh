@@ -74,8 +74,8 @@ touch $HOME/labtainer/.doupdate
 
 target=$HOME/.bashrc
 cat <<EOT >>$target
-   if [ -f $HOME/.doupdate ]; then
-       rm -f \$HOME/.doupdate
+   if [ -f $HOME/labtainer/.doupdate ]; then
+       rm -f \$HOME/labtainer/.doupdate
        \$HOME/labtainer/update-labtainer.sh
    fi
    if [ ! -f \$HOME/.did_message ]; then
