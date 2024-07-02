@@ -69,17 +69,18 @@ echo "rm -f \$HOME/.did_message" >> ~/.profile
 echo "export PATH=\${PATH}:./bin" >> ~/.profile
 
 mkdir -p $HOME/.config/autostart
-cp $HOME/labtainer/trunk/setup-scripts/gnome-terminal.desktop $HOME/.config/autostart/
+cp $HOME/labtainer/trunk/setup_scripts/gnome-terminal.desktop $HOME/.config/autostart/
 touch $HOME/labtainer/.doupdate 
 
 target=$HOME/.bashrc
 cat <<EOT >>$target
-   if [ ! -f $HOME/.did_message ]; then
-       cat README
-   fi
    if [ -f $HOME/.doupdate ]; then
-       rm -f $HOME/.doupdate
-       gnome-terminal --geometry 73x31+100+300 --working-directory=$HOME/labtainer -- $HOME/labtainer/update-labtainer.sh
+       rm -f \$HOME/.doupdate
+       \$HOME/labtainer/update-labtainer.sh
+   fi
+   if [ ! -f \$HOME/.did_message ]; then
+       clear
+       cat README
    fi
 EOT
 
