@@ -65,7 +65,7 @@ END
 #
 # remove snapd and its /var/cache
 #
-echo "rm -f \$HOME/.did_message" >> ~/.profile
+echo "rm -f \$HOME/labtainer/.did_message" >> ~/.profile
 echo "export PATH=\${PATH}:./bin" >> ~/.profile
 
 mkdir -p $HOME/.config/autostart
@@ -78,9 +78,10 @@ cat <<EOT >>$target
        rm -f \$HOME/labtainer/.doupdate
        \$HOME/labtainer/update-labtainer.sh
    fi
-   if [ ! -f \$HOME/.did_message ]; then
+   if [ ! -f \$HOME/labtainer/.did_message ]; then
        clear
        cat README
+       touch \$HOME/labtainer/.did_message
    fi
 EOT
 
