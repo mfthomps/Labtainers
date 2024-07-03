@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/opt/labtainer/venv/bin/python3
 import argparse
 import subprocess
 import os
