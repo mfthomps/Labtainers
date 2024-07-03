@@ -98,5 +98,6 @@ mkdir -p $HOME/labtainer_xfer
 cd $HOME/Desktop
 ln -s $HOME/labtainer/trunk/docs/student/labtainer-student.pdf
 ln -s ~/labtainer_xfer
-
+# xdotool does not work with wayland
+sed -i s/^.WaylandEnable=false/WaylandEnable=false/ /etc/gdm3/custom.conf
 

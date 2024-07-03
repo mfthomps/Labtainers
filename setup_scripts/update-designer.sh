@@ -105,7 +105,7 @@ if [[ "$TEST_REGISTRY" != TRUE ]]; then
    sudo systemctl kill --kill-who=all apt-daily.service
    sudo systemctl kill --kill-who=all apt-daily-upgrade.service
    sudo rm /var/lib/dpkg/lock
-   sudo apt-get install -y default-jre xdotool
+   sudo apt-get install -y default-jre xdotool net-tools
 fi
 #sudo -H pip install netaddr parse python-dateutil
 cd ..
