@@ -83,7 +83,8 @@ else
     test_flag="-t"
 fi
 cd ..
-tar xf labtainer/labtainer.tar --keep-newer-files --warning=none
+# tar is broken, spews error messages, but extracts ok
+tar xf labtainer/labtainer.tar --keep-newer-files --warning=none &>/dev/null
 #
 # ensure labtainer paths in .bashrc
 #
