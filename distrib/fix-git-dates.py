@@ -35,6 +35,7 @@ import argparse
 import time
 from dateutil import parser
 from dateutil.parser import parse
+from datetime import datetime
 
 
 parser = argparse.ArgumentParser(
@@ -91,16 +92,14 @@ def fixtimes(filelist, dist_path, pathspec, workdir):
         source = os.path.join(workdir, f)
         dest = os.path.join(dist_path, f)
         if os.path.isfile(dest):
-            cmd = 'git log -1 --format="%%ad" %s' % source
+            #cmd = 'git log -1 --format="%%ad" %s' % source
+            cmd = 'git log -1 --format="%%at" %s' % source
             child = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             output = child.communicate()
             if len(output[0].decode('utf-8').strip()) > 0:
-                df_utc_string = output[0].decode('utf-8').strip()
-                parts = df_utc_string.split('.')
-                ''' use dateutil to parse for zone, which we get from svn '''
-                x=parse(parts[0])
-                df_ts = time.mktime(x.timetuple())
-                df_ts = int(df_ts)
+                ts_string = output[0].decode('utf-8').strip()
+                parts = ts_string.split('.')
+                df_ts = int(parts[0])
             else:
                 print('No git log output from %s' % cmd)
                 exit(1)
