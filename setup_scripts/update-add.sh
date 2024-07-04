@@ -14,6 +14,14 @@ RESULT=0
 case "$distrib" in
     Ubuntu)
         echo is ubuntu
+        #
+        # Maintain old update hacks so old distributions (including VM image copies in horizon) still work.
+        #
+        release=`cat /etc/*-release | grep "^DISTRIB_RELEASE" | awk -F "=" '{print $2}'`
+        if [ $release != '18.04' ];then
+            source $LABTAINER_DIR/setup_scripts/update-add-new.sh
+            exit 0
+        fi 
         source $LABTAINER_DIR/setup_scripts/update-ubuntu.sh
         RESULT=$?
         ;;
