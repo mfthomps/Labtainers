@@ -20,7 +20,7 @@ if [ ! -d /opt/labtainer/venv/bin ]; then
             sudo apt-get install -y python3-pip
         fi
     fi
-    sudo apt -y install python3.12-venv
+    sudo apt -y install python-venv
     sudo mkdir -p /opt/labtainer/venv
     sudo python3 -m venv /opt/labtainer/venv
     sudo ln -s /opt/labtainer/venv/bin/python /opt/labtainer/python3
