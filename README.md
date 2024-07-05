@@ -22,9 +22,9 @@ The Labtainers website, and downloads (including VM appliances with Labtainers p
 [designer-guide]: docs/labdesigner/labdesigner.pdf
 [Papers]: https://nps.edu/web/c3o/labtainers#papers
 
-Distribution created: 06/28/2024 13:33 </br>
+Distribution created: 07/04/2024 09:36 </br>
 Previous revision: v1.3.7u </br>
-Commit: ff2d588d </br>
+Commit: d63e1fea </br>
 Branch: ubuntu24 </br>
 
 ## Content
@@ -88,6 +88,12 @@ of new labs.  For those, run ./update-designer.sh from the labtainer/trunk/setup
 The installation script and the update-designer.sh script set environment variables,
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
+
+July 5, 2024
+- Migrate to Ubuntu 24 as the VM appliance (GCP remains on Ubuntu 22 for now). 
+- Use virtual python environment to avoid Ubuntu lockdown of python packages.
+- Add boot parameter to allow sharing systemd between containers and the VM.
+- Redirect broken error messages from tar utility on updates.
 
 November 27, 2023
 - Add Google Cloud Platform option for ubuntu22 on ec2 machine.
