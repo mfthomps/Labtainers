@@ -39,7 +39,7 @@ do_up() {
    printf "Use 'update-labtainer.sh' to update your Labtainers before the first use.\n"
    printf "\n"
    printf "Use ctrl-C to stop Headless Labtainers.\n"
-   docker-compose up --no-recreate >> /tmp/headless.log
+   docker compose up --no-recreate >> /tmp/headless.log
    printf "\nYour results are in ~/headless-labtainers/labtainer_xfer\n"
 }
 
@@ -90,7 +90,9 @@ while [ -n "$1" ]; do
         shift
     fi
 done
-
+if [ -f /var/run/docker.sock ]; then
+        sudo chown root:docker /var/run/docker.sock
+fi
 
 if [ "$LABTAINER_TEST" = "TRUE" ];then
    export TEST_REGISTRY=TRUE
