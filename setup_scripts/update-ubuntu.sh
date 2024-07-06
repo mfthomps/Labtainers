@@ -1,3 +1,4 @@
+echo -e password123 | sudo -S apt-get update
 if [ ! -d "$HOME/headless-labtainers" ]; then
     if [ $USER == student ]; then
         echo -e password123 | sudo -S DEBIAN_FRONTEND=noninteractive apt-get -y install containerd
@@ -13,7 +14,6 @@ if [ ! -d /opt/labtainer/venv/bin ]; then
         # broken linux update garbage
         echo -e password123 | sudo -S rm -f /var/lib/dpkg/lock
         if [ $USER == student ]; then
-            echo -e password123 | sudo -S apt-get update
             echo -e password123 | sudo -S apt-get install -y python3-pip
         else
             sudo apt-get update
