@@ -1,4 +1,7 @@
 # msc ubuntu breakage
+echo -e password123 | sudo -S rm /var/lib/dpkg/lock
+echo -e password123 | sudo -S apt-get update
+echo -e password123 | sudo -S rm /var/lib/dpkg/lock
 echo -e password123 | sudo -S apt-get install --reinstall libappstream4
 echo -e password123 | sudo -S apt-get update
 if [ ! -d "$HOME/headless-labtainers" ]; then
