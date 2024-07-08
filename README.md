@@ -22,10 +22,10 @@ The Labtainers website, and downloads (including VM appliances with Labtainers p
 [designer-guide]: docs/labdesigner/labdesigner.pdf
 [Papers]: https://nps.edu/web/c3o/labtainers#papers
 
-Distribution created: 07/06/2024 07:11 </br>
+Distribution created: 07/06/2024 14:38 </br>
 Previous revision: v1.3.7u </br>
-Commit: cee38782 </br>
-Branch: ubuntu24 </br>
+Commit: 1ac20825 </br>
+Branch: premaster </br>
 
 ## Content
 [Distribution and Use](#distribution-and-use)
@@ -90,7 +90,7 @@ so you may want to logout/login, or start a new bash shell before using Labtaine
 first time.
 
 July 5, 2024
-- Migrate to Ubuntu 24 as the VM appliance (GCP remains on Ubuntu 22 for now). 
+- Migrate to Ubuntu 24 as the VM appliance 
 - The docker pyhton package uses a broken python http library, requires package downgrade.
 - Use virtual python environment to avoid Ubuntu lockdown of python packages.
 - Add boot parameter to allow sharing systemd between containers and the VM.
@@ -98,6 +98,7 @@ July 5, 2024
 - Ubuntu update breakage for msc packages (see update-ubuntu.sh) for version 18 VMs
 - The docker-compose command is broken, use "docker compose"
 - Force socket permissions in headless labtainers.
+- Update headless Labtainers to use Ubuntu 24
 
 November 27, 2023
 - Add Google Cloud Platform option for ubuntu22 on ec2 machine.
