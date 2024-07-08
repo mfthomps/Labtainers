@@ -22,7 +22,7 @@ RUN cd labtainer/trunk/scripts/labtainer-student/bin && ln -s ../../../setup_scr
 COPY --chown=labtainer:labtainer bashrc.labtainer.master /home/labtainer
 RUN cat bashrc.labtainer.master >>/home/labtainer/.bashrc
 
-ENV DISPLAY :0
+ENV DISPLAY=:0
 ENV NO_AT_BRIDGE=1
 ENV VNCHOST=novnc
 
@@ -36,7 +36,8 @@ RUN touch /home/labtainer/labtainer/.doupdate
 # setup default pdf app, for opening URI links, in lab descriptions.
 RUN mkdir -p /home/labtainer/.config
 RUN xdg-mime default mupdf.desktop application/pdf
-RUN mkdir -p /home/labtainer/labtainer_xfer
-RUN mkdir -p /home/labtainer/.local/share/labtainers
-
 RUN chmod 744 /docker-entrypoint
+USER labtainer
+RUN mkdir -p /home/labtainer/labtainer_xfer
+COPY --chown=labtainer:labtainer .local/. /home/labtainer/
+

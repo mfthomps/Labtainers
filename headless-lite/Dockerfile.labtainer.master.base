@@ -4,7 +4,7 @@
 # Thanks for Olivier Berger for this contribution.
 #
 #FROM ubuntu:xenial
-FROM ubuntu:bionic
+FROM ubuntu:noble
 
 # Do not exclude man pages & other documentation
 RUN rm /etc/dpkg/dpkg.cfg.d/excludes
@@ -38,24 +38,34 @@ RUN    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ub
 
    #---installs Docker: Community Edition
 #RUN    apt-get update
-RUN    apt-get -y install docker-ce 
+RUN    apt-get -y install docker-ce  
 
 
 # Set the locale
 RUN apt-get install -y --no-install-recommends \
     locales 
 RUN locale-gen en_US.UTF-8  
-ENV LANG en_US.UTF-8  
-ENV LANGUAGE en_US:en  
-ENV LC_ALL en_US.UTF-8  
+ENV LANG=en_US.UTF-8  
+ENV LANGUAGE=en_US:en  
+ENV LC_ALL=en_US.UTF-8  
 
 RUN  apt-get install -y --no-install-recommends \
     sudo \
     python3 \
     python3-pip \
     python3-setuptools
+
+
+#---Use virtual python environment to avoid Ubuntu lockdown
+RUN apt -y install python3.12-venv
+RUN mkdir -p /opt/labtainer/venv
+RUN python3 -m venv /opt/labtainer/venv
+RUN ln -s /opt/labtainer/venv/bin/python /opt/labtainer/python3
+#-- downgrade requests and urllib packages due to docker python module bug
+RUN /opt/labtainer/venv/bin/python3 -m pip install 'requests<2.29.0' 'urllib3<2.0' || exit 1
+RUN /opt/labtainer/venv/bin/python3 -m pip install netaddr parse python-dateutil docker || exit 1
+
     
-RUN pip3 install netaddr parse python-dateutil docker
 #apt-get upgrade--fix-missing
 RUN  apt-get install -y --no-install-recommends \
      x11-xserver-utils 
@@ -76,7 +86,8 @@ RUN  apt-get install -y --no-install-recommends \
 RUN  apt-get install -y --no-install-recommends \
      dbus-x11 
      
-RUN useradd -ms /bin/bash labtainer
+RUN deluser ubuntu 
+RUN useradd -ms /bin/bash labtainer --uid 1000
 RUN echo "labtainer:labtainer" | chpasswd
 RUN adduser labtainer sudo
 
