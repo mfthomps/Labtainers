@@ -100,4 +100,5 @@ ln -s $HOME/labtainer/trunk/docs/student/labtainer-student.pdf
 ln -s ~/labtainer_xfer
 # xdotool does not work with wayland
 sed -i s/^.WaylandEnable=false/WaylandEnable=false/ /etc/gdm3/custom.conf
+dconf load /org/gnome/terminal/legacy/profiles:/ < $HOME/labtainer/trunk/config/gnome-terminal-profiles.dconf
 
