@@ -15,6 +15,7 @@ cp -a $LABTAINER_DIR/headless-lite/docker-entrypoint workspace_master
 cp -a  $LABTAINER_DIR/headless-lite/waitForX.sh workspace_master
 cp -a  $LABTAINER_DIR/headless-lite/doterm.sh workspace_master
 cp -a  $LABTAINER_DIR/headless-lite/doupdate.sh workspace_master
+mkdir -p workspace_master/.local/share
 cd workspace_master
 
 cat <<EOT >bashrc.labtainer.master
