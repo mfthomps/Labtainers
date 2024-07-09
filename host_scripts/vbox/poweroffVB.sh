@@ -1,2 +1,2 @@
 #!/bin/bash
-vboxmanage controlvm "LabtainerVM-2" acpipowerbutton
+vboxmanage controlvm "LabtainerVM24" acpipowerbutton
