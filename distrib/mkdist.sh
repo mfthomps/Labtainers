@@ -104,7 +104,7 @@ if [ $result -ne 0 ]; then
 fi
 cd $ldir
 if [[ -z $myshare ]]; then
-    myshare=/mnt/shared
+    myshare=/media/sf_SEED/
     mkdir -p $myshare
 fi
 
