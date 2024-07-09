@@ -8,5 +8,5 @@
 #
 # to zero unused space
 #
-#vmware-vdiskmanager -k "~/VirtualBox\ VMs/LabtainerVM-2/*vmdk"
-VBoxManage modifymedium disk "/VMs/NewVirtualDisk1.vdi" --compact
+#VBoxManage modifymedium disk "/VMs/NewVirtualDisk1.vdi" --compact
+VBoxManage modifymedium disk "$HOME/VirtualBox VMs/LabtainerVM24/LabtainerVM24.vdi" --compact
