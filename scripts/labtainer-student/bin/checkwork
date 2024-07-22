@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/opt/labtainer/venv/bin/python3
 '''
 This software was created by United States Government employees at 
 The Center for Cybersecurity and Cyber Operations (C3O) 
@@ -43,13 +43,20 @@ import CurrentLab
 import argparse
 import subprocess
 import shlex
-import imp
+try:
+    import imp
+except:
+    from importlib.machinery import SourceFileLoader
+
+
+labtainer_dir = os.getenv('LABTAINER_DIR')
+scripts_dir = os.path.join(labtainer_dir, 'scripts')
+student_dir = os.path.join(scripts_dir, 'labtainer-student')
+lab_bin_dir = os.path.join(student_dir, 'lab_bin')
 here = os.path.dirname(os.path.abspath(__file__))
-lab_bin_dir = os.path.join(here, '../lab_bin')
+#lab_bin_dir = os.path.join(here, '../lab_bin')
 sys.path.append(here)
 sys.path.append(lab_bin_dir)
-student_dir = os.path.dirname(here)
-scripts_dir = os.path.dirname(os.path.dirname(here))
 assess_bin_path = os.path.join(scripts_dir, 'labtainer-instructor', 'assess_bin')
 instruct_bin_path = os.path.join(scripts_dir, 'labtainer-instructor', 'bin')
 sys.path.append(assess_bin_path)
@@ -57,7 +64,10 @@ sys.path.append(instruct_bin_path)
 grade_lab_path = os.path.join(scripts_dir, 'labtainer-instructor', 'bin', 'gradelab')
 orig_dir=os.getcwd()
 os.chdir(student_dir)
-gradelab = imp.load_source('gradelab', grade_lab_path)
+try:
+    gradelab = imp.load_source('gradelab', grade_lab_path)
+except:
+    gradelab = SourceFileLoader('gradelab', grade_lab_path).load_module()
 
 def checkRunning(logger):
     command = "docker ps"
@@ -107,7 +117,9 @@ def main():
 
     labutils.logger.debug("Begin logging checkwork for %s lab" % labname)
     
-    lab_path = os.path.join(os.path.abspath('../../labs'), labname)
+    labtainer_dir = os.getenv('LABTAINER_DIR')
+    #lab_path = os.path.join(os.path.abspath('../../labs'), labname)
+    lab_path = os.path.join(labtainer_dir, 'labs', labname)
     labtainer_config, start_config = labutils.GetBothConfigs(lab_path, labutils.logger)
     if labtainer_config.checkwork != 'yes':
         print('Checking own work not supported for this deployment of Labtainers')

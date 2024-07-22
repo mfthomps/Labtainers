@@ -173,9 +173,11 @@ def main():
         print('LABTAINER_DIR not defined.  Cannot run Labtainers.')
         exit(1)
     checkVersion()
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    dir_path = dir_path[:dir_path.index("scripts/labtainer-student")]    
-    path = dir_path + "labs/"
+    # why not just use LABTAINER_DIR?
+    #dir_path = os.path.dirname(os.path.realpath(__file__))
+    #dir_path = dir_path[:dir_path.index("scripts/labtainer-student")]    
+    dir_path = labtainer_dir
+    path = os.path.join(dir_path,"labs")
     dirs = os.listdir(path)
     rev = getRev(labtainer_dir)
     #revision='%(prog)s %s' % rev

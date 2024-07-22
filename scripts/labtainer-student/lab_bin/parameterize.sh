@@ -108,6 +108,13 @@ if [[ -f /etc/sudoers.new ]]; then
 fi
 
 echo $CONTAINER_PASSWORD | sudo rm -f /run/nologin
+if [ -d /opt/labtainer/venv ]; then
+    # Ubuntu 22 or later locks down python, need to use virtual env
+    plist=$(ls $HOME/.local/bin/*.py)
+    for pfile in $plist; do
+    	sed -i 's+/usr/bin/env python+/opt/labtainer/venv/bin/python3+' $pfile
+    done
+fi
 
 # call ParameterParser.py (passing $LAB_INSTANCE_SEED)
 echo $CONTAINER_PASSWORD | sudo -S $HOME/.local/bin/ParameterParser.py $CONTAINER_USER $LAB_INSTANCE_SEED $CONTAINER_NAME $LAB_PARAMCONFIGFILE 
