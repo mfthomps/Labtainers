@@ -471,11 +471,14 @@ def isUbuntuSystemd(image_name, labtainer_config):
                         net_image = image_name.split('/')[1]
                     if net_image not in networkImages:
                         networkImages.append(net_image) 
-                if 'Labtainer base image from ubuntu-systemd' in line:
+                if 'Labtainer base image from ubuntu-systemd' in line or '22 noble' in line:
                     retval = 'ubuntu16'
                     if 'ubuntu20' in line:
                         logger.debug('is ubuntu20')
                         retval = 'ubuntu20'
+                    elif '22 noble' in line:
+                        logger.debug('is ubuntu22')
+                        retval = 'ubuntu22'
                     break
 
     return retval
@@ -600,7 +603,7 @@ def CreateSingleContainer(labtainer_config, start_config, container, lab_path, m
                 if len(output[1]) > 0:
                     logger.debug('back from docker run, error %s' % (output[1].decode('utf-8')))
                 volume = '' 
-            elif ubuntu_systemd == 'ubuntu20':
+            elif ubuntu_systemd == 'ubuntu20' or ubuntu_systemd == 'ubuntu22':
                 #volume = volume + " -v /sys/fs/cgroup:/sys/fs/cgroup:rw --cgroupns=host --tmpfs=/run/lock --tmpfs=/run "
                 volume = volume + " -v /sys/fs/cgroup:/sys/fs/cgroup:rw --cgroupns=host --tmpfs=/run/lock --tmpfs=/run "
                 logger.debug('volume is %s' % volume)
@@ -964,7 +967,8 @@ def CopyInstrConfig(mycontainer_name, container_user, lab_path):
 def CopyLabBin(mycontainer_name, mycontainer_image_name, container_user, lab_path, name, image_info):
     here = os.path.dirname(os.path.abspath(__file__))
     parent = os.path.dirname(here)
-    lab_bin_path = os.path.join(parent, 'lab_bin')
+    #lab_bin_path = os.path.join(parent, 'lab_bin')
+    lab_bin_path = os.path.join(os.getenv('LABTAINER_DIR'), 'scripts', 'labtainer-student', 'lab_bin')
     cmd = 'docker cp %s/.  %s:/home/%s/.local/bin/' % (lab_bin_path, mycontainer_name, container_user)
     if not DockerCmd(cmd):
         logger.error('failed %s' % cmd)
@@ -1019,6 +1023,11 @@ def CopyLabBin(mycontainer_name, mycontainer_image_name, container_user, lab_pat
         logger.debug('CopyLabBin tar failed for lab_sys, explicit copy')
     if mycontainer_image_name in osTypeMap and osTypeMap[mycontainer_image_name] == 'ubuntu20':
         cmd = 'docker exec %s script -q -c "sed -i \'s/env python/env python3/\' /usr/sbin/mynotify.py"' % (mycontainer_name)
+        if not DockerCmd(cmd):
+            logger.error('failed changing mynotify to python3: %s' % cmd)
+            exit(1)
+    elif mycontainer_image_name in osTypeMap and osTypeMap[mycontainer_image_name] == 'ubuntu22':
+        cmd = 'docker exec %s script -q -c "sed -i \'s+/usr/bin/env python+/opt/labtainer/venv/bin/python3+\' /usr/sbin/mynotify.py"' % (mycontainer_name)
         if not DockerCmd(cmd):
             logger.error('failed changing mynotify to python3: %s' % cmd)
             exit(1)
@@ -2231,9 +2240,9 @@ def CreateCopyChownZip(start_config, labtainer_config, name, container_name, con
     # Run 'Student.py' - This will create zip file of the result
     #logger.debug("About to call Student.py")
     ''' Copy the Student.py on each stop to handle cases where the parameter list changes.'''
-    cmd = 'docker cp lab_bin/Student.py  %s:/home/%s/.local/bin/' % (running_container, container_user)
-    if not DockerCmd(cmd):
-        logger.error('failed to copy Student.py')
+    #cmd = 'docker cp lab_bin/Student.py  %s:/home/%s/.local/bin/' % (running_container, container_user)
+    #if not DockerCmd(cmd):
+    #    logger.error('failed to copy Student.py')
     cmd_path = '/home/%s/.local/bin/Student.py' % (container_user)
     #command=['docker', 'exec', '-i',  container_name, 'echo "%s\n" |' % container_password, '/usr/bin/sudo', cmd_path, container_user, container_image]
     command=['docker', 'exec', '-i',  running_container, '/usr/bin/sudo', cmd_path, container_user, container_image, str(keep_running)]
@@ -2247,7 +2256,7 @@ def CreateCopyChownZip(start_config, labtainer_config, name, container_name, con
         if ignore_stop_error:
             logger.debug("Container %s fail on executing Student.py %s \n" % (running_container, output[1].decode('utf-8')))
         else:
-            logger.error("Container %s fail on executing Student.py %s \n" % (running_container, output[1].decode('utf-8')))
+            logger.error("Container %s fail on executing %s %s \n" % (running_container, command, output[1].decode('utf-8')))
         return None, None
     #logger.debug("results from Student.py: %s" % output[0].decode('utf-8'))
     

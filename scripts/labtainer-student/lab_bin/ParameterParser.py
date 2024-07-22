@@ -66,7 +66,7 @@ class ParameterParser():
         # Create hash per the_watermark_string (note: there is only one watermark file for now)
         string_to_be_hashed = '%s:%s' % (self.lab_instance_seed, the_watermark_string)
         mymd5 = hashlib.new('md5')
-        mymd5.update(string_to_be_hashed)
+        mymd5.update(string_to_be_hashed.encode('utf-8'))
         mymd5_hex_string = mymd5.hexdigest()
         #logger.debug(mymd5_hex_string)
     

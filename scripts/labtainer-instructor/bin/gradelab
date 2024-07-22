@@ -92,7 +92,7 @@ def CopyStudentArtifacts(labtainer_config, container_name, labname, regress_test
     zip_filelist.extend(lab_filelist)
     #logger.debug("zip_filelist is (%s)" % zip_filelist)
     # Copy zip files from 'Shared' folder to 'home/$CONTAINER_USER'
-    if len(zip_filelist) is 0:
+    if len(zip_filelist) == 0:
         full_xfer = os.path
         print('WARNING: there are no lab results files in %s' % xfer_dir)
     for fname in zip_filelist:

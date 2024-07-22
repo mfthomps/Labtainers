@@ -538,7 +538,9 @@ def DoRebuildLab(lab_path, force_build=False, just_container=None,
     host_home_xfer = labtainer_config.host_home_xfer
 
     build_student = 'bin/buildImage.sh'
-    LABS_DIR = os.path.abspath('../../labs')
+    #LABS_DIR = os.path.abspath('../../labs')
+    labtainer_dir = os.getenv('LABTAINER_DIR')
+    LABS_DIR = os.path.join(labtainer_dir,'labs')
     didfix = False
     ''' hackey assumption about running from labtainers-student or labtainers-instructor '''
     container_bin = './lab_bin'
@@ -740,7 +742,9 @@ def main():
     #print('force %s quiet %s container %s' % (force_build, quiet_start, args.container))
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", args.labname, "../../config/labtainer.config")
     labutils.logger.info("Begin logging Rebuild.py for %s lab" % args.labname)
-    lab_path = os.path.join(os.path.abspath('../../labs'), args.labname)
+    #lab_path = os.path.join(os.path.abspath('../../labs'), args.labname)
+    labtainer_dir = os.getenv('LABTAINER_DIR')
+    lab_path = os.path.join(labtainer_dir,'labs', args.labname)
 
     if args.test_registry:
         if os.getenv('TEST_REGISTRY') is None:

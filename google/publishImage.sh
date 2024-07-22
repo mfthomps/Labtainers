@@ -1,7 +1,7 @@
 # Create a base labtainer image.
 # First:
 #    delete_vm.sh base
-#    base_create.sh base
+#    base_create22.sh base
 #    stop_vm.sh base
 #
 # Then use 

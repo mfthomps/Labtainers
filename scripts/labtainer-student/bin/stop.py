@@ -62,7 +62,9 @@ def mainXX():
     for labname in lablist:
         labutils.logger.info("Begin logging stop.py for %s lab" % labname)
         # Pass 'False' to ignore_stop_error (i.e., do not ignore error)
-        lab_path = os.path.join(os.path.abspath('../../labs'), labname)
+        labtainer_dir = os.getenv('LABTAINER_DIR')
+        #lab_path = os.path.join(os.path.abspath('../../labs'), labname)
+        lab_path = os.path.join(labtainer_dir,'labs', labname)
         has_running_containers, running_containers_list = labutils.GetRunningContainersList()
         if has_running_containers:
             has_lab_role, labnamelist = labutils.GetRunningLabNames(running_containers_list)
@@ -94,13 +96,15 @@ def main():
     clone_count = current_lab.get('clone_count')        
     servers = current_lab.get('servers')        
     current_lab_name = current_lab.get('lab_name')        
+    labtainer_dir = os.getenv('LABTAINER_DIR')
     if len(lablist) == 0:
         print('No labs are running.')
         labutils.logger.debug('No labs are running.')
     else:
         if args.lab == 'all':
             for lab in lablist:
-                lab_path = os.path.join(os.path.abspath('../../labs'), lab)
+                #lab_path = os.path.join(os.path.abspath('../../labs'), lab)
+                lab_path = os.path.join(labtainer_dir,'labs', lab)
                 if current_lab_name is not None and lab != current_lab_name:
                     labutils.StopLab(lab_path, False)
                     print('Stopped lab %s, but was not current lab %s.  Servers and clones may not have stopped' % (lab, current_lab_name))
@@ -110,7 +114,8 @@ def main():
                     current_lab.clear()
         else:
             if args.lab in lablist: 
-                lab_path = os.path.join(os.path.abspath('../../labs'), args.lab)
+                #lab_path = os.path.join(os.path.abspath('../../labs'), args.lab)
+                lab_path = os.path.join(labtainer_dir,'labs', args.lab)
                 if args.lab == current_lab_name:
                     labutils.StopLab(lab_path, False, servers=servers, clone_count=clone_count)
                     current_lab.clear()

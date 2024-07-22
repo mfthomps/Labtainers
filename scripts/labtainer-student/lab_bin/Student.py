@@ -41,6 +41,7 @@ import zipfile
 import datetime
 import time
 import logging
+import argparse
 
 
 def killMonitoredProcess(homeLocal, keep_running, logger):
@@ -116,9 +117,14 @@ def otherUsers(start_time, zipoutput, studentHomeDir, skip_list, dt_skip_list, s
     os.chdir(here)
 def main():
     #print "Running Student.py"
-    if len(sys.argv) != 4:
-        sys.stderr.write("Usage: Student.py <username> <image_name>\n")
-        return 1
+    parser = argparse.ArgumentParser(prog='Student.py', description='Gather lab artifacts into a zip.')
+    parser.add_argument('user_name', action='store', help='User name')
+    parser.add_argument('container_image', action='store', help='Container image')
+    parser.add_argument('keep_running', type=bool, action='store', help='Whether the container should keep running.')
+    args = parser.parse_args()
+    user_name = args.user_name
+    container_image = args.container_image.split('.')[1]
+    keep_running = args.keep_running
 
     file_log_level = logging.DEBUG
     console_log_level = logging.WARNING
@@ -140,9 +146,6 @@ def main():
     logger.debug('begin')
 
 
-    user_name = sys.argv[1]
-    container_image = sys.argv[2].split('.')[1]
-    keep_running = sys.argv[3]
     studentHomeDir = os.path.join('/home',user_name)
     homeLocal= os.path.join(studentHomeDir, '.local')
     killMonitoredProcess(homeLocal, keep_running, logger)
@@ -262,7 +265,7 @@ def main():
     otherUsers(start_time, zipoutput, studentHomeDir, skip_list, dt_skip_list, skip_starts)
     zipoutput.close()
    
-    os.chmod(TempOutputName, 0666)
+    os.chmod(TempOutputName, 0o666)
 
     # Rename from temp zip file to its proper location
     os.rename(TempOutputName, OutputName)
