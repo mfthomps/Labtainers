@@ -89,6 +89,9 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+July 22, 2024
+- Add a base container for Ubuntu22 and changes to framework to support that.
+
 July 5, 2024
 - Migrate to Ubuntu 24 as the VM appliance 
 - The docker pyhton package uses a broken python http library, requires package downgrade.
