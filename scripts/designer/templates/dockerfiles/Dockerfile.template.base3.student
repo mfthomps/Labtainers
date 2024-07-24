@@ -45,7 +45,7 @@ RUN /usr/bin/apt-source.sh
 ADD $labdir/$imagedir/sys_tar/sys.tar /
 ADD $labdir/sys_$lab.tar.gz /
 #
-RUN deluser --remove-home ubuntu`
+RUN deluser --remove-home ubuntu
 RUN useradd -ms /bin/bash $user_name
 RUN echo "$user_name:$password" | chpasswd
 RUN adduser $user_name sudo
