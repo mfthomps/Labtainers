@@ -172,12 +172,12 @@ int getMaster()
       return -1;
    }
    
-   rc = grantpt(fdm);
-   if (rc != 0)
-   {
-      fprintf(stderr, "Error %d on grantpt()\n", errno);
-      return -1;
-   }
+   //rc = grantpt(fdm);
+   //if (rc != 0)
+   //{
+   //   fprintf(stderr, "Error %d on grantpt()\n", errno);
+   //   return -1;
+   //}
    
    rc = unlockpt(fdm);
    if (rc != 0)
