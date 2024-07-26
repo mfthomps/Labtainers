@@ -89,6 +89,9 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+July 26, 2024
+- Modify capinout to not use grantpt clib function, which now seems to crash when run from a container.
+
 July 22, 2024
 - Add a base container for Ubuntu22 and changes to framework to support that.
 
