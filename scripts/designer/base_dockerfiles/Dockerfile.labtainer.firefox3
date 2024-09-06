@@ -1,0 +1,18 @@
+ARG registry
+FROM $registry/labtainer.network3
+LABEL description="This is base Docker image for Labtainer browsers"
+#RUN apt-get update && apt-get install -y --no-install-recommends nmap libcanberra-gtk3-module firefox sqlite3 && rm -rf /var/cache/apt/
+RUN install -d -m 0755 /etc/apt/keyrings
+RUN wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O- | tee /etc/apt/keyrings/packages.mozilla.org.asc > /dev/null
+RUN echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | tee -a /etc/apt/sources.list.d/mozilla.list > /dev/null
+RUN echo "Package: *" >> /etc/apt/preferences.d/mozilla
+RUN echo "Pin: origin packages.mozilla.org" >> /etc/apt/preferences.d/mozilla
+RUN echo "Pin-Priority: 1000" >> /etc/apt/preferences.d/mozilla
+RUN apt update 
+RUN apt install -y firefox
+# modified to create new instance
+#ADD system/bin/firefox /usr/bin/
+# the firefox user profile which paramterize.sh will extract and remove.
+COPY system/var/tmp/home.tar /var/tmp/
+RUN systemd-machine-id-setup
+
