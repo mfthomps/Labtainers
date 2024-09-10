@@ -89,6 +89,9 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+September 10, 2024
+- Typo in creation of imodule path
+
 July 26, 2024
 - Modify capinout to not use grantpt clib function, which now seems to crash when run from a container.
 

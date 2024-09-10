@@ -246,7 +246,8 @@ def main():
     
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
     labutils.logger.info("Begin logging start.py for %s lab" % labname)
-    lab_path = os.path.join(os.path.abspath('../../labs'), labname)
+    labtainer_dir = os.getenv('LABTAINER_DIR')
+    lab_path = os.path.join(labtainer_dir, 'labs', labname)
     update_flag='../../../.doupdate'
     if os.path.isfile(update_flag):
         ''' for prepackaged VMs, do not auto update after first lab is run '''
