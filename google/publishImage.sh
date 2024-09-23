@@ -15,6 +15,6 @@
 # Only then run this script
 #
 #
-gcloud compute images add-iam-policy-binding labtainervm7 \
+gcloud compute images add-iam-policy-binding labtainervm8 \
     --member='allAuthenticatedUsers' \
     --role='roles/compute.imageUser'
