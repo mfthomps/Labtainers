@@ -89,6 +89,9 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+September 23, 2024
+- Replaced google cloud VM, which was using the wrong Docker version
+
 September 10, 2024
 - Typo in creation of imodule path
 
