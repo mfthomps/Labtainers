@@ -1,8 +1,8 @@
 # Create a base labtainer image.
 # First:
-#    delete_vm.sh base22
-#    base_create22.sh base22
-#    stop_vm.sh base22
+#    delete_vm.sh base24
+#    base_create22.sh base24
+#    stop_vm.sh base24
 #
 # Then use 
 #    gcloud compute instances describe base-labtainervm | grep disks
@@ -15,6 +15,6 @@
 # Only then run this script
 #
 #
-gcloud compute images add-iam-policy-binding labtainervm8 \
+gcloud compute images add-iam-policy-binding labtainervm1 \
     --member='allAuthenticatedUsers' \
     --role='roles/compute.imageUser'
