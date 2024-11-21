@@ -76,7 +76,7 @@ class ParseStartConfig():
         self.get_configs(fname)
         self.multi_user = None
         ''' determine if running as a distributed Labtainers, or many clients on a single VM '''
-        if self.clone_count is not None and self.clone_count > 0: 
+        if self.clone_count is not None and int(self.clone_count > 0): 
             self.multi_user = 'clones'
         elif servers is not None:
             self.multi_user = servers 
