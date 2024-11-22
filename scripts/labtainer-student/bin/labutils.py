@@ -117,8 +117,8 @@ def isValidLab(lab_path):
 def getFirstUnassignedIface(n=1):
     ''' get the nth network iterface that lacks an assigned IP address '''
     iflist = os.listdir('/sys/class/net')
+    count = 1
     for iface in sorted(iflist):
-        count = 1
         ip = get_ip_address(iface)
         if ip is None and n == count:
             return iface

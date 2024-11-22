@@ -89,6 +89,9 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+November 22, 2024
+- Replaced google cloud VM, this time due to a failure of systemd within containers.
+
 September 23, 2024
 - Replaced google cloud VM, which was using the wrong Docker version
 
