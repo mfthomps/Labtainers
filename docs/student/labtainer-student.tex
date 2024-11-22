@@ -52,12 +52,12 @@ If you are accessing a pre-defined Labtainers VM via a web browser, you can skip
 
 %----------------
 \subsection{Obtaining and installing Labtainers}
-Labtainers requires an x86-based computer.  It will not run on ARM-based processors such as 
-Mac M1-based Powerbooks.  If you have an M1 Mac, or otherwise cannot install a virtual machine,
-you can still access and run Labtainers exercises as described in section \ref{cloud-labtainers}.
+Labtainers requires an x86-based platform.  If your computer has ARM-based processors such as 
+Mac Mx-based Powerbooks, see https://github.com/CamilYed/Labtainer-ARM-mac.  
+Alternately, you can access and run Labtainers exercises on the cloud as described in section \ref{cloud-labtainers}.
 
 The easiest way to obtain Labtainers is to download one of the pre-configured virtual machines from
-\url{https://nps.edu/web/c3o/virtual-machine-images}, and import it into either VirtualBox or VMWare.
+\url{https://nps.edu/web/c3o/virtual-machine-images}, and import it into VirtualBox, VMWare or Hyper V.
 Follow the brief instructions on that download page.  When you first boot the resulting VM,
 Labtainers will take a moment to update itself.  You are then provided a terminal that includes
 some hints, and can be used to run Labtainers.  A video tutorial on installing Labtainers is at
@@ -65,8 +65,7 @@ some hints, and can be used to run Labtainers.  A video tutorial on installing L
 
 Note that the VM's Ubuntu Linux distribution is configured to NOT
 automatically perform system updates.  It may prompt you to download and install updates.  That is typically
-not necessary and may tie up your network bandwidth.  Yes, we are suggesting you not update your Linux
-VM unless and until you have the time and the bandwidth.
+not necessary and may tie up your network bandwidth.  
 
 You may now skip to section \ref{selecting}.
 
@@ -79,6 +78,7 @@ If you have sensitive data on your computer, you should understand the isolation
 is to use one of our virtual machine appliances rather than running Docker directly on your computer.
 
 \subsubsection{Installing Labtainers on an existing Linux system}
+NOTE: This approach is discouraged unless you are experienced with Linux system configuration debugging.
 The Labtainer framework is distributed as a tarball from:
 \url{https://nps.edu/web/c3o/labtainers}
 Click the link named: ``Download the Labtainer framework'', and untar the resulting file into 
@@ -323,130 +323,7 @@ changes to the {\tt resolv.conf} DNS naming can be achieved using {\tt /etc/rc.l
 \label{cloud-labtainers}
 Labtainers can be run on cloud services and accessed via a browser.
 Cloud service providers may offer free accounts for students or others looking to learn about their cloud services.
-Currently, Labtainers works with the Azure and Google cloud platforms as described below.
-
-\subsection{Azure Cloud}
-These instructions assume the user 
-has an Azure account. Please not however that Azure Student accounts (\url{https://azure.microsoft.com/en-us/free/students/})
-are NOT recommended for use at this time.  Those accounts are subject to unpredictable limitations.  Standard Azure accounts 
-work fine.
-
-This approach requires that the Azure CLI be installed on  the Mac, Windows or Linux:
-\url{https://docs.microsoft.com/en-us/cli/azure/install-azure-cli}
-
-When installing or using the Azure CLI on the Mac, be sure to start a bash shell in your terminal, e.g.,
-\begin{verbatim}
-   bash
-\end{verbatim}
-
-In the following command examples, use the "ps1" file extension instead of "sh" when using PowerShell.
-\begin{itemize}
-\item Open a terminal on Mac/Linux, or a PowerShell window on Windows.
-\item Install the local scripts by getting this script (make it executable on Mac or Linux):
-\url{https://raw.githubusercontent.com/mfthomps/Labtainers/master/azure/install\_labtainers.sh}
-Or on Windows:
-\url{https://raw.githubusercontent.com/mfthomps/Labtainers/master/azure/install\_labtainers.ps1}
-
-On Mac or Linux:
-\begin{itemize}
-\item {\tt curl -L \url{https://raw.githubusercontent.com/mfthomps/Labtainers/master/azure/install\_labtainers.sh}  --output install\_labtainers.sh}
-\item  {\tt chmod a+x install\_labtainers.sh}
-\end{itemize}
-\noindent On Windows:
-\begin{itemize}
-\item {\tt wget \url{https://raw.githubusercontent.com/mfthomps/Labtainers/master/azure/install\_labtainers.sh} -OutFile install\_labtainers.ps1}
-\end{itemize}
-
-\item Then run it (Mac/Linux).   
-\begin{verbatim}
-    ./install_labtainers.sh
-\end{verbatim}
-\noindent Windows:
-\begin{verbatim}
-    ./install_labtainers.ps1
-\end{verbatim}
-
-\noindent That will create a {\tt \$HOME/labtainers\_azure} directory.  
-
-\item Change to the {\tt \$HOME/labtainers\_azure directory}
-\begin{verbatim}
-    cd $HOME/labtainers_azure
-\end{verbatim}
-
-\item Log into your Azure account:
-\begin{verbatim}
-    az login
-\end{verbatim}
-NOTE:  If your account has access to more than one Azure Subscription, you need to change these parameters to 
-specify the student subscription before running the install\_labtainers script:
-\begin{enumerate}
-\item Change the  ~/.azure/clouds.config to show your student subscription number
-\item Change the entries in ~/.azureProfile.json so that only your student subscription shows 
-       ``isDefault''= true, the rest being set to ``false''.
-\end{enumerate}
-
-\item Once logged into Azure, run the create\_vm.sh (or create\_vm.ps1 for windows) script, passing in a user ID.
-The ID can be any name, e.g.,
-\begin{verbatim}
-    ./create_vm.sh myname
-\end{verbatim}
-
-The create\_vm script may take a while to run.  The process is complete when you see \textit{Labtainers is up}.  
-Point a local browser to \url{localhost:6901} and perform the labs.  If the browser fails to connect, the ssh
-tunnel may have failed.  Try running {\tt ./restart.sh} to recreate the tunnel.
-When prompted for a password in the browser, just click submit or OK, i.e., leave the password blank.
-The password for the \textit{labtainer user} in the VM is ``labtainer''.  
-
-Select and perform the lab as described in section \ref{selecting}.  Then refer to the items below.
-
-\item When done with labs, run the get\_results.sh (or get\_results.ps1) script: 
-\begin{verbatim}
-    ./get_results.sh <user ID>
-\end{verbatim}
-\noindent This will store your Labtainer results in {\tt \$HOME/labtainer\_xfer}.  Provide those
-results to your instructor.
-
-\item If you become unable to reach the Labtainers via your browser, e.g., after 
-shutting down your computer, use the restart.sh script:
-\begin{verbatim}
-    ./restart.sh <user ID>
-\end{verbatim}
-
-\item If the terminal on the desktop goes away, create a new
-terminal using this command:
-\begin{verbatim}
-   ./newterm.sh <user ID>
-\end{verbatim}
-
-\item The create\_vm.sh script will create an SSH key pair named id\_labtainers within your {\tt \$HOME/.ssh} directory.
-The private key in id\_labtainers is not passphrase protected, so you must protect it.
-You may move the keys to a different computer and access your Labtainers from that computer's
-browser.  You must first run the install\_labtainers.sh script on that computer, and then run
-the restart.sh script.
-
-\item When done with a lab, use
-\begin{verbatim}
-   ./deallocate_vm <user ID> 
-\end{verbatim}
-\noindent to stop incurring most charges.  Note however that any work you've performed on the Labtainers 
-might be lost (unless you've retrieved your results with get\_results.sh), depending on how
-long the VM is dormant.
-
-\item To restore a VM after you deallocated it, use:
-\begin{verbatim}
-    ./restore_vm.sh <user ID>
-\end{verbatim}
-
-\item When returning to the VM after a break, you need to first loging to the Azure, e.g., {\tt az login}.
-On the Mac, be sure to do that from a bash shell.
-
-\item When completely done with the VM, use the delete\_vm.sh script to stop incurring all charges:
-\begin{verbatim}
-    ./delete_vm.sh <user ID>
-\end{verbatim}
-
-\item Shutting down the VM without deallocating or deleting it will not stop charges.
-\end{itemize}
+Currently, Labtainers works with the Google cloud platform as described below.  Support for Azure has been stopped due to problems with that platform.
 
 \subsection{Google Cloud Platform}
 These instructions assume you have a google cloud account. \url{https://cloud.google.com/}
