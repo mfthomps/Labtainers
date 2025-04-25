@@ -89,6 +89,9 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+April 24, 2025
+- Fixed imodule to properly create missing directories per pull request #96
+
 November 22, 2024
 - Replaced google cloud VM, this time due to a failure of systemd within containers.
 
