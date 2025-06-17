@@ -543,7 +543,7 @@ public class GoalsData {
             }
             if(subgoalError){
                 rowPassed = false;
-                infoMsg+= "-Make sure your Subgoal list is seperated by commas(', ') and only contains goals from above this goal line" + System.lineSeparator()
+                infoMsg+= "-Make sure your Subgoal list is separated by commas(', ') and only contains goals from above this goal line" + System.lineSeparator()
                         + "and/or result booleans." + System.lineSeparator();
             }
             if(subgoalMissing){
