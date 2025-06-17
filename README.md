@@ -374,7 +374,7 @@ December 21, 2020
 
 December 4, 2020
 - Transition distribution of tar to GitHub releaese artifacts
-- Eliminate seperate designer tar file, use git repo tarball.
+- Eliminate separate designer tar file, use git repo tarball.
 - Testing of grader web functions for analysis of student lab artifacts
 - Clear logs from full smoketest and delete grader container in removelab command.
 
@@ -551,7 +551,7 @@ June 6, 2019
 - Introduce a Centos6 base, but not support for automated assessment yet
 
 May 23, 2019
-- Automated assessment of setuid-env failed due to typos in field seperators.
+- Automated assessment of setuid-env failed due to typos in field separators.
 
 May 8, 2019
 - Corrections to Capabilities lab manual
@@ -824,7 +824,7 @@ May 7, 2018
 - Use C-based capinout program instead of the old capinout.sh to capture stdin and
 stdout. See trunk/src-tool/capinout.  Removes limitations associated with use ctrl-C 
 to break monitored programs and the display of passwords in telnet and ssh.
-- Include support for saki bulk\_download zip processing to extract seperatly submitted
+- Include support for saki bulk\_download zip processing to extract separately submitted
 reports, and summarizes missing submits.
 - Add checks to user-provided email to ensure they are printable characters.
 - While grading, if user-supplied email does not match zip file name, proceed to grade
