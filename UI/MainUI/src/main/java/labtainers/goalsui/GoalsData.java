@@ -191,7 +191,7 @@ public class GoalsData {
                     if(listofGoals.get(i).operator == null){
                         error.badOperator = true;
                         System.out.println("NULL operator "+goalID);
-                        mainUI.output("Unknownn operator for goal "+goalID);
+                        mainUI.output("Unknown operator for goal "+goalID);
                         continue;
                     }
                     operator = listofGoals.get(i).operator.getItem();
