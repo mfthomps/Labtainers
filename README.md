@@ -89,6 +89,9 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+October 15, 2025
+- Revised packet-introspection lab to update link for maxmind geo location database and note use of legacy database.
+
 April 24, 2025
 - Fixed imodule to properly create missing directories per pull request #96
 
