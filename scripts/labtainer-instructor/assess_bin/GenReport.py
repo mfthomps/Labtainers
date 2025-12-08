@@ -160,14 +160,13 @@ def PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, che
         if Check_Email_Watermark_OK(keyvalue):
             valid_students.append((emaillabname, keyvalue))
 
+    # Always print labname
+    gradestxtoutput.write("Labname %s" % labname)
+
     checkwork_failures = []
     if checkwork:
         checkwork_feedback = docwork.getCheckworkFeedback('.local/instr_config')
 
-    # Always print labname
-    gradestxtoutput.write("Labname %s" % labname)
-
-    if checkwork:
         # Vertical format for a single valid student
         emaillabname, keyvalue = valid_students[0]
         email, labname = emaillabname.rsplit('.', 1)
