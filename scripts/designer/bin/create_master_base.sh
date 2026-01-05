@@ -23,7 +23,7 @@ alias vncstart="vncserver -local :1"
 alias vncstop="vncserver -kill :1"
 alias vncrestart="vncstop && vncstart"
 alias dex="sudo docker exec -it"
-alias cdlab="cd /home/ubuntu/labtainer/trunk/scripts/labtainer-student/"
+alias cdlab="cd $LABTAINER_DIR/scripts/labtainer-student/"
 EOT
 
 CACHE="--no-cache"
