@@ -44,7 +44,7 @@ if [[ result -ne 0 ]];then
         export PATH="\${PATH}:./bin:$here/trunk/scripts/designer/bin"
     fi
     export LABTAINER_DIR=$here/trunk
-    EOT
+EOT
 fi
 
 grep "Labtainer Aliases" $target >>/dev/null
@@ -59,7 +59,7 @@ if [[ result -ne 0 ]];then
     alias vncrestart="vncstop && vncstart"
     alias dex="sudo docker exec -it"
     alias cdlab="cd $LABTAINER_DIR/scripts/labtainer-student/"
-    EOT
+EOT
 fi
 
 if [ ! -h labtainer-student ]; then ln -s trunk/scripts/labtainer-student; fi
