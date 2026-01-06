@@ -96,7 +96,7 @@ if [[ result -ne 0 ]];then
    if [[ ":\$PATH:" != *":./bin:"* ]]; then 
       export PATH="\${PATH}:./bin"
    fi
-   EOT
+EOT
 fi
 
 grep "Labtainer Aliases" $target >>/dev/null
@@ -111,7 +111,7 @@ if [[ result -ne 0 ]];then
    alias vncrestart="vncstop && vncstart"
    alias dex="sudo docker exec -it"
    alias cdlab="cd $LABTAINER_DIR/scripts/labtainer-student/"
-   EOT
+EOT
 fi
 
 # fix broken LABTAINER_DIR
