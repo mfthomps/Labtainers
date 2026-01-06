@@ -89,6 +89,9 @@ The installation script and the update-designer.sh script set environment variab
 so you may want to logout/login, or start a new bash shell before using Labtainers the
 first time.
 
+Jauary 6, 2026
+- Fixed bug introduced into installation script due to indents.
+
 December 30, 2025
 - Modified checkwork report format to be vertical; video guide for headless; convenience paths
 
