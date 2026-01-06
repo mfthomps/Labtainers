@@ -37,7 +37,7 @@ if [[ result -ne 0 ]];then
    if [[ ":\$PATH:" != *":./bin:"* ]]; then 
       export PATH="\${PATH}:./bin"
    fi
-   EOT
+EOT
 fi
 grep ":scripts/designer/bin:" $target | grep PATH >>/dev/null
 result=$?
@@ -48,7 +48,7 @@ if [[ result -ne 0 ]];then
       export PATH="\${PATH}:$here/scripts/designer/bin"
       export LABTAINER_DIR=$here
    fi
-   EOT
+EOT
 fi
 
 grep "Labtainer Aliases" $target >>/dev/null
@@ -63,5 +63,5 @@ if [[ result -ne 0 ]];then
    alias vncrestart="vncstop && vncstart"
    alias dex="sudo docker exec -it"
    alias cdlab="cd $LABTAINER_DIR/scripts/labtainer-student/"
-   EOT
+EOT
 fi
