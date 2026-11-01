@@ -388,6 +388,7 @@ int ioLoop(int reaper_pid)
                           //fflush(debug);
                           ctrl_c_hack = false;
                           tmp = tmp+2;
+                          rc = rc-2;
                     }
                     // Send data on standard output
                     int wc = write(master_stdout, tmp, rc);
@@ -553,6 +554,7 @@ int ioLoop(int reaper_pid)
                       //fprintf(debug, "hack the control c\n");
                       ctrl_c_hack = false;
                       tmp = tmp+2;
+                      rc = rc-2;
                   }
                   // Send data on standard output
                   int wc = write(master_stdout, tmp, rc);
