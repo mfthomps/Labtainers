@@ -376,7 +376,8 @@ int ioLoop(int reaper_pid)
               int flags = fcntl(fdm_out, F_GETFL, 0);
               fcntl(fdm_out, F_SETFL, flags | O_NONBLOCK);
               while(1){
-                  rc = read(fdm_out, input, sizeof(input));
+                  // leave room for the NUL terminator
+                  rc = read(fdm_out, input, sizeof(input) - 1);
                   if (rc > 0) {
                     // Send data on the master side of PTY
                     //input[rc] = 0;
@@ -543,7 +544,8 @@ int ioLoop(int reaper_pid)
           if (FD_ISSET(fdm_out, &fd_in))
           {
               //fflush(debug);
-              rc = read(fdm_out, input, sizeof(input));
+              // leave room for the NUL terminator
+              rc = read(fdm_out, input, sizeof(input) - 1);
               //fprintf(debug, "read fdm_out rc is %d\n", rc);
               //fflush(debug);
               if (rc > 0)
