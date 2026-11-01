@@ -5,7 +5,7 @@ trap "echo got signal" ILL
 trap "echo got signal" SIGFPE
 trap "echo got signal" SIGKILL
 trap "echo got signal" SIGTERM
-trap "echo \n" SIGINT
+trap "echo" SIGINT
 unset did_pipe
 if [[ ! -z "$2" ]];then
    shift
