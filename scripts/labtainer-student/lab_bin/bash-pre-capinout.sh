@@ -207,6 +207,9 @@ forcecheck(){
 # Ignore sudo and time, and treats target command as the command.
 #
 preexec() {
+   local IFS="$IFS"   # scope IFS to this function so the IFS=' ' below (needed to word-split the
+                     # command on spaces) does not leak into the interactive shell via the
+                     # bash-preexec DEBUG trap and break newline/tab word-splitting afterward
    #echo "just typed $1";
    history -a
    timestamp=$(date +"%Y%m%d%H%M%S")
