@@ -1205,6 +1205,18 @@ def GetBothConfigs(lab_path, logger, servers=None, clone_count=None):
 
 def pullDockerImage(registry, image_name):
     image = '%s/%s' % (registry, image_name)
+    # DoN Range channel support: dev-side consumers (the VPS / dev box) set DON_IMAGE_TAG=dev to
+    # pull the rapid :dev image instead of the default :latest (= the tested prod/stable image
+    # that stock installs pull). We pull the channel tag then locally retag it to :latest so the
+    # rest of the framework (which references the bare name == :latest) uses the dev image. A
+    # no-op for prod/students (DON_IMAGE_TAG unset or 'latest').
+    don_tag = os.getenv('DON_IMAGE_TAG', 'latest')
+    if don_tag and don_tag != 'latest':
+        tagged = '%s:%s' % (image, don_tag)
+        if dockerPull.pull(tagged, logger=logger):
+            subprocess.call(['docker', 'tag', tagged, '%s:latest' % image])
+            return True
+        logger.debug('DON channel: %s not found, falling back to :latest' % tagged)
     retval =  dockerPull.pull(image, logger=logger)
     if not retval:
         dockerok = False

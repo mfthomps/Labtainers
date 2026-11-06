@@ -58,10 +58,17 @@ def relabel(image, version, base_image, base_id, registry, logger):
     Do two pushes, one for the default image, the other with a base image tag for
     retrieval by instances that do not have the appropriate base.
     '''
-    cmd = 'docker tag %s.tmp %s/%s' % (image, registry, image)
+    # DoN Range channel support: DON_PUBLISH_TAG=dev pushes the relabeled image to the :dev tag
+    # (rapid channel) and leaves :latest alone, so the promoted/stable image students pull is
+    # untouched. Unset (or 'latest') = default behavior (push :latest). Promotion to :latest is a
+    # separate retag of the tested :dev image (see don-promote), never a rebuild.
+    don_tag = os.getenv('DON_PUBLISH_TAG', '').strip()
+    main_ref = ('%s/%s:%s' % (registry, image, don_tag)) if don_tag and don_tag != 'latest' \
+               else ('%s/%s' % (registry, image))
+    cmd = 'docker tag %s.tmp %s' % (image, main_ref)
     #print cmd
     os.system(cmd)
-    cmd = 'docker push %s/%s' % (registry, image)
+    cmd = 'docker push %s' % main_ref
     #print cmd
     os.system(cmd)
     cmd = 'docker tag %s.tmp %s/%s:base_image%s' % (image, registry, image, base_id)

@@ -43,7 +43,13 @@ def inspectRemote(image, lgr, is_rebuild=False, quiet=False, no_pull=False, base
     token = getToken(image)
     if token is None or len(token.strip()) == 0:
         return None, None, None, None
-    digest = getDigest(token, image, 'latest')
+    # DoN Range channel support: on the dev channel (DON_IMAGE_TAG=dev) inspect the channel tag
+    # first -- a brand-new lab image exists only as :dev until it is promoted, so inspecting
+    # :latest alone reports it missing. Falls back to :latest; a no-op for prod/students.
+    don_tag = os.getenv('DON_IMAGE_TAG', 'latest') or 'latest'
+    digest = getDigest(token, image, don_tag) if don_tag != 'latest' else None
+    if digest is None:
+        digest = getDigest(token, image, 'latest')
     if digest is None:
         return None, None, None, None
     created, user, version, base = getCreated(token, image, digest)
