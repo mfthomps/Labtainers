@@ -28,6 +28,7 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 '''
 import filecmp
+import ipaddress
 import glob
 import json
 import hashlib
@@ -384,6 +385,32 @@ def GetDNS_NMCLI():
             ''' just take first '''
             break
     return dns_param
+def UsableDNS(addr):
+    ''' True if addr is a DNS server a container can use: an IPv4 address (as with GetDNS_NMCLI, lab
+        networks are IPv4) that is not on the host's loopback (e.g., the 127.0.0.53 systemd-resolved
+        stub), which a container cannot reach. '''
+    try:
+        ip = ipaddress.IPv4Address(addr)
+    except ValueError:
+        return False
+    return not (ip.is_loopback or ip.is_unspecified)
+
+def GetHostDNS():
+    ''' Find the host's first DNS server usable from a container, or None.  Used when systemd-resolve
+        is not present (recent systemd no longer ships it, e.g., Ubuntu 24.04).  Reads the same files
+        Docker itself consults: /etc/resolv.conf, and where that names only the local stub, the
+        list of upstream servers that systemd-resolved maintains. '''
+    for path in ('/etc/resolv.conf', '/run/systemd/resolve/resolv.conf'):
+        try:
+            with open(path) as fh:
+                for line in fh:
+                    parts = line.split()
+                    if len(parts) >= 2 and parts[0] == 'nameserver' and UsableDNS(parts[1]):
+                        return parts[1]
+        except (OSError, UnicodeDecodeError):
+            pass
+    return None
+
 def GetDNS(): 
     dns_param = ''
     dns_param = '--dns=8.8.8.8'
@@ -400,7 +427,11 @@ def GetDNS():
                 ''' just take first '''
                 break
         else:
-            dns_param = GetDNS_NMCLI()
+            host_dns = GetHostDNS()
+            if host_dns is not None:
+                dns_param = '--dns=%s %s' % (host_dns, dns_param)
+            else:
+                dns_param = GetDNS_NMCLI()
     return dns_param
 
 def GetX11SSH():
